@@ -1,0 +1,401 @@
+grammar hu.blackbelt.judo.meta.jsl.JslDsl hidden(SL_COMMENT, ML_COMMENT, WS)
+
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+generate jsldsl "http://www.blackbelt.hu/judo/meta/jsl/JslDsl"
+
+ModelDeclaration returns ModelDeclaration
+    : {ModelDeclaration} 'model' name = ID (modifiers += ModelModifier)*
+	  (declarations += Declaration)*
+    ;
+
+ModelModifier
+	: ModifierAnnotation
+	;
+
+Declaration
+	: TypeDeclaration
+	| DiagramDeclaration
+	;
+
+TypeDeclaration
+	: DataTypeDeclaration
+	| EnumDeclaration
+	| EntityDeclaration
+	;
+
+PrimitiveDeclaration
+	: DataTypeDeclaration
+	| EnumDeclaration
+    ;
+
+/****************************
+ *	Diagram
+ ****************************/
+
+DiagramDeclaration
+	: ClassDiagramDeclaration
+	;
+
+ClassDiagramDeclaration returns ClassDiagramDeclaration
+	: 'diagram' kind = ('class')? name = ID
+	  '{' (members += ClassDiagramMemberDeclaration)* '}'
+	;
+
+ClassDiagramMemberDeclaration
+	: ClassDiagramGroupDeclaration
+	| ClassDiagramType
+	;
+
+ClassDiagramGroupDeclaration
+	: {ClassDiagramGroupDeclaration} orientation = ('horizontal' | 'vertical')? type = ('group' | 'package') name = ID?
+	  '{' (members += ClassDiagramMemberDeclaration)* '}'
+	;
+
+ClassDiagramType
+	: type = [TypeDeclaration]
+	  hideAttributes ?= '@hide-attributes'?
+	  hideServices ?= '@hide-services'?
+	  hideRelations ?= '@hide-relations'?
+	;
+
+
+/****************************
+ *	Entity
+ ****************************/
+
+EntityDeclaration returns EntityDeclaration
+	: {EntityDeclaration}
+	  (isAbstract ?= 'abstract')?
+	  'entity' name = ID
+	  ('extends' extends += [EntityDeclaration] (',' extends += [EntityDeclaration])*)?
+	  (modifiers += EntityModifier)*
+	  '{' (members += EntityMemberDeclaration)* '}'
+	;
+
+EntityModifier
+	: ModifierAnnotation
+	;
+
+EntityMemberDeclaration
+	: EntityFieldDeclaration
+	| EntityReferenceDeclaration
+	;
+
+EntityFieldDeclaration
+	: 'field' type = [PrimitiveDeclaration] name = ID (modifiers += EntityFieldModifier)*
+	;
+
+EntityFieldModifier
+	: ModifierEntityRequired
+	| ModifierIdentifier
+	| ModifierGetter
+	| ModifierDefault
+	| ModifierAnnotation
+	;
+
+EntityReferenceDeclaration
+	: 'refers' type = [EntityDeclaration] (isArray ?= Array)? name = ID (modifiers += EntityReferenceModifier)*
+	;
+
+EntityReferenceModifier
+	: ModifierEntityRequired
+	| ModifierGetter
+	| ModifierOppositeName
+	| ModifierOppositeSingleDeclaration
+	| ModifierOppositeManyDeclaration
+	| ModifierAnnotation
+	;
+
+ModifierEntityRequired returns ModifierRequired
+	: {ModifierEntityRequired} inout = '@required'
+	;
+
+ModifierIdentifier returns ModifierIdentifier
+	: {ModifierIdentifier} '@identifier'
+	;
+
+ModifierGetter
+	: '@getter' (expression = FunctionedExpression | '{' expression = Expression '}')
+	;
+
+ModifierDefault
+	: '@default' (expression = FunctionedExpression | '{' expression = Expression '}')
+	;
+
+ModifierOppositeName
+	: '@opposite-name' name = ID
+	;
+
+ModifierOppositeSingleDeclaration
+	: '@opposite-single' name = ID
+	;
+
+ModifierOppositeManyDeclaration
+	: '@opposite-many' name = ID
+	;
+
+ModifierAnnotation
+	: annotation = ANNOTATION (parameter = Literal)?
+	;
+
+
+/****************************
+ *	Datatype
+ ****************************/
+
+
+DataTypeDeclaration
+    : 'type' name = ID (primitive = Primitive)
+    ;
+
+EnumDeclaration
+    : 'enum' name = ID (modifiers += EnumModifier)*
+      '{' (literals += EnumLiteral)+ '}'
+    ;
+
+EnumModifier
+	: ModifierAnnotation
+	;
+
+EnumLiteral
+    : name = ID '=' value = INTEGER (modifiers += EnumLiteralModifier)*
+    ;
+
+EnumLiteralModifier
+	: ModifierAnnotation
+	;
+
+Primitive returns Primitive
+	: {Primitive} 'boolean'
+	| {Primitive} 'binary'
+	| {Primitive} 'numeric' (modifiers += NumericModifier)*
+	| {Primitive} 'string' (modifiers += StringModifier)*
+	| {Primitive} 'date'
+	| {Primitive} 'timestamp'
+	;
+
+StringModifier
+	: ModifierMaxLength
+	| ModifierRegex
+	| ModifierAnnotation
+	;
+
+ModifierMaxLength
+	: '@max-length' maxLength = INTEGER
+	;
+
+ModifierRegex
+	: '@regex' regex = StringLiteral
+	;
+
+NumericModifier
+	: ModifierPrecision
+	| ModifierScale
+	| ModifierAnnotation
+	;
+
+ModifierPrecision
+	: '@precision' precision = INTEGER
+	;
+
+ModifierScale
+	: '@scale' scale = INTEGER
+	;
+
+Array returns Array
+	: {Array} '[' ']'
+	;
+
+
+
+/****************************
+ *	Expression
+ ***************************/
+
+Expression returns Expression
+	: SwitchExpression
+	;
+
+// right associative rule
+SwitchExpression returns Expression
+	: ImpliesExpression (=> ({TernaryOperation.condition=current} '?')
+	  thenExpression=SwitchExpression ':'
+      elseExpression=SwitchExpression)?
+    ;
+
+ImpliesExpression returns Expression
+	: OrExpression (=> ({BinaryOperation.leftOperand=current} operator='implies') rightOperand=OrExpression)*
+	;
+
+OrExpression returns Expression
+	: XorExpression (=> ({BinaryOperation.leftOperand=current} operator='or') rightOperand=XorExpression)*
+	;
+
+XorExpression returns Expression
+	: AndExpression (=> ({BinaryOperation.leftOperand=current} operator='xor') rightOperand=AndExpression)*
+	;
+
+AndExpression returns Expression
+	: EqualityExpression (=> ({BinaryOperation.leftOperand=current} operator='and') rightOperand=EqualityExpression)*
+	;
+
+EqualityExpression returns Expression
+	: RelationalExpression (=> ({BinaryOperation.leftOperand=current} operator=('!='|'==')) rightOperand=RelationalExpression)*
+	;
+
+RelationalExpression returns Expression
+	: AdditiveExpression (=> ({BinaryOperation.leftOperand=current} operator=('>=' | '<=' | '>' | '<')) rightOperand=AdditiveExpression)*
+	;
+
+AdditiveExpression returns Expression
+	: MultiplicativeExpression (=> ({BinaryOperation.leftOperand=current} operator=('+'|'-')) rightOperand=MultiplicativeExpression)*
+	;
+
+MultiplicativeExpression returns Expression
+	: ExponentExpression (=> ({BinaryOperation.leftOperand=current} operator=('*' | '/' | 'div' | 'mod')) rightOperand=ExponentExpression)*
+	;
+
+ExponentExpression returns Expression
+	: SpawnOperation (=> ({BinaryOperation.leftOperand=current} operator='^') rightOperand=SpawnOperation)*
+	;
+
+SpawnOperation returns Expression
+	: UnaryOperation (=> ({SpawnOperation.operand=current} 'as' type=QualifiedName))?
+	;
+
+UnaryOperation returns Expression
+	: {UnaryOperation} operator=('not' | '-') operand=FunctionedExpression
+    | FunctionedExpression
+    ;
+
+FunctionedExpression returns Expression
+	: NavigationExpression ({FunctionedExpression.operand=current} functionCall=FunctionCall)?
+	;
+
+NavigationExpression returns Expression
+	: PrimaryExpression ({NavigationExpression.base=current} features+=Feature+)?
+    | NavigationBase
+    ;
+
+// enums as separate literals cause problems with completion and script
+NavigationBase returns NavigationExpression
+	: {NavigationExpression} qName=QualifiedName (features+=Feature* | '#' enumValue = ID)
+	;
+
+FunctionCall
+	: {FunctionCall} '!' function=Function features+=Feature* call=FunctionCall?
+	;
+
+Feature
+	: {Feature} '.' name=ID ( '(' lambdaArgument=ID '|' expression=Expression ')' )?
+	;
+
+ParenthesizedExpression returns Expression
+	: '(' Expression ')'
+	;
+
+PrimaryExpression returns Expression
+	: ParenthesizedExpression
+	| Literal
+	| Self
+	;
+
+Function returns Function
+	: name=ID '(' (parameters+=FunctionParameter (',' parameters+=FunctionParameter)*)? ')'
+    ;
+
+FunctionParameter
+	: {FunctionParameter} expression=Expression
+	;
+
+Literal returns Expression
+	: BooleanLiteral
+	| NumberLiteral
+	| StringLiteral
+	| TemporalLiteral
+	;
+
+BooleanLiteral returns Expression
+	: {BooleanLiteral} ('false' | isTrue?='true')
+	;
+
+NumberLiteral returns Expression
+	: {IntegerLiteral} value=INTEGER
+	| {DecimalLiteral} value=DECIMAL
+	;
+
+StringLiteral returns Expression
+	: {StringLiteral} value=STRING
+	;
+
+TemporalLiteral returns Expression
+	: {DateLiteral} value=DATE
+	| {TimeStampLiteral} value=TIMESTAMP
+	| {TimeLiteral} value=TIME
+	;
+
+Self returns Expression
+	: {Expression} 'self'
+	;
+
+QualifiedName
+	: {QualifiedName} (namespaceElements+=ID '::')* name=ID
+    ;
+
+
+/****************************
+ *	Terminals
+ ****************************/
+
+terminal ANNOTATION
+	: '@' ID
+	;
+
+terminal TIMESTAMP
+	: '`' DIGIT+ '-' DIGIT DIGIT '-' DIGIT DIGIT 'T' DIGIT DIGIT ':' DIGIT DIGIT (':' DIGIT DIGIT ('.' DIGIT+ )? )? ('Z' | ('+' | '-') DIGIT DIGIT ':' DIGIT DIGIT )'`'
+	;
+
+terminal TIME
+	: '`' DIGIT DIGIT ':' DIGIT DIGIT (':' DIGIT DIGIT ('.' DIGIT+ )? )? '`'
+	;
+
+terminal DATE
+	: '`' DIGIT+ '-' DIGIT DIGIT '-' DIGIT DIGIT '`'
+	;
+
+terminal DIGIT
+	: '0'..'9'
+	;
+
+terminal DECIMAL returns ecore::EBigDecimal
+	: INTEGER '.' INTEGER
+	;
+
+terminal INTEGER returns ecore::EBigInteger
+	: ('0'..'9')+
+	;
+
+terminal ID
+	: '\\'? ('a'..'z' | 'A'..'Z' | '_') ('a'..'z' | 'A'..'Z' | '_' | '0'..'9')*
+	;
+
+terminal STRING
+	: '"' ('\\' . | !('\\' | '"'))* '"'
+	| "'" ('\\' . | !('\\' | "'"))* "'"
+	;
+
+terminal ML_COMMENT
+	: '/*'->'*/'
+	;
+
+terminal SL_COMMENT
+	: '//' !('\n' | '\r')* ('\r'? '\n')?
+	;
+
+terminal WS
+	: (' ' | '\t' | '\r' | '\n')+
+	;
+
+terminal ANY_OTHER
+	: .
+	;

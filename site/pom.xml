@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>hu.blackbelt.judo.meta</groupId>
+        <artifactId>hu.blackbelt.judo.meta.jsl</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>hu.blackbelt.judo.meta.jsl.site</artifactId>
+    <packaging>eclipse-repository</packaging>
+    <name>Judo :: Jsl :: Model :: Eclipse update site</name>
+    <description>Judo Jsl model Update Site</description>
+
+    <profiles>
+        <profile>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <id>update-category-versions</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.google.code.maven-replacer-plugin</groupId>
+                        <artifactId>replacer</artifactId>
+                        <version>1.5.3</version>
+                        <executions>
+                            <execution>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>replace</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <file>${project.basedir}/category.xml</file>
+                            <replacements>
+                                <!-- EPP Common -->
+                                <replacement>
+                                    <token>(repository-reference\ location\=\")(.*?)(judo-epp-common\/)(.*?)(\")</token>
+                                    <value>repository-reference location="$2$3${judo-epp-common-version}"</value>
+                                </replacement>
+
+                                <!-- Epsilon Runtime -->
+                                <replacement>
+                                    <token>(repository-reference\ location\=\")(.*?)(epsilon-runtime-eclipse\/)(.*?)(\")</token>
+                                    <value>repository-reference location="$2$3${epsilon-runtime-eclipse-version}"</value>
+                                </replacement>
+                            </replacements>
+                            <regex>true</regex>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

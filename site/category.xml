@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <description>
+      To install these features, point Eclipse at this site.
+   </description>
+
+    <category-def name="jsl" label="Judo Jsl Model">
+       <description>
+          Judo Jsl Model Update Site: contains all features in this build.
+       </description>
+    </category-def>
+    <category-def name="jsl_source" label="Judo Jsl Model Source">
+       <description>
+          Judo Jsl Model source code.
+       </description>
+    </category-def>
+
+    <category-def name="jsl_ide" label="Judo Jsl IDE">
+       <description>
+          Judo Jsl Model IDE intrgration.
+       </description>
+    </category-def>
+    <category-def name="jsl_ide_source" label="Judo Jsl IDE Source">
+       <description>
+          Judo Jsl Model IDE intrgration source code
+       </description>
+    </category-def>
+
+   <feature id="hu.blackbelt.judo.meta.jsl.feature">
+      <category name="jsl"/>
+   </feature>
+
+   <feature id="hu.blackbelt.judo.meta.jsl.feature.source">
+      <category name="jsl_source"/>
+   </feature>
+
+   <feature id="hu.blackbelt.judo.meta.jsl.ide.feature">
+      <category name="jsl_ide"/>
+   </feature>
+
+   <feature id="hu.blackbelt.judo.meta.jsl.ide.feature.source">
+      <category name="jsl_ide_source"/>
+   </feature>
+
+
+    <repository-reference location="https://nexus.judo.technology/repository/p2/epsilon-runtime-eclipse/1.4.0.20210919_133947_3330a32_develop" enabled="true" />
+    <repository-reference location="https://nexus.judo.technology/repository/p2/judo-epp-common/4.19.0.20211022_122608_10e6ef76_develop" enabled="true" />
+</site>
