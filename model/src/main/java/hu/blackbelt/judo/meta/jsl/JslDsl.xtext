@@ -1,8 +1,7 @@
-grammar org.example.domainmodel.Domainmodel hidden(SL_COMMENT, ML_COMMENT, WS, NL, CONT_NL)
+grammar hu.blackbelt.judo.meta.jsl.JslDsl hidden(SL_COMMENT, ML_COMMENT, WS, NL, CONT_NL)
 
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
-
-generate domainmodel "http://www.example.org/domainmodel/Domainmodel"
+generate jsldsl "http://www.blackbelt.hu/judo/meta/jsl/JslDsl"
  
 ModelDeclaration returns ModelDeclaration hidden(SL_COMMENT, ML_COMMENT, WS, CONT_NL)
     : {ModelDeclaration} 'model' name = ID
