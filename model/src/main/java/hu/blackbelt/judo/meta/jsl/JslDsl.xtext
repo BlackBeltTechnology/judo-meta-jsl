@@ -303,6 +303,7 @@ NumberLiteral returns Expression
 
 StringLiteral returns Expression
 	: {StringLiteral} value=STRING
+	| {StringLiteral} raw_value=RAW_STRING
 	;
 
 TemporalLiteral returns Expression
@@ -361,7 +362,11 @@ terminal ID
 	;
 
 terminal STRING
-	: '"' ('\\' . | !('\\' | '"'))* '"'
+	: '"' ('\\' ('b'|'t'|'n'|'f'|'r'|'"'|'\\') | !('\\' | '"'))* '"'
+	;
+
+terminal RAW_STRING
+	: 'r"' (!('"'))* '"'
 	;
 
 terminal CONT_NL
