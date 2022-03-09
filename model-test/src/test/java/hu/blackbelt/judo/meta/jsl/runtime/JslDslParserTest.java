@@ -33,12 +33,11 @@ public class JslDslParserTest {
 
     private static final String TEST_MODEL = "model SalesModel\n" +
             "\n" +
-            "enum LeadStatus {\n" +
-            "\tOPPORTUNITY = 0\n" +
-            "\tLEAD = 1\n" +
-            "\tPROJECT = 2\n" +
-            "}\n" +
-            "\n";
+            "type numeric Integer precision 9 scale 0\n" +
+            "type string String max-length 128\n\n" +
+            "// end";
+
+
 
     @BeforeEach
     public void setUp() {
