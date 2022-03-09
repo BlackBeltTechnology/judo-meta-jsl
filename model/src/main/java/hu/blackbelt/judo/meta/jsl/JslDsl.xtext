@@ -6,6 +6,7 @@ generate jsldsl "http://www.blackbelt.hu/judo/meta/jsl/JslDsl"
 ModelDeclaration returns ModelDeclaration hidden(SL_COMMENT, ML_COMMENT, WS, CONT_NL)
     : {ModelDeclaration} 'model' name = ID
 	  (declarations += Declaration)*
+	  NL?
     ;
 
 Declaration
