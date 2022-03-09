@@ -132,6 +132,7 @@ DataTypeDeclaration
 		| primitive = 'string' name = ID (maxLength = ModifierMaxLength & regex = ModifierRegex?)
 		| primitive = 'numeric' name = ID (precision = ModifierPrecision & scale = ModifierScale)
 		| primitive = 'date' name = ID
+		| primitive = 'time' name = ID
 		| primitive = 'timestamp' name = ID
       )
     ;
