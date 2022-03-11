@@ -15,28 +15,18 @@ Declaration
 	;
 
 TypeDeclaration
-	: DataTypeDeclaration
-	| EnumDeclaration
-	| EntityDeclaration
+	: PrimitiveDeclaration
+	| ClassDeclaration
 	;
-
-BaseTypeDeclaration
-	: DataTypeDeclaration
-	| EnumDeclaration
-	| EntityDeclaration
-	;
-
 
 PrimitiveDeclaration
 	: DataTypeDeclaration
 	| EnumDeclaration
     ;
 
-
 ClassDeclaration
 	: EntityDeclaration
 	;
-
 
 /****************************
  *	Entity
@@ -62,8 +52,13 @@ ConstraintDeclaration
 	;
 
 EntityFieldDeclaration
-	: 'field' (isRequired ?= 'required'? single = [BaseTypeDeclaration] | array = [EntityDeclaration] isArray ?= Array) name = ID
+	: 'field' (isRequired ?= 'required'? singleType = [EntityFieldSingleType] | arrayType = [EntityDeclaration] '[]') name = ID
 	  ("=" default = Expression)?
+	;
+
+EntityFieldSingleType
+	: PrimitiveDeclaration
+	| EntityDeclaration
 	;
 
 EntityIdentifierDeclaration
@@ -72,14 +67,14 @@ EntityIdentifierDeclaration
 	;
 
 EntityDerivedDeclaration
-	: 'derived' type = EntityDerivedType name = ID
+	: 'derived' (singleType = [EntityDerivedSingleType] | arrayType = [EntityDeclaration] '[]') name = ID
 	  ('(' parameters += DerivedParameter (',' parameters += DerivedParameter)* ')')?
 	  "=" expression = Expression
 	;
 
-EntityDerivedType
-	: sinlgeType = [BaseTypeDeclaration]
-	| arrayType = [EntityDeclaration] isArray ?= Array
+EntityDerivedSingleType
+	: PrimitiveDeclaration
+	| EntityDeclaration
 	;
 
 DerivedParameter
@@ -87,7 +82,7 @@ DerivedParameter
 	;
 
 EntityRelationDeclaration
-	: 'relation' (isRequired ?= 'required'? type = [EntityDeclaration] | type = [EntityDeclaration] isArray ?= Array) name = ID
+	: 'relation' (isRequired ?= 'required'? singleType = [EntityDeclaration] | arrayType = [EntityDeclaration] '[]') name = ID
 	  opposite = Opposite?
 	;
 
@@ -161,11 +156,6 @@ ModifierPrecision
 ModifierScale
 	: 'scale' scale = INTEGER
 	;
-
-Array returns Array
-	: {Array} '[' ']'
-	;
-
 
 
 /****************************
