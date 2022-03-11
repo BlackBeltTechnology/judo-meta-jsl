@@ -1,16 +1,16 @@
-grammar hu.blackbelt.judo.meta.jsl.JslDsl hidden(SL_COMMENT, ML_COMMENT, WS, NL, CONT_NL)
+grammar hu.blackbelt.judo.meta.jsl.JslDsl hidden(WS, NL, SL_COMMENT, ML_COMMENT)
 
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 generate jsldsl "http://www.blackbelt.hu/judo/meta/jsl/JslDsl"
  
-ModelDeclaration returns ModelDeclaration hidden(SL_COMMENT, ML_COMMENT, WS, CONT_NL)
+ModelDeclaration returns ModelDeclaration hidden(WS, SL_COMMENT, ML_COMMENT)
     : {ModelDeclaration} 'model' name = ID
 	  (declarations += Declaration)*
-	  NL?
+	  NL*
     ;
 
 Declaration
-	: NL (TypeDeclaration
+	: NL+ (TypeDeclaration
 	| ErrorDeclaration)
 	;
 
@@ -40,7 +40,7 @@ EntityDeclaration returns EntityDeclaration
 	;
 
 EntityMemberDeclaration
-	: NL (EntityFieldDeclaration
+	: NL+ (EntityFieldDeclaration
 	| EntityIdentifierDeclaration
 	| EntityRelationDeclaration
 	| EntityDerivedDeclaration
@@ -101,7 +101,7 @@ ErrorDeclaration
 	;
 
 ErrorField
-	: NL 'field' isRequired ?= 'required'? type = [PrimitiveDeclaration] name = ID
+	: NL+ 'field' isRequired ?= 'required'? type = [PrimitiveDeclaration] name = ID
 	  ("=" default = Expression)?
 	;
 
@@ -138,7 +138,7 @@ EnumDeclaration
     ;
 
 EnumLiteral
-    : NL name = ID '=' value = INTEGER
+    : NL+ name = ID '=' value = INTEGER
     ;
 
 ModifierMaxLength
@@ -162,7 +162,7 @@ ModifierScale
  *	Expression
  ***************************/
 
-Expression returns Expression hidden(SL_COMMENT, ML_COMMENT, WS, CONT_NL)
+Expression returns Expression hidden(WS, CONT_NL, SL_COMMENT, ML_COMMENT)
 	: SwitchExpression
 	;
 
@@ -315,11 +315,11 @@ QualifiedName
  ****************************/
 
 BLOCK_START
-	: NL? '{'
+	: NL* '{'
 	;
 
 BLOCK_END
-	: NL? '}'
+	: NL* '}'
 	;
 
 
@@ -360,15 +360,15 @@ terminal RAW_STRING
 	;
 
 terminal CONT_NL
-	: '\\' (' ' | '\t')* ('\r'? '\n')
+	: '\\' (' ' | '\t')* '\r'? '\n'
 	;
-
+ 
 terminal ML_COMMENT
-	: ('\r'? '\n')* (' ' | '\t')* '/*'->'*/'
+	: '/*'->'*/'
 	;
 
 terminal SL_COMMENT
-	: ('\r'? '\n')* (' ' | '\t')* '//' !('\n' | '\r')*
+	: '//' !('\n' | '\r')*
 	;
 
 terminal WS
@@ -376,11 +376,7 @@ terminal WS
 	;
 
 terminal NL
-	: ((SEMICOLON | '\r'? '\n') (' ' | '\t')*)+
-	;
-
-terminal SEMICOLON
-	: ';'
+	: '\r' | '\n'
 	;
 
 terminal ANY_OTHER
