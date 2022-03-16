@@ -376,7 +376,7 @@ terminal WS
 	;
 
 terminal NL
-	: '\r' | '\n'
+	: '\r' | '\n' | ';'
 	;
 
 terminal ANY_OTHER
