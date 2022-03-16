@@ -1,26 +1,22 @@
-grammar hu.blackbelt.judo.meta.jsl.JslDsl hidden(SL_COMMENT, ML_COMMENT, WS)
+grammar hu.blackbelt.judo.meta.jsl.JslDsl hidden(WS, NL, SL_COMMENT, ML_COMMENT)
 
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 generate jsldsl "http://www.blackbelt.hu/judo/meta/jsl/JslDsl"
-
-ModelDeclaration returns ModelDeclaration
-    : {ModelDeclaration} 'model' name = ID (modifiers += ModelModifier)*
+ 
+ModelDeclaration returns ModelDeclaration hidden(WS, SL_COMMENT, ML_COMMENT)
+    : {ModelDeclaration} 'model' name = ID
 	  (declarations += Declaration)*
+	  NL*
     ;
 
-ModelModifier
-	: ModifierAnnotation
-	;
-
 Declaration
-	: TypeDeclaration
-	| DiagramDeclaration
+	: NL+ (TypeDeclaration
+	| ErrorDeclaration)
 	;
 
 TypeDeclaration
-	: DataTypeDeclaration
-	| EnumDeclaration
-	| EntityDeclaration
+	: PrimitiveDeclaration
+	| ClassDeclaration
 	;
 
 PrimitiveDeclaration
@@ -28,36 +24,9 @@ PrimitiveDeclaration
 	| EnumDeclaration
     ;
 
-/****************************
- *	Diagram
- ****************************/
-
-DiagramDeclaration
-	: ClassDiagramDeclaration
+ClassDeclaration
+	: EntityDeclaration
 	;
-
-ClassDiagramDeclaration returns ClassDiagramDeclaration
-	: 'diagram' kind = ('class')? name = ID
-	  '{' (members += ClassDiagramMemberDeclaration)* '}'
-	;
-
-ClassDiagramMemberDeclaration
-	: ClassDiagramGroupDeclaration
-	| ClassDiagramType
-	;
-
-ClassDiagramGroupDeclaration
-	: {ClassDiagramGroupDeclaration} orientation = ('horizontal' | 'vertical')? type = ('group' | 'package') name = ID?
-	  '{' (members += ClassDiagramMemberDeclaration)* '}'
-	;
-
-ClassDiagramType
-	: type = [TypeDeclaration]
-	  hideAttributes ?= '@hide-attributes'?
-	  hideServices ?= '@hide-services'?
-	  hideRelations ?= '@hide-relations'?
-	;
-
 
 /****************************
  *	Entity
@@ -65,154 +34,135 @@ ClassDiagramType
 
 EntityDeclaration returns EntityDeclaration
 	: {EntityDeclaration}
-	  (isAbstract ?= 'abstract')?
-	  'entity' name = ID
+	  'entity' isAbstract ?= 'abstract'? name = ID
 	  ('extends' extends += [EntityDeclaration] (',' extends += [EntityDeclaration])*)?
-	  (modifiers += EntityModifier)*
-	  '{' (members += EntityMemberDeclaration)* '}'
-	;
-
-EntityModifier
-	: ModifierAnnotation
+	  BLOCK_START (members += EntityMemberDeclaration)* BLOCK_END
 	;
 
 EntityMemberDeclaration
-	: EntityFieldDeclaration
-	| EntityReferenceDeclaration
+	: NL+ (EntityFieldDeclaration
+	| EntityIdentifierDeclaration
+	| EntityRelationDeclaration
+	| EntityDerivedDeclaration
+	| ConstraintDeclaration)
+	;
+
+ConstraintDeclaration
+	: 'constraint' expression = Expression ('onerror' error = CreateError)?
 	;
 
 EntityFieldDeclaration
-	: 'field' type = [PrimitiveDeclaration] name = ID (modifiers += EntityFieldModifier)*
+	: 'field' (isRequired ?= 'required'? singleType = [EntityFieldSingleType] | arrayType = [EntityDeclaration] '[]') name = ID
+	  ("=" default = Expression)?
 	;
 
-EntityFieldModifier
-	: ModifierEntityRequired
-	| ModifierIdentifier
-	| ModifierGetter
-	| ModifierDefault
-	| ModifierAnnotation
+EntityFieldSingleType
+	: PrimitiveDeclaration
+	| EntityDeclaration
 	;
 
-EntityReferenceDeclaration
-	: 'refers' type = [EntityDeclaration] (isArray ?= Array)? name = ID (modifiers += EntityReferenceModifier)*
+EntityIdentifierDeclaration
+	: 'identifier' isRequired ?= 'required'? type = [PrimitiveDeclaration] name = ID
+	  ("=" default = Expression)?
 	;
 
-EntityReferenceModifier
-	: ModifierEntityRequired
-	| ModifierGetter
-	| ModifierOppositeName
-	| ModifierOppositeSingleDeclaration
-	| ModifierOppositeManyDeclaration
-	| ModifierAnnotation
+EntityDerivedDeclaration
+	: 'derived' (singleType = [EntityDerivedSingleType] | arrayType = [EntityDeclaration] '[]') name = ID
+	  ('(' parameters += DerivedParameter (',' parameters += DerivedParameter)* ')')?
+	  "=" expression = Expression
 	;
 
-ModifierEntityRequired returns ModifierRequired
-	: {ModifierEntityRequired} inout = '@required'
+EntityDerivedSingleType
+	: PrimitiveDeclaration
+	| EntityDeclaration
 	;
 
-ModifierIdentifier returns ModifierIdentifier
-	: {ModifierIdentifier} '@identifier'
+DerivedParameter
+	: type = [PrimitiveDeclaration] name = ID "=" default = Expression
 	;
 
-ModifierGetter
-	: '@getter' (expression = FunctionedExpression | '{' expression = Expression '}')
+EntityRelationDeclaration
+	: 'relation' (isRequired ?= 'required'? singleType = [EntityDeclaration] | arrayType = [EntityDeclaration] '[]') name = ID
+	  opposite = Opposite?
 	;
 
-ModifierDefault
-	: '@default' (expression = FunctionedExpression | '{' expression = Expression '}')
+Opposite
+	: kind = ('opposite-name' | 'opposite-single' | 'opposite-many') name = ID
 	;
 
-ModifierOppositeName
-	: '@opposite-name' name = ID
+
+/****************************
+ *	Error
+ ****************************/
+
+ErrorDeclaration
+	: 'error' name = ID ('extends' extends = [ErrorDeclaration])?
+	  BLOCK_START (fields += ErrorField)* BLOCK_END
 	;
 
-ModifierOppositeSingleDeclaration
-	: '@opposite-single' name = ID
+ErrorField
+	: NL+ 'field' isRequired ?= 'required'? type = [PrimitiveDeclaration] name = ID
+	  ("=" default = Expression)?
 	;
 
-ModifierOppositeManyDeclaration
-	: '@opposite-many' name = ID
+CreateError
+	: type=[ErrorDeclaration] ('(' (parameters+=ThrowParameter (',' parameters+=ThrowParameter)*)? ')')?
 	;
 
-ModifierAnnotation
-	: annotation = ANNOTATION (parameter = Literal)?
-	;
+ThrowParameter:
+    name=ID '=' expession=Expression;
+
 
 
 /****************************
  *	Datatype
  ****************************/
 
-
+    
 DataTypeDeclaration
-    : 'type' name = ID (primitive = Primitive)
+    : 'type'
+      (
+		  primitive = 'boolean' name = ID
+		| primitive = 'binary' name = ID
+		| primitive = 'string' name = ID (maxLength = ModifierMaxLength & regex = ModifierRegex?)
+		| primitive = 'numeric' name = ID (precision = ModifierPrecision & scale = ModifierScale)
+		| primitive = 'date' name = ID
+		| primitive = 'time' name = ID
+		| primitive = 'timestamp' name = ID
+      )
     ;
-
+	
 EnumDeclaration
-    : 'enum' name = ID (modifiers += EnumModifier)*
-      '{' (literals += EnumLiteral)+ '}'
+    : 'enum' name = ID
+      BLOCK_START (literals += EnumLiteral)+ BLOCK_END
     ;
-
-EnumModifier
-	: ModifierAnnotation
-	;
 
 EnumLiteral
-    : name = ID '=' value = INTEGER (modifiers += EnumLiteralModifier)*
+    : NL+ name = ID '=' value = INTEGER
     ;
 
-EnumLiteralModifier
-	: ModifierAnnotation
-	;
-
-Primitive returns Primitive
-	: {Primitive} 'boolean'
-	| {Primitive} 'binary'
-	| {Primitive} 'numeric' (modifiers += NumericModifier)*
-	| {Primitive} 'string' (modifiers += StringModifier)*
-	| {Primitive} 'date'
-	| {Primitive} 'timestamp'
-	;
-
-StringModifier
-	: ModifierMaxLength
-	| ModifierRegex
-	| ModifierAnnotation
-	;
-
 ModifierMaxLength
-	: '@max-length' maxLength = INTEGER
+	: 'max-length' maxLength = INTEGER
 	;
 
 ModifierRegex
-	: '@regex' regex = StringLiteral
-	;
-
-NumericModifier
-	: ModifierPrecision
-	| ModifierScale
-	| ModifierAnnotation
+	: 'regex' regex = StringLiteral
 	;
 
 ModifierPrecision
-	: '@precision' precision = INTEGER
+	: 'precision' precision = INTEGER
 	;
 
 ModifierScale
-	: '@scale' scale = INTEGER
+	: 'scale' scale = INTEGER
 	;
-
-Array returns Array
-	: {Array} '[' ']'
-	;
-
 
 
 /****************************
  *	Expression
  ***************************/
 
-Expression returns Expression
+Expression returns Expression hidden(WS, CONT_NL, SL_COMMENT, ML_COMMENT)
 	: SwitchExpression
 	;
 
@@ -287,7 +237,11 @@ FunctionCall
 	;
 
 Feature
-	: {Feature} '.' name=ID ( '(' lambdaArgument=ID '|' expression=Expression ')' )?
+	: {Feature} '.' name=ID ('(' parameters+=QueryParameter (',' parameters+=QueryParameter)* ')')?
+	;
+
+QueryParameter
+	: name = ID '=' expression=Expression
 	;
 
 ParenthesizedExpression returns Expression
@@ -296,12 +250,25 @@ ParenthesizedExpression returns Expression
 
 PrimaryExpression returns Expression
 	: ParenthesizedExpression
+	| CreateExpression
 	| Literal
 	| Self
 	;
 
+// Warning: create statement is not allowed in getter!
+
+CreateExpression returns Expression
+	: {CreateExpression} 'new'? type=[ClassDeclaration]
+	  (   '(' (assignments+=CreateParameter (',' assignments+=CreateParameter)*)? ')'
+	  	| '[' (creates += Expression (',' creates += Expression)*)? ']'
+	  )
+	;
+
+CreateParameter:
+    name=ID '=' right=Expression;
+
 Function returns Function
-	: name=ID '(' (parameters+=FunctionParameter (',' parameters+=FunctionParameter)*)? ')'
+	: name=ID '(' (lambdaArgument=ID '|')? (parameters+=FunctionParameter (',' parameters+=FunctionParameter)*)? ')'
     ;
 
 FunctionParameter
@@ -326,6 +293,7 @@ NumberLiteral returns Expression
 
 StringLiteral returns Expression
 	: {StringLiteral} value=STRING
+	| {StringLiteral} raw_value=RAW_STRING
 	;
 
 TemporalLiteral returns Expression
@@ -342,14 +310,18 @@ QualifiedName
 	: {QualifiedName} (namespaceElements+=ID '::')* name=ID
     ;
 
-
 /****************************
  *	Terminals
  ****************************/
 
-terminal ANNOTATION
-	: '@' ID
+BLOCK_START
+	: NL* '{'
 	;
+
+BLOCK_END
+	: NL* '}'
+	;
+
 
 terminal TIMESTAMP
 	: '`' DIGIT+ '-' DIGIT DIGIT '-' DIGIT DIGIT 'T' DIGIT DIGIT ':' DIGIT DIGIT (':' DIGIT DIGIT ('.' DIGIT+ )? )? ('Z' | ('+' | '-') DIGIT DIGIT ':' DIGIT DIGIT )'`'
@@ -380,20 +352,31 @@ terminal ID
 	;
 
 terminal STRING
-	: '"' ('\\' . | !('\\' | '"'))* '"'
-	| "'" ('\\' . | !('\\' | "'"))* "'"
+	: '"' ('\\' ('b'|'t'|'n'|'f'|'r'|'"'|'\\') | !('\\' | '"' | '\n' | '\r'))* '"'
 	;
 
+terminal RAW_STRING
+	: 'r"' (!('"' | '\n' | '\r'))* '"'
+	;
+
+terminal CONT_NL
+	: '\\' (' ' | '\t')* '\r'? '\n'
+	;
+ 
 terminal ML_COMMENT
 	: '/*'->'*/'
 	;
 
 terminal SL_COMMENT
-	: '//' !('\n' | '\r')* ('\r'? '\n')?
+	: '//' !('\n' | '\r')*
 	;
 
 terminal WS
-	: (' ' | '\t' | '\r' | '\n')+
+	: (' ' | '\t')+
+	;
+
+terminal NL
+	: '\r' | '\n' | ';'
 	;
 
 terminal ANY_OTHER
