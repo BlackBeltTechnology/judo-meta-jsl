@@ -44,5 +44,5 @@
 
 
     <repository-reference location="https://nexus.judo.technology/repository/p2/epsilon-runtime-eclipse/1.4.0.20210919_133947_3330a32_develop" enabled="true" />
-    <repository-reference location="https://nexus.judo.technology/repository/p2/judo-epp-common/4.22.0.20220301_152447_0053c071_develop" enabled="true" />
+    <repository-reference location="https://nexus.judo.technology/repository/p2/judo-epp-common/4.22.0.20220316_195019_68b6d470_develop" enabled="true" />
 </site>

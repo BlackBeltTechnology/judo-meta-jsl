@@ -80,7 +80,7 @@
 
         <emf-genmodel-generator-version>1.0.2.20220301_152315_3cec0ca9_develop</emf-genmodel-generator-version>
         <judo-genmodel-generator-version>1.0.1.20220309_093555_ad7e77c3_develop</judo-genmodel-generator-version>
-        <judo-epp-common-version>4.22.0.20220301_152447_0053c071_develop</judo-epp-common-version>
+        <judo-epp-common-version>4.22.0.20220316_195019_68b6d470_develop</judo-epp-common-version>
 
         <xtext-version>2.22.0</xtext-version>
         <emf-mwe2-launch-version>2.12.1</emf-mwe2-launch-version>
@@ -91,7 +91,7 @@
         <karaf-version>4.3.3</karaf-version>
         <cxf-version>3.4.4</cxf-version>
 
-        <osgi-utils-version>1.0.11</osgi-utils-version>
+        <osgi-utils-version>1.0.12.20220316_214508_c75030f0_develop</osgi-utils-version>
         <bouncycastle-karaf-features-version>1.61.2</bouncycastle-karaf-features-version>
         <tinybundles-karaf-features-version>1.0.0</tinybundles-karaf-features-version>
         <google-karaf-features-version>1.0.7</google-karaf-features-version>
