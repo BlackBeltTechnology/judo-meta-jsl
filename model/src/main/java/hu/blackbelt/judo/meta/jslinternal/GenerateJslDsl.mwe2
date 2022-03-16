@@ -65,7 +65,7 @@ Workflow {
             fragment = resourceFactory.ResourceFactoryFragment2 {}
             fragment = parser.antlr.XtextAntlrGeneratorFragment2 {
                 options = { 
-                    ignoreCase = true
+                    ignoreCase = false
                 }
             }
             fragment = validation.ValidatorFragment2 {
@@ -113,13 +113,13 @@ Workflow {
 
             parserGenerator = {
                 options = {
-                    ignoreCase = true
+                    ignoreCase = false
                 }
                 debugGrammar = true
             }
             
             scopeProvider = {
-                ignoreCase = true
+                ignoreCase = false
             }
 
 			serializer = {
