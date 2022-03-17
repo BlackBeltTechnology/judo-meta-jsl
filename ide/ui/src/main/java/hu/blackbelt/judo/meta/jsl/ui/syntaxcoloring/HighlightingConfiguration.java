@@ -7,11 +7,6 @@ import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfigurationAcceptor;
 import org.eclipse.xtext.ui.editor.utils.TextStyle;
 
-/**
- * @author Jan K�hnlein - Initial contribution and API
- * @author Sebastian Zarnekow - Initial contribution and API
- */
-
 public class HighlightingConfiguration implements IHighlightingConfiguration {
 	
 	public static final String KEYWORD_ID = HighlightingStyles.KEYWORD_ID;
@@ -37,9 +32,6 @@ public class HighlightingConfiguration implements IHighlightingConfiguration {
 	public final static String STRING_CONSTANT_ID = "StringConstant";
 	public final static String OPERATOR_ID = "Operator";
 
-	/**
-	 * @since 2.6
-	 */
 	public static final String TASK_ID = HighlightingStyles.TASK_ID;
 
 	@Override
@@ -86,17 +78,6 @@ public class HighlightingConfiguration implements IHighlightingConfiguration {
 		return textStyle;
 	}
 
-	/*
-	public TextStyle commentTextStyle() {
-		TextStyle textStyle = defaultTextStyle().copy();
-		textStyle.setColor(new RGB(63, 127, 95));
-		return textStyle;
-	}
-	*/
-	
-	/**
-	 * @since 2.6
-	 */
 	public TextStyle taskTextStyle() {
 		TextStyle textStyle = defaultTextStyle().copy();
 		textStyle.setColor(new RGB(127, 159, 191));
@@ -116,7 +97,6 @@ public class HighlightingConfiguration implements IHighlightingConfiguration {
 		return textStyle;
 	}
 
-	// innen től az enyém
 	public TextStyle identifierTextStyle() {
 		TextStyle textStyle = defaultTextStyle().copy();
 		textStyle.setColor(new RGB(21, 101, 192));
@@ -134,7 +114,6 @@ public class HighlightingConfiguration implements IHighlightingConfiguration {
 	public TextStyle parameterTextStyle() {
 		TextStyle textStyle = defaultTextStyle().copy();
 		textStyle.setColor(new RGB(156, 0, 176));
-		// textStyle.setColor(new RGB(46, 125, 50));
 		// textStyle.setStyle(SWT.BOLD);
 		return textStyle;
 	}
