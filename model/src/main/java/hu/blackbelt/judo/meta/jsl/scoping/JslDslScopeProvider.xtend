@@ -3,6 +3,9 @@
  */
 package hu.blackbelt.judo.meta.jsl.scoping
 
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 
 /**
  * This class contains custom scoping description.
@@ -11,5 +14,14 @@ package hu.blackbelt.judo.meta.jsl.scoping
  * on how and when to use it.
  */
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
-
+	
+	/*
+    override getScope(EObject object, EReference ref) {
+        if (ref == JsldslPackage.Literals.) {
+            val call = object as Call
+            return Scopes.scopeFor(call.instance.type.defs) 
+        }
+        return super.getScope(object, ref)
+    } 
+    */
 }

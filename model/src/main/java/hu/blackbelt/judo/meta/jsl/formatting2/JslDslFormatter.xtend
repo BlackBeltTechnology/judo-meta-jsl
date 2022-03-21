@@ -26,6 +26,5 @@ class JslDslFormatter extends AbstractFormatter2 {
 		binaryOperation.rightOperand.format
 		binaryOperation.leftOperand.format
 	}
-	
-	// TODO: implement for UnaryOperation, JslExpression, FunctionCall, FunctionParameter, MeasuredLiteral, EnumLiteral, NavigationExpression, Feature
+		// TODO: implement for UnaryOperation, JslExpression, FunctionCall, FunctionParameter, MeasuredLiteral, EnumLiteral, NavigationExpression, Feature
 }

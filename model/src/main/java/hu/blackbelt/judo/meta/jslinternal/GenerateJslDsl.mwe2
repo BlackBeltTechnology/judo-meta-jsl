@@ -57,23 +57,29 @@ Workflow {
 			name = "hu.blackbelt.judo.meta.jsl.JslDsl"
 			fileExtensions = "jsl"
 
-            fragment = grammarAccess.GrammarAccessFragment2 {}
-            fragment = ecore.EMFGeneratorFragment2 {}
-            fragment = serializer.SerializerFragment2 {
+            fragment = grammarAccess.GrammarAccessFragment2 auto-inject {}
+            fragment = ecore.EMFGeneratorFragment2 auto-inject {}
+            fragment = serializer.SerializerFragment2 auto-inject {
                 generateStub = false
             }
-            fragment = resourceFactory.ResourceFactoryFragment2 {}
-            fragment = parser.antlr.XtextAntlrGeneratorFragment2 {
+            fragment = resourceFactory.ResourceFactoryFragment2 auto-inject {}
+            fragment = parser.antlr.XtextAntlrGeneratorFragment2 auto-inject {
                 options = { 
                     ignoreCase = false
                 }
             }
-            fragment = validation.ValidatorFragment2 {
+            fragment = validation.ValidatorFragment2 auto-inject {
 				generatePropertyPage = true
             }
-            fragment = builder.BuilderIntegrationFragment2 {}
-            fragment = generator.GeneratorFragment2 {}
-            fragment = ui.contentAssist.ContentAssistFragment2 {}			           		
+            fragment = builder.BuilderIntegrationFragment2 auto-inject {}
+            fragment = generator.GeneratorFragment2 auto-inject {}
+            fragment = ui.contentAssist.ContentAssistFragment2 auto-inject {}			           		
+
+    
+    		// scoping and exporting API
+    		fragment = scoping.ImportNamespacesScopingFragment2 auto-inject {}
+    		fragment = exporting.QualifiedNamesFragment2 auto-inject {}
+    		fragment = builder.BuilderIntegrationFragment2 auto-inject {}
 		}
 	}	
 	
