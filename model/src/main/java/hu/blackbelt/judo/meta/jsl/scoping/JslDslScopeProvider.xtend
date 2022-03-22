@@ -24,4 +24,11 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
         return super.getScope(object, ref)
     } 
     */
+    
+    override getScope(EObject context, EReference ref) {
+		
+
+        return super.getScope(context, ref)    	
+    }
+    
 }

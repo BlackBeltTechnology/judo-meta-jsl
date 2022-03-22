@@ -18,17 +18,17 @@ Export-Package: hu.blackbelt.judo.meta.jsl,
  hu.blackbelt.judo.meta.jsl.generator,
  hu.blackbelt.judo.meta.jsl.jsldsl,
  hu.blackbelt.judo.meta.jsl.jsldsl.impl,
+ hu.blackbelt.judo.meta.jsl.jsldsl.runtime,
+ hu.blackbelt.judo.meta.jsl.jsldsl.support,
  hu.blackbelt.judo.meta.jsl.jsldsl.util,
+ hu.blackbelt.judo.meta.jsl.jsldsl.util.builder,
  hu.blackbelt.judo.meta.jsl.parser.antlr,
  hu.blackbelt.judo.meta.jsl.parser.antlr.internal,
+ hu.blackbelt.judo.meta.jsl.runtime,
  hu.blackbelt.judo.meta.jsl.scoping,
  hu.blackbelt.judo.meta.jsl.serializer,
  hu.blackbelt.judo.meta.jsl.services,
- hu.blackbelt.judo.meta.jsl.validation,
- hu.blackbelt.judo.meta.jsl.runtime,
- hu.blackbelt.judo.meta.jsl.jsldsl.runtime,
- hu.blackbelt.judo.meta.jsl.jsldsl.support,
- hu.blackbelt.judo.meta.jsl.jsldsl.util.builder
+ hu.blackbelt.judo.meta.jsl.validation
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: hu.blackbelt.judo.meta.jsl.model
 Import-Package: org.slf4j;version="1.7.2",

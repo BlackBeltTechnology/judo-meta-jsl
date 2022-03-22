@@ -8,11 +8,11 @@ class QualifiedNameSerializer {
 
 	def fullyQualifiedName(QualifiedName qualifiedName) {
 		var fullName = "";
-		for (part : qualifiedName.namespaceElements) {
+		if (qualifiedName.alias !== "") {
 			if (fullName !== "") {
 				fullName += "::"
 			}
-			fullName += part;
+			fullName += qualifiedName.alias;
 		}
 		if (fullName != "") {
 			fullName += "::"
