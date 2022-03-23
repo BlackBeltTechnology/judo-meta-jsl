@@ -20,8 +20,30 @@ class ImportTests {
 	
 	@Inject extension ParseHelper<ModelDeclaration> 
 	@Inject extension ValidationTestHelper
-		
-		
+
+	@Test 
+	def void testSimpleModelDefinition() {
+		'''
+		model A
+		model B
+		'''.parse.name => [
+			assertEquals("A")
+		]
+	}
+
+	@Test 
+	def void testFailOfTwoModelDefinition() {
+		'''
+		model A
+		model B
+		'''.parse => [
+			assertError(
+				JsldslPackage::eINSTANCE.modelDeclaration, 
+				"org.eclipse.xtext.diagnostics.Diagnostic.Syntax", 
+				"no viable alternative at input")
+		]
+	}
+				
 	@Test 
 	def void testSelfImportClassHierarchyCycle() {
 		'''
@@ -31,6 +53,7 @@ class ImportTests {
 			assertHierarchyCycle("A")
 		]
 	}
+
 		
 	def private void assertHierarchyCycle(ModelDeclaration modelDeclaration, String expectedClassName) {
 		modelDeclaration.assertError(

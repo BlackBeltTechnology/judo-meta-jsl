@@ -3,9 +3,9 @@ package hu.blackbelt.judo.meta.jsl.validation
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.validation.Check
-import static extension hu.blackbelt.judo.meta.jsl.util.JslModelExtension.*
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImport
+import static extension hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension.*
 
 /**
  * This class contains custom validation rules. 
