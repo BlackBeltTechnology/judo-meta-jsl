@@ -1,0 +1,5 @@
+model SalesModel
+
+entity abstract Person {
+	field String2 firstName
+}

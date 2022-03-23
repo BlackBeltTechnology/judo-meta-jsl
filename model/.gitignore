@@ -1,5 +1,5 @@
 src/main/xtext-gen
-xtend-gen
+src/main/xtend-gen
 model/generated/*
 
 

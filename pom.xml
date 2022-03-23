@@ -97,6 +97,12 @@
         <pax-exam-version>4.13.3</pax-exam-version>
         <log4j.configuration>log4j.properties</log4j.configuration>
 
+		<!-- Define overridable properties for tycho-surefire-plugin -->
+		<platformSystemProperties></platformSystemProperties>
+		<moduleProperties></moduleProperties>
+		<systemProperties></systemProperties>
+		<additionalTestArguments></additionalTestArguments>
+
 
     </properties>
 
@@ -112,7 +118,6 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-source-plugin</artifactId>
-				<version>${tycho-version}</version>
 				<executions>
 					<execution>
 						<id>plugin-source</id>
@@ -125,7 +130,6 @@
 			<plugin>
 				<groupId>org.eclipse.tycho.extras</groupId>
 				<artifactId>tycho-source-feature-plugin</artifactId>
-				<version>${tycho-version}</version>
 				<executions>
 					<execution>
 						<id>source-feature</id>
@@ -157,6 +161,11 @@
                             <arch>x86_64</arch>
                         </environment>
                         <environment>
+                            <os>linux</os>
+                            <ws>gtk</ws>
+                            <arch>aarch64</arch>
+                        </environment>
+                        <environment>
                             <os>win32</os>
                             <ws>win32</ws>
                             <arch>x86_64</arch>
@@ -165,6 +174,11 @@
                             <os>macosx</os>
                             <ws>cocoa</ws>
                             <arch>x86_64</arch>
+                        </environment>
+                        <environment>
+                            <os>macosx</os>
+                            <ws>cocoa</ws>
+                            <arch>aarch64</arch>
                         </environment>
                     </environments>
                 </configuration>
@@ -221,7 +235,13 @@
 					<configuration>
 						<filesets>
 							<fileset>
-								<directory>${basedir}/xtend-gen</directory>
+								<directory>${basedir}/src/main/xtend-gen</directory>
+								<includes>
+									<include>**/*</include>
+								</includes>
+							</fileset>
+							<fileset>
+								<directory>${basedir}/src/test/xtend-gen</directory>
 								<includes>
 									<include>**/*</include>
 								</includes>
@@ -246,8 +266,8 @@
                         </execution>
                     </executions>
                     <configuration>
-                        <outputDirectory>${basedir}/xtend-gen</outputDirectory>
-                        <testOutputDirectory>${basedir}/xtend-gen</testOutputDirectory>
+                        <outputDirectory>${basedir}/src/main/xtend-gen</outputDirectory>
+                        <testOutputDirectory>${basedir}/src/test/xtend-gen</testOutputDirectory>
                     </configuration>
                     <dependencies>
                         <dependency>
@@ -374,6 +394,7 @@
 						<argLine>${platformSystemProperties} ${systemProperties} ${moduleProperties} ${additionalTestArguments}</argLine>
 						<failIfNoTests>false</failIfNoTests>
 						<useUIHarness>false</useUIHarness>
+						<providerHint>junit5</providerHint>
 					</configuration>
 				</plugin>
 
@@ -385,8 +406,7 @@
                         <argLine>-Dfile.encoding=UTF-8</argLine>
                         <trimStackTrace>false</trimStackTrace>
                         <systemPropertyVariables>
-                            <log4j.configuration>${log4j.configuration}
-                            </log4j.configuration>
+                            <log4j.configuration>${log4j.configuration}</log4j.configuration>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
@@ -779,7 +799,6 @@
             <modules>
                 <module>targetdefinition</module>
                 <module>model</module>
-                <module>tests</module>
                 <module>model-test</module>
                 <module>osgi</module>
                 <module>osgi-itest</module>

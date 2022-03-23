@@ -1,4 +1,4 @@
-package hu.blackbelt.judo.meta.jsl.tests;
+package hu.blackbelt.judo.meta.jsl.runtime;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

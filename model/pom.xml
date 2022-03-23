@@ -33,7 +33,7 @@
 							</includes>
 						</fileset>
 						<fileset>
-							<directory>${basedir}/xtend-gen/</directory>
+							<directory>${basedir}/src/main/xtend-gen/</directory>
 							<includes>
 								<include>**/*</include>
 							</includes>
@@ -48,7 +48,7 @@
 							</includes>
 						</fileset>
 						<fileset>
-							<directory>${basedir}../ide/ui/xtend-gen/</directory>
+							<directory>${basedir}../ide/ui/src/main/xtend-gen/</directory>
 							<includes>
 								<include>**/*</include>
 							</includes>
@@ -132,7 +132,7 @@
                              except for /model directory -->
 							<sources>
 								<source>${project.basedir}/src/main/xtext-gen</source>
-								<source>${project.basedir}/xtend-gen</source>
+								<source>${project.basedir}/src/main/xtend-gen</source>
 							</sources>
 						</configuration>
 					</execution>
