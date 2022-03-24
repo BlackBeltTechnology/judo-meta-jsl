@@ -13,12 +13,9 @@ import hu.blackbelt.judo.meta.jsl.QualifiedNameSerializer
 @Singleton
 class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy {
 
-	@Inject extension QualifiedNameSerializer;	
-			
-    /* 
 	override createEObjectDescriptions(EObject eObject, IAcceptor<IEObjectDescription> acceptor) {
 		if (eObject instanceof ModelDeclaration) {			
-			val fullyQualifiedName = (eObject as ModelDeclaration).fullyQualifiedName
+			val fullyQualifiedName = (eObject as ModelDeclaration).name
 			if (fullyQualifiedName !== null) {
 				acceptor.accept(
 							EObjectDescription::create(
@@ -30,5 +27,4 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 		} else
 			false
 	}
-	*/
 }

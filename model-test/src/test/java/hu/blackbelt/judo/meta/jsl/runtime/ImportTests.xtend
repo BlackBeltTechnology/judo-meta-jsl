@@ -138,7 +138,7 @@ class ImportTests {
 		b.assertNoErrors
 	}
 
-	@Test 
+	@Test
 	def void testTwoModelDefinitionWithImportWithIllegalQualifiedName() {
 		val resourceSet = resourceSetProvider.get
 		val a = '''model ns::A'''.parse(resourceSet)
@@ -153,6 +153,46 @@ class ImportTests {
 		b.assertModelReferenceError("ns2::A")
 	}
 
+	@Test 
+	def void testTwoModelDefinitionWithImportWithAlias() {
+		val resourceSet = resourceSetProvider.get
+		val a = '''model A'''.parse(resourceSet)
+		
+		val b = 
+		'''
+			model B
+			import A as a
+		'''.parse(resourceSet)
+		
+		a.assertNoErrors
+		b.assertNoErrors
+	}
+
+
+/*
+	@Test 
+	def void testTwoModelDefinitionReferencingDatatypeWithoutAlias() {
+		val resourceSet = resourceSetProvider.get
+		val a = 
+		'''
+			model A
+			type string String max-length 128			
+		'''.parse(resourceSet)
+		
+		val b = 
+		'''
+			model B
+			import A
+			
+			entity abstract T {
+				field String f1
+			}	
+		'''.parse(resourceSet)
+		
+		a.assertNoErrors
+		b.assertNoErrors
+	}
+*/
 		
 	def private void assertHierarchyCycle(ModelDeclaration modelDeclaration, String expectedClassName) {
 		modelDeclaration.assertError(

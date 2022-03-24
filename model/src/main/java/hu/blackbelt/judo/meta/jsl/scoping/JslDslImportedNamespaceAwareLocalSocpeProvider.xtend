@@ -13,6 +13,8 @@ class JslDslImportedNamespaceAwareLocalSocpeProvider extends ImportedNamespaceAw
 		))
 	} */
 	
+	// https://github.com/eclipse/xtext-extras/blob/master/org.eclipse.xtext.xbase/deprecated/org/eclipse/xtext/xbase/scoping/XbaseImportedNamespaceScopeProvider.java
+	
 	override protected getImportedNamespace(EObject object) {
 		super.getImportedNamespace(object)
 	}

@@ -47,7 +47,7 @@ public class JslDslParserTest {
 
     @Test
     public void testLoadFile() {
-    	XtextResourceSet resourceSet = parser.loadJslFromFile(Arrays.asList(new File( "src/test/model/sample.jsl")));
+    	XtextResourceSet resourceSet = parser.loadJslFromFile(Arrays.asList(new File( "src/test/resources/sample.jsl")));
     	assertTrue(resourceSet.getResources().size() == 1);
     	assertTrue(resourceSet.getResources().get(0).getContents().get(0) instanceof ModelDeclaration);
     	assertTrue(((ModelDeclaration) resourceSet.getResources().get(0).getContents().get(0)).getName().equals("SalesModel"));
@@ -57,7 +57,7 @@ public class JslDslParserTest {
     public void testLoadInvalidFile() {
 
     	JslParseException exception = assertThrows(JslParseException.class, () -> {
-        	parser.loadJslFromFile(Arrays.asList(new File( "src/test/model/sample-invalid.jsl")));
+        	parser.loadJslFromFile(Arrays.asList(new File( "src/test/resources/sample-invalid.jsl")));
 		});
     	
     	assertThat(exception.getMessage().replace("\t", "").replace("\n", ""), matchesPattern("^Error parsing JSL expression"
@@ -87,7 +87,7 @@ public class JslDslParserTest {
     public void testParseFile() {
         Optional<ModelDeclaration> model = parser.getModelFromFiles(
         		"SalesModel", 
-        		Arrays.asList(new File("src/test/model/sample.jsl")));
+        		Arrays.asList(new File("src/test/resources/sample.jsl")));
         assertTrue(model.isPresent());
         assertEquals("SalesModel", model.get().getName());
     }
