@@ -74,14 +74,14 @@
         <judo-genmodel-generator-version>1.0.1.20220309_093555_ad7e77c3_develop</judo-genmodel-generator-version>
         <judo-epp-common-version>4.22.0.20220316_195019_68b6d470_develop</judo-epp-common-version>
 
-        <xtext-version>2.22.0</xtext-version>
+        <xtext-version>2.26.0</xtext-version>
         <emf-mwe2-launch-version>2.12.1</emf-mwe2-launch-version>
         <slf4j-version>1.6.6</slf4j-version>
 
 
         <!-- Pax exam dependencies -->
-        <karaf-version>4.3.3</karaf-version>
-        <cxf-version>3.4.4</cxf-version>
+        <karaf-version>4.3.6</karaf-version>
+        <cxf-version>3.5.1</cxf-version>
 
         <osgi-utils-version>1.0.12.20220316_214508_c75030f0_develop</osgi-utils-version>
         <bouncycastle-karaf-features-version>1.61.2</bouncycastle-karaf-features-version>

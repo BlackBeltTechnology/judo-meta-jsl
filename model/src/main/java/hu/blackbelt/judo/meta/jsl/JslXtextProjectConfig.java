@@ -1,4 +1,4 @@
-package hu.blackbelt.judo.meta.jslinternal;
+package hu.blackbelt.judo.meta.jsl;
 
 import com.google.common.base.Objects;
 import org.eclipse.xtext.xtext.generator.model.project.StandardProjectConfig;

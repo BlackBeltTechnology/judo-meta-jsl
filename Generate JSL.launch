@@ -13,6 +13,6 @@
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
     <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.eclipse.emf.mwe2.launch.runtime.Mwe2Launcher"/>
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="hu.blackbelt.judo.meta.jsl.model"/>
-    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="src/main/java/hu/blackbelt/judo/meta/jslinternal/GenerateJslDsl.mwe2"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="src/main/java/hu/blackbelt/judo/meta/jsl/GenerateJslDsl.mwe2"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="hu.blackbelt.judo.meta.jsl.model"/>
 </launchConfiguration>

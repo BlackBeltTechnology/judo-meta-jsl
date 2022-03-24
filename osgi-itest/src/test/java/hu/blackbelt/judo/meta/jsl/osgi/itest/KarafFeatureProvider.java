@@ -29,7 +29,6 @@ public class KarafFeatureProvider {
     public static final String HAMCREST = "org.apache.servicemix.bundles.hamcrest";
 
     public static final Integer SERVICE_TIMEOUT = 30000;
-    public static final String KARAF_VERSION = "4.3.3";
 
     public static MavenArtifactUrlReference  karafUrl() {
         return maven()
@@ -112,12 +111,12 @@ public class KarafFeatureProvider {
                 vmOption("--patch-module"),
                 vmOption(
                         "java.base=lib/endorsed/org.apache.karaf.specs.locator-"
-                                + System.getProperty("karafVersion", KARAF_VERSION)
+                                + System.getProperty("karafVersion")
                                 + ".jar"),
                 vmOption("--patch-module"),
                 vmOption(
                         "java.xml=lib/endorsed/org.apache.karaf.specs.java.xml-"
-                                + System.getProperty("karafVersion", KARAF_VERSION)
+                                + System.getProperty("karafVersion")
                                 + ".jar"),
                 vmOption("--add-opens"),
                 vmOption("java.base/java.security=ALL-UNNAMED"),

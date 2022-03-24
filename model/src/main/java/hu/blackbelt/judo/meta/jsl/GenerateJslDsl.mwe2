@@ -1,4 +1,4 @@
-module hu.blackbelt.judo.meta.jslinternal.GenerateJslDsl
+module hu.blackbelt.judo.meta.jsl.GenerateJslDsl
 
 import org.eclipse.xtext.xtext.generator.*
 import org.eclipse.xtext.xtext.generator.model.project.*
