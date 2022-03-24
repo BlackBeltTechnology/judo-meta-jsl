@@ -67,7 +67,6 @@ class ImportTests {
 	}
 
 
-/*
 	@Test 
 	def void testImportClassHierarchyCycle() {
 		val resourceSet = resourceSetProvider.get
@@ -93,7 +92,6 @@ class ImportTests {
 		b.assertNoErrors
 		c.assertNoErrors
 	}
-	*/
 
 	@Test 
 	def void testTwoModelDefinitionWithImportWithSimpleName() {

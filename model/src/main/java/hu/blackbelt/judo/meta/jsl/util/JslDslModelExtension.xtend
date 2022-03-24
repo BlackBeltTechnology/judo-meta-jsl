@@ -2,27 +2,31 @@ package hu.blackbelt.judo.meta.jsl.util
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import java.util.Collection
+import java.util.List
 
 class JslDslModelExtension {
 
 	def static Collection<ModelDeclaration> modelImportHierarchy(ModelDeclaration modelDeclaration) {
 		val visited = <ModelDeclaration>newArrayList()
-		var allImports = modelDeclaration.imports
+		modelImportHierarchy(modelDeclaration, visited)
+		visited
+	}
 
-		// visited.add(modelDeclaration)
+
+	def static void modelImportHierarchy(ModelDeclaration modelDeclaration, List<ModelDeclaration> visited) {
+		var allImports = modelDeclaration.imports
+		if (visited.contains(modelDeclaration)) {
+			return;
+		}
+
 		for (import : allImports) {
 			if (!visited.contains(import.importedModel)) {
 				visited.add(import.importedModel);
 				if (import.importedModel !== modelDeclaration) {
-					for (i : modelImportHierarchy(import.importedModel)) {
-						if (!visited.contains(i)) {
-							visited.add(i)
-						}
-					}					
+					modelImportHierarchy(import.importedModel, visited)
 				}
 			}
 		}		
-		visited
 	}
 
 }

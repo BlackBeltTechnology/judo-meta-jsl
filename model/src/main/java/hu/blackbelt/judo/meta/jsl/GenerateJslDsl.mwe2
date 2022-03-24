@@ -2,6 +2,9 @@ module hu.blackbelt.judo.meta.jsl.GenerateJslDsl
 
 import org.eclipse.xtext.xtext.generator.*
 import org.eclipse.xtext.xtext.generator.model.project.*
+import hu.blackbelt.eclipse.emf.genmodel.generator.helper.*
+import hu.blackbelt.eclipse.emf.genmodel.generator.builder.*
+import hu.blackbelt.judo.eclipse.emf.genmodel.generator.runtimemodel.*
 
 var rootPath = ".."
 var modelDir = "model/model"
@@ -147,19 +150,19 @@ Workflow {
 	
 	
 	// Helper for model
-	component = hu.blackbelt.eclipse.emf.genmodel.generator.helper.HelperGeneratorWorkflow {
+	component = HelperGeneratorWorkflow {
 		modelDir = "${rootPath}/${modelDir}"
 		javaGenPath = "${rootPath}/${javaGenPath}"
 	}
 
 	// Builder for model
-	component = hu.blackbelt.eclipse.emf.genmodel.generator.builder.BuilderGeneratorWorkflow {
+	component = BuilderGeneratorWorkflow {
 		modelDir = "${rootPath}/${modelDir}"
 		javaGenPath = "${rootPath}/${javaGenPath}"
 	}	
 
 	// Judo RuntimeModel for model
-	component = hu.blackbelt.judo.eclipse.emf.genmodel.generator.runtimemodel.RuntimeModelGeneratorWorkflow {
+	component = RuntimeModelGeneratorWorkflow {
 		modelDir = "${rootPath}/${modelDir}"
 		javaGenPath = "${rootPath}/${javaGenPath}"
 	}
