@@ -28,14 +28,6 @@
 
     <developers>
         <developer>
-            <id>borcsokj</id>
-            <name>Börcsök József</name>
-            <email>jozsef.borcsok@blackbelt.hu</email>
-            <url>https://github.com/borcsokj</url>
-            <organization>BlackBelt Technology</organization>
-            <organizationUrl>http://www.blackbelt.hu</organizationUrl>
-        </developer>
-        <developer>
             <id>robson</id>
             <name>Róbert Csákány</name>
             <email>robert.csakany@blackbelt.hu</email>
@@ -82,14 +74,14 @@
         <judo-genmodel-generator-version>1.0.1.20220309_093555_ad7e77c3_develop</judo-genmodel-generator-version>
         <judo-epp-common-version>4.22.0.20220316_195019_68b6d470_develop</judo-epp-common-version>
 
-        <xtext-version>2.22.0</xtext-version>
+        <xtext-version>2.26.0</xtext-version>
         <emf-mwe2-launch-version>2.12.1</emf-mwe2-launch-version>
         <slf4j-version>1.6.6</slf4j-version>
 
 
         <!-- Pax exam dependencies -->
-        <karaf-version>4.3.3</karaf-version>
-        <cxf-version>3.4.4</cxf-version>
+        <karaf-version>4.3.6</karaf-version>
+        <cxf-version>3.5.1</cxf-version>
 
         <osgi-utils-version>1.0.12.20220316_214508_c75030f0_develop</osgi-utils-version>
         <bouncycastle-karaf-features-version>1.61.2</bouncycastle-karaf-features-version>
@@ -105,6 +97,12 @@
         <pax-exam-version>4.13.3</pax-exam-version>
         <log4j.configuration>log4j.properties</log4j.configuration>
 
+		<!-- Define overridable properties for tycho-surefire-plugin -->
+		<platformSystemProperties></platformSystemProperties>
+		<moduleProperties></moduleProperties>
+		<systemProperties></systemProperties>
+		<additionalTestArguments></additionalTestArguments>
+
 
     </properties>
 
@@ -116,6 +114,33 @@
                 <version>${tycho-version}</version>
                 <extensions>true</extensions>
             </plugin>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>plugin-source</id>
+						<goals>
+							<goal>plugin-source</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-source-feature-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>source-feature</id>
+						<phase>package</phase>
+						<goals>
+							<goal>source-feature</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 
             <plugin>
                 <groupId>org.eclipse.tycho</groupId>
@@ -136,6 +161,11 @@
                             <arch>x86_64</arch>
                         </environment>
                         <environment>
+                            <os>linux</os>
+                            <ws>gtk</ws>
+                            <arch>aarch64</arch>
+                        </environment>
+                        <environment>
                             <os>win32</os>
                             <ws>win32</ws>
                             <arch>x86_64</arch>
@@ -145,6 +175,11 @@
                             <ws>cocoa</ws>
                             <arch>x86_64</arch>
                         </environment>
+                        <environment>
+                            <os>macosx</os>
+                            <ws>cocoa</ws>
+                            <arch>aarch64</arch>
+                        </environment>
                     </environments>
                 </configuration>
             </plugin>
@@ -152,16 +187,6 @@
             <plugin>
                 <groupId>org.eclipse.tycho</groupId>
                 <artifactId>tycho-versions-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.eclipse.tycho.extras</groupId>
-                <artifactId>tycho-source-feature-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.eclipse.tycho</groupId>
-                <artifactId>tycho-source-plugin</artifactId>
             </plugin>
 
             <plugin>
@@ -202,12 +227,29 @@
                         <target>11</target>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-clean-plugin</artifactId>
-                    <version>3.1.0</version>
-                </plugin>
 
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>3.1.0</version>
+					<configuration>
+						<filesets>
+							<fileset>
+								<directory>${basedir}/src/main/xtend-gen</directory>
+								<includes>
+									<include>**/*</include>
+								</includes>
+							</fileset>
+							<fileset>
+								<directory>${basedir}/src/test/xtend-gen</directory>
+								<includes>
+									<include>**/*</include>
+								</includes>
+							</fileset>
+						</filesets>
+					</configuration>
+				</plugin>
+				
                 <plugin>
                     <groupId>org.eclipse.xtend</groupId>
                     <artifactId>xtend-maven-plugin</artifactId>
@@ -224,8 +266,8 @@
                         </execution>
                     </executions>
                     <configuration>
-                        <outputDirectory>${basedir}/xtend-gen</outputDirectory>
-                        <testOutputDirectory>${basedir}/xtend-gen</testOutputDirectory>
+                        <outputDirectory>${basedir}/src/main/xtend-gen</outputDirectory>
+                        <testOutputDirectory>${basedir}/src/test/xtend-gen</testOutputDirectory>
                     </configuration>
                     <dependencies>
                         <dependency>
@@ -260,12 +302,6 @@
                 <plugin>
                     <groupId>org.eclipse.tycho</groupId>
                     <artifactId>tycho-versions-plugin</artifactId>
-                    <version>${tycho-version}</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.eclipse.tycho</groupId>
-                    <artifactId>tycho-surefire-plugin</artifactId>
                     <version>${tycho-version}</version>
                 </plugin>
 
@@ -331,6 +367,37 @@
                     <artifactId>maven-gpg-plugin</artifactId>
                     <version>1.6</version>
                 </plugin>
+
+				<plugin>
+					<!-- 
+						Can be removed after first generator execution
+						https://bugs.eclipse.org/bugs/show_bug.cgi?id=480097
+					-->
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-compiler-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<compilerArgument>-err:-forbidden</compilerArgument>
+						<useProjectSettings>false</useProjectSettings>
+					</configuration>
+				</plugin>
+				<!-- to skip running (and compiling) tests use commandline flag: -Dmaven.test.skip
+					To skip tests, but still compile them, use: -DskipTests
+					To allow all tests in a pom to pass/fail, use commandline flag: -fae (fail
+					at end) -->
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-surefire-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<!-- THE FOLLOWING LINE MUST NOT BE BROKEN BY AUTOFORMATTING -->
+						<argLine>${platformSystemProperties} ${systemProperties} ${moduleProperties} ${additionalTestArguments}</argLine>
+						<failIfNoTests>false</failIfNoTests>
+						<useUIHarness>false</useUIHarness>
+						<providerHint>junit5</providerHint>
+					</configuration>
+				</plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -339,8 +406,7 @@
                         <argLine>-Dfile.encoding=UTF-8</argLine>
                         <trimStackTrace>false</trimStackTrace>
                         <systemPropertyVariables>
-                            <log4j.configuration>${log4j.configuration}
-                            </log4j.configuration>
+                            <log4j.configuration>${log4j.configuration}</log4j.configuration>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
@@ -870,5 +936,54 @@
                 </plugins>
             </build>
         </profile>
-    </profiles>
+
+		<profile>
+			<id>macos</id>
+			<activation>
+				<os>
+					<family>mac</family>
+				</os>
+			</activation>
+			<properties>
+				<!-- THE FOLLOWING LINE MUST NOT BE BROKEN BY AUTOFORMATTING -->
+				<platformSystemProperties>-XstartOnFirstThread</platformSystemProperties>
+			</properties>
+		</profile>
+		<profile>
+			<id>jdk9-or-newer</id>
+			<activation>
+				<jdk>[9,)</jdk>
+			</activation>
+			<properties>
+				<moduleProperties>--add-modules=ALL-SYSTEM</moduleProperties>
+			</properties>
+		</profile>
+	</profiles>
+
+	<repositories>
+		<repository>
+			<id>codehaus-snapshots</id>
+			<name>disable dead 'Codehaus Snapshots' repository, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=481478</name>
+			<url>http://nexus.codehaus.org/snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>codehaus-snapshots</id>
+			<name>disable dead 'Codehaus Snapshots' repository, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=481478</name>
+			<url>http://nexus.codehaus.org/snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 </project>

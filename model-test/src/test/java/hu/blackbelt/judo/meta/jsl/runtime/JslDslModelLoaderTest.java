@@ -25,7 +25,7 @@ public class JslDslModelLoaderTest {
     @DisplayName("Load Jsl Model")
     void loadJslModel() throws IOException, JslDslModel.JslDslValidationException {
         JslDslModel jslModel = loadJslDslModel(jslDslLoadArgumentsBuilder()
-                .uri(URI.createFileURI(new File("src/test/model/test.jsl.xmi").getAbsolutePath()))
+                .uri(URI.createFileURI(new File("src/test/resources/test.jsl.xmi").getAbsolutePath()))
                 .name("test"));
 
         for (Iterator<EObject> i = jslModel.getResourceSet().getResource(jslModel.getUri(), false).getAllContents(); i.hasNext(); ) {

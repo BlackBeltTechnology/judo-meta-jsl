@@ -4,10 +4,20 @@ import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 generate jsldsl "http://www.blackbelt.hu/judo/meta/jsl/JslDsl"
  
 ModelDeclaration returns ModelDeclaration hidden(WS, SL_COMMENT, ML_COMMENT)
-    : {ModelDeclaration} 'model' name = ID
+    : {ModelDeclaration} 'model' name = ModelName 
+      imports += ModelImport*
 	  (declarations += Declaration)*
 	  NL*
     ;
+
+//ModelImport
+//    : =>NL+ 'import' importedModel = [ModelDeclaration | ModelName] ('as' alias = ID)?
+//	;
+
+ModelImport
+    : =>NL+ 'import' importedNamespace = ModelName ('as' alias = ID)?
+	;
+
 
 Declaration
 	: NL+ (TypeDeclaration
@@ -35,7 +45,7 @@ ClassDeclaration
 EntityDeclaration returns EntityDeclaration
 	: {EntityDeclaration}
 	  'entity' isAbstract ?= 'abstract'? name = ID
-	  ('extends' extends += [EntityDeclaration] (',' extends += [EntityDeclaration])*)?
+	  ('extends' extends += [EntityDeclaration | LocalName] (',' extends += [EntityDeclaration | LocalName])*)?
 	  BLOCK_START (members += EntityMemberDeclaration)* BLOCK_END
 	;
 
@@ -52,7 +62,7 @@ ConstraintDeclaration
 	;
 
 EntityFieldDeclaration
-	: 'field' (isRequired ?= 'required'? singleType = [EntityFieldSingleType] | arrayType = [EntityDeclaration] '[]') name = ID
+	: 'field' (isRequired ?= 'required'? singleType = [EntityFieldSingleType | LocalName] | arrayType = [EntityDeclaration | LocalName] '[]') name = ID
 	  ("=" default = Expression)?
 	;
 
@@ -62,12 +72,12 @@ EntityFieldSingleType
 	;
 
 EntityIdentifierDeclaration
-	: 'identifier' isRequired ?= 'required'? type = [PrimitiveDeclaration] name = ID
+	: 'identifier' isRequired ?= 'required'? type = [PrimitiveDeclaration | LocalName] name = ID
 	  ("=" default = Expression)?
 	;
 
 EntityDerivedDeclaration
-	: 'derived' (singleType = [EntityDerivedSingleType] | arrayType = [EntityDeclaration] '[]') name = ID
+	: 'derived' (singleType = [EntityDerivedSingleType | LocalName] | arrayType = [EntityDeclaration | LocalName] '[]') name = ID
 	  ('(' parameters += DerivedParameter (',' parameters += DerivedParameter)* ')')?
 	  "=" expression = Expression
 	;
@@ -78,11 +88,11 @@ EntityDerivedSingleType
 	;
 
 DerivedParameter
-	: type = [PrimitiveDeclaration] name = ID "=" default = Expression
+	: type = [PrimitiveDeclaration | LocalName] name = ID "=" default = Expression
 	;
 
 EntityRelationDeclaration
-	: 'relation' (isRequired ?= 'required'? singleType = [EntityDeclaration] | arrayType = [EntityDeclaration] '[]') name = ID
+	: 'relation' (isRequired ?= 'required'? singleType = [EntityDeclaration | LocalName] | arrayType = [EntityDeclaration | LocalName] '[]') name = ID
 	  opposite = Opposite?
 	;
 
@@ -210,7 +220,7 @@ ExponentExpression returns Expression
 	;
 
 SpawnOperation returns Expression
-	: UnaryOperation (=> ({SpawnOperation.operand=current} 'as' type=QualifiedName))?
+	: UnaryOperation (=> ({SpawnOperation.operand=current} 'as' type=LocalName))?
 	;
 
 UnaryOperation returns Expression
@@ -229,7 +239,7 @@ NavigationExpression returns Expression
 
 // enums as separate literals cause problems with completion and script
 NavigationBase returns NavigationExpression
-	: {NavigationExpression} qName=QualifiedName (features+=Feature* | '#' enumValue = ID)
+	: {NavigationExpression} qName=LocalName (features+=Feature* | '#' enumValue = ID)
 	;
 
 FunctionCall
@@ -306,10 +316,15 @@ Self returns Expression
 	: {Expression} 'self'
 	;
 
-QualifiedName
-	: {QualifiedName} (namespaceElements+=ID '::')* name=ID
+LocalName
+	: (ID '::')? ID
     ;
 
+ModelName
+	: ID('::' ID)*
+    ;
+
+    
 /****************************
  *	Terminals
  ****************************/
