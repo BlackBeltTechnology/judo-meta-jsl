@@ -1,7 +1,10 @@
-module hu.blackbelt.judo.meta.jslinternal.GenerateJslDsl
+module hu.blackbelt.judo.meta.jsl.GenerateJslDsl
 
 import org.eclipse.xtext.xtext.generator.*
 import org.eclipse.xtext.xtext.generator.model.project.*
+import hu.blackbelt.eclipse.emf.genmodel.generator.helper.*
+import hu.blackbelt.eclipse.emf.genmodel.generator.builder.*
+import hu.blackbelt.judo.eclipse.emf.genmodel.generator.runtimemodel.*
 
 var rootPath = ".."
 var modelDir = "model/model"
@@ -57,23 +60,29 @@ Workflow {
 			name = "hu.blackbelt.judo.meta.jsl.JslDsl"
 			fileExtensions = "jsl"
 
-            fragment = grammarAccess.GrammarAccessFragment2 {}
-            fragment = ecore.EMFGeneratorFragment2 {}
-            fragment = serializer.SerializerFragment2 {
+            fragment = grammarAccess.GrammarAccessFragment2 auto-inject {}
+            fragment = ecore.EMFGeneratorFragment2 auto-inject {}
+            fragment = serializer.SerializerFragment2 auto-inject {
                 generateStub = false
             }
-            fragment = resourceFactory.ResourceFactoryFragment2 {}
-            fragment = parser.antlr.XtextAntlrGeneratorFragment2 {
+            fragment = resourceFactory.ResourceFactoryFragment2 auto-inject {}
+            fragment = parser.antlr.XtextAntlrGeneratorFragment2 auto-inject {
                 options = { 
                     ignoreCase = false
                 }
             }
-            fragment = validation.ValidatorFragment2 {
+            fragment = validation.ValidatorFragment2 auto-inject {
 				generatePropertyPage = true
             }
-            fragment = builder.BuilderIntegrationFragment2 {}
-            fragment = generator.GeneratorFragment2 {}
-            fragment = ui.contentAssist.ContentAssistFragment2 {}			           		
+            fragment = builder.BuilderIntegrationFragment2 auto-inject {}
+            fragment = generator.GeneratorFragment2 auto-inject {}
+            fragment = ui.contentAssist.ContentAssistFragment2 auto-inject {}			           		
+
+    
+    		// scoping and exporting API
+    		fragment = scoping.ImportNamespacesScopingFragment2 auto-inject {}
+    		fragment = exporting.QualifiedNamesFragment2 auto-inject {}
+    		fragment = builder.BuilderIntegrationFragment2 auto-inject {}
 		}
 	}	
 	
@@ -130,6 +139,9 @@ Workflow {
 				// Generates checks for @Deprecated grammar annotations, an IssueProvider and a corresponding PropertyPage
 				generateDeprecationValidation = true
 			}
+			generator = {
+				generateXtendStub = true
+			}
 			junitSupport = {
 				junitVersion = "5"
 			}
@@ -138,19 +150,19 @@ Workflow {
 	
 	
 	// Helper for model
-	component = hu.blackbelt.eclipse.emf.genmodel.generator.helper.HelperGeneratorWorkflow {
+	component = HelperGeneratorWorkflow {
 		modelDir = "${rootPath}/${modelDir}"
 		javaGenPath = "${rootPath}/${javaGenPath}"
 	}
 
 	// Builder for model
-	component = hu.blackbelt.eclipse.emf.genmodel.generator.builder.BuilderGeneratorWorkflow {
+	component = BuilderGeneratorWorkflow {
 		modelDir = "${rootPath}/${modelDir}"
 		javaGenPath = "${rootPath}/${javaGenPath}"
 	}	
 
 	// Judo RuntimeModel for model
-	component = hu.blackbelt.judo.eclipse.emf.genmodel.generator.runtimemodel.RuntimeModelGeneratorWorkflow {
+	component = RuntimeModelGeneratorWorkflow {
 		modelDir = "${rootPath}/${modelDir}"
 		javaGenPath = "${rootPath}/${javaGenPath}"
 	}

@@ -33,7 +33,7 @@
 							</includes>
 						</fileset>
 						<fileset>
-							<directory>${basedir}/xtend-gen/</directory>
+							<directory>${basedir}/src/main/xtend-gen/</directory>
 							<includes>
 								<include>**/*</include>
 							</includes>
@@ -48,7 +48,7 @@
 							</includes>
 						</fileset>
 						<fileset>
-							<directory>${basedir}../ide/ui/xtend-gen/</directory>
+							<directory>${basedir}../ide/ui/src/main/xtend-gen/</directory>
 							<includes>
 								<include>**/*</include>
 							</includes>
@@ -71,7 +71,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<includes>hu/blackbelt/judo/meta/jslinternal/JslXtextProjectConfig.java
+					<includes>hu/blackbelt/judo/meta/jsl/JslXtextProjectConfig.java
 					</includes>
 				</configuration>
 			</plugin>
@@ -91,7 +91,7 @@
 						<configuration>
 							<mainClass>org.eclipse.emf.mwe2.launch.runtime.Mwe2Launcher</mainClass>
 							<arguments>
-								<argument>/${project.basedir}/src/main/java/hu/blackbelt/judo/meta/jslinternal/GenerateJslDsl.mwe2</argument>
+								<argument>/${project.basedir}/src/main/java/hu/blackbelt/judo/meta/jsl/GenerateJslDsl.mwe2</argument>
 								<argument>-p</argument>
 								<argument>rootPath=/${project.basedir}/..</argument>
 							</arguments>
@@ -132,7 +132,7 @@
                              except for /model directory -->
 							<sources>
 								<source>${project.basedir}/src/main/xtext-gen</source>
-								<source>${project.basedir}/xtend-gen</source>
+								<source>${project.basedir}/src/main/xtend-gen</source>
 							</sources>
 						</configuration>
 					</execution>
@@ -140,18 +140,6 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.eclipse.xtext</groupId>
-				<artifactId>xtext-dev-bom</artifactId>
-				<version>${xtext-version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 	<dependencies>
 
 		<dependency>
@@ -214,6 +202,12 @@
 			<groupId>org.eclipse.xtext</groupId>
 			<artifactId>org.eclipse.xtext</artifactId>
 			<version>${xtext-version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.inject</groupId>
+					<artifactId>guice</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.xtext</groupId>
@@ -223,6 +217,7 @@
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
+			<version>4.2.3</version><!--$NO-MVN-MAN-VER$-->
 		</dependency>
 
 	</dependencies>

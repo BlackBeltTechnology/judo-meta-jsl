@@ -3,23 +3,28 @@ package hu.blackbelt.judo.meta.jsl.runtime;
 import com.google.inject.Injector;
 import hu.blackbelt.judo.meta.jsl.JslDslStandaloneSetupGenerated;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
-import org.eclipse.emf.common.util.EList;
+
+import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.Resource.Diagnostic;
-import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.resource.IResourceFactory;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
+import org.eclipse.xtext.util.CancelIndicator;
+import org.eclipse.xtext.validation.CheckMode;
+import org.eclipse.xtext.validation.IResourceValidator;
+import org.eclipse.xtext.validation.Issue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class JslParser {
 
@@ -38,107 +43,81 @@ public class JslParser {
         }
         return injectorInstance;
     }
-
-    public XtextResource loadJslFromFile(final File jslFile) {
+        
+    public XtextResourceSet loadJslFromStream(Collection<JslStreamSource> streams) {
         final long startTs = System.currentTimeMillis();
         try {
             final XtextResourceSet xtextResourceSet =  injector().getInstance(XtextResourceSet.class);
-            final XtextResource jslResource = (XtextResource) xtextResourceSet
-                    .createResource(URI.createFileURI(jslFile.getAbsolutePath()), JSLSCRIPT_CONTENT_TYPE);
-            jslResource.load(new FileInputStream(jslFile),
-                    injector().getInstance(XtextResourceSet.class).getLoadOptions());
+            final List<Issue> errors = new ArrayList<>();
 
-            return jslResource;
+            for (JslStreamSource stream : streams) {
+                final XtextResource jslResource = (XtextResource) xtextResourceSet
+                        .createResource(stream.getResourceUri(), JSLSCRIPT_CONTENT_TYPE);
+                jslResource.load(stream.getStream(), injector().getInstance(XtextResourceSet.class).getLoadOptions());
+
+                final IResourceValidator validator = jslResource.getResourceServiceProvider().getResourceValidator();
+                errors.addAll(validator.validate(jslResource, CheckMode.ALL, CancelIndicator.NullImpl)
+                		.stream().filter(i -> i.getSeverity() == Severity.ERROR).collect(Collectors.toList()));
+
+            }
+            if (errors.size() > 0) {
+            	throw new JslParseException(errors);
+            }
+            return xtextResourceSet;
         } catch (IOException ex) {
             throw new IllegalStateException("Unable to parse JslExpression", ex);
         } finally {
-            log.trace("Loaded JSL from file in {} ms", (System.currentTimeMillis() - startTs));
+            log.trace("Loaded JSL in {} ms", (System.currentTimeMillis() - startTs));
         }
     }
 
-    public XtextResource loadJslFromStream(final InputStream stream, final URI resourceUri) {
-        final long startTs = System.currentTimeMillis();
-        try {
-            final XtextResourceSet xtextResourceSet =  injector().getInstance(XtextResourceSet.class);
-            final XtextResource jslResource = (XtextResource) xtextResourceSet
-                    .createResource(resourceUri, JSLSCRIPT_CONTENT_TYPE);
-            jslResource.load(stream, injector().getInstance(XtextResourceSet.class).getLoadOptions());
-
-            return jslResource;
-        } catch (IOException ex) {
-            throw new IllegalStateException("Unable to parse JslExpression", ex);
-        } finally {
-            log.trace("Loaded JSL stream in {} ms", (System.currentTimeMillis() - startTs));
-        }
+    public XtextResourceSet loadJslFromString(Collection<String> jslExpressions) {
+    	Collection<JslStreamSource> streams = jslExpressions.stream().map(s -> {
+    		try {
+    			return new JslStreamSource(new ByteArrayInputStream(s.getBytes("UTF-8")), URI.createURI("string:" + s.hashCode()));
+    		} catch (UnsupportedEncodingException e) {
+				throw new RuntimeException("Unsupported encoding: " + s);
+    		}
+    	}).collect(Collectors.toList());
+    	return loadJslFromStream(streams);
     }
 
-    public XtextResource loadJslFromString(final String jslExpression, final URI resourceUri) {
-        final long startTs = System.currentTimeMillis();
-        if (jslExpression == null) {
-            return null;
-        }
-
-        if (log.isDebugEnabled()) {
-            log.trace("Parsing JslExpression: {}", jslExpression);
-        }
-
-        try {
-            final XtextResourceSet xtextResourceSet =  injector().getInstance(XtextResourceSet.class);
-            final XtextResource jslResource = (XtextResource) xtextResourceSet
-                    .createResource(resourceUri, JSLSCRIPT_CONTENT_TYPE);
-            final InputStream in = new ByteArrayInputStream(jslExpression.getBytes("UTF-8"));
-            Map<Object, Object> defaultLoadOptions = injector().getInstance(XtextResourceSet.class).getLoadOptions();
-            HashMap<Object, Object> loadOptions = new HashMap<>(defaultLoadOptions);
-            loadOptions.put(XtextResource.OPTION_ENCODING,  "UTF-8");
-            jslResource.load(in, loadOptions);
-
-            return jslResource;
-        } catch (IOException ex) {
-            throw new IllegalStateException("Unable to parse JslExpression", ex);
-        } finally {
-            log.trace("Loaded JSL string in {} ms", (System.currentTimeMillis() - startTs));
-        }
+    public XtextResourceSet loadJslFromFile(final Collection<File> jslFiles) {
+    	Collection<JslStreamSource> streams = jslFiles.stream().map(f -> {
+			try {
+				return new JslStreamSource(new FileInputStream(f), URI.createURI(f.getAbsolutePath()));
+			} catch (FileNotFoundException e) {
+				throw new RuntimeException("File not found: " + f.getAbsolutePath());
+			}
+		}).collect(Collectors.toList());
+    	return loadJslFromStream(streams);
     }
 
-    public ModelDeclaration parseFile(final File jslFile) {
-        // get first entry of jslResource (root JslExpression)
-        final Iterator<EObject> iterator = loadJslFromFile(jslFile).getContents().iterator();
-        if (iterator.hasNext()) {
-            return (ModelDeclaration) EcoreUtil.copy(iterator.next());
-        } else {
-            return null;
-        }
+    public Optional<ModelDeclaration> getModelFromStreamSources(String modelName, final Collection<JslStreamSource> jslStreams) {
+    	return getModelFromXtextResourceSet(modelName, loadJslFromStream(jslStreams));
     }
 
-    public ModelDeclaration parseStream(final InputStream stream) {
-        return parseStream(stream, URI.createURI("urn:" + UUID.randomUUID()));
+    public Optional<ModelDeclaration> getModelFromFiles(String modelName, final Collection<File> jslFiles) {
+    	return getModelFromXtextResourceSet(modelName, loadJslFromFile(jslFiles));
     }
 
-    public ModelDeclaration parseStream(final InputStream stream, final URI resourceUri) {
-        // get first entry of jslResource (root JslExpression)
-        final Iterator<EObject> iterator = loadJslFromStream(stream, resourceUri).getContents().iterator();
-        if (iterator.hasNext()) {
-            return (ModelDeclaration) EcoreUtil.copy(iterator.next());
-        } else {
-            return null;
-        }
+    public Optional<ModelDeclaration> getModelFromStrings(String modelName, final Collection<String> jslStrings) {
+    	return getModelFromXtextResourceSet(modelName, loadJslFromString(jslStrings));
     }
 
-    public ModelDeclaration parseString(final String jslExpression) {
-        return parseString(jslExpression, URI.createURI("urn:" + UUID.randomUUID()));
+    public Optional<ModelDeclaration> getModelFromXtextResourceSet(String modelName, XtextResourceSet resourceSet) {
+    	Iterator<Notifier> iter = resourceSet.getAllContents();
+    	ModelDeclaration found = null;
+    	while (found == null && iter.hasNext()) {
+    		Notifier o = iter.next();
+    		if (o instanceof ModelDeclaration) {
+    			ModelDeclaration m = (ModelDeclaration) o;
+    			if (m.getName().equals(modelName)) {
+    				found = m;
+    			}
+    		}
+    	}
+    	return Optional.ofNullable(found);
     }
 
-    public ModelDeclaration parseString(final String jslExpression, final URI resourceUri) {
-        XtextResource resource = loadJslFromString(jslExpression, resourceUri);
-        EList<Diagnostic> errors = resource.getErrors();
-        if (!errors.isEmpty()) {
-            throw new JslParseException(jslExpression, errors);
-        }
-        Iterator<EObject> iterator = resource.getContents().iterator();
-        if (iterator.hasNext()) {
-            return (ModelDeclaration) EcoreUtil.copy(iterator.next());
-        } else {
-            return null;
-        }
-    }
 }
