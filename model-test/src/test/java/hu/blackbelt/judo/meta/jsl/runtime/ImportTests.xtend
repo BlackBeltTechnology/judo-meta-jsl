@@ -15,6 +15,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import com.google.inject.Provider
 import org.eclipse.emf.ecore.resource.ResourceSet
+import org.eclipse.xtext.diagnostics.Severity
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -51,7 +52,7 @@ class ImportTests {
 			model B
 		'''.parse => 
 		[
-			assertNoViableInputError
+			assertSyntaxError("no viable alternative at input")
 		]
 	}
 				
@@ -124,6 +125,22 @@ class ImportTests {
 	}
 
 	@Test 
+	def void testTwoModelDefinitionWithEmptyImportName() {
+		val resourceSet = resourceSetProvider.get
+		val a = '''model A'''.parse(resourceSet)
+		
+		val b = 
+		'''
+			model B
+			import
+		'''.parse(resourceSet)
+		
+		a.assertNoErrors
+		b.assertSyntaxError("missing RULE_ID at '\\n'")
+	}
+
+
+	@Test 
 	def void testTwoModelDefinitionWithImportWithQualifiedName() {
 		val resourceSet = resourceSetProvider.get
 		val a = '''model ns::A'''.parse(resourceSet)
@@ -169,7 +186,6 @@ class ImportTests {
 	}
 
 
-/*
 	@Test 
 	def void testTwoModelDefinitionReferencingDatatypeWithoutAlias() {
 		val resourceSet = resourceSetProvider.get
@@ -184,7 +200,7 @@ class ImportTests {
 			model B
 			import A
 			
-			entity abstract T {
+			entity abstract E {
 				field String f1
 			}	
 		'''.parse(resourceSet)
@@ -192,7 +208,56 @@ class ImportTests {
 		a.assertNoErrors
 		b.assertNoErrors
 	}
-*/
+
+
+	@Test 
+	def void testTwoModelDefinitionReferencingDatatypeWithFullyQualifiedName() {
+		val resourceSet = resourceSetProvider.get
+		val a = 
+		'''
+			model A
+			type string String max-length 128			
+		'''.parse(resourceSet)
+		
+		val b = 
+		'''
+			model B
+			
+			entity abstract E {
+				field A::String f1
+			}	
+		'''.parse(resourceSet)
+		
+		a.assertNoErrors
+		b.assertError(
+			JsldslPackage::eINSTANCE.entityFieldDeclaration, 
+			"org.eclipse.xtext.diagnostics.Diagnostic.Linking",
+			"Couldn't resolve reference to EntityFieldSingleType 'A::String'."
+		)
+	}
+
+	@Test 
+	def void testTwoModelDefinitionReferencingDatatypeWithAlias() {
+		val resourceSet = resourceSetProvider.get
+		val a = 
+		'''
+			model A
+			type string String max-length 128			
+		'''.parse(resourceSet)
+		
+		val b = 
+		'''
+			model B
+			import A as a
+			
+			entity abstract E {
+				field a::String f1
+			}	
+		'''.parse(resourceSet)
+		
+		a.assertNoErrors
+		b.assertNoErrors
+	}
 		
 	def private void assertHierarchyCycle(ModelDeclaration modelDeclaration, String expectedClassName) {
 		modelDeclaration.assertError(
@@ -205,17 +270,28 @@ class ImportTests {
 	def private void assertModelReferenceError(ModelDeclaration modelDeclaration, String expectedClassName) {
 		modelDeclaration.assertError(
 			JsldslPackage::eINSTANCE.modelImport,
-			"org.eclipse.xtext.diagnostics.Diagnostic.Linking",
-			"Couldn't resolve reference to ModelDeclaration '" + expectedClassName + "'."
+			JslDslValidator::IMPORTED_MODEL_NOT_FOUND,
+			"Imported model '" + expectedClassName + "' not found"
 		)
 	}
 	
-	def private void assertNoViableInputError(ModelDeclaration modelDeclaration) {
+	def private void assertSyntaxError(ModelDeclaration modelDeclaration, String error) {
 		modelDeclaration.assertError(
 			JsldslPackage::eINSTANCE.modelDeclaration, 
 			"org.eclipse.xtext.diagnostics.Diagnostic.Syntax", 
-			"no viable alternative at input"
+			error
 		)
 	}
 	
-}
+	/*
+	def private void assertEntityDeclartionInvalid(ModelDeclaration modelDeclaration, String error, int offset, int length) {
+		modelDeclaration.assertError(
+			JsldslPackage::eINSTANCE.entityFieldDeclaration, 
+			"org.eclipse.xtext.diagnostics.Diagnostic.Linking",
+			 offset, length,
+			error
+		)
+	} */
+
+
+}	

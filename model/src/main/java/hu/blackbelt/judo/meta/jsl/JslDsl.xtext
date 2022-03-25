@@ -10,8 +10,12 @@ ModelDeclaration returns ModelDeclaration hidden(WS, SL_COMMENT, ML_COMMENT)
 	  NL*
     ;
 
+//ModelImport
+//    : =>NL+ 'import' importedModel = [ModelDeclaration | ModelName] ('as' alias = ID)?
+//	;
+
 ModelImport
-    : =>NL+ 'import' importedModel = [ModelDeclaration | ModelName] ('as' alias = ID)?
+    : =>NL+ 'import' importedNamespace = ModelName ('as' alias = ID)?
 	;
 
 

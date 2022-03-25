@@ -9,6 +9,14 @@ import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider
 import hu.blackbelt.judo.meta.jsl.scoping.JslDslImportedNamespaceAwareLocalSocpeProvider
 import hu.blackbelt.judo.meta.jsl.scoping.JslResourceDescriptionStrategy
 import org.eclipse.xtext.resource.IDefaultResourceDescriptionStrategy
+import org.eclipse.xtext.naming.IQualifiedNameProvider
+import hu.blackbelt.judo.meta.jsl.scoping.JslDslQualifiedNameProvider
+import hu.blackbelt.judo.meta.jsl.scoping.JslDslQualifiedNameConverter
+import org.eclipse.xtext.naming.IQualifiedNameConverter
+import org.eclipse.xtext.parser.antlr.ISyntaxErrorMessageProvider
+import hu.blackbelt.judo.meta.jsl.errormessages.JslDslSyntaxErrorMessageProvider
+import org.eclipse.xtext.scoping.IGlobalScopeProvider
+import hu.blackbelt.judo.meta.jsl.scoping.JslDslGlobalScopeProvider
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
@@ -21,9 +29,27 @@ class JslDslRuntimeModule extends AbstractJslDslRuntimeModule {
     
     override configureIScopeProviderDelegate(Binder binder) {
 		binder.bind(IScopeProvider).annotatedWith(Names.named(AbstractDeclarativeScopeProvider.NAMED_DELEGATE)).to(JslDslImportedNamespaceAwareLocalSocpeProvider);
+		binder.bind(IQualifiedNameConverter).to(JslDslQualifiedNameConverter)
 	}
 	
 	def Class<? extends IDefaultResourceDescriptionStrategy> bindIDefaultResourceDescriptionStrategy() {
-		return JslResourceDescriptionStrategy;
+		JslResourceDescriptionStrategy;
 	}
+
+    override Class<? extends IQualifiedNameProvider> bindIQualifiedNameProvider() {
+        JslDslQualifiedNameProvider;
+    }
+
+//    override Class<? extends IQualifiedNameConverter> bindIQualifiedNameConverter() {
+//        JslDslQualifiedNameConverter;
+//    }
+
+	def Class<? extends ISyntaxErrorMessageProvider> bindISyntaxErrorMessageProvider() {
+	  JslDslSyntaxErrorMessageProvider;
+  	}
+  	
+  	
+    override Class<? extends IGlobalScopeProvider> bindIGlobalScopeProvider() {
+        JslDslGlobalScopeProvider
+    }
 }
