@@ -3,8 +3,6 @@ package hu.blackbelt.judo.meta.jsl.scoping
 import org.eclipse.xtext.naming.DefaultDeclarativeQualifiedNameProvider
 import com.google.inject.Singleton
 import org.eclipse.emf.ecore.EObject
-import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
-import org.eclipse.xtext.naming.QualifiedName
 
 @Singleton
 class JslDslQualifiedNameProvider extends DefaultDeclarativeQualifiedNameProvider {

@@ -3,16 +3,14 @@
  */
 package hu.blackbelt.judo.meta.jsl.formatting2
 
-import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation
 import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation
-import hu.blackbelt.judo.meta.jsl.services.JslDslGrammarAccess
 import org.eclipse.xtext.formatting2.AbstractFormatter2
 import org.eclipse.xtext.formatting2.IFormattableDocument
 
 class JslDslFormatter extends AbstractFormatter2 {
 	
-	@Inject extension JslDslGrammarAccess
+	// @Inject extension JslDslGrammarAccess
 
 	def dispatch void format(TernaryOperation ternaryOperation, extension IFormattableDocument document) {
 		// TODO: format HiddenRegions around keywords, attributes, cross references, etc. 

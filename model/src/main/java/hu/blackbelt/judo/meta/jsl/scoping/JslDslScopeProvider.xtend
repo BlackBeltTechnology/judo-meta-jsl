@@ -3,8 +3,6 @@
  */
 package hu.blackbelt.judo.meta.jsl.scoping
 
-import com.google.inject.Inject
-import org.eclipse.xtext.resource.IResourceDescription
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 
@@ -16,18 +14,6 @@ import org.eclipse.emf.ecore.EReference
  */
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
-	/*
-    override getScope(EObject object, EReference ref) {
-        if (ref == JsldslPackage.Literals.) {
-            val call = object as Call
-            return Scopes.scopeFor(call.instance.type.defs) 
-        }
-        return super.getScope(object, ref)
-    } 
-    */
-    
-    @Inject IResourceDescription.Manager mgr;
-    
     override getScope(EObject context, EReference ref) {
 		
 		// System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);

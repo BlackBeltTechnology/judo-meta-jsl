@@ -2,8 +2,6 @@ package hu.blackbelt.judo.meta.jsl.runtime;
 
 import java.util.Collection;
 
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.resource.Resource.Diagnostic;
 import org.eclipse.xtext.validation.Issue;
 
 @SuppressWarnings("serial")

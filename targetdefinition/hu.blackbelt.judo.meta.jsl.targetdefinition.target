@@ -1,23 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde?>
-<target includeMode="feature" name="hu.blackbelt.judo.meta.jsl.targetdefinition.target" sequenceNumber="1647467164959">
+<target includeMode="feature" name="hu.blackbelt.judo.meta.jsl.targetdefinition.target" sequenceNumber="1648211249106">
   <locations>
     <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
       <repository location="https://nexus.judo.technology/repository/p2/judo-epp-common/4.22.0.20220316_195019_68b6d470_develop"/>
-      <unit id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="2.12.1.v20210218-2134"/>
-      <unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.12.1.v20210218-2134"/>
-      <unit id="org.eclipse.emf.sdk.feature.group" version="2.28.0.v20211110-0654"/>
-      <unit id="org.eclipse.pde.source.feature.group" version="3.14.1000.v20211124-1800"/>
-      <unit id="org.eclipse.equinox.core.sdk.feature.group" version="3.23.200.v20211104-1730"/>
-      <unit id="org.eclipse.xtext.ui.feature.group" version="2.25.0.v20210301-1429"/>
-      <unit id="org.eclipse.sdk.feature.group" version="4.22.0.v20211124-1800"/>
-	    <unit id="org.eclipse.xtext.redist.feature.group" version="2.25.0.v20210301-1429"/>
-	    <unit id="org.eclipse.xtext.sdk.feature.group" version="2.25.0.v20210301-1429"/>
-	    <unit id="org.eclipse.xtext.xtext.ui.feature.group" version="2.25.0.v20210301-1429"/>
-	    <unit id="org.eclipse.xtext.xtext.ui.graph.feature.group" version="2.25.0.v20210301-1429"/>
-	    <unit id="org.eclipse.xtext.docs.feature.group" version="2.25.0.v20210301-1429"/>
-	    <unit id="org.eclipse.xtext.examples.feature.group" version="2.25.0.v20210301-1429"/>
-	    <unit id="org.eclipse.xtext.runtime.feature.group" version="2.25.0.v20210301-1429"/>
+      <unit id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="0.0.0"/>
+      <unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="0.0.0"/>
+      <unit id="org.eclipse.emf.sdk.feature.group" version="0.0.0"/>
+      <unit id="org.eclipse.pde.source.feature.group" version="0.0.0"/>
+      <unit id="org.eclipse.equinox.core.sdk.feature.group" version="0.0.0"/>
+      <unit id="org.eclipse.xtext.ui.feature.group" version="0.0.0"/>
+      <unit id="org.eclipse.sdk.feature.group" version="0.0.0"/>
     </location>
     <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
       <repository location="https://nexus.judo.technology/repository/p2/emf-genmodel-generator/1.0.2.20220301_152315_3cec0ca9_develop"/>

@@ -8,14 +8,7 @@ import org.eclipse.xtext.resource.IEObjectDescription
 import org.eclipse.xtext.resource.impl.DefaultResourceDescriptionStrategy
 import org.eclipse.xtext.util.IAcceptor
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
-import hu.blackbelt.judo.meta.jsl.QualifiedNameSerializer
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import org.eclipse.xtext.naming.IQualifiedNameProvider
-import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.TypeDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ClassDeclaration
-import org.eclipse.xtext.naming.IQualifiedNameConverter
 
 @Singleton
 class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy {

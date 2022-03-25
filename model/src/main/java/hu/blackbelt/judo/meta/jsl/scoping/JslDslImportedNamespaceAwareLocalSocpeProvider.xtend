@@ -37,7 +37,7 @@ class JslDslImportedNamespaceAwareLocalSocpeProvider extends ImportedNamespaceAw
 		if (context instanceof ModelDeclaration) {
 			val root = context as ModelDeclaration
 			for (ModelImport modelImport : root.imports) {
-				if (modelImport.importedNamespace != null && modelImport.importedNamespace.toQualifiedName !== null) {
+				if (modelImport.importedNamespace !== null && modelImport.importedNamespace.toQualifiedName !== null) {
 					resolvers += new JslDslImportNormalizer(modelImport.alias, modelImport.importedNamespace.toQualifiedName, true, ignoreCase)
 				}
 			}
