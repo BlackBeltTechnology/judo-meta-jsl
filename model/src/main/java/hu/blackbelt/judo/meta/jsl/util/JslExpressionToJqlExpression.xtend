@@ -11,6 +11,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.DecimalLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.IntegerLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.CreateExpression
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionedExpression
 
 class JslExpressionToJqlExpression {
 	/*
@@ -125,12 +127,6 @@ PrimaryExpression returns Expression
 
 // Warning: create statement is not allowed in getter!
 
-CreateExpression returns Expression
-	: {CreateExpression} 'new'? type=[ClassDeclaration]
-	  (   '(' (assignments+=CreateParameter (',' assignments+=CreateParameter)*)? ')'
-	  	| '[' (creates += Expression (',' creates += Expression)*)? ']'
-	  )
-	;
 
 CreateParameter:
     name=ID '=' right=Expression;
@@ -155,12 +151,42 @@ FunctionParameter
 	SpawnOperation
 	UnaryOperation
 	FunctionedExpression
-	CreateExpression
 */
 	
 //	def String getJql(Expression o) {
 //		o.
 //	}
+
+
+	/*
+	CreateExpression returns Expression
+	: {CreateExpression} 'new'? type=[ClassDeclaration]
+	  (   '(' (assignments+=CreateParameter (',' assignments+=CreateParameter)*)? ')'
+	  	| '[' (creates += Expression (',' creates += Expression)*)? ']'
+	  )
+	;
+	*/
+
+
+	
+	//FunctionedExpression returns Expression
+	//: NavigationExpression ({FunctionedExpression.operand=current} functionCall=FunctionCall)?
+	//;
+
+	def String getJql(Expression o) {
+		return "";
+	}
+	
+	def String getJql(FunctionedExpression o) {
+		return o.operand.getJql();
+	}
+
+
+	// TODO: Implement
+	def String getJql(CreateExpression o) {
+		return "";
+	}
+
 	
 	def String getJql(Self o) {
 		return "self";
