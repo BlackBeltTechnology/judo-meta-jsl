@@ -302,8 +302,8 @@ NumberLiteral returns Expression
 	;
 
 StringLiteral returns Expression
-	: {StringLiteral} value=STRING
-	| {StringLiteral} raw_value=RAW_STRING
+	: {EscapedStringLiteral} value=STRING
+	| {RawStringLiteral} value=RAW_STRING
 	;
 
 TemporalLiteral returns Expression
@@ -313,7 +313,7 @@ TemporalLiteral returns Expression
 	;
 
 Self returns Expression
-	: {Expression} 'self'
+	: {Self} 'self'
 	;
 
 LocalName
