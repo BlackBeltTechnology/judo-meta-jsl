@@ -22,6 +22,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameter
 import hu.blackbelt.judo.meta.jsl.jsldsl.Function
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameter
+import hu.blackbelt.judo.meta.jsl.jsldsl.ParenthesizedExpression
 
 class JslExpressionToJqlExpression {
 
@@ -200,9 +201,11 @@ class JslExpressionToJqlExpression {
 		;
 		*/
 		
-//	static def dispatch String getJql_(ParenthesizedExpression it) {
-//		it !== null ? it.name + "=" + it.expression.jql : null
-//	}
+	static def dispatch String getJqlDispacher(ParenthesizedExpression it) {
+		it !== null 
+			?  "(" + it.expression.jql + ")" 
+			: null
+	}
 	
 	/*
 	PrimaryExpression returns Expression

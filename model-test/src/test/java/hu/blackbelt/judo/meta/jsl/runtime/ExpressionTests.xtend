@@ -52,14 +52,13 @@ class ExpressionTests {
 				derived Customer anyCustomer = Customer!any()
 				derived Customer stringConcat = "" + self.value + "test"
 				derived Customer complex = self.leads!count() > 0 ? self.leads!filter(lead | lead.closed)!count() / self.leads!count() : 0
+				derived Customer arithmetic = ((1 + 2) * 3) / 4
 			}
 
 			entity Customer {
 				identifier required String name
-			
 				relation Lead[] lead opposite-single customer
 			}
-
 		'''.parse(resourceSet)
 		
 		model.assertNoErrors
@@ -80,6 +79,7 @@ class ExpressionTests {
 		jslDslModel.jql("SalesPerson", "anyCustomer").assertEquals("Customer!any()")
 		jslDslModel.jql("SalesPerson", "stringConcat").assertEquals("\"\"+self.value+\"test\"")
 		jslDslModel.jql("SalesPerson", "complex").assertEquals("self.leads!count()>0?self.leads!filter(lead|lead.closed)!count()/self.leads!count():0")
+		jslDslModel.jql("SalesPerson", "arithmetic").assertEquals("((1+2)*3)/4")
 	}
 	
 	

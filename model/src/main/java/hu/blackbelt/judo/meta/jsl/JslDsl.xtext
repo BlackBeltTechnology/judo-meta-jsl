@@ -255,7 +255,7 @@ QueryParameter
 	;
 
 ParenthesizedExpression returns Expression
-	: '(' Expression ')'
+	: {ParenthesizedExpression} '(' expression=Expression ')'
 	;
 
 PrimaryExpression returns Expression
