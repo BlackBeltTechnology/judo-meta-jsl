@@ -21,25 +21,27 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 			val modelDeclaration = eObject as ModelDeclaration
 			
 			//System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ modelDeclaration + " fq: " + modelDeclaration.fullyQualifiedName.toString("::"));
-			acceptor.accept(
-				EObjectDescription::create(
-					modelDeclaration.fullyQualifiedName, modelDeclaration
-				)
-			)					
-		
-			modelDeclaration.declarations.forEach[
-				declaration |
-
-				val fullyQualifiedName = declaration.fullyQualifiedName
-
-				if (fullyQualifiedName !== null)
-					// System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ declaration + " fq: " + fullyQualifiedName.toString("::"));
-					acceptor.accept(
-						EObjectDescription::create(
-							fullyQualifiedName, declaration
-						)
+			if (modelDeclaration.fullyQualifiedName != null) {
+				acceptor.accept(
+					EObjectDescription::create(
+						modelDeclaration.fullyQualifiedName, modelDeclaration
 					)
-			]
+				)					
+			
+				modelDeclaration.declarations.forEach[
+					declaration |
+	
+					val fullyQualifiedName = declaration.fullyQualifiedName
+	
+					if (fullyQualifiedName !== null)
+						// System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ declaration + " fq: " + fullyQualifiedName.toString("::"));
+						acceptor.accept(
+							EObjectDescription::create(
+								fullyQualifiedName, declaration
+							)
+						)
+				]				
+			}
 			true
 		} else
 			false
