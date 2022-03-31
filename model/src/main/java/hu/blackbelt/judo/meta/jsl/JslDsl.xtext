@@ -176,6 +176,10 @@ Expression returns Expression hidden(WS, CONT_NL, SL_COMMENT, ML_COMMENT)
 	: SwitchExpression
 	;
 
+MultilineExpression returns Expression hidden(WS, NL, CONT_NL, SL_COMMENT, ML_COMMENT)
+	: SwitchExpression
+	;
+
 // right associative rule
 SwitchExpression returns Expression
 	: ImpliesExpression (=> ({TernaryOperation.condition=current} '?')
@@ -251,11 +255,11 @@ Feature
 	;
 
 QueryParameter
-	: name = ID '=' expression=Expression
+	: name = ID '=' expression=MultilineExpression
 	;
 
 ParenthesizedExpression returns Expression
-	: {ParenthesizedExpression} '(' expression=Expression ')'
+	: '(' =>expression = MultilineExpression ')'
 	;
 
 PrimaryExpression returns Expression
@@ -270,19 +274,19 @@ PrimaryExpression returns Expression
 CreateExpression returns Expression
 	: {CreateExpression} 'new'? type=[ClassDeclaration]
 	  (   '(' (assignments+=CreateParameter (',' assignments+=CreateParameter)*)? ')'
-	  	| '[' (creates += Expression (',' creates += Expression)*)? ']'
+	  	| '[' (creates += MultilineExpression (',' creates += MultilineExpression)*)? ']'
 	  )
 	;
 
 CreateParameter:
-    name=ID '=' right=Expression;
+    name=ID '=' right=MultilineExpression;
 
 Function returns Function
 	: name=ID '(' (lambdaArgument=ID '|')? (parameters+=FunctionParameter (',' parameters+=FunctionParameter)*)? ')'
     ;
 
 FunctionParameter
-	: {FunctionParameter} expression=Expression
+	: {FunctionParameter} expression=MultilineExpression
 	;
 
 Literal returns Expression
