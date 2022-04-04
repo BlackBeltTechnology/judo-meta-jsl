@@ -72,6 +72,7 @@ public class TokenHighlightingConfiguration extends
     	String[] stringConstants = {
     			"RULE_STRING",
     			"RULE_RAW_STRING",
+    			"RULE_MIME_TYPE",
     			"RULE_DATE",
     			"RULE_TIMESTAMP",
     			"RULE_TIME"};
@@ -135,6 +136,8 @@ public class TokenHighlightingConfiguration extends
     			"'opposite-many'",
     			"'read-only'",
     			"'max-length'",
+    			"'mime-types'",
+    			"'max-file-size'",
     			"'regex'",
     			"'precision'",
     			"'required'",
