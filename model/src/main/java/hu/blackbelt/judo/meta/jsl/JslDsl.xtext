@@ -133,7 +133,7 @@ DataTypeDeclaration
     : 'type'
       (
 		  primitive = 'boolean' name = ID
-		| primitive = 'binary' name = ID (mimeTypes = ModifierMimeTypes & maxFileSize = ModifierMaxFileSize?) 
+		| primitive = 'binary' name = ID (mimeTypes = ModifierMimeTypes? & maxFileSize = ModifierMaxFileSize?) 
 		| primitive = 'string' name = ID (maxLength = ModifierMaxLength & regex = ModifierRegex?)
 		| primitive = 'numeric' name = ID (precision = ModifierPrecision & scale = ModifierScale)
 		| primitive = 'date' name = ID
