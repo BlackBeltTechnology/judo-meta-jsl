@@ -268,7 +268,7 @@ QueryParameter
 	;
 
 ParenthesizedExpression returns Expression
-	: '(' =>expression = MultilineExpression ')'
+	: {ParenthesizedExpression} '(' =>expression = MultilineExpression ')'
 	;
 
 PrimaryExpression returns Expression
