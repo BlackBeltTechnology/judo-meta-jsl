@@ -133,7 +133,7 @@ DataTypeDeclaration
     : 'type'
       (
 		  primitive = 'boolean' name = ID
-		| primitive = 'binary' name = ID
+		| primitive = 'binary' name = ID (mimeTypes = ModifierMimeTypes? & maxFileSize = ModifierMaxFileSize?) 
 		| primitive = 'string' name = ID (maxLength = ModifierMaxLength & regex = ModifierRegex?)
 		| primitive = 'numeric' name = ID (precision = ModifierPrecision & scale = ModifierScale)
 		| primitive = 'date' name = ID
@@ -141,7 +141,7 @@ DataTypeDeclaration
 		| primitive = 'timestamp' name = ID
       )
     ;
-	
+
 EnumDeclaration
     : 'enum' name = ID
       BLOCK_START (literals += EnumLiteral)+ BLOCK_END
@@ -167,6 +167,15 @@ ModifierScale
 	: 'scale' scale = INTEGER
 	;
 
+
+ModifierMimeTypes
+	: 'mime-types' mimeTypes+=MIME_TYPE (',' mimeTypes += MIME_TYPE)*
+	;
+
+ModifierMaxFileSize
+	: 'max-file-size' maxFileSize = INTEGER
+	;
+	
 
 /****************************
  *	Expression
@@ -328,7 +337,6 @@ ModelName
 	: ID('::' ID)*
     ;
 
-    
 /****************************
  *	Terminals
  ****************************/
@@ -376,6 +384,10 @@ terminal STRING
 
 terminal RAW_STRING
 	: 'r"' (!('"' | '\n' | '\r'))* '"'
+	;
+
+terminal MIME_TYPE
+    : 'm"' ('a'..'z' | 'A'..'Z')+ '/' ('*' | ('a'..'z' | 'A'..'Z')+ ('.' ('a'..'z' | 'A'..'Z')+)* ) '"'
 	;
 
 terminal CONT_NL
