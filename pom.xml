@@ -70,8 +70,8 @@
         <epsilon-runtime-version>1.4.0.20210919_103207_8f2ef01_develop</epsilon-runtime-version>
         <epsilon-runtime-eclipse-version>1.4.0.20210919_133947_3330a32_develop</epsilon-runtime-eclipse-version>
 
-        <emf-genmodel-generator-version>1.0.2.20220301_152315_3cec0ca9_develop</emf-genmodel-generator-version>
-        <judo-genmodel-generator-version>1.0.1.20220309_093555_ad7e77c3_develop</judo-genmodel-generator-version>
+        <emf-genmodel-generator-version>1.0.2.20220330_082302_0cadb6da_develop</emf-genmodel-generator-version>
+        <judo-genmodel-generator-version>1.0.1.20220405_155701_8eaa7eb0_develop</judo-genmodel-generator-version>
         <judo-epp-common-version>4.22.0.20220316_195019_68b6d470_develop</judo-epp-common-version>
 
         <xtext-version>2.26.0</xtext-version>
@@ -98,10 +98,10 @@
         <log4j.configuration>log4j.properties</log4j.configuration>
 
 		<!-- Define overridable properties for tycho-surefire-plugin -->
-		<platformSystemProperties></platformSystemProperties>
-		<moduleProperties></moduleProperties>
-		<systemProperties></systemProperties>
-		<additionalTestArguments></additionalTestArguments>
+		<platformSystemProperties />
+		<moduleProperties />
+		<systemProperties />
+		<additionalTestArguments />
 
 
     </properties>
