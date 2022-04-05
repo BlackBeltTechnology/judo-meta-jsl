@@ -53,8 +53,11 @@ public class JslParser {
             for (JslStreamSource stream : streams) {
                 final XtextResource jslResource = (XtextResource) xtextResourceSet
                         .createResource(stream.getResourceUri(), JSLSCRIPT_CONTENT_TYPE);
-                jslResource.load(stream.getStream(), injector().getInstance(XtextResourceSet.class).getLoadOptions());
-
+                jslResource.load(stream.getStream(), xtextResourceSet.getLoadOptions());
+            }
+            
+            for (Resource resource : xtextResourceSet.getResources()) {
+            	XtextResource jslResource = (XtextResource) resource;
                 final IResourceValidator validator = jslResource.getResourceServiceProvider().getResourceValidator();
                 errors.addAll(validator.validate(jslResource, CheckMode.ALL, CancelIndicator.NullImpl)
                 		.stream().filter(i -> i.getSeverity() == Severity.ERROR).collect(Collectors.toList()));
