@@ -20,8 +20,9 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 		if (eObject instanceof ModelDeclaration) {
 			val modelDeclaration = eObject as ModelDeclaration
 			
-			//System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ modelDeclaration + " fq: " + modelDeclaration.fullyQualifiedName.toString("::"));
-			if (modelDeclaration.fullyQualifiedName != null) {
+			if (modelDeclaration.fullyQualifiedName !== null) {
+				System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ modelDeclaration + " fq: " + modelDeclaration.fullyQualifiedName.toString("::"));
+
 				acceptor.accept(
 					EObjectDescription::create(
 						modelDeclaration.fullyQualifiedName, modelDeclaration
@@ -34,7 +35,7 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 					val fullyQualifiedName = declaration.fullyQualifiedName
 	
 					if (fullyQualifiedName !== null)
-						// System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ declaration + " fq: " + fullyQualifiedName.toString("::"));
+						System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ declaration + " fq: " + fullyQualifiedName.toString("::"));
 						acceptor.accept(
 							EObjectDescription::create(
 								fullyQualifiedName, declaration
@@ -43,8 +44,10 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 				]				
 			}
 			true
-		} else
+		} else {
+			System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ eObject);			
 			false
+		}
 
 	}
 }

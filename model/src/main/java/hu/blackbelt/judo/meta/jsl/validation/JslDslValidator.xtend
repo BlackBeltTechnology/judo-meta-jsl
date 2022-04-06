@@ -70,23 +70,23 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkSelfImport(ModelImport modelImport) {
 		//System.out.println("checkSelfImport: " + modelImport.importedNamespace + " " + modelImport.eContainer().fullyQualifiedName.toString("::"))
 		
-		if (modelImport.importedNamespace === null) {
+		if (modelImport.importedModel === null) {
 			return
 		}
-		if (modelImport.importedNamespace.toQualifiedName.equals(modelImport.eContainer().fullyQualifiedName)) {
+		if (modelImport.importedModel.name.toQualifiedName.equals(modelImport.eContainer().fullyQualifiedName)) {
 			//System.out.println("==== ERROR: " + modelImport.importedNamespace)
-			error("Cycle in hierarchy of model '" + modelImport.importedNamespace + "'",
-				JsldslPackage::eINSTANCE.modelImport_ImportedNamespace,
+			error("Cycle in hierarchy of model '" + modelImport.importedModel + "'",
+				JsldslPackage::eINSTANCE.modelImport_ImportedModel,
 				HIERARCHY_CYCLE,
-				modelImport.importedNamespace)
+				modelImport.importedModel.name)
 		}
 	}
 
 	@Check
 	def checkImportSanity(ModelImport modelImport) {
-		val modelName = modelImport.importedNamespace;
+		val modelName = modelImport.importedModel;
 		if (modelName !== null) {
-			val modelQualifiedName = modelName.toQualifiedName
+			val modelQualifiedName = modelName.name.toQualifiedName
 			val found = modelImport.modelDeclaration.getVisibleClassesDescriptions.map[
 				desc |
 				if (desc.qualifiedName == modelQualifiedName 
@@ -98,16 +98,16 @@ class JslDslValidator extends AbstractJslDslValidator {
 				}
 			].exists[l | l]
 			if (!found) {
-				error("Imported model '" + modelImport.importedNamespace + "' not found",
-					JsldslPackage::eINSTANCE.modelImport_ImportedNamespace,
+				error("Imported model '" + modelImport.importedModel + "' not found",
+					JsldslPackage::eINSTANCE.modelImport_ImportedModel,
 					IMPORTED_MODEL_NOT_FOUND,
-					modelImport.importedNamespace)				
+					modelImport.importedModel.name)				
 			}
 		} else {			
 				error("Imported model is not defined",
-					JsldslPackage::eINSTANCE.modelImport_ImportedNamespace,
+					JsldslPackage::eINSTANCE.modelImport_ImportedModel,
 					IMPORTED_MODEL_NOT_FOUND,
-					modelImport.importedNamespace)				
+					modelImport.importedModel.name)				
 		}
     }
 
