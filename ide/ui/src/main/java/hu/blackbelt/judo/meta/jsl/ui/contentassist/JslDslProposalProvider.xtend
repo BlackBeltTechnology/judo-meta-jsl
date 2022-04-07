@@ -3,10 +3,17 @@
  */
 package hu.blackbelt.judo.meta.jsl.ui.contentassist
 
+import com.google.inject.Inject
+import hu.blackbelt.judo.meta.jsl.scoping.JslDslIndex
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
  * on how to customize the content assistant.
  */
 class JslDslProposalProvider extends AbstractJslDslProposalProvider {
+	
+	@Inject extension JslDslIndex
+	
+	
+	
 }
