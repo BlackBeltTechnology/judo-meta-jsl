@@ -14,14 +14,14 @@ class JslDslIndex {
 	@Inject IContainer$Manager cm
 
 	def getVisibleEObjectDescriptions(EObject o) {
-		System.out.println("JslDslIndex.getVisibleEObjectDescriptions Object: " + o)
+		// System.out.println("JslDslIndex.getVisibleEObjectDescriptions Object: " + o)
 		o.getVisibleContainers.map[ container |
 			container.getExportedObjects
 		].flatten
 	}
 
 	def getVisibleEObjectDescriptions(EObject o, EClass type) {
-		System.out.println("JslDslIndex.getVisibleEObjectDescriptions Object: " + o + " Type: " + type)
+		// System.out.println("JslDslIndex.getVisibleEObjectDescriptions Object: " + o + " Type: " + type)
 		o.getVisibleContainers.map[ container |
 			container.getExportedObjectsByType(type)
 		].flatten
