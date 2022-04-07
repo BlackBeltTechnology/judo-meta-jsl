@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel;
 
 public class JslDslParserTest {
 
@@ -84,8 +85,8 @@ public class JslDslParserTest {
     }
 
     @Test
-    public void testParseFile() {
-        Optional<ModelDeclaration> model = parser.getModelFromFiles(
+    public void testGetModelDeclarationFromFiles() {
+        Optional<ModelDeclaration> model = parser.getModelDeclarationFromFiles(
         		"SalesModel", 
         		Arrays.asList(new File("src/test/resources/sample.jsl")));
         assertTrue(model.isPresent());
@@ -93,8 +94,8 @@ public class JslDslParserTest {
     }
 
     @Test
-    public void testParseStream() throws UnsupportedEncodingException {
-    	Optional<ModelDeclaration> model = parser.getModelFromStreamSources(
+    public void testGetModelDeclarationFromStreamSources() throws UnsupportedEncodingException {
+    	Optional<ModelDeclaration> model = parser.getModelDeclarationFromStreamSources(
     			"SalesModel", 
     			Arrays.asList(new JslStreamSource(new ByteArrayInputStream(TEST_MODEL.getBytes("UTF-8")), URI.createURI("urn:testLoadFromByteArrayInputStream"))));
         assertTrue(model.isPresent());
@@ -102,12 +103,37 @@ public class JslDslParserTest {
     }
 
     @Test
-    public void testParseString() {
-    	Optional<ModelDeclaration> model = parser.getModelFromStrings(
+    public void testGetModelDeclarationFromStrings() {
+    	Optional<ModelDeclaration> model = parser.getModelDeclarationFromStrings(
     			"SalesModel", 
     			Arrays.asList(TEST_MODEL));
         assertTrue(model.isPresent());
         assertEquals("SalesModel", model.get().getName());
     }
 
+    @Test
+    public void testGetModelFromFiles() {
+    	JslDslModel model = parser.getModelFromFiles(
+        		"SalesModel", 
+        		Arrays.asList(new File("src/test/resources/sample.jsl")));
+        assertEquals("SalesModel", model.getName());
+    }
+
+    @Test
+    public void testGetModelFromStreamSources() throws UnsupportedEncodingException {
+    	JslDslModel model = parser.getModelFromStreamSources(
+    			"SalesModel", 
+    			Arrays.asList(new JslStreamSource(new ByteArrayInputStream(TEST_MODEL.getBytes("UTF-8")), URI.createURI("urn:testLoadFromByteArrayInputStream"))));
+        assertEquals("SalesModel", model.getName());
+    }
+
+    @Test
+    public void testGetModelFromStrings() {
+    	JslDslModel model = parser.getModelFromStrings(
+    			"SalesModel", 
+    			Arrays.asList(TEST_MODEL));
+        assertEquals("SalesModel", model.getName());
+    }
+
+    
 }

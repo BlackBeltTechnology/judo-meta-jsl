@@ -20,29 +20,24 @@ class JslDslImportedNamespaceAwareLocalSocpeProvider extends ImportedNamespaceAw
 	} */	
 	// https://github.com/eclipse/xtext-extras/blob/master/org.eclipse.xtext.xbase/deprecated/org/eclipse/xtext/xbase/scoping/XbaseImportedNamespaceScopeProvider.java
 	
-	override protected getImportedNamespace(EObject object) {
-		val ns = super.getImportedNamespace(object)
-		//System.out.println("JslDslImportedNamespaceAwareLocalSocpeProvider.getImportedNamespace=" + ns + " object: " + object);
-		ns
+	override protected getImportedNamespace(EObject object) {		
+		if (object instanceof ModelImport) {
+			val modelImport = object as ModelImport;
+			modelImport.modelName.importName			
+		}
 	}
 
 	override protected List<ImportNormalizer> internalGetImportedNamespaceResolvers(EObject context, boolean ignoreCase) {
 		val resolvers = super.internalGetImportedNamespaceResolvers(context, ignoreCase)
 		
-//		System.out.println("JslDslImportedNamespaceAwareLocalSocpeProvider.internalGetImportedNamespaceResolvers="+ context.toString + " Num of resolvers: " + resolvers.size);
-//		if (context instanceof ModelDeclaration) {
-//			resolvers += createImportedNamespaceResolver(context.name, ignoreCase)
-//		}
-
 		if (context instanceof ModelDeclaration) {
 			val root = context as ModelDeclaration
 			for (ModelImport modelImport : root.imports) {
 				if (modelImport.importedNamespace !== null && modelImport.importedNamespace.toQualifiedName !== null) {
-					resolvers += new JslDslImportNormalizer(modelImport.alias, modelImport.importedNamespace.toQualifiedName, true, ignoreCase)
+					resolvers += new JslDslImportNormalizer(modelImport.modelName.alias, modelImport.importedNamespace.toQualifiedName, true, ignoreCase)
 				}
 			}
 		}
 		resolvers
-	}
-	
+	}	
 }
