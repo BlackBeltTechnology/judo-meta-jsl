@@ -3,6 +3,7 @@ package hu.blackbelt.judo.meta.jsl.runtime;
 import com.google.inject.Injector;
 import hu.blackbelt.judo.meta.jsl.JslDslStandaloneSetupGenerated;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel;
 
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.URI;
@@ -17,6 +18,8 @@ import org.eclipse.xtext.validation.IResourceValidator;
 import org.eclipse.xtext.validation.Issue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel.buildJslDslModel;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -53,8 +56,11 @@ public class JslParser {
             for (JslStreamSource stream : streams) {
                 final XtextResource jslResource = (XtextResource) xtextResourceSet
                         .createResource(stream.getResourceUri(), JSLSCRIPT_CONTENT_TYPE);
-                jslResource.load(stream.getStream(), injector().getInstance(XtextResourceSet.class).getLoadOptions());
-
+                jslResource.load(stream.getStream(), xtextResourceSet.getLoadOptions());
+            }
+            
+            for (Resource resource : xtextResourceSet.getResources()) {
+            	XtextResource jslResource = (XtextResource) resource;
                 final IResourceValidator validator = jslResource.getResourceServiceProvider().getResourceValidator();
                 errors.addAll(validator.validate(jslResource, CheckMode.ALL, CancelIndicator.NullImpl)
                 		.stream().filter(i -> i.getSeverity() == Severity.ERROR).collect(Collectors.toList()));
@@ -74,7 +80,7 @@ public class JslParser {
     public XtextResourceSet loadJslFromString(Collection<String> jslExpressions) {
     	Collection<JslStreamSource> streams = jslExpressions.stream().map(s -> {
     		try {
-    			return new JslStreamSource(new ByteArrayInputStream(s.getBytes("UTF-8")), URI.createURI("string:" + s.hashCode()));
+    			return new JslStreamSource(new ByteArrayInputStream(s.getBytes("UTF-8")), URI.createURI("platform:/" + s.hashCode() + ".jsl"));
     		} catch (UnsupportedEncodingException e) {
 				throw new RuntimeException("Unsupported encoding: " + s);
     		}
@@ -93,19 +99,19 @@ public class JslParser {
     	return loadJslFromStream(streams);
     }
 
-    public Optional<ModelDeclaration> getModelFromStreamSources(String modelName, final Collection<JslStreamSource> jslStreams) {
-    	return getModelFromXtextResourceSet(modelName, loadJslFromStream(jslStreams));
+    public Optional<ModelDeclaration> getModelDeclarationFromStreamSources(String modelName, final Collection<JslStreamSource> jslStreams) {
+    	return getModelDeclarationFromXtextResourceSet(modelName, loadJslFromStream(jslStreams));
     }
 
-    public Optional<ModelDeclaration> getModelFromFiles(String modelName, final Collection<File> jslFiles) {
-    	return getModelFromXtextResourceSet(modelName, loadJslFromFile(jslFiles));
+    public Optional<ModelDeclaration> getModelDeclarationFromFiles(String modelName, final Collection<File> jslFiles) {
+    	return getModelDeclarationFromXtextResourceSet(modelName, loadJslFromFile(jslFiles));
     }
 
-    public Optional<ModelDeclaration> getModelFromStrings(String modelName, final Collection<String> jslStrings) {
-    	return getModelFromXtextResourceSet(modelName, loadJslFromString(jslStrings));
+    public Optional<ModelDeclaration> getModelDeclarationFromStrings(String modelName, final Collection<String> jslStrings) {
+    	return getModelDeclarationFromXtextResourceSet(modelName, loadJslFromString(jslStrings));
     }
 
-    public Optional<ModelDeclaration> getModelFromXtextResourceSet(String modelName, XtextResourceSet resourceSet) {
+    public Optional<ModelDeclaration> getModelDeclarationFromXtextResourceSet(String modelName, XtextResourceSet resourceSet) {
     	Iterator<Notifier> iter = resourceSet.getAllContents();
     	ModelDeclaration found = null;
     	while (found == null && iter.hasNext()) {
@@ -118,6 +124,35 @@ public class JslParser {
     		}
     	}
     	return Optional.ofNullable(found);
+    }
+
+    public JslDslModel getModelFromStreamSources(String modelName, final Collection<JslStreamSource> jslStreams) {
+    	return getModelFromXtextResourceSet(modelName, loadJslFromStream(jslStreams));
+    }
+
+    public JslDslModel getModelFromFiles(String modelName, final Collection<File> jslFiles) {
+    	return getModelFromXtextResourceSet(modelName, loadJslFromFile(jslFiles));
+    }
+
+    public JslDslModel getModelFromStrings(String modelName, final Collection<String> jslStrings) {
+    	return getModelFromXtextResourceSet(modelName, loadJslFromString(jslStrings));
+    }
+
+    public JslDslModel getModelFromXtextResourceSet(String modelName, XtextResourceSet resourceSet) {
+    	ModelDeclaration defaultModel = getModelDeclarationFromXtextResourceSet(modelName, resourceSet)
+    			.orElseThrow(() -> new IllegalArgumentException("Model with name '" + modelName + "' not found"));
+    	
+    	JslDslModel model = createModel(defaultModel.getName());
+    	for (Resource res : resourceSet.getResources()) {
+    		ModelDeclaration modelDecl = (ModelDeclaration) res.getContents().get(0);
+    		model.addContent(modelDecl);
+    	}
+    	return model;
+    }
+
+    
+    private JslDslModel createModel(String name) {
+    	return buildJslDslModel().uri(URI.createURI("urn:" + name + ".jsl")).name(name).build();    	
     }
 
 }

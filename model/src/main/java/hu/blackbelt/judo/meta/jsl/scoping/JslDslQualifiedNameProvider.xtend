@@ -10,9 +10,9 @@ class JslDslQualifiedNameProvider extends DefaultDeclarativeQualifiedNameProvide
 	
 	override getFullyQualifiedName(EObject obj) {
 		val result = super.getFullyQualifiedName(obj);
-//		if (result !== null) {
-//			System.out.println("JslDslQualifiedNameProvider.getFullyQualifiedName="+ result.toString("::") + " for " + obj);		
-//		}
+		//if (result !== null) {
+		//	System.out.println("JslDslQualifiedNameProvider.getFullyQualifiedName="+ result.toString("::") + " for " + obj);		
+		//}
 		result;
 		
 	}
@@ -22,9 +22,9 @@ class JslDslQualifiedNameProvider extends DefaultDeclarativeQualifiedNameProvide
 		//if (obj instanceof ModelDeclaration) {
 		//	return QualifiedName.create()
 		//}
-//		if (result !== null) {	
-//			System.out.println("JslDslQualifiedNameProvider.qualifiedName="+ result.toString("::") + " for " + obj);
-//		}
+		//if (result !== null) {	
+		//	System.out.println("JslDslQualifiedNameProvider.qualifiedName="+ result.toString("::") + " for " + obj);
+		//}
 		result
 	}
 	
