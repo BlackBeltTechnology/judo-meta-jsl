@@ -68,9 +68,9 @@ class JslDslModelExtension {
 	def getReferableOppositeTypes(EntityRelationDeclaration relation, Boolean single) {
 		val selectableRelatations = relation.type.getReferableOppositeTypes(single, new LinkedList, relation)
 //		if (relation.opposite !== null && relation.opposite.oppositeType !== null) {
-//			val ret = selectableRelatations.filter[r | r.name === relation.opposite.oppositeType.name ].toList			
-//			System.out.println("------- SCOPE FOUND ----------- -> " + ret)			
-//			return ret
+//			// val ret = selectableRelatations.filter[r | r.name === relation.opposite.oppositeType.name ].toList			
+//			System.out.println("------- SCOPE FOUND ----------- -> ")			
+////			return ret
 //		}
 		/*
 		val currentRelationReferencedRelations = selectableRelatations.filter[r | r.opposite !== null && 
