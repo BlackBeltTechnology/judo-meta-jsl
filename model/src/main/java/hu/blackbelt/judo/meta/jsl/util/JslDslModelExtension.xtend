@@ -3,6 +3,11 @@ package hu.blackbelt.judo.meta.jsl.util
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.eclipse.emf.ecore.EObject
 import com.google.inject.Singleton
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
+import java.util.Collection
+import java.util.ArrayList
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
+import java.util.LinkedList
 
 @Singleton
 class JslDslModelExtension {
@@ -52,5 +57,50 @@ class JslDslModelExtension {
 		} else {
 			throw new IllegalAccessException("The root container is not ModelDeclaration: " + obj)
 		}		
+	}
+	
+
+
+	def getReferableOppositeTypes(EntityRelationDeclaration relation) {
+		relation.getReferableOppositeTypes(null)
+	}
+	
+	def getReferableOppositeTypes(EntityRelationDeclaration relation, Boolean single) {
+		val selectableRelatations = relation.type.getReferableOppositeTypes(single, new LinkedList, relation)
+//		if (relation.opposite !== null && relation.opposite.oppositeType !== null) {
+//			val ret = selectableRelatations.filter[r | r.name === relation.opposite.oppositeType.name ].toList			
+//			System.out.println("------- SCOPE FOUND ----------- -> " + ret)			
+//			return ret
+//		}
+		/*
+		val currentRelationReferencedRelations = selectableRelatations.filter[r | r.opposite !== null && 
+			r.opposite.oppositeType !== null && 
+			r.opposite.oppositeType.name === relation.name
+		].toList
+		if (!currentRelationReferencedRelations.empty) {
+			currentRelationReferencedRelations
+		} else {
+			selectableRelatations
+		} */
+		selectableRelatations
+	}
+
+
+	def Collection<EntityRelationDeclaration> getReferableOppositeTypes(EntityDeclaration entity, Boolean single, Collection<EntityRelationDeclaration> visited, EntityRelationDeclaration original) {		
+		if (entity !== null) {
+			visited.addAll(
+				entity.members
+					.filter[m | m instanceof EntityRelationDeclaration]
+					.map[m |m as EntityRelationDeclaration]
+//					.filter[r | r.opposite === null || (original !== null && r.opposite.oppositeType !== null && r.opposite.oppositeType.name === original.name)]
+					.filter[r | single === null || (single && !r.isMany) || (!single && r.isMany)]
+					.toList			
+			)
+
+			for (e : entity.extends) {
+				e.getReferableOppositeTypes(single, visited, original)	
+			}
+		}
+		visited
 	}
 }
