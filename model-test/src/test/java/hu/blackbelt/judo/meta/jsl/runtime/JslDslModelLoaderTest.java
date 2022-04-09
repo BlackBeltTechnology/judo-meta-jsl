@@ -1,7 +1,6 @@
 package hu.blackbelt.judo.meta.jsl.runtime;
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel;
-import hu.blackbelt.judo.meta.jsl.jsldsl.support.JslDslModelResourceSupport;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.junit.jupiter.api.DisplayName;

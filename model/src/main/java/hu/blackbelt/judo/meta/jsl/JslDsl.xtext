@@ -45,7 +45,7 @@ ClassDeclaration
  *	Entity
  ****************************/
 
-EntityDeclaration returns EntityDeclaration
+EntityDeclaration
 	: {EntityDeclaration}
 	  'entity' isAbstract ?= 'abstract'? name = ID
 	  ('extends' extends += [EntityDeclaration | LocalName] (',' extends += [EntityDeclaration | LocalName])*)?
@@ -65,11 +65,11 @@ ConstraintDeclaration
 	;
 
 EntityFieldDeclaration
-	: 'field' (isRequired ?= 'required'? singleType = [EntityFieldSingleType | LocalName] | arrayType = [EntityDeclaration | LocalName] '[]') name = ID
+	: 'field' (isRequired ?= 'required'? type = [EntityFieldSingleType | LocalName] isMany ?= '[]'?) name = ID
 	  ("=" default = Expression)?
 	;
 
-EntityFieldSingleType
+EntityFieldSingleType 
 	: PrimitiveDeclaration
 	| EntityDeclaration
 	;
@@ -80,7 +80,7 @@ EntityIdentifierDeclaration
 	;
 
 EntityDerivedDeclaration
-	: 'derived' (singleType = [EntityDerivedSingleType | LocalName] | arrayType = [EntityDeclaration | LocalName] '[]') name = ID
+	: 'derived' (type = [EntityDerivedSingleType | LocalName] isMany ?= '[]'?) name = ID
 	  ('(' parameters += DerivedParameter (',' parameters += DerivedParameter)* ')')?
 	  "=" expression = Expression
 	;
@@ -95,12 +95,13 @@ DerivedParameter
 	;
 
 EntityRelationDeclaration
-	: 'relation' (isRequired ?= 'required'? singleType = [EntityDeclaration | LocalName] | arrayType = [EntityDeclaration | LocalName] '[]') name = ID
-	  opposite = Opposite?
+	: 'relation' (isRequired ?= 'required'? type = [EntityDeclaration | LocalName] isMany ?= '[]'?) name = ID
+	  opposite = EntityRelationOpposite?
 	;
 
-Opposite
-	: kind = ('opposite-name' | 'opposite-single' | 'opposite-many') name = ID
+EntityRelationOpposite
+	: 'opposite-add' oppositeName = ID (isMany ?= '[]')?
+	| 'opposite' oppositeType = [EntityRelationDeclaration | LocalName]
 	;
 
 

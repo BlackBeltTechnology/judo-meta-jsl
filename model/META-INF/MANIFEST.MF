@@ -15,6 +15,8 @@ Require-Bundle: org.antlr.runtime;bundle-version="[3.2.0,3.2.1)",
  org.eclipse.xtext.util,
  org.eclipse.xtext.xbase.lib;bundle-version="2.14.0"
 Export-Package: hu.blackbelt.judo.meta.jsl,
+ hu.blackbelt.judo.meta.jsl.errormessages,
+ hu.blackbelt.judo.meta.jsl.formatting2,
  hu.blackbelt.judo.meta.jsl.generator,
  hu.blackbelt.judo.meta.jsl.jsldsl,
  hu.blackbelt.judo.meta.jsl.jsldsl.impl,
@@ -28,6 +30,7 @@ Export-Package: hu.blackbelt.judo.meta.jsl,
  hu.blackbelt.judo.meta.jsl.scoping,
  hu.blackbelt.judo.meta.jsl.serializer,
  hu.blackbelt.judo.meta.jsl.services,
+ hu.blackbelt.judo.meta.jsl.util,
  hu.blackbelt.judo.meta.jsl.validation
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: hu.blackbelt.judo.meta.jsl.model
