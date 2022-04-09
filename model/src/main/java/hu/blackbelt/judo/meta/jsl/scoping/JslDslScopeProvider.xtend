@@ -5,6 +5,13 @@ package hu.blackbelt.judo.meta.jsl.scoping
 
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
+import org.eclipse.xtext.scoping.Scopes
+import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
+import com.google.inject.Inject
+import org.eclipse.xtext.scoping.IScope
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 
 /**
  * This class contains custom scoping description.
@@ -14,11 +21,28 @@ import org.eclipse.emf.ecore.EReference
  */
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
+	@Inject extension JslDslModelExtension
+
     override getScope(EObject context, EReference ref) {
 		
-		// System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
+		System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
+
+
+		JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType == ref
+
+
+		switch context {
+			EntityRelationOpposite : 
+				switch (ref) {
+					case JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType:
+						Scopes.scopeFor((context.eContainer as EntityRelationDeclaration).getAllOppositeRelations, IScope.NULLSCOPE)			
+					default: 
+						super.getScope(context, ref)
+				}
+							
+			default: super.getScope(context, ref)
+		}
 		
-        return super.getScope(context, ref)
-    }
+	}
 
 }
