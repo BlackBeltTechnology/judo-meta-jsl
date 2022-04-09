@@ -45,7 +45,7 @@ ClassDeclaration
  *	Entity
  ****************************/
 
-EntityDeclaration returns EntityDeclaration
+EntityDeclaration
 	: {EntityDeclaration}
 	  'entity' isAbstract ?= 'abstract'? name = ID
 	  ('extends' extends += [EntityDeclaration | LocalName] (',' extends += [EntityDeclaration | LocalName])*)?
@@ -69,7 +69,7 @@ EntityFieldDeclaration
 	  ("=" default = Expression)?
 	;
 
-EntityFieldSingleType
+EntityFieldSingleType 
 	: PrimitiveDeclaration
 	| EntityDeclaration
 	;
@@ -80,7 +80,7 @@ EntityIdentifierDeclaration
 	;
 
 EntityDerivedDeclaration
-	: 'derived' (type = [EntityDerivedSingleType | LocalName] isMany = '[]'?) name = ID
+	: 'derived' (type = [EntityDerivedSingleType | LocalName] isMany ?= '[]'?) name = ID
 	  ('(' parameters += DerivedParameter (',' parameters += DerivedParameter)* ')')?
 	  "=" expression = Expression
 	;

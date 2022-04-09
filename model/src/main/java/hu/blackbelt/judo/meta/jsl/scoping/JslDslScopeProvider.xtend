@@ -8,11 +8,9 @@ import org.eclipse.emf.ecore.EReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import org.eclipse.xtext.scoping.Scopes
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import com.google.inject.Inject
 import org.eclipse.xtext.scoping.IScope
-import java.util.Collection
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 
 /**
@@ -37,7 +35,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			EntityRelationOpposite : 
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType:
-						Scopes.scopeFor((context.eContainer as EntityRelationDeclaration).getReferableOppositeTypes, IScope.NULLSCOPE)			
+						Scopes.scopeFor((context.eContainer as EntityRelationDeclaration).getAllOppositeRelations, IScope.NULLSCOPE)			
 					default: 
 						super.getScope(context, ref)
 				}

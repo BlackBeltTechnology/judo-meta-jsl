@@ -8,6 +8,12 @@ import java.util.Collection
 import java.util.ArrayList
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import java.util.LinkedList
+import java.util.Set
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
+import java.util.HashSet
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -59,48 +65,81 @@ class JslDslModelExtension {
 		}		
 	}
 	
+	def getAllOppositeRelations(EntityRelationDeclaration relation) {
+		relation.getAllOppositeRelations(null)
+	}
 
+	def getValidOppositeRelations(EntityRelationDeclaration relation) {
+		relation.getValidOppositeRelations(null)
+	}
 
-	def getReferableOppositeTypes(EntityRelationDeclaration relation) {
-		relation.getReferableOppositeTypes(null)
+	def getValidOppositeRelations(EntityRelationDeclaration relation, Boolean single) {
+		relation.type.getAllRelations(single, new LinkedList).filter[r | relation.isSelectableForRelation(r)].toList
 	}
 	
-	def getReferableOppositeTypes(EntityRelationDeclaration relation, Boolean single) {
-		val selectableRelatations = relation.type.getReferableOppositeTypes(single, new LinkedList, relation)
-//		if (relation.opposite !== null && relation.opposite.oppositeType !== null) {
-//			// val ret = selectableRelatations.filter[r | r.name === relation.opposite.oppositeType.name ].toList			
-//			System.out.println("------- SCOPE FOUND ----------- -> ")			
-////			return ret
-//		}
-		/*
-		val currentRelationReferencedRelations = selectableRelatations.filter[r | r.opposite !== null && 
-			r.opposite.oppositeType !== null && 
-			r.opposite.oppositeType.name === relation.name
-		].toList
-		if (!currentRelationReferencedRelations.empty) {
-			currentRelationReferencedRelations
-		} else {
-			selectableRelatations
-		} */
-		selectableRelatations
+	def getAllOppositeRelations(EntityRelationDeclaration relation, Boolean single) {
+		relation.type.getAllRelations(single, new LinkedList)
 	}
 
+	def Collection<EntityRelationDeclaration> getAllRelations(EntityDeclaration entity) {		
+		entity.getAllRelations(null, new LinkedList)				
+	}
 
-	def Collection<EntityRelationDeclaration> getReferableOppositeTypes(EntityDeclaration entity, Boolean single, Collection<EntityRelationDeclaration> visited, EntityRelationDeclaration original) {		
+	def Collection<EntityRelationDeclaration> getAllRelations(EntityDeclaration entity, Boolean single) {		
+		entity.getAllRelations(single, new LinkedList)		
+	}
+
+	def Collection<EntityRelationDeclaration> getAllRelations(EntityDeclaration entity, Boolean single, Collection<EntityRelationDeclaration> visited) {		
 		if (entity !== null) {
 			visited.addAll(
 				entity.members
 					.filter[m | m instanceof EntityRelationDeclaration]
 					.map[m |m as EntityRelationDeclaration]
-//					.filter[r | r.opposite === null || (original !== null && r.opposite.oppositeType !== null && r.opposite.oppositeType.name === original.name)]
 					.filter[r | single === null || (single && !r.isMany) || (!single && r.isMany)]
 					.toList			
 			)
 
 			for (e : entity.extends) {
-				e.getReferableOppositeTypes(single, visited, original)	
+				e.getAllRelations(single, visited)	
 			}
 		}
 		visited
+	}
+
+	def isSelectableForRelation(EntityRelationDeclaration currentRelation, EntityRelationDeclaration selectableRelation) {
+		if (currentRelation.opposite === null) {
+			return false
+		}
+		val opposite = currentRelation.opposite
+		val oppositeEntity = selectableRelation.eContainer as EntityDeclaration
+		
+		if (opposite.oppositeType === null) {
+			val oppositeEntityAllRelations = oppositeEntity.getAllRelations().toList
+
+			// System.out.println(" --- " + EObjectOrProxy + " --- Rel:  " + opposite.eContainer + " Sib: " + siblings.map[r | r + "=" + r.opposite?.oppositeType].join(", "))
+			if (oppositeEntityAllRelations.exists[r | r.opposite?.oppositeType === currentRelation]) {
+				if (selectableRelation.opposite?.oppositeType === currentRelation) {
+					return true
+				} else {
+					return false
+				}
+			} else if (selectableRelation.opposite === null) {
+				return true
+			}
+			return false
+		}
+		true		
+	}
+	
+	def Set<String> getMemberNames(EntityDeclaration entity, EntityMemberDeclaration exclude) {
+		val members = entity.members.filter[m | m !== exclude]
+
+		var names = new ArrayList()
+		names.addAll(members.filter[m | m instanceof EntityFieldDeclaration].map[m | m as EntityFieldDeclaration].map[m | m.name].toList)
+		names.addAll(members.filter[m | m instanceof EntityIdentifierDeclaration].map[m | m as EntityIdentifierDeclaration].map[m | m.name].toList)
+		names.addAll(members.filter[m | m instanceof EntityRelationDeclaration].map[m | m as EntityRelationDeclaration].map[m | m.name].toList)
+		names.addAll(members.filter[m | m instanceof EntityDerivedDeclaration].map[m | m as EntityDerivedDeclaration].map[m | m.name].toList)
+		
+		new HashSet(names)
 	}
 }
