@@ -65,7 +65,7 @@ ConstraintDeclaration
 	;
 
 EntityFieldDeclaration
-	: 'field' (isRequired ?= 'required'? type = [EntityFieldSingleType | LocalName] isMany ?= '[]'?) name = ID
+	: 'field' (isRequired ?= 'required'? referenceType = [EntityFieldSingleType | LocalName] isMany ?= '[]'?) name = ID
 	  ("=" default = Expression)?
 	;
 
@@ -75,7 +75,7 @@ EntityFieldSingleType
 	;
 
 EntityIdentifierDeclaration
-	: 'identifier' isRequired ?= 'required'? type = [PrimitiveDeclaration | LocalName] name = ID
+	: 'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] name = ID
 	  ("=" default = Expression)?
 	;
 
@@ -91,11 +91,11 @@ EntityDerivedSingleType
 	;
 
 DerivedParameter
-	: type = [PrimitiveDeclaration | LocalName] name = ID "=" default = Expression
+	: referenceType = [PrimitiveDeclaration | LocalName] name = ID "=" default = Expression
 	;
 
 EntityRelationDeclaration
-	: 'relation' (isRequired ?= 'required'? type = [EntityDeclaration | LocalName] isMany ?= '[]'?) name = ID
+	: 'relation' (isRequired ?= 'required'? referenceType = [EntityDeclaration | LocalName] isMany ?= '[]'?) name = ID
 	  opposite = EntityRelationOpposite?
 	;
 
@@ -115,7 +115,7 @@ ErrorDeclaration
 	;
 
 ErrorField
-	: NL+ 'field' isRequired ?= 'required'? type = [PrimitiveDeclaration] name = ID
+	: NL+ 'field' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration] name = ID
 	  ("=" default = Expression)?
 	;
 

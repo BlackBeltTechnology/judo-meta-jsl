@@ -41,11 +41,11 @@ class JslDslModelExtension {
 	}
 
 	def getValidOppositeRelations(EntityRelationDeclaration relation, Boolean single) {
-		relation.type.getAllRelations(single, new LinkedList).filter[r | relation.isSelectableForRelation(r)].toList
+		relation.referenceType.getAllRelations(single, new LinkedList).filter[r | relation.isSelectableForRelation(r)].toList
 	}
 	
 	def getAllOppositeRelations(EntityRelationDeclaration relation, Boolean single) {
-		relation.type.getAllRelations(single, new LinkedList)
+		relation.referenceType.getAllRelations(single, new LinkedList)
 	}
 
 	def Collection<EntityRelationDeclaration> getAllRelations(EntityDeclaration entity) {		
