@@ -80,7 +80,7 @@ EntityIdentifierDeclaration
 	;
 
 EntityDerivedDeclaration
-	: 'derived' (type = [EntityDerivedSingleType | LocalName] isMany ?= '[]'?) name = ID
+	: 'derived' (referenceType = [EntityDerivedSingleType | LocalName] isMany ?= '[]'?) name = ID
 	  ('(' parameters += DerivedParameter (',' parameters += DerivedParameter)* ')')?
 	  "=" expression = Expression
 	;
