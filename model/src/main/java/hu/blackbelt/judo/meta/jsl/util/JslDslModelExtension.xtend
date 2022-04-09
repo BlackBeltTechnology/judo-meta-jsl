@@ -17,39 +17,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 
 @Singleton
 class JslDslModelExtension {
-
-	// @Inject extension IQualifiedNameProvider
-	// @Inject extension IQualifiedNameConverter
-
-	/*
-	def Collection<QualifiedName> modelImportHierarchy(ModelDeclaration modelDeclaration, QualifiedName ignoredImport) {
-		val visited = <QualifiedName>newArrayList()
-		modelImportHierarchy(modelDeclaration, visited, ignoredImport)
-		visited
-	}
-
-
-	def void modelImportHierarchy(QualifiedName modelDeclaration, List<QualifiedName> visited, QualifiedName ignoredImport) {
-		var allImports = modelDeclaration.imports
-		if (visited.contains(modelDeclaration.fullyQualifiedName)) {
-			return;
-		}
-		for (modelImport : allImports) {
-			//val String dd = modelImport.importedNamespace
-			if ((ignoredImport === null 
-				|| !ignoredImport.equals(modelImport.importedNamespace.toQualifiedName))
-				&& !visited.contains(modelImport.importedNamespace.toQualifiedName)
-			) {
-				visited.add(modelImport.importedNamespace.toQualifiedName);
-				if (modelImport !== modelDeclaration) {
-					val model = modelImport.resolveModel;
-					if (model.present) {
-						modelImportHierarchy(model.get, visited, null)						
-					}
-				}
-			}
-		}
-	} */
 	
 	def ModelDeclaration modelDeclaration(EObject obj) {
 		var current = obj
@@ -132,14 +99,46 @@ class JslDslModelExtension {
 	}
 	
 	def Set<String> getMemberNames(EntityDeclaration entity, EntityMemberDeclaration exclude) {
-		val members = entity.members.filter[m | m !== exclude]
-
 		var names = new ArrayList()
-		names.addAll(members.filter[m | m instanceof EntityFieldDeclaration].map[m | m as EntityFieldDeclaration].map[m | m.name].toList)
-		names.addAll(members.filter[m | m instanceof EntityIdentifierDeclaration].map[m | m as EntityIdentifierDeclaration].map[m | m.name].toList)
-		names.addAll(members.filter[m | m instanceof EntityRelationDeclaration].map[m | m as EntityRelationDeclaration].map[m | m.name].toList)
-		names.addAll(members.filter[m | m instanceof EntityDerivedDeclaration].map[m | m as EntityDerivedDeclaration].map[m | m.name].toList)
-		
+		for (e : entity.getAllEntityTypes(new LinkedList)) {
+			val members = e.members.filter[m | m !== exclude]
+	
+			names.addAll(members.filter[m | m instanceof EntityFieldDeclaration].map[m | m as EntityFieldDeclaration].map[m | m.name].toList)
+			names.addAll(members.filter[m | m instanceof EntityIdentifierDeclaration].map[m | m as EntityIdentifierDeclaration].map[m | m.name].toList)
+			names.addAll(members.filter[m | m instanceof EntityRelationDeclaration].map[m | m as EntityRelationDeclaration].map[m | m.name].toList)
+			names.addAll(members.filter[m | m instanceof EntityDerivedDeclaration].map[m | m as EntityDerivedDeclaration].map[m | m.name].toList)		
+		}
 		new HashSet(names)
 	}
+	
+	
+	def Collection<EntityMemberDeclaration> getAllMembers(EntityDeclaration entity, Collection<EntityMemberDeclaration> visited) {		
+		if (entity !== null) {
+			visited.addAll(
+				entity.members
+					.map[m |m as EntityMemberDeclaration]
+					.toList			
+			)
+
+			for (e : entity.extends) {
+				e.getAllMembers(visited)	
+			}
+		}
+		visited
+	}
+
+
+	def Set<EntityDeclaration> getAllEntityTypes(EntityDeclaration entity, Collection<EntityDeclaration> visited) {
+		if (!visited.contains(entity)) {
+			visited.add(entity)
+		} else {
+			return new HashSet(visited)
+		}
+		
+		for (superEntity : entity.extends) {
+			visited.addAll(superEntity.getAllEntityTypes(visited))
+		}
+		new HashSet(visited)
+	}
+	
 }

@@ -278,16 +278,4 @@ class ImportTests {
 			error
 		)
 	}
-	
-	/*
-	def private void assertEntityDeclartionInvalid(ModelDeclaration modelDeclaration, String error, int offset, int length) {
-		modelDeclaration.assertError(
-			JsldslPackage::eINSTANCE.entityFieldDeclaration, 
-			"org.eclipse.xtext.diagnostics.Diagnostic.Linking",
-			 offset, length,
-			error
-		)
-	} */
-
-
 }	
