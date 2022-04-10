@@ -100,7 +100,10 @@ class JslDslModelExtension {
 	
 	def Set<String> getMemberNames(EntityDeclaration entity, EntityMemberDeclaration exclude) {
 		var names = new ArrayList()
-		for (e : entity.getAllEntityTypes(new LinkedList)) {
+		val allEntitiesInInheritenceChain = new HashSet
+		allEntitiesInInheritenceChain.add(entity)
+		allEntitiesInInheritenceChain.addAll(entity.superEntityTypes)		
+		for (e : allEntitiesInInheritenceChain) {
 			val members = e.members.filter[m | m !== exclude]
 	
 			names.addAll(members.filter[m | m instanceof EntityFieldDeclaration].map[m | m as EntityFieldDeclaration].map[m | m.name].toList)
@@ -127,18 +130,18 @@ class JslDslModelExtension {
 		visited
 	}
 
+	def Collection<EntityDeclaration> getSuperEntityTypes(EntityDeclaration entity) {
+		getSuperEntityTypes(entity, new LinkedList)
+	}
 
-	def Set<EntityDeclaration> getAllEntityTypes(EntityDeclaration entity, Collection<EntityDeclaration> visited) {
-		if (!visited.contains(entity)) {
-			visited.add(entity)
-		} else {
-			return new HashSet(visited)
-		}
-		
+	def Collection<EntityDeclaration> getSuperEntityTypes(EntityDeclaration entity, Collection<EntityDeclaration> visited) {
 		for (superEntity : entity.extends) {
-			visited.addAll(superEntity.getAllEntityTypes(visited))
+			if (!visited.contains(superEntity)) {
+				visited.add(superEntity)
+				visited.addAll(superEntity.getSuperEntityTypes(visited))
+			}
 		}
-		new HashSet(visited)
+		visited
 	}
 	
 }

@@ -67,7 +67,7 @@ class AssociationTests {
 			
 		'''.parse => [
 			assertOppositeMismatchError(
-				"The relation does not reference to a relation, while  the following relations referencing this relation as opposite: Test::B#a"
+				"The relation does not reference to a relation, while  the following relations referencing this relation as opposite: 'Test::B#a'"
 			)
 
 			assertOppositeMismatchError(

@@ -32,6 +32,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val DUPLICATE_MODEL = ISSUE_CODE_PREFIX + "DuplicateModel"
 	public static val OPPOSITE_TYPE_MISMATH = ISSUE_CODE_PREFIX + "OppositeTypeMismatch"
 	public static val DUPLICATE_MEMBER_NAME = ISSUE_CODE_PREFIX + "DuplicateMemberName"
+	public static val INHERITENCE_CYCLE = ISSUE_CODE_PREFIX + "InheritenceCycle"
 	
 	@Inject extension IQualifiedNameProvider
 	@Inject extension IQualifiedNameConverter
@@ -49,7 +50,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 					desc.EObjectOrProxy != modelDeclaration && 
 					desc.EObjectURI.trimFragment != modelDeclaration.eResource.URI) {
 				error(
-					"The model " + modelDeclaration.name + " is already defined",
+					"The model '" + modelDeclaration.name + "' is already defined",
 					JsldslPackage::eINSTANCE.modelDeclaration_Name,
 					HIERARCHY_CYCLE,
 					modelDeclaration.name
@@ -141,7 +142,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			// System.out.println(" -- " + relation + " --- Referenced back: " + relationReferencedBack.map[r | r.eContainer.fullyQualifiedName + "#" + r.name].join(", "))
 			if (!relationReferencedBack.empty) {
 				error("The relation does not reference to a relation, while  the following relations referencing this relation as opposite: " + 
-					relationReferencedBack.map[r | r.eContainer.fullyQualifiedName.toString("::") + "#" + r.name].join(", "),
+					relationReferencedBack.map[r | "'" + r.eContainer.fullyQualifiedName.toString("::") + "#" + r.name + "'"].join(", "),
 					JsldslPackage::eINSTANCE.entityRelationDeclaration_Opposite,
 					OPPOSITE_TYPE_MISMATH,
 					relation.name)
@@ -150,12 +151,24 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
+	def checkCycleInInheritence(EntityDeclaration entity) {
+		// System.out.println(" -- " + relation + " --- Referenced back: " + relationReferencedBack.map[r | r.eContainer.fullyQualifiedName + "#" + r.name].join(", "))
+
+		if (entity.superEntityTypes.contains(entity)) {
+			error("Cycle in inheritence of entity '" + entity.name + "'",
+				JsldslPackage::eINSTANCE.entityDeclaration_Name,
+				INHERITENCE_CYCLE,
+				entity.name)			
+		}
+	}
+
+	@Check
 	def checkForDuplicateNameForEntityFieldDeclaration(EntityFieldDeclaration member) {
 		if ((member.eContainer as EntityDeclaration).getMemberNames(member).contains(member.name)) {
-				error("Duplicate name: " + member.name,
-					JsldslPackage::eINSTANCE.entityFieldDeclaration_Name,
-					DUPLICATE_MEMBER_NAME,
-					member.name)			
+			error("Duplicate name: '" + member.name + "'",
+				JsldslPackage::eINSTANCE.entityFieldDeclaration_Name,
+				DUPLICATE_MEMBER_NAME,
+				member.name)			
 		}
 	}
 
@@ -163,10 +176,10 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Check
 	def checkForDuplicateNameForEntityIdentifierDeclaration(EntityIdentifierDeclaration member) {
 		if ((member.eContainer as EntityDeclaration).getMemberNames(member).contains(member.name)) {
-				error("Duplicate name: " + member.name,
-					JsldslPackage::eINSTANCE.entityIdentifierDeclaration_Name,
-					DUPLICATE_MEMBER_NAME,
-					member.name)			
+			error("Duplicate name: '" + member.name + "'",
+				JsldslPackage::eINSTANCE.entityIdentifierDeclaration_Name,
+				DUPLICATE_MEMBER_NAME,
+				member.name)			
 		}
 	}
 
@@ -174,20 +187,20 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Check
 	def checkForDuplicateNameForEntityRelationDeclaration(EntityRelationDeclaration member) {
 		if ((member.eContainer as EntityDeclaration).getMemberNames(member).contains(member.name)) {
-				error("Duplicate name: " + member.name,
-					JsldslPackage::eINSTANCE.entityRelationDeclaration_Name,
-					DUPLICATE_MEMBER_NAME,
-					member.name)			
+			error("Duplicate name: '" + member.name + "'",
+				JsldslPackage::eINSTANCE.entityRelationDeclaration_Name,
+				DUPLICATE_MEMBER_NAME,
+				member.name)			
 		}
 	}
 		
 	@Check
 	def checkForDuplicateNameForEntityDerivedDeclaration(EntityDerivedDeclaration member) {
 		if ((member.eContainer as EntityDeclaration).getMemberNames(member).contains(member.name)) {
-				error("Duplicate name: " + member.name,
-					JsldslPackage::eINSTANCE.entityDerivedDeclaration_Name,
-					DUPLICATE_MEMBER_NAME,
-					member.name)			
+			error("Duplicate name: '" + member.name + "'",
+				JsldslPackage::eINSTANCE.entityDerivedDeclaration_Name,
+				DUPLICATE_MEMBER_NAME,
+				member.name)			
 		}
 	}
 

@@ -14,29 +14,21 @@ import org.eclipse.emf.ecore.EClass
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
-class NameDuplicationDetectionTests {
+class CyclicInheritenceTests {
 	
 	@Inject extension ParseHelper<ModelDeclaration> 
 	@Inject extension ValidationTestHelper
 	
 	@Test 
-	def void testDuplicateMemberNameValid() {
+	def void testInheritedSame() {
 		'''
 			model Test
-			type string String max-length 128
 
-			entity A {
-				relation B b opposite a
-				field String b
-			}
-
-			entity B {
-				relation A a opposite b
+			entity A extends A {
 			}
 			
 		'''.parse => [
-			assertOppositeMismatchError("Duplicate name: 'b'", JsldslPackage::eINSTANCE.entityFieldDeclaration)
-			assertOppositeMismatchError("Duplicate name: 'b'", JsldslPackage::eINSTANCE.entityRelationDeclaration)
+			assertInheritenceCycleError("Cycle in inheritence of entity 'A'")
 		]
 	}
 
@@ -45,24 +37,26 @@ class NameDuplicationDetectionTests {
 		'''
 			model Inheritence
 			
-			type string String max-length 100
-			
-			entity A {
-				field String name
+			entity A extends C {
 			}
 			
-			entity A1 extends A {
-				field String name
+			entity B extends A {
 			}
+
+			entity C extends B {
+			}
+
 		'''.parse => [
-			assertOppositeMismatchError("Duplicate name: 'name'", JsldslPackage::eINSTANCE.entityFieldDeclaration)
+			assertInheritenceCycleError("Cycle in inheritence of entity 'A'")
+			assertInheritenceCycleError("Cycle in inheritence of entity 'B'")
+			assertInheritenceCycleError("Cycle in inheritence of entity 'C'")
 		]
 	}
 
-	def private void assertOppositeMismatchError(ModelDeclaration modelDeclaration, String error, EClass target) {
+	def private void assertInheritenceCycleError(ModelDeclaration modelDeclaration, String error) {
 		modelDeclaration.assertError(
-			target, 
-			JslDslValidator.DUPLICATE_MEMBER_NAME, 
+			JsldslPackage::eINSTANCE.entityDeclaration, 
+			JslDslValidator.INHERITENCE_CYCLE, 
 			error
 		)
 	}
