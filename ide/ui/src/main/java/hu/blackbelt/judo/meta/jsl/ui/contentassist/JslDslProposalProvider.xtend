@@ -34,13 +34,13 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 	}
 	
 	override completeEntityDeclaration_Extends(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		System.out.println(" - model: " + model + " assignment: " + assignment + " context: " + context)
+		// System.out.println(" - model: " + model + " assignment: " + assignment + " context: " + context)
 		lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor,
 			[ 
 				val entity = model as EntityDeclaration;
 				val proposedEntity = EObjectOrProxy as EntityDeclaration
 				val superEntities = entity.superEntityTypes				
-				System.out.println(" --- Obj: " + EObjectOrProxy + " - " + superEntities.join(", "))
+				// System.out.println(" --- Obj: " + EObjectOrProxy + " - " + superEntities.join(", "))
 
 				proposedEntity !== entity && !proposedEntity.superEntityTypes.contains(entity)
 			]

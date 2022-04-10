@@ -31,7 +31,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
     override getScope(EObject context, EReference ref) {
 		
-		System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
+		// System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
 
 
 		JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType == ref
