@@ -77,6 +77,24 @@ class AssociationTests {
 		]
 	}
 
+	@Test 
+	def void testOppositeNameIsAlreadyDefined() {
+		'''
+			model Test
+			entity A {
+				relation B b
+			}
+			
+			entity B {
+				relation A a opposite-add b
+			}
+			
+		'''.parse => [
+			assertDuplicateNameError("Duplicate name: 'b'")
+		]
+	}
+
+
 	def private void assertOppositeLinkingError(ModelDeclaration modelDeclaration, String error) {
 		modelDeclaration.assertError(
 			JsldslPackage::eINSTANCE.entityRelationOpposite, 
@@ -89,6 +107,14 @@ class AssociationTests {
 		modelDeclaration.assertError(
 			JsldslPackage::eINSTANCE.entityRelationDeclaration, 
 			JslDslValidator.OPPOSITE_TYPE_MISMATH, 
+			error
+		)
+	}
+
+	def private void assertDuplicateNameError(ModelDeclaration modelDeclaration, String error) {
+		modelDeclaration.assertError(
+			JsldslPackage::eINSTANCE.entityRelationOpposite, 
+			JslDslValidator.DUPLICATE_MEMBER_NAME, 
 			error
 		)
 	}

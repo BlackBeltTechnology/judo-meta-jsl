@@ -97,8 +97,12 @@ class JslDslModelExtension {
 		}
 		true		
 	}
+
+	def Collection<String> getMemberNames(EntityDeclaration entity) {
+		entity.getMemberNames(null)
+	}
 	
-	def Set<String> getMemberNames(EntityDeclaration entity, EntityMemberDeclaration exclude) {
+	def Collection<String> getMemberNames(EntityDeclaration entity, EntityMemberDeclaration exclude) {
 		var names = new ArrayList()
 		val allEntitiesInInheritenceChain = new HashSet
 		allEntitiesInInheritenceChain.add(entity)

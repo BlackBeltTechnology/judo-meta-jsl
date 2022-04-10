@@ -18,6 +18,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 
 /**
  * This class contains custom validation rules. 
@@ -203,6 +204,20 @@ class JslDslValidator extends AbstractJslDslValidator {
 				member.name)			
 		}
 	}
+
+	@Check
+	def checkForDuplicateNameForEntityDerivedDeclaration(EntityRelationOpposite opposite) {
+		if (opposite.oppositeName !== null && !opposite.oppositeName.blank) {
+			val relation = opposite.eContainer as EntityRelationDeclaration
+			if (relation.referenceType.getMemberNames.contains(opposite.oppositeName)) {
+				error("Duplicate name: '" + opposite.oppositeName + "'",
+					JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeName,
+					DUPLICATE_MEMBER_NAME,
+					opposite.oppositeName)			
+			}			
+		}
+	}
+
 
 	def currentElem(EObject grammarElement) {
 		return grammarElement.eResource.resourceSet.getResource(URI.createURI("self_synthetic"), true).contents.get(0)
