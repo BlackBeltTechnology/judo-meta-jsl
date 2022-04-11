@@ -45,7 +45,7 @@ ClassDeclaration
  *	Entity
  ****************************/
 
-EntityDeclaration returns EntityDeclaration
+EntityDeclaration
 	: {EntityDeclaration}
 	  'entity' isAbstract ?= 'abstract'? name = ID
 	  ('extends' extends += [EntityDeclaration | LocalName] (',' extends += [EntityDeclaration | LocalName])*)?
@@ -65,22 +65,22 @@ ConstraintDeclaration
 	;
 
 EntityFieldDeclaration
-	: 'field' (isRequired ?= 'required'? singleType = [EntityFieldSingleType | LocalName] | arrayType = [EntityDeclaration | LocalName] '[]') name = ID
+	: 'field' (isRequired ?= 'required'? referenceType = [EntityFieldSingleType | LocalName] isMany ?= '[]'?) name = ID
 	  ("=" default = Expression)?
 	;
 
-EntityFieldSingleType
+EntityFieldSingleType 
 	: PrimitiveDeclaration
 	| EntityDeclaration
 	;
 
 EntityIdentifierDeclaration
-	: 'identifier' isRequired ?= 'required'? type = [PrimitiveDeclaration | LocalName] name = ID
+	: 'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] name = ID
 	  ("=" default = Expression)?
 	;
 
 EntityDerivedDeclaration
-	: 'derived' (singleType = [EntityDerivedSingleType | LocalName] | arrayType = [EntityDeclaration | LocalName] '[]') name = ID
+	: 'derived' (referenceType = [EntityDerivedSingleType | LocalName] isMany ?= '[]'?) name = ID
 	  ('(' parameters += DerivedParameter (',' parameters += DerivedParameter)* ')')?
 	  "=" expression = Expression
 	;
@@ -91,16 +91,17 @@ EntityDerivedSingleType
 	;
 
 DerivedParameter
-	: type = [PrimitiveDeclaration | LocalName] name = ID "=" default = Expression
+	: referenceType = [PrimitiveDeclaration | LocalName] name = ID "=" default = Expression
 	;
 
 EntityRelationDeclaration
-	: 'relation' (isRequired ?= 'required'? singleType = [EntityDeclaration | LocalName] | arrayType = [EntityDeclaration | LocalName] '[]') name = ID
-	  opposite = Opposite?
+	: 'relation' (isRequired ?= 'required'? referenceType = [EntityDeclaration | LocalName] isMany ?= '[]'?) name = ID
+	  opposite = EntityRelationOpposite?
 	;
 
-Opposite
-	: kind = ('opposite-name' | 'opposite-single' | 'opposite-many') name = ID
+EntityRelationOpposite
+	: 'opposite-add' oppositeName = ID (isMany ?= '[]')?
+	| 'opposite' oppositeType = [EntityRelationDeclaration | LocalName]
 	;
 
 
@@ -114,7 +115,7 @@ ErrorDeclaration
 	;
 
 ErrorField
-	: NL+ 'field' isRequired ?= 'required'? type = [PrimitiveDeclaration] name = ID
+	: NL+ 'field' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration] name = ID
 	  ("=" default = Expression)?
 	;
 
