@@ -805,6 +805,8 @@
                 <module>feature</module>
                 <module>site</module>
                 <module>ide</module>
+                <module>server-web</module>
+
             </modules>
         </profile>
 
