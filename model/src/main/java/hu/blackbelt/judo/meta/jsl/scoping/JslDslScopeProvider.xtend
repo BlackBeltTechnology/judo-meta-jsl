@@ -18,13 +18,15 @@ import com.google.common.base.Predicate
 import org.eclipse.xtext.resource.IEObjectDescription
 import org.eclipse.xtext.scoping.impl.SimpleScope
 import org.eclipse.xtext.scoping.impl.FilteringScope
+import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider
 
 /**
  * This class contains custom scoping description.
  * 
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#scoping
  * on how and when to use it.
- */
+ */ 
+ 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 	@Inject extension JslDslModelExtension
@@ -34,14 +36,15 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		// System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
 
 
-		JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType == ref
+		// JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType == ref
 
 
 		switch context {
 			EntityRelationOpposite : 
 				switch (ref) {
-					case JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType:
+					case JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType: {
 						Scopes.scopeFor((context.eContainer as EntityRelationDeclaration).getAllOppositeRelations, IScope.NULLSCOPE)			
+					}
 					default: 
 						super.getScope(context, ref)
 				}

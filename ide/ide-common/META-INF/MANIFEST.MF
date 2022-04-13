@@ -5,7 +5,8 @@ Bundle-SymbolicName: hu.blackbelt.judo.meta.jsl.ide.common;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
-Export-Package: hu.blackbelt.judo.meta.jsl.ide.contentassist.antlr,
+Export-Package: hu.blackbelt.judo.meta.jsl.ide,
+ hu.blackbelt.judo.meta.jsl.ide.contentassist.antlr,
  hu.blackbelt.judo.meta.jsl.ide.contentassist.antlr.internal
 Require-Bundle: org.antlr.runtime;bundle-version="[3.2.0,3.2.1)",
  hu.blackbelt.judo.meta.jsl.model,
