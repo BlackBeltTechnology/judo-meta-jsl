@@ -31,20 +31,13 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 	@Inject extension JslDslModelExtension
 
-    override getScope(EObject context, EReference ref) {
-		
+    override getScope(EObject context, EReference ref) {		
 		// System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
-
-
-		// JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType == ref
-
-
 		switch context {
 			EntityRelationOpposite : 
 				switch (ref) {
-					case JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType: {
+					case JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType:
 						Scopes.scopeFor((context.eContainer as EntityRelationDeclaration).getAllOppositeRelations, IScope.NULLSCOPE)			
-					}
 					default: 
 						super.getScope(context, ref)
 				}
