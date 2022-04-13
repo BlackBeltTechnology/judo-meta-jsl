@@ -2,7 +2,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta http-equiv="Content-Language" content="en-us">
-	<title>Example Web Editor</title>
+	<title>Example JslDsl Web Editor</title>
 	<link rel="stylesheet" type="text/css" href="xtext/2.26.0/xtext-ace.css"/>
 	<link rel="stylesheet" type="text/css" href="style.css"/>
 	<script src="webjars/requirejs/2.3.6/require.min.js"></script>
@@ -23,7 +23,7 @@
 			require(["xtext/xtext-ace"], function(xtext) {
 				xtext.createEditor({
 					baseUrl: baseUrl,
-					syntaxDefinition: "xtext-resources/generated/mode-jsl"
+					syntaxDefinition: "xtext-resources/mode-jsl"
 				});
 			});
 		});

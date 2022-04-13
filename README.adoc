@@ -20,8 +20,8 @@ To run version update run
 mvn clean install -P update-target-versions -f targetdefinition/pom.xml`
 ----
 
-- model - XText language definition and coresponding impmelentations for scoping and code assists.
-It is plays as  eclipse plugin. It contains the model and ecore generated java classes.
+- model -XText language definition and corresponding implementations for scoping and code assists..
+It functions as an eclipse plugin. It contains the model and ecore generated java classes.
 Builder and Helpers added with MWE2 workflow.
 
 - model-test - Tests for parsers and language capabilities
@@ -47,7 +47,7 @@ mvn clean install -P update-category-versions -f site/pom.xml
 
 - server-embedded - Standalone executable fatjar which acts a language server
 
-- server-web - A simple web servlet and ice based editor to sandbzox the
+- server-web - A simple web servlet and ice based editor to sandbox the
 language server protocol
 
 == Version policy
@@ -101,7 +101,7 @@ The maven using tycho to make eclipse build.
 === Code generation in eclipse
 
 There is predefined launchers which can be used to regenerate language model and
-coresponding model helpers.
+corresponding model helpers.
 
 Execute in eclipse the
 
