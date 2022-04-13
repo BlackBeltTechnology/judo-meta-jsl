@@ -1,0 +1,15 @@
+# Web based editor
+
+This is an example editor for JSL code assisted language
+
+ ----
+ mvn jetty:run
+ ----
+
+And point your browser to
+
+----
+http://localhost:8080
+----
+
+Happy scripting!
