@@ -30,7 +30,15 @@ public class TokenHighlightingConfiguration extends
     			"'/'",
     			"'^'",
     			"'!'",
-    			"'|'"};
+    			"'|'",
+    			"'implies'",
+    			"'or'",
+    			"'xor'",
+    			"'and'",
+    			"'div'",
+    			"'mod'",
+    			"'not'"    			
+    	};
 
     	String[] commands = {
     			"'var'",
@@ -50,13 +58,6 @@ public class TokenHighlightingConfiguration extends
     			"'break'",
     			"'continue'",
     			"'new'",
-    			"'implies'",
-    			"'or'",
-    			"'xor'",
-    			"'and'",
-    			"'div'",
-    			"'mod'",
-    			"'not'",
     			"'throw'",
     			"'try'",
     			"'catch'",
