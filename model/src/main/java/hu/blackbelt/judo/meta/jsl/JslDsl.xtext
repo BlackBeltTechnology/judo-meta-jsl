@@ -65,7 +65,7 @@ ConstraintDeclaration
 	;
 
 EntityFieldDeclaration
-	: 'field' (isRequired ?= 'required'? referenceType = [EntityFieldSingleType | LocalName] isMany ?= '[]'?) name = ID
+	: ('field')? (isRequired ?= 'required'? referenceType = [EntityFieldSingleType | LocalName] isMany ?= '[]'?) name = ID
 	  ("=" default = Expression)?
 	;
 
