@@ -76,6 +76,43 @@ class NameDuplicationDetectionTests {
 		]
 	}
 
+	@Test 
+	def void testDuplicateDeclarationWithCaseName() {
+		'''
+			model DuplicatedEntityName
+			
+			type string String max-length 100
+			
+			entity A {
+			}
+			
+			entity a {
+			}
+		'''.parse => [
+			assertDuplicateDeclarationName("Duplicate name: 'A'", JsldslPackage::eINSTANCE.entityDeclaration)
+			assertDuplicateDeclarationName("Duplicate name: 'a'", JsldslPackage::eINSTANCE.entityDeclaration)
+
+		]
+	}
+
+	@Test 
+	def void testDuplicateDeclarationEntityWithErrorCollosion() {
+		'''
+			model DuplicatedEntityName
+			
+			type string String max-length 100
+			
+			entity A {
+			}
+			
+			error a {
+			}
+		'''.parse => [
+			assertDuplicateDeclarationName("Duplicate name: 'A'", JsldslPackage::eINSTANCE.entityDeclaration)
+			assertDuplicateDeclarationName("Duplicate name: 'a'", JsldslPackage::eINSTANCE.errorDeclaration)
+		]
+	}
+
 	def private void assertOppositeMismatchError(ModelDeclaration modelDeclaration, String error, EClass target) {
 		modelDeclaration.assertError(
 			target, 
