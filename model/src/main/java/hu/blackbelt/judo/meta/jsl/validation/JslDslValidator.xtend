@@ -19,6 +19,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
+import java.util.Map
+import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -33,6 +37,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val DUPLICATE_MODEL = ISSUE_CODE_PREFIX + "DuplicateModel"
 	public static val OPPOSITE_TYPE_MISMATH = ISSUE_CODE_PREFIX + "OppositeTypeMismatch"
 	public static val DUPLICATE_MEMBER_NAME = ISSUE_CODE_PREFIX + "DuplicateMemberName"
+	public static val DUPLICATE_DECLARATION_NAME = ISSUE_CODE_PREFIX + "DuplicateDeclarationName"
+
 	public static val INHERITENCE_CYCLE = ISSUE_CODE_PREFIX + "InheritenceCycle"
 	
 	@Inject extension IQualifiedNameProvider
@@ -162,10 +168,11 @@ class JslDslValidator extends AbstractJslDslValidator {
 				entity.name)			
 		}
 	}
-
+	
+	
 	@Check
 	def checkForDuplicateNameForEntityFieldDeclaration(EntityFieldDeclaration member) {
-		if ((member.eContainer as EntityDeclaration).getMemberNames(member).contains(member.name)) {
+		if ((member.eContainer as EntityDeclaration).getMemberNames(member).contains(member.name.toLowerCase)) {
 			error("Duplicate name: '" + member.name + "'",
 				JsldslPackage::eINSTANCE.entityFieldDeclaration_Name,
 				DUPLICATE_MEMBER_NAME,
@@ -176,7 +183,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkForDuplicateNameForEntityIdentifierDeclaration(EntityIdentifierDeclaration member) {
-		if ((member.eContainer as EntityDeclaration).getMemberNames(member).contains(member.name)) {
+		if ((member.eContainer as EntityDeclaration).getMemberNames(member).contains(member.name.toLowerCase)) {
 			error("Duplicate name: '" + member.name + "'",
 				JsldslPackage::eINSTANCE.entityIdentifierDeclaration_Name,
 				DUPLICATE_MEMBER_NAME,
@@ -187,7 +194,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkForDuplicateNameForEntityRelationDeclaration(EntityRelationDeclaration member) {
-		if ((member.eContainer as EntityDeclaration).getMemberNames(member).contains(member.name)) {
+		if ((member.eContainer as EntityDeclaration).getMemberNames(member).contains(member.name.toLowerCase)) {
 			error("Duplicate name: '" + member.name + "'",
 				JsldslPackage::eINSTANCE.entityRelationDeclaration_Name,
 				DUPLICATE_MEMBER_NAME,
@@ -197,7 +204,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		
 	@Check
 	def checkForDuplicateNameForEntityDerivedDeclaration(EntityDerivedDeclaration member) {
-		if ((member.eContainer as EntityDeclaration).getMemberNames(member).contains(member.name)) {
+		if ((member.eContainer as EntityDeclaration).getMemberNames(member).contains(member.name.toLowerCase)) {
 			error("Duplicate name: '" + member.name + "'",
 				JsldslPackage::eINSTANCE.entityDerivedDeclaration_Name,
 				DUPLICATE_MEMBER_NAME,
@@ -215,6 +222,37 @@ class JslDslValidator extends AbstractJslDslValidator {
 					DUPLICATE_MEMBER_NAME,
 					opposite.oppositeName)			
 			}			
+		}
+	}
+
+		
+	@Check
+	def checkForDuplicateNameForPrimitiveDeclaration(PrimitiveDeclaration declaration) {
+		if ((declaration.eContainer as ModelDeclaration).getDeclarationNames(declaration).contains(declaration.name.toLowerCase)) {
+			error("Duplicate name: '" + declaration.name + "'",
+				JsldslPackage::eINSTANCE.primitiveDeclaration_Name,
+				DUPLICATE_DECLARATION_NAME,
+				declaration.name)			
+		}
+	}
+		
+	@Check
+	def checkForDuplicateNameForEntityDeclaration(EntityDeclaration declaration) {
+		if ((declaration.eContainer as ModelDeclaration).getDeclarationNames(declaration).contains(declaration.name.toLowerCase)) {
+			error("Duplicate name: '" + declaration.name + "'",
+				JsldslPackage::eINSTANCE.entityDeclaration_Name,
+				DUPLICATE_DECLARATION_NAME,
+				declaration.name)			
+		}
+	}
+
+	@Check
+	def checkForDuplicateNameForErrorDeclaration(ErrorDeclaration declaration) {
+		if ((declaration.eContainer as ModelDeclaration).getDeclarationNames(declaration).contains(declaration.name.toLowerCase)) {
+			error("Duplicate name: '" + declaration.name + "'",
+				JsldslPackage::eINSTANCE.errorDeclaration_Name,
+				DUPLICATE_DECLARATION_NAME,
+				declaration.name)			
 		}
 	}
 
