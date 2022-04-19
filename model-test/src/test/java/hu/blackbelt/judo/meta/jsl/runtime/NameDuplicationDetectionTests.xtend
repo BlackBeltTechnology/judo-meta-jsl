@@ -35,8 +35,8 @@ class NameDuplicationDetectionTests {
 			}
 			
 		'''.parse => [
-			assertOppositeMismatchError("Duplicate name: 'b'", JsldslPackage::eINSTANCE.entityFieldDeclaration)
-			assertOppositeMismatchError("Duplicate name: 'b'", JsldslPackage::eINSTANCE.entityRelationDeclaration)
+			assertDuplicateMemberName("Duplicate name: 'b'", JsldslPackage::eINSTANCE.entityFieldDeclaration)
+			assertDuplicateMemberName("Duplicate name: 'b'", JsldslPackage::eINSTANCE.entityRelationDeclaration)
 		]
 	}
 
@@ -59,6 +59,23 @@ class NameDuplicationDetectionTests {
 		]
 	}
 
+	@Test 
+	def void testDuplicateDeclarationName() {
+		'''
+			model DuplicatedEntityName
+			
+			type string String max-length 100
+			
+			entity A {
+			}
+			
+			entity A {
+			}
+		'''.parse => [
+			assertDuplicateDeclarationName("Duplicate name: 'A'", JsldslPackage::eINSTANCE.entityDeclaration)
+		]
+	}
+
 	def private void assertOppositeMismatchError(ModelDeclaration modelDeclaration, String error, EClass target) {
 		modelDeclaration.assertError(
 			target, 
@@ -66,4 +83,23 @@ class NameDuplicationDetectionTests {
 			error
 		)
 	}
+
+
+	def private void assertDuplicateDeclarationName(ModelDeclaration modelDeclaration, String error, EClass target) {
+		modelDeclaration.assertError(
+			target, 
+			JslDslValidator.DUPLICATE_DECLARATION_NAME, 
+			error
+		)
+	}
+
+
+	def private void assertDuplicateMemberName(ModelDeclaration modelDeclaration, String error, EClass target) {
+		modelDeclaration.assertError(
+			target, 
+			JslDslValidator.DUPLICATE_MEMBER_NAME, 
+			error
+		)
+	}
+
 }	
