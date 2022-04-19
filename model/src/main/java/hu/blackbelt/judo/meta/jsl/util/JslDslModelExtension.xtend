@@ -167,45 +167,5 @@ class JslDslModelExtension {
 		}
 		visited
 	}
-
-	def static isStaticExpression(Expression it) { isStaticExpressionDispatcher }
-  
-	static def dispatch Boolean isStaticExpressionDispatcher(TernaryOperation it) {
-		it !== null 
-			? it.condition.staticExpression  || it.thenExpression.staticExpression || it.elseExpression.staticExpression 
-			: true
-	}
-
-	static def dispatch Boolean isStaticExpressionDispatcher(BinaryOperation it) {
-		it !== null 
-			? it.leftOperand.staticExpression || it.rightOperand.staticExpression 
-			: true
-	}
-
-	static def dispatch Boolean isStaticExpressionDispatcher(UnaryOperation it) {
-		it !== null 
-			? it.operand.staticExpression 
-			: true
-	}
-
-	static def dispatch Boolean isStaticExpressionDispatcher(FunctionedExpression it) {
-		it !== null 
-			? it.operand.staticExpression 
-			: true
-	}
-
-	static def dispatch Boolean isStaticExpressionDispatcher(NavigationExpression it) {
-		it !== null 
-			? it.base !== null 
-				? it.base.staticExpression
-				: true
-			: true
-	}
-
-	static dispatch def Boolean isStaticExpressionDispatcher(Self it) {
-		it !== null 
-			?  false 
-			: true
-	}	
 	
 }
