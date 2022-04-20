@@ -12,13 +12,8 @@ import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import com.google.inject.Inject
 import org.eclipse.xtext.scoping.IScope
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
-import com.google.common.collect.Iterables
-import com.google.common.base.Predicate
-import org.eclipse.xtext.resource.IEObjectDescription
-import org.eclipse.xtext.scoping.impl.SimpleScope
-import org.eclipse.xtext.scoping.impl.FilteringScope
-import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider
+import hu.blackbelt.judo.meta.jsl.jsldsl.ThrowParameter
+import hu.blackbelt.judo.meta.jsl.jsldsl.CreateError
 
 /**
  * This class contains custom scoping description.
@@ -32,7 +27,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	@Inject extension JslDslModelExtension
 
     override getScope(EObject context, EReference ref) {		
-		// System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
+//		System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
 		switch context {
 			EntityRelationOpposite : 
 				switch (ref) {
@@ -42,23 +37,26 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 						super.getScope(context, ref)
 				}
 
-			/* 	This is causing cyclic refeence problem
-			EntityDeclaration : 
-				switch (ref) {					
-					case JsldslPackage::eINSTANCE.entityDeclaration_Extends: {
-						val entity = context as EntityDeclaration;
-						val superEntities = entity.superEntityTypes
-						
-						new FilteringScope(super.getScope(context, ref), new Predicate<IEObjectDescription>() {
-					        override apply(IEObjectDescription input) {
-								input.EObjectOrProxy !== entity || !superEntities.contains(input.EObjectOrProxy)
-					        }
-					    });
-					}
-					default:
+			ThrowParameter : 
+				switch (ref) {
+					case JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType:
+						if (context.eContainer instanceof CreateError) {
+							Scopes.scopeFor((context.eContainer as CreateError).errorDeclarationType.fields, IScope.NULLSCOPE)									
+						} else {
+							IScope.NULLSCOPE
+						}
+					default: 
 						super.getScope(context, ref)
 				}
-				*/
+
+			CreateError : 
+				switch (ref) {
+					case JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType:
+							Scopes.scopeFor((context as CreateError).errorDeclarationType.fields, IScope.NULLSCOPE)		
+					default: 
+						super.getScope(context, ref)
+				}
+
 			default: super.getScope(context, ref)
 		}		
 	}

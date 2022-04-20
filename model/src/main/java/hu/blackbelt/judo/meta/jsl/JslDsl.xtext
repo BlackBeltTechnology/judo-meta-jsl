@@ -115,16 +115,16 @@ ErrorDeclaration
 	;
 
 ErrorField
-	: NL+ 'field' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration] name = ID
+	: NL+ 'field' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] name = ID
 	  ("=" default = Expression)?
 	;
 
 CreateError
-	: type=[ErrorDeclaration] ('(' (parameters+=ThrowParameter (',' parameters+=ThrowParameter)*)? ')')?
+	: errorDeclarationType=[ErrorDeclaration | LocalName] ('(' (parameters+=ThrowParameter (',' parameters+=ThrowParameter)*)? ')')?
 	;
 
-ThrowParameter:
-    name=ID '=' expession=Expression;
+ThrowParameter
+	: errorFieldType=[ErrorField | LocalName] '=' expession=Expression;
 
 
 
