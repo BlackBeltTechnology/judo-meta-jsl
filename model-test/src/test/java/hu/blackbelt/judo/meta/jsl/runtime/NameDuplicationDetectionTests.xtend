@@ -35,8 +35,8 @@ class NameDuplicationDetectionTests {
 			}
 			
 		'''.parse => [
-			assertDuplicateMemberName("Duplicate name: 'b'", JsldslPackage::eINSTANCE.entityFieldDeclaration)
-			assertDuplicateMemberName("Duplicate name: 'b'", JsldslPackage::eINSTANCE.entityRelationDeclaration)
+			assertDuplicateMemberName("Duplicate member declaration: 'b'", JsldslPackage::eINSTANCE.entityFieldDeclaration)
+			assertDuplicateMemberName("Duplicate member declaration: 'b'", JsldslPackage::eINSTANCE.entityRelationDeclaration)
 		]
 	}
 
@@ -55,7 +55,7 @@ class NameDuplicationDetectionTests {
 				field String name
 			}
 		'''.parse => [
-			assertOppositeMismatchError("Duplicate name: 'name'", JsldslPackage::eINSTANCE.entityFieldDeclaration)
+			assertOppositeMismatchError("Duplicate member declaration: 'name'", JsldslPackage::eINSTANCE.entityFieldDeclaration)
 		]
 	}
 
@@ -72,7 +72,7 @@ class NameDuplicationDetectionTests {
 			entity A {
 			}
 		'''.parse => [
-			assertDuplicateDeclarationName("Duplicate name: 'A'", JsldslPackage::eINSTANCE.entityDeclaration)
+			assertDuplicateDeclarationName("Duplicate declaration: 'A'", JsldslPackage::eINSTANCE.entityDeclaration)
 		]
 	}
 
@@ -89,8 +89,8 @@ class NameDuplicationDetectionTests {
 			entity a {
 			}
 		'''.parse => [
-			assertDuplicateDeclarationName("Duplicate name: 'A'", JsldslPackage::eINSTANCE.entityDeclaration)
-			assertDuplicateDeclarationName("Duplicate name: 'a'", JsldslPackage::eINSTANCE.entityDeclaration)
+			assertDuplicateDeclarationName("Duplicate declaration: 'A'", JsldslPackage::eINSTANCE.entityDeclaration)
+			assertDuplicateDeclarationName("Duplicate declaration: 'a'", JsldslPackage::eINSTANCE.entityDeclaration)
 
 		]
 	}
@@ -108,8 +108,8 @@ class NameDuplicationDetectionTests {
 			error a {
 			}
 		'''.parse => [
-			assertDuplicateDeclarationName("Duplicate name: 'A'", JsldslPackage::eINSTANCE.entityDeclaration)
-			assertDuplicateDeclarationName("Duplicate name: 'a'", JsldslPackage::eINSTANCE.errorDeclaration)
+			assertDuplicateDeclarationName("Duplicate declaration: 'A'", JsldslPackage::eINSTANCE.entityDeclaration)
+			assertDuplicateDeclarationName("Duplicate declaration: 'a'", JsldslPackage::eINSTANCE.errorDeclaration)
 		]
 	}
 

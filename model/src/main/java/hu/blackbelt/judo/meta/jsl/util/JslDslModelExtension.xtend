@@ -26,6 +26,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
+import org.eclipse.emf.ecore.EAttribute
 
 @Singleton
 class JslDslModelExtension {
@@ -113,29 +115,73 @@ class JslDslModelExtension {
 	def Collection<String> getMemberNames(EntityDeclaration entity) {
 		entity.getMemberNames(null)
 	}
-	
+		
 	def Collection<String> getMemberNames(EntityDeclaration entity, EntityMemberDeclaration exclude) {
 		var names = new ArrayList()
 		val allEntitiesInInheritenceChain = new HashSet
 		allEntitiesInInheritenceChain.add(entity)
 		allEntitiesInInheritenceChain.addAll(entity.superEntityTypes)		
 		for (e : allEntitiesInInheritenceChain) {
-			val members = e.members.filter[m | m !== exclude]
-	
-			names.addAll(members.filter[m | m instanceof EntityFieldDeclaration].map[m | m as EntityFieldDeclaration].map[m | m.name.toLowerCase].toList)
-			names.addAll(members.filter[m | m instanceof EntityIdentifierDeclaration].map[m | m as EntityIdentifierDeclaration].map[m | m.name.toLowerCase].toList)
-			names.addAll(members.filter[m | m instanceof EntityRelationDeclaration].map[m | m as EntityRelationDeclaration].map[m | m.name.toLowerCase].toList)
-			names.addAll(members.filter[m | m instanceof EntityDerivedDeclaration].map[m | m as EntityDerivedDeclaration].map[m | m.name.toLowerCase].toList)		
+			names.addAll(e.members.filter[m | m !== exclude].map[m | m.nameForEntityMemberDeclaration].filter[n | n.trim != ""].toList)
 		}
 		new HashSet(names)
 	}
+
+	def String getNameForEntityMemberDeclaration(EntityMemberDeclaration member) {
+		if (member instanceof EntityFieldDeclaration) {
+			member.name
+		} else if (member instanceof EntityIdentifierDeclaration) {
+			member.name
+		} else if (member instanceof EntityRelationDeclaration) {
+			member.name
+		} else if (member instanceof EntityDerivedDeclaration) {
+			member.name
+		} else {
+			""
+		}
+	}
+
+	def EAttribute getNameAttributeForEntityMemberDeclaration(EntityMemberDeclaration member) {
+		if (member instanceof EntityFieldDeclaration) {
+			JsldslPackage::eINSTANCE.entityFieldDeclaration_Name
+		} else if (member instanceof EntityIdentifierDeclaration) {
+			JsldslPackage::eINSTANCE.entityIdentifierDeclaration_Name
+		} else if (member instanceof EntityRelationDeclaration) {
+			JsldslPackage::eINSTANCE.entityRelationDeclaration_Name
+		} else if (member instanceof EntityDerivedDeclaration) {
+			JsldslPackage::eINSTANCE.entityDeclaration_Name
+		} else {
+			throw new IllegalArgumentException("Unknown EntityMemberDeclaration: " + member)
+		}
+	}
+
+	def String getNameForDeclaration(Declaration declaration) {
+		if (declaration instanceof PrimitiveDeclaration) {
+			declaration.name
+		} else if (declaration instanceof ErrorDeclaration) {
+			declaration.name
+		} else if (declaration instanceof EntityDeclaration) {
+			declaration.name
+		} else {
+			""
+		}
+	}
+
+	def EAttribute getNameAttributeForDeclaration(Declaration declaration) {
+		if (declaration instanceof PrimitiveDeclaration) {
+			JsldslPackage::eINSTANCE.primitiveDeclaration_Name
+		} else if (declaration instanceof ErrorDeclaration) {
+			JsldslPackage::eINSTANCE.errorDeclaration_Name
+		} else if (declaration instanceof EntityDeclaration) {
+			JsldslPackage::eINSTANCE.entityDeclaration_Name
+		} else {
+			throw new IllegalArgumentException("Unknown Declaration: " + declaration)
+		}
+	}
+
 	
 	def Collection<String> getDeclarationNames(ModelDeclaration model, Declaration exclude) {
-		var names = new ArrayList()
-		names.addAll(model.declarations.filter[m | m !== exclude].filter[m | m instanceof PrimitiveDeclaration].map[m | m as PrimitiveDeclaration].map[m | m.name.toLowerCase].toList)
-		names.addAll(model.declarations.filter[m | m !== exclude].filter[m | m instanceof ErrorDeclaration].map[m | m as ErrorDeclaration].map[m | m.name.toLowerCase].toList)
-		names.addAll(model.declarations.filter[m | m !== exclude].filter[m | m instanceof EntityDeclaration].map[m | m as EntityDeclaration].map[m | m.name.toLowerCase].toList)
-		new HashSet(names)
+		model.declarations.filter[m | m !== exclude].map[m | m.nameForDeclaration].filter[n | n.trim != ""].toSet
 	}
 
 	
