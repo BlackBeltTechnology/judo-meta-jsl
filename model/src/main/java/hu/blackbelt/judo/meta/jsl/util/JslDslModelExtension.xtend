@@ -115,7 +115,7 @@ class JslDslModelExtension {
 	def Collection<String> getMemberNames(EntityDeclaration entity) {
 		entity.getMemberNames(null)
 	}
-		
+
 	def Collection<String> getMemberNames(EntityDeclaration entity, EntityMemberDeclaration exclude) {
 		var names = new ArrayList()
 		val allEntitiesInInheritenceChain = new HashSet
@@ -179,12 +179,12 @@ class JslDslModelExtension {
 		}
 	}
 
-	
+
 	def Collection<String> getDeclarationNames(ModelDeclaration model, Declaration exclude) {
 		model.declarations.filter[m | m !== exclude].map[m | m.nameForDeclaration].filter[n | n.trim != ""].toSet
 	}
 
-	
+
 	def Collection<EntityMemberDeclaration> getAllMembers(EntityDeclaration entity, Collection<EntityMemberDeclaration> visited) {		
 		if (entity !== null) {
 			visited.addAll(
