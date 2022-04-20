@@ -15,14 +15,7 @@ import hu.blackbelt.judo.meta.jsl.scoping.JslDslIndex
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import java.util.LinkedList
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
-import java.util.Map
-import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
 
@@ -171,7 +164,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 	}
 	
-	
 	@Check
 	def checkForDuplicateNameForEntityMemberDeclaration(EntityMemberDeclaration member) {
 		if ((member.eContainer as EntityDeclaration).getMemberNames(member).map[n | n.toLowerCase].contains(member.nameForEntityMemberDeclaration.toLowerCase)) {
@@ -195,9 +187,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 	}
 
-		
 	@Check
-	def checkForDuplicateNameForPrimitiveDeclaration(Declaration declaration) {
+	def checkForDuplicateNameForDeclaration(Declaration declaration) {
 		if ((declaration.eContainer as ModelDeclaration).getDeclarationNames(declaration).map[n | n.toLowerCase].contains(declaration.nameForDeclaration.toLowerCase)) {
 			error("Duplicate declaration: '" + declaration.nameForDeclaration + "'",
 				declaration.nameAttributeForDeclaration,
