@@ -19,6 +19,12 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
+import java.util.Map
+import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
 
 /**
  * This class contains custom validation rules. 
@@ -33,6 +39,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val DUPLICATE_MODEL = ISSUE_CODE_PREFIX + "DuplicateModel"
 	public static val OPPOSITE_TYPE_MISMATH = ISSUE_CODE_PREFIX + "OppositeTypeMismatch"
 	public static val DUPLICATE_MEMBER_NAME = ISSUE_CODE_PREFIX + "DuplicateMemberName"
+	public static val DUPLICATE_DECLARATION_NAME = ISSUE_CODE_PREFIX + "DuplicateDeclarationName"
+
 	public static val INHERITENCE_CYCLE = ISSUE_CODE_PREFIX + "InheritenceCycle"
 	
 	@Inject extension IQualifiedNameProvider
@@ -162,51 +170,20 @@ class JslDslValidator extends AbstractJslDslValidator {
 				entity.name)			
 		}
 	}
-
+	
+	
 	@Check
-	def checkForDuplicateNameForEntityFieldDeclaration(EntityFieldDeclaration member) {
-		if ((member.eContainer as EntityDeclaration).getMemberNames(member).contains(member.name)) {
-			error("Duplicate name: '" + member.name + "'",
-				JsldslPackage::eINSTANCE.entityFieldDeclaration_Name,
+	def checkForDuplicateNameForEntityMemberDeclaration(EntityMemberDeclaration member) {
+		if ((member.eContainer as EntityDeclaration).getMemberNames(member).map[n | n.toLowerCase].contains(member.nameForEntityMemberDeclaration.toLowerCase)) {
+			error("Duplicate member declaration: '" + member.nameForEntityMemberDeclaration + "'",
+				member.nameAttributeForEntityMemberDeclaration,
 				DUPLICATE_MEMBER_NAME,
-				member.name)			
-		}
-	}
-
-
-	@Check
-	def checkForDuplicateNameForEntityIdentifierDeclaration(EntityIdentifierDeclaration member) {
-		if ((member.eContainer as EntityDeclaration).getMemberNames(member).contains(member.name)) {
-			error("Duplicate name: '" + member.name + "'",
-				JsldslPackage::eINSTANCE.entityIdentifierDeclaration_Name,
-				DUPLICATE_MEMBER_NAME,
-				member.name)			
-		}
-	}
-
-
-	@Check
-	def checkForDuplicateNameForEntityRelationDeclaration(EntityRelationDeclaration member) {
-		if ((member.eContainer as EntityDeclaration).getMemberNames(member).contains(member.name)) {
-			error("Duplicate name: '" + member.name + "'",
-				JsldslPackage::eINSTANCE.entityRelationDeclaration_Name,
-				DUPLICATE_MEMBER_NAME,
-				member.name)			
-		}
-	}
-		
-	@Check
-	def checkForDuplicateNameForEntityDerivedDeclaration(EntityDerivedDeclaration member) {
-		if ((member.eContainer as EntityDeclaration).getMemberNames(member).contains(member.name)) {
-			error("Duplicate name: '" + member.name + "'",
-				JsldslPackage::eINSTANCE.entityDerivedDeclaration_Name,
-				DUPLICATE_MEMBER_NAME,
-				member.name)			
+				member.nameForEntityMemberDeclaration)			
 		}
 	}
 
 	@Check
-	def checkForDuplicateNameForEntityDerivedDeclaration(EntityRelationOpposite opposite) {
+	def checkForDuplicateNameForAddedOpposite(EntityRelationOpposite opposite) {
 		if (opposite.oppositeName !== null && !opposite.oppositeName.blank) {
 			val relation = opposite.eContainer as EntityRelationDeclaration
 			if (relation.referenceType.getMemberNames.contains(opposite.oppositeName)) {
@@ -218,7 +195,17 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 	}
 
-
+		
+	@Check
+	def checkForDuplicateNameForPrimitiveDeclaration(Declaration declaration) {
+		if ((declaration.eContainer as ModelDeclaration).getDeclarationNames(declaration).map[n | n.toLowerCase].contains(declaration.nameForDeclaration.toLowerCase)) {
+			error("Duplicate declaration: '" + declaration.nameForDeclaration + "'",
+				declaration.nameAttributeForDeclaration,
+				DUPLICATE_DECLARATION_NAME,
+				declaration.nameForDeclaration)			
+		}
+	}
+		
 	def currentElem(EObject grammarElement) {
 		return grammarElement.eResource.resourceSet.getResource(URI.createURI("self_synthetic"), true).contents.get(0)
 	}
