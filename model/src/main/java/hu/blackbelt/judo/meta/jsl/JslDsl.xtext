@@ -146,6 +146,11 @@ DataTypeDeclaration
       )
     ;
 
+
+/****************************
+ *	Enum
+ ****************************/
+
 EnumDeclaration
     : 'enum' name = ID
       BLOCK_START (literals += EnumLiteral)+ BLOCK_END
@@ -154,6 +159,7 @@ EnumDeclaration
 EnumLiteral
     : NL+ name = ID '=' value = INTEGER
     ;
+
 
 ModifierMaxLength
 	: 'max-length' maxLength = INTEGER
