@@ -18,6 +18,12 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
+import java.util.HashMap
+import java.util.Arrays
+import java.util.Set
+import java.util.HashSet
+import java.util.ArrayList
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -33,9 +39,10 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val OPPOSITE_TYPE_MISMATH = ISSUE_CODE_PREFIX + "OppositeTypeMismatch"
 	public static val DUPLICATE_MEMBER_NAME = ISSUE_CODE_PREFIX + "DuplicateMemberName"
 	public static val DUPLICATE_DECLARATION_NAME = ISSUE_CODE_PREFIX + "DuplicateDeclarationName"
-
 	public static val INHERITENCE_CYCLE = ISSUE_CODE_PREFIX + "InheritenceCycle"
-	
+	public static val INHERITED_MEMBER_NAME_COLLISION = ISSUE_CODE_PREFIX + "InheritedMemberNameCollision"
+
+
 	@Inject extension IQualifiedNameProvider
 	@Inject extension IQualifiedNameConverter
 	@Inject extension JslDslModelExtension
@@ -163,14 +170,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 				entity.name)			
 		}
 	}
-	
+
 	@Check
 	def checkForDuplicateNameForEntityMemberDeclaration(EntityMemberDeclaration member) {
 		if ((member.eContainer as EntityDeclaration).getMemberNames(member).map[n | n.toLowerCase].contains(member.nameForEntityMemberDeclaration.toLowerCase)) {
 			error("Duplicate member declaration: '" + member.nameForEntityMemberDeclaration + "'",
 				member.nameAttributeForEntityMemberDeclaration,
 				DUPLICATE_MEMBER_NAME,
-				member.nameForEntityMemberDeclaration)			
+				member.nameForEntityMemberDeclaration)
 		}
 	}
 
@@ -188,15 +195,37 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
+	def checkForDuplicateInheritedFields(EntityDeclaration entity) {
+		val allMembers = getAllMembers(entity, new ArrayList)
+		val aggr = new HashMap<String, Set<EntityDeclaration>>()
+		allMembers.forEach[
+			m |
+			val key = getNameForEntityMemberDeclaration(m)
+			aggr.putIfAbsent(key, new HashSet())
+			val entityCollection = aggr.get(key)
+			entityCollection.add(m.eContainer as EntityDeclaration)
+			return
+		]
+		val collidingMember = aggr.keySet.findFirst[k | aggr.get(k).size > 1]
+		if (collidingMember !== null) {
+			// val collidingMemberEntities = aggr.get(collidingMember)
+			error("Inherited member name collision for: '" + collidingMember + "'",
+					JsldslPackage::eINSTANCE.entityDeclaration_Members,
+					INHERITED_MEMBER_NAME_COLLISION,
+					collidingMember)
+		}
+	}
+
+	@Check
 	def checkForDuplicateNameForDeclaration(Declaration declaration) {
 		if ((declaration.eContainer as ModelDeclaration).getDeclarationNames(declaration).map[n | n.toLowerCase].contains(declaration.nameForDeclaration.toLowerCase)) {
 			error("Duplicate declaration: '" + declaration.nameForDeclaration + "'",
 				declaration.nameAttributeForDeclaration,
 				DUPLICATE_DECLARATION_NAME,
-				declaration.nameForDeclaration)			
+				declaration.nameForDeclaration)
 		}
 	}
-		
+
 	def currentElem(EObject grammarElement) {
 		return grammarElement.eResource.resourceSet.getResource(URI.createURI("self_synthetic"), true).contents.get(0)
 	}
