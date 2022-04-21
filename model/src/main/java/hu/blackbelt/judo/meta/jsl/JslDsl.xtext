@@ -278,7 +278,7 @@ EntityMemberDeclarationFeature returns Feature
 	;
 
 QueryParameter
-	:  derivedParameterType=[DerivedParameter | LocalName] '=' expression=MultilineExpression
+	:  derivedParameterType=[DerivedParameter | LocalName] '=' (literal = Literal | parameter = [DerivedParameter | LocalName])     // expression=MultilineExpression
 	;
 
 ParenthesizedExpression returns Expression

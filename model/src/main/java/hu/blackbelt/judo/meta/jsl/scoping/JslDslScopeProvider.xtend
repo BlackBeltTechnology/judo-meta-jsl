@@ -53,6 +53,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.feature_EntityMemberDeclarationType:
 						(context as Feature).scopeForFeatureEntityMemberDeclarationType
+					case JsldslPackage::eINSTANCE.queryParameter_DerivedParameterType:
+						(context as Feature).scopeForQueryParameterDerivedParameterType(super.getScope(context, ref))
 					default: 
 						super.getScope(context, ref)
 				}
@@ -100,6 +102,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.queryParameter_DerivedParameterType:
 						(context.eContainer as Feature).scopeForQueryParameterDerivedParameterType(super.getScope(context, ref))
+					case JsldslPackage::eINSTANCE.queryParameter_Parameter:
+						(context.eContainer as Feature).scopeForQueryParameterParameterType
 					default: 
 						super.getScope(context, ref)
 				}
@@ -118,6 +122,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		} else {
 			fallback
 		}
+	}
+
+	def IScope scopeForQueryParameterParameterType(Feature feature) {
+		Scopes.scopeFor(feature.getDerivedDeclaration.parameters, IScope.NULLSCOPE)							
 	}
 
 	def IScope scopeForFeatureEntityMemberDeclarationType(Feature feature) {
