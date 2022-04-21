@@ -115,16 +115,16 @@ ErrorDeclaration
 	;
 
 ErrorField
-	: NL+ 'field' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration] name = ID
+	: NL+ 'field' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] name = ID
 	  ("=" default = Expression)?
 	;
 
 CreateError
-	: type=[ErrorDeclaration] ('(' (parameters+=ThrowParameter (',' parameters+=ThrowParameter)*)? ')')?
+	: errorDeclarationType=[ErrorDeclaration | LocalName] ('(' (parameters+=ThrowParameter (',' parameters+=ThrowParameter)*)? ')')?
 	;
 
-ThrowParameter:
-    name=ID '=' expession=Expression;
+ThrowParameter
+	: errorFieldType=[ErrorField | LocalName] '=' expession=Expression;
 
 
 
@@ -270,11 +270,15 @@ FunctionCall
 	;
 
 Feature
-	: {Feature} '.' name=ID ('(' parameters+=QueryParameter (',' parameters+=QueryParameter)* ')')?
+    : {Feature} '.' member = EntityMemberDeclarationFeature
+    ;
+
+EntityMemberDeclarationFeature returns Feature
+	: entityMemberDeclarationType = [EntityMemberDeclaration | LocalName ] ('(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')')?
 	;
 
 QueryParameter
-	: name = ID '=' expression=MultilineExpression
+	:  derivedParameterType=[DerivedParameter | LocalName] '=' expression=MultilineExpression
 	;
 
 ParenthesizedExpression returns Expression
