@@ -18,11 +18,15 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import org.eclipse.emf.ecore.EAttribute
+import org.eclipse.xtext.naming.IQualifiedNameProvider
+import com.google.inject.Inject;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ConstraintDeclaration
 
 @Singleton
 class JslDslModelExtension {
 	
+	@Inject extension IQualifiedNameProvider
+
 	def ModelDeclaration modelDeclaration(EObject obj) {
 		var current = obj
 		
@@ -45,7 +49,7 @@ class JslDslModelExtension {
 		}]
 		return res
 	}
-	
+
 	def getAllOppositeRelations(EntityRelationDeclaration relation) {
 		relation.getAllOppositeRelations(null)
 	}
@@ -115,7 +119,7 @@ class JslDslModelExtension {
 	def Collection<String> getMemberNames(EntityDeclaration entity) {
 		entity.getMemberNames(null)
 	}
-		
+
 	def Collection<String> getMemberNames(EntityDeclaration entity, EntityMemberDeclaration exclude) {
 		var names = new ArrayList()
 		val allEntitiesInInheritenceChain = new HashSet
@@ -179,12 +183,12 @@ class JslDslModelExtension {
 		}
 	}
 
-	
+
 	def Collection<String> getDeclarationNames(ModelDeclaration model, Declaration exclude) {
 		model.declarations.filter[m | m !== exclude].map[m | m.nameForDeclaration].filter[n | n.trim != ""].toSet
 	}
 
-	
+
 	def Collection<EntityMemberDeclaration> getAllMembers(EntityDeclaration entity, Collection<EntityMemberDeclaration> visited) {		
 		if (entity !== null) {
 			visited.addAll(
@@ -213,7 +217,14 @@ class JslDslModelExtension {
 		}
 		visited
 	}
+	
+	def String getMemberFullyQualifiedName(EntityMemberDeclaration member) {
+		(member.eContainer as EntityDeclaration).fullyQualifiedName.toString("::") + "." + member.nameForEntityMemberDeclaration
+	}
 
+	def Collection<EntityMemberDeclaration> getAllMembers(EntityDeclaration entity) {
+		entity.getAllMembers(new ArrayList())
+	}
 
 	def EntityDerivedDeclaration getDerivedDeclaration(EObject from) {
 		var EntityDerivedDeclaration found = null;
