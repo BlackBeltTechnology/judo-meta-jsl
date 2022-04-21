@@ -38,7 +38,7 @@ class EntityMemberDeclarationTests {
 			}
 
 		'''.parse => [
-			assertInheritedMemberNameCollisionError("Inherited member name collision for: 'test::B1#name', 'test::B2#name'", JsldslPackage::eINSTANCE.entityDeclaration)
+			assertInheritedMemberNameCollisionError("Inherited member name collision for: 'test::B1.name', 'test::B2.name'", JsldslPackage::eINSTANCE.entityDeclaration)
 		]
 	}
 

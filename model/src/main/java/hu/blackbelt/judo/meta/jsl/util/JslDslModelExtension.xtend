@@ -217,7 +217,14 @@ class JslDslModelExtension {
 		}
 		visited
 	}
+	
+	def String getMemberFullyQualifiedName(EntityMemberDeclaration member) {
+		(member.eContainer as EntityDeclaration).fullyQualifiedName.toString("::") + "." + member.nameForEntityMemberDeclaration
+	}
 
+	def Collection<EntityMemberDeclaration> getAllMembers(EntityDeclaration entity) {
+		entity.getAllMembers(new ArrayList())
+	}
 
 	def EntityDerivedDeclaration getDerivedDeclaration(EObject from) {
 		var EntityDerivedDeclaration found = null;
