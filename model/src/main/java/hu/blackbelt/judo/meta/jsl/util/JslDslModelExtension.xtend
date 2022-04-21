@@ -28,10 +28,14 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import org.eclipse.emf.ecore.EAttribute
+import org.eclipse.xtext.naming.IQualifiedNameProvider
+import com.google.inject.Inject;
 
 @Singleton
 class JslDslModelExtension {
 	
+	@Inject extension IQualifiedNameProvider
+
 	def ModelDeclaration modelDeclaration(EObject obj) {
 		var current = obj
 		
@@ -214,4 +218,12 @@ class JslDslModelExtension {
 		visited
 	}
 	
+	def String getMemberFullyQualifiedName(EntityMemberDeclaration member) {
+		(member.eContainer as EntityDeclaration).fullyQualifiedName.toString("::") + "#" + member.nameForEntityMemberDeclaration
+	}
+
+	def Collection<EntityMemberDeclaration> getAllMembers(EntityDeclaration entity) {
+		entity.getAllMembers(new ArrayList())
+	}
+
 }

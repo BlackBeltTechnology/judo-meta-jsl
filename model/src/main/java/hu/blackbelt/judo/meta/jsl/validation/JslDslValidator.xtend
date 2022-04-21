@@ -196,23 +196,15 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkForDuplicateInheritedFields(EntityDeclaration entity) {
-		val allMembers = getAllMembers(entity, new ArrayList)
-		val aggr = new HashMap<String, Set<EntityDeclaration>>()
-		allMembers.forEach[
-			m |
-			val key = getNameForEntityMemberDeclaration(m)
-			aggr.putIfAbsent(key, new HashSet())
-			val entityCollection = aggr.get(key)
-			entityCollection.add(m.eContainer as EntityDeclaration)
-			return
-		]
-		val collidingMember = aggr.keySet.findFirst[k | aggr.get(k).size > 1]
-		if (collidingMember !== null) {
-			// val collidingMemberEntities = aggr.get(collidingMember)
-			error("Inherited member name collision for: '" + collidingMember + "'",
-					JsldslPackage::eINSTANCE.entityDeclaration_Members,
-					INHERITED_MEMBER_NAME_COLLISION,
-					collidingMember)
+		val collidingMembers = entity.allMembers
+			.groupBy[m | m.nameForEntityMemberDeclaration]
+			.filter[n, l | l.size > 1]
+			
+		if (collidingMembers.size > 0) {
+			error("Inherited member name collision for: " + collidingMembers.mapValues[l | l.map[v | "'" + v.memberFullyQualifiedName + "'"].join(", ")].values.join(", "),
+				JsldslPackage::eINSTANCE.entityDeclaration_Name,
+				INHERITED_MEMBER_NAME_COLLISION,
+				entity.name)
 		}
 	}
 
