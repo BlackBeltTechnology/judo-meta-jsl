@@ -35,17 +35,17 @@ entity abstract Person {
 }
 
 entity SalesPerson extends Person {
-	relation Lead lead opposite salesPerson
+	relation Lead[] leads opposite salesPerson
 	derived Customer[] leadsOver(Integer limit = 100) = self.leads!filter(lead | lead.value > limit)
-	derived Customer[] leadsOver10 = self.leads(limit = 10)
+	derived Customer[] leadsOver10 = self.leadsOver(limit = 10)
 }
 
 entity Lead {
 	field Integer value = 100000
 
-	relation required SalesPerson salesPerson opposite lead
+	relation required SalesPerson salesPerson opposite leads
 
-	constraint self.value > 10 onerror MyError(code = 10, message = "Error message")
+	constraint self.value > 10 onerror MyError(code = 10, msg = "Error message")
 }
 
 entity Customer {
