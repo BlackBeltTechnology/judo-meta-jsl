@@ -18,6 +18,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierMaxLength
+import java.math.BigInteger
 
 /**
  * This class contains custom validation rules. 
@@ -36,7 +38,11 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val DUPLICATE_DECLARATION_NAME = ISSUE_CODE_PREFIX + "DuplicateDeclarationName"
 	public static val INHERITENCE_CYCLE = ISSUE_CODE_PREFIX + "InheritenceCycle"
 	public static val INHERITED_MEMBER_NAME_COLLISION = ISSUE_CODE_PREFIX + "InheritedMemberNameCollision"
+	public static val MAX_LENGTH_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "MaxLengthIsNegative"
+	public static val MAX_LENGTH_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "MaxLengthIsTooLarge"
+
 	public static val MEMBER_NAME_LENGTH_MAX = 128
+	public static val MODIFIER_MAX_LENGTH_MAX_VALUE = BigInteger.valueOf(4000)
 
 
 	@Inject extension IQualifiedNameProvider
@@ -221,6 +227,22 @@ class JslDslValidator extends AbstractJslDslValidator {
 				declaration.nameAttributeForDeclaration,
 				DUPLICATE_DECLARATION_NAME,
 				declaration.nameForDeclaration)
+		}
+	}
+	
+	@Check
+	def checkModifierMaxLength(ModifierMaxLength modifier) {
+		if (modifier.maxLength < BigInteger.ZERO) {
+			error("MaxLength must be greater than 0",
+				JsldslPackage::eINSTANCE.modifierMaxLength_MaxLength,
+				MAX_LENGTH_MODIFIER_IS_NEGATIVE,
+				JsldslPackage::eINSTANCE.modifierMaxLength.name)
+		}
+		if (modifier.maxLength > MODIFIER_MAX_LENGTH_MAX_VALUE) {
+			error("MaxLength must be less than/equals to " + MODIFIER_MAX_LENGTH_MAX_VALUE,
+				JsldslPackage::eINSTANCE.modifierMaxLength_MaxLength,
+				MAX_LENGTH_MODIFIER_IS_TOO_LARGE,
+				JsldslPackage::eINSTANCE.modifierMaxLength.name)
 		}
 	}
 
