@@ -18,11 +18,15 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import org.eclipse.emf.ecore.EAttribute
+import org.eclipse.xtext.naming.IQualifiedNameProvider
+import com.google.inject.Inject;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ConstraintDeclaration
 
 @Singleton
 class JslDslModelExtension {
 	
+	@Inject extension IQualifiedNameProvider
+
 	def ModelDeclaration modelDeclaration(EObject obj) {
 		var current = obj
 		
@@ -45,7 +49,7 @@ class JslDslModelExtension {
 		}]
 		return res
 	}
-	
+
 	def getAllOppositeRelations(EntityRelationDeclaration relation) {
 		relation.getAllOppositeRelations(null)
 	}
