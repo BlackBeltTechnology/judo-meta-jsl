@@ -8,30 +8,24 @@ import java.util.Collection
 import java.util.ArrayList
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import java.util.LinkedList
-import java.util.Set
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import java.util.HashSet
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
-import hu.blackbelt.judo.meta.jsl.jsldsl.Self
-import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationExpression
-import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionedExpression
-import hu.blackbelt.judo.meta.jsl.jsldsl.UnaryOperation
-import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation
-import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation
 import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import org.eclipse.emf.ecore.EAttribute
+import org.eclipse.xtext.naming.IQualifiedNameProvider
+import com.google.inject.Inject;
 
 @Singleton
 class JslDslModelExtension {
 	
+	@Inject extension IQualifiedNameProvider
+
 	def ModelDeclaration modelDeclaration(EObject obj) {
 		var current = obj
 		
@@ -115,7 +109,7 @@ class JslDslModelExtension {
 	def Collection<String> getMemberNames(EntityDeclaration entity) {
 		entity.getMemberNames(null)
 	}
-		
+
 	def Collection<String> getMemberNames(EntityDeclaration entity, EntityMemberDeclaration exclude) {
 		var names = new ArrayList()
 		val allEntitiesInInheritenceChain = new HashSet
@@ -179,12 +173,12 @@ class JslDslModelExtension {
 		}
 	}
 
-	
+
 	def Collection<String> getDeclarationNames(ModelDeclaration model, Declaration exclude) {
 		model.declarations.filter[m | m !== exclude].map[m | m.nameForDeclaration].filter[n | n.trim != ""].toSet
 	}
 
-	
+
 	def Collection<EntityMemberDeclaration> getAllMembers(EntityDeclaration entity, Collection<EntityMemberDeclaration> visited) {		
 		if (entity !== null) {
 			visited.addAll(
@@ -214,4 +208,12 @@ class JslDslModelExtension {
 		visited
 	}
 	
+	def String getMemberFullyQualifiedName(EntityMemberDeclaration member) {
+		(member.eContainer as EntityDeclaration).fullyQualifiedName.toString("::") + "#" + member.nameForEntityMemberDeclaration
+	}
+
+	def Collection<EntityMemberDeclaration> getAllMembers(EntityDeclaration entity) {
+		entity.getAllMembers(new ArrayList())
+	}
+
 }
