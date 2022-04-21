@@ -216,11 +216,11 @@ class JslDslModelExtension {
 
 
 	def EntityDerivedDeclaration getDerivedDeclaration(EObject from) {
-		var EntityDerivedDeclaration founded = null;
+		var EntityDerivedDeclaration found = null;
 		var EObject current = from;
-		while (founded === null && current !== null) {
+		while (found === null && current !== null) {
 			if (current instanceof EntityDerivedDeclaration) {
-				founded = current as EntityDerivedDeclaration;
+				found = current as EntityDerivedDeclaration;
 			}
 			if (from.eContainer() !== null) {
 				current = current.eContainer();
@@ -228,6 +228,6 @@ class JslDslModelExtension {
 				current = null;
 			}
 		}
-		return founded;
+		return found;
 	}
 }
