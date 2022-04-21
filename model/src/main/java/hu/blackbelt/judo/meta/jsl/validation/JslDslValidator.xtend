@@ -18,12 +18,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
-import java.util.HashMap
-import java.util.Arrays
-import java.util.Set
-import java.util.HashSet
-import java.util.ArrayList
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 
 /**
  * This class contains custom validation rules. 
