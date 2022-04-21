@@ -8,26 +8,17 @@ import java.util.Collection
 import java.util.ArrayList
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import java.util.LinkedList
-import java.util.Set
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import java.util.HashSet
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
-import hu.blackbelt.judo.meta.jsl.jsldsl.Self
-import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationExpression
-import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionedExpression
-import hu.blackbelt.judo.meta.jsl.jsldsl.UnaryOperation
-import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation
-import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation
 import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import org.eclipse.emf.ecore.EAttribute
+import hu.blackbelt.judo.meta.jsl.jsldsl.ConstraintDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -44,6 +35,15 @@ class JslDslModelExtension {
 		} else {
 			throw new IllegalAccessException("The root container is not ModelDeclaration: " + obj)
 		}		
+	}
+
+	def Collection<EntityMemberDeclaration> allEntityMemberDeclarations(ModelDeclaration model) {
+		val res = new ArrayList<EntityMemberDeclaration>();
+
+		model.declarations.filter[d | d instanceof EntityDeclaration].map[d | d as EntityDeclaration].forEach[e | {
+			res.addAll(e.members.filter[m | !(m instanceof ConstraintDeclaration)])
+		}]
+		return res
 	}
 	
 	def getAllOppositeRelations(EntityRelationDeclaration relation) {
@@ -213,5 +213,21 @@ class JslDslModelExtension {
 		}
 		visited
 	}
-	
+
+
+	def EntityDerivedDeclaration getDerivedDeclaration(EObject from) {
+		var EntityDerivedDeclaration found = null;
+		var EObject current = from;
+		while (found === null && current !== null) {
+			if (current instanceof EntityDerivedDeclaration) {
+				found = current as EntityDerivedDeclaration;
+			}
+			if (from.eContainer() !== null) {
+				current = current.eContainer();
+			} else {
+				current = null;
+			}
+		}
+		return found;
+	}
 }

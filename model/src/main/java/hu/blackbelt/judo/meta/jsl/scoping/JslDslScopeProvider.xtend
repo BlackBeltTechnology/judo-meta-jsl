@@ -12,13 +12,11 @@ import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import com.google.inject.Inject
 import org.eclipse.xtext.scoping.IScope
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
-import com.google.common.collect.Iterables
-import com.google.common.base.Predicate
-import org.eclipse.xtext.resource.IEObjectDescription
-import org.eclipse.xtext.scoping.impl.SimpleScope
-import org.eclipse.xtext.scoping.impl.FilteringScope
-import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider
+import hu.blackbelt.judo.meta.jsl.jsldsl.ThrowParameter
+import hu.blackbelt.judo.meta.jsl.jsldsl.CreateError
+import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameter
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 
 /**
  * This class contains custom scoping description.
@@ -31,8 +29,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 	@Inject extension JslDslModelExtension
 
-    override getScope(EObject context, EReference ref) {		
-		// System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
+    override getScope(EObject context, EReference ref) {
+    	// System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
 		switch context {
 			EntityRelationOpposite : 
 				switch (ref) {
@@ -42,24 +40,97 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 						super.getScope(context, ref)
 				}
 
-			/* 	This is causing cyclic refeence problem
-			EntityDeclaration : 
-				switch (ref) {					
-					case JsldslPackage::eINSTANCE.entityDeclaration_Extends: {
-						val entity = context as EntityDeclaration;
-						val superEntities = entity.superEntityTypes
-						
-						new FilteringScope(super.getScope(context, ref), new Predicate<IEObjectDescription>() {
-					        override apply(IEObjectDescription input) {
-								input.EObjectOrProxy !== entity || !superEntities.contains(input.EObjectOrProxy)
-					        }
-					    });
-					}
-					default:
+			/*			 
+			Feature
+			    : {Feature} '.' member = EntityMemberDeclarationFeature
+			    ;
+			
+			EntityMemberDeclarationFeature returns Feature
+				: entityMemberDeclarationType = [EntityMemberDeclaration | LocalName ] ('(' parameters+=QueryParameter (',' parameters+=QueryParameter)* ')')?
+				;
+			*/
+			Feature :
+				switch (ref) {
+					case JsldslPackage::eINSTANCE.feature_EntityMemberDeclarationType:
+						(context as Feature).scopeForFeatureEntityMemberDeclarationType
+					case JsldslPackage::eINSTANCE.queryParameter_DerivedParameterType:
+						(context as Feature).scopeForQueryParameterDerivedParameterType(super.getScope(context, ref))
+					default: 
 						super.getScope(context, ref)
 				}
-				*/
+			
+
+			/*
+			CreateError
+				: errorDeclarationType=[ErrorDeclaration | LocalName] ('(' (parameters+=ThrowParameter (',' parameters+=ThrowParameter)*)? ')')?
+				;
+			
+			ThrowParameter
+				: errorFieldType=[ErrorField | LocalName] '=' expession=Expression
+				;
+			*/
+			CreateError : 
+				switch (ref) {
+					case JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType:
+						(context as CreateError).scopeForCreateError
+					default: 
+						super.getScope(context, ref)
+				}
+
+			ThrowParameter : 
+				switch (ref) {
+					case JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType:
+						if (context.eContainer instanceof CreateError) {
+							(context.eContainer as CreateError).scopeForCreateError
+						} else {
+							super.getScope(context, ref)
+						}
+					default: 
+						super.getScope(context, ref)
+				}
+
+			/*
+			Feature
+				: {Feature} '.' name=ID ('(' parameters+=QueryParameter (',' parameters+=QueryParameter)* ')')?
+				;
+			
+			QueryParameter
+				:  derivedParameterType=[DerivedParameter | LocalName] '=' expression=MultilineExpression
+				;
+			 */
+			QueryParameter : 
+				switch (ref) {
+					case JsldslPackage::eINSTANCE.queryParameter_DerivedParameterType:
+						(context.eContainer as Feature).scopeForQueryParameterDerivedParameterType(super.getScope(context, ref))
+					case JsldslPackage::eINSTANCE.queryParameter_Parameter:
+						(context.eContainer as Feature).scopeForQueryParameterParameterType
+					default: 
+						super.getScope(context, ref)
+				}
 			default: super.getScope(context, ref)
 		}		
 	}
+	
+	def IScope scopeForCreateError(CreateError createError) {
+		Scopes.scopeFor(createError.errorDeclarationType.fields, IScope.NULLSCOPE)		
+	}
+
+	def IScope scopeForQueryParameterDerivedParameterType(Feature feature, IScope fallback) {
+		if (feature.entityMemberDeclarationType !== null 
+			&& feature.entityMemberDeclarationType instanceof EntityDerivedDeclaration) {
+			Scopes.scopeFor((feature.entityMemberDeclarationType as EntityDerivedDeclaration).parameters, IScope.NULLSCOPE)							
+		} else {
+			fallback
+		}
+	}
+
+	def IScope scopeForQueryParameterParameterType(Feature feature) {
+		Scopes.scopeFor(feature.getDerivedDeclaration.parameters, IScope.NULLSCOPE)							
+	}
+
+	def IScope scopeForFeatureEntityMemberDeclarationType(Feature feature) {
+		Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, IScope.NULLSCOPE)		
+	}
+
+
 }
