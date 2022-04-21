@@ -33,9 +33,10 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val OPPOSITE_TYPE_MISMATH = ISSUE_CODE_PREFIX + "OppositeTypeMismatch"
 	public static val DUPLICATE_MEMBER_NAME = ISSUE_CODE_PREFIX + "DuplicateMemberName"
 	public static val DUPLICATE_DECLARATION_NAME = ISSUE_CODE_PREFIX + "DuplicateDeclarationName"
-
 	public static val INHERITENCE_CYCLE = ISSUE_CODE_PREFIX + "InheritenceCycle"
-	
+	public static val INHERITED_MEMBER_NAME_COLLISION = ISSUE_CODE_PREFIX + "InheritedMemberNameCollision"
+
+
 	@Inject extension IQualifiedNameProvider
 	@Inject extension IQualifiedNameConverter
 	@Inject extension JslDslModelExtension
@@ -163,14 +164,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 				entity.name)			
 		}
 	}
-	
+
 	@Check
 	def checkForDuplicateNameForEntityMemberDeclaration(EntityMemberDeclaration member) {
 		if ((member.eContainer as EntityDeclaration).getMemberNames(member).map[n | n.toLowerCase].contains(member.nameForEntityMemberDeclaration.toLowerCase)) {
 			error("Duplicate member declaration: '" + member.nameForEntityMemberDeclaration + "'",
 				member.nameAttributeForEntityMemberDeclaration,
 				DUPLICATE_MEMBER_NAME,
-				member.nameForEntityMemberDeclaration)			
+				member.nameForEntityMemberDeclaration)
 		}
 	}
 
@@ -188,15 +189,29 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
+	def checkForDuplicateInheritedFields(EntityDeclaration entity) {
+		val collidingMembers = entity.allMembers
+			.groupBy[m | m.nameForEntityMemberDeclaration]
+			.filter[n, l | l.size > 1]
+			
+		if (collidingMembers.size > 0) {
+			error("Inherited member name collision for: " + collidingMembers.mapValues[l | l.map[v | "'" + v.memberFullyQualifiedName + "'"].join(", ")].values.join(", "),
+				JsldslPackage::eINSTANCE.entityDeclaration_Name,
+				INHERITED_MEMBER_NAME_COLLISION,
+				entity.name)
+		}
+	}
+
+	@Check
 	def checkForDuplicateNameForDeclaration(Declaration declaration) {
 		if ((declaration.eContainer as ModelDeclaration).getDeclarationNames(declaration).map[n | n.toLowerCase].contains(declaration.nameForDeclaration.toLowerCase)) {
 			error("Duplicate declaration: '" + declaration.nameForDeclaration + "'",
 				declaration.nameAttributeForDeclaration,
 				DUPLICATE_DECLARATION_NAME,
-				declaration.nameForDeclaration)			
+				declaration.nameForDeclaration)
 		}
 	}
-		
+
 	def currentElem(EObject grammarElement) {
 		return grammarElement.eResource.resourceSet.getResource(URI.createURI("self_synthetic"), true).contents.get(0)
 	}
