@@ -42,10 +42,34 @@ class EntityMemberDeclarationTests {
 		]
 	}
 
+	@Test 
+	def void testMemberNameTooLong() {
+		'''
+			model test
+			
+			type string String max-length 12
+			
+			entity Person {
+				field String tgvkyzidsggsdxxrszoscrljgnnixjzkyztoxpdvvqbmlrpzaakkwcczsarbqrqjnphrlfkfcjgcmgbxdexakswitdmcfjyjblkmiknvdgtyxlunkolxzaneifhyizgureqemldvypsongytiwmfaqrnxuodiunflyduwzerdossywvzgkmvdbfvpumaqzdazqomqwoaqynrixrwirmtbqmihmwkjmdaulwnfoxcmzldaxyjnihbluepwdswz
+			}
+
+		'''.parse => [
+			assertInheritedMemberNameLengthError("Member name: 'tgvkyzidsggsdxxrszoscrljgnnixjzkyztoxpdvvqbmlrpzaakkwcczsarbqrqjnphrlfkfcjgcmgbxdexakswitdmcfjyjblkmiknvdgtyxlunkolxzaneifhyizgureqemldvypsongytiwmfaqrnxuodiunflyduwzerdossywvzgkmvdbfvpumaqzdazqomqwoaqynrixrwirmtbqmihmwkjmdaulwnfoxcmzldaxyjnihbluepwdswz' is too long, must be at most 128 characters", JsldslPackage::eINSTANCE.entityMemberDeclaration)
+		]
+	}
+
 	def private void assertInheritedMemberNameCollisionError(ModelDeclaration modelDeclaration, String error, EClass target) {
 		modelDeclaration.assertError(
 			target, 
 			JslDslValidator.INHERITED_MEMBER_NAME_COLLISION, 
+			error
+		)
+	}
+
+	def private void assertInheritedMemberNameLengthError(ModelDeclaration modelDeclaration, String error, EClass target) {
+		modelDeclaration.assertError(
+			target, 
+			JslDslValidator.MEMBER_NAME_TOO_LONG, 
 			error
 		)
 	}

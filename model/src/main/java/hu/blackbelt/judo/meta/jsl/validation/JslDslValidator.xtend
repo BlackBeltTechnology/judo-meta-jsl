@@ -32,9 +32,11 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val DUPLICATE_MODEL = ISSUE_CODE_PREFIX + "DuplicateModel"
 	public static val OPPOSITE_TYPE_MISMATH = ISSUE_CODE_PREFIX + "OppositeTypeMismatch"
 	public static val DUPLICATE_MEMBER_NAME = ISSUE_CODE_PREFIX + "DuplicateMemberName"
+	public static val MEMBER_NAME_TOO_LONG = ISSUE_CODE_PREFIX + "MemberNameTooLong"
 	public static val DUPLICATE_DECLARATION_NAME = ISSUE_CODE_PREFIX + "DuplicateDeclarationName"
 	public static val INHERITENCE_CYCLE = ISSUE_CODE_PREFIX + "InheritenceCycle"
 	public static val INHERITED_MEMBER_NAME_COLLISION = ISSUE_CODE_PREFIX + "InheritedMemberNameCollision"
+	public static val MEMBER_NAME_LENGTH_MAX = 128
 
 
 	@Inject extension IQualifiedNameProvider
@@ -171,6 +173,16 @@ class JslDslValidator extends AbstractJslDslValidator {
 			error("Duplicate member declaration: '" + member.nameForEntityMemberDeclaration + "'",
 				member.nameAttributeForEntityMemberDeclaration,
 				DUPLICATE_MEMBER_NAME,
+				member.nameForEntityMemberDeclaration)
+		}
+	}
+
+	@Check
+	def checkEntityMemberDeclarationLength(EntityMemberDeclaration member) {
+		if (member.nameForEntityMemberDeclaration.length > MEMBER_NAME_LENGTH_MAX) {
+			error("Member name: '" + member.nameForEntityMemberDeclaration + "' is too long, must be at most " + MEMBER_NAME_LENGTH_MAX + " characters",
+				member.nameAttributeForEntityMemberDeclaration,
+				MEMBER_NAME_TOO_LONG,
 				member.nameForEntityMemberDeclaration)
 		}
 	}
