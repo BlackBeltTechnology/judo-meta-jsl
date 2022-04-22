@@ -46,7 +46,7 @@ class ModifiersTests {
 			}
 
 		'''.parse => [
-			assertMaxLengthTooLargeError("MaxLength must be less than/equals to " + JslDslValidator.MODIFIER_MAX_LENGTH_MAX_VALUE, JsldslPackage::eINSTANCE.modifierMaxLength)
+			assertMaxLengthTooLargeError("MaxLength must be less than/equal to " + JslDslValidator.MODIFIER_MAX_LENGTH_MAX_VALUE, JsldslPackage::eINSTANCE.modifierMaxLength)
 		]
 	}
 
@@ -57,6 +57,66 @@ class ModifiersTests {
 //			error
 //		)
 //	}
+
+	@Test
+	def void testPrecisionModifierTooLow() {
+		'''
+			model test
+			
+			type numeric Number1 precision 0 scale 0
+			
+			entity Entity {
+				field Number1 number
+			}
+		'''.parse => [
+			m | m.assertError(JsldslPackage::eINSTANCE.modifierPrecision, JslDslValidator.PRECISION_MODIFIER_IS_NEGATIVE, "Precision must be greater than 0")
+		]
+	}
+	
+	@Test
+	def void testPrecisionModifierTooLarge() {
+		'''
+			model test
+			
+			type numeric Number1 precision 16 scale 0
+			
+			entity Entity {
+				field Number1 number
+			}
+		'''.parse => [
+			m | m.assertError(JsldslPackage::eINSTANCE.modifierPrecision, JslDslValidator.PRECISION_MODIFIER_IS_TOO_LARGE, "Precision must be less than/equal to " + JslDslValidator.PRECISION_MAX_VALUE)
+		]
+	}
+	
+//	@Test
+//	def void testScaleModifierTooLow() {
+//		'''
+//			model test
+//			
+//			type numeric Number1 precision 16 scale 0
+//			
+//			entity Entity {
+//				field Number1 number
+//			}
+//		'''.parse => [
+//			m | m.assertError(JsldslPackage::eINSTANCE.modifierScale, JslDslValidator.SCALE_MODIFIER_IS_NEGATIVE, "Scale must be greater than/equal to 0")
+//		]
+//	}
+
+	@Test
+	def void testScaleModifierTooLarge() {
+		'''
+			model test
+			
+			type numeric Number1 precision 16 scale 16
+			
+			entity Entity {
+				field Number1 number
+			}
+		'''.parse => [
+			m | m.assertError(JsldslPackage::eINSTANCE.modifierScale, JslDslValidator.SCALE_MODIFIER_IS_TOO_LARGE, "Scale must be less than the defined precision: 16")
+		]
+	}
 	
 	def private void assertMaxLengthTooLargeError(ModelDeclaration modelDeclaration, String error, EClass target) {
 		modelDeclaration.assertError(
