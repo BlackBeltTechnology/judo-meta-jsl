@@ -13,50 +13,45 @@ import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
-class CyclicInheritenceTests {
-	
+class EnumDeclarationTests {
 	@Inject extension ParseHelper<ModelDeclaration> 
 	@Inject extension ValidationTestHelper
 	
-	@Test 
-	def void testInheritedSame() {
+	@Test
+	def void testEnumLiteralCaseInsensitiveNameCollision() {
 		'''
-			model Test
-
-			entity A extends A {
+			model test
+			
+			enum Genre {
+				CLASSIC = 0
+				POP = 1
+				pop = 2
 			}
 			
+			entity Person {
+				field Genre favoredGenre
+			}
 		'''.parse => [
-			assertInheritenceCycleError("Cycle in inheritence of entity 'A'")
+			m | m.assertError(JsldslPackage::eINSTANCE.enumLiteral, JslDslValidator.ENUM_LITERAL_NAME_COLLISION, "Enumeration Literal name collision for: 'test.Genre.POP', 'test.Genre.pop'")
 		]
 	}
-
-	@Test 
-	def void testInheritedDuplicateMemberNameValid() {
+	
+	@Test
+	def void testEnumLiteralOrdinalCollision() {
 		'''
-			model Inheritence
+			model test
 			
-			entity A extends C {
+			enum Genre {
+				CLASSIC = 0
+				POP = 1
+				METAL = 1
 			}
 			
-			entity B extends A {
+			entity Person {
+				field Genre favoredGenre
 			}
-
-			entity C extends B {
-			}
-
 		'''.parse => [
-			assertInheritenceCycleError("Cycle in inheritence of entity 'A'")
-			assertInheritenceCycleError("Cycle in inheritence of entity 'B'")
-			assertInheritenceCycleError("Cycle in inheritence of entity 'C'")
+			m | m.assertError(JsldslPackage::eINSTANCE.enumLiteral, JslDslValidator.ENUM_LITERAL_ORDINAL_COLLISION, "Enumeration Literal ordinal collision for: 'test.Genre.POP': '1', 'test.Genre.METAL': '1'")
 		]
 	}
-
-	def private void assertInheritenceCycleError(ModelDeclaration modelDeclaration, String error) {
-		modelDeclaration.assertError(
-			JsldslPackage::eINSTANCE.entityDeclaration, 
-			JslDslValidator.INHERITENCE_CYCLE, 
-			error
-		)
-	}
-}	
+}
