@@ -18,6 +18,13 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierMaxLength
+import java.math.BigInteger
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierPrecision
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierScale
+import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteral
 
 /**
  * This class contains custom validation rules. 
@@ -32,9 +39,22 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val DUPLICATE_MODEL = ISSUE_CODE_PREFIX + "DuplicateModel"
 	public static val OPPOSITE_TYPE_MISMATH = ISSUE_CODE_PREFIX + "OppositeTypeMismatch"
 	public static val DUPLICATE_MEMBER_NAME = ISSUE_CODE_PREFIX + "DuplicateMemberName"
+	public static val MEMBER_NAME_TOO_LONG = ISSUE_CODE_PREFIX + "MemberNameTooLong"
 	public static val DUPLICATE_DECLARATION_NAME = ISSUE_CODE_PREFIX + "DuplicateDeclarationName"
 	public static val INHERITENCE_CYCLE = ISSUE_CODE_PREFIX + "InheritenceCycle"
 	public static val INHERITED_MEMBER_NAME_COLLISION = ISSUE_CODE_PREFIX + "InheritedMemberNameCollision"
+	public static val ENUM_LITERAL_NAME_COLLISION = ISSUE_CODE_PREFIX + "EnumLiteralNameCollision"
+	public static val ENUM_LITERAL_ORDINAL_COLLISION = ISSUE_CODE_PREFIX + "EnumLiteralOrdinalCollision"
+	public static val MAX_LENGTH_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "MaxLengthIsNegative"
+	public static val PRECISION_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "PrecisionIsNegative"
+	public static val SCALE_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "ScaleIsNegative"
+	public static val MAX_LENGTH_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "MaxLengthIsTooLarge"
+	public static val PRECISION_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "PrecisionIsTooLarge"
+	public static val SCALE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "ScaleIsLargerThanPrecision"
+
+	public static val MEMBER_NAME_LENGTH_MAX = 128
+	public static val MODIFIER_MAX_LENGTH_MAX_VALUE = BigInteger.valueOf(4000)
+	public static val PRECISION_MAX_VALUE = BigInteger.valueOf(15)
 
 
 	@Inject extension IQualifiedNameProvider
@@ -176,6 +196,16 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
+	def checkEntityMemberDeclarationLength(EntityMemberDeclaration member) {
+		if (member.nameForEntityMemberDeclaration.length > MEMBER_NAME_LENGTH_MAX) {
+			error("Member name: '" + member.nameForEntityMemberDeclaration + "' is too long, must be at most " + MEMBER_NAME_LENGTH_MAX + " characters",
+				member.nameAttributeForEntityMemberDeclaration,
+				MEMBER_NAME_TOO_LONG,
+				member.nameForEntityMemberDeclaration)
+		}
+	}
+
+	@Check
 	def checkForDuplicateNameForAddedOpposite(EntityRelationOpposite opposite) {
 		if (opposite.oppositeName !== null && !opposite.oppositeName.blank) {
 			val relation = opposite.eContainer as EntityRelationDeclaration
@@ -209,6 +239,79 @@ class JslDslValidator extends AbstractJslDslValidator {
 				declaration.nameAttributeForDeclaration,
 				DUPLICATE_DECLARATION_NAME,
 				declaration.nameForDeclaration)
+		}
+	}
+	
+	@Check
+	def checkModifierMaxLength(ModifierMaxLength modifier) {
+		if (modifier.maxLength <= BigInteger.ZERO) {
+			error("MaxLength must be greater than 0",
+				JsldslPackage::eINSTANCE.modifierMaxLength_MaxLength,
+				MAX_LENGTH_MODIFIER_IS_NEGATIVE,
+				JsldslPackage::eINSTANCE.modifierMaxLength.name)
+		}
+		if (modifier.maxLength > MODIFIER_MAX_LENGTH_MAX_VALUE) {
+			error("MaxLength must be less than/equal to " + MODIFIER_MAX_LENGTH_MAX_VALUE,
+				JsldslPackage::eINSTANCE.modifierMaxLength_MaxLength,
+				MAX_LENGTH_MODIFIER_IS_TOO_LARGE,
+				JsldslPackage::eINSTANCE.modifierMaxLength.name)
+		}
+	}
+	
+	@Check
+	def checkModifierPrecision(ModifierPrecision precision) {
+		if (precision.precision <= BigInteger.ZERO) {
+			error("Precision must be greater than 0",
+				JsldslPackage::eINSTANCE.modifierPrecision_Precision,
+				PRECISION_MODIFIER_IS_NEGATIVE,
+				JsldslPackage::eINSTANCE.modifierPrecision.name)
+		}
+		if (precision.precision > PRECISION_MAX_VALUE) {
+			error("Precision must be less than/equal to " + PRECISION_MAX_VALUE,
+				JsldslPackage::eINSTANCE.modifierPrecision_Precision,
+				PRECISION_MODIFIER_IS_TOO_LARGE,
+				JsldslPackage::eINSTANCE.modifierPrecision.name)
+		}
+	}
+	
+	@Check
+	def checkModifierScale(ModifierScale scale) {
+		val precisionValue = (scale.eContainer as DataTypeDeclaration).precision.precision
+		if (scale.scale < BigInteger.ZERO) {
+			error("Scale must be greater than/equal to 0",
+				JsldslPackage::eINSTANCE.modifierScale_Scale,
+				SCALE_MODIFIER_IS_NEGATIVE,
+				JsldslPackage::eINSTANCE.modifierScale.name)
+		}
+		if (scale.scale >= precisionValue) {
+			error("Scale must be less than the defined precision: " + precisionValue,
+				JsldslPackage::eINSTANCE.modifierScale_Scale,
+				SCALE_MODIFIER_IS_TOO_LARGE,
+				JsldslPackage::eINSTANCE.modifierScale.name)
+		}
+	}
+	
+	@Check
+	def checkEnumLiteralCollision(EnumLiteral literal) {
+		val declaration = literal.eContainer as EnumDeclaration
+		val collidingNames = declaration.literals
+			.groupBy[m | m.name.toLowerCase]
+			.filter[n, l | l.size > 1]
+		val collidingOrdinals = declaration.literals
+			.groupBy[m | m.value]
+			.filter[n, l | l.size > 1]
+			
+		if (collidingNames.size > 0 && collidingNames.keySet.contains(literal.name.toLowerCase)) {
+			error("Enumeration Literal name collision for: " + collidingNames.mapValues[l | l.map[v | "'" + v.fullyQualifiedName + "'"].join(", ")].values.join(", "),
+				JsldslPackage::eINSTANCE.enumLiteral_Name,
+				ENUM_LITERAL_NAME_COLLISION,
+				literal.name)
+		}
+		if (collidingOrdinals.size > 0 && collidingOrdinals.keySet.contains(literal.value)) {
+			error("Enumeration Literal ordinal collision for: " + collidingOrdinals.mapValues[l | l.map[v | "'" + v.fullyQualifiedName + "': '" + v.value + "'"].join(", ")].values.join(", "),
+				JsldslPackage::eINSTANCE.enumLiteral_Value,
+				ENUM_LITERAL_ORDINAL_COLLISION,
+				literal.name)
 		}
 	}
 
