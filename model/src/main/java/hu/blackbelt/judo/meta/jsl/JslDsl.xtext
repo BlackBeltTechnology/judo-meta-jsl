@@ -381,11 +381,11 @@ terminal DIGIT
 	;
 
 terminal DECIMAL returns ecore::EBigDecimal
-	: INTEGER '.' INTEGER
+	: '-'? DIGIT+ '.' DIGIT+
 	;
 
 terminal INTEGER returns ecore::EBigInteger
-	: ('0'..'9')+
+	: '-'? DIGIT+
 	;
 
 terminal ID
