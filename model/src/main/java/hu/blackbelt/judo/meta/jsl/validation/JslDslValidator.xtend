@@ -160,7 +160,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 		// Check this relation without oppoite type is referenced from another relation in the relation target type
 		if (relation.opposite === null) {
-			val selectableRelatations = relation.referenceType.getAllRelations(null, new LinkedList)
+			val selectableRelatations = relation.referenceType.getAllRelations(null)
 			val relationReferencedBack = selectableRelatations.filter[r | r.opposite !== null && r.opposite.oppositeType === relation].toList
 			// System.out.println(" -- " + relation + " --- Referenced back: " + relationReferencedBack.map[r | r.eContainer.fullyQualifiedName + "#" + r.name].join(", "))
 			if (!relationReferencedBack.empty) {

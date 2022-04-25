@@ -59,24 +59,25 @@ class JslDslModelExtension {
 	}
 
 	def getValidOppositeRelations(EntityRelationDeclaration relation, Boolean single) {
-		relation.referenceType.getAllRelations(single, new LinkedList).filter[r | relation.isSelectableForRelation(r)].toList
+		relation.referenceType.getAllRelations(single).filter[r | relation.isSelectableForRelation(r)].toList
 	}
 	
 	def getAllOppositeRelations(EntityRelationDeclaration relation, Boolean single) {
-		relation.referenceType.getAllRelations(single, new LinkedList)
+		relation.referenceType.getAllRelations(single)
 	}
 
 	def Collection<EntityRelationDeclaration> getAllRelations(EntityDeclaration entity) {		
-		entity.getAllRelations(null, new LinkedList)				
+		entity.getAllRelations(null)				
 	}
 
 	def Collection<EntityRelationDeclaration> getAllRelations(EntityDeclaration entity, Boolean single) {		
-		entity.getAllRelations(single, new LinkedList)		
+		entity.getAllRelations(single, new LinkedList, new LinkedList)		
 	}
 
-	def Collection<EntityRelationDeclaration> getAllRelations(EntityDeclaration entity, Boolean single, Collection<EntityRelationDeclaration> visited) {		
+	private def Collection<EntityRelationDeclaration> getAllRelations(EntityDeclaration entity, Boolean single, Collection<EntityRelationDeclaration> collected, Collection<EntityDeclaration> visited) {		
 		if (entity !== null) {
-			visited.addAll(
+			visited.add(entity)
+			collected.addAll(
 				entity.members
 					.filter[m | m instanceof EntityRelationDeclaration]
 					.map[m |m as EntityRelationDeclaration]
@@ -85,10 +86,10 @@ class JslDslModelExtension {
 			)
 
 			for (e : entity.extends) {
-				e.getAllRelations(single, visited)	
+				e.getAllRelations(single, collected, visited)	
 			}
 		}
-		visited
+		collected
 	}
 
 	def isSelectableForRelation(EntityRelationDeclaration currentRelation, EntityRelationDeclaration selectableRelation) {
@@ -153,7 +154,7 @@ class JslDslModelExtension {
 		} else if (member instanceof EntityRelationDeclaration) {
 			JsldslPackage::eINSTANCE.entityRelationDeclaration_Name
 		} else if (member instanceof EntityDerivedDeclaration) {
-			JsldslPackage::eINSTANCE.entityDeclaration_Name
+			JsldslPackage::eINSTANCE.entityDerivedDeclaration_Name
 		} else {
 			throw new IllegalArgumentException("Unknown EntityMemberDeclaration: " + member)
 		}
@@ -189,33 +190,36 @@ class JslDslModelExtension {
 	}
 
 
-	def Collection<EntityMemberDeclaration> getAllMembers(EntityDeclaration entity, Collection<EntityMemberDeclaration> visited) {		
-		if (entity !== null) {
-			visited.addAll(
+	private def Collection<EntityMemberDeclaration> getAllMembers(EntityDeclaration entity, Collection<EntityMemberDeclaration> collected, Collection<EntityDeclaration> visited) {		
+		if (entity !== null && !visited.contains(entity)) {
+			visited.add(entity)
+			collected.addAll(
 				entity.members
 					.map[m |m as EntityMemberDeclaration]
 					.toList			
 			)
 
 			for (e : entity.extends) {
-				e.getAllMembers(visited)	
+				if (!collected.contains(e)) {
+					e.getAllMembers(collected, visited)					
+				}
 			}
 		}
-		visited
+		collected
 	}
 
 	def Collection<EntityDeclaration> getSuperEntityTypes(EntityDeclaration entity) {
 		getSuperEntityTypes(entity, new LinkedList)
 	}
 
-	def Collection<EntityDeclaration> getSuperEntityTypes(EntityDeclaration entity, Collection<EntityDeclaration> visited) {
+	def Collection<EntityDeclaration> getSuperEntityTypes(EntityDeclaration entity, Collection<EntityDeclaration> collected) {
 		for (superEntity : entity.extends) {
-			if (!visited.contains(superEntity)) {
-				visited.add(superEntity)
-				visited.addAll(superEntity.getSuperEntityTypes(visited))
+			if (!collected.contains(superEntity)) {
+				collected.add(superEntity)
+				collected.addAll(superEntity.getSuperEntityTypes(collected))
 			}
 		}
-		visited
+		collected
 	}
 	
 	def String getMemberFullyQualifiedName(EntityMemberDeclaration member) {
@@ -223,7 +227,7 @@ class JslDslModelExtension {
 	}
 
 	def Collection<EntityMemberDeclaration> getAllMembers(EntityDeclaration entity) {
-		entity.getAllMembers(new ArrayList())
+		entity.getAllMembers(new LinkedList, new LinkedList)
 	}
 
 	def EntityDerivedDeclaration getDerivedDeclaration(EObject from) {
