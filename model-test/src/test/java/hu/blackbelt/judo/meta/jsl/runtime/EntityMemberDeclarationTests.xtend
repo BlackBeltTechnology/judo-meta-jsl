@@ -57,6 +57,41 @@ class EntityMemberDeclarationTests {
 			assertInheritedMemberNameLengthError("Member name: 'tgvkyzidsggsdxxrszoscrljgnnixjzkyztoxpdvvqbmlrpzaakkwcczsarbqrqjnphrlfkfcjgcmgbxdexakswitdmcfjyjblkmiknvdgtyxlunkolxzaneifhyizgureqemldvypsongytiwmfaqrnxuodiunflyduwzerdossywvzgkmvdbfvpumaqzdazqomqwoaqynrixrwirmtbqmihmwkjmdaulwnfoxcmzldaxyjnihbluepwdswz' is too long, must be at most 128 characters", JsldslPackage::eINSTANCE.entityMemberDeclaration)
 		]
 	}
+	
+	@Test 
+	def void testFieldIsManyRequired() {
+		'''
+			model test
+			
+			type string String max-length 1000
+			
+			entity B1 {
+			    field required String[] attr
+			}
+
+		'''.parse => [
+			m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.USING_REQUIRED_WITH_IS_MANY, "Collection typed field: 'attr' cannot have keyword: 'required'")
+		]
+	}
+	
+	@Test 
+	def void testRelationIsManyRequired() {
+		'''
+			model test
+			
+			type string String max-length 1000
+			
+			entity B1 {
+			    relation required B2[] others
+			}
+
+			entity B2 {
+			    String name
+			}
+		'''.parse => [
+			m | m.assertError(JsldslPackage::eINSTANCE.entityRelationDeclaration, JslDslValidator.USING_REQUIRED_WITH_IS_MANY, "Collection typed relation: 'others' cannot have keyword: 'required'")
+		]
+	}
 
 	def private void assertInheritedMemberNameCollisionError(ModelDeclaration modelDeclaration, String error, EClass target) {
 		modelDeclaration.assertError(
