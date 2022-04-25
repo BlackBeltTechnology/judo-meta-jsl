@@ -249,8 +249,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 				JsldslPackage::eINSTANCE.modifierMaxLength_MaxLength,
 				MAX_LENGTH_MODIFIER_IS_NEGATIVE,
 				JsldslPackage::eINSTANCE.modifierMaxLength.name)
-		}
-		if (modifier.maxLength > MODIFIER_MAX_LENGTH_MAX_VALUE) {
+		} else if (modifier.maxLength > MODIFIER_MAX_LENGTH_MAX_VALUE) {
 			error("MaxLength must be less than/equal to " + MODIFIER_MAX_LENGTH_MAX_VALUE,
 				JsldslPackage::eINSTANCE.modifierMaxLength_MaxLength,
 				MAX_LENGTH_MODIFIER_IS_TOO_LARGE,
@@ -265,8 +264,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 				JsldslPackage::eINSTANCE.modifierPrecision_Precision,
 				PRECISION_MODIFIER_IS_NEGATIVE,
 				JsldslPackage::eINSTANCE.modifierPrecision.name)
-		}
-		if (precision.precision > PRECISION_MAX_VALUE) {
+		} else if (precision.precision > PRECISION_MAX_VALUE) {
 			error("Precision must be less than/equal to " + PRECISION_MAX_VALUE,
 				JsldslPackage::eINSTANCE.modifierPrecision_Precision,
 				PRECISION_MODIFIER_IS_TOO_LARGE,
@@ -282,8 +280,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 				JsldslPackage::eINSTANCE.modifierScale_Scale,
 				SCALE_MODIFIER_IS_NEGATIVE,
 				JsldslPackage::eINSTANCE.modifierScale.name)
-		}
-		if (scale.scale >= precisionValue) {
+		} else if (scale.scale >= precisionValue) {
 			error("Scale must be less than the defined precision: " + precisionValue,
 				JsldslPackage::eINSTANCE.modifierScale_Scale,
 				SCALE_MODIFIER_IS_TOO_LARGE,
