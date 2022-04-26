@@ -319,17 +319,17 @@ class JslDslValidator extends AbstractJslDslValidator {
 			val field = member as EntityFieldDeclaration
 			if (field.isIsMany && field.isIsRequired) {
 				error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'",
-				JsldslPackage::eINSTANCE.entityFieldDeclaration_IsRequired,
-				USING_REQUIRED_WITH_IS_MANY,
-				JsldslPackage::eINSTANCE.entityFieldDeclaration.name)
+                    JsldslPackage::eINSTANCE.entityFieldDeclaration_IsRequired,
+                    USING_REQUIRED_WITH_IS_MANY,
+                    JsldslPackage::eINSTANCE.entityFieldDeclaration.name)
 			}
 		} else if (member instanceof EntityRelationDeclaration) {
 			val relation = member as EntityRelationDeclaration
 			if (relation.isIsMany && relation.isIsRequired) {
 				error("Collection typed relation: '" + relation.name + "' cannot have keyword: 'required'",
-				JsldslPackage::eINSTANCE.entityRelationDeclaration_IsRequired,
-				USING_REQUIRED_WITH_IS_MANY,
-				JsldslPackage::eINSTANCE.entityRelationDeclaration.name)
+                    JsldslPackage::eINSTANCE.entityRelationDeclaration_IsRequired,
+                    USING_REQUIRED_WITH_IS_MANY,
+                    JsldslPackage::eINSTANCE.entityRelationDeclaration.name)
 			}
 		}
 	}
