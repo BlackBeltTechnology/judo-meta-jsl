@@ -13,7 +13,6 @@ import org.eclipse.xtext.validation.CheckType
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import hu.blackbelt.judo.meta.jsl.scoping.JslDslIndex
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
-import java.util.LinkedList
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
@@ -25,6 +24,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierScale
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -51,6 +51,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val MAX_LENGTH_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "MaxLengthIsTooLarge"
 	public static val PRECISION_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "PrecisionIsTooLarge"
 	public static val SCALE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "ScaleIsLargerThanPrecision"
+	public static val USING_REQUIRED_WITH_IS_MANY = ISSUE_CODE_PREFIX + "UsingRequiredWithIsMany"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_LENGTH_MAX_VALUE = BigInteger.valueOf(4000)
@@ -309,6 +310,27 @@ class JslDslValidator extends AbstractJslDslValidator {
 				JsldslPackage::eINSTANCE.enumLiteral_Value,
 				ENUM_LITERAL_ORDINAL_COLLISION,
 				literal.name)
+		}
+	}
+	
+	@Check
+	def checkRequiredOnEntityMemberDeclaration(EntityMemberDeclaration member) {
+		if (member instanceof EntityFieldDeclaration) {
+			val field = member as EntityFieldDeclaration
+			if (field.isIsMany && field.isIsRequired) {
+				error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'",
+                    JsldslPackage::eINSTANCE.entityFieldDeclaration_IsRequired,
+                    USING_REQUIRED_WITH_IS_MANY,
+                    JsldslPackage::eINSTANCE.entityFieldDeclaration.name)
+			}
+		} else if (member instanceof EntityRelationDeclaration) {
+			val relation = member as EntityRelationDeclaration
+			if (relation.isIsMany && relation.isIsRequired) {
+				error("Collection typed relation: '" + relation.name + "' cannot have keyword: 'required'",
+                    JsldslPackage::eINSTANCE.entityRelationDeclaration_IsRequired,
+                    USING_REQUIRED_WITH_IS_MANY,
+                    JsldslPackage::eINSTANCE.entityRelationDeclaration.name)
+			}
 		}
 	}
 
