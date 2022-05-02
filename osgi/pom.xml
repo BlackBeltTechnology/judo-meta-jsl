@@ -27,8 +27,9 @@
                     <instructions>
                         <Import-Package>
                             ${osgi-default-import},
-                            org.eclipse.xtext.xbase.lib;resolution:=optional,
+                            org.eclipse.xtext.xbase.lib;version="[2.14,3)",
                             org.eclipse.xtext.xtext.generator.model.project;resolution:=optional,
+                            org.eclipse.xtend2.lib;version="[2.14,3)",
                             com.google.common.base;version="[27,31)",
                             com.google.common.collect;version="[27,31)",
                             *
