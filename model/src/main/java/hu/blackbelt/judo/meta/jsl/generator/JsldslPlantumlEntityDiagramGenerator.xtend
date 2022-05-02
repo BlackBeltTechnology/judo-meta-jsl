@@ -5,6 +5,15 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import com.google.inject.Singleton
 import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorField
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ConstraintDeclaration
 
 @Singleton
 class JsldslPlantumlEntityDiagramGenerator {
@@ -82,6 +91,106 @@ class JsldslPlantumlEntityDiagramGenerator {
 		}	
 	'''
 	
+	def cardinalityRepresentation(EntityRelationDeclaration it)
+	'''[«IF isIsRequired»1«ELSE»0«ENDIF»..«IF isIsMany»*«ELSE»1«ENDIF»]'''
+
+
+	def dataTypeRepresentation(DataTypeDeclaration it)
+	'''
+		class «name» <<  «primitive» >>
+		show «name» stereotype
+	'''
+
+	def enumRepresentation(EnumDeclaration it)
+	'''
+		class «name» <<  Enumeration >> {
+			«FOR literal : literals»
+				<b>«literal.name»</b> = «literal.value»
+			«ENDFOR»
+		}
+	'''
+
+	def errorExtendsFragment(ErrorDeclaration it)
+	'''«IF extends !== null» extends «extends.name»«ENDIF» {'''
+
+	def errorFieldRepsresentation(ErrorField it)
+	'''+«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF» : «referenceType.name»'''
+
+	def errorRepresentation(ErrorDeclaration it)
+	'''
+		class «name» <<  Error >> «errorExtendsFragment» {
+			«FOR field : fields»
+				«field.errorFieldRepsresentation»
+			«ENDFOR»
+		}
+	'''
+
+	
+	def entityExtendsFragment(EntityDeclaration it)
+	'''«FOR extend : extends BEFORE 'extends ' SEPARATOR ', '»«extend.name»«ENDFOR»'''
+
+	def entityStereotypeFragment(EntityDeclaration it)
+	'''«IF isIsAbstract» <<  Abstract >> «ELSE» << Entity >>«ENDIF»'''
+
+	def entityFieldCardinalityFragment(EntityFieldDeclaration it)
+	'''«IF isIsMany»[0..*]«ENDIF»'''
+
+	def entityFieldModifierFragment(EntityFieldDeclaration it)
+	'''«IF it instanceof EntityDeclaration»#«ELSE»+«ENDIF»'''
+
+	def entityFieldNameFragment(EntityFieldDeclaration it)
+	'''«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»'''
+
+	def entityFieldRepresentation(EntityFieldDeclaration it)
+	'''«entityFieldModifierFragment»«entityFieldNameFragment» : «referenceType.nameForEntityFieldSingleType»«entityFieldCardinalityFragment»'''
+
+	def entityIdentifierRepresentation(EntityIdentifierDeclaration it)
+	'''+<u>«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»</u> : «referenceType.nameForEntityFieldSingleType»'''
+
+
+	def entityDerivedParameterFragment(EntityDerivedDeclaration it)
+	'''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.name» =«param.^default.sourceCode»«ENDFOR»'''
+
+	def entityDerivedRepresentation(EntityDerivedDeclaration it)
+	'''~«name»«entityDerivedParameterFragment» : «referenceType.nameForEntityDerivedSingleType»«IF isIsMany»[0..*]«ENDIF»'''
+
+
+	def constraintParameterFragment(ConstraintDeclaration it)
+	'''«FOR param : error.parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.errorFieldType.name» =«param.expession.sourceCode»«ENDFOR»'''
+
+	def constraintRepresentation(ConstraintDeclaration it)
+	'''-«error.errorDeclarationType.name»«constraintParameterFragment»'''
+
+
+	def entityRepresentation(EntityDeclaration it)
+	'''
+		class «name»«entityStereotypeFragment» «entityExtendsFragment» {
+			«FOR field : fields»
+				«field.entityFieldRepresentation»
+			«ENDFOR»
+			«FOR identifier : identifiers»
+				«identifier.entityIdentifierRepresentation»
+			«ENDFOR»
+			«FOR derived : derivedes»
+				«derived.entityDerivedRepresentation»
+			«ENDFOR»
+			«FOR constraint : constraints»
+				«constraint.constraintRepresentation»
+			«ENDFOR»
+		}
+	'''
+	
+	def entityRelationRepresentation(EntityRelationDeclaration it)
+	'''«(eContainer as EntityDeclaration).name» "«name»\n«cardinalityRepresentation»" «
+		IF opposite?.oppositeType !== null
+			» <--> "«opposite.oppositeType.name»\n[«opposite.oppositeType.cardinalityRepresentation»" «	
+		ELSEIF opposite?.oppositeName !== null
+			» <--> "«opposite?.oppositeName»\n[0..*]" «
+		ELSE
+			» --> «
+		ENDIF
+		»«modelDeclaration.getExternalNameOfEntityDeclaration(referenceType)»'''
+	
 	def generate(ModelDeclaration it, String style) 
 	'''
 	@startuml «name»
@@ -92,96 +201,23 @@ class JsldslPlantumlEntityDiagramGenerator {
 	
 	together {
 		«FOR type : dataTypeDeclarations»
-			class «type.name» <<  «type.primitive» >>
-			show «type.name» stereotype
+			«type.dataTypeRepresentation»
 		«ENDFOR»
 
-		«FOR type : enumDeclarations»
-			class «type.name» <<  Enumeration >> {
-				«FOR literal : type.literals»
-					<b>«literal.name»</b> = «literal.value»
-				«ENDFOR»
-			}
+		«FOR enumt : enumDeclarations»
+			«enumt.enumRepresentation»
 		«ENDFOR»
 	}
 	
 	together {
 		«FOR error : errorDeclarations»
-			class «error.name» <<  Error >> «
-				IF error.extends !== null» extends «
-					error.extends.name»«
-				ENDIF» {
-				«FOR field : error.fields»
-					+«
-					IF field.isRequired
-						»<b>«
-					ENDIF
-					»«field.name»«
-					IF field.isRequired
-						»</b>«
-					ENDIF
-					» : «field.referenceType.name»
-				«ENDFOR»
-			}
+			«error.errorRepresentation»
 		«ENDFOR»
 	}
 
 	together {
 		«FOR entity : entityDeclarations»
-			class «entity.name»«
-			IF entity.isIsAbstract
-				» <<  Abstract >> «
-			ELSE
-				» << Entity >>«
-			ENDIF»«
-			FOR extend : entity.extends BEFORE ' extends ' SEPARATOR ', '»«extend.name»«ENDFOR» {
-				«FOR field : entity.fields»
-					«IF field instanceof EntityDeclaration
-						»#«
-					ELSE
-						»+«
-					ENDIF»«
-					IF field.isRequired
-						»<b>«
-					ENDIF
-					»«field.name
-					»«IF field.isRequired
-						»</b>«
-					ENDIF
-					» : «field.referenceType.nameForEntityFieldSingleType»«
-					IF field.isIsMany
-						»[0..*]«
-					ENDIF»
-				«ENDFOR»
-				«FOR identifier : entity.identifiers»
-					+<u>«
-					IF identifier.isRequired
-						»<b>«
-					ENDIF
-					»«identifier.name»«
-					IF identifier.isRequired
-						»</b>«
-					ENDIF
-					»</u> : «identifier.referenceType.nameForEntityFieldSingleType»
-				«ENDFOR»
-				«FOR derived : entity.derivedes»
-					~«derived.name»«
-					FOR param : derived.parameters BEFORE '(' SEPARATOR ', ' AFTER ')'
-						»«param.name» : «param.referenceType.name» =«param.^default.sourceCode»«
-					ENDFOR
-					» : «derived.referenceType.nameForEntityDerivedSingleType
-					»«IF derived.isIsMany
-						»[0..*]«
-					ENDIF
-					»
-				«ENDFOR»
-				«FOR constraint : entity.constraints»
-					-«constraint.error.errorDeclarationType.name»«
-					FOR param : constraint.error.parameters BEFORE '(' SEPARATOR ', ' AFTER ')'
-						»«param.errorFieldType.name» =«param.expession.sourceCode»«
-					ENDFOR»
-				«ENDFOR»
-			}
+			«entity.entityRepresentation»
 		«ENDFOR»
 		
 		«FOR entity : externalReferencedRelationReferenceTypes»
@@ -189,40 +225,7 @@ class JsldslPlantumlEntityDiagramGenerator {
 		«ENDFOR»
 
 		«FOR relation : getAllRelations(true)»
-			«(relation.eContainer as EntityDeclaration).name» "«relation.name»\n[«
-			IF relation.isIsRequired
-				»1«
-			ELSE
-				»0«						
-			ENDIF
-			»..«
-			IF relation.isIsMany
-				»*«
-			ELSE
-				»1«
-			ENDIF
-			»]" «
-			IF relation.opposite?.oppositeType !== null
-				» <--> "«relation.opposite.oppositeType.name»\n[«
-					IF relation.opposite.oppositeType.isIsRequired
-						»1«
-					ELSE
-						»0«						
-					ENDIF
-				»..«
-					IF relation.opposite.oppositeType.isIsMany
-						»*«
-					ELSE
-						»1«						
-					ENDIF
-				»]" «
-	
-			ELSEIF relation.opposite?.oppositeName !== null
-				» <--> "«relation.opposite?.oppositeName»\n[0..*]" «
-			ELSE
-				» --> «
-			ENDIF
-			»«getExternalNameOfEntityDeclaration(relation.referenceType)»
+			«relation.entityRelationRepresentation»
 		«ENDFOR»
 	}
 
