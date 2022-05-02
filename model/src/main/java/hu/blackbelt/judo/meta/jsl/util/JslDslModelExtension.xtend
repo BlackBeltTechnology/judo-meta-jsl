@@ -27,7 +27,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
-import java.util.Set
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedSingleType
 
 @Singleton
@@ -350,34 +349,5 @@ class JslDslModelExtension {
 		eContainer.modelDeclaration !== referenceType.modelDeclaration
 	}
 
-	def Collection<EntityDeclaration> getExternalReferencedRelationReferenceTypes(ModelDeclaration it) {
-		val Set<EntityDeclaration> externalEntity = new HashSet()
-		for (entity : entityDeclarations) {
-			for (relation : entity.relations) {
-				if (relation.isRelationExternal) {
-					externalEntity.add(relation.referenceType)
-				}
-			}
-		}
-		externalEntity
-	}
-	
-	/*
-	def String relationTargetAliasedName(EntityRelationDeclaration it) {
-		if (isRelationExternal) {
-			referenceType.modelDeclaration.name + "::" + referenceType.name
-		} else {
-			referenceType.name
-		}
-	} */
-
-	def String getExternalNameOfEntityDeclaration(ModelDeclaration it, EntityDeclaration entityDeclaration) {
-		if (it !== entityDeclaration.modelDeclaration) {
-			imports.filter[i | i.modelName.importName.equals(entityDeclaration.modelDeclaration.name)]
-				.map[i | i.modelName.alias !== null ? i.modelName.alias + "::" + entityDeclaration.name : entityDeclaration.name].get(0)		
-		} else {
-			entityDeclaration.name
-		}
-	}
 	
 }

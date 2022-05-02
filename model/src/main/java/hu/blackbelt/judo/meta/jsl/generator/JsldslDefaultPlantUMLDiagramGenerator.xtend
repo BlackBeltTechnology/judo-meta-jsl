@@ -14,9 +14,14 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ConstraintDeclaration
+import java.util.Collection
+import java.util.HashSet
+import hu.blackbelt.judo.meta.jsl.jsldsl.support.JslDslModelResourceSupport
+import java.util.Set
+import java.util.stream.Collectors
 
 @Singleton
-class JsldslPlantumlEntityDiagramGenerator {
+class JsldslDefaultPlantUMLDiagramGenerator {
 	
 	@Inject extension JslDslModelExtension
 	
@@ -26,7 +31,6 @@ class JsldslPlantumlEntityDiagramGenerator {
 		skinparam nodesep 50
 		skinparam ranksep 100
 		
-		hide empty members
 		hide circle
 		hide stereotype
 		
@@ -99,6 +103,7 @@ class JsldslPlantumlEntityDiagramGenerator {
 	'''
 		class «name» <<  «primitive» >>
 		show «name» stereotype
+		hide «name» empty members
 	'''
 
 	def enumRepresentation(EnumDeclaration it)
@@ -108,10 +113,11 @@ class JsldslPlantumlEntityDiagramGenerator {
 				<b>«literal.name»</b> = «literal.value»
 			«ENDFOR»
 		}
+		hide «name» empty members
 	'''
 
 	def errorExtendsFragment(ErrorDeclaration it)
-	'''«IF extends !== null» extends «extends.name»«ENDIF» {'''
+	'''«IF extends !== null» extends «extends.name»«ENDIF»'''
 
 	def errorFieldRepsresentation(ErrorField it)
 	'''+«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF» : «referenceType.name»'''
@@ -123,6 +129,7 @@ class JsldslPlantumlEntityDiagramGenerator {
 				«field.errorFieldRepsresentation»
 			«ENDFOR»
 		}
+		hide «name» empty members
 	'''
 
 	
@@ -180,8 +187,8 @@ class JsldslPlantumlEntityDiagramGenerator {
 		}
 	'''
 	
-	def entityRelationRepresentation(EntityRelationDeclaration it)
-	'''«(eContainer as EntityDeclaration).name» "«name»\n«cardinalityRepresentation»" «
+	def entityRelationRepresentation(EntityRelationDeclaration it, ModelDeclaration base)
+	'''« base.getExternalNameOfEntityDeclaration(eContainer as EntityDeclaration)» "«name»\n«cardinalityRepresentation»" «
 		IF opposite?.oppositeType !== null
 			» <--> "«opposite.oppositeType.name»\n[«opposite.oppositeType.cardinalityRepresentation»" «	
 		ELSEIF opposite?.oppositeName !== null
@@ -189,10 +196,9 @@ class JsldslPlantumlEntityDiagramGenerator {
 		ELSE
 			» --> «
 		ENDIF
-		»«modelDeclaration.getExternalNameOfEntityDeclaration(referenceType)»'''
+		»«base.getExternalNameOfEntityDeclaration(referenceType)»'''
 	
-	def generate(ModelDeclaration it, String style) 
-	'''
+	def generate(ModelDeclaration it, String style) '''
 	@startuml «name»
 	'!pragma layout smetana
 	«IF style === null || style.blank»«defaultStyle»«ELSE»«style»«ENDIF»
@@ -225,10 +231,56 @@ class JsldslPlantumlEntityDiagramGenerator {
 		«ENDFOR»
 
 		«FOR relation : getAllRelations(true)»
-			«relation.entityRelationRepresentation»
+			«relation.entityRelationRepresentation(it)»
 		«ENDFOR»
+
+		«FOR external : externalReferencedRelationReferenceTypes»
+			«FOR relation : external.relations»
+				«IF relation.opposite?.oppositeName !== null && relation.referenceType.modelDeclaration === it»
+					«relation.entityRelationRepresentation(it)»
+				«ENDIF»
+			«ENDFOR»
+		«ENDFOR»
+
 	}
 
 	@enduml
 	'''
+
+
+	def Collection<EntityDeclaration> getExternalReferencedRelationReferenceTypes(ModelDeclaration it) {
+		val Set<EntityDeclaration> externalEntity = new HashSet()
+
+        val JslDslModelResourceSupport jslModelWrapper = JslDslModelResourceSupport.jslDslModelResourceSupportBuilder()
+        	.resourceSet(it.eResource.resourceSet).build();
+
+		for (model : jslModelWrapper.getStreamOfJsldslModelDeclaration().collect(Collectors.toList)) {
+			for (entity : model.entityDeclarations) {
+				for (relation : entity.relations) {
+					if (relation.referenceType.modelDeclaration != it) {
+						externalEntity.add(relation.referenceType)
+					}
+					if (entity.modelDeclaration === it && relation.opposite?.oppositeName !== null && relation.modelDeclaration !== it) {
+						externalEntity.add(relation.eContainer as EntityDeclaration)
+					}
+				}
+			}			
+		}
+		externalEntity
+	}
+	
+	def String getExternalNameOfEntityDeclaration(ModelDeclaration it, EntityDeclaration entityDeclaration) {
+		if (it !== entityDeclaration.modelDeclaration) {
+			val importList = imports.filter[i | i.modelName.importName.equals(entityDeclaration.modelDeclaration.name)]
+				.map[i | i.modelName.alias !== null ? i.modelName.alias + "::" + entityDeclaration.name : entityDeclaration.name]
+			if (importList.size > 0) { 
+				importList.get(0)
+			} else {
+				entityDeclaration.name
+			}
+		} else {
+			entityDeclaration.name
+		}
+	}
+
 }

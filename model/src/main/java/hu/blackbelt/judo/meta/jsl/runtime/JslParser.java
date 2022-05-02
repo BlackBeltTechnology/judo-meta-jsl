@@ -2,7 +2,7 @@ package hu.blackbelt.judo.meta.jsl.runtime;
 
 import com.google.inject.Injector;
 import hu.blackbelt.judo.meta.jsl.JslDslStandaloneSetupGenerated;
-import hu.blackbelt.judo.meta.jsl.generator.JsldslPlantumlEntityDiagramGenerator;
+import hu.blackbelt.judo.meta.jsl.generator.JsldslDefaultPlantUMLDiagramGenerator;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel;
 
@@ -48,8 +48,8 @@ public class JslParser {
         return injectorInstance;
     }
     
-    public JsldslPlantumlEntityDiagramGenerator getPlantumlEntityDiagramGenerator() {
-    	return injector().getInstance(JsldslPlantumlEntityDiagramGenerator.class);
+    public JsldslDefaultPlantUMLDiagramGenerator getDefaultPlantUMLDiagramGenerator() {
+    	return injector().getInstance(JsldslDefaultPlantUMLDiagramGenerator.class);
     }
     
     public XtextResourceSet loadJslFromStream(Collection<JslStreamSource> streams) {
