@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel;
+import hu.blackbelt.judo.meta.jsl.jsldsl.support.JslDslModelResourceSupport;
 
 public class JslDslParserTest {
 
@@ -125,6 +126,25 @@ public class JslDslParserTest {
         				new File("src/test/resources/sample2.jsl")        				
         				));
         assertEquals("SalesModel2", model.getName());
+        
+        JslDslModelResourceSupport jslModelWrapper = JslDslModelResourceSupport.jslDslModelResourceSupportBuilder().resourceSet(model.getResourceSet()).build();
+        System.out.println(parser.getPlantumlEntityDiagramGenerator().generate(jslModelWrapper.getStreamOfJsldslModelDeclaration().filter(m -> m.getName().equals("SalesModel")).findFirst().get(), (String) null));
+
+    }
+
+    @Test
+    public void testGeneratePlantUml() {
+    	JslDslModel model = parser.getModelFromFiles(
+        		"SalesModel", 
+        		Arrays.asList(
+        				new File("src/test/resources/salesModel1.jsl"),
+        				new File("src/test/resources/salesModel2.jsl")        				
+        				));
+        assertEquals("SalesModel", model.getName());
+        
+        JslDslModelResourceSupport jslModelWrapper = JslDslModelResourceSupport.jslDslModelResourceSupportBuilder().resourceSet(model.getResourceSet()).build();
+        System.out.println(parser.getPlantumlEntityDiagramGenerator().generate(jslModelWrapper.getStreamOfJsldslModelDeclaration().filter(m -> m.getName().equals("SalesModel")).findFirst().get(), (String) null));
+
     }
 
     @Test
