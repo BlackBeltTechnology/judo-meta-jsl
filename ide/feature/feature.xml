@@ -236,7 +236,6 @@
       <import plugin="org.eclipse.xtext.ui.codetemplates.ui"/>
       <import plugin="org.eclipse.xtext.ui.shared"/>
       <import plugin="hu.blackbelt.judo.meta.jsl.model"/>
-
    </requires>
 
    <plugin
@@ -248,6 +247,13 @@
 
    <plugin
          id="hu.blackbelt.judo.meta.jsl.ide.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="hu.blackbelt.judo.meta.jsl.ide.preview.plantuml"
          download-size="0"
          install-size="0"
          version="0.0.0"
