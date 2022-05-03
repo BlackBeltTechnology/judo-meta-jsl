@@ -341,7 +341,7 @@ class JslDslModelExtension {
 		return relations
 	}
 	
-	def boolean isBidirectional(EntityRelationDeclaration it) {
+	def boolean hasOpposite(EntityRelationDeclaration it) {
 		opposite?.oppositeType !== null || opposite?.oppositeName !== null
 	}
 	
