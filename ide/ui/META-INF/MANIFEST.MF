@@ -20,7 +20,14 @@ Require-Bundle: org.eclipse.compare,
  org.eclipse.xtext.ui.shared,
  org.eclipse.xtext.xbase.lib;bundle-version="2.14.0",
  hu.blackbelt.judo.meta.jsl.ide.common,
- hu.blackbelt.judo.meta.jsl.model;visibility:=reexport
+ hu.blackbelt.judo.meta.jsl.model;visibility:=reexport,
+ org.eclipse.ui.ide,
+ net.sourceforge.plantuml.eclipse,
+ net.sourceforge.plantuml.text,
+ net.sourceforge.plantuml.ecore,
+ net.sourceforge.plantuml.lib,
+ net.sourceforge.plantuml.svg,
+ net.sourceforge.plantuml
 Import-Package: org.apache.log4j
 Bundle-Activator: hu.blackbelt.judo.meta.jsl.ide.ui.internal.IdeActivator
 Automatic-Module-Name: hu.blackbelt.judo.meta.jsl.ide.ui
