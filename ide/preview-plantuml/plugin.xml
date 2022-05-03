@@ -1,16 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin>
-<!--	
-	<extension point="net.sourceforge.plantuml.eclipse.diagramTextProvider">
-		<diagramTextProvider
- 			id="hu.blackbelt.judo.meta.jsl.ui.preview.jslDslDiagramTextProvider"
-			providerClass="hu.blackbelt.judo.meta.jsl.ui.preview.JslDslDiagramTextProvider"
-			label="JUDO Entity diagram from JSL Model">
-		</diagramTextProvider>
-	</extension> 
--->
-
    <extension
          point="net.sourceforge.plantuml.eclipse.diagramIntentProvider">
       
@@ -19,17 +9,7 @@
       	providerClass="hu.blackbelt.judo.meta.jsl.ui.preview.JslEditorDiagramIntentProvider"
       	label="Entity diagrams generated from JSL model"
       	/>
-      <!--
-      <diagramIntentProvider
-      	id="net.sourceforge.plantuml.jdt.JavaViewDiagramIntentProvider"
-      	providerClass="net.sourceforge.plantuml.jdt.JavaViewDiagramIntentProvider"
-      	label="Class diagrams generated from Java element"
-      	/>
-      	-->
-      <!--
-      Removed, since it uses internal/restricted API and crashes in Photon 2018-12 release
-       <diagramIntentProvider providerClass="net.sourceforge.plantuml.jdt.ClassFileEditorDiagramIntentProvider"/>
-       -->
+
    </extension>
 
 </plugin>
