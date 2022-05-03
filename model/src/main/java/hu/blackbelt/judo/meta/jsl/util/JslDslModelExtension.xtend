@@ -21,6 +21,13 @@ import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import com.google.inject.Inject;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ConstraintDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldSingleType
+import java.util.List
+import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils
+import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedSingleType
 
 @Singleton
 class JslDslModelExtension {
@@ -44,7 +51,7 @@ class JslDslModelExtension {
 	def Collection<EntityMemberDeclaration> allEntityMemberDeclarations(ModelDeclaration model) {
 		val res = new ArrayList<EntityMemberDeclaration>();
 
-		model.declarations.filter[d | d instanceof EntityDeclaration].map[d | d as EntityDeclaration].forEach[e | {
+		model.entityDeclarations.forEach[e | {
 			res.addAll(e.members.filter[m | !(m instanceof ConstraintDeclaration)])
 		}]
 		return res
@@ -78,9 +85,7 @@ class JslDslModelExtension {
 		if (entity !== null) {
 			visited.add(entity)
 			collected.addAll(
-				entity.members
-					.filter[m | m instanceof EntityRelationDeclaration]
-					.map[m |m as EntityRelationDeclaration]
+				entity.relations
 					.filter[r | single === null || (single && !r.isMany) || (!single && r.isMany)]
 					.toList			
 			)
@@ -146,6 +151,20 @@ class JslDslModelExtension {
 		}
 	}
 
+	def boolean isManyAttributeForEntityMemberDeclaration(EntityMemberDeclaration member) {
+		if (member instanceof EntityFieldDeclaration) {
+			(member as EntityFieldDeclaration).isIsMany
+		} else if (member instanceof EntityIdentifierDeclaration) {
+			false
+		} else if (member instanceof EntityRelationDeclaration) {
+			(member as EntityRelationDeclaration).isIsMany
+		} else if (member instanceof EntityDerivedDeclaration) {
+			(member as EntityDerivedDeclaration).isIsMany
+		} else {
+			false
+		}
+	}
+
 	def EAttribute getNameAttributeForEntityMemberDeclaration(EntityMemberDeclaration member) {
 		if (member instanceof EntityFieldDeclaration) {
 			JsldslPackage::eINSTANCE.entityFieldDeclaration_Name
@@ -181,6 +200,27 @@ class JslDslModelExtension {
 			JsldslPackage::eINSTANCE.entityDeclaration_Name
 		} else {
 			throw new IllegalArgumentException("Unknown Declaration: " + declaration)
+		}
+	}
+
+
+	def String getNameForEntityFieldSingleType(EntityFieldSingleType type) {
+		if (type instanceof EntityDeclaration) {
+			type.name
+		} else if (type instanceof PrimitiveDeclaration) {
+			type.name
+		} else {
+			""
+		}
+	}
+
+	def String getNameForEntityDerivedSingleType(EntityDerivedSingleType type) {
+		if (type instanceof EntityDeclaration) {
+			type.name
+		} else if (type instanceof PrimitiveDeclaration) {
+			type.name
+		} else {
+			""
 		}
 	}
 
@@ -245,4 +285,69 @@ class JslDslModelExtension {
 		}
 		return found;
 	}
+	
+	def Collection<EntityRelationDeclaration> getRelations(EntityDeclaration it) {
+		members.filter[m | m instanceof EntityRelationDeclaration].map[d | d as EntityRelationDeclaration].toList
+	}
+	
+	def Collection<EntityDeclaration> entityDeclarations(ModelDeclaration it) {
+		declarations.filter[d | d instanceof EntityDeclaration].map[d | d as EntityDeclaration].toList
+	}
+
+	def Collection<DataTypeDeclaration> dataTypeDeclarations(ModelDeclaration it) {
+		declarations.filter[d | d instanceof DataTypeDeclaration].map[d | d as DataTypeDeclaration].toList
+	}
+
+	def Collection<EnumDeclaration> enumDeclarations(ModelDeclaration it) {
+		declarations.filter[d | d instanceof EnumDeclaration].map[d | d as EnumDeclaration].toList
+	}
+
+	def Collection<ErrorDeclaration> errorDeclarations(ModelDeclaration it) {
+		declarations.filter[d | d instanceof ErrorDeclaration].map[d | d as ErrorDeclaration].toList
+	}
+
+	def Collection<EntityFieldDeclaration> fields(EntityDeclaration it) {
+		members.filter[d | d instanceof EntityFieldDeclaration].map[d | d as EntityFieldDeclaration].toList
+	}
+
+	def Collection<EntityDerivedDeclaration> derivedes(EntityDeclaration it) {
+		members.filter[d | d instanceof EntityDerivedDeclaration].map[d | d as EntityDerivedDeclaration].toList
+	}
+
+	def Collection<ConstraintDeclaration> constraints(EntityDeclaration it) {
+		members.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
+	}
+
+	def Collection<EntityIdentifierDeclaration> identifiers(EntityDeclaration it) {
+		members.filter[d | d instanceof EntityIdentifierDeclaration].map[d | d as EntityIdentifierDeclaration].toList
+	}
+	
+	def String sourceCode(Expression it) {
+		return NodeModelUtils.findActualNodeFor(it)?.getText()
+	}
+  	
+	def Collection<EntityRelationDeclaration> getAllRelations(ModelDeclaration it, boolean singleInstanceOfBidirectional) {
+		val List<EntityRelationDeclaration> relations = new ArrayList()
+		
+		for (entity : entityDeclarations) {
+			for (relation : entity.relations) {
+				if (singleInstanceOfBidirectional && relation.opposite?.oppositeType !== null && !relations.contains(relation.opposite.oppositeType) ||
+					relation.opposite?.oppositeType === null
+				) {
+					relations.add(relation)
+				}
+			}
+		}		
+		return relations
+	}
+	
+	def boolean hasOpposite(EntityRelationDeclaration it) {
+		opposite?.oppositeType !== null || opposite?.oppositeName !== null
+	}
+	
+	def boolean isRelationExternal(EntityRelationDeclaration it) {
+		eContainer.modelDeclaration !== referenceType.modelDeclaration
+	}
+
+	
 }
