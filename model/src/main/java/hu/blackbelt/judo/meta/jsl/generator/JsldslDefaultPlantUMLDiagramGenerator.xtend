@@ -190,7 +190,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	def entityRelationRepresentation(EntityRelationDeclaration it, ModelDeclaration base)
 	'''« base.getExternalNameOfEntityDeclaration(eContainer as EntityDeclaration)» "«name»\n«cardinalityRepresentation»" «
 		IF opposite?.oppositeType !== null
-			» <--> "«opposite.oppositeType.name»\n[«opposite.oppositeType.cardinalityRepresentation»" «	
+			» <--> "«opposite.oppositeType.name»\n«opposite.oppositeType.cardinalityRepresentation»" «	
 		ELSEIF opposite?.oppositeName !== null
 			» <--> "«opposite?.oppositeName»\n[0..*]" «
 		ELSE
