@@ -7,9 +7,7 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
-import org.eclipse.emf.common.util.URI
 import com.google.inject.Inject
-import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

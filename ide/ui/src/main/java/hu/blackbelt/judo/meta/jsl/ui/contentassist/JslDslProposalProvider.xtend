@@ -13,19 +13,22 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
  * on how to customize the content assistant.
  */
 class JslDslProposalProvider extends AbstractJslDslProposalProvider {
+	Logger log = LoggerFactory.getLogger(JslDslProposalProvider);
 	
 	@Inject extension JslDslModelExtension
 	
 	override completeEntityRelationOpposite_OppositeType(EObject model, Assignment assignment, 
 		ContentAssistContext context, ICompletionProposalAcceptor acceptor
 	) {
-		// System.out.println("model: " + model + " assignment: " + assignment + " context: " + context)
+		log.debug("model: " + model + " assignment: " + assignment + " context: " + context)
 		lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor,
 			[ ((model as EntityRelationOpposite).eContainer as EntityRelationDeclaration)
 				.isSelectableForRelation(EObjectOrProxy as EntityRelationDeclaration)
@@ -34,13 +37,13 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 	}
 	
 	override completeEntityDeclaration_Extends(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		// System.out.println(" - model: " + model + " assignment: " + assignment + " context: " + context)
+		log.debug(" - model: " + model + " assignment: " + assignment + " context: " + context)
 		lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor,
 			[ 
 				val entity = model as EntityDeclaration;
 				val proposedEntity = EObjectOrProxy as EntityDeclaration
 				val superEntities = entity.superEntityTypes				
-				// System.out.println(" --- Obj: " + EObjectOrProxy + " - " + superEntities.join(", "))
+				log.debug(" --- Obj: " + EObjectOrProxy + " - " + superEntities.join(", "))
 
 				proposedEntity !== entity && !proposedEntity.superEntityTypes.contains(entity)
 			]
