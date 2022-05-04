@@ -16,24 +16,12 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ConstraintDeclaration
 import java.util.Collection
 import java.util.HashSet
-import hu.blackbelt.judo.meta.jsl.jsldsl.support.JslDslModelResourceSupport
 import java.util.Set
-import java.util.stream.Collectors
-import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
-import org.eclipse.xtext.resource.IContainer
-import org.eclipse.xtext.resource.IResourceDescriptions
-import org.eclipse.xtext.resource.XtextResourceSet
-import com.google.inject.Provider
-import org.eclipse.xtext.resource.XtextResource
 
 @Singleton
 class JsldslDefaultPlantUMLDiagramGenerator {
 	
 	@Inject extension JslDslModelExtension
-	@Inject ResourceDescriptionsProvider rdProvider	
-	@Inject IContainer.Manager containerManager
-	@Inject IResourceDescriptions resourceDescriptions
-	@Inject Provider<XtextResourceSet> resourceSetProvider	
 	
 	def defaultStyle() '''
 		'left to right direction
