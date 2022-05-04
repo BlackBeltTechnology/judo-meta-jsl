@@ -16,9 +16,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ConstraintDeclaration
 import java.util.Collection
 import java.util.HashSet
-import hu.blackbelt.judo.meta.jsl.jsldsl.support.JslDslModelResourceSupport
 import java.util.Set
-import java.util.stream.Collectors
 
 @Singleton
 class JsldslDefaultPlantUMLDiagramGenerator {
@@ -236,7 +234,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
 		«FOR external : externalReferencedRelationReferenceTypes»
 			«FOR relation : external.relations»
-				«IF relation.opposite?.oppositeName !== null && relation.referenceType.modelDeclaration === it»
+				«IF relation.opposite?.oppositeName !== null && relation.referenceType.modelDeclaration.name === it.name»
 					«relation.entityRelationRepresentation(it)»
 				«ENDIF»
 			«ENDFOR»
@@ -249,28 +247,19 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
 
 	def Collection<EntityDeclaration> getExternalReferencedRelationReferenceTypes(ModelDeclaration it) {
-		val Set<EntityDeclaration> externalEntity = new HashSet()
-
-        val JslDslModelResourceSupport jslModelWrapper = JslDslModelResourceSupport.jslDslModelResourceSupportBuilder()
-        	.resourceSet(it.eResource.resourceSet).build();
-
-		for (model : jslModelWrapper.getStreamOfJsldslModelDeclaration().collect(Collectors.toList)) {
-			for (entity : model.entityDeclarations) {
-				for (relation : entity.relations) {
-					if (relation.referenceType.modelDeclaration != it) {
-						externalEntity.add(relation.referenceType)
-					}
-					if (entity.modelDeclaration === it && relation.opposite?.oppositeName !== null && relation.modelDeclaration !== it) {
-						externalEntity.add(relation.eContainer as EntityDeclaration)
-					}
+		val Set<EntityDeclaration> externalEntities = new HashSet()
+		for (entity : it.entityDeclarations) {
+			for (relation : entity.relations) {
+				if (relation.referenceType.modelDeclaration.name !== it.name) {
+					externalEntities.add(relation.referenceType)
 				}
-			}			
+			}
 		}
-		externalEntity
+		externalEntities
 	}
 	
 	def String getExternalNameOfEntityDeclaration(ModelDeclaration it, EntityDeclaration entityDeclaration) {
-		if (it !== entityDeclaration.modelDeclaration) {
+		if (it.name !== entityDeclaration.modelDeclaration.name) {
 			val importList = imports.filter[i | i.modelName.importName.equals(entityDeclaration.modelDeclaration.name)]
 				.map[i | i.modelName.alias !== null ? i.modelName.alias + "::" + entityDeclaration.name : entityDeclaration.name]
 			if (importList.size > 0) { 
