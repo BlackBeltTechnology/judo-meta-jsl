@@ -20,7 +20,13 @@ public class JslDslDiagramIntent extends AbstractDiagramIntent<ModelDeclaration>
 	
 	@Override
 	public String getDiagramText() {
-		return String.valueOf(parser.getDefaultPlantUMLDiagramGenerator().generate(this.getSource(), null));
+		try {
+			return String.valueOf(parser.getDefaultPlantUMLDiagramGenerator().generate(parser.getDefaultPlantUMLDiagramGenerator().getOriginal(this.getSource()), null));
+			//return null;
+		} catch (Exception e) {
+			e.printStackTrace(System.err);
+		}
+		return null;
 	}
 
 }

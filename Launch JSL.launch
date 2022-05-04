@@ -39,7 +39,6 @@
         <setEntry value="hu.blackbelt.judo.meta.jsl.ide.feature:default"/>
         <setEntry value="net.sourceforge.plantuml.ecore.feature:default"/>
         <setEntry value="net.sourceforge.plantuml.feature:default"/>
-        <setEntry value="net.sourceforge.plantuml.lib.elk.feature:default"/>
         <setEntry value="net.sourceforge.plantuml.lib.feature:default"/>
         <setEntry value="net.sourceforge.plantuml.lib.jlatexmath.feature:default"/>
         <setEntry value="org.eclipse.draw2d:default"/>
