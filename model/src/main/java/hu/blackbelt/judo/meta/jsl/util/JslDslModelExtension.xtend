@@ -28,10 +28,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedSingleType
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @Singleton
 class JslDslModelExtension {
-	
 	@Inject extension IQualifiedNameProvider
 
 	def ModelDeclaration modelDeclaration(EObject obj) {
@@ -107,7 +108,6 @@ class JslDslModelExtension {
 		if (opposite.oppositeType === null) {
 			val oppositeEntityAllRelations = oppositeEntity.getAllRelations().toList
 
-			// System.out.println(" --- " + EObjectOrProxy + " --- Rel:  " + opposite.eContainer + " Sib: " + siblings.map[r | r + "=" + r.opposite?.oppositeType].join(", "))
 			if (oppositeEntityAllRelations.exists[r | r.opposite?.oppositeType === currentRelation]) {
 				if (selectableRelation.opposite?.oppositeType === currentRelation) {
 					return true

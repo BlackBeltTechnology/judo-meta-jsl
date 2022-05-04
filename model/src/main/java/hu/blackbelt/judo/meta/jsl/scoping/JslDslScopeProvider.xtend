@@ -17,6 +17,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.CreateError
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameter
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * This class contains custom scoping description.
@@ -26,11 +28,12 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
  */ 
  
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
+	Logger log = LoggerFactory.getLogger(JslDslScopeProvider);
 
 	@Inject extension JslDslModelExtension
 
     override getScope(EObject context, EReference ref) {
-    	// System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
+    	log.debug("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
 		switch context {
 			EntityRelationOpposite : 
 				switch (ref) {

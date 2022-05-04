@@ -25,6 +25,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * This class contains custom validation rules. 
@@ -32,6 +34,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
 class JslDslValidator extends AbstractJslDslValidator {
+	Logger log = LoggerFactory.getLogger(JslDslValidator);
 
 	protected static val ISSUE_CODE_PREFIX = "hu.blackbelt.judo.meta.jsl.jsldsl."
 	public static val HIERARCHY_CYCLE = ISSUE_CODE_PREFIX + "HierarchyCycle"
@@ -100,13 +103,13 @@ class JslDslValidator extends AbstractJslDslValidator {
     
 	@Check
 	def checkSelfImport(ModelImport modelImport) {
-		//System.out.println("checkSelfImport: " + modelImport.importedNamespace + " " + modelImport.eContainer().fullyQualifiedName.toString("::"))
+		log.debug("checkSelfImport: " + modelImport.modelName.importName.toQualifiedName + " " + modelImport.eContainer().fullyQualifiedName.toString("::"))
 		
 		if (modelImport.modelName === null) {
 			return
 		}
 		if (modelImport.modelName.importName.toQualifiedName.equals(modelImport.eContainer().fullyQualifiedName)) {
-			//System.out.println("==== ERROR: " + modelImport.importedNamespace)
+			log.debug("==== ERROR: " + modelImport.modelName.importName.toQualifiedName)
 			error("Cycle in hierarchy of model '" + modelImport.modelName.importName + "'",
 				JsldslPackage::eINSTANCE.modelImport_ModelName,
 				HIERARCHY_CYCLE,
@@ -146,11 +149,11 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkAssociation(EntityRelationDeclaration relation) {
-		// System.out.println("checkAssociationOpposite: " + relation + " opposite: " + relation?.opposite + " type: " + relation?.opposite?.oppositeType)
+		log.debug("checkAssociationOpposite: " + relation + " opposite: " + relation?.opposite + " type: " + relation?.opposite?.oppositeType)
 		
 		// Check the referenced opposite relation type reference back to this relation
 		if (relation.opposite?.oppositeType !== null) {
-			// System.out.println(" -- " + relation + " --- " + relation.opposite?.oppositeType?.opposite?.oppositeType)
+			log.debug(" -- " + relation + " --- " + relation.opposite?.oppositeType?.opposite?.oppositeType)
 			if (relation !== relation.opposite?.oppositeType?.opposite?.oppositeType) {
 				error("The opposite relation's opposite relation does not match '" + relation.opposite.oppositeType.name + "'",
 					JsldslPackage::eINSTANCE.entityRelationDeclaration_Opposite,
@@ -163,7 +166,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 		if (relation.opposite === null) {
 			val selectableRelatations = relation.referenceType.getAllRelations(null)
 			val relationReferencedBack = selectableRelatations.filter[r | r.opposite !== null && r.opposite.oppositeType === relation].toList
-			// System.out.println(" -- " + relation + " --- Referenced back: " + relationReferencedBack.map[r | r.eContainer.fullyQualifiedName + "#" + r.name].join(", "))
+			log.debug(" -- " + relation + " --- Referenced back: " + relationReferencedBack.map[r | r.eContainer.fullyQualifiedName + "#" + r.name].join(", "))
+
 			if (!relationReferencedBack.empty) {
 				error("The relation does not reference to a relation, while  the following relations referencing this relation as opposite: " + 
 					relationReferencedBack.map[r | "'" + r.eContainer.fullyQualifiedName.toString("::") + "#" + r.name + "'"].join(", "),
@@ -176,8 +180,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkCycleInInheritence(EntityDeclaration entity) {
-		// System.out.println(" -- " + relation + " --- Referenced back: " + relationReferencedBack.map[r | r.eContainer.fullyQualifiedName + "#" + r.name].join(", "))
-
 		if (entity.superEntityTypes.contains(entity)) {
 			error("Cycle in inheritence of entity '" + entity.name + "'",
 				JsldslPackage::eINSTANCE.entityDeclaration_Name,

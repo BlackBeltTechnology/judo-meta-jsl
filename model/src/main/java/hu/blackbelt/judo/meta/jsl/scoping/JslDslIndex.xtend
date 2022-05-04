@@ -6,6 +6,8 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import org.eclipse.xtext.resource.IContainer
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class JslDslIndex {
 	
@@ -13,15 +15,17 @@ class JslDslIndex {
 
 	@Inject IContainer$Manager cm
 
+	Logger log = LoggerFactory.getLogger(JslDslIndex);
+
 	def getVisibleEObjectDescriptions(EObject o) {
-		// System.out.println("JslDslIndex.getVisibleEObjectDescriptions Object: " + o)
+		log.debug("JslDslIndex.getVisibleEObjectDescriptions Object: " + o)
 		o.getVisibleContainers.map[ container |
 			container.getExportedObjects
 		].flatten
 	}
 
 	def getVisibleEObjectDescriptions(EObject o, EClass type) {
-		// System.out.println("JslDslIndex.getVisibleEObjectDescriptions Object: " + o + " Type: " + type)
+		log.debug("JslDslIndex.getVisibleEObjectDescriptions Object: " + o + " Type: " + type)
 		o.getVisibleContainers.map[ container |
 			container.getExportedObjectsByType(type)
 		].flatten

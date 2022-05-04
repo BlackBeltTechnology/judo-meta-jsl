@@ -10,6 +10,8 @@ import org.eclipse.xtext.generator.IGeneratorContext
 import org.eclipse.emf.common.util.URI
 import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * Generates code from your model files on save.
@@ -17,7 +19,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
 class JslDslGenerator extends AbstractGenerator {
-	
+	Logger log = LoggerFactory.getLogger(JslDslGenerator);
+		
 	@Inject
 	JsldslDefaultPlantUMLDiagramGenerator plantUmlGenerator
 	
@@ -28,7 +31,7 @@ class JslDslGenerator extends AbstractGenerator {
 			val String sURI = resource.URI.toPlatformString(true);
 			val String withoutProject = sURI.substring(sURI.indexOf('/', 1) + 1)
 			
-			System.out.println("- " + withoutProject)
+			log.debug("- " + withoutProject)
 			
 //			fsa.generateFile(withoutProject + ".plantuml", 
 //				plantUmlGenerator.generate(resource.allContents.findFirst[m | m instanceof ModelDeclaration] as ModelDeclaration, null));

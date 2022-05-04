@@ -2,9 +2,13 @@ package hu.blackbelt.judo.meta.jsl.scoping
 
 import org.eclipse.xtext.scoping.impl.ImportNormalizer
 import org.eclipse.xtext.naming.QualifiedName
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class JslDslImportNormalizer extends ImportNormalizer {
-	
+
+	Logger log = LoggerFactory.getLogger(JslDslImportNormalizer);
+		
 	final ImportNormalizer aliasNormalizer;
 	
 	new(String alias, QualifiedName importedNamespace, boolean wildCard, boolean ignoreCase) {
@@ -26,7 +30,7 @@ class JslDslImportNormalizer extends ImportNormalizer {
 		}
 		val resolved = super.resolve(name)		
 		
-		// System.out.println("JslDslImportNormalizer.resolve: " + relativeName.toString("::") + " -> " + resolved.toString("::"));
+		log.debug("JslDslImportNormalizer.resolve: " + relativeName.toString("::") + " -> " + resolved.toString("::"));
 		resolved
 	}
 	
@@ -39,7 +43,7 @@ class JslDslImportNormalizer extends ImportNormalizer {
 		if (deresolved === null) {
 			deresolved = fullyQualifiedName
 		}
-		// System.out.println("JslDslImportNormalizer.deresolve: " + fullyQualifiedName.toString("::") + " -> " + deresolved.toString("::"));
+		log.debug("JslDslImportNormalizer.deresolve: " + fullyQualifiedName.toString("::") + " -> " + deresolved.toString("::"));
 		deresolved
 	}
 	

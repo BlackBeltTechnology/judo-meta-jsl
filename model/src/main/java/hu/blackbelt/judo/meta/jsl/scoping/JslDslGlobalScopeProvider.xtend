@@ -11,24 +11,27 @@ import org.eclipse.xtext.naming.IQualifiedNameConverter
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import org.eclipse.xtext.scoping.impl.ImportNormalizer
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
+	Logger log = LoggerFactory.getLogger(JslDslGlobalScopeProvider);
 
 	@Inject extension IQualifiedNameConverter
 	@Inject extension JslDslModelExtension
 		
 	override getScope(Resource resource, EReference reference) {
-		// System.out.println("JslDslGlobalScopeProvider.getScope=" + reference);
+		log.debug("JslDslGlobalScopeProvider.getScope=" + reference);
 		super.getScope(resource, reference)		
 
 	}
 	
     override IScope getScope(Resource resource, EReference reference, Predicate<IEObjectDescription> filter) {
-		// System.out.println("JslDslGlobalScopeProvider.getScope Res: " + resource + "Ref: " + reference);
+		log.debug("JslDslGlobalScopeProvider.getScope Res: " + resource + "Ref: " + reference);
 
 		
 		if (JsldslPackage::eINSTANCE.modelImport_ModelName == reference) {
-			// System.out.println("JslDslGlobalScopeProvider.getScope NULL");
+			log.debug("JslDslGlobalScopeProvider.getScope NULL");
 			super.getScope(resource, reference, filter);
 		}
 
@@ -39,11 +42,11 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 				var found = false
 				for (modelImport : model.imports) {
 
-					//System.out.println("> JslDslGlobalScopeProvider.getScope Import NS: " + modelImport.modelName.toQualifiedName.toString("::") + " FIELD: " + input.qualifiedName.toString("::"));
+					log.debug("> JslDslGlobalScopeProvider.getScope Import NS: " + modelImport.modelName.importName.toQualifiedName.toString("::") + " FIELD: " + input.qualifiedName.toString("::"));
 
 					val normalizer = new ImportNormalizer(modelImport.modelName.importName.toQualifiedName, true, false);
 					if (normalizer.deresolve(input.qualifiedName) !== null) {
-					//	System.out.println("> JslDslGlobalScopeProvider.getScope=" + input.qualifiedName.toString("::"));
+						log.debug("> JslDslGlobalScopeProvider.getScope=" + input.qualifiedName.toString("::"));
 						found = true
 					}
 				}
