@@ -1,28 +1,28 @@
 package hu.blackbelt.judo.meta.jsl.ui.preview;
 
+import hu.blackbelt.judo.meta.jsl.generator.JsldslDefaultPlantUMLDiagramGenerator;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
 import hu.blackbelt.judo.meta.jsl.runtime.JslParser;
 import net.sourceforge.plantuml.text.AbstractDiagramIntent;
 
 public class JslDslDiagramIntent extends AbstractDiagramIntent<ModelDeclaration> {
 
-    private JslParser parser;
+    private JsldslDefaultPlantUMLDiagramGenerator generator;
 
-	public JslDslDiagramIntent(JslParser parser, ModelDeclaration source) {
+	public JslDslDiagramIntent(JsldslDefaultPlantUMLDiagramGenerator generator, ModelDeclaration source) {
 		super(source);
-		this.parser = parser;
+		this.generator = generator;
 	}
 
-	public JslDslDiagramIntent(JslParser parser, ModelDeclaration source, String label) {
+	public JslDslDiagramIntent(JsldslDefaultPlantUMLDiagramGenerator generator, ModelDeclaration source, String label) {
 		super(source, label);
-		this.parser = parser;
+		this.generator = generator;
 	}
 	
 	@Override
 	public String getDiagramText() {
 		try {
-			return String.valueOf(parser.getDefaultPlantUMLDiagramGenerator().generate(parser.getDefaultPlantUMLDiagramGenerator().getOriginal(this.getSource()), null));
-			//return null;
+			return String.valueOf(generator.generate(this.getSource(), null));
 		} catch (Exception e) {
 			e.printStackTrace(System.err);
 		}

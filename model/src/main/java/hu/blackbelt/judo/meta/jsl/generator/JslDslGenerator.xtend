@@ -30,8 +30,8 @@ class JslDslGenerator extends AbstractGenerator {
 			
 			System.out.println("- " + withoutProject)
 			
-			fsa.generateFile(withoutProject + ".plantuml", 
-				plantUmlGenerator.generate(resource.allContents.findFirst[m | m instanceof ModelDeclaration] as ModelDeclaration, null));
+//			fsa.generateFile(withoutProject + ".plantuml", 
+//				plantUmlGenerator.generate(resource.allContents.findFirst[m | m instanceof ModelDeclaration] as ModelDeclaration, null));
 
 			
 	//		fsa.generateFile('greetings.txt', 'People to greet: ' + 
