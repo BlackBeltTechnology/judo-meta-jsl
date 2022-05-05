@@ -44,7 +44,7 @@ class JslDslModelExtension {
 		if (current instanceof ModelDeclaration) {
 			current as ModelDeclaration
 		} else {
-			throw new IllegalAccessException("The root container is not ModelDeclaration: " + obj)
+			throw new IllegalAccessException("The root container is not ModelDeclaration: " + obj + "\n Root: " + current)
 		}		
 	}
 
@@ -340,14 +340,5 @@ class JslDslModelExtension {
 		}		
 		return relations
 	}
-	
-	def boolean hasOpposite(EntityRelationDeclaration it) {
-		opposite?.oppositeType !== null || opposite?.oppositeName !== null
-	}
-	
-	def boolean isRelationExternal(EntityRelationDeclaration it) {
-		eContainer.modelDeclaration !== referenceType.modelDeclaration
-	}
-
-	
+		
 }

@@ -17,6 +17,9 @@ import org.eclipse.xtext.parser.antlr.ISyntaxErrorMessageProvider
 import hu.blackbelt.judo.meta.jsl.errormessages.JslDslSyntaxErrorMessageProvider
 import org.eclipse.xtext.scoping.IGlobalScopeProvider
 import hu.blackbelt.judo.meta.jsl.scoping.JslDslGlobalScopeProvider
+import com.google.inject.Singleton
+import org.eclipse.xtext.generator.IOutputConfigurationProvider
+import hu.blackbelt.judo.meta.jsl.generator.JslDslOutputConfigurationProvider
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
@@ -30,6 +33,7 @@ class JslDslRuntimeModule extends AbstractJslDslRuntimeModule {
     override configureIScopeProviderDelegate(Binder binder) {
 		binder.bind(IScopeProvider).annotatedWith(Names.named(AbstractDeclarativeScopeProvider.NAMED_DELEGATE)).to(JslDslImportedNamespaceAwareLocalSocpeProvider);
 		binder.bind(IQualifiedNameConverter).to(JslDslQualifiedNameConverter)
+		binder.bind(IOutputConfigurationProvider).to(JslDslOutputConfigurationProvider).in(Singleton);
 	}
 	
 	def Class<? extends IDefaultResourceDescriptionStrategy> bindIDefaultResourceDescriptionStrategy() {
