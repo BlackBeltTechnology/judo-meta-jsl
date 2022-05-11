@@ -48,6 +48,10 @@ class JslDslModelExtension {
 		}		
 	}
 
+	def Collection<EnumDeclaration> allEnumDeclarations(ModelDeclaration model) {
+		model.declarations.filter[d | d instanceof EnumDeclaration].map[e | e as EnumDeclaration].toList
+	}
+
 	def Collection<EntityMemberDeclaration> allEntityMemberDeclarations(ModelDeclaration model) {
 		val res = new ArrayList<EntityMemberDeclaration>();
 
@@ -285,11 +289,11 @@ class JslDslModelExtension {
 		}
 		return found;
 	}
-	
+
 	def Collection<EntityRelationDeclaration> getRelations(EntityDeclaration it) {
 		members.filter[m | m instanceof EntityRelationDeclaration].map[d | d as EntityRelationDeclaration].toList
 	}
-	
+
 	def Collection<EntityDeclaration> entityDeclarations(ModelDeclaration it) {
 		declarations.filter[d | d instanceof EntityDeclaration].map[d | d as EntityDeclaration].toList
 	}
@@ -321,14 +325,14 @@ class JslDslModelExtension {
 	def Collection<EntityIdentifierDeclaration> identifiers(EntityDeclaration it) {
 		members.filter[d | d instanceof EntityIdentifierDeclaration].map[d | d as EntityIdentifierDeclaration].toList
 	}
-	
+
 	def String sourceCode(Expression it) {
 		return NodeModelUtils.findActualNodeFor(it)?.getText()
 	}
-  	
+
 	def Collection<EntityRelationDeclaration> getAllRelations(ModelDeclaration it, boolean singleInstanceOfBidirectional) {
 		val List<EntityRelationDeclaration> relations = new ArrayList()
-		
+
 		for (entity : entityDeclarations) {
 			for (relation : entity.relations) {
 				if (singleInstanceOfBidirectional && relation.opposite?.oppositeType !== null && !relations.contains(relation.opposite.oppositeType) ||
@@ -337,8 +341,8 @@ class JslDslModelExtension {
 					relations.add(relation)
 				}
 			}
-		}		
+		}
 		return relations
 	}
-		
+
 }

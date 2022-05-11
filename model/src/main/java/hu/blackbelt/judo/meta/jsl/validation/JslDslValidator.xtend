@@ -45,6 +45,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val INHERITED_MEMBER_NAME_COLLISION = ISSUE_CODE_PREFIX + "InheritedMemberNameCollision"
 	public static val ENUM_LITERAL_NAME_COLLISION = ISSUE_CODE_PREFIX + "EnumLiteralNameCollision"
 	public static val ENUM_LITERAL_ORDINAL_COLLISION = ISSUE_CODE_PREFIX + "EnumLiteralOrdinalCollision"
+	public static val ENUM_LITERAL_MISSING = ISSUE_CODE_PREFIX + "EnumLiteralMissing"
 	public static val MAX_LENGTH_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "MaxLengthIsNegative"
 	public static val PRECISION_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "PrecisionIsNegative"
 	public static val SCALE_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "ScaleIsNegative"
@@ -310,6 +311,16 @@ class JslDslValidator extends AbstractJslDslValidator {
 				JsldslPackage::eINSTANCE.enumLiteral_Value,
 				ENUM_LITERAL_ORDINAL_COLLISION,
 				literal.name)
+		}
+	}
+	
+	@Check
+	def checkEnumHasAtLeastOneLiteral(EnumDeclaration enumDeclaration) {
+		if (enumDeclaration.literals.size == 0) {
+			error("Enumeration " + enumDeclaration.name  + " must have at least one literal.",
+				JsldslPackage::eINSTANCE.enumDeclaration_Literals,
+				ENUM_LITERAL_MISSING,
+				enumDeclaration.name)
 		}
 	}
 	
