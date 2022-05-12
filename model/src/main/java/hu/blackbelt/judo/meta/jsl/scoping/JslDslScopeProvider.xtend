@@ -17,7 +17,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.CreateError
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameter
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationExpression
 
 /**
  * This class contains custom scoping description.
@@ -31,7 +30,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	@Inject extension JslDslModelExtension
 
     override getScope(EObject context, EReference ref) {
-    	System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
+    	// System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
 		switch context {
 			EntityRelationOpposite : 
 				switch (ref) {
@@ -130,19 +129,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	}
 
 	def IScope scopeForFeatureEntityMemberDeclarationType(Feature feature) {
-		if (feature.eContainer instanceof NavigationExpression) {
-			// enums...
-			val decl = feature.modelDeclaration.allEnumDeclarations
-			val enumDeclaration = decl.findFirst[e | e.name.equals((feature.eContainer as NavigationExpression).QName)];
-
-			if (enumDeclaration !== null) {
-				Scopes.scopeFor(enumDeclaration.literals, IScope.NULLSCOPE)
-			} else {
-				Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, IScope.NULLSCOPE)
-			}
-		} else {
-			Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, IScope.NULLSCOPE)
-		}
+		Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, IScope.NULLSCOPE)		
 	}
 
 
