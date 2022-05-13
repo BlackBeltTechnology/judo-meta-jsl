@@ -17,6 +17,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.CreateError
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameter
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationExpression
 
 /**
  * This class contains custom scoping description.
@@ -30,14 +31,14 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	@Inject extension JslDslModelExtension
 
     override getScope(EObject context, EReference ref) {
-    	// System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
+    	System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
 		switch context {
 			EntityRelationOpposite : 
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType:
-						Scopes.scopeFor((context.eContainer as EntityRelationDeclaration).getAllOppositeRelations, IScope.NULLSCOPE)			
+						return Scopes.scopeFor((context.eContainer as EntityRelationDeclaration).getAllOppositeRelations, IScope.NULLSCOPE)			
 					default: 
-						super.getScope(context, ref)
+						return super.getScope(context, ref)
 				}
 
 			/*			 
@@ -52,11 +53,11 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			Feature :
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.feature_EntityMemberDeclarationType:
-						(context as Feature).scopeForFeatureEntityMemberDeclarationType
+						return (context as Feature).scopeForFeatureEntityMemberDeclarationType(super.getScope(context, ref))
 					case JsldslPackage::eINSTANCE.queryParameter_DerivedParameterType:
-						(context as Feature).scopeForQueryParameterDerivedParameterType(super.getScope(context, ref))
+						return (context as Feature).scopeForQueryParameterDerivedParameterType(super.getScope(context, ref))
 					default: 
-						super.getScope(context, ref)
+						return super.getScope(context, ref)
 				}
 			
 
@@ -72,21 +73,21 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			CreateError : 
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType:
-						(context as CreateError).scopeForCreateError
+						return (context as CreateError).scopeForCreateError
 					default: 
-						super.getScope(context, ref)
+						return super.getScope(context, ref)
 				}
 
 			ThrowParameter : 
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType:
 						if (context.eContainer instanceof CreateError) {
-							(context.eContainer as CreateError).scopeForCreateError
+							return (context.eContainer as CreateError).scopeForCreateError
 						} else {
-							super.getScope(context, ref)
+							return super.getScope(context, ref)
 						}
 					default: 
-						super.getScope(context, ref)
+						return super.getScope(context, ref)
 				}
 
 			/*
@@ -101,36 +102,72 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			QueryParameter : 
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.queryParameter_DerivedParameterType:
-						(context.eContainer as Feature).scopeForQueryParameterDerivedParameterType(super.getScope(context, ref))
+						return (context.eContainer as Feature).scopeForQueryParameterDerivedParameterType(super.getScope(context, ref))
 					case JsldslPackage::eINSTANCE.queryParameter_Parameter:
-						(context.eContainer as Feature).scopeForQueryParameterParameterType
+						return (context.eContainer as Feature).scopeForQueryParameterParameterType
 					default: 
-						super.getScope(context, ref)
+						return super.getScope(context, ref)
 				}
-			default: super.getScope(context, ref)
+				
+				
+			/*
+			NavigationBase returns NavigationExpression
+				: {NavigationExpression} qName=LocalName (features+=Feature* | '#' enumValue = [ EnumLiteral | ID ])
+				;
+			 */
+			NavigationExpression:
+				switch (ref) {
+					case JsldslPackage::eINSTANCE.navigationExpression_EnumValue: {
+//						val Feature feature = (context as NavigationExpression).features.last
+						//feature.modelDeclaration.allEnumDeclarations.findFirst[f | f.name == q]
+						val feature = context.eContainer
+						val decl = feature.modelDeclaration.allEnumDeclarations
+            			val enumDeclaration = decl.findFirst[e | e.name.equals((context as NavigationExpression).QName)];
+						if (enumDeclaration !== null) {
+							return Scopes.scopeFor(enumDeclaration.literals, IScope.NULLSCOPE)
+						} else {
+							return IScope.NULLSCOPE									
+						}
+					}	
+						
+					default: 
+						return super.getScope(context, ref)
+				}
+			default: 
+				return super.getScope(context, ref)
 		}		
 	}
 	
 	def IScope scopeForCreateError(CreateError createError) {
-		Scopes.scopeFor(createError.errorDeclarationType.fields, IScope.NULLSCOPE)		
+		return Scopes.scopeFor(createError.errorDeclarationType.fields, IScope.NULLSCOPE)
 	}
 
 	def IScope scopeForQueryParameterDerivedParameterType(Feature feature, IScope fallback) {
 		if (feature.entityMemberDeclarationType !== null 
 			&& feature.entityMemberDeclarationType instanceof EntityDerivedDeclaration) {
-			Scopes.scopeFor((feature.entityMemberDeclarationType as EntityDerivedDeclaration).parameters, IScope.NULLSCOPE)							
+			return Scopes.scopeFor((feature.entityMemberDeclarationType as EntityDerivedDeclaration).parameters, IScope.NULLSCOPE)							
 		} else {
-			fallback
+			return fallback
 		}
 	}
 
 	def IScope scopeForQueryParameterParameterType(Feature feature) {
-		Scopes.scopeFor(feature.getDerivedDeclaration.parameters, IScope.NULLSCOPE)							
+		return Scopes.scopeFor(feature.getDerivedDeclaration.parameters, IScope.NULLSCOPE)							
 	}
 
-	def IScope scopeForFeatureEntityMemberDeclarationType(Feature feature) {
-		Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, IScope.NULLSCOPE)		
+	def IScope scopeForFeatureEntityMemberDeclarationType(Feature feature, IScope fallback) {
+		if (feature.eContainer instanceof NavigationExpression) {
+            // enums...
+            val decl = feature.modelDeclaration.allEnumDeclarations
+            val enumDeclaration = decl.findFirst[e | e.name.equals((feature.eContainer as NavigationExpression).QName)];
+
+            if (enumDeclaration !== null) {
+                return Scopes.scopeFor(enumDeclaration.literals, fallback)
+            } else {
+                return Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, fallback)
+            }
+        } else {
+            return Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, fallback)
+        }
 	}
-
-
 }

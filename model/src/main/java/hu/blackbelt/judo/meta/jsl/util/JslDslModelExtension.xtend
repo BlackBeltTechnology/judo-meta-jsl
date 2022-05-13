@@ -48,6 +48,10 @@ class JslDslModelExtension {
 		}		
 	}
 
+    def Collection<EnumDeclaration> allEnumDeclarations(ModelDeclaration model) {
+		model.declarations.filter[d | d instanceof EnumDeclaration].map[e | e as EnumDeclaration].toList
+	}
+
 	def Collection<EntityMemberDeclaration> allEntityMemberDeclarations(ModelDeclaration model) {
 		val res = new ArrayList<EntityMemberDeclaration>();
 
