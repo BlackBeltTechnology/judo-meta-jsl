@@ -65,10 +65,13 @@ ConstraintDeclaration
 	;
 
 EntityFieldDeclaration
-	: ('field')? (isRequired ?= 'required'? referenceType = [EntityFieldSingleType | LocalName] isMany ?= '[]'?) name = ID
-	  ("=" default = Expression)?
+	: ('field')? (isRequired ?= 'required'? referenceType = [EntityFieldSingleType | LocalName] isMany ?= '[]'?) name = ID ("=" default = DefaultExpression)?
 	;
 
+DefaultExpression
+ 	: {DefaultExpression} defaultExpression = Expression 		
+ 	;
+	
 EntityFieldSingleType 
 	: PrimitiveDeclaration
 	| EntityDeclaration
@@ -260,9 +263,8 @@ NavigationExpression returns Expression
     | NavigationBase
     ;
 
-// enums as separate literals cause problems with completion and script
 NavigationBase returns NavigationExpression
-	: {NavigationExpression} qName=LocalName (features+=Feature* | '#' enumValue = ID)
+	: {NavigationExpression} qName=LocalName (features+=Feature* | '#' enumValue = [ EnumLiteral | LocalName ])
 	;
 
 FunctionCall
@@ -293,7 +295,6 @@ PrimaryExpression returns Expression
 	;
 
 // Warning: create statement is not allowed in getter!
-
 CreateExpression returns Expression
 	: {CreateExpression} 'new'? type=[ClassDeclaration]
 	  (   '(' (assignments+=CreateParameter (',' assignments+=CreateParameter)*)? ')'
