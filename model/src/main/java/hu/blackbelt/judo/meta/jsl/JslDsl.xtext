@@ -68,7 +68,7 @@ EntityFieldDeclaration
 	: ('field')? (isRequired ?= 'required'? referenceType = [EntityFieldSingleType | LocalName] isMany ?= '[]'?) name = ID ("=" default = DefaultExpression)?
 	;
 
-DefaultExpression
+DefaultExpression returns Expression
  	: {DefaultExpression} defaultExpression = Expression 		
  	;
 	
