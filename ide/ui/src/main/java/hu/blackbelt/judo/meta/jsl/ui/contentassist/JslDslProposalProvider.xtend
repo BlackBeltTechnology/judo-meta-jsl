@@ -46,5 +46,17 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 			]
 		);
 	}
-	
+
+	override completeCreateExpression_Type(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor, [
+			false
+		]);
+	}
+
+	override completeNavigationBase_EnumValue(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor, [			
+			true
+		]);
+	}
+
 }
