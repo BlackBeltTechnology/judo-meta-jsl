@@ -25,6 +25,17 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
+import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral
+import org.eclipse.internal.xtend.expression.ast.Literal
+import hu.blackbelt.judo.meta.jsl.jsldsl.RawStringLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.IntegerLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.DecimalLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldSingleType
+import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
+import org.eclipse.emf.ecore.EClass
 
 /**
  * This class contains custom validation rules. 
@@ -52,6 +63,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val PRECISION_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "PrecisionIsTooLarge"
 	public static val SCALE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "ScaleIsLargerThanPrecision"
 	public static val USING_REQUIRED_WITH_IS_MANY = ISSUE_CODE_PREFIX + "UsingRequiredWithIsMany"
+	public static val DEFAULT_TYPE_MISMATCH = ISSUE_CODE_PREFIX + "DefaultValueTypeMismatch"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_LENGTH_MAX_VALUE = BigInteger.valueOf(4000)
@@ -330,6 +342,57 @@ class JslDslValidator extends AbstractJslDslValidator {
                     JsldslPackage::eINSTANCE.entityRelationDeclaration_IsRequired,
                     USING_REQUIRED_WITH_IS_MANY,
                     JsldslPackage::eINSTANCE.entityRelationDeclaration.name)
+			}
+		}
+	}
+	
+	@Check
+	def checkDefaultExpressionMatchesMemberType(DefaultExpressionType defaultExpression) {
+		val memberReferenceType = (defaultExpression.eContainer as EntityFieldDeclaration).referenceType
+
+		if (defaultExpression.expression instanceof EnumLiteralReference) {
+			val enumLiteral = defaultExpression.expression as EnumLiteralReference
+			
+			if (enumLiteral.enumDeclaration !== memberReferenceType) {
+				error("Default value type: '" + enumLiteral.enumDeclaration.name + "' does not match member type: '" + (memberReferenceType as EnumDeclaration).name + "'",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    DEFAULT_TYPE_MISMATCH,
+                    JsldslPackage::eINSTANCE.enumLiteralReference_EnumLiteral.name)
+			}
+		} else if (defaultExpression.expression instanceof EscapedStringLiteral) {
+			if (!#["string"].contains((memberReferenceType as DataTypeDeclaration).primitive)) {
+				error("Default value type: '" + EscapedStringLiteral.simpleName + "' does not match member type: '" + memberReferenceType.nameForEntityFieldSingleType + "'",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    DEFAULT_TYPE_MISMATCH,
+                    JsldslPackage::eINSTANCE.escapedStringLiteral.name)
+			}
+		} else if (defaultExpression.expression instanceof RawStringLiteral) {
+			if (!#["string"].contains((memberReferenceType as DataTypeDeclaration).primitive)) {
+				error("Default value type: '" + RawStringLiteral.simpleName + "' does not match member type: '" + memberReferenceType.nameForEntityFieldSingleType + "'",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    DEFAULT_TYPE_MISMATCH,
+                    JsldslPackage::eINSTANCE.rawStringLiteral.name)
+			}
+		} else if (defaultExpression.expression instanceof BooleanLiteral) {
+			if (!#["boolean"].contains((memberReferenceType as DataTypeDeclaration).primitive)) {
+				error("Default value type: '" + BooleanLiteral.simpleName + "' does not match member type: '" + memberReferenceType.nameForEntityFieldSingleType + "'",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    DEFAULT_TYPE_MISMATCH,
+                    JsldslPackage::eINSTANCE.booleanLiteral.name)
+			}
+		} else if (defaultExpression.expression instanceof IntegerLiteral) {
+			if (!#["numeric"].contains((memberReferenceType as DataTypeDeclaration).primitive)) {
+				error("Default value type: '" + IntegerLiteral.simpleName + "' does not match member type: '" + memberReferenceType.nameForEntityFieldSingleType + "'",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    DEFAULT_TYPE_MISMATCH,
+                    JsldslPackage::eINSTANCE.integerLiteral.name)
+			}
+		} else if (defaultExpression.expression instanceof DecimalLiteral) {
+			if (!#["numeric"].contains((memberReferenceType as DataTypeDeclaration).primitive)) {
+				error("Default value type: '" + DecimalLiteral.simpleName + "' does not match member type: '" + memberReferenceType.nameForEntityFieldSingleType + "'",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    DEFAULT_TYPE_MISMATCH,
+                    JsldslPackage::eINSTANCE.decimalLiteral.name)
 			}
 		}
 	}
