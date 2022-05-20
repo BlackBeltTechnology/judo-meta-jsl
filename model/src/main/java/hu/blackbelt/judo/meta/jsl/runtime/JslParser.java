@@ -147,7 +147,7 @@ public class JslParser {
     	ModelDeclaration defaultModel = getModelDeclarationFromXtextResourceSet(modelName, resourceSet)
     			.orElseThrow(() -> new IllegalArgumentException("Model with name '" + modelName + "' not found"));
     	
-    	JslDslModel model = createModel(defaultModel.getName());
+    	JslDslModel model = createModel(defaultModel.getName().replaceAll("::", "_"));
     	for (Resource res : resourceSet.getResources()) {
     		ModelDeclaration modelDecl = (ModelDeclaration) res.getContents().get(0);
     		model.addContent(modelDecl);
