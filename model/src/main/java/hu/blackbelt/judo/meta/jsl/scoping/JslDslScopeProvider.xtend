@@ -55,7 +55,6 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			EnumLiteralReference :
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.enumLiteralReference_EnumLiteral: {
-						System.out.println("a`whofpoAshfalskfhasfo")						
 						return Scopes.scopeFor(((context.eContainer.eContainer as EntityFieldDeclaration).referenceType as EnumDeclaration).literals)}
 					default: 
 						super.getScope(context, ref)					
@@ -150,16 +149,11 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	}
 	
 	def IScope scopeForDefaultExpressionType(DefaultExpressionType defaultExpression) {
-//		if (defaultExpression.expression instanceof NavigationExpression) {
-			// val decl = defaultExpression.expression.modelDeclaration.allEnumDeclarations
-            // val enumDeclaration = decl.findFirst[e | e.name.equals((defaultExpression.expression as NavigationExpression).QName)];
             val refType = (defaultExpression.eContainer as EntityFieldDeclaration).referenceType
-
 			if (refType instanceof EnumDeclaration) {
 				val enumDeclaration = refType as EnumDeclaration
 				return Scopes.scopeFor(#[enumDeclaration], IScope.NULLSCOPE);				
 			}
-//		}
 		return IScope.NULLSCOPE
 	}
 

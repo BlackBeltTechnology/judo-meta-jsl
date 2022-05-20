@@ -71,7 +71,13 @@ EntityFieldDeclaration
 
 
 DefaultExpressionType
-	: {DefaultExpressionType} '=' expression = (Literal | EnumLiteralReference)
+	: {DefaultExpressionType} '=' expression = (
+		Literal 
+		| EnumLiteralReference 
+		| NavigationBase 
+		| ParenthesizedExpression
+		| CreateExpression
+	)
 	;
 
 EntityFieldSingleType 
@@ -305,11 +311,8 @@ PrimaryExpression returns Expression
 	| Self
 	;
 
-// Warning: create statement is not allowed in getter!
-
-/* 
 CreateExpression returns Expression
-	: {CreateExpression} 'new'? type=[ClassDeclaration]
+	: {CreateExpression} 'new'? type=[ClassDeclaration | LocalName]
 	  (   '(' (assignments+=CreateParameter (',' assignments+=CreateParameter)*)? ')'
 	  	| '[' (creates += MultilineExpression (',' creates += MultilineExpression)*)? ']'
 	  )
@@ -318,7 +321,6 @@ CreateExpression returns Expression
 CreateParameter:
     name=ID '=' right=MultilineExpression;
 
-*/
 
 Function returns Function
 	: name=ID '(' (lambdaArgument=ID '|')? (parameters+=FunctionParameter (',' parameters+=FunctionParameter)*)? ')'
