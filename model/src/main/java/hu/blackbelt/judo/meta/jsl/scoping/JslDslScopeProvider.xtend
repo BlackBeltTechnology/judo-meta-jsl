@@ -30,7 +30,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	@Inject extension JslDslModelExtension
 
     override getScope(EObject context, EReference ref) {
-    	// System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
+    	System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
 		switch context {
 			EntityRelationOpposite : 
 				switch (ref) {
@@ -52,7 +52,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			Feature :
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.feature_EntityMemberDeclarationType:
-						(context as Feature).scopeForFeatureEntityMemberDeclarationType
+						(context as Feature).scopeForFeatureEntityMemberDeclarationType(super.getScope(context, ref))
 					case JsldslPackage::eINSTANCE.queryParameter_DerivedParameterType:
 						(context as Feature).scopeForQueryParameterDerivedParameterType(super.getScope(context, ref))
 					default: 
@@ -128,8 +128,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		Scopes.scopeFor(feature.getDerivedDeclaration.parameters, IScope.NULLSCOPE)							
 	}
 
-	def IScope scopeForFeatureEntityMemberDeclarationType(Feature feature) {
-		Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, IScope.NULLSCOPE)		
+	def IScope scopeForFeatureEntityMemberDeclarationType(Feature feature, IScope fallback) {
+		Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, fallback)		
 	}
 
 
