@@ -285,15 +285,11 @@ FunctionCall
 	;
 
 Feature
-    : {Feature} '.' member = (EntityMemberDeclarationFeature)
+    : {Feature} '.' member = EntityMemberDeclarationFeature
     ;
 
 EntityMemberDeclarationFeature returns Feature
 	: entityMemberDeclarationType = [EntityMemberDeclaration | LocalName ] ('(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')')?
-	;
-
-EnumDeclarationFeature returns Feature
-	: enumMemberDeclarationType = [EnumDeclaration | LocalName ]
 	;
 
 QueryParameter
@@ -306,7 +302,7 @@ ParenthesizedExpression returns Expression
 
 PrimaryExpression returns Expression
 	: ParenthesizedExpression
-//	| CreateExpression
+	| CreateExpression
 	| Literal
 	| Self
 	;
