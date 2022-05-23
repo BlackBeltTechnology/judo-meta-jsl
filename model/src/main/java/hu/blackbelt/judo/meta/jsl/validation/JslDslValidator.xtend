@@ -28,14 +28,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral
-import org.eclipse.internal.xtend.expression.ast.Literal
 import hu.blackbelt.judo.meta.jsl.jsldsl.RawStringLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.IntegerLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.DecimalLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldSingleType
-import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
-import org.eclipse.emf.ecore.EClass
 
 /**
  * This class contains custom validation rules. 

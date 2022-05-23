@@ -368,7 +368,6 @@ class JslDslModelExtension {
 			if (targetType instanceof EnumDeclaration) {
 				return Scopes.scopeFor(targetType.literals, IScope.NULLSCOPE)
 			}
-			System.out.println("HELOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
 		}
 		
 		return fallback
