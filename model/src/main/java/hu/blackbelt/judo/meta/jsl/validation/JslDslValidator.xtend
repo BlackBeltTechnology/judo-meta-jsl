@@ -60,6 +60,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val SCALE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "ScaleIsLargerThanPrecision"
 	public static val USING_REQUIRED_WITH_IS_MANY = ISSUE_CODE_PREFIX + "UsingRequiredWithIsMany"
 	public static val DEFAULT_TYPE_MISMATCH = ISSUE_CODE_PREFIX + "DefaultValueTypeMismatch"
+	public static val UNSUPPORTED_DEFAULT_TYPE = ISSUE_CODE_PREFIX + "UnsupportedDefaultValueType"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_LENGTH_MAX_VALUE = BigInteger.valueOf(4000)
@@ -390,6 +391,11 @@ class JslDslValidator extends AbstractJslDslValidator {
                     DEFAULT_TYPE_MISMATCH,
                     JsldslPackage::eINSTANCE.decimalLiteral.name)
 			}
+		} else {
+			// use-case triggering this path was: when a NavigationExpression got through as default value, but that case might be fixed later via grammar changes
+			error("Default value type: '" + defaultExpression.expression.class.simpleName + "' not supported!",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    UNSUPPORTED_DEFAULT_TYPE)
 		}
 	}
 

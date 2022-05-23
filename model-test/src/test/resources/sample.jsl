@@ -27,7 +27,7 @@ enum LeadStatus {
 entity abstract Person {
 	field String firstName
 	field String lastName
-	field Lead[] i = new Lead[new Lead()]
+	// field Lead[] i = new Lead[new Lead()]
 
 
 	derived	String fullName = self.firstName + " " \
