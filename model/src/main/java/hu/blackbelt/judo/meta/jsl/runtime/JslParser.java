@@ -131,6 +131,19 @@ public class JslParser {
     	return Optional.ofNullable(found);
     }
 
+    public Collection<ModelDeclaration> getAllModelDeclarationFromXtextResourceSet(XtextResourceSet resourceSet) {
+        Collection<ModelDeclaration> modelDeclarations = new ArrayList<>();
+        Iterator<Notifier> iter = resourceSet.getAllContents();
+        ModelDeclaration found = null;
+        while (found == null && iter.hasNext()) {
+            Notifier o = iter.next();
+            if (o instanceof ModelDeclaration) {
+                modelDeclarations.add((ModelDeclaration) o);
+            }
+        }
+        return modelDeclarations;
+    }
+
     public JslDslModel getModelFromStreamSources(String modelName, final Collection<JslStreamSource> jslStreams) {
     	return getModelFromXtextResourceSet(modelName, loadJslFromStream(jslStreams));
     }
