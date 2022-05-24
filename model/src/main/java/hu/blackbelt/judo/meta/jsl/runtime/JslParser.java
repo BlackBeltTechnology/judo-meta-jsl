@@ -4,6 +4,7 @@ import com.google.inject.Injector;
 import hu.blackbelt.judo.meta.jsl.JslDslStandaloneSetupGenerated;
 import hu.blackbelt.judo.meta.jsl.generator.JsldslDefaultPlantUMLDiagramGenerator;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImport;
 import hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel;
 
 import org.eclipse.emf.common.notify.Notifier;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import static hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel.buildJslDslModel;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -48,11 +50,11 @@ public class JslParser {
         return injectorInstance;
     }
     
-    public JsldslDefaultPlantUMLDiagramGenerator getDefaultPlantUMLDiagramGenerator() {
+    public static JsldslDefaultPlantUMLDiagramGenerator getDefaultPlantUMLDiagramGenerator() {
     	return injector().getInstance(JsldslDefaultPlantUMLDiagramGenerator.class);
     }
     
-    public XtextResourceSet loadJslFromStream(Collection<JslStreamSource> streams) {
+    public static XtextResourceSet loadJslFromStream(Collection<JslStreamSource> streams) {
         final long startTs = System.currentTimeMillis();
         try {
             final XtextResourceSet xtextResourceSet =  injector().getInstance(XtextResourceSet.class);
@@ -82,18 +84,14 @@ public class JslParser {
         }
     }
 
-    public XtextResourceSet loadJslFromString(Collection<String> jslExpressions) {
-    	Collection<JslStreamSource> streams = jslExpressions.stream().map(s -> {
-    		try {
-    			return new JslStreamSource(new ByteArrayInputStream(s.getBytes("UTF-8")), URI.createURI("platform:/" + s.hashCode() + ".jsl"));
-    		} catch (UnsupportedEncodingException e) {
-				throw new RuntimeException("Unsupported encoding: " + s);
-    		}
-    	}).collect(Collectors.toList());
+    public static XtextResourceSet loadJslFromString(Collection<String> jslExpressions) {
+    	Collection<JslStreamSource> streams = jslExpressions.stream().map(s ->
+                new JslStreamSource(new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8)),
+                        URI.createURI("platform:/" + s.hashCode() + ".jsl"))).collect(Collectors.toList());
     	return loadJslFromStream(streams);
     }
 
-    public XtextResourceSet loadJslFromFile(final Collection<File> jslFiles) {
+    public static XtextResourceSet loadJslFromFile(final Collection<File> jslFiles) {
     	Collection<JslStreamSource> streams = jslFiles.stream().map(f -> {
 			try {
 				return new JslStreamSource(new FileInputStream(f), URI.createURI(f.getAbsolutePath()));
@@ -104,19 +102,19 @@ public class JslParser {
     	return loadJslFromStream(streams);
     }
 
-    public Optional<ModelDeclaration> getModelDeclarationFromStreamSources(String modelName, final Collection<JslStreamSource> jslStreams) {
+    public static Optional<ModelDeclaration> getModelDeclarationFromStreamSources(String modelName, final Collection<JslStreamSource> jslStreams) {
     	return getModelDeclarationFromXtextResourceSet(modelName, loadJslFromStream(jslStreams));
     }
 
-    public Optional<ModelDeclaration> getModelDeclarationFromFiles(String modelName, final Collection<File> jslFiles) {
+    public static Optional<ModelDeclaration> getModelDeclarationFromFiles(String modelName, final Collection<File> jslFiles) {
     	return getModelDeclarationFromXtextResourceSet(modelName, loadJslFromFile(jslFiles));
     }
 
-    public Optional<ModelDeclaration> getModelDeclarationFromStrings(String modelName, final Collection<String> jslStrings) {
+    public static Optional<ModelDeclaration> getModelDeclarationFromStrings(String modelName, final Collection<String> jslStrings) {
     	return getModelDeclarationFromXtextResourceSet(modelName, loadJslFromString(jslStrings));
     }
 
-    public Optional<ModelDeclaration> getModelDeclarationFromXtextResourceSet(String modelName, XtextResourceSet resourceSet) {
+    public static Optional<ModelDeclaration> getModelDeclarationFromXtextResourceSet(String modelName, XtextResourceSet resourceSet) {
     	Iterator<Notifier> iter = resourceSet.getAllContents();
     	ModelDeclaration found = null;
     	while (found == null && iter.hasNext()) {
@@ -131,7 +129,7 @@ public class JslParser {
     	return Optional.ofNullable(found);
     }
 
-    public Collection<ModelDeclaration> getAllModelDeclarationFromXtextResourceSet(XtextResourceSet resourceSet) {
+    public static Collection<ModelDeclaration> getAllModelDeclarationFromXtextResourceSet(XtextResourceSet resourceSet) {
         Collection<ModelDeclaration> modelDeclarations = new ArrayList<>();
         Iterator<Notifier> iter = resourceSet.getAllContents();
         ModelDeclaration found = null;
@@ -144,19 +142,19 @@ public class JslParser {
         return modelDeclarations;
     }
 
-    public JslDslModel getModelFromStreamSources(String modelName, final Collection<JslStreamSource> jslStreams) {
+    public static JslDslModel getModelFromStreamSources(String modelName, final Collection<JslStreamSource> jslStreams) {
     	return getModelFromXtextResourceSet(modelName, loadJslFromStream(jslStreams));
     }
 
-    public JslDslModel getModelFromFiles(String modelName, final Collection<File> jslFiles) {
+    public static JslDslModel getModelFromFiles(String modelName, final Collection<File> jslFiles) {
     	return getModelFromXtextResourceSet(modelName, loadJslFromFile(jslFiles));
     }
 
-    public JslDslModel getModelFromStrings(String modelName, final Collection<String> jslStrings) {
+    public static JslDslModel getModelFromStrings(String modelName, final Collection<String> jslStrings) {
     	return getModelFromXtextResourceSet(modelName, loadJslFromString(jslStrings));
     }
 
-    public JslDslModel getModelFromXtextResourceSet(String modelName, XtextResourceSet resourceSet) {
+    public static JslDslModel getModelFromXtextResourceSet(String modelName, XtextResourceSet resourceSet) {
     	ModelDeclaration defaultModel = getModelDeclarationFromXtextResourceSet(modelName, resourceSet)
     			.orElseThrow(() -> new IllegalArgumentException("Model with name '" + modelName + "' not found"));
     	
@@ -169,8 +167,25 @@ public class JslParser {
     }
 
     
-    private JslDslModel createModel(String name) {
+    private static JslDslModel createModel(String name) {
     	return buildJslDslModel().uri(URI.createURI("urn:" + name + ".jsl")).name(name).build();    	
+    }
+
+    public static Collection<ModelDeclaration> collectReferencedModelDeclarations(ModelDeclaration modelDeclaration, Collection<ModelDeclaration> allModelDeclcarations) {
+        Collection<ModelDeclaration> referenced = new ArrayList<>();
+        referenced.add(modelDeclaration);
+        collectImportedModelDeclaration(modelDeclaration, allModelDeclcarations, referenced);
+        return  referenced;
+    }
+
+    private static void collectImportedModelDeclaration(ModelDeclaration modelDeclaration,  Collection<ModelDeclaration> all, Collection<ModelDeclaration> collected) {
+        for (ModelImport modelImport : modelDeclaration.getImports()) {
+            if (!collected.stream().anyMatch(d -> d.getName().equals(modelImport.getModelName().getImportName()))) {
+                ModelDeclaration imported = all.stream().filter(d -> d.getName().equals(modelImport.getModelName().getImportName())).findFirst().orElseThrow(() -> new IllegalStateException("Model not found: " + modelImport.getModelName().getImportName()));
+                collected.add(imported);
+                collectImportedModelDeclaration(imported, all, collected);
+            }
+        }
     }
 
 }
