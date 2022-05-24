@@ -66,7 +66,18 @@ ConstraintDeclaration
 
 EntityFieldDeclaration
 	: ('field')? (isRequired ?= 'required'? referenceType = [EntityFieldSingleType | LocalName] isMany ?= '[]'?) name = ID
-	  ("=" default = Expression)?
+	  (defaultExpression = DefaultExpressionType)?
+	;
+
+
+DefaultExpressionType
+	: {DefaultExpressionType} '=' expression = (
+		Literal 
+		| EnumLiteralReference 
+		| NavigationBase 
+		| ParenthesizedExpression
+		| CreateExpression
+	)
 	;
 
 EntityFieldSingleType 
@@ -76,7 +87,7 @@ EntityFieldSingleType
 
 EntityIdentifierDeclaration
 	: 'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] name = ID
-	  ("=" default = Expression)?
+	  (defaultExpression = DefaultExpressionType)?
 	;
 
 EntityDerivedDeclaration
@@ -262,8 +273,12 @@ NavigationExpression returns Expression
 
 // enums as separate literals cause problems with completion and script
 NavigationBase returns NavigationExpression
-	: {NavigationExpression} qName=LocalName (features+=Feature* | '#' enumValue = ID)
+	: {NavigationExpression} qName=LocalName (features+=Feature* | enumValue = [ EnumLiteralReference ])		
 	;
+	
+EnumLiteralReference returns Expression
+    : {EnumLiteralReference} enumDeclaration = [EnumDeclaration | LocalName] '#' enumLiteral = [EnumLiteral | EnumLiteralName ]    	
+    ;
 
 FunctionCall
 	: {FunctionCall} '!' function=Function features+=Feature* call=FunctionCall?
@@ -292,10 +307,8 @@ PrimaryExpression returns Expression
 	| Self
 	;
 
-// Warning: create statement is not allowed in getter!
-
 CreateExpression returns Expression
-	: {CreateExpression} 'new'? type=[ClassDeclaration]
+	: {CreateExpression} 'new'? type=[ClassDeclaration | LocalName]
 	  (   '(' (assignments+=CreateParameter (',' assignments+=CreateParameter)*)? ')'
 	  	| '[' (creates += MultilineExpression (',' creates += MultilineExpression)*)? ']'
 	  )
@@ -303,6 +316,7 @@ CreateExpression returns Expression
 
 CreateParameter:
     name=ID '=' right=MultilineExpression;
+
 
 Function returns Function
 	: name=ID '(' (lambdaArgument=ID '|')? (parameters+=FunctionParameter (',' parameters+=FunctionParameter)*)? ')'
@@ -342,6 +356,11 @@ TemporalLiteral returns Expression
 Self returns Expression
 	: {Self} 'self'
 	;
+
+
+EnumLiteralName
+	: ID
+    ;
 
 LocalName
 	: (ID '::')? ID
