@@ -121,4 +121,43 @@ class PrimitiveDefaultValuesTests {
 			m | m.assertError(JsldslPackage::eINSTANCE.defaultExpressionType, JslDslValidator.DEFAULT_TYPE_MISMATCH, "Default value type: 'EscapedStringLiteral' does not match member type: 'Timestamp'")
 		]
 	}
+
+	@Test
+    def void testPrimitivesPassingForFieldsAndIdentifiers() {
+        '''
+            model PrimitiveDefaultsModel
+
+            type numeric Integer precision 9  scale 0
+            type numeric Decimal precision 5  scale 3
+            type string String max-length 128
+            type boolean Bool
+            type date Date
+            type time Time
+            type timestamp Timestamp
+
+            entity TestIdentifiers {
+            	identifier Bool a = true
+            	identifier Integer b = 3223
+            	identifier Decimal b2 = 3223.123
+            	identifier String c = "123"
+            	identifier String c2 = r"123"
+            	identifier Date d = `2020-01-12`
+            	identifier Time e = `22:45:22`
+            	identifier Timestamp f = `2020-01-12T12:12:12.000Z`
+            }
+
+            entity TestFields {
+            	field Bool a = true
+            	field Integer b = 3223
+            	field Decimal b2 = 3223.123
+            	field String c = "123"
+            	field String c2 = r"123"
+            	field Date d = `2020-01-12`
+            	field Time e = `22:45:22`
+            	field Timestamp f = `2020-01-12T12:12:12.000Z`
+            }
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
 }
