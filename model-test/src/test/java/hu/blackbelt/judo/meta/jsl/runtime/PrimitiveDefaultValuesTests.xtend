@@ -20,10 +20,8 @@ class PrimitiveDefaultValuesTests {
 	@Test
 	def void testBoolDefaultTypeMismatch() {
 		'''
-			model ErrorTypeCreateModel
+			model PrimitiveDefaultsModel
 			
-			type numeric Integer precision 9  scale 0
-			type string String max-length 128
 			type boolean Bool
 			
 			entity Test {
@@ -37,11 +35,9 @@ class PrimitiveDefaultValuesTests {
 	@Test
 	def void testStringLiteralDefaultTypeMismatch() {
 		'''
-			model ErrorTypeCreateModel
+			model PrimitiveDefaultsModel
 			
-			type numeric Integer precision 9  scale 0
 			type string String max-length 128
-			type boolean Bool
 			
 			entity Test {
 				field String stringAttr = 123
@@ -54,11 +50,9 @@ class PrimitiveDefaultValuesTests {
 	@Test
 	def void testIntegerDefaultTypeMismatch() {
 		'''
-			model ErrorTypeCreateModel
+			model PrimitiveDefaultsModel
 			
 			type numeric Integer precision 9  scale 0
-			type string String max-length 128
-			type boolean Bool
 			
 			entity Test {
 				field Integer intAttr = "hello"
@@ -71,17 +65,60 @@ class PrimitiveDefaultValuesTests {
 	@Test
 	def void testDecimalDefaultTypeMismatch() {
 		'''
-			model ErrorTypeCreateModel
+			model PrimitiveDefaultsModel
 			
 			type numeric Decimal precision 9  scale 3
-			type string String max-length 128
-			type boolean Bool
 			
 			entity Test {
 				field Decimal decimalAttr = "hello"
 			}
 		'''.parse => [
 			m | m.assertError(JsldslPackage::eINSTANCE.defaultExpressionType, JslDslValidator.DEFAULT_TYPE_MISMATCH, "Default value type: 'EscapedStringLiteral' does not match member type: 'Decimal'")
+		]
+	}
+	
+	@Test
+	def void testDateDefaultTypeMismatch() {
+		'''
+			model PrimitiveDefaultsModel
+			
+			type date Date
+			
+			entity Test {
+				field Date dateAttr = "hello"
+			}
+		'''.parse => [
+			m | m.assertError(JsldslPackage::eINSTANCE.defaultExpressionType, JslDslValidator.DEFAULT_TYPE_MISMATCH, "Default value type: 'EscapedStringLiteral' does not match member type: 'Date'")
+		]
+	}
+	
+	@Test
+	def void testTimeDefaultTypeMismatch() {
+		'''
+			model PrimitiveDefaultsModel
+			
+			type time Time
+			
+			entity Test {
+				field Time timeAttr = "hello"
+			}
+		'''.parse => [
+			m | m.assertError(JsldslPackage::eINSTANCE.defaultExpressionType, JslDslValidator.DEFAULT_TYPE_MISMATCH, "Default value type: 'EscapedStringLiteral' does not match member type: 'Time'")
+		]
+	}
+	
+	@Test
+	def void testTimestampDefaultTypeMismatch() {
+		'''
+			model PrimitiveDefaultsModel
+			
+			type timestamp Timestamp
+			
+			entity Test {
+				field Timestamp timestampAttr = "hello"
+			}
+		'''.parse => [
+			m | m.assertError(JsldslPackage::eINSTANCE.defaultExpressionType, JslDslValidator.DEFAULT_TYPE_MISMATCH, "Default value type: 'EscapedStringLiteral' does not match member type: 'Timestamp'")
 		]
 	}
 }
