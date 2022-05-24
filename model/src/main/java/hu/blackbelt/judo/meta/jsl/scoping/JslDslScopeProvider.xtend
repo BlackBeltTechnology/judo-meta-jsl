@@ -56,10 +56,6 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			EnumLiteralReference :
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.enumLiteralReference_EnumLiteral: {
-					    // Commented out code below kept for future re-use
-						// val entityField = context.eContainer.eContainer as EntityFieldDeclaration
-						// val enumDeclaration = entityField.referenceType as EnumDeclaration
-						// val asd = context.eContainer as EnumLiteralReference
 						return Scopes.scopeFor(context.enumDeclaration.literals)
 					}
 					default: 

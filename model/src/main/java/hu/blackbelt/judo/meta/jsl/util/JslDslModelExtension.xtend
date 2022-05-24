@@ -347,6 +347,9 @@ class JslDslModelExtension {
 	}
 	
 	def Boolean isDefaultExpression(Expression it) {
+		if (it.eContainer instanceof DefaultExpressionType) {
+			return true
+		}
 		if (it.eContainer instanceof Expression) {
 			return (it.eContainer as Expression).isDefaultExpression
 		}
@@ -354,12 +357,8 @@ class JslDslModelExtension {
 		return false
 	}
 	
-	def Boolean isDefaultExpression(DefaultExpressionType it) {
-		return true
-	}
-	
 	def IScope getScopeForFeature(Feature it, EReference ref, IScope fallback) {
-		System.out.println("JslDslModelExtension.getScopeForFeature="+ it.toString + " for " + ref.EReferenceType.name)
+		// System.out.println("JslDslModelExtension.getScopeForFeature="+ it.toString + " for " + ref.EReferenceType.name)
 		val defaultExpression = it.defaultExpression
 		
 		if (defaultExpression !== null) {
@@ -384,7 +383,7 @@ class JslDslModelExtension {
 		return source.eContainer.defaultExpression
 	}
 	
-	    def Collection<EnumDeclaration> allEnumDeclarations(ModelDeclaration model) {
+    def Collection<EnumDeclaration> allEnumDeclarations(ModelDeclaration model) {
 		model.declarations.filter[d | d instanceof EnumDeclaration].map[e | e as EnumDeclaration].toList
 	}
 }
