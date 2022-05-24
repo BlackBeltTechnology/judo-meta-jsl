@@ -22,6 +22,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 
 /**
  * This class contains custom scoping description.
@@ -154,11 +155,19 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	}
 	
 	def IScope scopeForDefaultExpressionType(DefaultExpressionType defaultExpression) {
-            val refType = (defaultExpression.eContainer as EntityFieldDeclaration).referenceType
-			if (refType instanceof EnumDeclaration) {
-				val enumDeclaration = refType as EnumDeclaration
-				return Scopes.scopeFor(#[enumDeclaration], IScope.NULLSCOPE);				
-			}
+		var EObject refType
+
+		if (defaultExpression.eContainer instanceof EntityFieldDeclaration) {
+			refType = (defaultExpression.eContainer as EntityFieldDeclaration).referenceType
+		} else if (defaultExpression.eContainer instanceof EntityIdentifierDeclaration) {
+			refType = (defaultExpression.eContainer as EntityIdentifierDeclaration).referenceType
+		}
+		
+		if (refType !== null && refType instanceof EnumDeclaration) {
+			val enumDeclaration = refType as EnumDeclaration
+			return Scopes.scopeFor(#[enumDeclaration], IScope.NULLSCOPE);				
+		}
+        
 		return IScope.NULLSCOPE
 	}
 

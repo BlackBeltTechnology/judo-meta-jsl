@@ -87,7 +87,7 @@ EntityFieldSingleType
 
 EntityIdentifierDeclaration
 	: 'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] name = ID
-	  ("=" default = Expression)?
+	  (defaultExpression = DefaultExpressionType)?
 	;
 
 EntityDerivedDeclaration
