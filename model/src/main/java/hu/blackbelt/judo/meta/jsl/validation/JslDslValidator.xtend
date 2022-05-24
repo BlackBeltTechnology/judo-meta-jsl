@@ -25,6 +25,17 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
+import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.RawStringLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.IntegerLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.DecimalLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.DateLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.TimeStampLiteral
 
 /**
  * This class contains custom validation rules. 
@@ -52,6 +63,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val PRECISION_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "PrecisionIsTooLarge"
 	public static val SCALE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "ScaleIsLargerThanPrecision"
 	public static val USING_REQUIRED_WITH_IS_MANY = ISSUE_CODE_PREFIX + "UsingRequiredWithIsMany"
+	public static val DEFAULT_TYPE_MISMATCH = ISSUE_CODE_PREFIX + "DefaultValueTypeMismatch"
+	public static val UNSUPPORTED_DEFAULT_TYPE = ISSUE_CODE_PREFIX + "UnsupportedDefaultValueType"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_LENGTH_MAX_VALUE = BigInteger.valueOf(4000)
@@ -331,6 +344,97 @@ class JslDslValidator extends AbstractJslDslValidator {
                     USING_REQUIRED_WITH_IS_MANY,
                     JsldslPackage::eINSTANCE.entityRelationDeclaration.name)
 			}
+		}
+	}
+	
+	@Check
+	def checkDefaultExpressionMatchesMemberType(DefaultExpressionType defaultExpression) {
+		var EObject memberReferenceType
+		
+		if (defaultExpression.eContainer instanceof EntityFieldDeclaration) {
+			memberReferenceType = (defaultExpression.eContainer as EntityFieldDeclaration).referenceType
+		} else if (defaultExpression.eContainer instanceof EntityIdentifierDeclaration) {
+			memberReferenceType = (defaultExpression.eContainer as EntityIdentifierDeclaration).referenceType
+		}
+		
+		var String primitive
+		var String nameForEntityFieldSingleType
+		
+		if (memberReferenceType instanceof DataTypeDeclaration) {
+			primitive = (memberReferenceType as DataTypeDeclaration).primitive
+			nameForEntityFieldSingleType = (memberReferenceType as DataTypeDeclaration).nameForEntityFieldSingleType
+		}
+
+		if (defaultExpression.expression instanceof EnumLiteralReference) {
+			val enumLiteral = defaultExpression.expression as EnumLiteralReference
+			
+			if (enumLiteral.enumDeclaration !== memberReferenceType) {
+				error("Default value type: '" + enumLiteral.enumDeclaration.name + "' does not match member type: '" + (memberReferenceType as EnumDeclaration).name + "'",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    DEFAULT_TYPE_MISMATCH,
+                    JsldslPackage::eINSTANCE.enumLiteralReference_EnumLiteral.name)
+			}
+		} else if (defaultExpression.expression instanceof EscapedStringLiteral) {
+			if (!#["string"].contains(primitive)) {
+				error("Default value type: '" + EscapedStringLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    DEFAULT_TYPE_MISMATCH,
+                    JsldslPackage::eINSTANCE.escapedStringLiteral.name)
+			}
+		} else if (defaultExpression.expression instanceof RawStringLiteral) {
+			if (!#["string"].contains(primitive)) {
+				error("Default value type: '" + RawStringLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    DEFAULT_TYPE_MISMATCH,
+                    JsldslPackage::eINSTANCE.rawStringLiteral.name)
+			}
+		} else if (defaultExpression.expression instanceof BooleanLiteral) {
+			if (!#["boolean"].contains(primitive)) {
+				error("Default value type: '" + BooleanLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    DEFAULT_TYPE_MISMATCH,
+                    JsldslPackage::eINSTANCE.booleanLiteral.name)
+			}
+		} else if (defaultExpression.expression instanceof IntegerLiteral) {
+			if (!#["numeric"].contains(primitive)) {
+				error("Default value type: '" + IntegerLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    DEFAULT_TYPE_MISMATCH,
+                    JsldslPackage::eINSTANCE.integerLiteral.name)
+			}
+		} else if (defaultExpression.expression instanceof DecimalLiteral) {
+			if (!#["numeric"].contains(primitive)) {
+				error("Default value type: '" + DecimalLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    DEFAULT_TYPE_MISMATCH,
+                    JsldslPackage::eINSTANCE.decimalLiteral.name)
+			}
+		} else if (defaultExpression.expression instanceof DateLiteral) {
+			if (!#["date"].contains(primitive)) {
+				error("Default value type: '" + DecimalLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    DEFAULT_TYPE_MISMATCH,
+                    JsldslPackage::eINSTANCE.dateLiteral.name)
+			}
+		} else if (defaultExpression.expression instanceof TimeLiteral) {
+			if (!#["time"].contains(primitive)) {
+				error("Default value type: '" + DecimalLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    DEFAULT_TYPE_MISMATCH,
+                    JsldslPackage::eINSTANCE.timeLiteral.name)
+			}
+		} else if (defaultExpression.expression instanceof TimeStampLiteral) {
+			if (!#["timestamp"].contains(primitive)) {
+				error("Default value type: '" + DecimalLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    DEFAULT_TYPE_MISMATCH,
+                    JsldslPackage::eINSTANCE.timeStampLiteral.name)
+			}
+		} else {
+			// use-case triggering this path was: when a NavigationExpression got through as default value, but that case might be fixed later via grammar changes
+			error("Default value type: '" + defaultExpression.expression.class.simpleName + "' not supported!",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    UNSUPPORTED_DEFAULT_TYPE)
 		}
 	}
 
