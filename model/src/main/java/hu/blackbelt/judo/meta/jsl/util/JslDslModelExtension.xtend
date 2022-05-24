@@ -28,6 +28,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedSingleType
+import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
+import org.eclipse.xtext.scoping.IScope
+import org.eclipse.xtext.scoping.Scopes
+import org.eclipse.emf.ecore.EReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
 
 @Singleton
 class JslDslModelExtension {
@@ -340,5 +345,46 @@ class JslDslModelExtension {
 		}		
 		return relations
 	}
+	
+	def Boolean isDefaultExpression(Expression it) {
+		if (it.eContainer instanceof Expression) {
+			return (it.eContainer as Expression).isDefaultExpression
+		}
 		
+		return false
+	}
+	
+	def Boolean isDefaultExpression(DefaultExpressionType it) {
+		return true
+	}
+	
+	def IScope getScopeForFeature(Feature it, EReference ref, IScope fallback) {
+		System.out.println("JslDslModelExtension.getScopeForFeature="+ it.toString + " for " + ref.EReferenceType.name)
+		val defaultExpression = it.defaultExpression
+		
+		if (defaultExpression !== null) {
+			val targetType = (defaultExpression.eContainer as EntityFieldDeclaration).referenceType
+			
+			if (targetType instanceof EnumDeclaration) {
+				return Scopes.scopeFor(targetType.literals, IScope.NULLSCOPE)
+			}
+		}
+		
+		return fallback
+	}
+	
+	// maybe refactor later to accept param type to search for instead of fixed Default?
+	def EObject getDefaultExpression(EObject source) {
+		if (source === null || source instanceof ModelDeclaration) {
+			return null
+		}
+		if (source instanceof DefaultExpressionType) {
+			return source
+		}
+		return source.eContainer.defaultExpression
+	}
+	
+	    def Collection<EnumDeclaration> allEnumDeclarations(ModelDeclaration model) {
+		model.declarations.filter[d | d instanceof EnumDeclaration].map[e | e as EnumDeclaration].toList
+	}
 }

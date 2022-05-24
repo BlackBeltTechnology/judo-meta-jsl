@@ -17,6 +17,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.CreateError
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameter
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationExpression
+import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference
 
 /**
  * This class contains custom scoping description.
@@ -35,9 +40,29 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			EntityRelationOpposite : 
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType:
-						Scopes.scopeFor((context.eContainer as EntityRelationDeclaration).getAllOppositeRelations, IScope.NULLSCOPE)			
+						Scopes.scopeFor((context.eContainer as EntityRelationDeclaration).getAllOppositeRelations)			
 					default: 
 						super.getScope(context, ref)
+				}
+			DefaultExpressionType :
+				switch (ref) {
+					case JsldslPackage::eINSTANCE.enumLiteralReference_EnumDeclaration:
+						return context.scopeForDefaultExpressionType				
+					default: 
+						super.getScope(context, ref)
+				}
+
+			EnumLiteralReference :
+				switch (ref) {
+					case JsldslPackage::eINSTANCE.enumLiteralReference_EnumLiteral: {
+					    // Commented out code below kept for future re-use
+						// val entityField = context.eContainer.eContainer as EntityFieldDeclaration
+						// val enumDeclaration = entityField.referenceType as EnumDeclaration
+						// val asd = context.eContainer as EnumLiteralReference
+						return Scopes.scopeFor(context.enumDeclaration.literals)
+					}
+					default: 
+						super.getScope(context, ref)					
 				}
 
 			/*			 
@@ -52,7 +77,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			Feature :
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.feature_EntityMemberDeclarationType:
-						(context as Feature).scopeForFeatureEntityMemberDeclarationType
+						return (context as Feature).scopeForFeatureEntityMemberDeclarationType(ref, super.getScope(context, ref))
 					case JsldslPackage::eINSTANCE.queryParameter_DerivedParameterType:
 						(context as Feature).scopeForQueryParameterDerivedParameterType(super.getScope(context, ref))
 					default: 
@@ -127,9 +152,31 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	def IScope scopeForQueryParameterParameterType(Feature feature) {
 		Scopes.scopeFor(feature.getDerivedDeclaration.parameters, IScope.NULLSCOPE)							
 	}
+	
+	def IScope scopeForDefaultExpressionType(DefaultExpressionType defaultExpression) {
+            val refType = (defaultExpression.eContainer as EntityFieldDeclaration).referenceType
+			if (refType instanceof EnumDeclaration) {
+				val enumDeclaration = refType as EnumDeclaration
+				return Scopes.scopeFor(#[enumDeclaration], IScope.NULLSCOPE);				
+			}
+		return IScope.NULLSCOPE
+	}
 
-	def IScope scopeForFeatureEntityMemberDeclarationType(Feature feature) {
-		Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, IScope.NULLSCOPE)		
+	def IScope scopeForFeatureEntityMemberDeclarationType(Feature feature, EReference ref, IScope fallback) {
+		// System.out.println("JslDslLocalScopeProvider.scopeForFeatureEntityMemberDeclarationType="+ feature.toString)
+		if (feature.eContainer instanceof NavigationExpression) {
+            // enums...
+            val decl = feature.modelDeclaration.allEnumDeclarations
+            val enumDeclaration = decl.findFirst[e | e.name.equals((feature.eContainer as NavigationExpression).QName)];
+
+            if (enumDeclaration !== null) {
+                return Scopes.scopeFor(enumDeclaration.literals, fallback)
+            } else {
+                return Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, fallback)
+            }
+        } else {
+            return feature.getScopeForFeature(ref, fallback)
+        }
 	}
 
 
