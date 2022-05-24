@@ -36,8 +36,8 @@ entity abstract Person {
 
 entity SalesPerson extends Person {
 	relation Lead[] leads opposite salesPerson
-	derived Customer[] leadsOver(Integer limit = 100) = self.leads!filter(lead | lead.value > limit)
-	derived Customer[] leadsOver10 = self.leadsOver(limit = 10)
+	// derived Customer[] leadsOver(Integer limit = 100) = self.leads!filter(lead | lead.value > limit)
+	// derived Customer[] leadsOver10 = self.leadsOver(limit = 10)
 }
 
 entity Lead {
