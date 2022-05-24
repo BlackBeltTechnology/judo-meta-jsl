@@ -27,6 +27,7 @@ enum LeadStatus {
 entity abstract Person {
 	field String firstName
 	field String lastName
+	// TODO JNG-3772 CreateExpressions are not supported yet JNG-3772
 	// field Lead[] i = new Lead[new Lead()]
 
 
