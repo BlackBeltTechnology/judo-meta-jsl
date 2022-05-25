@@ -132,8 +132,7 @@ public class JslParser {
     public static Collection<ModelDeclaration> getAllModelDeclarationFromXtextResourceSet(XtextResourceSet resourceSet) {
         Collection<ModelDeclaration> modelDeclarations = new ArrayList<>();
         Iterator<Notifier> iter = resourceSet.getAllContents();
-        ModelDeclaration found = null;
-        while (found == null && iter.hasNext()) {
+        while (iter.hasNext()) {
             Notifier o = iter.next();
             if (o instanceof ModelDeclaration) {
                 modelDeclarations.add((ModelDeclaration) o);
