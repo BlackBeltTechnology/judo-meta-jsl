@@ -38,7 +38,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	@Inject extension JslDslModelExtension
 
     override getScope(EObject context, EReference ref) {
-    	System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
+    	// System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
 		switch context {
 			EntityRelationOpposite : 
 				switch (ref) {
@@ -171,7 +171,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	}
 
 	def IScope scopeForNavigationDeclarationType(Feature feature, EReference ref, IScope fallback) {
-//		System.out.println("JslDslLocalScopeProvider.scopeForNavigationDeclarationType="+ feature.toString + " parent=" + feature.eContainer + " grandParent=" + feature.eContainer.eContainer)
+		// System.out.println("JslDslLocalScopeProvider.scopeForNavigationDeclarationType="+ feature.toString + " parent=" + feature.eContainer + " grandParent=" + feature.eContainer.eContainer)
 		if (feature.eContainer instanceof NavigationExpression) {
             // enums...
             val decl = feature.modelDeclaration.allEnumDeclarations
