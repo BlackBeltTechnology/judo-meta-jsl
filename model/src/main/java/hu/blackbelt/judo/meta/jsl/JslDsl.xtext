@@ -254,7 +254,7 @@ ExponentExpression returns Expression
 	;
 
 SpawnOperation returns Expression
-	: UnaryOperation (=> ({SpawnOperation.operand=current} 'as' type=LocalName))?
+	: UnaryOperation (=> ({SpawnOperation.operand=current} 'as' spawnTargetType=LocalName))?
 	;
 
 UnaryOperation returns Expression
@@ -271,11 +271,10 @@ NavigationExpression returns Expression
     | NavigationBase
     ;
 
-// enums as separate literals cause problems with completion and script
 NavigationBase returns NavigationExpression
 	: {NavigationExpression} qName=LocalName (features+=Feature* | enumValue = [ EnumLiteralReference ])		
 	;
-	
+
 EnumLiteralReference returns Expression
     : {EnumLiteralReference} enumDeclaration = [EnumDeclaration | LocalName] '#' enumLiteral = [EnumLiteral | EnumLiteralName ]    	
     ;
@@ -285,12 +284,17 @@ FunctionCall
 	;
 
 Feature
-    : {Feature} '.' member = EntityMemberDeclarationFeature
+    : {Feature} '.' member = NavigationFeature
     ;
 
-EntityMemberDeclarationFeature returns Feature
-	: entityMemberDeclarationType = [EntityMemberDeclaration | LocalName ] ('(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')')?
+NavigationFeature returns Feature
+	: navigationDeclarationType = [NavigationDeclaration | LocalName ] ('(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')')?
 	;
+
+NavigationDeclaration
+    : LambdaVariable
+    | EntityMemberDeclaration
+    ;
 
 QueryParameter
 	:  derivedParameterType=[DerivedParameter | LocalName] '=' (literal = Literal | parameter = [DerivedParameter | LocalName])     // expression=MultilineExpression
@@ -308,7 +312,7 @@ PrimaryExpression returns Expression
 	;
 
 CreateExpression returns Expression
-	: {CreateExpression} 'new'? type=[ClassDeclaration | LocalName]
+	: {CreateExpression} 'new'? createType=[ClassDeclaration | LocalName]
 	  (   '(' (assignments+=CreateParameter (',' assignments+=CreateParameter)*)? ')'
 	  	| '[' (creates += MultilineExpression (',' creates += MultilineExpression)*)? ']'
 	  )
@@ -319,7 +323,24 @@ CreateParameter:
 
 
 Function returns Function
-	: name=ID '(' (lambdaArgument=ID '|')? (parameters+=FunctionParameter (',' parameters+=FunctionParameter)*)? ')'
+	: name=ID '(' parameterDeclaration = FunctionParameterDeclaration? ')'
+    ;
+
+FunctionParameterDeclaration
+	: LambdaFunctionParameters
+	| ParametrizedFunctionParameters
+	;
+
+LambdaFunctionParameters
+    : lambdaArgument=LambdaVariable '|' expression = Expression
+	;
+
+ParametrizedFunctionParameters
+	: parameters+=FunctionParameter (',' parameters+=FunctionParameter)*
+    ;
+    
+LambdaVariable
+    : {LambdaVariable} name=ID    	
     ;
 
 FunctionParameter
