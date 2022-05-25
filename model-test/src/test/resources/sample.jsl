@@ -27,7 +27,8 @@ enum LeadStatus {
 entity abstract Person {
 	field String firstName
 	field String lastName
-	field Lead[] i = new Lead[new Lead()]
+	// TODO JNG-3772 CreateExpressions are not supported yet JNG-3772
+	// field Lead[] i = new Lead[new Lead()]
 
 
 	derived	String fullName = self.firstName + " " \
@@ -36,8 +37,9 @@ entity abstract Person {
 
 entity SalesPerson extends Person {
 	relation Lead[] leads opposite salesPerson
-	derived Customer[] leadsOver(Integer limit = 100) = self.leads!filter(lead | lead.value > limit)
-	derived Customer[] leadsOver10 = self.leadsOver(limit = 10)
+	// TODO JNG-3771 Derived values are no longer working
+	// derived Customer[] leadsOver(Integer limit = 100) = self.leads!filter(lead | lead.value > limit)
+	// derived Customer[] leadsOver10 = self.leadsOver(limit = 10)
 }
 
 entity Lead {

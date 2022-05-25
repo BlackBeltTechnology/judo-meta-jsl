@@ -54,4 +54,27 @@ class EnumDeclarationTests {
 			m | m.assertError(JsldslPackage::eINSTANCE.enumLiteral, JslDslValidator.ENUM_LITERAL_ORDINAL_COLLISION, "Enumeration Literal ordinal collision for: 'test.Genre.POP': '1', 'test.Genre.METAL': '1'")
 		]
 	}
+	
+	@Test
+	def void testEnumDefaultTypeMismatch() {
+		'''
+			model test
+			
+			enum Genre {
+				CLASSIC = 0
+				POP = 1
+				METAL = 2
+			}
+			
+			enum GenreOther {
+				HOUSE = 0
+			}
+			
+			entity Person {
+				field Genre favoredGenre = GenreOther#HOUSE
+			}
+		'''.parse => [
+			m | m.assertError(JsldslPackage::eINSTANCE.defaultExpressionType, JslDslValidator.DEFAULT_TYPE_MISMATCH, "Default value type: 'GenreOther' does not match member type: 'Genre'")
+		]
+	}
 }
