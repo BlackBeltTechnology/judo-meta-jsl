@@ -21,21 +21,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.support.JslDslModelResourceSupport;
 public class JslDslDefaultPlantumlDiagramTest {
 
     Logger log = LoggerFactory.getLogger(JslDslDefaultPlantumlDiagramTest.class);
-    private JslParser parser;
-
-    @BeforeEach
-    public void setUp() {
-        parser = new JslParser();
-    }
-
-    @AfterEach
-    public void tearDown() {
-        parser = null;
-    }
 
     @Test
     public void testGetModelFromFiles() throws IOException {
-    	JslDslModel model = parser.getModelFromFiles(
+    	JslDslModel model = JslParser.getModelFromFiles(
         		"SalesModel", 
         		Arrays.asList(
         				new File("src/test/resources/salesModel1.jsl"),
@@ -48,8 +37,8 @@ public class JslDslDefaultPlantumlDiagramTest {
         ModelDeclaration salesModelContract = jslModelWrapper.getStreamOfJsldslModelDeclaration().filter(m -> m.getName().equals("SalesModelContract")).findFirst().get();
 
         
-        Files.writeString(Path.of("target", "test-classes", "salesModel.plantuml"), parser.getDefaultPlantUMLDiagramGenerator().generate(salesModel, (String) null));
-        Files.writeString(Path.of("target", "test-classes", "salesModelContract.plantuml"), parser.getDefaultPlantUMLDiagramGenerator().generate(salesModelContract, (String) null));
+        Files.writeString(Path.of("target", "test-classes", "salesModel.plantuml"), JslParser.getDefaultPlantUMLDiagramGenerator().generate(salesModel, (String) null));
+        Files.writeString(Path.of("target", "test-classes", "salesModelContract.plantuml"), JslParser.getDefaultPlantUMLDiagramGenerator().generate(salesModelContract, (String) null));
 
     }    
 }
