@@ -156,6 +156,17 @@ class PrimitiveDefaultValuesTests {
             	field Time e = `22:45:22`
             	field Timestamp f = `2020-01-12T12:12:12.000Z`
             }
+
+            error ErrorFields {
+                field Bool a = true
+                field Integer b = 3223
+                field Decimal b2 = 3223.123
+                field String c = "123"
+                field String c2 = r"123"
+                field Date d = `2020-01-12`
+                field Time e = `22:45:22`
+                field Timestamp f = `2020-01-12T12:12:12.000Z`
+            }
         '''.parse => [
             assertNoErrors
         ]
