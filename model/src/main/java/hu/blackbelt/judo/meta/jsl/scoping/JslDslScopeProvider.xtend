@@ -23,6 +23,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
+import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunctionParameters
 
 /**
  * This class contains custom scoping description.
@@ -73,8 +75,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			*/
 			Feature :
 				switch (ref) {
-					case JsldslPackage::eINSTANCE.feature_EntityMemberDeclarationType:
-						return (context as Feature).scopeForFeatureEntityMemberDeclarationType(ref, super.getScope(context, ref))
+					case JsldslPackage::eINSTANCE.feature_NavigationDeclarationType:
+						return (context as Feature).scopeForNavigationDeclarationType(ref, super.getScope(context, ref))
 					case JsldslPackage::eINSTANCE.queryParameter_DerivedParameterType:
 						(context as Feature).scopeForQueryParameterDerivedParameterType(super.getScope(context, ref))
 					default: 
@@ -138,9 +140,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	}
 
 	def IScope scopeForQueryParameterDerivedParameterType(Feature feature, IScope fallback) {
-		if (feature.entityMemberDeclarationType !== null 
-			&& feature.entityMemberDeclarationType instanceof EntityDerivedDeclaration) {
-			Scopes.scopeFor((feature.entityMemberDeclarationType as EntityDerivedDeclaration).parameters, IScope.NULLSCOPE)							
+		if (feature.navigationDeclarationType === null) {
+			fallback
+		} else if (feature.navigationDeclarationType instanceof EntityDerivedDeclaration) {
+			Scopes.scopeFor((feature.navigationDeclarationType as EntityDerivedDeclaration).parameters, IScope.NULLSCOPE)							
 		} else {
 			fallback
 		}
@@ -167,8 +170,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		return IScope.NULLSCOPE
 	}
 
-	def IScope scopeForFeatureEntityMemberDeclarationType(Feature feature, EReference ref, IScope fallback) {
-		// System.out.println("JslDslLocalScopeProvider.scopeForFeatureEntityMemberDeclarationType="+ feature.toString)
+	def IScope scopeForNavigationDeclarationType(Feature feature, EReference ref, IScope fallback) {
+		// System.out.println("JslDslLocalScopeProvider.scopeForNavigationDeclarationType="+ feature.toString + " parent=" + feature.eContainer + " grandParent=" + feature.eContainer.eContainer)
 		if (feature.eContainer instanceof NavigationExpression) {
             // enums...
             val decl = feature.modelDeclaration.allEnumDeclarations
@@ -177,12 +180,39 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
             if (enumDeclaration !== null) {
                 return Scopes.scopeFor(enumDeclaration.literals, fallback)
             } else {
-                return Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, fallback)
+                return Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, IScope.NULLSCOPE)
             }
+        } else if (feature.eContainer instanceof Feature) {        	
+        	return Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, IScope.NULLSCOPE)
         } else {
             return feature.getScopeForFeature(ref, fallback)
         }
 	}
+	
+	def LambdaVariable getParentLambdaVariable(Feature feature) {
+		var EObject container = feature
+		while (container.eContainer !== null) {
+			container = feature.eContainer
+			if (container instanceof LambdaFunctionParameters) {
+				return (container as LambdaFunctionParameters).lambdaArgument
+			}
+		}
+		null
+	}
 
 
+	def void printParents(EObject obj) {
+		var EObject t = obj;
+		var int indent = 1
+		System.out.println("")
+		while (t.eContainer !== null) {
+			for (var i = 0; i<indent; i++) {
+				System.out.print("\t");
+			}
+			indent ++
+			System.out.println(t)
+			t = t.eContainer
+		}
+		
+	}
 }
