@@ -36,6 +36,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.DateLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeStampLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorField
 
 /**
  * This class contains custom validation rules. 
@@ -355,7 +356,11 @@ class JslDslValidator extends AbstractJslDslValidator {
 			memberReferenceType = (defaultExpression.eContainer as EntityFieldDeclaration).referenceType
 		} else if (defaultExpression.eContainer instanceof EntityIdentifierDeclaration) {
 			memberReferenceType = (defaultExpression.eContainer as EntityIdentifierDeclaration).referenceType
-		}
+		} else if (defaultExpression.eContainer instanceof ErrorField) {
+        	memberReferenceType = (defaultExpression.eContainer as ErrorField).referenceType
+        } else {
+        	throw new IllegalArgumentException("Unsupported default expression for member type: " + defaultExpression.eContainer.class.simpleName)
+        }
 		
 		var String primitive
 		var String nameForEntityFieldSingleType
