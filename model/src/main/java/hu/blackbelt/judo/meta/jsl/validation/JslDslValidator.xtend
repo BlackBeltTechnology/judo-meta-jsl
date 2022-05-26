@@ -357,9 +357,9 @@ class JslDslValidator extends AbstractJslDslValidator {
 		} else if (defaultExpression.eContainer instanceof EntityIdentifierDeclaration) {
 			memberReferenceType = (defaultExpression.eContainer as EntityIdentifierDeclaration).referenceType
 		} else if (defaultExpression.eContainer instanceof ErrorField) {
-        	memberReferenceType = (defaultExpression.eContainer as ErrorField).referenceType
+            memberReferenceType = (defaultExpression.eContainer as ErrorField).referenceType
         } else {
-        	throw new IllegalArgumentException("Unsupported default expression for member type: " + defaultExpression.eContainer.class.simpleName)
+            throw new IllegalArgumentException("Unsupported default expression for member type: " + defaultExpression.eContainer.class.simpleName)
         }
 		
 		var String primitive
