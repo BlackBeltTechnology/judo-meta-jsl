@@ -350,13 +350,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 	
 	@Check
 	def checkDefaultExpressionMatchesMemberType(DefaultExpressionType defaultExpression) {
-		var EObject memberReferenceType
+        var EObject memberReferenceType
 		
-		if (defaultExpression.eContainer instanceof EntityFieldDeclaration) {
+        if (defaultExpression.eContainer instanceof EntityFieldDeclaration) {
 			memberReferenceType = (defaultExpression.eContainer as EntityFieldDeclaration).referenceType
-		} else if (defaultExpression.eContainer instanceof EntityIdentifierDeclaration) {
+        } else if (defaultExpression.eContainer instanceof EntityIdentifierDeclaration) {
 			memberReferenceType = (defaultExpression.eContainer as EntityIdentifierDeclaration).referenceType
-		} else if (defaultExpression.eContainer instanceof ErrorField) {
+        } else if (defaultExpression.eContainer instanceof ErrorField) {
             memberReferenceType = (defaultExpression.eContainer as ErrorField).referenceType
         } else {
             throw new IllegalArgumentException("Unsupported default expression for member type: " + defaultExpression.eContainer.class.simpleName)
