@@ -127,7 +127,7 @@ ErrorDeclaration
 
 ErrorField
 	: NL+ 'field' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] name = ID
-	  ("=" default = Expression)?
+	  (defaultExpression = DefaultExpressionType)?
 	;
 
 CreateError
