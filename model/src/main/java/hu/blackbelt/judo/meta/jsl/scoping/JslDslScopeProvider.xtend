@@ -30,7 +30,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseReference
 import java.util.ArrayList
 import java.util.List
-import hu.blackbelt.judo.meta.jsl.jsldsl.impl.SelfImpl
 
 /**
  * This class contains custom scoping description.
