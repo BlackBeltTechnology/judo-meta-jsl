@@ -33,6 +33,7 @@ import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.scoping.Scopes
 import org.eclipse.emf.ecore.EReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -275,12 +276,30 @@ class JslDslModelExtension {
 		entity.getAllMembers(new LinkedList, new LinkedList)
 	}
 
+	/*
 	def EntityDerivedDeclaration getDerivedDeclaration(EObject from) {
 		var EntityDerivedDeclaration found = null;
 		var EObject current = from;
 		while (found === null && current !== null) {
 			if (current instanceof EntityDerivedDeclaration) {
 				found = current as EntityDerivedDeclaration;
+			}
+			if (from.eContainer() !== null) {
+				current = current.eContainer();
+			} else {
+				current = null;
+			}
+		}
+		return found;
+	}
+	*/
+
+	def EntityQueryDeclaration getQueryDeclaration(EObject from) {
+		var EntityQueryDeclaration found = null;
+		var EObject current = from;
+		while (found === null && current !== null) {
+			if (current instanceof EntityQueryDeclaration) {
+				found = current as EntityQueryDeclaration;
 			}
 			if (from.eContainer() !== null) {
 				current = current.eContainer();
@@ -317,6 +336,10 @@ class JslDslModelExtension {
 
 	def Collection<EntityDerivedDeclaration> derivedes(EntityDeclaration it) {
 		members.filter[d | d instanceof EntityDerivedDeclaration].map[d | d as EntityDerivedDeclaration].toList
+	}
+
+	def Collection<EntityQueryDeclaration> queries(EntityDeclaration it) {
+		members.filter[d | d instanceof EntityQueryDeclaration].map[d | d as EntityQueryDeclaration].toList
 	}
 
 	def Collection<ConstraintDeclaration> constraints(EntityDeclaration it) {

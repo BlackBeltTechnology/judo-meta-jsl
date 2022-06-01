@@ -16,7 +16,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ThrowParameter
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateError
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameter
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationExpression
 import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
@@ -25,6 +24,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunctionParameters
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 
 /**
  * This class contains custom scoping description.
@@ -77,8 +77,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.feature_NavigationDeclarationType:
 						return (context as Feature).scopeForNavigationDeclarationType(ref, super.getScope(context, ref))
-					case JsldslPackage::eINSTANCE.queryParameter_DerivedParameterType:
-						(context as Feature).scopeForQueryParameterDerivedParameterType(super.getScope(context, ref))
+					case JsldslPackage::eINSTANCE.queryParameter_QueryParameterType:
+						(context as Feature).scopeForQueryParameterQueryParameterType(super.getScope(context, ref))
 					default: 
 						super.getScope(context, ref)
 				}
@@ -124,8 +124,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			 */
 			QueryParameter : 
 				switch (ref) {
-					case JsldslPackage::eINSTANCE.queryParameter_DerivedParameterType:
-						(context.eContainer as Feature).scopeForQueryParameterDerivedParameterType(super.getScope(context, ref))
+					case JsldslPackage::eINSTANCE.queryParameter_QueryParameterType:
+						(context.eContainer as Feature).scopeForQueryParameterQueryParameterType(super.getScope(context, ref))
 					case JsldslPackage::eINSTANCE.queryParameter_Parameter:
 						(context.eContainer as Feature).scopeForQueryParameterParameterType
 					default: 
@@ -139,18 +139,18 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		Scopes.scopeFor(createError.errorDeclarationType.fields, IScope.NULLSCOPE)		
 	}
 
-	def IScope scopeForQueryParameterDerivedParameterType(Feature feature, IScope fallback) {
+	def IScope scopeForQueryParameterQueryParameterType(Feature feature, IScope fallback) {
 		if (feature.navigationDeclarationType === null) {
 			fallback
-		} else if (feature.navigationDeclarationType instanceof EntityDerivedDeclaration) {
-			Scopes.scopeFor((feature.navigationDeclarationType as EntityDerivedDeclaration).parameters, IScope.NULLSCOPE)							
+		} else if (feature.navigationDeclarationType instanceof EntityQueryDeclaration) {
+			Scopes.scopeFor((feature.navigationDeclarationType as EntityQueryDeclaration).parameters, IScope.NULLSCOPE)							
 		} else {
 			fallback
 		}
 	}
 
 	def IScope scopeForQueryParameterParameterType(Feature feature) {
-		Scopes.scopeFor(feature.getDerivedDeclaration.parameters, IScope.NULLSCOPE)							
+		Scopes.scopeFor(feature.getQueryDeclaration.parameters, IScope.NULLSCOPE)							
 	}
 	
 	def IScope scopeForDefaultExpressionType(DefaultExpressionType defaultExpression) {

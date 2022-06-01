@@ -24,7 +24,8 @@ ModelImportDeclaration
 
 Declaration
 	: NL+ (TypeDeclaration
-	| ErrorDeclaration)
+	| ErrorDeclaration
+	| QueryDeclaration )
 	;
 
 TypeDeclaration
@@ -52,11 +53,18 @@ EntityDeclaration
 	  BLOCK_START (members += EntityMemberDeclaration)* BLOCK_END
 	;
 
+QueryDeclaration
+	: 'query' (referenceType = [EntityDerivedSingleType | LocalName] '[]') name = ID
+	  ('(' parameters += QueryDeclarationParameter (',' parameters += QueryDeclarationParameter)* ')')
+	  "=" expression = Expression
+	;
+
 EntityMemberDeclaration
 	: NL+ (EntityFieldDeclaration
 	| EntityIdentifierDeclaration
 	| EntityRelationDeclaration
 	| EntityDerivedDeclaration
+	| EntityQueryDeclaration
 	| ConstraintDeclaration)
 	;
 
@@ -92,7 +100,12 @@ EntityIdentifierDeclaration
 
 EntityDerivedDeclaration
 	: 'derived' (referenceType = [EntityDerivedSingleType | LocalName] isMany ?= '[]'?) name = ID
-	  ('(' parameters += DerivedParameter (',' parameters += DerivedParameter)* ')')?
+	  "=" expression = Expression
+	;
+
+EntityQueryDeclaration
+	: 'query' (referenceType = [EntityDerivedSingleType | LocalName] '[]') name = ID
+	  ('(' parameters += QueryDeclarationParameter (',' parameters += QueryDeclarationParameter)* ')')
 	  "=" expression = Expression
 	;
 
@@ -101,7 +114,7 @@ EntityDerivedSingleType
 	| EntityDeclaration
 	;
 
-DerivedParameter
+QueryDeclarationParameter
 	: referenceType = [PrimitiveDeclaration | LocalName] name = ID "=" default = Expression
 	;
 
@@ -297,7 +310,7 @@ NavigationDeclaration
     ;
 
 QueryParameter
-	:  derivedParameterType=[DerivedParameter | LocalName] '=' (literal = Literal | parameter = [DerivedParameter | LocalName])     // expression=MultilineExpression
+	:  queryParameterType=[QueryDeclarationParameter | LocalName] '=' (literal = Literal | parameter = [QueryDeclarationParameter | LocalName])     // expression=MultilineExpression
 	;
 
 ParenthesizedExpression returns Expression
