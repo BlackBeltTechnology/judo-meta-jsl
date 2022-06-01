@@ -115,7 +115,7 @@ EntityDerivedSingleType
 	;
 
 QueryDeclarationParameter
-	: referenceType = [PrimitiveDeclaration | LocalName] name = ID "=" default = Expression
+	: referenceType = [PrimitiveDeclaration | LocalName] name = ID "=" default = Literal
 	;
 
 EntityRelationDeclaration
@@ -285,7 +285,14 @@ NavigationExpression returns Expression
     ;
 
 NavigationBase returns NavigationExpression
-	: {NavigationExpression} qName=LocalName (features+=Feature* | enumValue = [ EnumLiteralReference ])		
+	: {NavigationExpression} (isSelf = 'self' | navigationBaseType = [NavigationBaseReference | LocalName]) (features+=Feature* | enumValue = [ EnumLiteralReference ])		
+	;
+
+NavigationBaseReference
+	: EntityDeclaration
+	| QueryDeclaration
+	| LambdaVariable
+	| QueryDeclarationParameter
 	;
 
 EnumLiteralReference returns Expression
@@ -321,8 +328,8 @@ PrimaryExpression returns Expression
 	: ParenthesizedExpression
 	| CreateExpression
 	| Literal
-	| Self
 	;
+
 
 CreateExpression returns Expression
 	: {CreateExpression} 'new'? createType=[ClassDeclaration | LocalName]

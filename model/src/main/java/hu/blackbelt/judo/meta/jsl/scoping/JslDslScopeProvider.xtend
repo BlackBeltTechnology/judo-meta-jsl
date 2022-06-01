@@ -25,6 +25,12 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunctionParameters
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseReference
+import java.util.ArrayList
+import java.util.List
+import hu.blackbelt.judo.meta.jsl.jsldsl.impl.SelfImpl
 
 /**
  * This class contains custom scoping description.
@@ -38,7 +44,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	@Inject extension JslDslModelExtension
 
     override getScope(EObject context, EReference ref) {
-    	// System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
+    	System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
 		switch context {
 			EntityRelationOpposite : 
 				switch (ref) {
@@ -62,6 +68,14 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 					}
 					default: 
 						super.getScope(context, ref)					
+				}
+
+			EntityDerivedDeclaration : 
+				switch (ref) {
+					case JsldslPackage::eINSTANCE.navigationExpression_NavigationBaseType:
+						(context as EntityDerivedDeclaration).modelDeclaration.scopeForNavigationBase		
+					default: 
+						super.getScope(context, ref)
 				}
 
 			/*			 
@@ -174,20 +188,28 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		// System.out.println("JslDslLocalScopeProvider.scopeForNavigationDeclarationType="+ feature.toString + " parent=" + feature.eContainer + " grandParent=" + feature.eContainer.eContainer)
 		if (feature.eContainer instanceof NavigationExpression) {
             // enums...
-            val decl = feature.modelDeclaration.allEnumDeclarations
-            val enumDeclaration = decl.findFirst[e | e.name.equals((feature.eContainer as NavigationExpression).QName)];
-
-            if (enumDeclaration !== null) {
-                return Scopes.scopeFor(enumDeclaration.literals, fallback)
-            } else {
+//            val decl = feature.modelDeclaration.allEnumDeclarations
+//            val enumDeclaration = decl.findFirst[e | e.name.equals((feature.eContainer as NavigationExpression).QName)];
+//
+//            if (enumDeclaration !== null) {
+//                return Scopes.scopeFor(enumDeclaration.literals, fallback)
+//            } else {
                 return Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, IScope.NULLSCOPE)
-            }
+//            }
         } else if (feature.eContainer instanceof Feature) {        	
         	return Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, IScope.NULLSCOPE)
         } else {
             return feature.getScopeForFeature(ref, fallback)
         }
 	}
+	
+	def IScope scopeForNavigationBase(ModelDeclaration modelDeclararion) {
+		val List<NavigationBaseReference> baseTypes = new ArrayList();
+		baseTypes.addAll(modelDeclararion.entityDeclarations)
+		baseTypes.addAll(modelDeclararion.queryDeclarations)
+		Scopes.scopeFor(baseTypes, IScope.NULLSCOPE)
+	}
+	
 	
 	def LambdaVariable getParentLambdaVariable(Feature feature) {
 		var EObject container = feature

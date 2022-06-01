@@ -34,6 +34,7 @@ import org.eclipse.xtext.scoping.Scopes
 import org.eclipse.emf.ecore.EReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -152,6 +153,8 @@ class JslDslModelExtension {
 			member.name
 		} else if (member instanceof EntityDerivedDeclaration) {
 			member.name
+		} else if (member instanceof EntityQueryDeclaration) {
+			member.name
 		} else {
 			""
 		}
@@ -166,6 +169,8 @@ class JslDslModelExtension {
 			(member as EntityRelationDeclaration).isIsMany
 		} else if (member instanceof EntityDerivedDeclaration) {
 			(member as EntityDerivedDeclaration).isIsMany
+		} else if (member instanceof EntityQueryDeclaration) {
+			true
 		} else {
 			false
 		}
@@ -316,6 +321,10 @@ class JslDslModelExtension {
 	
 	def Collection<EntityDeclaration> entityDeclarations(ModelDeclaration it) {
 		declarations.filter[d | d instanceof EntityDeclaration].map[d | d as EntityDeclaration].toList
+	}
+
+	def Collection<QueryDeclaration> queryDeclarations(ModelDeclaration it) {
+		declarations.filter[d | d instanceof QueryDeclaration].map[d | d as QueryDeclaration].toList
 	}
 
 	def Collection<DataTypeDeclaration> dataTypeDeclarations(ModelDeclaration it) {
