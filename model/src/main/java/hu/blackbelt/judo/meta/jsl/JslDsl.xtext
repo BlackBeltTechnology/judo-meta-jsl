@@ -394,10 +394,6 @@ TemporalLiteral returns Expression
 	| {TimeLiteral} value=TIME
 	;
 
-Self returns Expression
-	: {Self} 'self'
-	;
-
 
 EnumLiteralName
 	: ID
