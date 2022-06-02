@@ -17,6 +17,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ConstraintDeclaration
 import java.util.Collection
 import java.util.HashSet
 import java.util.Set
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 
 @Singleton
 class JsldslDefaultPlantUMLDiagramGenerator {
@@ -118,7 +119,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	'''«IF extends !== null» extends «extends.name»«ENDIF»'''
 
 	def errorFieldRepsresentation(ErrorField it)
-	'''+«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF» : «referenceType.name»'''
+	'''+«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF» : «referenceType.nameForDeclaration»'''
 
 	def errorRepresentation(ErrorDeclaration it)
 	'''
@@ -153,11 +154,14 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	'''+<u>«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»</u> : «referenceType.nameForEntityFieldSingleType»'''
 
 
-	def entityDerivedParameterFragment(EntityDerivedDeclaration it)
-	'''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.name» =«param.^default.sourceCode»«ENDFOR»'''
+	def entityQueryParameterFragment(EntityQueryDeclaration it)
+	'''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.nameForDeclaration» =«param.^default.sourceCode»«ENDFOR»'''
 
 	def entityDerivedRepresentation(EntityDerivedDeclaration it)
-	'''~«name»«entityDerivedParameterFragment» : «referenceType.nameForEntityDerivedSingleType»«IF isIsMany»[0..*]«ENDIF»'''
+	'''~«name» : «referenceType.nameForEntityDerivedSingleType»«IF isIsMany»[0..*]«ENDIF»'''
+
+	def entityQueryRepresentation(EntityQueryDeclaration it)
+	'''~«name»«entityQueryParameterFragment» : «referenceType.nameForEntityQueryTargetType»[0..*]'''
 
 
 	def constraintParameterFragment(ConstraintDeclaration it)
@@ -178,6 +182,9 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 			«ENDFOR»
 			«FOR derived : derivedes»
 				«derived.entityDerivedRepresentation»
+			«ENDFOR»
+			«FOR query : queries»
+				«query.entityQueryRepresentation»
 			«ENDFOR»
 			«FOR constraint : constraints»
 				«constraint.constraintRepresentation»

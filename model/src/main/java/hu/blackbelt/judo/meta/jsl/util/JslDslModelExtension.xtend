@@ -15,7 +15,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.xtext.naming.IQualifiedNameProvider
@@ -33,6 +32,12 @@ import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.scoping.Scopes
 import org.eclipse.emf.ecore.EReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryTargetType
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.Named
+import hu.blackbelt.judo.meta.jsl.jsldsl.Cardinality
 
 @Singleton
 class JslDslModelExtension {
@@ -143,13 +148,7 @@ class JslDslModelExtension {
 	}
 
 	def String getNameForEntityMemberDeclaration(EntityMemberDeclaration member) {
-		if (member instanceof EntityFieldDeclaration) {
-			member.name
-		} else if (member instanceof EntityIdentifierDeclaration) {
-			member.name
-		} else if (member instanceof EntityRelationDeclaration) {
-			member.name
-		} else if (member instanceof EntityDerivedDeclaration) {
+		if (member instanceof Named) {
 			member.name
 		} else {
 			""
@@ -157,39 +156,23 @@ class JslDslModelExtension {
 	}
 
 	def boolean isManyAttributeForEntityMemberDeclaration(EntityMemberDeclaration member) {
-		if (member instanceof EntityFieldDeclaration) {
-			(member as EntityFieldDeclaration).isIsMany
-		} else if (member instanceof EntityIdentifierDeclaration) {
-			false
-		} else if (member instanceof EntityRelationDeclaration) {
-			(member as EntityRelationDeclaration).isIsMany
-		} else if (member instanceof EntityDerivedDeclaration) {
-			(member as EntityDerivedDeclaration).isIsMany
+		if (member instanceof Cardinality) {
+			member.isIsMany
 		} else {
 			false
 		}
 	}
 
 	def EAttribute getNameAttributeForEntityMemberDeclaration(EntityMemberDeclaration member) {
-		if (member instanceof EntityFieldDeclaration) {
-			JsldslPackage::eINSTANCE.entityFieldDeclaration_Name
-		} else if (member instanceof EntityIdentifierDeclaration) {
-			JsldslPackage::eINSTANCE.entityIdentifierDeclaration_Name
-		} else if (member instanceof EntityRelationDeclaration) {
-			JsldslPackage::eINSTANCE.entityRelationDeclaration_Name
-		} else if (member instanceof EntityDerivedDeclaration) {
-			JsldslPackage::eINSTANCE.entityDerivedDeclaration_Name
+		if (member instanceof Named) {
+			JsldslPackage::eINSTANCE.named_Name
 		} else {
 			throw new IllegalArgumentException("Unknown EntityMemberDeclaration: " + member)
 		}
 	}
 
 	def String getNameForDeclaration(Declaration declaration) {
-		if (declaration instanceof PrimitiveDeclaration) {
-			declaration.name
-		} else if (declaration instanceof ErrorDeclaration) {
-			declaration.name
-		} else if (declaration instanceof EntityDeclaration) {
+		if (declaration instanceof Named) {
 			declaration.name
 		} else {
 			""
@@ -197,22 +180,32 @@ class JslDslModelExtension {
 	}
 
 	def EAttribute getNameAttributeForDeclaration(Declaration declaration) {
-		if (declaration instanceof PrimitiveDeclaration) {
-			JsldslPackage::eINSTANCE.primitiveDeclaration_Name
-		} else if (declaration instanceof ErrorDeclaration) {
-			JsldslPackage::eINSTANCE.errorDeclaration_Name
-		} else if (declaration instanceof EntityDeclaration) {
-			JsldslPackage::eINSTANCE.entityDeclaration_Name
+		if (declaration instanceof Named) {
+			JsldslPackage::eINSTANCE.named_Name
 		} else {
 			throw new IllegalArgumentException("Unknown Declaration: " + declaration)
 		}
 	}
 
+    def String getNameForNavigationBaseReference(NavigationBaseReference baseRef) {
+		if (baseRef instanceof Named) {
+			baseRef.name
+		} else {
+			""
+		}
+    }
+    
+    /*
+     *  * NavigationBaseReference
+     * 	: EntityDeclaration
+     * 	| QueryDeclaration
+     * 	| LambdaVariable
+     * 	| QueryDeclarationParameter
+     
+     */
 
 	def String getNameForEntityFieldSingleType(EntityFieldSingleType type) {
-		if (type instanceof EntityDeclaration) {
-			type.name
-		} else if (type instanceof PrimitiveDeclaration) {
+		if (type instanceof Named) {
 			type.name
 		} else {
 			""
@@ -220,9 +213,15 @@ class JslDslModelExtension {
 	}
 
 	def String getNameForEntityDerivedSingleType(EntityDerivedSingleType type) {
-		if (type instanceof EntityDeclaration) {
+		if (type instanceof Named) {
 			type.name
-		} else if (type instanceof PrimitiveDeclaration) {
+		} else {
+			""
+		}
+	}
+
+	def String getNameForEntityQueryTargetType(EntityQueryTargetType type) {
+		if (type instanceof Named) {
 			type.name
 		} else {
 			""
@@ -275,12 +274,30 @@ class JslDslModelExtension {
 		entity.getAllMembers(new LinkedList, new LinkedList)
 	}
 
+	/*
 	def EntityDerivedDeclaration getDerivedDeclaration(EObject from) {
 		var EntityDerivedDeclaration found = null;
 		var EObject current = from;
 		while (found === null && current !== null) {
 			if (current instanceof EntityDerivedDeclaration) {
 				found = current as EntityDerivedDeclaration;
+			}
+			if (from.eContainer() !== null) {
+				current = current.eContainer();
+			} else {
+				current = null;
+			}
+		}
+		return found;
+	}
+	*/
+
+	def EntityQueryDeclaration getQueryDeclaration(EObject from) {
+		var EntityQueryDeclaration found = null;
+		var EObject current = from;
+		while (found === null && current !== null) {
+			if (current instanceof EntityQueryDeclaration) {
+				found = current as EntityQueryDeclaration;
 			}
 			if (from.eContainer() !== null) {
 				current = current.eContainer();
@@ -297,6 +314,10 @@ class JslDslModelExtension {
 	
 	def Collection<EntityDeclaration> entityDeclarations(ModelDeclaration it) {
 		declarations.filter[d | d instanceof EntityDeclaration].map[d | d as EntityDeclaration].toList
+	}
+
+	def Collection<QueryDeclaration> queryDeclarations(ModelDeclaration it) {
+		declarations.filter[d | d instanceof QueryDeclaration].map[d | d as QueryDeclaration].toList
 	}
 
 	def Collection<DataTypeDeclaration> dataTypeDeclarations(ModelDeclaration it) {
@@ -317,6 +338,10 @@ class JslDslModelExtension {
 
 	def Collection<EntityDerivedDeclaration> derivedes(EntityDeclaration it) {
 		members.filter[d | d instanceof EntityDerivedDeclaration].map[d | d as EntityDerivedDeclaration].toList
+	}
+
+	def Collection<EntityQueryDeclaration> queries(EntityDeclaration it) {
+		members.filter[d | d instanceof EntityQueryDeclaration].map[d | d as EntityQueryDeclaration].toList
 	}
 
 	def Collection<ConstraintDeclaration> constraints(EntityDeclaration it) {

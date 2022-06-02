@@ -16,7 +16,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ThrowParameter
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateError
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameter
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationExpression
 import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
@@ -25,6 +24,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunctionParameters
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall
 
 /**
  * This class contains custom scoping description.
@@ -38,12 +40,13 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	@Inject extension JslDslModelExtension
 
     override getScope(EObject context, EReference ref) {
-    	// System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
+    	System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
+    	var container = context.eContainer
 		switch context {
 			EntityRelationOpposite : 
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType:
-						Scopes.scopeFor((context.eContainer as EntityRelationDeclaration).getAllOppositeRelations)			
+						Scopes.scopeFor((container as EntityRelationDeclaration).getAllOppositeRelations)			
 					default: 
 						super.getScope(context, ref)
 				}
@@ -64,6 +67,14 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 						super.getScope(context, ref)					
 				}
 
+			EntityDerivedDeclaration : 
+				switch (ref) {
+//					case JsldslPackage::eINSTANCE.navigationExpression_NavigationBaseType:
+//						(context as EntityDerivedDeclaration).modelDeclaration.scopeForNavigationBase(super.getScope(context, ref))
+					default: 
+						super.getScope(context, ref)
+				}
+
 			/*			 
 			Feature
 			    : {Feature} '.' member = EntityMemberDeclarationFeature
@@ -77,8 +88,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.feature_NavigationDeclarationType:
 						return (context as Feature).scopeForNavigationDeclarationType(ref, super.getScope(context, ref))
-					case JsldslPackage::eINSTANCE.queryParameter_DerivedParameterType:
-						(context as Feature).scopeForQueryParameterDerivedParameterType(super.getScope(context, ref))
+					case JsldslPackage::eINSTANCE.queryParameter_QueryParameterType:
+						(context as Feature).scopeForQueryParameterQueryParameterType(super.getScope(context, ref))
 					default: 
 						super.getScope(context, ref)
 				}
@@ -104,8 +115,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			ThrowParameter : 
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType:
-						if (context.eContainer instanceof CreateError) {
-							(context.eContainer as CreateError).scopeForCreateError
+						if (container instanceof CreateError) {
+							(container as CreateError).scopeForCreateError
 						} else {
 							super.getScope(context, ref)
 						}
@@ -124,13 +135,33 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			 */
 			QueryParameter : 
 				switch (ref) {
-					case JsldslPackage::eINSTANCE.queryParameter_DerivedParameterType:
-						(context.eContainer as Feature).scopeForQueryParameterDerivedParameterType(super.getScope(context, ref))
+					case JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: {		
+						if (container instanceof Feature) {
+							container.scopeForQueryParameterQueryParameterType(super.getScope(context, ref))
+						} else if (container instanceof QueryCall) {
+							Scopes.scopeFor(container.queryDeclarationReference.parameters, IScope.NULLSCOPE)
+						} else {
+							super.getScope(context, ref)							
+						}		
+					}
 					case JsldslPackage::eINSTANCE.queryParameter_Parameter:
-						(context.eContainer as Feature).scopeForQueryParameterParameterType
+						if (container instanceof Feature) {
+							(context.eContainer as Feature).scopeForQueryParameterParameterType
+						} else if (container instanceof QueryCall) {
+							Scopes.scopeFor(container.queryDeclarationReference.parameters, IScope.NULLSCOPE)
+						}
 					default: 
 						super.getScope(context, ref)
 				}
+			QueryCall : 
+				switch (ref) {
+					case JsldslPackage::eINSTANCE.queryParameter_QueryParameterType:
+						Scopes.scopeFor((context as QueryCall).queryDeclarationReference.parameters, IScope.NULLSCOPE)
+					default: 
+						super.getScope(context, ref)
+				}
+
+
 			default: super.getScope(context, ref)
 		}		
 	}
@@ -139,18 +170,18 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		Scopes.scopeFor(createError.errorDeclarationType.fields, IScope.NULLSCOPE)		
 	}
 
-	def IScope scopeForQueryParameterDerivedParameterType(Feature feature, IScope fallback) {
+	def IScope scopeForQueryParameterQueryParameterType(Feature feature, IScope fallback) {
 		if (feature.navigationDeclarationType === null) {
 			fallback
-		} else if (feature.navigationDeclarationType instanceof EntityDerivedDeclaration) {
-			Scopes.scopeFor((feature.navigationDeclarationType as EntityDerivedDeclaration).parameters, IScope.NULLSCOPE)							
+		} else if (feature.navigationDeclarationType instanceof EntityQueryDeclaration) {
+			Scopes.scopeFor((feature.navigationDeclarationType as EntityQueryDeclaration).parameters, IScope.NULLSCOPE)							
 		} else {
 			fallback
 		}
 	}
 
 	def IScope scopeForQueryParameterParameterType(Feature feature) {
-		Scopes.scopeFor(feature.getDerivedDeclaration.parameters, IScope.NULLSCOPE)							
+		Scopes.scopeFor(feature.getQueryDeclaration.parameters, IScope.NULLSCOPE)							
 	}
 	
 	def IScope scopeForDefaultExpressionType(DefaultExpressionType defaultExpression) {
@@ -174,21 +205,21 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		// System.out.println("JslDslLocalScopeProvider.scopeForNavigationDeclarationType="+ feature.toString + " parent=" + feature.eContainer + " grandParent=" + feature.eContainer.eContainer)
 		if (feature.eContainer instanceof NavigationExpression) {
             // enums...
-            val decl = feature.modelDeclaration.allEnumDeclarations
-            val enumDeclaration = decl.findFirst[e | e.name.equals((feature.eContainer as NavigationExpression).QName)];
-
-            if (enumDeclaration !== null) {
-                return Scopes.scopeFor(enumDeclaration.literals, fallback)
-            } else {
+//            val decl = feature.modelDeclaration.allEnumDeclarations
+//            val enumDeclaration = decl.findFirst[e | e.name.equals((feature.eContainer as NavigationExpression).QName)];
+//
+//            if (enumDeclaration !== null) {
+//                return Scopes.scopeFor(enumDeclaration.literals, fallback)
+//            } else {
                 return Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, IScope.NULLSCOPE)
-            }
+//            }
         } else if (feature.eContainer instanceof Feature) {        	
         	return Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, IScope.NULLSCOPE)
         } else {
             return feature.getScopeForFeature(ref, fallback)
         }
 	}
-	
+
 	def LambdaVariable getParentLambdaVariable(Feature feature) {
 		var EObject container = feature
 		while (container.eContainer !== null) {
@@ -199,7 +230,6 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		}
 		null
 	}
-
 
 	def void printParents(EObject obj) {
 		var EObject t = obj;
