@@ -54,7 +54,7 @@ EntityDeclaration
 	;
 
 QueryDeclaration
-	: 'query' (referenceType = [EntityDerivedSingleType | LocalName] '[]') name = ID
+	: 'query' (referenceType = [EntityDerivedSingleType | LocalName] isMany ?= '[]') name = ID
 	  ('(' parameters += QueryDeclarationParameter (',' parameters += QueryDeclarationParameter)* ')')
 	  "=" expression = Expression
 	;
@@ -290,8 +290,14 @@ NavigationExpression returns Expression
     | EnumLiteralReference
     ;
 
+PrimaryExpression returns Expression
+	: ParenthesizedExpression
+	| CreateExpression
+	| Literal
+	;
+
 NavigationBase returns NavigationExpression
-	: {NavigationExpression} (isSelf = 'self' | navigationBaseType = [NavigationBaseReference | LocalName]) (features+=Feature*)		
+	: {NavigationExpression} (isSelf ?= 'self' | navigationBaseType = [NavigationBaseReference | LocalName]) (features+=Feature*)		
 	;
 
 NavigationBaseReference
@@ -328,12 +334,6 @@ QueryParameter
 
 ParenthesizedExpression returns Expression
 	: {ParenthesizedExpression} '(' =>expression = MultilineExpression ')'
-	;
-
-PrimaryExpression returns Expression
-	: ParenthesizedExpression
-	| CreateExpression
-	| Literal
 	;
 
 

@@ -36,6 +36,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryTargetType
+import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclarationParameter
 
 @Singleton
 class JslDslModelExtension {
@@ -215,6 +218,28 @@ class JslDslModelExtension {
 		}
 	}
 
+    def String getNameForNavigationBaseReference(NavigationBaseReference baseRef) {
+		if (baseRef instanceof EntityDeclaration) {
+			baseRef.name
+		} else if (baseRef instanceof QueryDeclaration) {
+			baseRef.name
+		} else if (baseRef instanceof LambdaVariable) {
+			baseRef.name
+		} else if (baseRef instanceof QueryDeclarationParameter) {
+			baseRef.name
+		} else {
+			""
+		}
+    }
+    
+    /*
+     *      * NavigationBaseReference
+     * 	: EntityDeclaration
+     * 	| QueryDeclaration
+     * 	| LambdaVariable
+     * 	| QueryDeclarationParameter
+     
+     */
 
 	def String getNameForEntityFieldSingleType(EntityFieldSingleType type) {
 		if (type instanceof EntityDeclaration) {
