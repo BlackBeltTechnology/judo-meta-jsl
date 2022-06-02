@@ -33,6 +33,9 @@ import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.scoping.Scopes
 import org.eclipse.emf.ecore.EReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryTargetType
 
 @Singleton
 class JslDslModelExtension {
@@ -151,6 +154,8 @@ class JslDslModelExtension {
 			member.name
 		} else if (member instanceof EntityDerivedDeclaration) {
 			member.name
+		} else if (member instanceof EntityQueryDeclaration) {
+			member.name
 		} else {
 			""
 		}
@@ -165,6 +170,8 @@ class JslDslModelExtension {
 			(member as EntityRelationDeclaration).isIsMany
 		} else if (member instanceof EntityDerivedDeclaration) {
 			(member as EntityDerivedDeclaration).isIsMany
+		} else if (member instanceof EntityQueryDeclaration) {
+			true
 		} else {
 			false
 		}
@@ -229,6 +236,16 @@ class JslDslModelExtension {
 		}
 	}
 
+	def String getNameForEntityQueryTargetType(EntityQueryTargetType type) {
+		if (type instanceof EntityDeclaration) {
+			type.name
+		} else if (type instanceof PrimitiveDeclaration) {
+			type.name
+		} else {
+			""
+		}
+	}
+
 
 	def Collection<String> getDeclarationNames(ModelDeclaration model, Declaration exclude) {
 		model.declarations.filter[m | m !== exclude].map[m | m.nameForDeclaration].filter[n | n.trim != ""].toSet
@@ -275,12 +292,30 @@ class JslDslModelExtension {
 		entity.getAllMembers(new LinkedList, new LinkedList)
 	}
 
+	/*
 	def EntityDerivedDeclaration getDerivedDeclaration(EObject from) {
 		var EntityDerivedDeclaration found = null;
 		var EObject current = from;
 		while (found === null && current !== null) {
 			if (current instanceof EntityDerivedDeclaration) {
 				found = current as EntityDerivedDeclaration;
+			}
+			if (from.eContainer() !== null) {
+				current = current.eContainer();
+			} else {
+				current = null;
+			}
+		}
+		return found;
+	}
+	*/
+
+	def EntityQueryDeclaration getQueryDeclaration(EObject from) {
+		var EntityQueryDeclaration found = null;
+		var EObject current = from;
+		while (found === null && current !== null) {
+			if (current instanceof EntityQueryDeclaration) {
+				found = current as EntityQueryDeclaration;
 			}
 			if (from.eContainer() !== null) {
 				current = current.eContainer();
@@ -297,6 +332,10 @@ class JslDslModelExtension {
 	
 	def Collection<EntityDeclaration> entityDeclarations(ModelDeclaration it) {
 		declarations.filter[d | d instanceof EntityDeclaration].map[d | d as EntityDeclaration].toList
+	}
+
+	def Collection<QueryDeclaration> queryDeclarations(ModelDeclaration it) {
+		declarations.filter[d | d instanceof QueryDeclaration].map[d | d as QueryDeclaration].toList
 	}
 
 	def Collection<DataTypeDeclaration> dataTypeDeclarations(ModelDeclaration it) {
@@ -317,6 +356,10 @@ class JslDslModelExtension {
 
 	def Collection<EntityDerivedDeclaration> derivedes(EntityDeclaration it) {
 		members.filter[d | d instanceof EntityDerivedDeclaration].map[d | d as EntityDerivedDeclaration].toList
+	}
+
+	def Collection<EntityQueryDeclaration> queries(EntityDeclaration it) {
+		members.filter[d | d instanceof EntityQueryDeclaration].map[d | d as EntityQueryDeclaration].toList
 	}
 
 	def Collection<ConstraintDeclaration> constraints(EntityDeclaration it) {
