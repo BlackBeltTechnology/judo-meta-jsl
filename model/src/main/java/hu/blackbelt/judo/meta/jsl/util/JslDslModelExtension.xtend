@@ -35,6 +35,7 @@ import org.eclipse.emf.ecore.EReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryTargetType
 
 @Singleton
 class JslDslModelExtension {
@@ -226,6 +227,16 @@ class JslDslModelExtension {
 	}
 
 	def String getNameForEntityDerivedSingleType(EntityDerivedSingleType type) {
+		if (type instanceof EntityDeclaration) {
+			type.name
+		} else if (type instanceof PrimitiveDeclaration) {
+			type.name
+		} else {
+			""
+		}
+	}
+
+	def String getNameForEntityQueryTargetType(EntityQueryTargetType type) {
 		if (type instanceof EntityDeclaration) {
 			type.name
 		} else if (type instanceof PrimitiveDeclaration) {

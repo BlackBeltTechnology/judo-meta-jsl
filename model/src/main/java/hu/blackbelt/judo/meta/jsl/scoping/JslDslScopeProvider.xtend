@@ -72,7 +72,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			EntityDerivedDeclaration : 
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.navigationExpression_NavigationBaseType:
-						(context as EntityDerivedDeclaration).modelDeclaration.scopeForNavigationBase		
+						(context as EntityDerivedDeclaration).modelDeclaration.scopeForNavigationBase(super.getScope(context, ref))
 					default: 
 						super.getScope(context, ref)
 				}
@@ -202,11 +202,11 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
         }
 	}
 	
-	def IScope scopeForNavigationBase(ModelDeclaration modelDeclararion) {
+	def IScope scopeForNavigationBase(ModelDeclaration modelDeclararion, IScope fallback) {
 		val List<NavigationBaseReference> baseTypes = new ArrayList();
 		baseTypes.addAll(modelDeclararion.entityDeclarations)
 		baseTypes.addAll(modelDeclararion.queryDeclarations)
-		Scopes.scopeFor(baseTypes, IScope.NULLSCOPE)
+		Scopes.scopeFor(baseTypes, fallback)
 	}
 	
 	

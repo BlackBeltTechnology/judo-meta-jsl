@@ -161,7 +161,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	'''~«name» : «referenceType.nameForEntityDerivedSingleType»«IF isIsMany»[0..*]«ENDIF»'''
 
 	def entityQueryRepresentation(EntityQueryDeclaration it)
-	'''~«name»«entityQueryParameterFragment» : «referenceType.nameForEntityDerivedSingleType»[0..*]'''
+	'''~«name»«entityQueryParameterFragment» : «referenceType.nameForEntityQueryTargetType»[0..*]'''
 
 
 	def constraintParameterFragment(ConstraintDeclaration it)

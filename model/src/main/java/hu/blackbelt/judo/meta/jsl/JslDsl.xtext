@@ -103,13 +103,18 @@ EntityDerivedDeclaration
 	  "=" expression = Expression
 	;
 
+EntityDerivedSingleType
+	: PrimitiveDeclaration
+	| EntityDeclaration
+	;
+
 EntityQueryDeclaration
-	: 'query' (referenceType = [EntityDerivedSingleType | LocalName] '[]') name = ID
+	: 'query' (referenceType = [EntityQueryTargetType | LocalName] '[]'?) name = ID
 	  ('(' parameters += QueryDeclarationParameter (',' parameters += QueryDeclarationParameter)* ')')
 	  "=" expression = Expression
 	;
 
-EntityDerivedSingleType
+EntityQueryTargetType
 	: PrimitiveDeclaration
 	| EntityDeclaration
 	;
@@ -282,10 +287,11 @@ FunctionedExpression returns Expression
 NavigationExpression returns Expression
 	: PrimaryExpression ({NavigationExpression.base=current} features+=Feature+)?
     | NavigationBase
+    | EnumLiteralReference
     ;
 
 NavigationBase returns NavigationExpression
-	: {NavigationExpression} (isSelf = 'self' | navigationBaseType = [NavigationBaseReference | LocalName]) (features+=Feature* | enumValue = [ EnumLiteralReference ])		
+	: {NavigationExpression} (isSelf = 'self' | navigationBaseType = [NavigationBaseReference | LocalName]) (features+=Feature*)		
 	;
 
 NavigationBaseReference
