@@ -194,7 +194,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 		if (entity.superEntityTypes.contains(entity)) {
 			error("Cycle in inheritence of entity '" + entity.name + "'",
-				JsldslPackage::eINSTANCE.entityDeclaration_Name,
+				JsldslPackage::eINSTANCE.named_Name,
 				INHERITENCE_CYCLE,
 				entity.name)			
 		}
@@ -241,7 +241,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			
 		if (collidingMembers.size > 0) {
 			error("Inherited member name collision for: " + collidingMembers.mapValues[l | l.map[v | "'" + v.memberFullyQualifiedName + "'"].join(", ")].values.join(", "),
-				JsldslPackage::eINSTANCE.entityDeclaration_Name,
+				JsldslPackage::eINSTANCE.named_Name,
 				INHERITED_MEMBER_NAME_COLLISION,
 				entity.name)
 		}
@@ -315,7 +315,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			
 		if (collidingNames.size > 0 && collidingNames.keySet.contains(literal.name.toLowerCase)) {
 			error("Enumeration Literal name collision for: " + collidingNames.mapValues[l | l.map[v | "'" + v.fullyQualifiedName + "'"].join(", ")].values.join(", "),
-				JsldslPackage::eINSTANCE.enumLiteral_Name,
+				JsldslPackage::eINSTANCE.named_Name,
 				ENUM_LITERAL_NAME_COLLISION,
 				literal.name)
 		}

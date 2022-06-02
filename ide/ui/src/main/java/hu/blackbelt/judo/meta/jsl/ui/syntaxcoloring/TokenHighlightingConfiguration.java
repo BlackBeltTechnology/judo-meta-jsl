@@ -97,6 +97,7 @@ public class TokenHighlightingConfiguration extends
     			"'annotate'",
     			"'diagram'",
     			"'entity'",
+    			"'query'",
     			"'transfer'",
     			"'type'",
     			"'union'",
