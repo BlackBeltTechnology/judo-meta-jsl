@@ -119,7 +119,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	'''«IF extends !== null» extends «extends.name»«ENDIF»'''
 
 	def errorFieldRepsresentation(ErrorField it)
-	'''+«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF» : «referenceType.name»'''
+	'''+«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF» : «referenceType.nameForDeclaration»'''
 
 	def errorRepresentation(ErrorDeclaration it)
 	'''
@@ -155,7 +155,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
 
 	def entityQueryParameterFragment(EntityQueryDeclaration it)
-	'''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.name» =«param.^default.sourceCode»«ENDFOR»'''
+	'''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.nameForDeclaration» =«param.^default.sourceCode»«ENDFOR»'''
 
 	def entityDerivedRepresentation(EntityDerivedDeclaration it)
 	'''~«name» : «referenceType.nameForEntityDerivedSingleType»«IF isIsMany»[0..*]«ENDIF»'''

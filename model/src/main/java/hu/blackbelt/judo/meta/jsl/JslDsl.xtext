@@ -34,8 +34,8 @@ TypeDeclaration
 	;
 
 PrimitiveDeclaration
-	: DataTypeDeclaration
-	| EnumDeclaration
+	: EnumDeclaration
+	| DataTypeDeclaration
     ;
 
 ClassDeclaration
@@ -45,16 +45,23 @@ ClassDeclaration
 /****************************
  *	Entity
  ****************************/
+fragment Named
+	: name = ID;
+
+fragment Cardinality
+    : isMany ?= '[]'
+    ;
 
 EntityDeclaration
 	: {EntityDeclaration}
-	  'entity' isAbstract ?= 'abstract'? name = ID
+	  'entity' isAbstract ?= 'abstract'? Named
 	  ('extends' extends += [EntityDeclaration | LocalName] (',' extends += [EntityDeclaration | LocalName])*)?
 	  BLOCK_START (members += EntityMemberDeclaration)* BLOCK_END
 	;
 
+
 QueryDeclaration
-	: 'query' (referenceType = [EntityDerivedSingleType | LocalName] isMany ?= '[]') name = ID
+	: 'query' (referenceType = [EntityDerivedSingleType | LocalName] Cardinality) Named
 	  ('(' parameters += QueryDeclarationParameter (',' parameters += QueryDeclarationParameter)* ')')
 	  "=" expression = Expression
 	;
@@ -73,7 +80,7 @@ ConstraintDeclaration
 	;
 
 EntityFieldDeclaration
-	: ('field')? (isRequired ?= 'required'? referenceType = [EntityFieldSingleType | LocalName] isMany ?= '[]'?) name = ID
+	: ('field')? (isRequired ?= 'required'? referenceType = [EntityFieldSingleType | LocalName] Cardinality?) Named
 	  (defaultExpression = DefaultExpressionType)?
 	;
 
@@ -94,12 +101,12 @@ EntityFieldSingleType
 	;
 
 EntityIdentifierDeclaration
-	: 'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] name = ID
+	: 'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] Named
 	  (defaultExpression = DefaultExpressionType)?
 	;
 
 EntityDerivedDeclaration
-	: 'derived' (referenceType = [EntityDerivedSingleType | LocalName] isMany ?= '[]'?) name = ID
+	: 'derived' (referenceType = [EntityDerivedSingleType | LocalName] Cardinality?) Named
 	  "=" expression = Expression
 	;
 
@@ -109,7 +116,7 @@ EntityDerivedSingleType
 	;
 
 EntityQueryDeclaration
-	: 'query' (referenceType = [EntityQueryTargetType | LocalName] '[]'?) name = ID
+	: 'query' (referenceType = [EntityQueryTargetType | LocalName] Cardinality?) Named
 	  ('(' parameters += QueryDeclarationParameter (',' parameters += QueryDeclarationParameter)* ')')
 	  "=" expression = Expression
 	;
@@ -120,16 +127,16 @@ EntityQueryTargetType
 	;
 
 QueryDeclarationParameter
-	: referenceType = [PrimitiveDeclaration | LocalName] name = ID "=" default = Literal
+	: referenceType = [PrimitiveDeclaration | LocalName] Named "=" default = Literal
 	;
 
 EntityRelationDeclaration
-	: 'relation' (isRequired ?= 'required'? referenceType = [EntityDeclaration | LocalName] isMany ?= '[]'?) name = ID
+	: 'relation' (isRequired ?= 'required'? referenceType = [EntityDeclaration | LocalName] Cardinality?) Named
 	  opposite = EntityRelationOpposite?
 	;
 
 EntityRelationOpposite
-	: 'opposite-add' oppositeName = ID (isMany ?= '[]')?
+	: 'opposite-add' oppositeName = ID Cardinality?
 	| 'opposite' oppositeType = [EntityRelationDeclaration | LocalName]
 	;
 
@@ -139,12 +146,12 @@ EntityRelationOpposite
  ****************************/
 
 ErrorDeclaration
-	: 'error' name = ID ('extends' extends = [ErrorDeclaration])?
+	: 'error' Named ('extends' extends = [ErrorDeclaration])?
 	  BLOCK_START (fields += ErrorField)* BLOCK_END
 	;
 
 ErrorField
-	: NL+ 'field' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] name = ID
+	: NL+ 'field' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] Named
 	  (defaultExpression = DefaultExpressionType)?
 	;
 
@@ -163,30 +170,29 @@ ThrowParameter
 
     
 DataTypeDeclaration
-    : 'type'
+    : {DataTypeDeclaration} 'type'
       (
-		  primitive = 'boolean' name = ID
-		| primitive = 'binary' name = ID (mimeTypes = ModifierMimeTypes? & maxFileSize = ModifierMaxFileSize?) 
-		| primitive = 'string' name = ID (maxLength = ModifierMaxLength & regex = ModifierRegex?)
-		| primitive = 'numeric' name = ID (precision = ModifierPrecision & scale = ModifierScale)
-		| primitive = 'date' name = ID
-		| primitive = 'time' name = ID
-		| primitive = 'timestamp' name = ID
+		  primitive = 'boolean' Named
+		| primitive = 'binary' Named (mimeTypes = ModifierMimeTypes? & maxFileSize = ModifierMaxFileSize?) 
+		| primitive = 'string' Named (maxLength = ModifierMaxLength & regex = ModifierRegex?)
+		| primitive = 'numeric' Named (precision = ModifierPrecision & scale = ModifierScale)
+		| primitive = 'date' Named
+		| primitive = 'time' Named
+		| primitive = 'timestamp' Named
       )
     ;
-
 
 /****************************
  *	Enum
  ****************************/
 
 EnumDeclaration
-    : 'enum' name = ID
+    : 'enum' Named
       BLOCK_START (literals += EnumLiteral)+ BLOCK_END
     ;
 
 EnumLiteral
-    : NL+ name = ID '=' value = INTEGER
+    : NL+ Named '=' value = INTEGER
     ;
 
 
@@ -288,6 +294,7 @@ NavigationExpression returns Expression
 	: PrimaryExpression ({NavigationExpression.base=current} features+=Feature+)?
     | NavigationBase
     | EnumLiteralReference
+    | QueryCall ({NavigationExpression.base=current} features+=Feature+)?
     ;
 
 PrimaryExpression returns Expression
@@ -297,14 +304,17 @@ PrimaryExpression returns Expression
 	;
 
 NavigationBase returns NavigationExpression
-	: {NavigationExpression} (isSelf ?= 'self' | navigationBaseType = [NavigationBaseReference | LocalName]) (features+=Feature*)		
+	: {NavigationExpression} (isSelf ?= 'self' | navigationBaseType = [NavigationBaseReference | LocalName]) (features+=Feature*) 
 	;
 
 NavigationBaseReference
 	: EntityDeclaration
-	| QueryDeclaration
 	| LambdaVariable
 	| QueryDeclarationParameter
+	;
+	
+QueryCall returns Expression
+	: {QueryCall} queryDeclarationReference = [ QueryDeclaration | LocalName ] '(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')'
 	;
 
 EnumLiteralReference returns Expression
@@ -329,7 +339,7 @@ NavigationDeclaration
     ;
 
 QueryParameter
-	:  queryParameterType=[QueryDeclarationParameter | LocalName] '=' (literal = Literal | parameter = [QueryDeclarationParameter | LocalName])     // expression=MultilineExpression
+	:  queryParameterType=[QueryDeclarationParameter | QueryParameterName] '=' (literal = Literal | parameter = [QueryDeclarationParameter | QueryParameterName])     // expression=MultilineExpression
 	;
 
 ParenthesizedExpression returns Expression
@@ -338,7 +348,7 @@ ParenthesizedExpression returns Expression
 
 
 CreateExpression returns Expression
-	: {CreateExpression} 'new'? createType=[ClassDeclaration | LocalName]
+	: {CreateExpression} 'new' createType=[ClassDeclaration | LocalName]
 	  (   '(' (assignments+=CreateParameter (',' assignments+=CreateParameter)*)? ')'
 	  	| '[' (creates += MultilineExpression (',' creates += MultilineExpression)*)? ']'
 	  )
@@ -366,7 +376,7 @@ ParametrizedFunctionParameters
     ;
     
 LambdaVariable
-    : {LambdaVariable} name=ID    	
+    : {LambdaVariable} Named    	
     ;
 
 FunctionParameter
@@ -405,6 +415,10 @@ EnumLiteralName
 	: ID
     ;
 
+QueryParameterName
+	: ID
+    ;
+
 LocalName
 	: (ID '::')? ID
     ;
@@ -426,6 +440,18 @@ BLOCK_END
 	;
 
 
+terminal fragment DIGIT
+	: '0'..'9'
+	;
+
+terminal fragment ALPHABET
+    : 'a'..'z' | 'A'..'Z'    	
+    ;
+
+terminal fragment NEWLINE
+    : '\n' | '\r'   	
+    ;
+
 terminal TIMESTAMP
 	: '`' DIGIT+ '-' DIGIT DIGIT '-' DIGIT DIGIT 'T' DIGIT DIGIT ':' DIGIT DIGIT (':' DIGIT DIGIT ('.' DIGIT+ )? )? ('Z' | ('+' | '-') DIGIT DIGIT ':' DIGIT DIGIT )'`'
 	;
@@ -438,9 +464,6 @@ terminal DATE
 	: '`' DIGIT+ '-' DIGIT DIGIT '-' DIGIT DIGIT '`'
 	;
 
-terminal DIGIT
-	: '0'..'9'
-	;
 
 terminal DECIMAL returns ecore::EBigDecimal
 	: '-'? DIGIT+ '.' DIGIT+
@@ -451,19 +474,20 @@ terminal INTEGER returns ecore::EBigInteger
 	;
 
 terminal ID
-	: '\\'? ('a'..'z' | 'A'..'Z') ('a'..'z' | 'A'..'Z' | '0'..'9')*
+	: '\\'? ALPHABET (ALPHABET | DIGIT)*
 	;
 
 terminal STRING
-	: '"' ('\\' ('t'|'n'|'f'|'r'|'"'|'\\') | !('\\' | '"' | '\n' | '\r'))* '"'
+	: '"' ('\\' ('t'|'n'|'f'|'r'|'"'|'\\') | !('\\' | '"' | NEWLINE))* '"'
 	;
 
 terminal RAW_STRING
-	: 'r"' (!('"' | '\n' | '\r'))* '"'
+	: 'r"' (!('"' | NEWLINE))* '"'
 	;
 
+
 terminal MIME_TYPE
-    : 'm"' ('a'..'z' | 'A'..'Z')+ '/' ('*' | ('a'..'z' | 'A'..'Z')+ ('.' ('a'..'z' | 'A'..'Z')+)* ) '"'
+    : 'm"' (ALPHABET)+ '/' ('*' | (ALPHABET)+ ('.' (ALPHABET)+)* ) '"'
 	;
 
 terminal CONT_NL
@@ -475,7 +499,7 @@ terminal ML_COMMENT
 	;
 
 terminal SL_COMMENT
-	: '//' !('\n' | '\r')*
+	: '//' !(NEWLINE)*
 	;
 
 terminal WS
@@ -483,7 +507,7 @@ terminal WS
 	;
 
 terminal NL
-	: '\r' | '\n' | ';'
+	: NEWLINE | ';'
 	;
 
 terminal ANY_OTHER
