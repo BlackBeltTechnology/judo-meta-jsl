@@ -133,36 +133,50 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				:  derivedParameterType=[DerivedParameter | LocalName] '=' expression=MultilineExpression
 				;
 			 */
-			QueryParameter : 
+			QueryParameter : {
+				if (container === null) {
+					return super.getScope(context, ref)					
+				}
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: {		
 						if (container instanceof Feature) {
-							container.scopeForQueryParameterQueryParameterType(super.getScope(context, ref))
+							System.out.println("QueryParameterType.Feature - QD: " + container.queryDeclaration + "  EDQ:" + container.entityQueryDeclaration)
+							return container.scopeForQueryParameterQueryParameterType(super.getScope(context, ref))
 						} else if (container instanceof QueryCall) {
-							Scopes.scopeFor(container.queryDeclarationReference.parameters, IScope.NULLSCOPE)
+							System.out.println("QueryParameterType.QueryCal - Ref: " + container.queryDeclarationReference + "QD: " + container.queryDeclaration + "  EDQ:" + container.entityQueryDeclaration)
+							return Scopes.scopeFor(container.queryDeclarationReference.parameters, IScope.NULLSCOPE)
 						} else {
-							super.getScope(context, ref)							
+							return super.getScope(context, ref)							
 						}		
 					}
-					case JsldslPackage::eINSTANCE.queryParameter_Parameter:
+					case JsldslPackage::eINSTANCE.queryParameter_Parameter: {
 						if (container instanceof Feature) {
-							(context.eContainer as Feature).scopeForQueryParameterParameterType
+							System.out.println("QueryParameter.Feature - QD: " + container.queryDeclaration + "  EDQ:" + container.entityQueryDeclaration)
+							return container.scopeForQueryParameterParameterType
 						} else if (container instanceof QueryCall) {
-							Scopes.scopeFor(container.queryDeclarationReference.parameters, IScope.NULLSCOPE)
+							System.out.println("QueryParameter.QueryCal - Ref: " + container.queryDeclarationReference + "QD: " + container.queryDeclaration + "  EDQ:" + container.entityQueryDeclaration)
+							return container.scopeForQueryParameterParameterType
+							//return Scopes.scopeFor(container.queryDeclaration.parameters, IScope.NULLSCOPE)
 						}
+					}
 					default: 
-						super.getScope(context, ref)
+						return super.getScope(context, ref)
 				}
+				
+			}
 			QueryCall : 
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.queryParameter_QueryParameterType:
-						Scopes.scopeFor((context as QueryCall).queryDeclarationReference.parameters, IScope.NULLSCOPE)
+						return Scopes.scopeFor((context as QueryCall).queryDeclarationReference.parameters, IScope.NULLSCOPE)
+					case JsldslPackage::eINSTANCE.queryParameter_Parameter:
+						return Scopes.scopeFor((context as QueryCall).parameters, IScope.NULLSCOPE)
 					default: 
-						super.getScope(context, ref)
+						return super.getScope(context, ref)
 				}
 
 
-			default: super.getScope(context, ref)
+			default: 
+				return super.getScope(context, ref)
 		}		
 	}
 	
@@ -180,8 +194,19 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		}
 	}
 
-	def IScope scopeForQueryParameterParameterType(Feature feature) {
-		Scopes.scopeFor(feature.getQueryDeclaration.parameters, IScope.NULLSCOPE)							
+	def IScope scopeForQueryParameterParameterType(EObject feature) {
+		if (feature !== null) {
+			val queryDeclaration = feature.queryDeclaration
+			if (queryDeclaration !== null) {
+				return Scopes.scopeFor(queryDeclaration.parameters, IScope.NULLSCOPE)		
+			} else {
+				val entityQueryDeclaration = feature.entityQueryDeclaration
+				if (entityQueryDeclaration !== null) {
+					return Scopes.scopeFor(entityQueryDeclaration.parameters, IScope.NULLSCOPE)					
+				}				
+			}
+		} 
+		return IScope.NULLSCOPE
 	}
 	
 	def IScope scopeForDefaultExpressionType(DefaultExpressionType defaultExpression) {

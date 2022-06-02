@@ -292,7 +292,7 @@ class JslDslModelExtension {
 	}
 	*/
 
-	def EntityQueryDeclaration getQueryDeclaration(EObject from) {
+	def EntityQueryDeclaration getEntityQueryDeclaration(EObject from) {
 		var EntityQueryDeclaration found = null;
 		var EObject current = from;
 		while (found === null && current !== null) {
@@ -307,6 +307,23 @@ class JslDslModelExtension {
 		}
 		return found;
 	}
+
+	def QueryDeclaration getQueryDeclaration(EObject from) {
+		var QueryDeclaration found = null;
+		var EObject current = from;
+		while (found === null && current !== null) {
+			if (current instanceof QueryDeclaration) {
+				found = current as QueryDeclaration;
+			}
+			if (from.eContainer() !== null) {
+				current = current.eContainer();
+			} else {
+				current = null;
+			}
+		}
+		return found;
+	}
+
 	
 	def Collection<EntityRelationDeclaration> getRelations(EntityDeclaration it) {
 		members.filter[m | m instanceof EntityRelationDeclaration].map[d | d as EntityRelationDeclaration].toList

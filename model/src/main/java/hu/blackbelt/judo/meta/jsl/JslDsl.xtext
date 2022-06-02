@@ -61,7 +61,7 @@ EntityDeclaration
 
 
 QueryDeclaration
-	: 'query' (referenceType = [EntityDerivedSingleType | LocalName] Cardinality) Named
+	: 'query' (referenceType = [EntityDerivedSingleType | LocalName] Cardinality?) Named
 	  ('(' parameters += QueryDeclarationParameter (',' parameters += QueryDeclarationParameter)* ')')
 	  "=" expression = Expression
 	;
