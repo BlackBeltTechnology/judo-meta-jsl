@@ -17,6 +17,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ConstraintDeclaration
 import java.util.Collection
 import java.util.HashSet
 import java.util.Set
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 
 @Singleton
 class JsldslDefaultPlantUMLDiagramGenerator {
@@ -147,17 +148,20 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	'''«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»'''
 
 	def entityFieldRepresentation(EntityFieldDeclaration it)
-	'''«entityFieldModifierFragment»«entityFieldNameFragment» : «referenceType.nameForEntityFieldSingleType»«entityFieldCardinalityFragment»'''
+	'''«entityFieldModifierFragment»«entityFieldNameFragment» : «referenceType.name»«entityFieldCardinalityFragment»'''
 
 	def entityIdentifierRepresentation(EntityIdentifierDeclaration it)
-	'''+<u>«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»</u> : «referenceType.nameForEntityFieldSingleType»'''
+	'''+<u>«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»</u> : «referenceType.name»'''
 
 
-	def entityDerivedParameterFragment(EntityDerivedDeclaration it)
+	def entityQueryParameterFragment(EntityQueryDeclaration it)
 	'''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.name» =«param.^default.sourceCode»«ENDFOR»'''
 
 	def entityDerivedRepresentation(EntityDerivedDeclaration it)
-	'''~«name»«entityDerivedParameterFragment» : «referenceType.nameForEntityDerivedSingleType»«IF isIsMany»[0..*]«ENDIF»'''
+	'''~«name» : «referenceType.name»«IF isIsMany»[0..*]«ENDIF»'''
+
+	def entityQueryRepresentation(EntityQueryDeclaration it)
+	'''~«name»«entityQueryParameterFragment» : «referenceType.name»[0..*]'''
 
 
 	def constraintParameterFragment(ConstraintDeclaration it)
@@ -178,6 +182,9 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 			«ENDFOR»
 			«FOR derived : derivedes»
 				«derived.entityDerivedRepresentation»
+			«ENDFOR»
+			«FOR query : queries»
+				«query.entityQueryRepresentation»
 			«ENDFOR»
 			«FOR constraint : constraints»
 				«constraint.constraintRepresentation»
