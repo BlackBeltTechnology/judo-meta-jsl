@@ -6,7 +6,6 @@ package hu.blackbelt.judo.meta.jsl.scoping
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import org.eclipse.xtext.scoping.Scopes
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import com.google.inject.Inject
@@ -25,206 +24,109 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunctionParameters
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 import java.util.ArrayList
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
-import java.util.List
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclarationParameter
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 import java.util.Collection
 import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider
-
-/**
- * This class contains custom scoping description.
- * 
- * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#scoping
- * on how and when to use it.
- */ 
+import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorField
  
 class JslDslScopeProvider extends AbstractDeclarativeScopeProvider {
 
-
-//AbstractDeclarativeScopeProvider {
-//AbstractJslDslScopeProvider {
-
-
-
 	@Inject extension JslDslModelExtension
 
-    override getScope(EObject context, EReference ref) {
-    	System.out.println("JslDslLocalScopeProvider.getScope="+ context.toString + " for " + ref.toString);
+
+	def scope_EntityRelationOpposite_oppositeType(EntityRelationOpposite context, EReference ref) {
+		nullSafeScope((context.eContainer as EntityRelationDeclaration).getAllOppositeRelations)		
+	}
+
+	def scope_EnumLiteralReference_enumDeclaration(DefaultExpressionType context, EReference ref) {
+		nullSafeScope(context.defaultExpressionEnumReferenceType)		
+	}
+
+	def scope_EnumLiteralReference_enumLiteral(EnumLiteralReference context, EReference ref) {
+		nullSafeScope(context.enumDeclaration.literals)		
+	}
+
+	def scope_Feature_navigationDeclarationType(Feature context, EReference ref) {
+		nullSafeScope((context as Feature).entityMembersForFeauture)		
+	}
+
+	def scope_QueryParameter_queryParameterType(Feature context, EReference ref) {
+		nullSafeScope(context.queryDeclarationParameters)
+	}
+
+	def scope_ThrowParameter_errorFieldType(CreateError context, EReference ref) {
+		nullSafeScope(context.errorFieldTypesForCreateError)
+	}
+
+	def scope_ThrowParameter_errorFieldType(ThrowParameter context, EReference ref) {
+		if (context.eContainer instanceof CreateError) {
+			nullSafeScope((context.eContainer as CreateError).errorFieldTypesForCreateError)
+		}
+	}
+
+	def scope_QueryParameter_queryParameterType(QueryParameter context, EReference ref) {
     	var container = context.eContainer
-		switch context {
-			EntityRelationOpposite : 
-				switch (ref) {
-					case JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType:
-						nullSafeScope((container as EntityRelationDeclaration).getAllOppositeRelations)			
-					default: 
-						super.getScope(context, ref)
-				}
-			DefaultExpressionType :
-				switch (ref) {
-					case JsldslPackage::eINSTANCE.enumLiteralReference_EnumDeclaration:
-						nullSafeScope(context.defaultExpressionEnumReferenceType)
-					default: 
-						super.getScope(context, ref)
-				}
+		if (container instanceof Feature) {
+			// System.out.println("=> QueryParameterType.Feature - QD: " + container.parentContainer(QueryDeclaration) + "  EDQ:" + container.parentContainer(EntityQueryDeclaration))
+			nullSafeScope(container.queryDeclarationParameters)
+		} else if (container instanceof QueryCall) {
+			// System.out.println("=> QueryParameterType.QueryCal - Ref: " + container.queryDeclarationReference + "QD: " + container.parentContainer(QueryDeclaration) + "  EDQ:" + container.parentContainer(EntityQueryDeclaration))
+			nullSafeScope(container.queryDeclarationReference.parameters)
+		}
+	}
 
-			EnumLiteralReference :
-				switch (ref) {
-					case JsldslPackage::eINSTANCE.enumLiteralReference_EnumLiteral: {
-						nullSafeScope(context.enumDeclaration.literals)
-					}
-					default: 
-						super.getScope(context, ref)					
-				}
-
-			EntityDerivedDeclaration : 
-				switch (ref) {
-//					case JsldslPackage::eINSTANCE.navigationExpression_NavigationBaseType:
-//						(context as EntityDerivedDeclaration).modelDeclaration.scopeForNavigationBase(super.getScope(context, ref))
-					default: 
-						super.getScope(context, ref)
-				}
-
-			/*			 
-			Feature
-			    : {Feature} '.' member = EntityMemberDeclarationFeature
-			    ;
-			
-			EntityMemberDeclarationFeature returns Feature
-				: entityMemberDeclarationType = [EntityMemberDeclaration | LocalName ] ('(' parameters+=QueryParameter (',' parameters+=QueryParameter)* ')')?
-				;
-			*/
-			Feature :
-				switch (ref) {
-					case JsldslPackage::eINSTANCE.feature_NavigationDeclarationType:
-						nullSafeScope((context as Feature).entityMembersForFeauture, super.getScope(context, ref))
-					case JsldslPackage::eINSTANCE.queryParameter_QueryParameterType:
-						nullSafeScope(context.queryDeclarationParameters)
-					default: 
-						super.getScope(context, ref)
-				}
-			
-
-			/*
-			CreateError
-				: errorDeclarationType=[ErrorDeclaration | LocalName] ('(' (parameters+=ThrowParameter (',' parameters+=ThrowParameter)*)? ')')?
-				;
-			
-			ThrowParameter
-				: errorFieldType=[ErrorField | LocalName] '=' expession=Expression
-				;
-			*/
-			CreateError : 
-				switch (ref) {
-					case JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType:
-						nullSafeScope(context.errorFieldTypesForCreateError)
-					default: 
-						super.getScope(context, ref)
-				}
-
-			ThrowParameter : 
-				switch (ref) {
-					case JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType:
-						if (container instanceof CreateError) {
-							nullSafeScope(container.errorFieldTypesForCreateError)
-						} else {
-							super.getScope(context, ref)
-						}
-					default: 
-						super.getScope(context, ref)
-				}
-
-			/*
-			Feature
-				: {Feature} '.' name=ID ('(' parameters+=QueryParameter (',' parameters+=QueryParameter)* ')')?
-				;
-			
-			QueryParameter
-				:  derivedParameterType=[DerivedParameter | LocalName] '=' expression=MultilineExpression
-				;
-			 */
-			QueryParameter : {
-				if (container === null) {
-					return super.getScope(context, ref)					
-				}
-				switch (ref) {
-					case JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: {		
-						if (container instanceof Feature) {
-							System.out.println("=> QueryParameterType.Feature - QD: " + container.parentContainer(QueryDeclaration) + "  EDQ:" + container.parentContainer(EntityQueryDeclaration))
-							nullSafeScope(container.queryDeclarationParameters)
-						} else if (container instanceof QueryCall) {
-							System.out.println("=> QueryParameterType.QueryCal - Ref: " + container.queryDeclarationReference + "QD: " + container.parentContainer(QueryDeclaration) + "  EDQ:" + container.parentContainer(EntityQueryDeclaration))
-							nullSafeScope(container.queryDeclarationReference.parameters)
-						} else {
-							super.getScope(context, ref)							
-						}		
-					}
-					case JsldslPackage::eINSTANCE.queryParameter_Parameter: {
-						if (container instanceof Feature) {
-							System.out.println("=> QueryParameter.Feature - QD: " + container.parentContainer(QueryDeclaration) + "  EDQ:" + container.parentContainer(EntityQueryDeclaration))
-							nullSafeScope(container.parentQueryDeclarationParameters)
-						} else if (container instanceof QueryCall) {
-							System.out.println("=> QueryParameter.QueryCal - Ref: " + container.queryDeclarationReference + "QD: " + container.parentContainer(QueryDeclaration) + "  EDQ:" + container.parentContainer(EntityQueryDeclaration))
-							nullSafeScope(container.parentQueryDeclarationParameters)
-						}
-					}
-					default: 
-						return super.getScope(context, ref)
-				}
-				
-			}
-			QueryCall : 
-				switch (ref) {
-					case JsldslPackage::eINSTANCE.queryParameter_QueryParameterType:
-						nullSafeScope(context.queryDeclarationReference.parameters)
-					case JsldslPackage::eINSTANCE.queryParameter_Parameter:
-						nullSafeScope((context as QueryCall).parameters)
-					default: 
-						return super.getScope(context, ref)
-				}
+	def scope_QueryParameter_parameter(QueryParameter context, EReference ref) {
+    	var container = context.eContainer
+		if (container instanceof Feature) {
+			// System.out.println("=> QueryParameter.Feature - QD: " + container.parentContainer(QueryDeclaration) + "  EDQ:" + container.parentContainer(EntityQueryDeclaration))
+			nullSafeScope(container.parentQueryDeclarationParameters)
+		} else if (container instanceof QueryCall) {
+			// System.out.println("=> QueryParameter.QueryCal - Ref: " + container.queryDeclarationReference + "QD: " + container.parentContainer(QueryDeclaration) + "  EDQ:" + container.parentContainer(EntityQueryDeclaration))
+			nullSafeScope(container.parentQueryDeclarationParameters)
+		}
+	}
 
 
-			EntityQueryDeclaration :
-				switch (ref) {
-					case JsldslPackage::eINSTANCE.navigationExpression_NavigationBaseType:
-						nullSafeScope(context.elementsForNavigationBaseReference)
-					case JsldslPackage::eINSTANCE.enumLiteralReference_EnumDeclaration:
-						nullSafeScope(context.parentContainer(ModelDeclaration).allEnumDeclarations)
-					case JsldslPackage::eINSTANCE.queryDeclaration_ReferenceType:
-						nullSafeScope(context.parentContainer(ModelDeclaration).allQueryDeclarations)
-					default: 
-						return super.getScope(context, ref)						
-				}
-			 
+	def scope_QueryParameter_queryParameterType(QueryCall context, EReference ref) {
+		nullSafeScope(context.queryDeclarationReference.parameters)
+	}
 
-			default: 
-				return super.getScope(context, ref)
-		}		
+	def scope_QueryParameter_Parameter(QueryCall context, EReference ref) {
+		nullSafeScope((context as QueryCall).parameters)
+	}
+
+	def scope_NavigationExpression_navigationBaseType(EntityQueryDeclaration context, EReference ref) {
+		nullSafeScope(context.elementsForNavigationBaseReference)
+	}
+	def scope_EnumLiteralReference_enumDeclaration(EntityQueryDeclaration context, EReference ref) {
+		nullSafeScope(context.parentContainer(ModelDeclaration).allEnumDeclarations)
+	}
+	def scope_QueryDeclaration_referenceType(EntityQueryDeclaration context, EReference ref) {
+		nullSafeScope(context.elementsForNavigationBaseReference)
+	}
+	
+	def scope_NavigationExpression_navigationBaseType(LambdaFunctionParameters context, EReference ref) {
+		nullSafeScope(context.elementsForNavigationBaseReference)
 	}
 	
 
-	def List errorFieldTypesForCreateError(CreateError createError) {
+    override getScope(EObject context, EReference ref) {
+    	// System.out.println("JslDslLocalScopeProvider.scope=scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref) : " + ref.EReferenceType.name);
+    	// printParents(context)
+    	super.getScope(context, ref)	
+	}
+
+	def Collection<ErrorField> errorFieldTypesForCreateError(CreateError createError) {
 		createError.errorDeclarationType.fields	
 	}
 
-/*
-	def IScope scopeForQueryParameterQueryParameterType(Feature feature, IScope fallback) {
-		if (feature.navigationDeclarationType === null) {
-			fallback
-		} else if (feature.navigationDeclarationType instanceof EntityQueryDeclaration) {
-			Scopes.scopeFor((feature.navigationDeclarationType as EntityQueryDeclaration).parameters, IScope.NULLSCOPE)							
-		} else {
-			fallback
-		}
-	}
-*/
-	def List<QueryDeclarationParameter> queryDeclarationParameters(EObject feature) {
+	def Collection<QueryDeclarationParameter> queryDeclarationParameters(EObject feature) {
 		if (feature instanceof Feature) {
 			if (feature === null || feature.navigationDeclarationType === null) {
 				return null
@@ -235,22 +137,6 @@ class JslDslScopeProvider extends AbstractDeclarativeScopeProvider {
 		null
 	}
 
-/* 
-	def IScope scopeForQueryParameterParameterType(EObject feature) {
-		if (feature !== null) {
-			val queryDeclaration = feature.parentContainer(QueryDeclaration)
-			if (queryDeclaration !== null) {
-				return Scopes.scopeFor(queryDeclaration.parameters, IScope.NULLSCOPE)		
-			} else {
-				val entityQueryDeclaration = feature.parentContainer(EntityQueryDeclaration)
-				if (entityQueryDeclaration !== null) {
-					return Scopes.scopeFor(entityQueryDeclaration.parameters, IScope.NULLSCOPE)					
-				}				
-			}
-		} 
-		return IScope.NULLSCOPE
-	}
-*/	
 	def Collection<QueryDeclarationParameter> parentQueryDeclarationParameters(EObject feature) {
 		if (feature !== null) {
 			val queryDeclaration = feature.parentContainer(QueryDeclaration)
@@ -267,25 +153,16 @@ class JslDslScopeProvider extends AbstractDeclarativeScopeProvider {
 	}
 
 
-
 	def Collection<NavigationBaseReference> elementsForNavigationBaseReference(EObject context) {
-		/*
-		 * NavigationBaseReference
-	     * : EntityDeclaration
-	     * | LambdaVariable
-	     * | QueryDeclarationParameter
-	     * ;
-		 */
-		 
-		 /*
-JslDslLocalScopeProvider.getScope=hu.blackbelt.judo.meta.jsl.jsldsl.impl.EntityDerivedDeclarationImpl@4d13dc5 (isMany: true, name: leadsOver10) for org.eclipse.emf.ecore.impl.EReferenceImpl@7b2adbde (name: navigationBaseType) (ordered: true, unique: true, lowerBound: 0, upperBound: 1) (changeable: true, volatile: false, transient: false, defaultValueLiteral: null, unsettable: false, derived: false) (containment: false, resolveProxies: true)
-JslDslLocalScopeProvider.getScope=hu.blackbelt.judo.meta.jsl.jsldsl.impl.EntityDerivedDeclarationImpl@4d13dc5 (isMany: true, name: leadsOver10) for org.eclipse.emf.ecore.impl.EReferenceImpl@52f8effb (name: enumDeclaration) (ordered: true, unique: true, lowerBound: 0, upperBound: 1) (changeable: true, volatile: false, transient: false, defaultValueLiteral: null, unsettable: false, derived: false) (containment: false, resolveProxies: true)
-JslDslLocalScopeProvider.getScope=hu.blackbelt.judo.meta.jsl.jsldsl.impl.EntityDerivedDeclarationImpl@4d13dc5 (isMany: true, name: leadsOver10) for org.eclipse.emf.ecore.impl.EReferenceImpl@1683b9ba (name: queryDeclarationReference) (ordered: true, unique: true, lowerBound: 0, upperBound: 1) (changeable: true, volatile: false, transient: false, defaultValueLiteral: null, unsettable: false, derived: false) (containment: false, resolveProxies: true)
-		  */
 		var contextElements = new ArrayList<NavigationBaseReference>;
 
 		// Add all entity declaratiosn
 		contextElements.addAll(context.parentContainer(ModelDeclaration).entityDeclarations)
+		
+		val parentDeclarationParameters = context.parentQueryDeclarationParameters
+		if (parentDeclarationParameters !== null) {
+			contextElements.addAll(parentDeclarationParameters)
+		}
 
 		// QueryDeclarationParameter
 		if (context instanceof EntityQueryDeclaration) {
@@ -296,36 +173,13 @@ JslDslLocalScopeProvider.getScope=hu.blackbelt.judo.meta.jsl.jsldsl.impl.EntityD
 			contextElements.addAll(context.parameters);
 		}
 
-		// TODO: Current Lambda
+		if (context instanceof LambdaFunctionParameters) {
+			contextElements.add((context as LambdaFunctionParameters).lambdaArgument);
+		}
 
-//		// EntityDeclaration		
-//		if (context instanceof EntityDeclaration) {
-//			contextElements.addAll(context.)
-//			
-//		}  		
 		return contextElements
 	}
 
-	
-	/*
-	def IScope scopeForDefaultExpressionType(DefaultExpressionType defaultExpression) {
-		var EObject refType
-
-		if (defaultExpression.eContainer instanceof EntityFieldDeclaration) {
-			refType = (defaultExpression.eContainer as EntityFieldDeclaration).referenceType
-		} else if (defaultExpression.eContainer instanceof EntityIdentifierDeclaration) {
-			refType = (defaultExpression.eContainer as EntityIdentifierDeclaration).referenceType
-		}
-		
-		if (refType !== null && refType instanceof EnumDeclaration) {
-			val enumDeclaration = refType as EnumDeclaration
-			return Scopes.scopeFor(#[enumDeclaration], IScope.NULLSCOPE);				
-		}
-        
-		return IScope.NULLSCOPE
-	}
-	* 
-	*/
 
 	def EnumDeclaration defaultExpressionEnumReferenceType(DefaultExpressionType defaultExpression) {
 		var EObject refType
@@ -344,71 +198,14 @@ JslDslLocalScopeProvider.getScope=hu.blackbelt.judo.meta.jsl.jsldsl.impl.EntityD
 	}
 
 
-/* 
-	def IScope scopeForNavigationDeclarationType(Feature feature, EReference ref, IScope fallback) {
-		// System.out.println("JslDslLocalScopeProvider.scopeForNavigationDeclarationType="+ feature.toString + " parent=" + feature.eContainer + " grandParent=" + feature.eContainer.eContainer)
-		if (feature.eContainer instanceof NavigationExpression) {
-            // enums...
-//            val decl = feature.modelDeclaration.allEnumDeclarations
-//            val enumDeclaration = decl.findFirst[e | e.name.equals((feature.eContainer as NavigationExpression).QName)];
-//
-//            if (enumDeclaration !== null) {
-//                return Scopes.scopeFor(enumDeclaration.literals, fallback)
-//            } else {
-                return Scopes.scopeFor(feature.parentContainer(ModelDeclaration).allNamedEntityMemberDeclarations, IScope.NULLSCOPE)
-//            }
-        } else if (feature.eContainer instanceof Feature) {        	
-        	return Scopes.scopeFor(feature.parentContainer(ModelDeclaration).allNamedEntityMemberDeclarations, IScope.NULLSCOPE)
-        } else {
-            return feature.getScopeForFeature(ref, fallback)
-        }
-	}
-*/
 	def Collection<EntityMemberDeclaration> entityMembersForFeauture(Feature feature) {
-		// System.out.println("JslDslLocalScopeProvider.scopeForNavigationDeclarationType="+ feature.toString + " parent=" + feature.eContainer + " grandParent=" + feature.eContainer.eContainer)
 		if (feature.eContainer instanceof NavigationExpression) {
             return feature.parentContainer(ModelDeclaration).allNamedEntityMemberDeclarations
         } else if (feature.eContainer instanceof Feature) {        	
         	return feature.parentContainer(ModelDeclaration).allNamedEntityMemberDeclarations
         } 
         return null
-        //else {
-        //  return feature.getScopeForFeature(ref, fallback)
-        //}
 	}
-
-/* 
-	def IScope getScopeForFeature(Feature it, EReference ref, IScope fallback) {
-		// System.out.println("JslDslModelExtension.getScopeForFeature="+ it.toString + " for " + ref.EReferenceType.name)
-		val defaultExpression = it.defaultExpression
-		
-		if (defaultExpression !== null) {
-			val targetType = (defaultExpression.eContainer as EntityFieldDeclaration).referenceType
-			
-			if (targetType instanceof EnumDeclaration) {
-				return Scopes.scopeFor(targetType.literals, IScope.NULLSCOPE)
-			}
-		}
-		
-		return fallback
-	}
-
-	def Collection<EnumLiterals> getScopeForFeature(Feature it) {
-		// System.out.println("JslDslModelExtension.getScopeForFeature="+ it.toString + " for " + ref.EReferenceType.name)
-		val defaultExpression = it.defaultExpression
-		
-		if (defaultExpression !== null) {
-			val targetType = (defaultExpression.eContainer as EntityFieldDeclaration).referenceType
-			
-			if (targetType instanceof EnumDeclaration) {
-				return targetType.literals
-			}
-		}
-		
-		return fallback
-	}
-*/
-
 
 	def LambdaVariable getParentLambdaVariable(Feature feature) {
 		var EObject container = feature
@@ -424,7 +221,6 @@ JslDslLocalScopeProvider.getScope=hu.blackbelt.judo.meta.jsl.jsldsl.impl.EntityD
 	def void printParents(EObject obj) {
 		var EObject t = obj;
 		var int indent = 1
-		System.out.println("")
 		while (t.eContainer !== null) {
 			for (var i = 0; i<indent; i++) {
 				System.out.print("\t");
@@ -433,6 +229,7 @@ JslDslLocalScopeProvider.getScope=hu.blackbelt.judo.meta.jsl.jsldsl.impl.EntityD
 			System.out.println(t)
 			t = t.eContainer
 		}
+		System.out.println("")
 		
 	}
 	

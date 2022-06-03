@@ -35,6 +35,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 import hu.blackbelt.judo.meta.jsl.jsldsl.Cardinality
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldSingleType
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryTargetType
+import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -157,8 +160,11 @@ class JslDslModelExtension {
 	}
 
 	def String getName(EObject object) {
+		if (object === null) {
+			return null
+		}
 		if (object instanceof Named) {
-			object.name
+			return object.name
 		} else {
 			throw new IllegalArgumentException("Object is not Named: " + object)
 		}
