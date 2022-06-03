@@ -134,11 +134,11 @@ class JslDslValidator extends AbstractJslDslValidator {
 		val modelName = modelImport.modelName;
 		if (modelName !== null) {
 			val modelQualifiedName = modelName.importName.toQualifiedName
-			val found = modelImport.modelDeclaration.getVisibleClassesDescriptions.map[
+			val found = modelImport.parentContainer(ModelDeclaration).getVisibleClassesDescriptions.map[
 				desc |
 				if (desc.qualifiedName == modelQualifiedName 
-					&& desc.EObjectOrProxy != modelImport.modelDeclaration 
-					&& desc.EObjectURI.trimFragment != modelImport.modelDeclaration.eResource.URI) {
+					&& desc.EObjectOrProxy != modelImport.parentContainer(ModelDeclaration) 
+					&& desc.EObjectURI.trimFragment != modelImport.parentContainer(ModelDeclaration).eResource.URI) {
 						true
 				} else {				
 					false

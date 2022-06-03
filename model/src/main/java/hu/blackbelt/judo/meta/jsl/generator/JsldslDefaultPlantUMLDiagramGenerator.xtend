@@ -232,7 +232,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 		«ENDFOR»
 		
 		«FOR entity : externalReferencedRelationReferenceTypes»
-			class «getExternalNameOfEntityDeclaration(entity)» <«entity.getParentContainer(ModelDeclaration).name»> << External >> 
+			class «getExternalNameOfEntityDeclaration(entity)» <«entity.parentContainer(ModelDeclaration).name»> << External >> 
 		«ENDFOR»
 
 		«FOR relation : getAllRelations(true)»
@@ -241,7 +241,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
 		«FOR external : externalReferencedRelationReferenceTypes»
 			«FOR relation : external.relations»
-				«IF relation.opposite?.oppositeName !== null && relation.referenceType.getParentContainer(ModelDeclaration).name === it.name»
+				«IF relation.opposite?.oppositeName !== null && relation.referenceType.parentContainer(ModelDeclaration).name === it.name»
 					«relation.entityRelationRepresentation(it)»
 				«ENDIF»
 			«ENDFOR»
@@ -257,7 +257,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 		val Set<EntityDeclaration> externalEntities = new HashSet()
 		for (entity : it.entityDeclarations) {
 			for (relation : entity.relations) {
-				if (relation.referenceType.getParentContainer(ModelDeclaration).name !== it.name) {
+				if (relation.referenceType.parentContainer(ModelDeclaration).name !== it.name) {
 					externalEntities.add(relation.referenceType)
 				}
 			}
@@ -266,8 +266,8 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	}
 	
 	def String getExternalNameOfEntityDeclaration(ModelDeclaration it, EntityDeclaration entityDeclaration) {
-		if (it.name !== entityDeclaration.getParentContainer(ModelDeclaration).name) {
-			val importList = imports.filter[i | i.modelName.importName.equals(entityDeclaration.getParentContainer(ModelDeclaration).name)]
+		if (it.name !== entityDeclaration.parentContainer(ModelDeclaration).name) {
+			val importList = imports.filter[i | i.modelName.importName.equals(entityDeclaration.parentContainer(ModelDeclaration).name)]
 				.map[i | i.modelName.alias !== null ? i.modelName.alias + "::" + entityDeclaration.name : entityDeclaration.name]
 			if (importList.size > 0) { 
 				importList.get(0)

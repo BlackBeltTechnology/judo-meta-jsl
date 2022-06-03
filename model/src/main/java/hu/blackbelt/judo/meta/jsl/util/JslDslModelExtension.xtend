@@ -34,6 +34,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 import hu.blackbelt.judo.meta.jsl.jsldsl.Cardinality
+import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteral
 
 @Singleton
 class JslDslModelExtension {
@@ -217,7 +218,8 @@ class JslDslModelExtension {
 		entity.getAllMembers(new LinkedList, new LinkedList)
 	}
 
-    def <T> T getParentContainer(EObject from, Class<T> type) {
+
+    def <T> T parentContainer(EObject from, Class<T> type) {
         var T found = null;
         var Object current = from;
         while (found === null && current !== null) {
@@ -328,20 +330,6 @@ class JslDslModelExtension {
 		return false
 	}
 	
-	def IScope getScopeForFeature(Feature it, EReference ref, IScope fallback) {
-		// System.out.println("JslDslModelExtension.getScopeForFeature="+ it.toString + " for " + ref.EReferenceType.name)
-		val defaultExpression = it.defaultExpression
-		
-		if (defaultExpression !== null) {
-			val targetType = (defaultExpression.eContainer as EntityFieldDeclaration).referenceType
-			
-			if (targetType instanceof EnumDeclaration) {
-				return Scopes.scopeFor(targetType.literals, IScope.NULLSCOPE)
-			}
-		}
-		
-		return fallback
-	}
 	
 	// maybe refactor later to accept param type to search for instead of fixed Default?
 	def EObject getDefaultExpression(EObject source) {
@@ -357,4 +345,9 @@ class JslDslModelExtension {
     def Collection<EnumDeclaration> allEnumDeclarations(ModelDeclaration model) {
 		model.declarations.filter[d | d instanceof EnumDeclaration].map[e | e as EnumDeclaration].toList
 	}
+
+    def Collection<EnumDeclaration> allQueryDeclarations(ModelDeclaration model) {
+		model.declarations.filter[d | d instanceof QueryDeclaration].map[e | e as EnumDeclaration].toList
+	}
+
 }
