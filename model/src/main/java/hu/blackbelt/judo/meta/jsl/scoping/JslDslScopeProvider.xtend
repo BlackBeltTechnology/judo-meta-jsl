@@ -27,6 +27,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunctionParameters
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 
 /**
  * This class contains custom scoping description.
@@ -140,10 +141,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: {		
 						if (container instanceof Feature) {
-							System.out.println("QueryParameterType.Feature - QD: " + container.queryDeclaration + "  EDQ:" + container.entityQueryDeclaration)
+							System.out.println("QueryParameterType.Feature - QD: " + container.getParentContainer(QueryDeclaration) + "  EDQ:" + container.getParentContainer(EntityQueryDeclaration))
 							return container.scopeForQueryParameterQueryParameterType(super.getScope(context, ref))
 						} else if (container instanceof QueryCall) {
-							System.out.println("QueryParameterType.QueryCal - Ref: " + container.queryDeclarationReference + "QD: " + container.queryDeclaration + "  EDQ:" + container.entityQueryDeclaration)
+							System.out.println("QueryParameterType.QueryCal - Ref: " + container.queryDeclarationReference + "QD: " + container.getParentContainer(QueryDeclaration) + "  EDQ:" + container.getParentContainer(EntityQueryDeclaration))
 							return Scopes.scopeFor(container.queryDeclarationReference.parameters, IScope.NULLSCOPE)
 						} else {
 							return super.getScope(context, ref)							
@@ -151,10 +152,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 					}
 					case JsldslPackage::eINSTANCE.queryParameter_Parameter: {
 						if (container instanceof Feature) {
-							System.out.println("QueryParameter.Feature - QD: " + container.queryDeclaration + "  EDQ:" + container.entityQueryDeclaration)
+							System.out.println("QueryParameter.Feature - QD: " + container.getParentContainer(QueryDeclaration) + "  EDQ:" + container.getParentContainer(EntityQueryDeclaration))
 							return container.scopeForQueryParameterParameterType
 						} else if (container instanceof QueryCall) {
-							System.out.println("QueryParameter.QueryCal - Ref: " + container.queryDeclarationReference + "QD: " + container.queryDeclaration + "  EDQ:" + container.entityQueryDeclaration)
+							System.out.println("QueryParameter.QueryCal - Ref: " + container.queryDeclarationReference + "QD: " + container.getParentContainer(QueryDeclaration) + "  EDQ:" + container.getParentContainer(EntityQueryDeclaration))
 							return container.scopeForQueryParameterParameterType
 							//return Scopes.scopeFor(container.queryDeclaration.parameters, IScope.NULLSCOPE)
 						}
@@ -196,11 +197,11 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 	def IScope scopeForQueryParameterParameterType(EObject feature) {
 		if (feature !== null) {
-			val queryDeclaration = feature.queryDeclaration
+			val queryDeclaration = feature.getParentContainer(QueryDeclaration)
 			if (queryDeclaration !== null) {
 				return Scopes.scopeFor(queryDeclaration.parameters, IScope.NULLSCOPE)		
 			} else {
-				val entityQueryDeclaration = feature.entityQueryDeclaration
+				val entityQueryDeclaration = feature.getParentContainer(EntityQueryDeclaration)
 				if (entityQueryDeclaration !== null) {
 					return Scopes.scopeFor(entityQueryDeclaration.parameters, IScope.NULLSCOPE)					
 				}				
@@ -236,10 +237,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 //            if (enumDeclaration !== null) {
 //                return Scopes.scopeFor(enumDeclaration.literals, fallback)
 //            } else {
-                return Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, IScope.NULLSCOPE)
+                return Scopes.scopeFor(feature.modelDeclaration.allNamedEntityMemberDeclarations, IScope.NULLSCOPE)
 //            }
         } else if (feature.eContainer instanceof Feature) {        	
-        	return Scopes.scopeFor(feature.modelDeclaration.allEntityMemberDeclarations, IScope.NULLSCOPE)
+        	return Scopes.scopeFor(feature.modelDeclaration.allNamedEntityMemberDeclarations, IScope.NULLSCOPE)
         } else {
             return feature.getScopeForFeature(ref, fallback)
         }

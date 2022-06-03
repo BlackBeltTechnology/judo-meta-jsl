@@ -20,13 +20,11 @@ import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import com.google.inject.Inject;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ConstraintDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldSingleType
 import java.util.List
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedSingleType
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
 import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.scoping.Scopes
@@ -34,8 +32,6 @@ import org.eclipse.emf.ecore.EReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryTargetType
-import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 import hu.blackbelt.judo.meta.jsl.jsldsl.Cardinality
 
@@ -58,11 +54,11 @@ class JslDslModelExtension {
 		}		
 	}
 
-	def Collection<EntityMemberDeclaration> allEntityMemberDeclarations(ModelDeclaration model) {
+	def Collection<EntityMemberDeclaration> allNamedEntityMemberDeclarations(ModelDeclaration model) {
 		val res = new ArrayList<EntityMemberDeclaration>();
 
 		model.entityDeclarations.forEach[e | {
-			res.addAll(e.members.filter[m | !(m instanceof ConstraintDeclaration)])
+			res.addAll(e.members.filter[m | m instanceof Named])
 		}]
 		return res
 	}
@@ -142,95 +138,40 @@ class JslDslModelExtension {
 		allEntitiesInInheritenceChain.add(entity)
 		allEntitiesInInheritenceChain.addAll(entity.superEntityTypes)		
 		for (e : allEntitiesInInheritenceChain) {
-			names.addAll(e.members.filter[m | m !== exclude].map[m | m.nameForEntityMemberDeclaration].filter[n | n.trim != ""].toList)
+			names.addAll(e.members.filter[m | m !== exclude].filter[m | m instanceof Named].map[m | m.name].filter[n | n.trim != ""].toList)
 		}
 		new HashSet(names)
 	}
 
-	def String getNameForEntityMemberDeclaration(EntityMemberDeclaration member) {
-		if (member instanceof Named) {
-			member.name
+ 	def boolean isMany(EObject object) {
+ 		if (object === null) {
+ 			return false;
+ 		}
+		if (object instanceof Cardinality) {
+			object.isIsMany
 		} else {
-			""
+			throw new IllegalArgumentException("Object is not Cardinality: " + object)
 		}
 	}
 
-	def boolean isManyAttributeForEntityMemberDeclaration(EntityMemberDeclaration member) {
-		if (member instanceof Cardinality) {
-			member.isIsMany
+	def String getName(EObject object) {
+		if (object instanceof Named) {
+			object.name
 		} else {
-			false
+			throw new IllegalArgumentException("Object is not Named: " + object)
 		}
 	}
 
-	def EAttribute getNameAttributeForEntityMemberDeclaration(EntityMemberDeclaration member) {
-		if (member instanceof Named) {
+	def EAttribute getNameAttribute(EObject object) {
+		if (object instanceof Named) {
 			JsldslPackage::eINSTANCE.named_Name
 		} else {
-			throw new IllegalArgumentException("Unknown EntityMemberDeclaration: " + member)
+			throw new IllegalArgumentException("Object is not Named: " + object)
 		}
 	}
-
-	def String getNameForDeclaration(Declaration declaration) {
-		if (declaration instanceof Named) {
-			declaration.name
-		} else {
-			""
-		}
-	}
-
-	def EAttribute getNameAttributeForDeclaration(Declaration declaration) {
-		if (declaration instanceof Named) {
-			JsldslPackage::eINSTANCE.named_Name
-		} else {
-			throw new IllegalArgumentException("Unknown Declaration: " + declaration)
-		}
-	}
-
-    def String getNameForNavigationBaseReference(NavigationBaseReference baseRef) {
-		if (baseRef instanceof Named) {
-			baseRef.name
-		} else {
-			""
-		}
-    }
-    
-    /*
-     *  * NavigationBaseReference
-     * 	: EntityDeclaration
-     * 	| QueryDeclaration
-     * 	| LambdaVariable
-     * 	| QueryDeclarationParameter
-     
-     */
-
-	def String getNameForEntityFieldSingleType(EntityFieldSingleType type) {
-		if (type instanceof Named) {
-			type.name
-		} else {
-			""
-		}
-	}
-
-	def String getNameForEntityDerivedSingleType(EntityDerivedSingleType type) {
-		if (type instanceof Named) {
-			type.name
-		} else {
-			""
-		}
-	}
-
-	def String getNameForEntityQueryTargetType(EntityQueryTargetType type) {
-		if (type instanceof Named) {
-			type.name
-		} else {
-			""
-		}
-	}
-
 
 	def Collection<String> getDeclarationNames(ModelDeclaration model, Declaration exclude) {
-		model.declarations.filter[m | m !== exclude].map[m | m.nameForDeclaration].filter[n | n.trim != ""].toSet
+		model.declarations.filter[m | m !== exclude].map[m | m.name].filter[n | n.trim != ""].toSet
 	}
 
 
@@ -267,63 +208,28 @@ class JslDslModelExtension {
 	}
 	
 	def String getMemberFullyQualifiedName(EntityMemberDeclaration member) {
-		(member.eContainer as EntityDeclaration).fullyQualifiedName.toString("::") + "." + member.nameForEntityMemberDeclaration
+		(member.eContainer as EntityDeclaration).fullyQualifiedName.toString("::") + "." + member.name
 	}
 
 	def Collection<EntityMemberDeclaration> getAllMembers(EntityDeclaration entity) {
 		entity.getAllMembers(new LinkedList, new LinkedList)
 	}
 
-	/*
-	def EntityDerivedDeclaration getDerivedDeclaration(EObject from) {
-		var EntityDerivedDeclaration found = null;
-		var EObject current = from;
-		while (found === null && current !== null) {
-			if (current instanceof EntityDerivedDeclaration) {
-				found = current as EntityDerivedDeclaration;
-			}
-			if (from.eContainer() !== null) {
-				current = current.eContainer();
-			} else {
-				current = null;
-			}
-		}
-		return found;
-	}
-	*/
-
-	def EntityQueryDeclaration getEntityQueryDeclaration(EObject from) {
-		var EntityQueryDeclaration found = null;
-		var EObject current = from;
-		while (found === null && current !== null) {
-			if (current instanceof EntityQueryDeclaration) {
-				found = current as EntityQueryDeclaration;
-			}
-			if (from.eContainer() !== null) {
-				current = current.eContainer();
-			} else {
-				current = null;
-			}
-		}
-		return found;
-	}
-
-	def QueryDeclaration getQueryDeclaration(EObject from) {
-		var QueryDeclaration found = null;
-		var EObject current = from;
-		while (found === null && current !== null) {
-			if (current instanceof QueryDeclaration) {
-				found = current as QueryDeclaration;
-			}
-			if (from.eContainer() !== null) {
-				current = current.eContainer();
-			} else {
-				current = null;
-			}
-		}
-		return found;
-	}
-
+    def <T> T getParentContainer(EObject from, Class<T> type) {
+        var T found = null;
+        var Object current = from;
+        while (found === null && current !== null) {
+            if (type.isAssignableFrom(current.getClass())) {
+                found = current as T;
+            }
+            if (from.eContainer !== null) {
+                current = (current as EObject).eContainer;
+            } else {
+                current = null;
+            }
+        }
+        return found;
+    }
 	
 	def Collection<EntityRelationDeclaration> getRelations(EntityDeclaration it) {
 		members.filter[m | m instanceof EntityRelationDeclaration].map[d | d as EntityRelationDeclaration].toList

@@ -37,6 +37,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DateLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeStampLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorField
+import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 
 /**
  * This class contains custom validation rules. 
@@ -202,21 +203,21 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkForDuplicateNameForEntityMemberDeclaration(EntityMemberDeclaration member) {
-		if ((member.eContainer as EntityDeclaration).getMemberNames(member).map[n | n.toLowerCase].contains(member.nameForEntityMemberDeclaration.toLowerCase)) {
-			error("Duplicate member declaration: '" + member.nameForEntityMemberDeclaration + "'",
-				member.nameAttributeForEntityMemberDeclaration,
+		if (member instanceof Named && (member.eContainer as EntityDeclaration).getMemberNames(member).map[n | n.toLowerCase].contains(member.name.toLowerCase)) {
+			error("Duplicate member declaration: '" + member.name + "'",
+				member.nameAttribute,
 				DUPLICATE_MEMBER_NAME,
-				member.nameForEntityMemberDeclaration)
+				member.name)
 		}
 	}
 
 	@Check
 	def checkEntityMemberDeclarationLength(EntityMemberDeclaration member) {
-		if (member.nameForEntityMemberDeclaration.length > MEMBER_NAME_LENGTH_MAX) {
-			error("Member name: '" + member.nameForEntityMemberDeclaration + "' is too long, must be at most " + MEMBER_NAME_LENGTH_MAX + " characters",
-				member.nameAttributeForEntityMemberDeclaration,
+		if (member instanceof Named && member.name.length > MEMBER_NAME_LENGTH_MAX) {
+			error("Member name: '" + member.name + "' is too long, must be at most " + MEMBER_NAME_LENGTH_MAX + " characters",
+				member.nameAttribute,
 				MEMBER_NAME_TOO_LONG,
-				member.nameForEntityMemberDeclaration)
+				member.name)
 		}
 	}
 
@@ -236,7 +237,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Check
 	def checkForDuplicateInheritedFields(EntityDeclaration entity) {
 		val collidingMembers = entity.allMembers
-			.groupBy[m | m.nameForEntityMemberDeclaration]
+			.filter[m | m instanceof Named]
+			.groupBy[m | m.name]
 			.filter[n, l | l.size > 1]
 			
 		if (collidingMembers.size > 0) {
@@ -249,11 +251,11 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkForDuplicateNameForDeclaration(Declaration declaration) {
-		if ((declaration.eContainer as ModelDeclaration).getDeclarationNames(declaration).map[n | n.toLowerCase].contains(declaration.nameForDeclaration.toLowerCase)) {
-			error("Duplicate declaration: '" + declaration.nameForDeclaration + "'",
-				declaration.nameAttributeForDeclaration,
+		if ((declaration.eContainer as ModelDeclaration).getDeclarationNames(declaration).map[n | n.toLowerCase].contains(declaration.name.toLowerCase)) {
+			error("Duplicate declaration: '" + declaration.name + "'",
+				declaration.nameAttribute,
 				DUPLICATE_DECLARATION_NAME,
-				declaration.nameForDeclaration)
+				declaration.name)
 		}
 	}
 	
@@ -367,7 +369,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		
 		if (memberReferenceType instanceof DataTypeDeclaration) {
 			primitive = (memberReferenceType as DataTypeDeclaration).primitive
-			nameForEntityFieldSingleType = (memberReferenceType as DataTypeDeclaration).nameForEntityFieldSingleType
+			nameForEntityFieldSingleType = (memberReferenceType as DataTypeDeclaration).name
 		}
 
 		if (defaultExpression.expression instanceof EnumLiteralReference) {
