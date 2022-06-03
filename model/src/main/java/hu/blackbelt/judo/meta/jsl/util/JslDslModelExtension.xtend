@@ -40,6 +40,7 @@ class JslDslModelExtension {
 	
 	@Inject extension IQualifiedNameProvider
 
+	/*
 	def ModelDeclaration modelDeclaration(EObject obj) {
 		var current = obj
 		
@@ -52,7 +53,7 @@ class JslDslModelExtension {
 		} else {
 			throw new IllegalAccessException("The root container is not ModelDeclaration: " + obj + "\n Root: " + current)
 		}		
-	}
+	} */
 
 	def Collection<EntityMemberDeclaration> allNamedEntityMemberDeclarations(ModelDeclaration model) {
 		val res = new ArrayList<EntityMemberDeclaration>();
@@ -197,6 +198,7 @@ class JslDslModelExtension {
 		getSuperEntityTypes(entity, new LinkedList)
 	}
 
+
 	def Collection<EntityDeclaration> getSuperEntityTypes(EntityDeclaration entity, Collection<EntityDeclaration> collected) {
 		for (superEntity : entity.extends) {
 			if (!collected.contains(superEntity)) {
@@ -274,6 +276,27 @@ class JslDslModelExtension {
 	def Collection<EntityIdentifierDeclaration> identifiers(EntityDeclaration it) {
 		members.filter[d | d instanceof EntityIdentifierDeclaration].map[d | d as EntityIdentifierDeclaration].toList
 	}
+
+	def Collection<EntityFieldDeclaration> allFields(EntityDeclaration it) {
+		allMembers.filter[d | d instanceof EntityFieldDeclaration].map[d | d as EntityFieldDeclaration].toList
+	}
+
+	def Collection<EntityDerivedDeclaration> allDerivedes(EntityDeclaration it) {
+		allMembers.filter[d | d instanceof EntityDerivedDeclaration].map[d | d as EntityDerivedDeclaration].toList
+	}
+
+	def Collection<EntityQueryDeclaration> allQueries(EntityDeclaration it) {
+		allMembers.filter[d | d instanceof EntityQueryDeclaration].map[d | d as EntityQueryDeclaration].toList
+	}
+
+	def Collection<ConstraintDeclaration> allConstraints(EntityDeclaration it) {
+		allMembers.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
+	}
+
+	def Collection<EntityIdentifierDeclaration> allIdentifiers(EntityDeclaration it) {
+		allMembers.filter[d | d instanceof EntityIdentifierDeclaration].map[d | d as EntityIdentifierDeclaration].toList
+	}
+	
 	
 	def String sourceCode(Expression it) {
 		return NodeModelUtils.findActualNodeFor(it)?.getText()

@@ -303,7 +303,7 @@ PrimaryExpression returns Expression
 	| Literal
 	;
 
-NavigationBase returns NavigationExpression
+NavigationBase returns Expression
 	: {NavigationExpression} (isSelf ?= 'self' | navigationBaseType = [NavigationBaseReference | LocalName]) (features+=Feature*) 
 	;
 

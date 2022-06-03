@@ -28,6 +28,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
+import java.util.ArrayList
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
+import java.util.List
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 
 /**
  * This class contains custom scoping description.
@@ -108,7 +113,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			CreateError : 
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType:
-						(context as CreateError).scopeForCreateError
+						Scopes.scopeFor(context.errorFieldTypesForCreateError, IScope.NULLSCOPE)
 					default: 
 						super.getScope(context, ref)
 				}
@@ -117,7 +122,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				switch (ref) {
 					case JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType:
 						if (container instanceof CreateError) {
-							(container as CreateError).scopeForCreateError
+							Scopes.scopeFor(container.errorFieldTypesForCreateError, IScope.NULLSCOPE)
 						} else {
 							super.getScope(context, ref)
 						}
@@ -176,18 +181,38 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				}
 
 
+			EntityQueryDeclaration :
+				switch (ref) {
+					case JsldslPackage::eINSTANCE.navigationExpression_NavigationBaseType:
+						Scopes.scopeFor(context.scopeForNavigationBase, IScope.NULLSCOPE)
+					default: 
+						return super.getScope(context, ref)						
+				}
+			 
+
 			default: 
 				return super.getScope(context, ref)
 		}		
 	}
 	
-	def IScope scopeForCreateError(CreateError createError) {
-		Scopes.scopeFor(createError.errorDeclarationType.fields, IScope.NULLSCOPE)		
+
+	def List errorFieldTypesForCreateError(CreateError createError) {
+		createError.errorDeclarationType.fields	
 	}
 
 	def IScope scopeForQueryParameterQueryParameterType(Feature feature, IScope fallback) {
 		if (feature.navigationDeclarationType === null) {
 			fallback
+		} else if (feature.navigationDeclarationType instanceof EntityQueryDeclaration) {
+			Scopes.scopeFor((feature.navigationDeclarationType as EntityQueryDeclaration).parameters, IScope.NULLSCOPE)							
+		} else {
+			fallback
+		}
+	}
+
+	def List queryDeclarationParametersForFeature(Feature feature, IScope fallback) {
+		if (feature.navigationDeclarationType === null) {
+			null
 		} else if (feature.navigationDeclarationType instanceof EntityQueryDeclaration) {
 			Scopes.scopeFor((feature.navigationDeclarationType as EntityQueryDeclaration).parameters, IScope.NULLSCOPE)							
 		} else {
@@ -209,6 +234,37 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		} 
 		return IScope.NULLSCOPE
 	}
+
+	def List elementsForNavigationBaseReference(EObject context) {
+		/*
+		 * NavigationBaseReference
+	     * : EntityDeclaration
+	     * | LambdaVariable
+	     * | QueryDeclarationParameter
+	     * ;
+		 */
+		var contextElements = new ArrayList<NavigationBaseReference>;
+
+		// EntityDeclaration		
+		
+		// QueryDeclarationParameter
+		if (context instanceof EntityQueryDeclaration) {
+			contextElements.addAll(context.parameters);
+		}
+
+		if (context instanceof QueryDeclaration) {
+			contextElements.addAll(context.parameters);
+		}
+
+
+
+		if (context instanceof EntityDeclaration) {
+			contextElements.addAll(context.allQueries)
+			
+		}  		
+		return contextElements
+	}
+
 	
 	def IScope scopeForDefaultExpressionType(DefaultExpressionType defaultExpression) {
 		var EObject refType
@@ -237,10 +293,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 //            if (enumDeclaration !== null) {
 //                return Scopes.scopeFor(enumDeclaration.literals, fallback)
 //            } else {
-                return Scopes.scopeFor(feature.modelDeclaration.allNamedEntityMemberDeclarations, IScope.NULLSCOPE)
+                return Scopes.scopeFor(feature.getParentContainer(ModelDeclaration).allNamedEntityMemberDeclarations, IScope.NULLSCOPE)
 //            }
         } else if (feature.eContainer instanceof Feature) {        	
-        	return Scopes.scopeFor(feature.modelDeclaration.allNamedEntityMemberDeclarations, IScope.NULLSCOPE)
+        	return Scopes.scopeFor(feature.getParentContainer(ModelDeclaration).allNamedEntityMemberDeclarations, IScope.NULLSCOPE)
         } else {
             return feature.getScopeForFeature(ref, fallback)
         }
