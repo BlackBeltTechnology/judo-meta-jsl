@@ -11,6 +11,7 @@ import org.eclipse.xtext.naming.IQualifiedNameConverter
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import org.eclipse.xtext.scoping.impl.ImportNormalizer
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 
 class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 
@@ -34,7 +35,7 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 
 	    val overridedFilter = new Predicate<IEObjectDescription>() {
             override boolean apply(IEObjectDescription input) {
-				val model = resource.getContents().get(0).modelDeclaration
+				val model = resource.getContents().get(0).parentContainer(ModelDeclaration)
 
 				var found = false
 				for (modelImport : model.imports) {
