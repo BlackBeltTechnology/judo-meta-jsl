@@ -160,7 +160,7 @@ CreateError
 	;
 
 ThrowParameter
-	: errorFieldType=[ErrorField | LocalName] '=' expession=Expression;
+	: errorFieldType=[ErrorField | LocalName] '=' expession=Literal;
 
 
 
@@ -326,17 +326,29 @@ FunctionCall
 	;
 
 Feature
-    : {Feature} '.' member = NavigationFeature
+    : {Feature} '.' navigationTargetType = [NavigationDeclaration | LocalName]('(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')')?
     ;
 
-NavigationFeature returns Feature
-	: navigationDeclarationType = [NavigationDeclaration | LocalName ] ('(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')')?
+NavigationDeclaration
+    : LambdaVariable
+    | EntityMemberDeclaration
+    ;
+
+
+/*
+Feature
+    : {Feature} '.' {Feature.base=current} navigationTargetType = NavigationTarget
+    ;
+
+NavigationTarget
+	: {NavigationTarget} {NavigationTarget.base=current} navigationDeclarationType = [NavigationDeclaration | NavigationName ] ('(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')')?
 	;
 
 NavigationDeclaration
     : LambdaVariable
     | EntityMemberDeclaration
     ;
+*/
 
 QueryParameter
 	:  queryParameterType=[QueryDeclarationParameter | QueryParameterName] '=' (literal = Literal | parameter = [QueryDeclarationParameter | QueryParameterName])     // expression=MultilineExpression
@@ -359,8 +371,78 @@ CreateParameter:
 
 
 Function returns Function
-	: name=ID '(' parameterDeclaration = FunctionParameterDeclaration? ')'
+	: function=SelectableFunctions '(' parameterDeclaration = FunctionParameterDeclaration? ')'
     ;
+
+GetVariableFunction : {GetVariableFunction} 'variable';
+IsDefinedFunction : {IsDefinedFunction} 'isDefined';
+IsUnDefinedFunction : {IsUnDefinedFunction} 'isUnDefined';
+LengthFunction : {LengthFunction} 'length';
+FirstFunction : {FirstFunction} 'first';
+LastFunction : {LastFunction} 'last';
+PositionFunction : {PositionFunction} 'position';
+SubstringFunction : {SubstringFunction} 'substring';
+LowerFunction : {LowerFunction} 'lower';
+UpperFunction : {UpperFunction} 'upper';
+CapitalizeFunction : {CapitalizeFunction} 'capitalize';
+MatchesFunction : {MatchesFunction} 'matches';
+LikeFunction : {LikeFunction} 'like';
+IlikeFunction : {IlikeFunction} 'ilike';
+ReplaceFunction : {ReplaceFunction} 'replace';
+TrimFunction : {TrimFunction} 'trim';
+LtrimFunction : {LtrimFunction} 'ltrim';
+RtrimFunction : {RtrimFunction} 'rtrim';
+FloorFunction : {FloorFunction} 'floor';
+CeilFunction : {CeilFunction} 'ceil';
+AbsFunction : {AbsFunction} 'abs';
+AsStringFunction : {AsStringFunction} 'asString';
+YearFunction : {YearFunction} 'year';
+MonthFunction : {MonthFunction} 'month';
+DayFunction : {DayFunction} 'day';
+OfFunction : {OfFunction} 'of';
+HourFunction : {HourFunction} 'hour';
+MinuteFunction : {MinuteFunction} 'minute';
+SecondFunction : {SecondFunction} 'second';
+DateFunction : {DateFunction} 'date';
+TimeFunction : {TimeFunction} 'time';
+AsMillisecondsFunction : {AsMillisecondsFunction} 'asMilliseconds';
+FromMillisecondsFunction : {FromMillisecondsFunction} 'fromMilliseconds';
+PlusMillisecondsFunction : {PlusMillisecondsFunction} 'plusMilliseconds';
+PlusSecondsFunction : {PlusSecondsFunction} 'plusSeconds';
+PlusMinutesFunction : {PlusMinutesFunction} 'plusMinutes';
+PlusHoursFunction : {PlusHoursFunction} 'plusHours';
+PlusDaysFunction : {PlusDaysFunction} 'plusDays';
+PlusMonthsFunction : {PlusMonthsFunction} 'plusMonths';
+PlusYearsFunction : {PlusYearsFunction} 'plusYears';
+TypeOfFunction : {TypeOfFunction} 'typeOf';
+KindOfFunction : {KindOfFunction} 'kindOf';
+ContainerFunction : {ContainerFunction} 'container';
+AsTypeFunction : {AsTypeFunction} 'asType';
+MemberOfFunction : {MemberOfFunction} 'memberOf';
+HeadFunction : {HeadFunction} 'head';
+TailFunction : {TailFunction} 'tail';
+AnyFunction : {AnyFunction} 'any';
+CountFunction : {CountFunction} 'count';
+AsCollectionFunction : {AsCollectionFunction} 'asCollection';
+ContainsFunction : {ContainsFunction} 'contains';
+FilterFunction : {FilterFunction} 'filter';
+AnyTrueFunction : {AnyTrueFunction} 'anyTrue';
+AllTrueFunction : {AllTrueFunction} 'allTrue';
+MinFunction : {MinFunction} 'min';
+MaxFunction : {MaxFunction} 'max';
+AvgFunction : {AvgFunction} 'avg';
+SumFunction : {SumFunction} 'sum';
+ 
+SelectableFunctions 
+    : GetVariableFunction | IsDefinedFunction | IsUnDefinedFunction | LengthFunction | FirstFunction | LastFunction | PositionFunction | SubstringFunction | LowerFunction
+    | UpperFunction | CapitalizeFunction | MatchesFunction | LikeFunction | IlikeFunction | ReplaceFunction | TrimFunction | LtrimFunction | RtrimFunction
+    | FloorFunction | CeilFunction | AbsFunction | AsStringFunction | YearFunction | MonthFunction | DayFunction | OfFunction | HourFunction | MinuteFunction
+    | SecondFunction | DateFunction | TimeFunction | AsMillisecondsFunction | FromMillisecondsFunction | PlusMillisecondsFunction | PlusSecondsFunction
+    | PlusMinutesFunction | PlusHoursFunction | PlusDaysFunction | PlusMonthsFunction | PlusYearsFunction | TypeOfFunction | KindOfFunction | ContainerFunction
+    | AsTypeFunction | MemberOfFunction | HeadFunction | TailFunction | AnyFunction | CountFunction | AsCollectionFunction | ContainsFunction | FilterFunction
+    | AnyTrueFunction | AllTrueFunction | MinFunction | MaxFunction | AvgFunction | SumFunction
+    ;
+
 
 FunctionParameterDeclaration
 	: LambdaFunctionParameters

@@ -74,7 +74,8 @@ class EnumDeclarationTests {
 				field Genre favoredGenre = GenreOther#HOUSE
 			}
 		'''.parse => [
-			m | m.assertenumLiteralReferenceLinkingError("Couldn't resolve reference to EnumDeclaration 'GenreOther'")
+			m | m.assertError(JsldslPackage::eINSTANCE.defaultExpressionType, JslDslValidator.DEFAULT_TYPE_MISMATCH, "Default value type: 'GenreOther' does not match member type: 'Genre'")
+//			m | m.assertenumLiteralReferenceLinkingError("Couldn't resolve reference to EnumDeclaration 'GenreOther'")
 		]
 	}
 	

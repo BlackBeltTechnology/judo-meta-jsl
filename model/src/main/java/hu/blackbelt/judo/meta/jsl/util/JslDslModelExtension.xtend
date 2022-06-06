@@ -166,7 +166,8 @@ class JslDslModelExtension {
 		if (object instanceof Named) {
 			return object.name
 		} else {
-			throw new IllegalArgumentException("Object is not Named: " + object)
+			""
+			//throw new IllegalArgumentException("Object is not Named: " + object)
 		}
 	}
 
