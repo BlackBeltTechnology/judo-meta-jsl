@@ -25,19 +25,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
-import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
-import org.eclipse.xtext.scoping.IScope
-import org.eclipse.xtext.scoping.Scopes
-import org.eclipse.emf.ecore.EReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 import hu.blackbelt.judo.meta.jsl.jsldsl.Cardinality
-import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldSingleType
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryTargetType
-import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 
 @Singleton
 class JslDslModelExtension {

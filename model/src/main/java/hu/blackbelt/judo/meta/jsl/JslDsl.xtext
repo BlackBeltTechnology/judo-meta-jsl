@@ -61,7 +61,7 @@ EntityDeclaration
 
 
 QueryDeclaration
-	: 'query' (referenceType = [EntityDerivedSingleType | LocalName] Cardinality?) Named
+	: 'query' (referenceType = [SingleType | LocalName] Cardinality?) Named
 	  ('(' parameters += QueryDeclarationParameter (',' parameters += QueryDeclarationParameter)* ')')
 	  "=" expression = Expression
 	;
@@ -80,7 +80,7 @@ ConstraintDeclaration
 	;
 
 EntityFieldDeclaration
-	: ('field')? (isRequired ?= 'required'? referenceType = [EntityFieldSingleType | LocalName] Cardinality?) Named
+	: ('field')? (isRequired ?= 'required'? referenceType = [SingleType | LocalName] Cardinality?) Named
 	  (defaultExpression = DefaultExpressionType)?
 	;
 
@@ -95,7 +95,7 @@ DefaultExpressionType
 	)
 	;
 
-EntityFieldSingleType 
+SingleType 
 	: PrimitiveDeclaration
 	| EntityDeclaration
 	;
@@ -106,13 +106,8 @@ EntityIdentifierDeclaration
 	;
 
 EntityDerivedDeclaration
-	: 'derived' (referenceType = [EntityDerivedSingleType | LocalName] Cardinality?) Named
+	: 'derived' (referenceType = [SingleType | LocalName] Cardinality?) Named
 	  "=" expression = Expression
-	;
-
-EntityDerivedSingleType
-	: PrimitiveDeclaration
-	| EntityDeclaration
 	;
 
 EntityQueryDeclaration
@@ -291,10 +286,10 @@ FunctionedExpression returns Expression
 	;
 
 NavigationExpression returns Expression
-	: PrimaryExpression ({NavigationExpression.base=current} features+=Feature+)?
+	: PrimaryExpression features+=Feature*
     | NavigationBase
     | EnumLiteralReference
-    | QueryCall ({NavigationExpression.base=current} features+=Feature+)?
+    | QueryCall features+=Feature*
     ;
 
 PrimaryExpression returns Expression
@@ -303,7 +298,7 @@ PrimaryExpression returns Expression
 	| Literal
 	;
 
-NavigationBase returns Expression
+NavigationBase returns NavigationExpression
 	: {NavigationExpression} (isSelf ?= 'self' | navigationBaseType = [NavigationBaseReference | LocalName]) (features+=Feature*) 
 	;
 
@@ -313,7 +308,7 @@ NavigationBaseReference
 	| QueryDeclarationParameter
 	;
 	
-QueryCall returns Expression
+QueryCall returns NavigationExpression
 	: {QueryCall} queryDeclarationReference = [ QueryDeclaration | LocalName ] '(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')'
 	;
 
@@ -332,6 +327,7 @@ Feature
 NavigationDeclaration
     : LambdaVariable
     | EntityMemberDeclaration
+    | EntityDeclaration
     ;
 
 

@@ -14,7 +14,6 @@ import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 import java.util.Map
 import java.util.HashMap
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
@@ -22,6 +21,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import org.eclipse.xtext.linking.lazy.LazyLinkingResource.CyclicLinkingException
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 
 @Singleton
 class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy {
@@ -65,11 +65,23 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 									// System.out.println("Indexing: " + fq)
 									acceptor.accept(
 										EObjectDescription::create(
-											fq, m, m.memberTypeIndexInfo
+											fq, m, m.indexInfo
 										)
 									)								
 								}								
 							}]
+						}
+
+						if (declaration instanceof QueryDeclaration) {
+							val fq = declaration.fullyQualifiedName
+							if (fq !== null) {
+								// System.out.println("Indexing: " + fq)
+								acceptor.accept(
+									EObjectDescription::create(
+										fq, declaration, declaration.indexInfo
+									)
+								)								
+							}								
 						}
 				]				
 			}
@@ -82,7 +94,7 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 	}
 	
 	
-	def Map<String, String> getMemberTypeIndexInfo(Object member) {
+	def Map<String, String> indexInfo(Object member) {
 		/*
 		 EntityMemberDeclaration
 	     : NL+ (EntityFieldDeclaration
@@ -154,7 +166,18 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 		 			userData.put("referenceType", (singleTypeField as PrimitiveDeclaration).fullyQualifiedName.toString)		 			
 		 		}
  			}
+ 			QueryDeclaration: {
+		 		val referenceType = member.referenceType
+		 		userData.put("isMany", member.isIsMany.toString)
+		 		if (referenceType instanceof EntityDeclaration) {
+		 			userData.put("type", "EntityDeclaration")
+		 			userData.put("referenceType", (referenceType as EntityDeclaration).fullyQualifiedName.toString)
+		 		} else if (referenceType instanceof PrimitiveDeclaration) {
+		 			userData.put("type", "PrimitiveDeclaration")
+		 			userData.put("referenceType", (referenceType as PrimitiveDeclaration).fullyQualifiedName.toString)		 			
+		 		}	
+ 			}
 		 }
-		 userData
+		 return userData
 	}
 }
