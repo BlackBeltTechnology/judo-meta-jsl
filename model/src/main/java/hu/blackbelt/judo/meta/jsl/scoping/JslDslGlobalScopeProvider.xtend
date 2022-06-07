@@ -19,7 +19,7 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 	@Inject extension JslDslModelExtension
 		
 	override getScope(Resource resource, EReference reference) {
-		//System.out.println("JslDslGlobalScopeProvider.getScope=" + reference);
+		// System.out.println("JslDslGlobalScopeProvider.getScope=" + reference);
 		super.getScope(resource, reference)		
 
 	}
@@ -39,12 +39,10 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 
 				var found = false
 				for (modelImport : model.imports) {
-
 					// System.out.println("> JslDslGlobalScopeProvider.getScope Import NS: " + modelImport.modelName.importName + " FIELD: " + input.qualifiedName.toString("::"));
-
 					val normalizer = new ImportNormalizer(modelImport.modelName.importName.toQualifiedName, true, false);
 					if (normalizer.deresolve(input.qualifiedName) !== null) {
-						//System.out.println("> JslDslGlobalScopeProvider.getScope=" + input.qualifiedName.toString("::") + "Res: " + resource + " Ref: " + reference + " Input: " + input);
+						// System.out.println("> JslDslGlobalScopeProvider.getScope=" + input.qualifiedName.toString("::") + "Res: " + resource + " Ref: " + reference + " Input: " + input);
 						found = true
 					}
 				}

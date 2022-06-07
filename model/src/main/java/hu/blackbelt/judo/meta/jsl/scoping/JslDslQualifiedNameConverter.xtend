@@ -5,7 +5,7 @@ import org.eclipse.xtext.naming.QualifiedName
 
 class JslDslQualifiedNameConverter extends IQualifiedNameConverter.DefaultImpl {
     override getDelimiter() {
-    	//System.out.println("JslDslQualifiedNameConverter.getDelimiter")
+    	// System.out.println("JslDslQualifiedNameConverter.getDelimiter")
         return "::" //super.delimiter;
 	}
 	

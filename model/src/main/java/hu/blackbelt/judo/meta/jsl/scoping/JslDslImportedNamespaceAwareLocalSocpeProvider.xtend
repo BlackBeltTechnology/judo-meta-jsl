@@ -41,72 +41,8 @@ class JslDslImportedNamespaceAwareLocalSocpeProvider extends ImportedNamespaceAw
 		}
 	}
 
-
-	def protected List<ImportNormalizer> getImportedNamespaceResolvers2(EObject context, boolean ignoreCase) {
-		val resolvers = new ArrayList<ImportNormalizer>()
-		// System.out.println("Resolver for: " + context)
-	
-		if (context instanceof ModelDeclaration) {
-			resolvers.addAll(super.getImportedNamespaceResolvers(context, ignoreCase))
-		} else if (context instanceof EntityDeclaration) {
-			val entityDecl = context as EntityDeclaration
-			entityDecl.superEntityTypes.forEach[e | {
-				val qn = e.qualifiedNameOfLocalElement
-				if (qn !== null) {
-					System.out.println(e.qualifiedNameOfLocalElement.toString() + ".*")
-					resolvers.add(createImportedNamespaceResolver(e.qualifiedNameOfLocalElement.toString() + ".*" , false));					
-				}
-			}]
-		} else if (context instanceof NavigationExpression) {
-			val navExpr = context as NavigationExpression
-			if (navExpr.navigationBaseType !== null && navExpr.navigationBaseType instanceof EntityDeclaration) {
-//				val qn = navExpr.navigationBaseType.qualifiedNameOfLocalElement
-//				if (qn !== null) {
-//					resolvers.add(createImportedNamespaceResolver(navExpr.navigationBaseType.qualifiedNameOfLocalElement.toString() + ".*" , false));												
-//				}	
-//			} else if (navExpr.isSelf) {
-//				navExpr.parentContainer(EntityDeclaration).getSuperEntityTypes.forEach[e | {
-//					resolvers.addAll(getImportedNamespaceResolvers(e, false))
-//				}]
-			}
-		} else if (context instanceof Feature) {
-			val feature = context as Feature
-			/*
-			if (feature.navigationDeclarationType !== null) {
-				val nav = feature.navigationDeclarationType as NavigationDeclaration
-				nav.
-			} */
-			/*
-			val navExpression = feature.parentContainer(NavigationExpression)
-			var Feature lastFeature = null
-			if (navExpression.features.size > 1) {
-				lastFeature = navExpression.features.get(navExpression.features.size - 2)
-			}
-			if (lastFeature !== null) {
-				val navDecl = lastFeature.member.navigationDeclarationType
-				if (navDecl instanceof EntityMemberDeclaration) {
-					// return (navDecl as EntityMemberDeclaration).memberTargetMembers
-				}
-			} */
-
-		}
-		//} else if (context instanceof EntityDeclaration) {
-		//	System.out.println("Resolver for: " + (context as EntityDeclaration).qualifiedNameOfLocalElement.toString("::"))
-		//	resolvers.add(createImportedNamespaceResolver((context as EntityDeclaration).qualifiedNameOfLocalElement.toString("::"), false))
-		//}
-		resolvers
-		//return new ArrayList<ImportNormalizer>()
-	}
-
 	override protected List<ImportNormalizer> internalGetImportedNamespaceResolvers(EObject context, boolean ignoreCase) {
-		//val resolvers = new ArrayList<ImportNormalizer>()
-		//super.internalGetImportedNamespaceResolvers(context, ignoreCase)
-		
 		val resolvers = new ArrayList<ImportNormalizer>()
-//			super.internalGetImportedNamespaceResolvers(context, ignoreCase)
-//		)
-		
-		//System.out.println("internalGetImportedNamespaceResolvers: " + context)
 		
 		if (context instanceof ModelDeclaration) {
 			val root = context as ModelDeclaration
@@ -124,7 +60,7 @@ class JslDslImportedNamespaceAwareLocalSocpeProvider extends ImportedNamespaceAw
     	printParents(context)
 		return super.getScope(context, ref)		
 
-/*
+		/*
 		val refTypesFromGlobal = #[
 			JsldslPackage::eINSTANCE.entityDeclaration_Extends,
 			JsldslPackage::eINSTANCE.entityDerivedDeclaration_ReferenceType,
