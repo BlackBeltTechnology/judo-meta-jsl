@@ -47,6 +47,7 @@ import com.google.common.cache.LoadingCache
 import com.google.common.cache.CacheBuilder
 import java.time.Duration
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionedExpression
+import org.eclipse.xtext.scoping.impl.FilteringScope
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -105,6 +106,32 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     	return ret
 	}
 
+	def IScope filterLambda(IScope parent, NavigationExpression context) {
+		return new FilteringScope(parent, [desc | {
+			val obj = desc.EObjectOrProxy
+			if (obj instanceof LambdaVariable) {
+				return false								
+			}
+			true
+		}]);
+	}
+
+	def IScope filterParentMember(IScope parent, EObject context) {
+		return new FilteringScope(parent, [desc | {
+			val obj = desc.EObjectOrProxy
+			val fieldDecl = context.parentContainer(EntityMemberDeclaration)			
+			if (fieldDecl !== null && fieldDecl === obj.parentContainer(EntityMemberDeclaration)){
+				return false
+			} else {
+				val queryDecl = context.parentContainer(QueryDeclaration)			
+				if (queryDecl !== null && queryDecl === obj.parentContainer(QueryDeclaration)){
+					return false
+				}
+			}
+			true
+		}]);
+	}
+
 	// Feature have to be cahed, because on every feature the previous features 
 	// are re-scoped. To avoid recursion caching it for 15 sec
 	def internal_scope_Feature_navigationTargetType(Feature context, EReference ref) {
@@ -117,13 +144,16 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			}			
 			if (featureToScope !== null && featureToScope.navigationTargetType !== null) {
 				if (featureToScope.navigationTargetType instanceof EntityMemberDeclaration) {
-					return nullSafeScope(getNavigationDeclarationReferences(IScope.NULLSCOPE, getResolvedProxy(navigationExpression, featureToScope.navigationTargetType) as EntityMemberDeclaration, ref))			
+					return nullSafeScope(getNavigationDeclarationReferences(IScope.NULLSCOPE, getResolvedProxy(navigationExpression, featureToScope.navigationTargetType) as EntityMemberDeclaration, ref))
+						.filterLambda(navigationExpression).filterParentMember(navigationExpression)
 				}
 			} else {
 				return getNavigationExpressionBaseReferences(IScope.NULLSCOPE, navigationExpression, ref)				
+						.filterLambda(navigationExpression).filterParentMember(navigationExpression)
 			}		
 		} else if (context.eContainer !== null && context.eContainer instanceof QueryCall) {
 			return getNavigationExpressionBaseReferences(IScope.NULLSCOPE, context.eContainer as QueryCall, ref)
+				.filterParentMember(navigationExpression)				
 		}
 		IScope.NULLSCOPE	
 	}
