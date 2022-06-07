@@ -20,6 +20,8 @@ import hu.blackbelt.judo.meta.jsl.scoping.JslDslGlobalScopeProvider
 import com.google.inject.Singleton
 import org.eclipse.xtext.generator.IOutputConfigurationProvider
 import hu.blackbelt.judo.meta.jsl.generator.JslDslOutputConfigurationProvider
+import org.eclipse.xtext.linking.ILinkingDiagnosticMessageProvider
+import hu.blackbelt.judo.meta.jsl.errormessages.JslDslLinkingDiagnosticMessageProvider
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
@@ -49,9 +51,12 @@ class JslDslRuntimeModule extends AbstractJslDslRuntimeModule {
 //    }
 
 	def Class<? extends ISyntaxErrorMessageProvider> bindISyntaxErrorMessageProvider() {
-	  JslDslSyntaxErrorMessageProvider;
+		JslDslSyntaxErrorMessageProvider;
   	}
   	
+  	def Class<? extends ILinkingDiagnosticMessageProvider> bindILinkingDiagnosticMessageProvider() {
+  		JslDslLinkingDiagnosticMessageProvider 
+	}
   	
     override Class<? extends IGlobalScopeProvider> bindIGlobalScopeProvider() {
         JslDslGlobalScopeProvider
