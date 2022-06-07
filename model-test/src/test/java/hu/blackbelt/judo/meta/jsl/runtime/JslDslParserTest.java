@@ -54,7 +54,7 @@ public class JslDslParserTest {
 		});
     	
     	assertThat(exception.getMessage().replace("\t", "").replace("\n", ""), matchesPattern("^Error parsing JSL expression"
-    			+ "Couldn't resolve reference to EntityFieldSingleType 'String2'. in "
+    			+ "Couldn't resolve reference to SingleType 'String2'. in "
     			+ "(.*)"
     			+ "#//@declarations.0/@members.0 at \\[4, 8\\]"));
 
