@@ -59,7 +59,9 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	@Inject IQualifiedNameProvider qualifiedNameProvider
 
     override getScope(EObject context, EReference ref) {
-    	System.out.println("JslDslLocalScopeProvider.scope=scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref) : " + ref.EReferenceType.name);
+    	System.out.println("JslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
+    		"\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper 
+    			+ ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)")
     	printParents(context)
     	
     	switch context {
@@ -68,18 +70,13 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     		ErrorField case ref == JsldslPackage::eINSTANCE.errorField_ReferenceType: return context.scope_ErrorField_referenceType(ref)
     		QueryParameter case ref == JsldslPackage::eINSTANCE.queryParameter_Parameter: return context.scope_QueryParameter_parameter(ref)
     		QueryCall case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)
-    		//QueryCall case ref == JsldslPackage::eINSTANCE.queryCall_QueryDeclarationReference: return context.scope_QueryCall_queryDeclarationReference(ref)
     		EntityRelationOpposite case ref == JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType: return context.scope_EntityRelationOpposite_oppositeType(ref)
-			//QueryDeclarationParameter case ref == JsldslPackage::eINSTANCE.queryDeclarationParameter_ReferenceType: return context.scope_QueryDeclarationParameter_referenceType(ref)
 			EntityQueryDeclaration case ref == JsldslPackage::eINSTANCE.entityQueryDeclaration_ReferenceType: return context.scope_EntityQueryDeclaration_referenceType(ref)
     		Feature case ref == JsldslPackage::eINSTANCE.feature_NavigationTargetType: return context.scope_Feature_navigationTargetType(ref)
     		QueryParameter case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)
     		Feature case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)    		
     		EnumLiteralReference case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumLiteral: return context.scope_EnumLiteralReference_enumLiteral(ref)
-    		//EntityDerivedDeclaration case ref == JsldslPackage::eINSTANCE.navigationExpression_NavigationBaseType: return context.scope_NavigationExpression_navigationBaseType(ref)
 			QueryDeclaration case ref == JsldslPackage::eINSTANCE.queryDeclarationParameter_ReferenceType: return context.scope_QueryDeclarationParameter_referenceType(ref)
-			
-
     	}
     	super.getScope(context, ref)	
 	}
@@ -106,7 +103,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     	return ret
 	}
 
-	def IScope filterLambda(IScope parent, NavigationExpression context) {
+	def IScope filterLambdaVariable(IScope parent, NavigationExpression context) {
 		return new FilteringScope(parent, [desc | {
 			val obj = desc.EObjectOrProxy
 			if (obj instanceof LambdaVariable) {
@@ -116,7 +113,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		}]);
 	}
 
-	def IScope filterParentMember(IScope parent, EObject context) {
+	def IScope filterSameParentDeclaration(IScope parent, EObject context) {
 		return new FilteringScope(parent, [desc | {
 			val obj = desc.EObjectOrProxy
 			val fieldDecl = context.parentContainer(EntityMemberDeclaration)			
@@ -145,15 +142,15 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			if (featureToScope !== null && featureToScope.navigationTargetType !== null) {
 				if (featureToScope.navigationTargetType instanceof EntityMemberDeclaration) {
 					return nullSafeScope(getNavigationDeclarationReferences(IScope.NULLSCOPE, getResolvedProxy(navigationExpression, featureToScope.navigationTargetType) as EntityMemberDeclaration, ref))
-						.filterLambda(navigationExpression).filterParentMember(navigationExpression)
+						.filterLambdaVariable(navigationExpression).filterSameParentDeclaration(navigationExpression)
 				}
 			} else {
 				return getNavigationExpressionBaseReferences(IScope.NULLSCOPE, navigationExpression, ref)				
-						.filterLambda(navigationExpression).filterParentMember(navigationExpression)
+						.filterLambdaVariable(navigationExpression).filterSameParentDeclaration(navigationExpression)
 			}		
 		} else if (context.eContainer !== null && context.eContainer instanceof QueryCall) {
 			return getNavigationExpressionBaseReferences(IScope.NULLSCOPE, context.eContainer as QueryCall, ref)
-				.filterParentMember(navigationExpression)				
+				.filterSameParentDeclaration(navigationExpression)				
 		}
 		IScope.NULLSCOPE	
 	}
