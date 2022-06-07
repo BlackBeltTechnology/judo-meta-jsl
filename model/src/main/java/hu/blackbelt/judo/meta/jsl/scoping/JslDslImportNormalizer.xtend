@@ -26,7 +26,7 @@ class JslDslImportNormalizer extends ImportNormalizer {
 		}
 		val resolved = super.resolve(name)		
 		
-		// System.out.println("JslDslImportNormalizer.resolve: " + relativeName.toString("::") + " -> " + resolved.toString("::"));
+		//System.out.println("JslDslImportNormalizer.resolve: " + relativeName.toString("::") + " -> " + resolved.toString("::"));
 		resolved
 	}
 	
@@ -39,7 +39,7 @@ class JslDslImportNormalizer extends ImportNormalizer {
 		if (deresolved === null) {
 			deresolved = fullyQualifiedName
 		}
-		// System.out.println("JslDslImportNormalizer.deresolve: " + fullyQualifiedName.toString("::") + " -> " + deresolved.toString("::"));
+		//System.out.println("JslDslImportNormalizer.deresolve: " + fullyQualifiedName.toString("::") + " -> " + deresolved.toString("::"));
 		deresolved
 	}
 	
