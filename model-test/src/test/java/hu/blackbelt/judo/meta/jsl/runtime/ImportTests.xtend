@@ -228,7 +228,7 @@ class ImportTests {
 		b.assertError(
 			JsldslPackage::eINSTANCE.entityFieldDeclaration, 
 			"org.eclipse.xtext.diagnostics.Diagnostic.Linking",
-			"Couldn't resolve reference to EntityFieldSingleType 'A::String'."
+			"Couldn't resolve reference to SingleTYpe 'A::String'."
 		)
 	}
 

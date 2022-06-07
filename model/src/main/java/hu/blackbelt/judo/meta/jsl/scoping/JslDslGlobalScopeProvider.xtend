@@ -11,6 +11,7 @@ import org.eclipse.xtext.naming.IQualifiedNameConverter
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import org.eclipse.xtext.scoping.impl.ImportNormalizer
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 
 class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 
@@ -25,7 +26,7 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 	
     override IScope getScope(Resource resource, EReference reference, Predicate<IEObjectDescription> filter) {
 		// System.out.println("JslDslGlobalScopeProvider.getScope Res: " + resource + "Ref: " + reference);
-
+    	// System.out.println("JslDslGlobalScopeProvider.scope=scope_" + reference.EContainingClass.name + "_" + reference.name + "(" + resource + " context, EReference ref) : " + reference.EReferenceType.name);
 		
 		if (JsldslPackage::eINSTANCE.modelImport_ModelName == reference) {
 			// System.out.println("JslDslGlobalScopeProvider.getScope NULL");
@@ -34,16 +35,14 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 
 	    val overridedFilter = new Predicate<IEObjectDescription>() {
             override boolean apply(IEObjectDescription input) {
-				val model = resource.getContents().get(0).modelDeclaration
+				val model = resource.getContents().get(0).parentContainer(ModelDeclaration)
 
 				var found = false
 				for (modelImport : model.imports) {
-
-					//System.out.println("> JslDslGlobalScopeProvider.getScope Import NS: " + modelImport.modelName.toQualifiedName.toString("::") + " FIELD: " + input.qualifiedName.toString("::"));
-
+					// System.out.println("> JslDslGlobalScopeProvider.getScope Import NS: " + modelImport.modelName.importName + " FIELD: " + input.qualifiedName.toString("::"));
 					val normalizer = new ImportNormalizer(modelImport.modelName.importName.toQualifiedName, true, false);
 					if (normalizer.deresolve(input.qualifiedName) !== null) {
-					//	System.out.println("> JslDslGlobalScopeProvider.getScope=" + input.qualifiedName.toString("::"));
+						// System.out.println("> JslDslGlobalScopeProvider.getScope=" + input.qualifiedName.toString("::") + "Res: " + resource + " Ref: " + reference + " Input: " + input);
 						found = true
 					}
 				}
@@ -57,5 +56,4 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
         }
         super.getScope(resource, reference, overridedFilter);
     }
-	
 }
