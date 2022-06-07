@@ -165,17 +165,27 @@ ThrowParameter
 
     
 DataTypeDeclaration
-    : {DataTypeDeclaration} 'type'
+    : 'type'
       (
-		  primitive = 'boolean' Named
-		| primitive = 'binary' Named (mimeTypes = ModifierMimeTypes? & maxFileSize = ModifierMaxFileSize?) 
-		| primitive = 'string' Named (maxLength = ModifierMaxLength & regex = ModifierRegex?)
-		| primitive = 'numeric' Named (precision = ModifierPrecision & scale = ModifierScale)
-		| primitive = 'date' Named
-		| primitive = 'time' Named
-		| primitive = 'timestamp' Named
+		  BooleanPrimitive
+		| BinaryPrimitive (mimeTypes = ModifierMimeTypes? & maxFileSize = ModifierMaxFileSize?) 
+		| StringPrimitive (maxLength = ModifierMaxLength & regex = ModifierRegex?)
+		| NumericPrimitive (precision = ModifierPrecision & scale = ModifierScale)
+		| DatePrimitive
+		| TimePrimitive
+		| TimestampPrimitive
       )
     ;
+
+BooleanPrimitive returns DataTypeDeclaration: primitive = 'boolean' Named;
+BinaryPrimitive returns DataTypeDeclaration : primitive = 'binary' Named;
+StringPrimitive returns DataTypeDeclaration : primitive = 'string' Named;
+NumericPrimitive returns DataTypeDeclaration : primitive = 'numeric' Named;
+DatePrimitive returns DataTypeDeclaration : primitive = 'date' Named;
+TimePrimitive returns DataTypeDeclaration : primitive = 'time' Named;
+TimestampPrimitive returns DataTypeDeclaration : primitive = 'timestamp' Named;
+
+
 
 /****************************
  *	Enum
@@ -192,7 +202,7 @@ EnumLiteral
 
 
 ModifierMaxLength
-	: 'max-length' maxLength = INTEGER
+	: 'max-length' value = INTEGER
 	;
 
 ModifierRegex
@@ -200,20 +210,20 @@ ModifierRegex
 	;
 
 ModifierPrecision
-	: 'precision' precision = INTEGER
+	: 'precision' value = INTEGER
 	;
 
 ModifierScale
-	: 'scale' scale = INTEGER
+	: 'scale' value = INTEGER
 	;
 
 
 ModifierMimeTypes
-	: 'mime-types' mimeTypes+=MIME_TYPE (',' mimeTypes += MIME_TYPE)*
+	: 'mime-types' values+=MIME_TYPE (',' values += MIME_TYPE)*
 	;
 
 ModifierMaxFileSize
-	: 'max-file-size' maxFileSize = INTEGER
+	: 'max-file-size' value = INTEGER
 	;
 	
 
@@ -367,69 +377,69 @@ CreateParameter:
 
 
 Function returns Function
-	: function=SelectableFunctions '(' parameterDeclaration = FunctionParameterDeclaration? ')'
+	: function=SelectableFunction '(' parameterDeclaration = FunctionParameterDeclaration? ')'
     ;
 
-GetVariableFunction : {GetVariableFunction} 'variable';
-IsDefinedFunction : {IsDefinedFunction} 'isDefined';
-IsUnDefinedFunction : {IsUnDefinedFunction} 'isUnDefined';
-LengthFunction : {LengthFunction} 'length';
-FirstFunction : {FirstFunction} 'first';
-LastFunction : {LastFunction} 'last';
-PositionFunction : {PositionFunction} 'position';
-SubstringFunction : {SubstringFunction} 'substring';
-LowerFunction : {LowerFunction} 'lower';
-UpperFunction : {UpperFunction} 'upper';
-CapitalizeFunction : {CapitalizeFunction} 'capitalize';
-MatchesFunction : {MatchesFunction} 'matches';
-LikeFunction : {LikeFunction} 'like';
-IlikeFunction : {IlikeFunction} 'ilike';
-ReplaceFunction : {ReplaceFunction} 'replace';
-TrimFunction : {TrimFunction} 'trim';
-LtrimFunction : {LtrimFunction} 'ltrim';
-RtrimFunction : {RtrimFunction} 'rtrim';
-FloorFunction : {FloorFunction} 'floor';
-CeilFunction : {CeilFunction} 'ceil';
-AbsFunction : {AbsFunction} 'abs';
-AsStringFunction : {AsStringFunction} 'asString';
-YearFunction : {YearFunction} 'year';
-MonthFunction : {MonthFunction} 'month';
-DayFunction : {DayFunction} 'day';
-OfFunction : {OfFunction} 'of';
-HourFunction : {HourFunction} 'hour';
-MinuteFunction : {MinuteFunction} 'minute';
-SecondFunction : {SecondFunction} 'second';
-DateFunction : {DateFunction} 'date';
-TimeFunction : {TimeFunction} 'time';
-AsMillisecondsFunction : {AsMillisecondsFunction} 'asMilliseconds';
-FromMillisecondsFunction : {FromMillisecondsFunction} 'fromMilliseconds';
-PlusMillisecondsFunction : {PlusMillisecondsFunction} 'plusMilliseconds';
-PlusSecondsFunction : {PlusSecondsFunction} 'plusSeconds';
-PlusMinutesFunction : {PlusMinutesFunction} 'plusMinutes';
-PlusHoursFunction : {PlusHoursFunction} 'plusHours';
-PlusDaysFunction : {PlusDaysFunction} 'plusDays';
-PlusMonthsFunction : {PlusMonthsFunction} 'plusMonths';
-PlusYearsFunction : {PlusYearsFunction} 'plusYears';
-TypeOfFunction : {TypeOfFunction} 'typeOf';
-KindOfFunction : {KindOfFunction} 'kindOf';
-ContainerFunction : {ContainerFunction} 'container';
-AsTypeFunction : {AsTypeFunction} 'asType';
-MemberOfFunction : {MemberOfFunction} 'memberOf';
-HeadFunction : {HeadFunction} 'head';
-TailFunction : {TailFunction} 'tail';
-AnyFunction : {AnyFunction} 'any';
-CountFunction : {CountFunction} 'count';
-AsCollectionFunction : {AsCollectionFunction} 'asCollection';
-ContainsFunction : {ContainsFunction} 'contains';
-FilterFunction : {FilterFunction} 'filter';
-AnyTrueFunction : {AnyTrueFunction} 'anyTrue';
-AllTrueFunction : {AllTrueFunction} 'allTrue';
-MinFunction : {MinFunction} 'min';
-MaxFunction : {MaxFunction} 'max';
-AvgFunction : {AvgFunction} 'avg';
-SumFunction : {SumFunction} 'sum';
+GetVariableFunction returns Named : name = 'variable';
+IsDefinedFunction returns Named : name = 'isDefined';
+IsUnDefinedFunction returns Named : name =  'isUnDefined';
+LengthFunction returns Named : name = 'length';
+FirstFunction returns Named : name = 'first';
+LastFunction returns Named : name = 'last';
+PositionFunction returns Named : name = 'position';
+SubstringFunction returns Named : name = 'substring';
+LowerFunction returns Named : name = 'lower';
+UpperFunction returns Named : name = 'upper';
+CapitalizeFunction returns Named : name = 'capitalize';
+MatchesFunction returns Named : name = 'matches';
+LikeFunction returns Named : name = 'like';
+IlikeFunction returns Named : name = 'ilike';
+ReplaceFunction returns Named : name = 'replace';
+TrimFunction returns Named : name = 'trim';
+LtrimFunction returns Named : name = 'ltrim';
+RtrimFunction returns Named : name = 'rtrim';
+FloorFunction returns Named : name = 'floor';
+CeilFunction returns Named : name = 'ceil';
+AbsFunction returns Named : name = 'abs';
+AsStringFunction returns Named : name = 'asString';
+YearFunction returns Named : name = 'year';
+MonthFunction returns Named : name = 'month';
+DayFunction returns Named : name = 'day';
+OfFunction returns Named : name = 'of';
+HourFunction returns Named : name = 'hour';
+MinuteFunction returns Named : name = 'minute';
+SecondFunction returns Named : name = 'second';
+DateFunction returns Named : name = 'date';
+TimeFunction returns Named : name = 'time';
+AsMillisecondsFunction returns Named : name = 'asMilliseconds';
+FromMillisecondsFunction returns Named : name = 'fromMilliseconds';
+PlusMillisecondsFunction returns Named : name = 'plusMilliseconds';
+PlusSecondsFunction returns Named : name = 'plusSeconds';
+PlusMinutesFunction returns Named : name = 'plusMinutes';
+PlusHoursFunction returns Named : name = 'plusHours';
+PlusDaysFunction returns Named : name = 'plusDays';
+PlusMonthsFunction returns Named : name = 'plusMonths';
+PlusYearsFunction returns Named : name = 'plusYears';
+TypeOfFunction returns Named : name = 'typeOf';
+KindOfFunction returns Named : name = 'kindOf';
+ContainerFunction returns Named : name = 'container';
+AsTypeFunction returns Named : name = 'asType';
+MemberOfFunction returns Named : name = 'memberOf';
+HeadFunction returns Named : name = 'head';
+TailFunction returns Named : name = 'tail';
+AnyFunction returns Named : name = 'any';
+CountFunction returns Named : name = 'count';
+AsCollectionFunction returns Named : name = 'asCollection';
+ContainsFunction returns Named : name = 'contains';
+FilterFunction returns Named : name = 'filter';
+AnyTrueFunction returns Named : name = 'anyTrue';
+AllTrueFunction returns Named : name = 'allTrue';
+MinFunction returns Named : name = 'min';
+MaxFunction returns Named : name = 'max';
+AvgFunction returns Named : name = 'avg';
+SumFunction returns Named : name = 'sum';
  
-SelectableFunctions 
+SelectableFunction 
     : GetVariableFunction | IsDefinedFunction | IsUnDefinedFunction | LengthFunction | FirstFunction | LastFunction | PositionFunction | SubstringFunction | LowerFunction
     | UpperFunction | CapitalizeFunction | MatchesFunction | LikeFunction | IlikeFunction | ReplaceFunction | TrimFunction | LtrimFunction | RtrimFunction
     | FloorFunction | CeilFunction | AbsFunction | AsStringFunction | YearFunction | MonthFunction | DayFunction | OfFunction | HourFunction | MinuteFunction

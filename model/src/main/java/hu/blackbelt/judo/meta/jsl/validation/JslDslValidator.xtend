@@ -261,14 +261,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 	
 	@Check
 	def checkModifierMaxLength(ModifierMaxLength modifier) {
-		if (modifier.maxLength <= BigInteger.ZERO) {
+		if (modifier.value <= BigInteger.ZERO) {
 			error("MaxLength must be greater than 0",
-				JsldslPackage::eINSTANCE.modifierMaxLength_MaxLength,
+				JsldslPackage::eINSTANCE.modifierMaxLength_Value,
 				MAX_LENGTH_MODIFIER_IS_NEGATIVE,
 				JsldslPackage::eINSTANCE.modifierMaxLength.name)
-		} else if (modifier.maxLength > MODIFIER_MAX_LENGTH_MAX_VALUE) {
+		} else if (modifier.value > MODIFIER_MAX_LENGTH_MAX_VALUE) {
 			error("MaxLength must be less than/equal to " + MODIFIER_MAX_LENGTH_MAX_VALUE,
-				JsldslPackage::eINSTANCE.modifierMaxLength_MaxLength,
+				JsldslPackage::eINSTANCE.modifierMaxLength_Value,
 				MAX_LENGTH_MODIFIER_IS_TOO_LARGE,
 				JsldslPackage::eINSTANCE.modifierMaxLength.name)
 		}
@@ -276,14 +276,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 	
 	@Check
 	def checkModifierPrecision(ModifierPrecision precision) {
-		if (precision.precision <= BigInteger.ZERO) {
+		if (precision.value <= BigInteger.ZERO) {
 			error("Precision must be greater than 0",
-				JsldslPackage::eINSTANCE.modifierPrecision_Precision,
+				JsldslPackage::eINSTANCE.modifierPrecision_Value,
 				PRECISION_MODIFIER_IS_NEGATIVE,
 				JsldslPackage::eINSTANCE.modifierPrecision.name)
-		} else if (precision.precision > PRECISION_MAX_VALUE) {
+		} else if (precision.value > PRECISION_MAX_VALUE) {
 			error("Precision must be less than/equal to " + PRECISION_MAX_VALUE,
-				JsldslPackage::eINSTANCE.modifierPrecision_Precision,
+				JsldslPackage::eINSTANCE.modifierPrecision_Value,
 				PRECISION_MODIFIER_IS_TOO_LARGE,
 				JsldslPackage::eINSTANCE.modifierPrecision.name)
 		}
@@ -291,15 +291,15 @@ class JslDslValidator extends AbstractJslDslValidator {
 	
 	@Check
 	def checkModifierScale(ModifierScale scale) {
-		val precisionValue = (scale.eContainer as DataTypeDeclaration).precision.precision
-		if (scale.scale < BigInteger.ZERO) {
+		val precisionValue = (scale.eContainer as DataTypeDeclaration).precision.value
+		if (scale.value < BigInteger.ZERO) {
 			error("Scale must be greater than/equal to 0",
-				JsldslPackage::eINSTANCE.modifierScale_Scale,
+				JsldslPackage::eINSTANCE.modifierScale_Value,
 				SCALE_MODIFIER_IS_NEGATIVE,
 				JsldslPackage::eINSTANCE.modifierScale.name)
-		} else if (scale.scale >= precisionValue) {
+		} else if (scale.value >= precisionValue) {
 			error("Scale must be less than the defined precision: " + precisionValue,
-				JsldslPackage::eINSTANCE.modifierScale_Scale,
+				JsldslPackage::eINSTANCE.modifierScale_Value,
 				SCALE_MODIFIER_IS_TOO_LARGE,
 				JsldslPackage::eINSTANCE.modifierScale.name)
 		}
@@ -366,7 +366,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		
 		var String primitive
 		var String nameForEntityFieldSingleType
-		
+				
 		if (memberReferenceType instanceof DataTypeDeclaration) {
 			primitive = (memberReferenceType as DataTypeDeclaration).primitive
 			nameForEntityFieldSingleType = (memberReferenceType as DataTypeDeclaration).name
