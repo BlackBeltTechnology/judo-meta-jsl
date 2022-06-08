@@ -10,10 +10,6 @@ ModelDeclaration returns ModelDeclaration hidden(WS, SL_COMMENT, ML_COMMENT)
 	  NL*
     ;
 
-//ModelImport
-//    : =>NL+ 'import' importedModel = [ModelDeclaration] ('as' alias = ID)?
-//	;
-
 ModelImport
     : NL+ 'import' modelName = ModelImportDeclaration
 	;
@@ -341,21 +337,6 @@ NavigationDeclaration
     ;
 
 
-/*
-Feature
-    : {Feature} '.' {Feature.base=current} navigationTargetType = NavigationTarget
-    ;
-
-NavigationTarget
-	: {NavigationTarget} {NavigationTarget.base=current} navigationDeclarationType = [NavigationDeclaration | NavigationName ] ('(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')')?
-	;
-
-NavigationDeclaration
-    : LambdaVariable
-    | EntityMemberDeclaration
-    ;
-*/
-
 QueryParameter
 	:  queryParameterType=[QueryDeclarationParameter | QueryParameterName] '=' (literal = Literal | parameter = [QueryDeclarationParameter | QueryParameterName])     // expression=MultilineExpression
 	;
@@ -376,72 +357,104 @@ CreateParameter:
     name=ID '=' right=MultilineExpression;
 
 
-Function returns Function
-	: function=SelectableFunction '(' parameterDeclaration = FunctionParameterDeclaration? ')'
+Function returns Named
+	: SelectableFunction
     ;
 
-GetVariableFunction returns Named : name = 'variable';
-IsDefinedFunction returns Named : name = 'isDefined';
-IsUnDefinedFunction returns Named : name =  'isUnDefined';
-LengthFunction returns Named : name = 'length';
-FirstFunction returns Named : name = 'first';
-LastFunction returns Named : name = 'last';
-PositionFunction returns Named : name = 'position';
-SubstringFunction returns Named : name = 'substring';
-LowerFunction returns Named : name = 'lower';
-UpperFunction returns Named : name = 'upper';
-CapitalizeFunction returns Named : name = 'capitalize';
-MatchesFunction returns Named : name = 'matches';
-LikeFunction returns Named : name = 'like';
-IlikeFunction returns Named : name = 'ilike';
-ReplaceFunction returns Named : name = 'replace';
-TrimFunction returns Named : name = 'trim';
-LtrimFunction returns Named : name = 'ltrim';
-RtrimFunction returns Named : name = 'rtrim';
-FloorFunction returns Named : name = 'floor';
-CeilFunction returns Named : name = 'ceil';
-AbsFunction returns Named : name = 'abs';
-AsStringFunction returns Named : name = 'asString';
-YearFunction returns Named : name = 'year';
-MonthFunction returns Named : name = 'month';
-DayFunction returns Named : name = 'day';
-OfFunction returns Named : name = 'of';
-HourFunction returns Named : name = 'hour';
-MinuteFunction returns Named : name = 'minute';
-SecondFunction returns Named : name = 'second';
-DateFunction returns Named : name = 'date';
-TimeFunction returns Named : name = 'time';
-AsMillisecondsFunction returns Named : name = 'asMilliseconds';
-FromMillisecondsFunction returns Named : name = 'fromMilliseconds';
-PlusMillisecondsFunction returns Named : name = 'plusMilliseconds';
-PlusSecondsFunction returns Named : name = 'plusSeconds';
-PlusMinutesFunction returns Named : name = 'plusMinutes';
-PlusHoursFunction returns Named : name = 'plusHours';
-PlusDaysFunction returns Named : name = 'plusDays';
-PlusMonthsFunction returns Named : name = 'plusMonths';
-PlusYearsFunction returns Named : name = 'plusYears';
-TypeOfFunction returns Named : name = 'typeOf';
-KindOfFunction returns Named : name = 'kindOf';
-ContainerFunction returns Named : name = 'container';
-AsTypeFunction returns Named : name = 'asType';
-MemberOfFunction returns Named : name = 'memberOf';
-HeadFunction returns Named : name = 'head';
-TailFunction returns Named : name = 'tail';
-AnyFunction returns Named : name = 'any';
-CountFunction returns Named : name = 'count';
-AsCollectionFunction returns Named : name = 'asCollection';
-ContainsFunction returns Named : name = 'contains';
-FilterFunction returns Named : name = 'filter';
-AnyTrueFunction returns Named : name = 'anyTrue';
-AllTrueFunction returns Named : name = 'allTrue';
-MinFunction returns Named : name = 'min';
-MaxFunction returns Named : name = 'max';
-AvgFunction returns Named : name = 'avg';
-SumFunction returns Named : name = 'sum';
+// String functions
+GetVariableFunction returns LiteralFunction : {LiteralFunction} name = 'getVariable' '(' parameters += FunctionParameter ')' ;
+IsDefinedFunction returns LiteralFunction : {LiteralFunction} name = 'isDefined' '(' ')';
+IsUnDefinedFunction returns LiteralFunction : {LiteralFunction} name = 'isUnDefined' '(' ')';
+LengthFunction returns LiteralFunction : {LiteralFunction} name = 'length' '(' ')';
+FirstFunction returns LiteralFunction : {LiteralFunction} name = 'first' '(' parameters += FunctionParameter ')';
+LastFunction returns LiteralFunction : {LiteralFunction} name = 'last' '(' parameters += FunctionParameter ')';
+PositionFunction returns LiteralFunction : {LiteralFunction} name = 'position' '(' parameters += FunctionParameter ')';
+SubstringFunction returns LiteralFunction : {LiteralFunction} name = 'substring' '(' parameters += FunctionParameter ',' parameters += FunctionParameter ')';
+LowerFunction returns LiteralFunction : {LiteralFunction} name = 'lower' '(' ')';
+UpperFunction returns LiteralFunction : {LiteralFunction} name = 'upper' '(' ')';
+CapitalizeFunction returns LiteralFunction : {LiteralFunction} name = 'capitalize' '(' ')';
+MatchesFunction returns LiteralFunction : {LiteralFunction} name = 'matches' '(' parameters += FunctionParameter ')';
+LikeFunction returns LiteralFunction : {LiteralFunction} name = 'like' '(' parameters += FunctionParameter ')';
+IlikeFunction returns LiteralFunction : {LiteralFunction} name = 'ilike' '(' parameters += FunctionParameter ')';
+ReplaceFunction returns LiteralFunction : {LiteralFunction} name = 'replace' '(' parameters += FunctionParameter ',' parameters += FunctionParameter ')';
+TrimFunction returns LiteralFunction : {LiteralFunction} name = 'trim' '(' ')';
+LtrimFunction returns LiteralFunction : {LiteralFunction} name = 'ltrim' '(' ')';
+RtrimFunction returns LiteralFunction : {LiteralFunction} name = 'rtrim' '(' ')';
+
+// Numeric functions
+RoundFunction returns LiteralFunction : {LiteralFunction} name = 'round' '(' ')';
+FloorFunction returns LiteralFunction : {LiteralFunction} name = 'floor' '(' ')';
+CeilFunction returns LiteralFunction : {LiteralFunction} name = 'ceil' '(' ')';
+AbsFunction returns LiteralFunction : {LiteralFunction} name = 'abs' '(' ')';
+AsStringFunction returns LiteralFunction : {LiteralFunction} name = 'asString' '(' ')';
+
+// Boolean functions
+// AsStringFunction returns Named : {AsBooleanAsStringFunction} name = 'asString' '(' ')';
+
+// Date functions
+YearFunction returns LiteralFunction : {LiteralFunction} name = 'year' '(' ')';
+MonthFunction returns LiteralFunction : {LiteralFunction} name = 'month' '(' ')';
+DayFunction returns LiteralFunction : {LiteralFunction} name = 'day' '(' ')';
+OfFunction returns LiteralFunction : {LiteralFunction} name = 'of' '(' parameters += FunctionParameter ',' parameters += FunctionParameter (',' parameters += FunctionParameter)? ')';
+// AsStringFunction returns Named : {AsStringFunction} name = 'asString' '(' ')';
+
+// Time functions
+HourFunction returns LiteralFunction : {LiteralFunction} name = 'hour' '(' ')';
+MinuteFunction returns LiteralFunction : {LiteralFunction} name = 'minute' '(' ')';
+SecondFunction returns LiteralFunction : {LiteralFunction} name = 'second' '(' ')';
+// OfFunction returns Named : {OfFunction} name = 'of' '(' args = TwoArg | ThreeArg  ')';
+// AsStringFunction returns Named : {AsStringFunction} name = 'asString' '(' ')';
+
+// Timestamp functions
+DateFunction returns LiteralFunction : {LiteralFunction} name = 'date' '(' ')';
+TimeFunction returns LiteralFunction : {LiteralFunction} name = 'time' '(' ')';
+AsMillisecondsFunction returns LiteralFunction : {LiteralFunction} name = 'asMilliseconds' '(' ')';
+FromMillisecondsFunction returns LiteralFunction : {LiteralFunction} name = 'fromMilliseconds' '(' parameters += FunctionParameter ')';
+PlusMillisecondsFunction returns LiteralFunction : {LiteralFunction} name = 'plusMilliseconds' '(' parameters += FunctionParameter ')';
+PlusSecondsFunction returns LiteralFunction : {LiteralFunction} name = 'plusSeconds' '(' parameters += FunctionParameter ')';
+PlusMinutesFunction returns LiteralFunction : {LiteralFunction} name = 'plusMinutes' '(' parameters += FunctionParameter ')';
+PlusHoursFunction returns LiteralFunction : {LiteralFunction} name = 'plusHours' '(' parameters += FunctionParameter ')';
+PlusDaysFunction returns LiteralFunction : {LiteralFunction} name = 'plusDays' '(' parameters += FunctionParameter ')';
+PlusMonthsFunction returns LiteralFunction : {LiteralFunction} name = 'plusMonths' '(' parameters += FunctionParameter ')';
+PlusYearsFunction returns LiteralFunction : {LiteralFunction} name = 'plusYears' '(' parameters += FunctionParameter ')';
+// AsStringFunction returns Named : {AsBooleanAsStringFunction} name = 'asString' '(' ')';
+// OfFunction returns Named : {OfFunction} name = 'of' '(' args = TwoArg | ThreeArg  ')';
+
+// Enumeration functions
+// AsStringFunction returns Named : {AsBooleanAsStringFunction} name = 'asString' '(' ')';
+
+// Instance functions
+TypeOfFunction returns InstanceFunction : {InstanceFunction} name = 'typeOf' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
+KindOfFunction returns InstanceFunction : {InstanceFunction} name = 'kindOf' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
+ContainerFunction returns InstanceFunction : {InstanceFunction} name = 'container' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
+AsTypeFunction returns InstanceFunction : {InstanceFunction} name = 'asType' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
+
+MemberOfFunction returns LiteralFunction : {LiteralFunction} name = 'memberOf' '(' parameters += FunctionParameter ')';
+
+// Collection function
+HeadFunction returns SelectorFunction : {SelectorFunction} name = 'head' '(' selectorArgument = SelectorFunctionParameters ')';
+TailFunction returns SelectorFunction : {SelectorFunction} name = 'tail' '(' selectorArgument = SelectorFunctionParameters ')';
+AnyFunction returns LambdaFunction : {LambdaFunction} name = 'any' '(' ')';
+CountFunction returns LiteralFunction : {LiteralFunction} name = 'count' '(' ')';
+AsCollectionFunction returns InstanceFunction : {InstanceFunction} name = 'asCollection' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
+ContainsFunction returns LiteralFunction : {LiteralFunction} name = 'contains' '(' parameters += FunctionParameter ')';
+FilterFunction returns LambdaFunction : {LambdaFunction} name = 'filter' '(' lambdaArgument = LambdaFunctionParameters ')';
+AnyTrueFunction returns LambdaFunction : {LambdaFunction} name = 'anyTrue' '(' lambdaArgument = LambdaFunctionParameters ')';
+AllTrueFunction returns LambdaFunction : {LambdaFunction} name = 'allTrue' '(' lambdaArgument = LambdaFunctionParameters ')';
+MinFunction returns LambdaFunction : {LambdaFunction} name = 'min' '(' lambdaArgument = LambdaFunctionParameters ')';
+MaxFunction returns LambdaFunction : {LambdaFunction} name = 'max' '(' lambdaArgument = LambdaFunctionParameters ')';
+AvgFunction returns LambdaFunction : {LambdaFunction} name = 'avg' '(' lambdaArgument = LambdaFunctionParameters ')';
+SumFunction returns LambdaFunction : {LambdaFunction} name = 'sum' '(' lambdaArgument = LambdaFunctionParameters ')';
+
+LambdaFunction returns Function : {LambdaFunction} lambdaArgument = LambdaFunctionParameters;
+LiteralFunction returns Function : {LiteralFunction} parameters += FunctionParameter;
+InstanceFunction returns Function : {InstanceFunction} entityDeclaration = [EntityDeclaration | LocalName];
+SelectorFunction returns Function : {SelectorFunction} selectorArgument = SelectorFunctionParameters;
+
  
 SelectableFunction 
-    : GetVariableFunction | IsDefinedFunction | IsUnDefinedFunction | LengthFunction | FirstFunction | LastFunction | PositionFunction | SubstringFunction | LowerFunction
-    | UpperFunction | CapitalizeFunction | MatchesFunction | LikeFunction | IlikeFunction | ReplaceFunction | TrimFunction | LtrimFunction | RtrimFunction
+    : GetVariableFunction | IsDefinedFunction | IsUnDefinedFunction | LengthFunction | FirstFunction | LastFunction | PositionFunction | SubstringFunction 
+    | LowerFunction | UpperFunction | CapitalizeFunction | MatchesFunction | LikeFunction | IlikeFunction | ReplaceFunction | TrimFunction | LtrimFunction | RtrimFunction | RoundFunction
     | FloorFunction | CeilFunction | AbsFunction | AsStringFunction | YearFunction | MonthFunction | DayFunction | OfFunction | HourFunction | MinuteFunction
     | SecondFunction | DateFunction | TimeFunction | AsMillisecondsFunction | FromMillisecondsFunction | PlusMillisecondsFunction | PlusSecondsFunction
     | PlusMinutesFunction | PlusHoursFunction | PlusDaysFunction | PlusMonthsFunction | PlusYearsFunction | TypeOfFunction | KindOfFunction | ContainerFunction
@@ -450,21 +463,24 @@ SelectableFunction
     ;
 
 
-FunctionParameterDeclaration
-	: LambdaFunctionParameters
-	| ParametrizedFunctionParameters
-	;
-
 LambdaFunctionParameters
     : lambdaArgument=LambdaVariable '|' expression = Expression
 	;
-
-ParametrizedFunctionParameters
-	: parameters+=FunctionParameter (',' parameters+=FunctionParameter)*
-    ;
     
 LambdaVariable
     : {LambdaVariable} Named    	
+    ;
+
+SelectorFunctionParameters
+    : selectorArgument=SelectorVariable '|' selectors += SelectorDeclaration (',' selectors += SelectorDeclaration)*
+	;
+
+SelectorDeclaration
+    : {SelectorDeclaration} selector = [SelectorVariable | LocalName] '.' member = [EntityMemberDeclaration | LocalName] ('DESC' | isTrue?='ASC')?
+    ;
+
+SelectorVariable
+    : {SelectorVariable} Named
     ;
 
 FunctionParameter
