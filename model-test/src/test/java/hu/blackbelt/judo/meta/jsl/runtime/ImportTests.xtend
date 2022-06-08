@@ -188,7 +188,7 @@ class ImportTests {
 		val a = 
 		'''
 			model A
-			type string String max-length 128			
+			type string String(max-length = 128)			
 		'''.parse(resourceSet)
 		
 		val b = 
@@ -212,7 +212,7 @@ class ImportTests {
 		val a = 
 		'''
 			model A
-			type string String max-length 128			
+			type string String(max-length = 128)			
 		'''.parse(resourceSet)
 		
 		val b = 
@@ -238,7 +238,7 @@ class ImportTests {
 		val a = 
 		'''
 			model A
-			type string String max-length 128			
+			type string String(max-length = 128)			
 		'''.parse(resourceSet)
 		
 		val b = 

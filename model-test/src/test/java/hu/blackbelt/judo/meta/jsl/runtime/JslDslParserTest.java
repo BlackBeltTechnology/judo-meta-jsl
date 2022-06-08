@@ -27,8 +27,8 @@ public class JslDslParserTest {
 
     private static final String TEST_MODEL = "model SalesModel\n" +
             "\n" +
-            "type numeric Integer precision 9 scale 0\n" +
-            "type string String max-length 128\n";
+            "type numeric Integer(precision = 9,  scale = 0)\n" +
+            "type string String(max-length = 128)\n";
 
     private static final String TEST_MODEL2 = "model SalesModel2\n" +
             "import SalesModel\n" +
