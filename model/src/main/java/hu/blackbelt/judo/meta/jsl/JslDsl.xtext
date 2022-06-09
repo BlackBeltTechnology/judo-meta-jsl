@@ -186,7 +186,7 @@ DataTypeDeclaration
     : 'type'
       (
 		  BooleanPrimitive
-		| BinaryPrimitive ('(' (mimeTypes = ModifierMimeTypes? & (',' maxFileSize = ModifierMaxFileSize)?) ')')?
+		| BinaryPrimitive ('(' (mimeTypes = ModifierMimeTypes? & (',' maxFileSize = ModifierMaxFileSize))? ')')?
 		| StringPrimitive ('('(maxLength = ModifierMaxLength & (',' regex = ModifierRegex)?) ')')?
 		| NumericPrimitive ('('(precision = ModifierPrecision & (',' scale = ModifierScale)) ')')?
 		| DatePrimitive
@@ -351,7 +351,7 @@ FunctionCall
 	;
 
 Feature
-    : {Feature} '.' navigationTargetType = [NavigationDeclaration | LocalName]('(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')')?
+    : {Feature} {Feature.base = current} '.' navigationTargetType = [NavigationDeclaration | LocalName]('(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')')?
     ;
 
 NavigationDeclaration
