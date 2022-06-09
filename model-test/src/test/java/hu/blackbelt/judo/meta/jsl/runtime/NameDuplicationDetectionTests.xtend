@@ -23,7 +23,7 @@ class NameDuplicationDetectionTests {
 	def void testDuplicateMemberNameValid() {
 		'''
 			model Test
-			type string String max-length 128
+			type string String(max-length = 128)
 
 			entity A {
 				relation B b opposite a
@@ -45,7 +45,7 @@ class NameDuplicationDetectionTests {
 		'''
 			model Inheritence
 			
-			type string String max-length 100
+			type string String(max-length = 100)
 			
 			entity A {
 				field String name
@@ -64,7 +64,7 @@ class NameDuplicationDetectionTests {
 		'''
 			model DuplicatedEntityName
 			
-			type string String max-length 100
+			type string String(max-length = 100)
 			
 			entity A {
 			}
@@ -81,7 +81,7 @@ class NameDuplicationDetectionTests {
 		'''
 			model DuplicatedEntityName
 			
-			type string String max-length 100
+			type string String(max-length = 100)
 			
 			entity A {
 			}
@@ -100,7 +100,7 @@ class NameDuplicationDetectionTests {
 		'''
 			model DuplicatedEntityName
 			
-			type string String max-length 100
+			type string String(max-length = 100)
 			
 			entity A {
 			}

@@ -27,8 +27,8 @@ public class JslDslParserTest {
 
     private static final String TEST_MODEL = "model SalesModel\n" +
             "\n" +
-            "type numeric Integer precision 9 scale 0\n" +
-            "type string String max-length 128\n";
+            "type numeric Integer(precision = 9,  scale = 0)\n" +
+            "type string String(max-length = 128)\n";
 
     private static final String TEST_MODEL2 = "model SalesModel2\n" +
             "import SalesModel\n" +
@@ -54,7 +54,7 @@ public class JslDslParserTest {
 		});
     	
     	assertThat(exception.getMessage().replace("\t", "").replace("\n", ""), matchesPattern("^Error parsing JSL expression"
-    			+ "Couldn't resolve reference to EntityFieldSingleType 'String2'. in "
+    			+ "Couldn't resolve reference to SingleType 'String2'. in "
     			+ "(.*)"
     			+ "#//@declarations.0/@members.0 at \\[4, 8\\]"));
 

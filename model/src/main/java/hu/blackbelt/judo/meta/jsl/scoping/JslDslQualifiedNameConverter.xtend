@@ -5,23 +5,25 @@ import org.eclipse.xtext.naming.QualifiedName
 
 class JslDslQualifiedNameConverter extends IQualifiedNameConverter.DefaultImpl {
     override getDelimiter() {
-  //  	System.out.println("JslDslQualifiedNameConverter.getDelimiter")
+    	// System.out.println("JslDslQualifiedNameConverter.getDelimiter")
         return "::" //super.delimiter;
 	}
 	
 	override toQualifiedName(String qualifiedNameAsString) {
-//		System.out.println("JslDslQualifiedNameConverter.toQualifiedName " + qualifiedNameAsString)
 		if (qualifiedNameAsString !== null) {
-			super.toQualifiedName(qualifiedNameAsString)			
+			val qn = super.toQualifiedName(qualifiedNameAsString)			
+			// System.out.println("JslDslQualifiedNameConverter.toQualifiedName " + qualifiedNameAsString + " qn: " + qn)
+			qn
 		} else {
 			null
 		}
 	}
 	
 	override toString(QualifiedName qualifiedName) {
-//		System.out.println("JslDslQualifiedNameConverter.toString " + qualifiedName.toString("::"))
 		if (qualifiedName !== null) {
-			super.toString(qualifiedName)		
+			val str = super.toString(qualifiedName)		
+			// System.out.println("JslDslQualifiedNameConverter.toString " + qualifiedName.toString("::") + " str: " + str)
+			str
 		} else {
 			null
 		}
