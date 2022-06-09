@@ -12,11 +12,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ThrowParameter
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateError
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameter
-import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationExpression
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclarationParameter
@@ -51,6 +49,8 @@ import org.eclipse.xtext.scoping.impl.FilteringScope
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunction
 import hu.blackbelt.judo.meta.jsl.jsldsl.InstanceFunction
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBase
+import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -72,7 +72,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     		ThrowParameter case ref == JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType: return context.scope_ThrowParameter_errorFieldType(ref)
     		ErrorField case ref == JsldslPackage::eINSTANCE.errorField_ReferenceType: return context.scope_ErrorField_referenceType(ref)
     		QueryParameter case ref == JsldslPackage::eINSTANCE.queryParameter_Parameter: return context.scope_QueryParameter_parameter(ref)
-    		QueryCall case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)
+    		NavigationBase case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)
     		EntityRelationOpposite case ref == JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType: return context.scope_EntityRelationOpposite_oppositeType(ref)
 			EntityQueryDeclaration case ref == JsldslPackage::eINSTANCE.entityQueryDeclaration_ReferenceType: return context.scope_EntityQueryDeclaration_referenceType(ref)
     		Feature case ref == JsldslPackage::eINSTANCE.feature_NavigationTargetType: return context.scope_Feature_navigationTargetType(ref)
@@ -84,8 +84,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     	super.getScope(context, ref)	
 	}
 		
-	def scope_QueryParameter_queryParameterType(QueryCall context, EReference ref) {
-		nullSafeScope(context.queryDeclarationReference.parameters)
+	def scope_QueryParameter_queryParameterType(NavigationBase context, EReference ref) {
+		nullSafeScope((context.queryDeclarationType as QueryDeclaration).parameters)
 	}
 
 	def scope_ErrorField_referenceType(ErrorField context, EReference ref) {
@@ -106,7 +106,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     	return ret
 	}
 
-	def IScope filterLambdaVariable(IScope parent, NavigationExpression context) {
+	def IScope filterLambdaVariable(IScope parent, Expression context) {
 		return new FilteringScope(parent, [desc | {
 			val obj = desc.EObjectOrProxy
 			if (obj instanceof LambdaVariable) {
@@ -133,31 +133,42 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	}
 
 
+	def getProcessingFeature(Feature context, List<Feature> features) {
+		var Feature featureToScope = null
+		val contextIndex = features.indexOf(context) - 1
+		if (contextIndex > -1) {
+			featureToScope = features.get(contextIndex)
+		}			
+		return featureToScope
+	}
+
 	// Feature have to be cahed, because on every feature the previous features 
 	// are re-scoped. To avoid recursion caching it for 15 sec
 	def internal_scope_Feature_navigationTargetType(Feature context, EReference ref) {
-		val navigationExpression = context.parentContainer(NavigationExpression)
-		if (navigationExpression !== null) {
-			var Feature featureToScope = null
-			val contextIndex = navigationExpression.features.indexOf(context) - 1
-			if (contextIndex > -1) {
-				featureToScope = navigationExpression.features.get(contextIndex)
-			}			
+		if (context.eContainer instanceof NavigationBase) {
+			val navigationBase = context.eContainer as NavigationBase
+			var featureToScope = context.getProcessingFeature(navigationBase.features)
 			if (featureToScope !== null && featureToScope.navigationTargetType !== null) {
 				if (featureToScope.navigationTargetType instanceof EntityMemberDeclaration) {
 					return nullSafeScope(getNavigationDeclarationReferences(IScope.NULLSCOPE, 
-						getResolvedProxy(navigationExpression, featureToScope.navigationTargetType) as EntityMemberDeclaration, ref))
-						.filterLambdaVariable(navigationExpression).filterSameParentDeclaration(navigationExpression)
+						getResolvedProxy(navigationBase, featureToScope.navigationTargetType) as EntityMemberDeclaration, ref))
+						.filterLambdaVariable(navigationBase).filterSameParentDeclaration(navigationBase)
 				}
 			} else {
-				return getNavigationExpressionBaseReferences(IScope.NULLSCOPE, navigationExpression, ref)				
-						.filterLambdaVariable(navigationExpression).filterSameParentDeclaration(navigationExpression)
+				return getNavigationBaseTypeReferences(IScope.NULLSCOPE, navigationBase, ref)				
+						.filterLambdaVariable(navigationBase).filterSameParentDeclaration(navigationBase)
 			}		
-		} else if (context.eContainer !== null && context.eContainer instanceof QueryCall) {
-			return getNavigationExpressionBaseReferences(IScope.NULLSCOPE, context.eContainer as QueryCall, ref)
-				.filterSameParentDeclaration(navigationExpression)				
 		} else if (context.eContainer !== null && context.eContainer instanceof FunctionCall) {
-			return getFunctionCallReferences(IScope.NULLSCOPE, context.eContainer as FunctionCall, ref)
+			val functionCall = context.eContainer as FunctionCall
+			var featureToScope = context.getProcessingFeature(functionCall.features)
+			if (featureToScope !== null && featureToScope.navigationTargetType !== null) {
+				if (featureToScope.navigationTargetType instanceof EntityMemberDeclaration) {
+					return nullSafeScope(getNavigationDeclarationReferences(IScope.NULLSCOPE, 
+						getResolvedProxy(functionCall, featureToScope.navigationTargetType) as EntityMemberDeclaration, ref))
+				}
+			} else {
+				return getFunctionCallReferences(IScope.NULLSCOPE, context.eContainer as FunctionCall, ref)
+			}		
 		}
 		IScope.NULLSCOPE	
 	}
@@ -203,10 +214,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		if (container instanceof Feature) {
 			// System.out.println("=> QueryParameterType.Feature - QD: " + container.parentContainer(QueryDeclaration) + "  EDQ:" + container.parentContainer(EntityQueryDeclaration))
 			nullSafeScope(container.queryDeclarationParameters)
-		} else if (container instanceof QueryCall) {
-			// System.out.println("=> QueryParameterType.QueryCal - Ref: " + container.queryDeclarationReference + "QD: " + container.parentContainer(QueryDeclaration) + "  EDQ:" + container.parentContainer(EntityQueryDeclaration))
-			nullSafeScope(container.queryDeclarationReference.parameters)
-		}
+		} else if (container instanceof NavigationBase) {
+//			// System.out.println("=> QueryParameterType.QueryCal - Ref: " + container.queryDeclarationReference + "QD: " + container.parentContainer(QueryDeclaration) + "  EDQ:" + container.parentContainer(EntityQueryDeclaration))
+			nullSafeScope((container.queryDeclarationType as QueryDeclaration).parameters)
+		}		
 	}
 
 	def scope_QueryParameter_queryParameterType(Feature context, EReference ref) {
@@ -219,11 +230,9 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		if (container instanceof Feature) {
 			//System.out.println("=> QueryParameter.Feature - QD: " + container.parentContainer(QueryDeclaration) + "  EDQ:" + container.parentContainer(EntityQueryDeclaration))
 			nullSafeScope(container.parentQueryDeclarationParameters)
-			//getDelegate().getScope(context, ref)
-		} else if (container instanceof QueryCall) {
-			//System.out.println("=> QueryParameter.QueryCal - Ref: " + container.queryDeclarationReference + "QD: " + container.parentContainer(QueryDeclaration) + "  EDQ:" + container.parentContainer(EntityQueryDeclaration))
+		} else if (container instanceof NavigationBase) {
+//			//System.out.println("=> QueryParameter.QueryCal - Ref: " + container.queryDeclarationReference + "QD: " + container.parentContainer(QueryDeclaration) + "  EDQ:" + container.parentContainer(EntityQueryDeclaration))
 			nullSafeScope(container.parentQueryDeclarationParameters)
-			//getDelegate().getScope(context, ref)
 		}
 	}
 	
@@ -236,18 +245,17 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		scope.get
 	}
 
-	def IScope getNavigationExpressionBaseReferences(IScope parent, NavigationExpression navigationExpression, EReference reference) {
-		 if (navigationExpression.isSelf) {
-			val entity = navigationExpression.parentContainer(EntityDeclaration)
+	def IScope getNavigationBaseTypeReferences(IScope parent, NavigationBase navigationBase, EReference reference) {
+		if (navigationBase.isSelf) {
+			val entity = navigationBase.parentContainer(EntityDeclaration)
 			val entityMembers = getEntityMembers(IScope.NULLSCOPE, entity, reference)
 			return nullSafeScope(entityMembers)
-		} else if (navigationExpression.navigationBaseType !== null) {
-			return nullSafeScope(getNavigationBaseReferences(IScope.NULLSCOPE, navigationExpression.navigationBaseType, reference))
-		} else if (navigationExpression instanceof QueryCall) {
-			val queryCall = navigationExpression as QueryCall
-			val queryCallReferenceType = getResolvedProxy(queryCall, queryCall.queryDeclarationReference?.referenceType)
-			if (queryCallReferenceType !== null && queryCallReferenceType instanceof EntityDeclaration) {
-				return nullSafeScope(getEntityMembers(IScope.NULLSCOPE, queryCallReferenceType as EntityDeclaration, reference))			
+		} else if (navigationBase.navigationBaseType !== null) {
+			return nullSafeScope(getNavigationBaseReferences(IScope.NULLSCOPE, navigationBase.navigationBaseType, reference))
+		} else if (navigationBase.queryDeclarationType !== null) {
+			val queryDeclarationReferenceType = getResolvedProxy(navigationBase, navigationBase.queryDeclarationType?.referenceType)
+			if (queryDeclarationReferenceType !== null && queryDeclarationReferenceType instanceof EntityDeclaration) {
+				return nullSafeScope(getEntityMembers(IScope.NULLSCOPE, queryDeclarationReferenceType as EntityDeclaration, reference))			
 			}
 		}
 		IScope.NULLSCOPE
@@ -267,15 +275,15 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	}
 
 	def IScope getFunctionedExpressionReferences(IScope parent, FunctionedExpression functionedExpression, EReference reference) {
-		if (functionedExpression !== null && functionedExpression.operand instanceof NavigationExpression) {
-			val navigationExpression = functionedExpression.operand as NavigationExpression
-			if (navigationExpression.features.last?.navigationTargetType !== null) {
-				if (navigationExpression.features.last.navigationTargetType instanceof EntityMemberDeclaration) {
+		if (functionedExpression !== null && functionedExpression.operand instanceof NavigationBase) {
+			val navigationBase = functionedExpression.operand as NavigationBase
+			if (navigationBase.features.last?.navigationTargetType !== null) {
+				if (navigationBase.features.last.navigationTargetType instanceof EntityMemberDeclaration) {
 					return nullSafeScope(getNavigationDeclarationReferences(IScope.NULLSCOPE, 
-						getResolvedProxy(navigationExpression, navigationExpression.features.last.navigationTargetType) as EntityMemberDeclaration, reference))						
+						getResolvedProxy(navigationBase, navigationBase.features.last.navigationTargetType) as EntityMemberDeclaration, reference))						
 				}
 			} else {
-				return getNavigationExpressionBaseReferences(parent, navigationExpression, reference)
+				return getNavigationBaseTypeReferences(parent, navigationBase, reference)
 			}
 		}
 		IScope.NULLSCOPE		

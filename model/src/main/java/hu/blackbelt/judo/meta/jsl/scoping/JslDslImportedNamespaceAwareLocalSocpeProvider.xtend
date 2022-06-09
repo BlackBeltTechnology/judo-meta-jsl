@@ -9,23 +9,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImport
 import org.eclipse.xtext.naming.IQualifiedNameConverter
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.eclipse.emf.ecore.EReference
-import org.eclipse.emf.ecore.resource.Resource
-import com.google.common.base.Predicate
-import org.eclipse.xtext.resource.IEObjectDescription
-import java.beans.Expression
 import java.util.ArrayList
-import org.eclipse.xtext.scoping.IScope
-import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
-import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
-import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationExpression
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 
 class JslDslImportedNamespaceAwareLocalSocpeProvider extends ImportedNamespaceAwareLocalScopeProvider {
 
 	@Inject extension IQualifiedNameConverter
-	@Inject extension JslDslModelExtension
 
 	/* 
 	override getImplicitImports(boolean ignoreCase) {

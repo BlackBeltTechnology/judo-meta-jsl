@@ -317,7 +317,6 @@ NavigationExpression returns Expression
 	: PrimaryExpression features+=Feature*
     | NavigationBase
     | EnumLiteralReference
-    | QueryCall features+=Feature*
     | PrimitiveDeclaration
     ;
 
@@ -328,18 +327,21 @@ PrimaryExpression returns Expression
 	;
 
 
-NavigationBase returns NavigationExpression
-	: {NavigationExpression} (isSelf ?= 'self' | navigationBaseType = [NavigationBaseReference | LocalName]) (features+=Feature*) 
+NavigationBase returns Expression
+	: {NavigationBase} (isSelf ?= 'self' | navigationBaseType = [NavigationBaseReference | LocalName]) (features+=Feature*)
+	| QueryCall (features+=Feature*)
 	;
 
 NavigationBaseReference
 	: EntityDeclaration
+	| QueryDeclaration
 	| LambdaVariable
 	| QueryDeclarationParameter
 	;
 	
-QueryCall returns NavigationExpression
-	: {QueryCall} queryDeclarationReference = [ QueryDeclaration | LocalName ] '(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')'
+	
+QueryCall returns NavigationBase
+	: queryDeclarationType = [ QueryDeclaration | LocalName ] '(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')'
 	;
 
 EnumLiteralReference returns Expression
@@ -351,12 +353,11 @@ FunctionCall
 	;
 
 Feature
-    : {Feature} {Feature.base = current} '.' navigationTargetType = [NavigationDeclaration | LocalName]('(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')')?
+    : {Feature} {Feature.base = current} '.' navigationTargetType = [NavigationTarget | LocalName]('(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')')?
     ;
 
-NavigationDeclaration
-    : LambdaVariable
-    | EntityMemberDeclaration
+NavigationTarget
+    : EntityMemberDeclaration
     | EntityDeclaration
     ;
 
