@@ -682,6 +682,12 @@
     </build>
     <dependencyManagement>
         <dependencies>
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>27.1-jre</version>
+			</dependency>
+
             <dependency>
                 <groupId>hu.blackbelt.judo.meta</groupId>
                 <artifactId>hu.blackbelt.judo.meta.jsl.model</artifactId>

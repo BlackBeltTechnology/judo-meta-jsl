@@ -2,6 +2,7 @@ grammar hu.blackbelt.judo.meta.jsl.JslDsl hidden(WS, NL, SL_COMMENT, ML_COMMENT)
 
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 generate jsldsl "http://www.blackbelt.hu/judo/meta/jsl/JslDsl"
+
  
 ModelDeclaration returns ModelDeclaration hidden(WS, SL_COMMENT, ML_COMMENT)
     : {ModelDeclaration} 'model' name = ModelName
@@ -10,21 +11,40 @@ ModelDeclaration returns ModelDeclaration hidden(WS, SL_COMMENT, ML_COMMENT)
 	  NL*
     ;
 
-//ModelImport
-//    : =>NL+ 'import' importedModel = [ModelDeclaration] ('as' alias = ID)?
-//	;
+JslID : ID 
+	| 'enum' | 'entity' | 'query' | 'field' 
+	| 'import' | 'as' | 'extends' | 'abstract' | 'required' 	
+	| 'constraint' 
+	| 'offset' | 'pattern' | 'replacement' | 'millisecond'
+	//| 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' | 'not'
+	| 'onerror' | 'identifier' | 'derived' | 'relation' | 'opposite' | 'opposite-add' | 'error' | 'type'
+	| 'binary' |'string' | 'numeric' | 'timestamp' | 'mime-types' | 'max-file-size'
+	| 'regex' | 'precision' | 'scale' | 'max-length' 
+	| 'date' | 'time' | 'asMilliseconds' | 'fromMilliseconds' | 'plusMilliseconds'
+    | 'plusSeconds' | 'plusMinutes' | 'plusHours' | 'plusDays'
+    | 'plusMonths' | 'plusYears' | 'of' 
+    | 'typeOf' | 'kindOf' | 'container' | 'asType' | 'memberOf' 
+    | 'head' | 'tail' | 'any' | 'count' 
+    | 'asCollection' | 'contains' | 'filter' | 'anyTrue' | 'allTrue' 
+	| 'min' | 'max' | 'avg' | 'sum'
+    | 'getVariable' | 'isDefined' | 'isUnDefined' | 'length' | 'first' | 'last' | 'position' | 'substring' | 'lower' | 'upper' | 'capitalize'
+    | 'matches' | 'like' | 'ilike' | 'replace' | 'trim' | 'rtrim' | 'ltrim' | 'round' | 'floor' | 'ceil' | 'abs' | 'asString' 
+    | 'year' | 'month' | 'day'
+    ;
+
 
 ModelImport
     : NL+ 'import' modelName = ModelImportDeclaration
 	;
 
 ModelImportDeclaration
-    : importName = ModelName ('as' alias = ID)?
+    : importName = ModelName ('as' alias = JslID)?
 	;
 
 Declaration
 	: NL+ (TypeDeclaration
-	| ErrorDeclaration)
+	| ErrorDeclaration
+	| QueryDeclaration )
 	;
 
 TypeDeclaration
@@ -33,8 +53,8 @@ TypeDeclaration
 	;
 
 PrimitiveDeclaration
-	: DataTypeDeclaration
-	| EnumDeclaration
+	: EnumDeclaration
+	| DataTypeDeclaration
     ;
 
 ClassDeclaration
@@ -44,12 +64,25 @@ ClassDeclaration
 /****************************
  *	Entity
  ****************************/
+fragment Named
+	: name = JslID;
+
+fragment Cardinality
+    : isMany ?= '[]'
+    ;
 
 EntityDeclaration
 	: {EntityDeclaration}
-	  'entity' isAbstract ?= 'abstract'? name = ID
+	  'entity' isAbstract ?= 'abstract'? Named
 	  ('extends' extends += [EntityDeclaration | LocalName] (',' extends += [EntityDeclaration | LocalName])*)?
 	  BLOCK_START (members += EntityMemberDeclaration)* BLOCK_END
+	;
+
+
+QueryDeclaration
+	: 'query' (referenceType = [SingleType | LocalName] Cardinality?) Named
+	  ('(' parameters += QueryDeclarationParameter (',' parameters += QueryDeclarationParameter)* ')')
+	  "=>" expression = Expression
 	;
 
 EntityMemberDeclaration
@@ -57,61 +90,62 @@ EntityMemberDeclaration
 	| EntityIdentifierDeclaration
 	| EntityRelationDeclaration
 	| EntityDerivedDeclaration
+	| EntityQueryDeclaration
 	| ConstraintDeclaration)
 	;
 
 ConstraintDeclaration
-	: 'constraint' expression = Expression ('onerror' error = CreateError)?
+	: 'constraint' Named expression = Expression ('onerror' error = CreateError)?
 	;
 
 EntityFieldDeclaration
-	: ('field')? (isRequired ?= 'required'? referenceType = [EntityFieldSingleType | LocalName] isMany ?= '[]'?) name = ID
+	: 'field' (isRequired ?= 'required'? referenceType = [SingleType | LocalName] Cardinality?) Named
 	  (defaultExpression = DefaultExpressionType)?
 	;
 
 
 DefaultExpressionType
-	: {DefaultExpressionType} '=' expression = (
-		Literal 
-		| EnumLiteralReference 
-		| NavigationBase 
-		| ParenthesizedExpression
-		| CreateExpression
-	)
+	: {DefaultExpressionType} '=' expression = 
+		( Literal | EnumLiteralReference | NavigationExpression | CreateExpression )
 	;
 
-EntityFieldSingleType 
+SingleType 
 	: PrimitiveDeclaration
 	| EntityDeclaration
 	;
 
 EntityIdentifierDeclaration
-	: 'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] name = ID
+	: 'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] Named
 	  (defaultExpression = DefaultExpressionType)?
 	;
 
 EntityDerivedDeclaration
-	: 'derived' (referenceType = [EntityDerivedSingleType | LocalName] isMany ?= '[]'?) name = ID
-	  ('(' parameters += DerivedParameter (',' parameters += DerivedParameter)* ')')?
-	  "=" expression = Expression
+	: 'derived' (referenceType = [SingleType | LocalName] Cardinality?) Named
+	  "=>" expression = Expression
 	;
 
-EntityDerivedSingleType
+EntityQueryDeclaration
+	: 'query' (referenceType = [EntityQueryTargetType | LocalName] Cardinality?) Named
+	  ('(' parameters += QueryDeclarationParameter (',' parameters += QueryDeclarationParameter)* ')')
+	  "=>" expression = Expression
+	;
+
+EntityQueryTargetType
 	: PrimitiveDeclaration
 	| EntityDeclaration
 	;
 
-DerivedParameter
-	: referenceType = [PrimitiveDeclaration | LocalName] name = ID "=" default = Expression
+QueryDeclarationParameter
+	: referenceType = [PrimitiveDeclaration | LocalName] Named "=" default = Literal
 	;
 
 EntityRelationDeclaration
-	: 'relation' (isRequired ?= 'required'? referenceType = [EntityDeclaration | LocalName] isMany ?= '[]'?) name = ID
+	: 'relation' (isRequired ?= 'required'? referenceType = [EntityDeclaration | LocalName] Cardinality?) Named
 	  opposite = EntityRelationOpposite?
 	;
 
 EntityRelationOpposite
-	: 'opposite-add' oppositeName = ID (isMany ?= '[]')?
+	: 'opposite-add' oppositeName = JslID Cardinality?
 	| 'opposite' oppositeType = [EntityRelationDeclaration | LocalName]
 	;
 
@@ -121,12 +155,12 @@ EntityRelationOpposite
  ****************************/
 
 ErrorDeclaration
-	: 'error' name = ID ('extends' extends = [ErrorDeclaration])?
+	: 'error' Named ('extends' extends = [ErrorDeclaration])?
 	  BLOCK_START (fields += ErrorField)* BLOCK_END
 	;
 
 ErrorField
-	: NL+ 'field' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] name = ID
+	: NL+ 'field' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] Named
 	  (defaultExpression = DefaultExpressionType)?
 	;
 
@@ -135,7 +169,7 @@ CreateError
 	;
 
 ThrowParameter
-	: errorFieldType=[ErrorField | LocalName] '=' expession=Expression;
+	: errorFieldType=[ErrorField | LocalName] '=' expession=Literal;
 
 
 
@@ -144,18 +178,27 @@ ThrowParameter
  ****************************/
 
     
-DataTypeDeclaration
+DataTypeDeclaration hidden(WS, CONT_NL, SL_COMMENT, ML_COMMENT)
     : 'type'
       (
-		  primitive = 'boolean' name = ID
-		| primitive = 'binary' name = ID (mimeTypes = ModifierMimeTypes? & maxFileSize = ModifierMaxFileSize?) 
-		| primitive = 'string' name = ID (maxLength = ModifierMaxLength & regex = ModifierRegex?)
-		| primitive = 'numeric' name = ID (precision = ModifierPrecision & scale = ModifierScale)
-		| primitive = 'date' name = ID
-		| primitive = 'time' name = ID
-		| primitive = 'timestamp' name = ID
+		  BooleanPrimitive
+		| BinaryPrimitive ('(' (mimeTypes = ModifierMimeTypes? & (',' maxFileSize = ModifierMaxFileSize))? ')')?
+		| StringPrimitive ('('(maxLength = ModifierMaxLength & (',' regex = ModifierRegex)?) ')')?
+		| NumericPrimitive ('('(precision = ModifierPrecision & (',' scale = ModifierScale)) ')')?
+		| DatePrimitive
+		| TimePrimitive
+		| TimestampPrimitive
       )
     ;
+
+BooleanPrimitive returns DataTypeDeclaration: primitive = 'boolean' Named;
+BinaryPrimitive returns DataTypeDeclaration : primitive = 'binary' Named;
+StringPrimitive returns DataTypeDeclaration : primitive = 'string' Named;
+NumericPrimitive returns DataTypeDeclaration : primitive = 'numeric' Named;
+DatePrimitive returns DataTypeDeclaration : primitive = 'date' Named;
+TimePrimitive returns DataTypeDeclaration : primitive = 'time' Named;
+TimestampPrimitive returns DataTypeDeclaration : primitive = 'timestamp' Named;
+
 
 
 /****************************
@@ -163,38 +206,38 @@ DataTypeDeclaration
  ****************************/
 
 EnumDeclaration
-    : 'enum' name = ID
+    : 'enum' Named
       BLOCK_START (literals += EnumLiteral)+ BLOCK_END
     ;
 
 EnumLiteral
-    : NL+ name = ID '=' value = INTEGER
+    : NL+ Named '=' value = INTEGER
     ;
 
 
 ModifierMaxLength
-	: 'max-length' maxLength = INTEGER
+	: 'max-length' '=' value = INTEGER
 	;
 
 ModifierRegex
-	: 'regex' regex = StringLiteral
+	: 'regex' '=' regex = StringLiteral
 	;
 
 ModifierPrecision
-	: 'precision' precision = INTEGER
+	: 'precision' '=' value = INTEGER
 	;
 
 ModifierScale
-	: 'scale' scale = INTEGER
+	: 'scale' '=' value = INTEGER
 	;
 
 
 ModifierMimeTypes
-	: 'mime-types' mimeTypes+=MIME_TYPE (',' mimeTypes += MIME_TYPE)*
+	: 'mime-types' '=' values+=MIME_TYPE (',' values += MIME_TYPE)*
 	;
 
 ModifierMaxFileSize
-	: 'max-file-size' maxFileSize = INTEGER
+	: 'max-file-size' '=' value = INTEGER
 	;
 	
 
@@ -203,7 +246,11 @@ ModifierMaxFileSize
  ***************************/
 
 Expression returns Expression hidden(WS, CONT_NL, SL_COMMENT, ML_COMMENT)
-	: SwitchExpression
+	: SwitchExpression (=> ({Expression.switchExpression=current}) parenthesizedExpression=ParenthesizedExpression)*
+	;
+
+ParenthesizedExpression returns Expression
+	: {ParenthesizedExpression} '(' => expression = MultilineExpression ')'
 	;
 
 MultilineExpression returns Expression hidden(WS, NL, CONT_NL, SL_COMMENT, ML_COMMENT)
@@ -263,19 +310,43 @@ UnaryOperation returns Expression
     ;
 
 FunctionedExpression returns Expression
-	: NavigationExpression ({FunctionedExpression.operand=current} functionCall=FunctionCall)?
+	: FunctionableExpression ({FunctionedExpression.operand=current} functionCall=FunctionCall)?
+	| ParenthesizedExpression
+	| EnumLiteralReference
+    ;
+
+FunctionableExpression returns Expression
+	: NavigationExpression
+	| Literal
 	;
 
 NavigationExpression returns Expression
-	: PrimaryExpression ({NavigationExpression.base=current} features+=Feature+)?
-    | NavigationBase
-    ;
-
-NavigationBase returns NavigationExpression
-	: {NavigationExpression} qName=LocalName (features+=Feature* | enumValue = [ EnumLiteralReference ])		
+	: SelfExpression
+	| NavigationBaseExpression
+	| QueryCallExpression
 	;
 
-EnumLiteralReference returns Expression
+NavigationBaseExpression returns NavigationExpression
+	: {NavigationBaseExpression} navigationBaseType = [NavigationBaseReference | LocalName]  (features+=Feature*)
+	;
+	
+NavigationBaseReference
+	: EntityDeclaration
+	| QueryDeclaration
+	| LambdaVariable
+	| QueryDeclarationParameter
+	| PrimitiveDeclaration
+	;
+	
+SelfExpression returns NavigationExpression
+	: {SelfExpression} isSelf ?= 'self' (features+=Feature*)		
+	;
+
+QueryCallExpression returns NavigationExpression
+	: {QueryCallExpression} queryDeclarationType = [ QueryDeclaration | LocalName ] '(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')' (features+=Feature*)
+	;
+
+EnumLiteralReference returns NavigationExpression
     : {EnumLiteralReference} enumDeclaration = [EnumDeclaration | LocalName] '#' enumLiteral = [EnumLiteral | EnumLiteralName ]    	
     ;
 
@@ -284,67 +355,173 @@ FunctionCall
 	;
 
 Feature
-    : {Feature} '.' member = NavigationFeature
+    : {Feature} {Feature.base = current} '.' navigationTargetType = [NavigationTarget | LocalName]('(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')')?
     ;
 
-NavigationFeature returns Feature
-	: navigationDeclarationType = [NavigationDeclaration | LocalName ] ('(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')')?
-	;
-
-NavigationDeclaration
-    : LambdaVariable
-    | EntityMemberDeclaration
+NavigationTarget
+    : EntityMemberDeclaration
+    | EntityDeclaration
     ;
+
 
 QueryParameter
-	:  derivedParameterType=[DerivedParameter | LocalName] '=' (literal = Literal | parameter = [DerivedParameter | LocalName])     // expression=MultilineExpression
+	:  queryParameterType=[QueryDeclarationParameter | QueryParameterName] '=' (literal = Literal | parameter = [QueryDeclarationParameter | QueryParameterName])     // expression=MultilineExpression
 	;
 
-ParenthesizedExpression returns Expression
-	: {ParenthesizedExpression} '(' =>expression = MultilineExpression ')'
-	;
-
-PrimaryExpression returns Expression
-	: ParenthesizedExpression
-	| CreateExpression
-	| Literal
-	| Self
-	;
 
 CreateExpression returns Expression
-	: {CreateExpression} 'new'? createType=[ClassDeclaration | LocalName]
+	: {CreateExpression} 'new' createType=[ClassDeclaration | LocalName]
 	  (   '(' (assignments+=CreateParameter (',' assignments+=CreateParameter)*)? ')'
 	  	| '[' (creates += MultilineExpression (',' creates += MultilineExpression)*)? ']'
 	  )
 	;
 
 CreateParameter:
-    name=ID '=' right=MultilineExpression;
+    name=JslID '=' right=MultilineExpression;
 
 
-Function returns Function
-	: name=ID '(' parameterDeclaration = FunctionParameterDeclaration? ')'
+Function
+	: SelectableFunction
     ;
 
-FunctionParameterDeclaration
-	: LambdaFunctionParameters
-	| ParametrizedFunctionParameters
+ 
+NamedFunction returns Function : {NamedFunction} name = JslID
+;
+// String functions
+GetVariableFunction returns LiteralFunction : {LiteralFunction} name = 'getVariable' '(' parameters += FunctionParameter ')' ;
+IsDefinedFunction returns LiteralFunction : {LiteralFunction} name = 'isDefined' '(' ')';
+IsUnDefinedFunction returns LiteralFunction : {LiteralFunction} name = 'isUnDefined' '(' ')';
+LengthFunction returns LiteralFunction : {LiteralFunction} name = 'length' '(' ')';
+FirstFunction returns LiteralFunction : {LiteralFunction} name = 'first' '(' 'count' '=' parameters += FunctionParameter ')';
+LastFunction returns LiteralFunction : {LiteralFunction} name = 'last' '(' 'count' '=' parameters += FunctionParameter ')';
+PositionFunction returns LiteralFunction : {LiteralFunction} name = 'position' '(' 'offset' '='parameters += FunctionParameter ')';
+SubstringFunction returns LiteralFunction : {LiteralFunction} name = 'substring' '(' 'offset' '=' parameters += FunctionParameter ',' 'count' '=' parameters += FunctionParameter ')';
+LowerFunction returns LiteralFunction : {LiteralFunction} name = 'lower' '(' ')';
+UpperFunction returns LiteralFunction : {LiteralFunction} name = 'upper' '(' ')';
+CapitalizeFunction returns LiteralFunction : {LiteralFunction} name = 'capitalize' '(' ')';
+MatchesFunction returns LiteralFunction : {LiteralFunction} name = 'matches' '(' 'pattern' '=' parameters += FunctionParameter ')';
+LikeFunction returns LiteralFunction : {LiteralFunction} name = 'like' '(' 'pattern' '=' parameters += FunctionParameter ')';
+IlikeFunction returns LiteralFunction : {LiteralFunction} name = 'ilike' '(' 'pattern' '=' parameters += FunctionParameter ')';
+ReplaceFunction returns LiteralFunction : {LiteralFunction} name = 'replace' '(' 'pattern' '=' parameters += FunctionParameter ',' 'replacement' '=' parameters += FunctionParameter ')';
+TrimFunction returns LiteralFunction : {LiteralFunction} name = 'trim' '(' ')';
+LtrimFunction returns LiteralFunction : {LiteralFunction} name = 'ltrim' '(' ')';
+RtrimFunction returns LiteralFunction : {LiteralFunction} name = 'rtrim' '(' ')';
+
+// Numeric functions
+RoundFunction returns LiteralFunction : {LiteralFunction} name = 'round' '(' ')';
+FloorFunction returns LiteralFunction : {LiteralFunction} name = 'floor' '(' ')';
+CeilFunction returns LiteralFunction : {LiteralFunction} name = 'ceil' '(' ')';
+AbsFunction returns LiteralFunction : {LiteralFunction} name = 'abs' '(' ')';
+AsStringFunction returns LiteralFunction : {LiteralFunction} name = 'asString' '(' ')';
+
+// Boolean functions
+// AsStringFunction returns Named : {AsBooleanAsStringFunction} name = 'asString' '(' ')';
+
+// Date functions
+YearFunction returns LiteralFunction : {LiteralFunction} name = 'year' '(' ')';
+MonthFunction returns LiteralFunction : {LiteralFunction} name = 'month' '(' ')';
+DayFunction returns LiteralFunction : {LiteralFunction} name = 'day' '(' ')';
+DateOfFunction returns LiteralFunction : {LiteralFunction} name = 'of' '('
+	  ('year' '=' parameters += FunctionParameter ',' 'month' '=' parameters += FunctionParameter ',' 'day' '=' parameters += FunctionParameter) 
+	')'
 	;
+// AsStringFunction returns Named : {AsStringFunction} name = 'asString' '(' ')';
+
+// Time functions
+HourFunction returns LiteralFunction : {LiteralFunction} name = 'hour' '(' ')';
+MinuteFunction returns LiteralFunction : {LiteralFunction} name = 'minute' '(' ')';
+SecondFunction returns LiteralFunction : {LiteralFunction} name = 'second' '(' ')';
+TimeOfFunction returns LiteralFunction : {LiteralFunction} name = 'of' '('
+	('hour' '=' parameters += FunctionParameter ',' 'minute' '=' parameters += FunctionParameter ',' 'second' '=' parameters += FunctionParameter)
+	')'
+	;
+
+// OfFunction returns Named : {OfFunction} name = 'of' '(' args = TwoArg | ThreeArg  ')';
+// AsStringFunction returns Named : {AsStringFunction} name = 'asString' '(' ')';
+
+// Timestamp functions
+DateFunction returns LiteralFunction : {LiteralFunction} name = 'date' '(' ')';
+TimeFunction returns LiteralFunction : {LiteralFunction} name = 'time' '(' ')';
+AsMillisecondsFunction returns LiteralFunction : {LiteralFunction} name = 'asMilliseconds' '(' ')';
+FromMillisecondsFunction returns LiteralFunction : {LiteralFunction} name = 'fromMilliseconds' '(' 'millisecond' '=' parameters += FunctionParameter ')';
+PlusMillisecondsFunction returns LiteralFunction : {LiteralFunction} name = 'plusMilliseconds' '(' 'millisecond' '=' parameters += FunctionParameter ')';
+PlusSecondsFunction returns LiteralFunction : {LiteralFunction} name = 'plusSeconds' '(' 'sec' '=' parameters += FunctionParameter ')';
+PlusMinutesFunction returns LiteralFunction : {LiteralFunction} name = 'plusMinutes' '(' 'min' '=' parameters += FunctionParameter ')';
+PlusHoursFunction returns LiteralFunction : {LiteralFunction} name = 'plusHours' '(' 'hour' '=' parameters += FunctionParameter ')';
+PlusDaysFunction returns LiteralFunction : {LiteralFunction} name = 'plusDays' '(' 'day' '=' parameters += FunctionParameter ')';
+PlusMonthsFunction returns LiteralFunction : {LiteralFunction} name = 'plusMonths' '(' 'month' '=' parameters += FunctionParameter ')';
+PlusYearsFunction returns LiteralFunction : {LiteralFunction} name = 'plusYears' '(' 'year' '=' parameters += FunctionParameter ')';
+// AsStringFunction returns Named : {AsBooleanAsStringFunction} name = 'asString' '(' ')';
+TimestampOfFunction returns LiteralFunction : {LiteralFunction} name = 'of' '('
+	('date' '=' parameters += FunctionParameter ',' 'time' '=' parameters += FunctionParameter)
+	')'
+	;
+
+// Enumeration functions
+
+// AsStringFunction returns Named : {AsBooleanAsStringFunction} name = 'asString' '(' ')';
+
+// Instance functions
+TypeOfFunction returns InstanceFunction : {InstanceFunction} name = 'typeOf' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
+KindOfFunction returns InstanceFunction : {InstanceFunction} name = 'kindOf' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
+ContainerFunction returns InstanceFunction : {InstanceFunction} name = 'container' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
+AsTypeFunction returns InstanceFunction : {InstanceFunction} name = 'asType' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
+
+MemberOfFunction returns LiteralFunction : {LiteralFunction} name = 'memberOf' '(' parameters += FunctionParameter ')';
+
+// Collection function
+HeadFunction returns SelectorFunction : {SelectorFunction} name = 'head' '(' selectorArgument = SelectorFunctionParameters ')';
+TailFunction returns SelectorFunction : {SelectorFunction} name = 'tail' '(' selectorArgument = SelectorFunctionParameters ')';
+AnyFunction returns LambdaFunction : {LambdaFunction} name = 'any' '(' ')';
+CountFunction returns LiteralFunction : {LiteralFunction} name = 'count' '(' ')';
+AsCollectionFunction returns InstanceFunction : {InstanceFunction} name = 'asCollection' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
+ContainsFunction returns LiteralFunction : {LiteralFunction} name = 'contains' '(' parameters += FunctionParameter ')';
+FilterFunction returns LambdaFunction : {LambdaFunction} name = 'filter' '(' lambdaArgument = LambdaFunctionParameters ')';
+AnyTrueFunction returns LambdaFunction : {LambdaFunction} name = 'anyTrue' '(' lambdaArgument = LambdaFunctionParameters ')';
+AllTrueFunction returns LambdaFunction : {LambdaFunction} name = 'allTrue' '(' lambdaArgument = LambdaFunctionParameters ')';
+MinFunction returns LambdaFunction : {LambdaFunction} name = 'min' '(' lambdaArgument = LambdaFunctionParameters ')';
+MaxFunction returns LambdaFunction : {LambdaFunction} name = 'max' '(' lambdaArgument = LambdaFunctionParameters ')';
+AvgFunction returns LambdaFunction : {LambdaFunction} name = 'avg' '(' lambdaArgument = LambdaFunctionParameters ')';
+SumFunction returns LambdaFunction : {LambdaFunction} name = 'sum' '(' lambdaArgument = LambdaFunctionParameters ')';
+
+LambdaFunction returns NamedFunction : {LambdaFunction} lambdaArgument = LambdaFunctionParameters;
+LiteralFunction returns NamedFunction : {LiteralFunction} parameters += FunctionParameter;
+InstanceFunction returns NamedFunction : {InstanceFunction} entityDeclaration = [EntityDeclaration | LocalName];
+SelectorFunction returns NamedFunction : {SelectorFunction} selectorArgument = SelectorFunctionParameters;
+ 
+SelectableFunction 
+    : GetVariableFunction | IsDefinedFunction | IsUnDefinedFunction | LengthFunction | FirstFunction | LastFunction | PositionFunction | SubstringFunction 
+    | LowerFunction | UpperFunction | CapitalizeFunction | MatchesFunction | LikeFunction | IlikeFunction | ReplaceFunction | TrimFunction | LtrimFunction | RtrimFunction | RoundFunction
+    | FloorFunction | CeilFunction | AbsFunction | AsStringFunction | YearFunction | MonthFunction | DayFunction | DateOfFunction | HourFunction | MinuteFunction
+    | SecondFunction | TimeOfFunction | DateFunction | TimeFunction | AsMillisecondsFunction | FromMillisecondsFunction | PlusMillisecondsFunction | PlusSecondsFunction
+    | PlusMinutesFunction | PlusHoursFunction | PlusDaysFunction | PlusMonthsFunction | PlusYearsFunction | TimestampOfFunction | TypeOfFunction | KindOfFunction | ContainerFunction
+    | AsTypeFunction | MemberOfFunction | HeadFunction | TailFunction | AnyFunction | CountFunction | AsCollectionFunction | ContainsFunction | FilterFunction
+    | AnyTrueFunction | AllTrueFunction | MinFunction | MaxFunction | AvgFunction | SumFunction
+    ;
+
 
 LambdaFunctionParameters
     : lambdaArgument=LambdaVariable '|' expression = Expression
 	;
-
-ParametrizedFunctionParameters
-	: parameters+=FunctionParameter (',' parameters+=FunctionParameter)*
-    ;
     
 LambdaVariable
-    : {LambdaVariable} name=ID    	
+    : {LambdaVariable} Named    	
+    ;
+
+SelectorFunctionParameters
+    : selectorArgument=SelectorVariable '|' selectors += SelectorDeclaration (',' selectors += SelectorDeclaration)*
+	;
+
+SelectorDeclaration
+    : {SelectorDeclaration} selector = [SelectorVariable | LocalName] '.' member = [EntityMemberDeclaration | LocalName] ('DESC' | isTrue?='ASC')?
+    ;
+
+SelectorVariable
+    : {SelectorVariable} Named
     ;
 
 FunctionParameter
-	: {FunctionParameter} expression=MultilineExpression
+	: {FunctionParameter} expression=Expression
 	;
 
 Literal returns Expression
@@ -374,21 +551,21 @@ TemporalLiteral returns Expression
 	| {TimeLiteral} value=TIME
 	;
 
-Self returns Expression
-	: {Self} 'self'
-	;
-
 
 EnumLiteralName
-	: ID
+	: JslID
+    ;
+
+QueryParameterName
+	: JslID
     ;
 
 LocalName
-	: (ID '::')? ID
+	: (ID '::')? JslID
     ;
 
 ModelName
-	: ID('::' ID)*
+	: ID('::' JslID)*
     ;
 
 /****************************
@@ -403,6 +580,17 @@ BLOCK_END
 	: NL* '}'
 	;
 
+terminal fragment DIGIT
+	: '0'..'9'
+	;
+
+terminal fragment ALPHABET
+    : 'a'..'z' | 'A'..'Z'    	
+    ;
+
+terminal fragment NEWLINE
+    : '\n' | '\r'   	
+    ;
 
 terminal TIMESTAMP
 	: '`' DIGIT+ '-' DIGIT DIGIT '-' DIGIT DIGIT 'T' DIGIT DIGIT ':' DIGIT DIGIT (':' DIGIT DIGIT ('.' DIGIT+ )? )? ('Z' | ('+' | '-') DIGIT DIGIT ':' DIGIT DIGIT )'`'
@@ -416,9 +604,6 @@ terminal DATE
 	: '`' DIGIT+ '-' DIGIT DIGIT '-' DIGIT DIGIT '`'
 	;
 
-terminal DIGIT
-	: '0'..'9'
-	;
 
 terminal DECIMAL returns ecore::EBigDecimal
 	: '-'? DIGIT+ '.' DIGIT+
@@ -429,19 +614,20 @@ terminal INTEGER returns ecore::EBigInteger
 	;
 
 terminal ID
-	: '\\'? ('a'..'z' | 'A'..'Z') ('a'..'z' | 'A'..'Z' | '0'..'9')*
+	: '\\'? ALPHABET (ALPHABET | DIGIT)*
 	;
 
 terminal STRING
-	: '"' ('\\' ('t'|'n'|'f'|'r'|'"'|'\\') | !('\\' | '"' | '\n' | '\r'))* '"'
+	: '"' ('\\' ('t'|'n'|'f'|'r'|'"'|'\\') | !('\\' | '"' | NEWLINE))* '"'
 	;
 
 terminal RAW_STRING
-	: 'r"' (!('"' | '\n' | '\r'))* '"'
+	: 'r"' (!('"' | NEWLINE))* '"'
 	;
 
+
 terminal MIME_TYPE
-    : 'm"' ('a'..'z' | 'A'..'Z')+ '/' ('*' | ('a'..'z' | 'A'..'Z')+ ('.' ('a'..'z' | 'A'..'Z')+)* ) '"'
+    : 'm"' (ALPHABET)+ '/' ('*' | (ALPHABET)+ ('.' (ALPHABET)+)* ) '"'
 	;
 
 terminal CONT_NL
@@ -453,7 +639,7 @@ terminal ML_COMMENT
 	;
 
 terminal SL_COMMENT
-	: '//' !('\n' | '\r')*
+	: '//' !(NEWLINE)*
 	;
 
 terminal WS
@@ -461,9 +647,5 @@ terminal WS
 	;
 
 terminal NL
-	: '\r' | '\n' | ';'
-	;
-
-terminal ANY_OTHER
-	: .
+	: NEWLINE | ';'
 	;

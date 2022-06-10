@@ -17,6 +17,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ConstraintDeclaration
 import java.util.Collection
 import java.util.HashSet
 import java.util.Set
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 
 @Singleton
 class JsldslDefaultPlantUMLDiagramGenerator {
@@ -99,14 +101,14 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
 	def dataTypeRepresentation(DataTypeDeclaration it)
 	'''
-		class «name» <<  «primitive» >>
-		show «name» stereotype
-		hide «name» empty members
+		class «name?:"none"» <<  «primitive» >>
+		show «name?:"none"» stereotype
+		hide «name?:"none"» empty members
 	'''
 
 	def enumRepresentation(EnumDeclaration it)
 	'''
-		class «name» <<  Enumeration >> {
+		class «name?:"none"» <<  Enumeration >> {
 			«FOR literal : literals»
 				<b>«literal.name»</b> = «literal.value»
 			«ENDFOR»
@@ -122,7 +124,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
 	def errorRepresentation(ErrorDeclaration it)
 	'''
-		class «name» <<  Error >> «errorExtendsFragment» {
+		class «name?:"none"» <<  Error >> «errorExtendsFragment» {
 			«FOR field : fields»
 				«field.errorFieldRepsresentation»
 			«ENDFOR»
@@ -147,17 +149,20 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	'''«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»'''
 
 	def entityFieldRepresentation(EntityFieldDeclaration it)
-	'''«entityFieldModifierFragment»«entityFieldNameFragment» : «referenceType.nameForEntityFieldSingleType»«entityFieldCardinalityFragment»'''
+	'''«entityFieldModifierFragment»«entityFieldNameFragment» : «referenceType.name»«entityFieldCardinalityFragment»'''
 
 	def entityIdentifierRepresentation(EntityIdentifierDeclaration it)
-	'''+<u>«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»</u> : «referenceType.nameForEntityFieldSingleType»'''
+	'''+<u>«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»</u> : «referenceType.name»'''
 
 
-	def entityDerivedParameterFragment(EntityDerivedDeclaration it)
+	def entityQueryParameterFragment(EntityQueryDeclaration it)
 	'''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.name» =«param.^default.sourceCode»«ENDFOR»'''
 
 	def entityDerivedRepresentation(EntityDerivedDeclaration it)
-	'''~«name»«entityDerivedParameterFragment» : «referenceType.nameForEntityDerivedSingleType»«IF isIsMany»[0..*]«ENDIF»'''
+	'''~«name» : «referenceType.name»«IF isIsMany»[0..*]«ENDIF»'''
+
+	def entityQueryRepresentation(EntityQueryDeclaration it)
+	'''~«name»«entityQueryParameterFragment» : «referenceType.name»[0..*]'''
 
 
 	def constraintParameterFragment(ConstraintDeclaration it)
@@ -169,7 +174,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
 	def entityRepresentation(EntityDeclaration it)
 	'''
-		class «name»«entityStereotypeFragment» «entityExtendsFragment» {
+		class «name?:"none"»«entityStereotypeFragment» «entityExtendsFragment» {
 			«FOR field : fields»
 				«field.entityFieldRepresentation»
 			«ENDFOR»
@@ -178,6 +183,9 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 			«ENDFOR»
 			«FOR derived : derivedes»
 				«derived.entityDerivedRepresentation»
+			«ENDFOR»
+			«FOR query : queries»
+				«query.entityQueryRepresentation»
 			«ENDFOR»
 			«FOR constraint : constraints»
 				«constraint.constraintRepresentation»
@@ -197,7 +205,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 		»«base.getExternalNameOfEntityDeclaration(referenceType)»'''
 	
 	def generate(ModelDeclaration it, String style) '''
-	@startuml «name»
+	@startuml «name?:"none"»
 	'!pragma layout smetana
 	«IF style === null || style.blank»«defaultStyle»«ELSE»«style»«ENDIF»
 	
@@ -225,7 +233,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 		«ENDFOR»
 		
 		«FOR entity : externalReferencedRelationReferenceTypes»
-			class «getExternalNameOfEntityDeclaration(entity)» <«entity.modelDeclaration.name»> << External >> 
+			class «getExternalNameOfEntityDeclaration(entity)» <«entity.parentContainer(ModelDeclaration)?.name»> << External >> 
 		«ENDFOR»
 
 		«FOR relation : getAllRelations(true)»
@@ -234,7 +242,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
 		«FOR external : externalReferencedRelationReferenceTypes»
 			«FOR relation : external.relations»
-				«IF relation.opposite?.oppositeName !== null && relation.referenceType.modelDeclaration.name === it.name»
+				«IF relation.opposite?.oppositeName !== null && relation.referenceType?.parentContainer(ModelDeclaration)?.name === it.name»
 					«relation.entityRelationRepresentation(it)»
 				«ENDIF»
 			«ENDFOR»
@@ -250,7 +258,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 		val Set<EntityDeclaration> externalEntities = new HashSet()
 		for (entity : it.entityDeclarations) {
 			for (relation : entity.relations) {
-				if (relation.referenceType.modelDeclaration.name !== it.name) {
+				if (relation.referenceType?.parentContainer(ModelDeclaration)?.name !== it.name) {
 					externalEntities.add(relation.referenceType)
 				}
 			}
@@ -259,8 +267,8 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	}
 	
 	def String getExternalNameOfEntityDeclaration(ModelDeclaration it, EntityDeclaration entityDeclaration) {
-		if (it.name !== entityDeclaration.modelDeclaration.name) {
-			val importList = imports.filter[i | i.modelName.importName.equals(entityDeclaration.modelDeclaration.name)]
+		if (it.name !== entityDeclaration?.parentContainer(ModelDeclaration)?.name) {
+			val importList = imports.filter[i | i.modelName.importName.equals(entityDeclaration.parentContainer(ModelDeclaration).name)]
 				.map[i | i.modelName.alias !== null ? i.modelName.alias + "::" + entityDeclaration.name : entityDeclaration.name]
 			if (importList.size > 0) { 
 				importList.get(0)

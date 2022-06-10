@@ -23,7 +23,7 @@ class ModifiersTests {
 		'''
 			model test
 			
-			type string String max-length -1
+			type string String(max-length = -1)
 			
 			entity Person{
 				field String fullName
@@ -39,7 +39,7 @@ class ModifiersTests {
 		'''
 			model test
 			
-			type string String max-length 4001
+			type string String (max-length = 4001)
 			
 			entity Person{
 				field String fullName
@@ -63,7 +63,7 @@ class ModifiersTests {
 		'''
 			model test
 			
-			type numeric Number1 precision 0 scale 0
+			type numeric Number1(precision = 0, scale = 0)
 			
 			entity Entity {
 				field Number1 number
@@ -78,7 +78,7 @@ class ModifiersTests {
 		'''
 			model test
 			
-			type numeric Number1 precision 16 scale 0
+			type numeric Number1(precision = 16, scale = 0)
 			
 			entity Entity {
 				field Number1 number
@@ -93,7 +93,7 @@ class ModifiersTests {
 		'''
 			model test
 			
-			type numeric Number1 precision 15 scale -1
+			type numeric Number1(precision = 15, scale = -1)
 			
 			entity Entity {
 				field Number1 number
@@ -108,7 +108,7 @@ class ModifiersTests {
 		'''
 			model test
 			
-			type numeric Number1 precision 15 scale 15
+			type numeric Number1(precision = 15, scale = 15)
 			
 			entity Entity {
 				field Number1 number
