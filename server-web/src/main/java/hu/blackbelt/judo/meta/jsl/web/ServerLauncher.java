@@ -3,20 +3,18 @@
  */
 package hu.blackbelt.judo.meta.jsl.web;
 
-import java.net.InetSocketAddress;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.util.log.Slf4jLog;
-import org.eclipse.jetty.webapp.Configuration;
-import org.eclipse.jetty.webapp.MetaInfConfiguration;
-import org.eclipse.jetty.webapp.WebAppContext;
-import org.eclipse.jetty.webapp.WebInfConfiguration;
-import org.eclipse.jetty.webapp.WebXmlConfiguration;
+import org.eclipse.jetty.webapp.*;
+
+import java.net.InetSocketAddress;
 
 /**
  * This program starts an HTTP server for testing the web integration of your DSL.
  * Just execute it and point a web browser to http://localhost:8080/
  */
+@Slf4j
 public class ServerLauncher {
 	public static void main(String[] args) {
 		Server server = new Server(new InetSocketAddress("localhost", 8080));
@@ -34,7 +32,6 @@ public class ServerLauncher {
 			".*/hu\\.blackbelt\\.judo\\.meta\\.jsl\\.web/.*,.*\\.jar");
 		ctx.setInitParameter("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
 		server.setHandler(ctx);
-		Slf4jLog log = new Slf4jLog(ServerLauncher.class.getName());
 		try {
 			server.start();
 			log.info("Server started " + server.getURI() + "...");
@@ -51,7 +48,7 @@ public class ServerLauncher {
 									"Console input is not available. In order to stop the server, you need to cancel process manually.");
 						}
 					} catch (Exception e) {
-						log.warn(e);
+						log.warn("", e);
 					}
 				}
 
