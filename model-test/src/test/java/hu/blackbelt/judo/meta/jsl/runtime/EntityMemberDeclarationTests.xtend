@@ -24,7 +24,7 @@ class EntityMemberDeclarationTests {
 		'''
 			model test
 			
-			type string String max-length 12
+			type string String(max-length = 12)
 			
 			entity B1 {
 			    String name
@@ -47,7 +47,7 @@ class EntityMemberDeclarationTests {
 		'''
 			model test
 			
-			type string String max-length 12
+			type string String(max-length = 12)
 			
 			entity Person {
 				field String tgvkyzidsggsdxxrszoscrljgnnixjzkyztoxpdvvqbmlrpzaakkwcczsarbqrqjnphrlfkfcjgcmgbxdexakswitdmcfjyjblkmiknvdgtyxlunkolxzaneifhyizgureqemldvypsongytiwmfaqrnxuodiunflyduwzerdossywvzgkmvdbfvpumaqzdazqomqwoaqynrixrwirmtbqmihmwkjmdaulwnfoxcmzldaxyjnihbluepwdswz
@@ -63,7 +63,7 @@ class EntityMemberDeclarationTests {
 		'''
 			model test
 			
-			type string String max-length 1000
+			type string String(max-length = 1000)
 			
 			entity B1 {
 			    field required String[] attr
@@ -79,7 +79,7 @@ class EntityMemberDeclarationTests {
 		'''
 			model test
 			
-			type string String max-length 1000
+			type string String(max-length = 1000)
 			
 			entity B1 {
 			    relation required B2[] others
