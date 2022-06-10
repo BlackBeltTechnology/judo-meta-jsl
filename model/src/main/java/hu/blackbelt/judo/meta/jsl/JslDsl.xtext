@@ -250,7 +250,7 @@ Expression returns Expression hidden(WS, CONT_NL, SL_COMMENT, ML_COMMENT)
 	;
 
 ParenthesizedExpression returns Expression
-	: {ParenthesizedExpression} '(' =>expression = MultilineExpression ')'
+	: {ParenthesizedExpression} '(' => expression = MultilineExpression ')'
 	;
 
 MultilineExpression returns Expression hidden(WS, NL, CONT_NL, SL_COMMENT, ML_COMMENT)
@@ -311,6 +311,7 @@ UnaryOperation returns Expression
 
 FunctionedExpression returns Expression
 	: FunctionableExpression ({FunctionedExpression.operand=current} functionCall=FunctionCall)?
+	| ParenthesizedExpression
 	| EnumLiteralReference
     ;
 
