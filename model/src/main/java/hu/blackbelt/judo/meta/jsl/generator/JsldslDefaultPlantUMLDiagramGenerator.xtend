@@ -101,14 +101,14 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
 	def dataTypeRepresentation(DataTypeDeclaration it)
 	'''
-		class «name» <<  «primitive» >>
-		show «name» stereotype
-		hide «name» empty members
+		class «name?:"none"» <<  «primitive» >>
+		show «name?:"none"» stereotype
+		hide «name?:"none"» empty members
 	'''
 
 	def enumRepresentation(EnumDeclaration it)
 	'''
-		class «name» <<  Enumeration >> {
+		class «name?:"none"» <<  Enumeration >> {
 			«FOR literal : literals»
 				<b>«literal.name»</b> = «literal.value»
 			«ENDFOR»
@@ -124,7 +124,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
 	def errorRepresentation(ErrorDeclaration it)
 	'''
-		class «name» <<  Error >> «errorExtendsFragment» {
+		class «name?:"none"» <<  Error >> «errorExtendsFragment» {
 			«FOR field : fields»
 				«field.errorFieldRepsresentation»
 			«ENDFOR»
@@ -174,7 +174,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
 	def entityRepresentation(EntityDeclaration it)
 	'''
-		class «name»«entityStereotypeFragment» «entityExtendsFragment» {
+		class «name?:"none"»«entityStereotypeFragment» «entityExtendsFragment» {
 			«FOR field : fields»
 				«field.entityFieldRepresentation»
 			«ENDFOR»
@@ -205,7 +205,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 		»«base.getExternalNameOfEntityDeclaration(referenceType)»'''
 	
 	def generate(ModelDeclaration it, String style) '''
-	@startuml «name»
+	@startuml «name?:"none"»
 	'!pragma layout smetana
 	«IF style === null || style.blank»«defaultStyle»«ELSE»«style»«ENDIF»
 	

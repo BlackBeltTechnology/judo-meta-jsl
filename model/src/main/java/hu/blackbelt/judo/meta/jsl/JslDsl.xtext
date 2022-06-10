@@ -12,13 +12,14 @@ ModelDeclaration returns ModelDeclaration hidden(WS, SL_COMMENT, ML_COMMENT)
     ;
 
 JslID : ID 
-	| 'import' | 'as' | 'entity' | 'extends' | 'abstract' | 'query' | 'field' | 'required' 	
+	| 'enum' | 'entity' | 'query' | 'field' 
+	| 'import' | 'as' | 'extends' | 'abstract' | 'required' 	
 	| 'constraint' 
 	| 'offset' | 'pattern' | 'replacement' | 'millisecond'
 	//| 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' | 'not'
 	| 'onerror' | 'identifier' | 'derived' | 'relation' | 'opposite' | 'opposite-add' | 'error' | 'type'
 	| 'binary' |'string' | 'numeric' | 'timestamp' | 'mime-types' | 'max-file-size'
-	| 'enum' | 'regex' | 'precision' | 'scale' | 'max-length' 
+	| 'regex' | 'precision' | 'scale' | 'max-length' 
 	| 'date' | 'time' | 'asMilliseconds' | 'fromMilliseconds' | 'plusMilliseconds'
     | 'plusSeconds' | 'plusMinutes' | 'plusHours' | 'plusDays'
     | 'plusMonths' | 'plusYears' | 'of' 
@@ -98,19 +99,14 @@ ConstraintDeclaration
 	;
 
 EntityFieldDeclaration
-	: ('field')? (isRequired ?= 'required'? referenceType = [SingleType | LocalName] Cardinality?) Named
+	: 'field' (isRequired ?= 'required'? referenceType = [SingleType | LocalName] Cardinality?) Named
 	  (defaultExpression = DefaultExpressionType)?
 	;
 
 
 DefaultExpressionType
-	: {DefaultExpressionType} '=' expression = (
-		Literal 
-		| EnumLiteralReference 
-		| NavigationBase 
-		| ParenthesizedExpression
-		| CreateExpression
-	)
+	: {DefaultExpressionType} '=' expression = 
+		( Literal | EnumLiteralReference | NavigationExpression | CreateExpression )
 	;
 
 SingleType 
@@ -182,7 +178,7 @@ ThrowParameter
  ****************************/
 
     
-DataTypeDeclaration
+DataTypeDeclaration hidden(WS, CONT_NL, SL_COMMENT, ML_COMMENT)
     : 'type'
       (
 		  BooleanPrimitive
@@ -250,7 +246,11 @@ ModifierMaxFileSize
  ***************************/
 
 Expression returns Expression hidden(WS, CONT_NL, SL_COMMENT, ML_COMMENT)
-	: SwitchExpression
+	: SwitchExpression (=> ({Expression.switchExpression=current}) parenthesizedExpression=ParenthesizedExpression)*
+	;
+
+ParenthesizedExpression returns Expression
+	: {ParenthesizedExpression} '(' =>expression = MultilineExpression ')'
 	;
 
 MultilineExpression returns Expression hidden(WS, NL, CONT_NL, SL_COMMENT, ML_COMMENT)
@@ -310,30 +310,42 @@ UnaryOperation returns Expression
     ;
 
 FunctionedExpression returns Expression
-	: (NavigationBase | PrimitiveDeclaration | Literal) ({FunctionedExpression.operand=current} functionCall=FunctionCall)?
-	| ParenthesizedExpression
-	| CreateExpression
-    | EnumLiteralReference    
+	: FunctionableExpression ({FunctionedExpression.operand=current} functionCall=FunctionCall)?
+	| EnumLiteralReference
     ;
 
-NavigationBase returns Expression
-	: {NavigationBase} (isSelf ?= 'self' | navigationBaseType = [NavigationBaseReference | LocalName]) (features+=Feature*)
-	| QueryCall (features+=Feature*)
+FunctionableExpression returns Expression
+	: NavigationExpression
+	| Literal
 	;
 
+NavigationExpression returns Expression
+	: SelfExpression
+	| NavigationBaseExpression
+	| QueryCallExpression
+	;
+
+NavigationBaseExpression returns NavigationExpression
+	: {NavigationBaseExpression} navigationBaseType = [NavigationBaseReference | LocalName]  (features+=Feature*)
+	;
+	
 NavigationBaseReference
 	: EntityDeclaration
 	| QueryDeclaration
 	| LambdaVariable
 	| QueryDeclarationParameter
+	| PrimitiveDeclaration
 	;
 	
-	
-QueryCall returns NavigationBase
-	: queryDeclarationType = [ QueryDeclaration | LocalName ] '(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')'
+SelfExpression returns NavigationExpression
+	: {SelfExpression} isSelf ?= 'self' (features+=Feature*)		
 	;
 
-EnumLiteralReference returns Expression
+QueryCallExpression returns NavigationExpression
+	: {QueryCallExpression} queryDeclarationType = [ QueryDeclaration | LocalName ] '(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')' (features+=Feature*)
+	;
+
+EnumLiteralReference returns NavigationExpression
     : {EnumLiteralReference} enumDeclaration = [EnumDeclaration | LocalName] '#' enumLiteral = [EnumLiteral | EnumLiteralName ]    	
     ;
 
@@ -355,10 +367,6 @@ QueryParameter
 	:  queryParameterType=[QueryDeclarationParameter | QueryParameterName] '=' (literal = Literal | parameter = [QueryDeclarationParameter | QueryParameterName])     // expression=MultilineExpression
 	;
 
-ParenthesizedExpression returns Expression
-	: {ParenthesizedExpression} '(' =>expression = MultilineExpression ')'
-	;
-
 
 CreateExpression returns Expression
 	: {CreateExpression} 'new' createType=[ClassDeclaration | LocalName]
@@ -374,8 +382,6 @@ CreateParameter:
 Function
 	: SelectableFunction
     ;
-
-
 
  
 NamedFunction returns Function : {NamedFunction} name = JslID
@@ -514,7 +520,7 @@ SelectorVariable
     ;
 
 FunctionParameter
-	: {FunctionParameter} expression=MultilineExpression
+	: {FunctionParameter} expression=Expression
 	;
 
 Literal returns Expression
@@ -572,7 +578,6 @@ BLOCK_START
 BLOCK_END
 	: NL* '}'
 	;
-
 
 terminal fragment DIGIT
 	: '0'..'9'
@@ -642,8 +647,4 @@ terminal WS
 
 terminal NL
 	: NEWLINE | ';'
-	;
-
-terminal ANY_OTHER
-	: .
 	;
