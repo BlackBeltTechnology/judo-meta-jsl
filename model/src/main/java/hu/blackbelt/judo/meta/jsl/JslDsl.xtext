@@ -310,22 +310,11 @@ UnaryOperation returns Expression
     ;
 
 FunctionedExpression returns Expression
-	: NavigationExpression ({FunctionedExpression.operand=current} functionCall=FunctionCall)?
-	;
-
-NavigationExpression returns Expression
-	: PrimaryExpression features+=Feature*
-    | NavigationBase
-    | EnumLiteralReference
-    | PrimitiveDeclaration
-    ;
-
-PrimaryExpression returns Expression
-	: ParenthesizedExpression
+	: (NavigationBase | PrimitiveDeclaration | Literal) ({FunctionedExpression.operand=current} functionCall=FunctionCall)?
+	| ParenthesizedExpression
 	| CreateExpression
-	| Literal
-	;
-
+    | EnumLiteralReference    
+    ;
 
 NavigationBase returns Expression
 	: {NavigationBase} (isSelf ?= 'self' | navigationBaseType = [NavigationBaseReference | LocalName]) (features+=Feature*)
