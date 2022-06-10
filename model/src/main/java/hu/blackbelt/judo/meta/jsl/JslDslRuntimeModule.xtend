@@ -20,15 +20,18 @@ import hu.blackbelt.judo.meta.jsl.scoping.JslDslGlobalScopeProvider
 import com.google.inject.Singleton
 import org.eclipse.xtext.generator.IOutputConfigurationProvider
 import hu.blackbelt.judo.meta.jsl.generator.JslDslOutputConfigurationProvider
+import org.eclipse.xtext.linking.ILinkingDiagnosticMessageProvider
+import hu.blackbelt.judo.meta.jsl.errormessages.JslDslLinkingDiagnosticMessageProvider
+import hu.blackbelt.judo.meta.jsl.scoping.JslDslSpecialValueConverterService
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
 class JslDslRuntimeModule extends AbstractJslDslRuntimeModule {
     
-    override Class<? extends IValueConverterService> bindIValueConverterService() {
-        return typeof(JslTerminalConverters)
-    }
+//    override Class<? extends IValueConverterService> bindIValueConverterService() {
+//        return typeof(JslTerminalConverters)
+//    }
     
     override configureIScopeProviderDelegate(Binder binder) {
 		binder.bind(IScopeProvider).annotatedWith(Names.named(AbstractDeclarativeScopeProvider.NAMED_DELEGATE)).to(JslDslImportedNamespaceAwareLocalSocpeProvider);
@@ -49,11 +52,18 @@ class JslDslRuntimeModule extends AbstractJslDslRuntimeModule {
 //    }
 
 	def Class<? extends ISyntaxErrorMessageProvider> bindISyntaxErrorMessageProvider() {
-	  JslDslSyntaxErrorMessageProvider;
+		JslDslSyntaxErrorMessageProvider;
   	}
   	
+  	def Class<? extends ILinkingDiagnosticMessageProvider> bindILinkingDiagnosticMessageProvider() {
+  		JslDslLinkingDiagnosticMessageProvider 
+	}
   	
     override Class<? extends IGlobalScopeProvider> bindIGlobalScopeProvider() {
         JslDslGlobalScopeProvider
     }
+    
+	override Class<? extends IValueConverterService> bindIValueConverterService() {
+	  return JslDslSpecialValueConverterService
+	}
 }

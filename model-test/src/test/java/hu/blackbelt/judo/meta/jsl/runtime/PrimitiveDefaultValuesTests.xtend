@@ -37,7 +37,7 @@ class PrimitiveDefaultValuesTests {
 		'''
 			model PrimitiveDefaultsModel
 			
-			type string String max-length 128
+			type string String(max-length = 128)
 			
 			entity Test {
 				field String stringAttr = 123
@@ -52,7 +52,7 @@ class PrimitiveDefaultValuesTests {
 		'''
 			model PrimitiveDefaultsModel
 			
-			type numeric Integer precision 9  scale 0
+			type numeric Integer(precision = 9,  scale = 0)
 			
 			entity Test {
 				field Integer intAttr = "hello"
@@ -67,7 +67,7 @@ class PrimitiveDefaultValuesTests {
 		'''
 			model PrimitiveDefaultsModel
 			
-			type numeric Decimal precision 9  scale 3
+			type numeric Decimal(precision = 9, scale = 3)
 			
 			entity Test {
 				field Decimal decimalAttr = "hello"
@@ -127,9 +127,9 @@ class PrimitiveDefaultValuesTests {
         '''
             model PrimitiveDefaultsModel
 
-            type numeric Integer precision 9  scale 0
-            type numeric Decimal precision 5  scale 3
-            type string String max-length 128
+            type numeric Integer(precision = 9,  scale = 0)
+            type numeric Decimal(precision = 5,  scale = 3)
+            type string String(max-length = 128)
             type boolean Bool
             type date Date
             type time Time
