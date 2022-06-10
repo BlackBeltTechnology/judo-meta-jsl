@@ -27,11 +27,11 @@ class EntityMemberDeclarationTests {
 			type string String(max-length = 12)
 			
 			entity B1 {
-			    String name
+			    field String name
 			}
 			
 			entity B2 {
-			    String name
+			    field String name
 			}
 			
 			entity A extends B1,B2 {
