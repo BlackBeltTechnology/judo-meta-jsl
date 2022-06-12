@@ -1,6 +1,5 @@
 package hu.blackbelt.judo.meta.jsl
 
-import hu.blackbelt.judo.meta.jsl.runtime.JslTerminalConverters
 import org.eclipse.xtext.conversion.IValueConverterService
 import com.google.inject.Binder
 import org.eclipse.xtext.scoping.IScopeProvider

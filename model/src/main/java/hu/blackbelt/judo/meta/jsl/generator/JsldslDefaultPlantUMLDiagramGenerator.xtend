@@ -270,7 +270,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 		if (it.name !== entityDeclaration?.parentContainer(ModelDeclaration)?.name) {
 			val importList = imports.filter[i | i.modelName.importName.equals(entityDeclaration.parentContainer(ModelDeclaration).name)]
 				.map[i | i.modelName.alias !== null ? i.modelName.alias + "::" + entityDeclaration.name : entityDeclaration.name]
-			if (importList.size > 0) { 
+			if (importList !== null && importList.size > 0) { 
 				importList.get(0)
 			} else {
 				entityDeclaration.name
