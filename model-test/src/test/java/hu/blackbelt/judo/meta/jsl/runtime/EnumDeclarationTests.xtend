@@ -76,5 +76,5 @@ class EnumDeclarationTests {
 		'''.parse => [
 			m | m.assertError(JsldslPackage::eINSTANCE.defaultExpressionType, JslDslValidator.DEFAULT_TYPE_MISMATCH, "Default value type: 'GenreOther' does not match member type: 'Genre'")
 		]
-	}
+	}	
 }
