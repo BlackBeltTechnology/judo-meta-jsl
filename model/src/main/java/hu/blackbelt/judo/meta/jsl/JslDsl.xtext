@@ -15,21 +15,10 @@ JslID : ID
 	| 'enum' | 'entity' | 'query' | 'field' 
 	| 'import' | 'as' | 'extends' | 'abstract' | 'required' 	
 	| 'constraint' 
-	| 'offset' | 'pattern' | 'replacement' | 'millisecond'
-	//| 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' | 'not'
+//	| 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' | 'not'
 	| 'onerror' | 'identifier' | 'derived' | 'relation' | 'opposite' | 'opposite-add' | 'error' | 'type'
 	| 'binary' |'string' | 'numeric' | 'timestamp' | 'mime-types' | 'max-file-size'
 	| 'regex' | 'precision' | 'scale' | 'max-length' 
-	| 'date' | 'time' | 'asMilliseconds' | 'fromMilliseconds' | 'plusMilliseconds'
-    | 'plusSeconds' | 'plusMinutes' | 'plusHours' | 'plusDays'
-    | 'plusMonths' | 'plusYears' | 'of' 
-    | 'typeOf' | 'kindOf' | 'container' | 'asType' | 'memberOf' 
-    | 'head' | 'tail' | 'any' | 'count' 
-    | 'asCollection' | 'contains' | 'filter' | 'anyTrue' | 'allTrue' 
-	| 'min' | 'max' | 'avg' | 'sum'
-    | 'getVariable' | 'isDefined' | 'isUnDefined' | 'length' | 'first' | 'last' | 'position' | 'substring' | 'lower' | 'upper' | 'capitalize'
-    | 'matches' | 'like' | 'ilike' | 'replace' | 'trim' | 'rtrim' | 'ltrim' | 'round' | 'floor' | 'ceil' | 'abs' | 'asString' 
-    | 'year' | 'month' | 'day'
     ;
 
 
@@ -46,6 +35,7 @@ Declaration
 	| ErrorDeclaration
 	| QueryDeclaration )
 	;
+
 
 TypeDeclaration
 	: PrimitiveDeclaration
@@ -376,129 +366,102 @@ CreateExpression returns Expression
 	  )
 	;
 
-CreateParameter:
-    name=JslID '=' right=MultilineExpression;
-
+CreateParameter: name=JslID '=' right=MultilineExpression;
 
 Function
-	: SelectableFunction
-    ;
-
- 
-NamedFunction returns Function : {NamedFunction} name = JslID
-;
-// String functions
-GetVariableFunction returns LiteralFunction : {LiteralFunction} name = 'getVariable' '(' parameters += FunctionParameter ')' ;
-IsDefinedFunction returns LiteralFunction : {LiteralFunction} name = 'isDefined' '(' ')';
-IsUnDefinedFunction returns LiteralFunction : {LiteralFunction} name = 'isUnDefined' '(' ')';
-LengthFunction returns LiteralFunction : {LiteralFunction} name = 'length' '(' ')';
-FirstFunction returns LiteralFunction : {LiteralFunction} name = 'first' '(' 'count' '=' parameters += FunctionParameter ')';
-LastFunction returns LiteralFunction : {LiteralFunction} name = 'last' '(' 'count' '=' parameters += FunctionParameter ')';
-PositionFunction returns LiteralFunction : {LiteralFunction} name = 'position' '(' 'offset' '='parameters += FunctionParameter ')';
-SubstringFunction returns LiteralFunction : {LiteralFunction} name = 'substring' '(' 'offset' '=' parameters += FunctionParameter ',' 'count' '=' parameters += FunctionParameter ')';
-LowerFunction returns LiteralFunction : {LiteralFunction} name = 'lower' '(' ')';
-UpperFunction returns LiteralFunction : {LiteralFunction} name = 'upper' '(' ')';
-CapitalizeFunction returns LiteralFunction : {LiteralFunction} name = 'capitalize' '(' ')';
-MatchesFunction returns LiteralFunction : {LiteralFunction} name = 'matches' '(' 'pattern' '=' parameters += FunctionParameter ')';
-LikeFunction returns LiteralFunction : {LiteralFunction} name = 'like' '(' 'pattern' '=' parameters += FunctionParameter ')';
-IlikeFunction returns LiteralFunction : {LiteralFunction} name = 'ilike' '(' 'pattern' '=' parameters += FunctionParameter ')';
-ReplaceFunction returns LiteralFunction : {LiteralFunction} name = 'replace' '(' 'pattern' '=' parameters += FunctionParameter ',' 'replacement' '=' parameters += FunctionParameter ')';
-TrimFunction returns LiteralFunction : {LiteralFunction} name = 'trim' '(' ')';
-LtrimFunction returns LiteralFunction : {LiteralFunction} name = 'ltrim' '(' ')';
-RtrimFunction returns LiteralFunction : {LiteralFunction} name = 'rtrim' '(' ')';
-
-// Numeric functions
-RoundFunction returns LiteralFunction : {LiteralFunction} name = 'round' '(' ')';
-FloorFunction returns LiteralFunction : {LiteralFunction} name = 'floor' '(' ')';
-CeilFunction returns LiteralFunction : {LiteralFunction} name = 'ceil' '(' ')';
-AbsFunction returns LiteralFunction : {LiteralFunction} name = 'abs' '(' ')';
-AsStringFunction returns LiteralFunction : {LiteralFunction} name = 'asString' '(' ')';
-
-// Boolean functions
-// AsStringFunction returns Named : {AsBooleanAsStringFunction} name = 'asString' '(' ')';
-
-// Date functions
-YearFunction returns LiteralFunction : {LiteralFunction} name = 'year' '(' ')';
-MonthFunction returns LiteralFunction : {LiteralFunction} name = 'month' '(' ')';
-DayFunction returns LiteralFunction : {LiteralFunction} name = 'day' '(' ')';
-DateOfFunction returns LiteralFunction : {LiteralFunction} name = 'of' '('
-	  ('year' '=' parameters += FunctionParameter ',' 'month' '=' parameters += FunctionParameter ',' 'day' '=' parameters += FunctionParameter) 
-	')'
-	;
-// AsStringFunction returns Named : {AsStringFunction} name = 'asString' '(' ')';
-
-// Time functions
-HourFunction returns LiteralFunction : {LiteralFunction} name = 'hour' '(' ')';
-MinuteFunction returns LiteralFunction : {LiteralFunction} name = 'minute' '(' ')';
-SecondFunction returns LiteralFunction : {LiteralFunction} name = 'second' '(' ')';
-TimeOfFunction returns LiteralFunction : {LiteralFunction} name = 'of' '('
-	('hour' '=' parameters += FunctionParameter ',' 'minute' '=' parameters += FunctionParameter ',' 'second' '=' parameters += FunctionParameter)
-	')'
+	: LiteralFunction
+	| LambdaFunction
+	| InstanceFunction
+//	| SelectorFunction
 	;
 
-// OfFunction returns Named : {OfFunction} name = 'of' '(' args = TwoArg | ThreeArg  ')';
-// AsStringFunction returns Named : {AsStringFunction} name = 'asString' '(' ')';
-
-// Timestamp functions
-DateFunction returns LiteralFunction : {LiteralFunction} name = 'date' '(' ')';
-TimeFunction returns LiteralFunction : {LiteralFunction} name = 'time' '(' ')';
-AsMillisecondsFunction returns LiteralFunction : {LiteralFunction} name = 'asMilliseconds' '(' ')';
-FromMillisecondsFunction returns LiteralFunction : {LiteralFunction} name = 'fromMilliseconds' '(' 'millisecond' '=' parameters += FunctionParameter ')';
-PlusMillisecondsFunction returns LiteralFunction : {LiteralFunction} name = 'plusMilliseconds' '(' 'millisecond' '=' parameters += FunctionParameter ')';
-PlusSecondsFunction returns LiteralFunction : {LiteralFunction} name = 'plusSeconds' '(' 'sec' '=' parameters += FunctionParameter ')';
-PlusMinutesFunction returns LiteralFunction : {LiteralFunction} name = 'plusMinutes' '(' 'min' '=' parameters += FunctionParameter ')';
-PlusHoursFunction returns LiteralFunction : {LiteralFunction} name = 'plusHours' '(' 'hour' '=' parameters += FunctionParameter ')';
-PlusDaysFunction returns LiteralFunction : {LiteralFunction} name = 'plusDays' '(' 'day' '=' parameters += FunctionParameter ')';
-PlusMonthsFunction returns LiteralFunction : {LiteralFunction} name = 'plusMonths' '(' 'month' '=' parameters += FunctionParameter ')';
-PlusYearsFunction returns LiteralFunction : {LiteralFunction} name = 'plusYears' '(' 'year' '=' parameters += FunctionParameter ')';
-// AsStringFunction returns Named : {AsBooleanAsStringFunction} name = 'asString' '(' ')';
-TimestampOfFunction returns LiteralFunction : {LiteralFunction} name = 'of' '('
-	('date' '=' parameters += FunctionParameter ',' 'time' '=' parameters += FunctionParameter)
-	')'
+FunctionDeclaration 
+	: (
+	LiteralFunctionDeclaration
+	| LambdaFunctionDeclaration
+	| SelectorFunctionDeclaration
+	| InstanceFunctionDeclaration
+	) returnTypes+=FunctionReturnType acceptedBaseTypes+=FunctionBaseType parameterDeclarations += FunctionParameterDeclaration
 	;
 
-// Enumeration functions
+enum FunctionReturnType
+	: RT_ENTITY_INSTANCE
+	| RT_ENTITY_COLLECTION
+	| RT_BASE_TYPE_INSTANCE
+	| RT_BASE_TYPE_COLLECTION
+	| RT_ENUM_LITERAL
+	| RT_BOOLEAN_INSTANCE
+	| RT_BINARY_INSTANCE
+	| RT_STRING_INSTANCE
+	| RT_NUMERIC_INSTANCE
+	| RT_DATE_INSTANCE
+	| RT_TIME_INSTANCE
+	| RT_TIMESTAMP_INSTANCE
+	;
 
-// AsStringFunction returns Named : {AsBooleanAsStringFunction} name = 'asString' '(' ')';
+enum FunctionBaseType
+	: BT_ENTITY_INSTANCE
+	| BT_ENTITY_COLLECTION
+	| BT_ENUM_LITERAL
+	| BT_BOOLEAN_INSTANCE
+	| BT_BINARY_INSTANCE
+	| BT_STRING_INSTANCE
+	| BT_NUMERIC_INSTANCE
+	| BT_DATE_INSTANCE
+	| BT_TIME_INSTANCE
+	| BT_TIMESTAMP_INSTANCE
+	| BT_BOOLEAN_TYPE
+	| BT_BINARY_TYPE 
+	| BT_STRING_TYPE
+	| BT_NUMERIC_TYPE
+	| BT_DATE_TYPE
+	| BT_TIME_TYPE
+	| BT_TIMESTAMP_TYPE
+	;
 
-// Instance functions
-TypeOfFunction returns InstanceFunction : {InstanceFunction} name = 'typeOf' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
-KindOfFunction returns InstanceFunction : {InstanceFunction} name = 'kindOf' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
-ContainerFunction returns InstanceFunction : {InstanceFunction} name = 'container' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
-AsTypeFunction returns InstanceFunction : {InstanceFunction} name = 'asType' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
+NamedFunctionDeclaration returns FunctionDeclaration : {NamedFunctionDeclaration} name = JslID;
 
-MemberOfFunction returns LiteralFunction : {LiteralFunction} name = 'memberOf' '(' parameters += FunctionParameter ')';
+FunctionParameter
+	: LiteralFunctionParameters
+	| LambdaFunctionParameters
+	| SelectorFunctionParameters
+	;
 
-// Collection function
-HeadFunction returns SelectorFunction : {SelectorFunction} name = 'head' '(' selectorArgument = SelectorFunctionParameters ')';
-TailFunction returns SelectorFunction : {SelectorFunction} name = 'tail' '(' selectorArgument = SelectorFunctionParameters ')';
-AnyFunction returns LambdaFunction : {LambdaFunction} name = 'any' '(' ')';
-CountFunction returns LiteralFunction : {LiteralFunction} name = 'count' '(' ')';
-AsCollectionFunction returns InstanceFunction : {InstanceFunction} name = 'asCollection' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
-ContainsFunction returns LiteralFunction : {LiteralFunction} name = 'contains' '(' parameters += FunctionParameter ')';
-FilterFunction returns LambdaFunction : {LambdaFunction} name = 'filter' '(' lambdaArgument = LambdaFunctionParameters ')';
-AnyTrueFunction returns LambdaFunction : {LambdaFunction} name = 'anyTrue' '(' lambdaArgument = LambdaFunctionParameters ')';
-AllTrueFunction returns LambdaFunction : {LambdaFunction} name = 'allTrue' '(' lambdaArgument = LambdaFunctionParameters ')';
-MinFunction returns LambdaFunction : {LambdaFunction} name = 'min' '(' lambdaArgument = LambdaFunctionParameters ')';
-MaxFunction returns LambdaFunction : {LambdaFunction} name = 'max' '(' lambdaArgument = LambdaFunctionParameters ')';
-AvgFunction returns LambdaFunction : {LambdaFunction} name = 'avg' '(' lambdaArgument = LambdaFunctionParameters ')';
-SumFunction returns LambdaFunction : {LambdaFunction} name = 'sum' '(' lambdaArgument = LambdaFunctionParameters ')';
+FunctionParameterDeclaration
+    : {FunctionParameterDeclaration} Named Cardinality isRequired ?= 'true' functionParameterType = FunctionParameterType parameterPresentedForBaseTypes += FunctionBaseType;
+    
+enum FunctionParameterType
+	: PT_ENTITY_INSTANCE
+	| PT_ENTITY_COLLECTION
+	| PT_ENTITY_TYPE
+	| PT_ENUM_LITERAL
+	| PT_BOOLEAN_INSTANCE
+	| PT_BINARY_INSTANCE
+	| PT_STRING_INSTANCE
+	| PT_NUMERIC_INSTANCE
+	| PT_DATE_INSTANCE
+	| PT_TIME_INSTANCE
+	| PT_TIMESTAMP_INSTANCE
+	;
 
-LambdaFunction returns NamedFunction : {LambdaFunction} lambdaArgument = LambdaFunctionParameters;
-LiteralFunction returns NamedFunction : {LiteralFunction} parameters += FunctionParameter;
-InstanceFunction returns NamedFunction : {InstanceFunction} entityDeclaration = [EntityDeclaration | LocalName];
-SelectorFunction returns NamedFunction : {SelectorFunction} selectorArgument = SelectorFunctionParameters;
- 
-SelectableFunction 
-    : GetVariableFunction | IsDefinedFunction | IsUnDefinedFunction | LengthFunction | FirstFunction | LastFunction | PositionFunction | SubstringFunction 
-    | LowerFunction | UpperFunction | CapitalizeFunction | MatchesFunction | LikeFunction | IlikeFunction | ReplaceFunction | TrimFunction | LtrimFunction | RtrimFunction | RoundFunction
-    | FloorFunction | CeilFunction | AbsFunction | AsStringFunction | YearFunction | MonthFunction | DayFunction | DateOfFunction | HourFunction | MinuteFunction
-    | SecondFunction | TimeOfFunction | DateFunction | TimeFunction | AsMillisecondsFunction | FromMillisecondsFunction | PlusMillisecondsFunction | PlusSecondsFunction
-    | PlusMinutesFunction | PlusHoursFunction | PlusDaysFunction | PlusMonthsFunction | PlusYearsFunction | TimestampOfFunction | TypeOfFunction | KindOfFunction | ContainerFunction
-    | AsTypeFunction | MemberOfFunction | HeadFunction | TailFunction | AnyFunction | CountFunction | AsCollectionFunction | ContainsFunction | FilterFunction
-    | AnyTrueFunction | AllTrueFunction | MinFunction | MaxFunction | AvgFunction | SumFunction
-    ;
 
+LambdaFunctionDeclaration returns NamedFunctionDeclaration : {LambdaFunctionDeclaration} ;
+LiteralFunctionDeclaration returns NamedFunctionDeclaration : {LiteralFunctionDeclaration}  ;
+InstanceFunctionDeclaration returns NamedFunctionDeclaration : {InstanceFunctionDeclaration} ;
+SelectorFunctionDeclaration returns NamedFunctionDeclaration : {SelectorFunctionDeclaration} ;
+
+LiteralFunction returns Function: {LiteralFunction} functionDeclarationReference = [LiteralFunctionDeclaration | LocalName ] '(' (parameters += LiteralFunctionParameter (',' parameters += LiteralFunctionParameter)*)? ')' ;
+LambdaFunction returns Function : {LambdaFunction} functionDeclarationReference = [LambdaFunctionDeclaration | LocalName ] '(' lambdaArgument=LambdaVariable '|' expression = Expression ')';
+InstanceFunction returns Function : {InstanceFunction} functionDeclarationReference = [InstanceFunctionDeclaration | LocalName ] '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
+//SelectorFunction returns Function : {SelectorFunction} => functionDeclarationReference = [SelectorFunctionDeclaration | LocalName ] '('  selectorArgument = SelectorVariable '|' selectors += SelectorDeclaration (',' selectors += SelectorDeclaration)* ')';
+
+LiteralFunctionParameters
+    : {LiteralFunctionParameters} parameters += LiteralFunctionParameter (',' parameters += LiteralFunctionParameter)*
+	;
+
+LiteralFunctionParameter 
+	: declaration = [FunctionParameterDeclaration | LocalName] '=' expression=Expression 
+	;
 
 LambdaFunctionParameters
     : lambdaArgument=LambdaVariable '|' expression = Expression
@@ -509,7 +472,7 @@ LambdaVariable
     ;
 
 SelectorFunctionParameters
-    : selectorArgument=SelectorVariable '|' selectors += SelectorDeclaration (',' selectors += SelectorDeclaration)*
+    : {SelectorFunctionParameters} selectorArgument=SelectorVariable '|' selectors += SelectorDeclaration (',' selectors += SelectorDeclaration)*
 	;
 
 SelectorDeclaration
@@ -520,9 +483,8 @@ SelectorVariable
     : {SelectorVariable} Named
     ;
 
-FunctionParameter
-	: {FunctionParameter} expression=Expression
-	;
+InstanceFunctionParameter 
+	: {InstanceFunctionParameter} entityDeclaration = [EntityDeclaration | LocalName];
 
 Literal returns Expression
 	: BooleanLiteral
@@ -649,3 +611,5 @@ terminal WS
 terminal NL
 	: NEWLINE | ';'
 	;
+
+	
