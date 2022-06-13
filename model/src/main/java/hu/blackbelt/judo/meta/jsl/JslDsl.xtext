@@ -2,6 +2,7 @@ grammar hu.blackbelt.judo.meta.jsl.JslDsl hidden(WS, NL, SL_COMMENT, ML_COMMENT)
 
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 generate jsldsl "http://www.blackbelt.hu/judo/meta/jsl/JslDsl"
+
  
 ModelDeclaration returns ModelDeclaration hidden(WS, SL_COMMENT, ML_COMMENT)
     : {ModelDeclaration} 'model' name = ModelName
@@ -10,22 +11,31 @@ ModelDeclaration returns ModelDeclaration hidden(WS, SL_COMMENT, ML_COMMENT)
 	  NL*
     ;
 
-//ModelImport
-//    : =>NL+ 'import' importedModel = [ModelDeclaration] ('as' alias = ID)?
-//	;
+JslID : ID 
+	| 'enum' | 'entity' | 'query' | 'field' 
+	| 'import' | 'as' | 'extends' | 'abstract' | 'required' 	
+	| 'constraint' 
+//	| 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' | 'not'
+	| 'onerror' | 'identifier' | 'derived' | 'relation' | 'opposite' | 'opposite-add' | 'error' | 'type'
+	| 'binary' |'string' | 'numeric' | 'timestamp' | 'mime-types' | 'max-file-size'
+	| 'regex' | 'precision' | 'scale' | 'max-length' 
+    ;
+
 
 ModelImport
     : NL+ 'import' modelName = ModelImportDeclaration
 	;
 
 ModelImportDeclaration
-    : importName = ModelName ('as' alias = ID)?
+    : importName = ModelName ('as' alias = JslID)?
 	;
 
 Declaration
 	: NL+ (TypeDeclaration
-	| ErrorDeclaration)
+	| ErrorDeclaration
+	| QueryDeclaration )
 	;
+
 
 TypeDeclaration
 	: PrimitiveDeclaration
@@ -33,8 +43,8 @@ TypeDeclaration
 	;
 
 PrimitiveDeclaration
-	: DataTypeDeclaration
-	| EnumDeclaration
+	: EnumDeclaration
+	| DataTypeDeclaration
     ;
 
 ClassDeclaration
@@ -44,12 +54,25 @@ ClassDeclaration
 /****************************
  *	Entity
  ****************************/
+fragment Named
+	: name = JslID;
+
+fragment Cardinality
+    : isMany ?= '[]'
+    ;
 
 EntityDeclaration
 	: {EntityDeclaration}
-	  'entity' isAbstract ?= 'abstract'? name = ID
+	  'entity' isAbstract ?= 'abstract'? Named
 	  ('extends' extends += [EntityDeclaration | LocalName] (',' extends += [EntityDeclaration | LocalName])*)?
 	  BLOCK_START (members += EntityMemberDeclaration)* BLOCK_END
+	;
+
+
+QueryDeclaration
+	: 'query' (referenceType = [SingleType | LocalName] Cardinality?) Named
+	  ('(' parameters += QueryDeclarationParameter (',' parameters += QueryDeclarationParameter)* ')')
+	  "=>" expression = Expression
 	;
 
 EntityMemberDeclaration
@@ -57,61 +80,62 @@ EntityMemberDeclaration
 	| EntityIdentifierDeclaration
 	| EntityRelationDeclaration
 	| EntityDerivedDeclaration
+	| EntityQueryDeclaration
 	| ConstraintDeclaration)
 	;
 
 ConstraintDeclaration
-	: 'constraint' expression = Expression ('onerror' error = CreateError)?
+	: 'constraint' Named expression = Expression ('onerror' error = CreateError)?
 	;
 
 EntityFieldDeclaration
-	: ('field')? (isRequired ?= 'required'? referenceType = [EntityFieldSingleType | LocalName] isMany ?= '[]'?) name = ID
+	: 'field' (isRequired ?= 'required'? referenceType = [SingleType | LocalName] Cardinality?) Named
 	  (defaultExpression = DefaultExpressionType)?
 	;
 
 
 DefaultExpressionType
-	: {DefaultExpressionType} '=' expression = (
-		Literal 
-		| EnumLiteralReference 
-		| NavigationBase 
-		| ParenthesizedExpression
-		| CreateExpression
-	)
+	: {DefaultExpressionType} '=' expression = 
+		( Literal | EnumLiteralReference | NavigationExpression | CreateExpression )
 	;
 
-EntityFieldSingleType 
+SingleType 
 	: PrimitiveDeclaration
 	| EntityDeclaration
 	;
 
 EntityIdentifierDeclaration
-	: 'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] name = ID
+	: 'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] Named
 	  (defaultExpression = DefaultExpressionType)?
 	;
 
 EntityDerivedDeclaration
-	: 'derived' (referenceType = [EntityDerivedSingleType | LocalName] isMany ?= '[]'?) name = ID
-	  ('(' parameters += DerivedParameter (',' parameters += DerivedParameter)* ')')?
-	  "=" expression = Expression
+	: 'derived' (referenceType = [SingleType | LocalName] Cardinality?) Named
+	  "=>" expression = Expression
 	;
 
-EntityDerivedSingleType
+EntityQueryDeclaration
+	: 'query' (referenceType = [EntityQueryTargetType | LocalName] Cardinality?) Named
+	  ('(' parameters += QueryDeclarationParameter (',' parameters += QueryDeclarationParameter)* ')')
+	  "=>" expression = Expression
+	;
+
+EntityQueryTargetType
 	: PrimitiveDeclaration
 	| EntityDeclaration
 	;
 
-DerivedParameter
-	: referenceType = [PrimitiveDeclaration | LocalName] name = ID "=" default = Expression
+QueryDeclarationParameter
+	: referenceType = [PrimitiveDeclaration | LocalName] Named "=" default = Literal
 	;
 
 EntityRelationDeclaration
-	: 'relation' (isRequired ?= 'required'? referenceType = [EntityDeclaration | LocalName] isMany ?= '[]'?) name = ID
+	: 'relation' (isRequired ?= 'required'? referenceType = [EntityDeclaration | LocalName] Cardinality?) Named
 	  opposite = EntityRelationOpposite?
 	;
 
 EntityRelationOpposite
-	: 'opposite-add' oppositeName = ID (isMany ?= '[]')?
+	: 'opposite-add' oppositeName = JslID Cardinality?
 	| 'opposite' oppositeType = [EntityRelationDeclaration | LocalName]
 	;
 
@@ -121,12 +145,12 @@ EntityRelationOpposite
  ****************************/
 
 ErrorDeclaration
-	: 'error' name = ID ('extends' extends = [ErrorDeclaration])?
+	: 'error' Named ('extends' extends = [ErrorDeclaration])?
 	  BLOCK_START (fields += ErrorField)* BLOCK_END
 	;
 
 ErrorField
-	: NL+ 'field' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] name = ID
+	: NL+ 'field' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] Named
 	  (defaultExpression = DefaultExpressionType)?
 	;
 
@@ -135,7 +159,7 @@ CreateError
 	;
 
 ThrowParameter
-	: errorFieldType=[ErrorField | LocalName] '=' expession=Expression;
+	: errorFieldType=[ErrorField | LocalName] '=' expession=Literal;
 
 
 
@@ -144,18 +168,27 @@ ThrowParameter
  ****************************/
 
     
-DataTypeDeclaration
+DataTypeDeclaration hidden(WS, CONT_NL, SL_COMMENT, ML_COMMENT)
     : 'type'
       (
-		  primitive = 'boolean' name = ID
-		| primitive = 'binary' name = ID (mimeTypes = ModifierMimeTypes? & maxFileSize = ModifierMaxFileSize?) 
-		| primitive = 'string' name = ID (maxLength = ModifierMaxLength & regex = ModifierRegex?)
-		| primitive = 'numeric' name = ID (precision = ModifierPrecision & scale = ModifierScale)
-		| primitive = 'date' name = ID
-		| primitive = 'time' name = ID
-		| primitive = 'timestamp' name = ID
+		  BooleanPrimitive
+		| BinaryPrimitive ('(' (mimeTypes = ModifierMimeTypes? & (',' maxFileSize = ModifierMaxFileSize))? ')')?
+		| StringPrimitive ('('(maxLength = ModifierMaxLength & (',' regex = ModifierRegex)?) ')')?
+		| NumericPrimitive ('('(precision = ModifierPrecision & (',' scale = ModifierScale)) ')')?
+		| DatePrimitive
+		| TimePrimitive
+		| TimestampPrimitive
       )
     ;
+
+BooleanPrimitive returns DataTypeDeclaration: primitive = 'boolean' Named;
+BinaryPrimitive returns DataTypeDeclaration : primitive = 'binary' Named;
+StringPrimitive returns DataTypeDeclaration : primitive = 'string' Named;
+NumericPrimitive returns DataTypeDeclaration : primitive = 'numeric' Named;
+DatePrimitive returns DataTypeDeclaration : primitive = 'date' Named;
+TimePrimitive returns DataTypeDeclaration : primitive = 'time' Named;
+TimestampPrimitive returns DataTypeDeclaration : primitive = 'timestamp' Named;
+
 
 
 /****************************
@@ -163,38 +196,38 @@ DataTypeDeclaration
  ****************************/
 
 EnumDeclaration
-    : 'enum' name = ID
+    : 'enum' Named
       BLOCK_START (literals += EnumLiteral)+ BLOCK_END
     ;
 
 EnumLiteral
-    : NL+ name = ID '=' value = INTEGER
+    : NL+ Named '=' value = INTEGER
     ;
 
 
 ModifierMaxLength
-	: 'max-length' maxLength = INTEGER
+	: 'max-length' '=' value = INTEGER
 	;
 
 ModifierRegex
-	: 'regex' regex = StringLiteral
+	: 'regex' '=' regex = StringLiteral
 	;
 
 ModifierPrecision
-	: 'precision' precision = INTEGER
+	: 'precision' '=' value = INTEGER
 	;
 
 ModifierScale
-	: 'scale' scale = INTEGER
+	: 'scale' '=' value = INTEGER
 	;
 
 
 ModifierMimeTypes
-	: 'mime-types' mimeTypes+=MIME_TYPE (',' mimeTypes += MIME_TYPE)*
+	: 'mime-types' '=' values+=MIME_TYPE (',' values += MIME_TYPE)*
 	;
 
 ModifierMaxFileSize
-	: 'max-file-size' maxFileSize = INTEGER
+	: 'max-file-size' '=' value = INTEGER
 	;
 	
 
@@ -203,7 +236,11 @@ ModifierMaxFileSize
  ***************************/
 
 Expression returns Expression hidden(WS, CONT_NL, SL_COMMENT, ML_COMMENT)
-	: SwitchExpression
+	: SwitchExpression (=> ({Expression.switchExpression=current}) parenthesizedExpression=ParenthesizedExpression)*
+	;
+
+ParenthesizedExpression returns Expression
+	: {ParenthesizedExpression} '(' => expression = MultilineExpression ')'
 	;
 
 MultilineExpression returns Expression hidden(WS, NL, CONT_NL, SL_COMMENT, ML_COMMENT)
@@ -263,89 +300,10 @@ UnaryOperation returns Expression
     ;
 
 FunctionedExpression returns Expression
-	: NavigationExpression ({FunctionedExpression.operand=current} functionCall=FunctionCall)?
-	;
-
-NavigationExpression returns Expression
-	: PrimaryExpression ({NavigationExpression.base=current} features+=Feature+)?
-    | NavigationBase
+	: FunctionableExpression ({FunctionedExpression.operand=current} functionCall=FunctionCall)?
+	| ParenthesizedExpression
+	| EnumLiteralReference
     ;
-
-NavigationBase returns NavigationExpression
-	: {NavigationExpression} qName=LocalName (features+=Feature* | enumValue = [ EnumLiteralReference ])		
-	;
-
-EnumLiteralReference returns Expression
-    : {EnumLiteralReference} enumDeclaration = [EnumDeclaration | LocalName] '#' enumLiteral = [EnumLiteral | EnumLiteralName ]    	
-    ;
-
-FunctionCall
-	: {FunctionCall} '!' function=Function features+=Feature* call=FunctionCall?
-	;
-
-Feature
-    : {Feature} '.' member = NavigationFeature
-    ;
-
-NavigationFeature returns Feature
-	: navigationDeclarationType = [NavigationDeclaration | LocalName ] ('(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')')?
-	;
-
-NavigationDeclaration
-    : LambdaVariable
-    | EntityMemberDeclaration
-    ;
-
-QueryParameter
-	:  derivedParameterType=[DerivedParameter | LocalName] '=' (literal = Literal | parameter = [DerivedParameter | LocalName])     // expression=MultilineExpression
-	;
-
-ParenthesizedExpression returns Expression
-	: {ParenthesizedExpression} '(' =>expression = MultilineExpression ')'
-	;
-
-PrimaryExpression returns Expression
-	: ParenthesizedExpression
-	| CreateExpression
-	| Literal
-	| Self
-	;
-
-CreateExpression returns Expression
-	: {CreateExpression} 'new'? createType=[ClassDeclaration | LocalName]
-	  (   '(' (assignments+=CreateParameter (',' assignments+=CreateParameter)*)? ')'
-	  	| '[' (creates += MultilineExpression (',' creates += MultilineExpression)*)? ']'
-	  )
-	;
-
-CreateParameter:
-    name=ID '=' right=MultilineExpression;
-
-
-Function returns Function
-	: name=ID '(' parameterDeclaration = FunctionParameterDeclaration? ')'
-    ;
-
-FunctionParameterDeclaration
-	: LambdaFunctionParameters
-	| ParametrizedFunctionParameters
-	;
-
-LambdaFunctionParameters
-    : lambdaArgument=LambdaVariable '|' expression = Expression
-	;
-
-ParametrizedFunctionParameters
-	: parameters+=FunctionParameter (',' parameters+=FunctionParameter)*
-    ;
-    
-LambdaVariable
-    : {LambdaVariable} name=ID    	
-    ;
-
-FunctionParameter
-	: {FunctionParameter} expression=MultilineExpression
-	;
 
 Literal returns Expression
 	: BooleanLiteral
@@ -374,21 +332,210 @@ TemporalLiteral returns Expression
 	| {TimeLiteral} value=TIME
 	;
 
-Self returns Expression
-	: {Self} 'self'
+
+FunctionableExpression returns Expression
+	: NavigationExpression
+	| Literal
+	;
+
+NavigationExpression returns Expression
+	: SelfExpression
+	| NavigationBaseExpression
+	| QueryCallExpression
+	;
+
+NavigationBaseExpression returns NavigationExpression
+	: {NavigationBaseExpression} navigationBaseType = [NavigationBaseReference | LocalName]  (features+=Feature*)
+	;
+	
+NavigationBaseReference
+	: EntityDeclaration
+	| QueryDeclaration
+	| LambdaVariable
+	| QueryDeclarationParameter
+	| PrimitiveDeclaration
+	;
+	
+SelfExpression returns NavigationExpression
+	: {SelfExpression} isSelf ?= 'self' (features+=Feature*)		
+	;
+
+QueryCallExpression returns NavigationExpression
+	: {QueryCallExpression} queryDeclarationType = [ QueryDeclaration | LocalName ] '(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')' (features+=Feature*)
+	;
+
+EnumLiteralReference returns NavigationExpression
+    : {EnumLiteralReference} enumDeclaration = [EnumDeclaration | LocalName] '#' enumLiteral = [EnumLiteral | EnumLiteralName ]    	
+    ;
+
+FunctionCall
+	: {FunctionCall} '!' function=Function features+=Feature* call=FunctionCall?
+	;
+
+Feature
+    : {Feature} {Feature.base = current} '.' navigationTargetType = [NavigationTarget | LocalName]('(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')')?
+    ;
+
+NavigationTarget
+    : EntityMemberDeclaration
+    | EntityDeclaration
+    ;
+
+
+QueryParameter
+	:  queryParameterType=[QueryDeclarationParameter | QueryParameterName] '=' (literal = Literal | parameter = [QueryDeclarationParameter | QueryParameterName])     // expression=MultilineExpression
 	;
 
 
+CreateExpression returns Expression
+	: {CreateExpression} 'new' createType=[ClassDeclaration | LocalName]
+	  (   '(' (assignments+=CreateParameter (',' assignments+=CreateParameter)*)? ')'
+	  	| '[' (creates += MultilineExpression (',' creates += MultilineExpression)*)? ']'
+	  )
+	;
+
+CreateParameter: name=JslID '=' right=MultilineExpression;
+
+/**
+ * Function
+ */
+
+Function
+	: LiteralFunction
+	| LambdaFunction
+	| InstanceFunction
+//	| SelectorFunction
+	;
+
+
+FunctionParameter
+	: LiteralFunctionParameters
+	| LambdaFunctionParameters
+	| SelectorFunctionParameters
+	;
+
+LiteralFunction returns Function: {LiteralFunction} functionDeclarationReference = [LiteralFunctionDeclaration | LocalName ] '(' (parameters += LiteralFunctionParameter (',' parameters += LiteralFunctionParameter)*)? ')' ;
+LambdaFunction returns Function : {LambdaFunction} functionDeclarationReference = [LambdaFunctionDeclaration | LocalName ] '(' lambdaArgument=LambdaVariable '|' expression = Expression ')';
+InstanceFunction returns Function : {InstanceFunction} functionDeclarationReference = [InstanceFunctionDeclaration | LocalName ] '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
+//SelectorFunction returns Function : {SelectorFunction} => functionDeclarationReference = [SelectorFunctionDeclaration | LocalName ] '('  selectorArgument = SelectorVariable '|' selectors += SelectorDeclaration (',' selectors += SelectorDeclaration)* ')';
+
+LiteralFunctionParameters
+    : {LiteralFunctionParameters} parameters += LiteralFunctionParameter (',' parameters += LiteralFunctionParameter)*
+	;
+
+LiteralFunctionParameter 
+	: declaration = [FunctionParameterDeclaration | LocalName] '=' expression=Expression 
+	;
+
+LambdaFunctionParameters
+    : lambdaArgument=LambdaVariable '|' expression = Expression
+	;
+    
+LambdaVariable
+    : {LambdaVariable} Named    	
+    ;
+
+SelectorFunctionParameters
+    : {SelectorFunctionParameters} selectorArgument=SelectorVariable '|' selectors += SelectorDeclaration (',' selectors += SelectorDeclaration)*
+	;
+
+SelectorDeclaration
+    : {SelectorDeclaration} selector = [SelectorVariable | LocalName] '.' member = [EntityMemberDeclaration | LocalName] ('DESC' | isTrue?='ASC')?
+    ;
+
+SelectorVariable
+    : {SelectorVariable} Named
+    ;
+
+/**
+ *  Function declaration
+ */
+enum FunctionReturnType
+	: RT_ENTITY_INSTANCE
+	| RT_ENTITY_COLLECTION
+	| RT_BASE_TYPE_INSTANCE
+	| RT_BASE_TYPE_COLLECTION
+	| RT_ENUM_LITERAL
+	| RT_BOOLEAN_INSTANCE
+	| RT_BINARY_INSTANCE
+	| RT_STRING_INSTANCE
+	| RT_NUMERIC_INSTANCE
+	| RT_DATE_INSTANCE
+	| RT_TIME_INSTANCE
+	| RT_TIMESTAMP_INSTANCE
+	;
+
+enum FunctionBaseType
+	: BT_ENTITY_INSTANCE
+	| BT_ENTITY_COLLECTION
+	| BT_ENUM_LITERAL
+	| BT_BOOLEAN_INSTANCE
+	| BT_BINARY_INSTANCE
+	| BT_STRING_INSTANCE
+	| BT_NUMERIC_INSTANCE
+	| BT_DATE_INSTANCE
+	| BT_TIME_INSTANCE
+	| BT_TIMESTAMP_INSTANCE
+	| BT_BOOLEAN_TYPE
+	| BT_BINARY_TYPE 
+	| BT_STRING_TYPE
+	| BT_NUMERIC_TYPE
+	| BT_DATE_TYPE
+	| BT_TIME_TYPE
+	| BT_TIMESTAMP_TYPE
+	;
+
+enum FunctionParameterType
+	: PT_ENTITY_INSTANCE
+	| PT_ENTITY_COLLECTION
+	| PT_ENTITY_TYPE
+	| PT_ENUM_LITERAL
+	| PT_BOOLEAN_INSTANCE
+	| PT_BINARY_INSTANCE
+	| PT_STRING_INSTANCE
+	| PT_NUMERIC_INSTANCE
+	| PT_DATE_INSTANCE
+	| PT_TIME_INSTANCE
+	| PT_TIMESTAMP_INSTANCE
+	;
+
+FunctionDeclaration 
+	: (
+	LiteralFunctionDeclaration
+	| LambdaFunctionDeclaration
+	| SelectorFunctionDeclaration
+	| InstanceFunctionDeclaration
+	) returnTypes+=FunctionReturnType acceptedBaseTypes+=FunctionBaseType parameterDeclarations += FunctionParameterDeclaration
+	;
+
+LambdaFunctionDeclaration returns NamedFunctionDeclaration : {LambdaFunctionDeclaration} ;
+LiteralFunctionDeclaration returns NamedFunctionDeclaration : {LiteralFunctionDeclaration}  ;
+InstanceFunctionDeclaration returns NamedFunctionDeclaration : {InstanceFunctionDeclaration} ;
+SelectorFunctionDeclaration returns NamedFunctionDeclaration : {SelectorFunctionDeclaration} ;
+
+
+NamedFunctionDeclaration returns FunctionDeclaration : {NamedFunctionDeclaration} name = JslID;
+
+FunctionParameterDeclaration
+    : {FunctionParameterDeclaration} Named Cardinality isRequired ?= 'true' functionParameterType = FunctionParameterType parameterPresentedForBaseTypes += FunctionBaseType;
+    
+
+	
+
 EnumLiteralName
-	: ID
+	: JslID
+    ;
+
+QueryParameterName
+	: JslID
     ;
 
 LocalName
-	: (ID '::')? ID
+	: (ID '::')? JslID
     ;
 
 ModelName
-	: ID('::' ID)*
+	: ID('::' JslID)*
     ;
 
 /****************************
@@ -403,6 +550,17 @@ BLOCK_END
 	: NL* '}'
 	;
 
+terminal fragment DIGIT
+	: '0'..'9'
+	;
+
+terminal fragment ALPHABET
+    : 'a'..'z' | 'A'..'Z'    	
+    ;
+
+terminal fragment NEWLINE
+    : '\n' | '\r'   	
+    ;
 
 terminal TIMESTAMP
 	: '`' DIGIT+ '-' DIGIT DIGIT '-' DIGIT DIGIT 'T' DIGIT DIGIT ':' DIGIT DIGIT (':' DIGIT DIGIT ('.' DIGIT+ )? )? ('Z' | ('+' | '-') DIGIT DIGIT ':' DIGIT DIGIT )'`'
@@ -416,9 +574,6 @@ terminal DATE
 	: '`' DIGIT+ '-' DIGIT DIGIT '-' DIGIT DIGIT '`'
 	;
 
-terminal DIGIT
-	: '0'..'9'
-	;
 
 terminal DECIMAL returns ecore::EBigDecimal
 	: '-'? DIGIT+ '.' DIGIT+
@@ -429,19 +584,20 @@ terminal INTEGER returns ecore::EBigInteger
 	;
 
 terminal ID
-	: '\\'? ('a'..'z' | 'A'..'Z') ('a'..'z' | 'A'..'Z' | '0'..'9')*
+	: '\\'? ALPHABET (ALPHABET | DIGIT)*
 	;
 
 terminal STRING
-	: '"' ('\\' ('t'|'n'|'f'|'r'|'"'|'\\') | !('\\' | '"' | '\n' | '\r'))* '"'
+	: '"' ('\\' ('t'|'n'|'f'|'r'|'"'|'\\') | !('\\' | '"' | NEWLINE))* '"'
 	;
 
 terminal RAW_STRING
-	: 'r"' (!('"' | '\n' | '\r'))* '"'
+	: 'r"' (!('"' | NEWLINE))* '"'
 	;
 
+
 terminal MIME_TYPE
-    : 'm"' ('a'..'z' | 'A'..'Z')+ '/' ('*' | ('a'..'z' | 'A'..'Z')+ ('.' ('a'..'z' | 'A'..'Z')+)* ) '"'
+    : 'm"' (ALPHABET)+ '/' ('*' | (ALPHABET)+ ('.' (ALPHABET)+)* ) '"'
 	;
 
 terminal CONT_NL
@@ -453,7 +609,7 @@ terminal ML_COMMENT
 	;
 
 terminal SL_COMMENT
-	: '//' !('\n' | '\r')*
+	: '//' !(NEWLINE)*
 	;
 
 terminal WS
@@ -461,9 +617,7 @@ terminal WS
 	;
 
 terminal NL
-	: '\r' | '\n' | ';'
+	: NEWLINE | ';'
 	;
 
-terminal ANY_OTHER
-	: .
-	;
+	
