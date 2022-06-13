@@ -248,8 +248,19 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 					.filterSameParentDeclaration(context.eContainer)
 		    		.filterType(FunctionDeclaration)
 		} else if (context.eContainer instanceof QueryCallExpression) {
-			return getQueryCallExpressionReferences(IScope.NULLSCOPE, context.eContainer as QueryCallExpression, ref)
+			return
+					getQueryCallExpressionTargetTypeReferences(
+						IScope.NULLSCOPE, 
+						context.getPreviousFeature((context.eContainer as QueryCallExpression).features),
+						context.eContainer as QueryCallExpression, 
+						ref
+					)
+					.filterSameParentDeclaration(context.eContainer)
 		    		.filterType(FunctionDeclaration)
+
+
+//			return getQueryCallExpressionReferences(IScope.NULLSCOPE, context.eContainer as QueryCallExpression, ref)
+//		    		.filterType(FunctionDeclaration)
 
 		}
 		IScope.NULLSCOPE	
@@ -390,6 +401,18 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		parent				
 	}
 
+	def getQueryCallExpressionTargetTypeReferences(IScope parent, Feature featureToScope, QueryCallExpression queryCallExpression, EReference ref) {
+		if (featureToScope !== null && featureToScope.navigationTargetType !== null) {
+			if (featureToScope.navigationTargetType instanceof EntityMemberDeclaration) {
+				return nullSafeScope(getEntityMemberDeclarationReferences(parent, 
+					getResolvedProxy(queryCallExpression, featureToScope.navigationTargetType) as EntityMemberDeclaration, ref))
+			}
+		} else {
+			return getQueryCallExpressionReferences(parent, queryCallExpression, ref)
+		}		
+		parent				
+	}
+
 	def getNavigationExpressionReferences(IScope parent, NavigationExpression navigationExpression, EReference reference) {
 		if (navigationExpression instanceof SelfExpression) {
 			val entity = navigationExpression.parentContainer(EntityDeclaration)
@@ -412,20 +435,22 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			if (functionCall.eContainer instanceof FunctionedExpression) {
 				return getFunctionedExpressionReferences(parent, functionCall.eContainer as FunctionedExpression, reference)
 			} else if (functionCall.eContainer instanceof FunctionCall) {
-				return getFunctionCallReferences(parent, functionCall.eContainer as FunctionCall, reference)
+				return getLastFeatureNavigationTargetReferences(parent, functionCall.eContainer, (functionCall.eContainer as FunctionCall).features, reference)
 			}			
 		}
 		parent		
 	}
 
 	def getLastFeatureNavigationTargetReferences(IScope parent, EObject context, List<Feature> features, EReference reference) {
-		if (features.last?.navigationTargetType !== null) {
+		if (features?.last?.navigationTargetType !== null) {
 			if (features.last.navigationTargetType instanceof EntityMemberDeclaration) {
 				return nullSafeScope(getEntityMemberDeclarationReferences(parent, 
 					getResolvedProxy(context, features.last.navigationTargetType) as EntityMemberDeclaration, reference))						
 			}
 		} else if (context instanceof NavigationBaseExpression) {
 			return nullSafeScope(getNavigationBaseReferences(parent, (context as NavigationBaseExpression).navigationBaseType, reference))
+		} else if (context instanceof FunctionCall) {
+			return nullSafeScope(getFunctionCallReferences(parent, (context as FunctionCall), reference))
 		}
 		parent
 	}
