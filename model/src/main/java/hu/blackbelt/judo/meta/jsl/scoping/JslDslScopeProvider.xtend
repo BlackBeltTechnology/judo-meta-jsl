@@ -56,10 +56,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunction
 import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunctionParameter
 import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunctionParameters
 import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunctionDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunctionDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.InstanceFunctionDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
+import java.util.function.BinaryOperator
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -77,32 +75,32 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     	printParents(context)
     	
     	switch context {
+			EntityDeclaration case ref == JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType: return delegateGetScope(context, ref).filterType(FunctionDeclaration)
     		EntityDerivedDeclaration case ref == JsldslPackage::eINSTANCE.navigationBaseExpression_NavigationBaseType: return context.scope_NavigationBaseExpression_navigationBaseType(ref)
+			EntityDerivedDeclaration case ref == JsldslPackage::eINSTANCE.queryCallExpression_QueryDeclarationType: return delegateGetScope(context, ref).filterType(FunctionDeclaration)
+			EntityDerivedDeclaration case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumDeclaration: return delegateGetScope(context, ref).filterType(FunctionDeclaration)
     		CreateError case ref == JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType: return context.scope_ThrowParameter_errorFieldType(ref)
     		ThrowParameter case ref == JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType: return context.scope_ThrowParameter_errorFieldType(ref)
     		QueryParameter case ref == JsldslPackage::eINSTANCE.queryParameter_Parameter: return context.scope_QueryParameter_parameter(ref)
+    		QueryParameter case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)
     		QueryCallExpression case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)
     		EntityRelationOpposite case ref == JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType: return context.scope_EntityRelationOpposite_oppositeType(ref)
     		Feature case ref == JsldslPackage::eINSTANCE.feature_NavigationTargetType: return context.scope_Feature_navigationTargetType(ref)
-    		QueryParameter case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)
     		Feature case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)    		
     		EnumLiteralReference case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumLiteral: return context.scope_EnumLiteralReference_enumLiteral(ref)
-    		BinaryOperation: return context.scope_Expression(ref)
-    		LambdaFunctionParameters: return context.scope_LambdaFunctionParameters(ref)
     		LiteralFunction case ref == JsldslPackage::eINSTANCE.literalFunctionParameter_Declaration: return context.scope_LiteralFunctionParameter_declaration(ref)
 			LiteralFunction case ref == JsldslPackage::eINSTANCE.instanceFunction_EntityDeclaration: return context.scope_InstanceFunction_entityDeclaration(ref)
 			LiteralFunctionParameter case ref == JsldslPackage::eINSTANCE.literalFunctionParameter_Declaration: return context.scope_LiteralFunctionParameter_declaration(ref)
 			LiteralFunctionParameters case ref == JsldslPackage::eINSTANCE.literalFunctionParameter_Declaration: return context.scope_LiteralFunctionParameter_declaration(ref)			
 			LambdaFunction case ref == JsldslPackage::eINSTANCE.navigationBaseExpression_NavigationBaseType: return context.scope_NavigationBaseExpression_navigationBaseType(ref)
-			LambdaFunction case ref == JsldslPackage::eINSTANCE.queryCallExpression_QueryDeclarationType: return context.scope_QueryCallExpression_queryDeclarationType(ref)
-			LambdaFunction case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumDeclaration: return context.scope_EnumLiteralReference_enumDeclaration(ref)
-			EntityDeclaration case ref == JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType: return context.scope_EntityFieldDeclaration_referenceType(ref)
-			DefaultExpressionType case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumDeclaration: return context.scope_EnumLiteralReference_enumDeclaration(ref)
-			DefaultExpressionType case ref == JsldslPackage::eINSTANCE.queryCallExpression_QueryDeclarationType: return context.scope_QueryCallExpression_queryDeclarationType(ref)
-			DefaultExpressionType case ref == JsldslPackage::eINSTANCE.navigationBaseExpression_NavigationBaseType: return context.scope_NavigationBaseExpression_navigationBaseType(ref)
-			EntityDerivedDeclaration case ref == JsldslPackage::eINSTANCE.navigationBaseExpression_NavigationBaseType: return context.scope_NavigationBaseExpression_navigationBaseType(ref)
-			EntityDerivedDeclaration case ref == JsldslPackage::eINSTANCE.queryCallExpression_QueryDeclarationType: return context.scope_QueryCallExpression_queryDeclarationType(ref)
-			EntityDerivedDeclaration case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumDeclaration: return context.scope_EnumLiteralReference_enumDeclaration(ref)
+			LambdaFunction case ref == JsldslPackage::eINSTANCE.queryCallExpression_QueryDeclarationType: return delegateGetScope(context, ref).filterType(FunctionDeclaration)
+			LambdaFunction case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumDeclaration: return delegateGetScope(context, ref).filterType(FunctionDeclaration)
+			DefaultExpressionType case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumDeclaration: return delegateGetScope(context, ref).filterType(FunctionDeclaration)
+			DefaultExpressionType case ref == JsldslPackage::eINSTANCE.queryCallExpression_QueryDeclarationType: return delegateGetScope(context, ref).filterType(FunctionDeclaration)
+			DefaultExpressionType case ref == JsldslPackage::eINSTANCE.navigationBaseExpression_NavigationBaseType: return delegateGetScope(context, ref).filterType(FunctionDeclaration)
+    		BinaryOperation: return context.scope_Expression(ref)
+    		LambdaFunctionParameters: return context.scope_LambdaFunctionParameters(ref)
+
     	}
     	return super.getScope(context, ref)
 	}
@@ -127,75 +125,31 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		getLambdaFunctionParametersReferences(getDefaultExpressionScope(context, ref), context, ref)
 	}
 
-	/*
-	def scope_LiteralFunction_functionDeclarationReference(FunctionCall context, EReference ref) {
-		delegateGetScope(context, ref).typeOnly(LiteralFunctionDeclaration)
-	}
-
-	def scope_LambdaFunction_functionDeclarationReference(FunctionCall context, EReference ref) {
-		delegateGetScope(context, ref).typeOnly(LambdaFunctionDeclaration)
-	}
-	
-	def scope_InstanceFunction_functionDeclarationReference(FunctionCall context, EReference ref) {
-		delegateGetScope(context, ref).typeOnly(InstanceFunctionDeclaration)
-	}
-	
-	def scope_SelectorFunction_functionDeclarationReference(FunctionCall context, EReference ref) {
-		delegateGetScope(context, ref).typeOnly(SelectorFunctionDeclaration)
-	}
-	*/
 	def scope_NavigationBaseExpression_navigationBaseType(LambdaFunction context, EReference ref) {
 		nullSafeScope(#[context.lambdaArgument], delegateGetScope(context, ref)
 			.filterType(FunctionDeclaration)
 			.filterType(LambdaVariable)
 		)
 	}
-	
-	def scope_QueryCallExpression_queryDeclarationType(LambdaFunction context, EReference ref) {
-		delegateGetScope(context, ref).filterType(FunctionDeclaration)		
-	}
-	
-	def scope_LambdaFunction_functionDeclarationReference(LambdaFunction context, EReference ref) {	
-    	delegateGetScope(context, ref).filterType(FunctionDeclaration)
-	}
-	
-	def scope_EnumLiteralReference_enumDeclaration(LambdaFunction context, EReference ref) {
-    	delegateGetScope(context, ref).filterType(FunctionDeclaration)		
-	}
-	
-	def scope_EntityFieldDeclaration_referenceType(EntityDeclaration context, EReference ref) {
-    	delegateGetScope(context, ref).filterType(FunctionDeclaration)		
-	}
-		
-	def scope_EnumLiteralReference_enumDeclaration(DefaultExpressionType context, EReference ref) {
-    	delegateGetScope(context, ref).filterType(FunctionDeclaration)	
-	}
-	
-	def scope_QueryCallExpression_queryDeclarationType(DefaultExpressionType context, EReference ref) {
-    	delegateGetScope(context, ref).filterType(FunctionDeclaration)			
-	}
-
-	def scope_NavigationBaseExpression_navigationBaseType(DefaultExpressionType context, EReference ref) {
-    	delegateGetScope(context, ref).filterType(FunctionDeclaration)					
-	}
-	
-	def scope_QueryCallExpression_queryDeclarationType(EntityDerivedDeclaration context, EReference ref) {
-    	delegateGetScope(context, ref).filterType(FunctionDeclaration)							
-	}
-	
-	def scope_EnumLiteralReference_enumDeclaration(EntityDerivedDeclaration context, EReference ref) {
-    	delegateGetScope(context, ref).filterType(FunctionDeclaration)									
-	}
-	
 	def scope_Expression(BinaryOperation context, EReference ref) {
-		if (context.eContainer instanceof LambdaFunctionParameters) {
-			return getLambdaFunctionParametersReferences(getDefaultExpressionScope(context, ref), context.eContainer as LambdaFunctionParameters, ref)			
-		} else if (context.eContainer instanceof LambdaFunction) {
-			return nullSafeScope(#[(context.eContainer as LambdaFunction).lambdaArgument], delegateGetScope(context, ref)
+		var operator = context;
+		while (operator.eContainer instanceof BinaryOperation) {
+			operator = operator.eContainer as BinaryOperation
+		}
+		
+		if (operator.eContainer instanceof LambdaFunctionParameters) {
+			return getLambdaFunctionParametersReferences(getDefaultExpressionScope(context, ref), operator.eContainer as LambdaFunctionParameters, ref)			
+		} else if (operator.eContainer instanceof LambdaFunction) {
+			return nullSafeScope(#[(operator.eContainer as LambdaFunction).lambdaArgument], delegateGetScope(context, ref)
 				.filterType(FunctionDeclaration)
 				.filterType(LambdaVariable))			
+				.filterType(QueryDeclarationParameter)
+	
 		}
-		return super.getScope(context, ref);
+		return super.getScope(context, ref)
+				.filterType(FunctionDeclaration)
+				.filterType(QueryDeclarationParameter)
+				.filterType(LambdaVariable);
 	}
 	
 	def scope_NavigationBaseExpression_navigationBaseType(EntityDerivedDeclaration context, EReference ref) {
@@ -257,11 +211,6 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 					)
 					.filterSameParentDeclaration(context.eContainer)
 		    		.filterType(FunctionDeclaration)
-
-
-//			return getQueryCallExpressionReferences(IScope.NULLSCOPE, context.eContainer as QueryCallExpression, ref)
-//		    		.filterType(FunctionDeclaration)
-
 		}
 		IScope.NULLSCOPE	
 	}
