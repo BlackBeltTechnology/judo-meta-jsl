@@ -305,6 +305,34 @@ FunctionedExpression returns Expression
 	| EnumLiteralReference
     ;
 
+Literal returns Expression
+	: BooleanLiteral
+	| NumberLiteral
+	| StringLiteral
+	| TemporalLiteral
+	;
+
+BooleanLiteral returns Expression
+	: {BooleanLiteral} ('false' | isTrue?='true')
+	;
+
+NumberLiteral returns Expression
+	: {IntegerLiteral} value=INTEGER
+	| {DecimalLiteral} value=DECIMAL
+	;
+
+StringLiteral returns Expression
+	: {EscapedStringLiteral} value=STRING
+	| {RawStringLiteral} value=RAW_STRING
+	;
+
+TemporalLiteral returns Expression
+	: {DateLiteral} value=DATE
+	| {TimeStampLiteral} value=TIMESTAMP
+	| {TimeLiteral} value=TIME
+	;
+
+
 FunctionableExpression returns Expression
 	: NavigationExpression
 	| Literal
@@ -368,6 +396,10 @@ CreateExpression returns Expression
 
 CreateParameter: name=JslID '=' right=MultilineExpression;
 
+/**
+ * Function
+ */
+
 Function
 	: LiteralFunction
 	| LambdaFunction
@@ -375,15 +407,49 @@ Function
 //	| SelectorFunction
 	;
 
-FunctionDeclaration 
-	: (
-	LiteralFunctionDeclaration
-	| LambdaFunctionDeclaration
-	| SelectorFunctionDeclaration
-	| InstanceFunctionDeclaration
-	) returnTypes+=FunctionReturnType acceptedBaseTypes+=FunctionBaseType parameterDeclarations += FunctionParameterDeclaration
+
+FunctionParameter
+	: LiteralFunctionParameters
+	| LambdaFunctionParameters
+	| SelectorFunctionParameters
 	;
 
+LiteralFunction returns Function: {LiteralFunction} functionDeclarationReference = [LiteralFunctionDeclaration | LocalName ] '(' (parameters += LiteralFunctionParameter (',' parameters += LiteralFunctionParameter)*)? ')' ;
+LambdaFunction returns Function : {LambdaFunction} functionDeclarationReference = [LambdaFunctionDeclaration | LocalName ] '(' lambdaArgument=LambdaVariable '|' expression = Expression ')';
+InstanceFunction returns Function : {InstanceFunction} functionDeclarationReference = [InstanceFunctionDeclaration | LocalName ] '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
+//SelectorFunction returns Function : {SelectorFunction} => functionDeclarationReference = [SelectorFunctionDeclaration | LocalName ] '('  selectorArgument = SelectorVariable '|' selectors += SelectorDeclaration (',' selectors += SelectorDeclaration)* ')';
+
+LiteralFunctionParameters
+    : {LiteralFunctionParameters} parameters += LiteralFunctionParameter (',' parameters += LiteralFunctionParameter)*
+	;
+
+LiteralFunctionParameter 
+	: declaration = [FunctionParameterDeclaration | LocalName] '=' expression=Expression 
+	;
+
+LambdaFunctionParameters
+    : lambdaArgument=LambdaVariable '|' expression = Expression
+	;
+    
+LambdaVariable
+    : {LambdaVariable} Named    	
+    ;
+
+SelectorFunctionParameters
+    : {SelectorFunctionParameters} selectorArgument=SelectorVariable '|' selectors += SelectorDeclaration (',' selectors += SelectorDeclaration)*
+	;
+
+SelectorDeclaration
+    : {SelectorDeclaration} selector = [SelectorVariable | LocalName] '.' member = [EntityMemberDeclaration | LocalName] ('DESC' | isTrue?='ASC')?
+    ;
+
+SelectorVariable
+    : {SelectorVariable} Named
+    ;
+
+/**
+ *  Function declaration
+ */
 enum FunctionReturnType
 	: RT_ENTITY_INSTANCE
 	| RT_ENTITY_COLLECTION
@@ -419,17 +485,6 @@ enum FunctionBaseType
 	| BT_TIMESTAMP_TYPE
 	;
 
-NamedFunctionDeclaration returns FunctionDeclaration : {NamedFunctionDeclaration} name = JslID;
-
-FunctionParameter
-	: LiteralFunctionParameters
-	| LambdaFunctionParameters
-	| SelectorFunctionParameters
-	;
-
-FunctionParameterDeclaration
-    : {FunctionParameterDeclaration} Named Cardinality isRequired ?= 'true' functionParameterType = FunctionParameterType parameterPresentedForBaseTypes += FunctionBaseType;
-    
 enum FunctionParameterType
 	: PT_ENTITY_INSTANCE
 	| PT_ENTITY_COLLECTION
@@ -444,75 +499,28 @@ enum FunctionParameterType
 	| PT_TIMESTAMP_INSTANCE
 	;
 
+FunctionDeclaration 
+	: (
+	LiteralFunctionDeclaration
+	| LambdaFunctionDeclaration
+	| SelectorFunctionDeclaration
+	| InstanceFunctionDeclaration
+	) returnTypes+=FunctionReturnType acceptedBaseTypes+=FunctionBaseType parameterDeclarations += FunctionParameterDeclaration
+	;
 
 LambdaFunctionDeclaration returns NamedFunctionDeclaration : {LambdaFunctionDeclaration} ;
 LiteralFunctionDeclaration returns NamedFunctionDeclaration : {LiteralFunctionDeclaration}  ;
 InstanceFunctionDeclaration returns NamedFunctionDeclaration : {InstanceFunctionDeclaration} ;
 SelectorFunctionDeclaration returns NamedFunctionDeclaration : {SelectorFunctionDeclaration} ;
 
-LiteralFunction returns Function: {LiteralFunction} functionDeclarationReference = [LiteralFunctionDeclaration | LocalName ] '(' (parameters += LiteralFunctionParameter (',' parameters += LiteralFunctionParameter)*)? ')' ;
-LambdaFunction returns Function : {LambdaFunction} functionDeclarationReference = [LambdaFunctionDeclaration | LocalName ] '(' lambdaArgument=LambdaVariable '|' expression = Expression ')';
-InstanceFunction returns Function : {InstanceFunction} functionDeclarationReference = [InstanceFunctionDeclaration | LocalName ] '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
-//SelectorFunction returns Function : {SelectorFunction} => functionDeclarationReference = [SelectorFunctionDeclaration | LocalName ] '('  selectorArgument = SelectorVariable '|' selectors += SelectorDeclaration (',' selectors += SelectorDeclaration)* ')';
 
-LiteralFunctionParameters
-    : {LiteralFunctionParameters} parameters += LiteralFunctionParameter (',' parameters += LiteralFunctionParameter)*
-	;
+NamedFunctionDeclaration returns FunctionDeclaration : {NamedFunctionDeclaration} name = JslID;
 
-LiteralFunctionParameter 
-	: declaration = [FunctionParameterDeclaration | LocalName] '=' expression=Expression 
-	;
-
-LambdaFunctionParameters
-    : lambdaArgument=LambdaVariable '|' expression = Expression
-	;
+FunctionParameterDeclaration
+    : {FunctionParameterDeclaration} Named Cardinality isRequired ?= 'true' functionParameterType = FunctionParameterType parameterPresentedForBaseTypes += FunctionBaseType;
     
-LambdaVariable
-    : {LambdaVariable} Named    	
-    ;
 
-SelectorFunctionParameters
-    : {SelectorFunctionParameters} selectorArgument=SelectorVariable '|' selectors += SelectorDeclaration (',' selectors += SelectorDeclaration)*
-	;
-
-SelectorDeclaration
-    : {SelectorDeclaration} selector = [SelectorVariable | LocalName] '.' member = [EntityMemberDeclaration | LocalName] ('DESC' | isTrue?='ASC')?
-    ;
-
-SelectorVariable
-    : {SelectorVariable} Named
-    ;
-
-InstanceFunctionParameter 
-	: {InstanceFunctionParameter} entityDeclaration = [EntityDeclaration | LocalName];
-
-Literal returns Expression
-	: BooleanLiteral
-	| NumberLiteral
-	| StringLiteral
-	| TemporalLiteral
-	;
-
-BooleanLiteral returns Expression
-	: {BooleanLiteral} ('false' | isTrue?='true')
-	;
-
-NumberLiteral returns Expression
-	: {IntegerLiteral} value=INTEGER
-	| {DecimalLiteral} value=DECIMAL
-	;
-
-StringLiteral returns Expression
-	: {EscapedStringLiteral} value=STRING
-	| {RawStringLiteral} value=RAW_STRING
-	;
-
-TemporalLiteral returns Expression
-	: {DateLiteral} value=DATE
-	| {TimeStampLiteral} value=TIMESTAMP
-	| {TimeLiteral} value=TIME
-	;
-
+	
 
 EnumLiteralName
 	: JslID
