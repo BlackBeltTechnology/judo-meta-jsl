@@ -17,8 +17,11 @@ JslID : ID
 	| 'constraint' 
 //	| 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' | 'not'
 	| 'onerror' | 'identifier' | 'derived' | 'relation' | 'opposite' | 'opposite-add' | 'error' | 'type'
-	| 'binary' |'string' | 'numeric' | 'timestamp' | 'mime-types' | 'max-file-size'
-	| 'regex' | 'precision' | 'scale' | 'max-length' 
+	| 'binary' |'string' | 'numeric' | 'timestamp' | 'date' | 'time' | 'boolean'
+	| 'mime-types' | 'max-file-size'
+	| 'regex' | 'max-length' 
+	| 'precision' | 'scale' 
+	
     ;
 
 
