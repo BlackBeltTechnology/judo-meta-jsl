@@ -48,7 +48,7 @@ public class ServerLauncher {
 									"Console input is not available. In order to stop the server, you need to cancel process manually.");
 						}
 					} catch (Exception e) {
-						log.warn("", e);
+						log.warn("Server stop failed", e);
 					}
 				}
 
