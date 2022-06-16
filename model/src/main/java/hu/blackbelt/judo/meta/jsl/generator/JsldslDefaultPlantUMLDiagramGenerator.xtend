@@ -18,7 +18,6 @@ import java.util.Collection
 import java.util.HashSet
 import java.util.Set
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 
 @Singleton
 class JsldslDefaultPlantUMLDiagramGenerator {

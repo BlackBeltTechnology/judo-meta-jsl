@@ -181,7 +181,6 @@ class JslDslModelExtension {
 			visited.add(entity)
 			collected.addAll(
 				entity.members
-					.map[m |m as EntityMemberDeclaration]
 					.toList			
 			)
 

@@ -132,7 +132,7 @@ class ImportTests {
 		'''.parse(resourceSet)
 		
 		a.assertNoErrors
-		b.assertSyntaxError("missing RULE_ID at '\\n'")
+		b.assertSyntaxError("no viable alternative at input")
 	}
 
 

@@ -10,7 +10,6 @@ import org.eclipse.xtext.util.IAcceptor
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
-import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 import java.util.Map
 import java.util.HashMap
@@ -22,18 +21,21 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import org.eclipse.xtext.linking.lazy.LazyLinkingResource.CyclicLinkingException
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
+import org.eclipse.xtext.EcoreUtil2
+import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.xtext.GrammarUtil
+import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 
 @Singleton
 class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy {
 
 	@Inject extension IQualifiedNameProvider
-	@Inject extension JslDslModelExtension
 	@Inject JslDslInjectedObjectsProvider injectedObjectsProvider;
 
 	override createEObjectDescriptions(EObject eObject, IAcceptor<IEObjectDescription> acceptor) {
 
 		if (eObject instanceof ModelDeclaration) {
-			val modelDeclaration = eObject as ModelDeclaration
+			val modelDeclaration = eObject
 			
 			if (modelDeclaration.fullyQualifiedName !== null) {
 				// System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ modelDeclaration + " fq: " + modelDeclaration.fullyQualifiedName.toString("::"));
@@ -43,6 +45,7 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 						modelDeclaration.fullyQualifiedName, modelDeclaration
 					)
 				)					
+
 
 				modelDeclaration.declarations.forEach[
 					declaration |
@@ -58,20 +61,6 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 								fullyQualifiedName, declaration
 							)
 						)
-						
-						if (declaration instanceof EntityDeclaration) {
-							declaration.allMembers.filter[m | m instanceof Named].map[m | m as Named].forEach[m | {
-								val fq = m.fullyQualifiedName
-								if (fq !== null) {
-									// System.out.println("Indexing: " + fq)
-									acceptor.accept(
-										EObjectDescription::create(
-											fq, m, m.indexInfo
-										)
-									)								
-								}								
-							}]
-						}
 
 						if (declaration instanceof QueryDeclaration) {
 							val fq = declaration.fullyQualifiedName
@@ -84,6 +73,22 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 								)								
 							}								
 						}
+						
+						if (declaration instanceof EntityDeclaration) {
+							//val decl = EcoreUtil.resolve(declaration, modelDeclaration) as EntityDeclaration;
+							declaration.members.forEach[m | {
+								val fq = m.fullyQualifiedName
+								if (fq !== null) {
+									// System.out.println("Indexing: " + fq)
+									acceptor.accept(
+										EObjectDescription::create(
+											fq, m, m.indexInfo
+										)
+									)								
+								}								
+							}]
+						}
+
 				]				
 			}
 			true
@@ -95,7 +100,7 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 	}
 	
 	
-	def Map<String, String> indexInfo(Object member) {
+	def Map<String, String> indexInfo(EObject object) {
 		/*
 		 EntityMemberDeclaration
 	     : NL+ (EntityFieldDeclaration
@@ -109,79 +114,67 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
  		
 		val Map<String, String> userData = new HashMap<String, String>
 		 
-		if (member === null) {
-			return userData
-		}
-		try {
-			switch member {
-				EntityFieldDeclaration: {
-			 		val singleTypeField = member.referenceType
-			 		userData.put("isMany", member.isIsMany.toString)  
-			 		if (singleTypeField instanceof EntityDeclaration) {
-			 			userData.put("type", "EntityDeclaration")
-			 			userData.put("referenceType", (singleTypeField as EntityDeclaration).fullyQualifiedName?.toString)
-			 		} else if (singleTypeField instanceof PrimitiveDeclaration) {
-			 			userData.put("type", "PrimitiveDeclaration")
-			 			userData.put("referenceType", (singleTypeField as PrimitiveDeclaration).fullyQualifiedName?.toString)		 			
-			 		}
-	 			}	
-			 	EntityIdentifierDeclaration: {
-			 		val singleTypeField = member.referenceType
-			 		userData.put("isMany", "false")  
-			 		if (singleTypeField instanceof EntityDeclaration) {
-			 			userData.put("type", "EntityDeclaration")
-			 			userData.put("referenceType", (singleTypeField as EntityDeclaration).fullyQualifiedName?.toString)
-			 		} else if (singleTypeField instanceof PrimitiveDeclaration) {
-			 			userData.put("type", "PrimitiveDeclaration")
-			 			userData.put("referenceType", (singleTypeField as PrimitiveDeclaration).fullyQualifiedName?.toString)		 			
-			 		}
-	 			}		 	
-			 	EntityRelationDeclaration: {
-			 		userData.put("isMany", member.isIsMany.toString)
-			 		var EntityDeclaration referenceType = null
-			 		try {
-			 			referenceType = member.referenceType
-				 		userData.put("referenceType", referenceType?.fullyQualifiedName?.toString)
-			 		} catch (CyclicLinkingException e) {
-			 		}		 		
-		 			userData.put("type", "EntityDeclaration")	
-	 			}		 	
-			 	EntityDerivedDeclaration: {
-			 		userData.put("isMany", member.isIsMany.toString)
-			 		val singleTypeField = member.referenceType
-			 		if (singleTypeField instanceof EntityDeclaration) {
-			 			userData.put("type", "EntityDeclaration")
-			 			userData.put("referenceType", (singleTypeField as EntityDeclaration).fullyQualifiedName?.toString)
-			 		} else if (singleTypeField instanceof PrimitiveDeclaration) {
-			 			userData.put("type", "PrimitiveDeclaration")
-			 			userData.put("referenceType", (singleTypeField as PrimitiveDeclaration).fullyQualifiedName?.toString)		 			
-			 		}
-	 			}		 	
-			 	EntityQueryDeclaration: {
-			 		val singleTypeField = member.referenceType
-			 		userData.put("isMany", member.isIsMany.toString)
-			 		if (singleTypeField instanceof EntityDeclaration) {
-			 			userData.put("type", "EntityDeclaration")
-			 			userData.put("referenceType", (singleTypeField as EntityDeclaration).fullyQualifiedName?.toString)
-			 		} else if (singleTypeField instanceof PrimitiveDeclaration) {
-			 			userData.put("type", "PrimitiveDeclaration")
-			 			userData.put("referenceType", (singleTypeField as PrimitiveDeclaration).fullyQualifiedName?.toString)		 			
-			 		}
-	 			}
-	 			QueryDeclaration: {
-			 		val referenceType = member.referenceType
-			 		userData.put("isMany", member.isIsMany.toString)
-			 		if (referenceType instanceof EntityDeclaration) {
-			 			userData.put("type", "EntityDeclaration")
-			 			userData.put("referenceType", (referenceType as EntityDeclaration).fullyQualifiedName?.toString)
-			 		} else if (referenceType instanceof PrimitiveDeclaration) {
-			 			userData.put("type", "PrimitiveDeclaration")
-			 			userData.put("referenceType", (referenceType as PrimitiveDeclaration).fullyQualifiedName?.toString)		 			
-			 		}	
-	 			}
-			 }
-		} catch (org.eclipse.xtext.linking.lazy.LazyLinkingResource$CyclicLinkingException e) {
-		}
+	
+		switch object {
+			EntityFieldDeclaration: {
+		 		val singleTypeField = object.eGet(JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType, false);
+		 		userData.put("isMany", object.isIsMany.toString)  
+		 		if (singleTypeField instanceof EntityDeclaration) {
+		 			userData.put("type", "EntityDeclaration")
+		 			userData.put("referenceType", singleTypeField?.fullyQualifiedName?.toString)
+		 		} else if (singleTypeField instanceof PrimitiveDeclaration) {
+		 			userData.put("type", "PrimitiveDeclaration")
+		 			userData.put("referenceType", singleTypeField?.fullyQualifiedName?.toString)		 			
+		 		}
+ 			}	
+		 	EntityIdentifierDeclaration: {
+		 		val singleTypeField = object.eGet(JsldslPackage::eINSTANCE.entityIdentifierDeclaration_ReferenceType, false) as EObject;
+		 		userData.put("isMany", "false")  
+	 			userData.put("type", "PrimitiveDeclaration")
+	 			userData.put("referenceType", singleTypeField?.fullyQualifiedName?.toString)		 			
+ 			}		 	
+		 	EntityRelationDeclaration: {
+		 		userData.put("isMany", object.isIsMany.toString)
+		 		val referenceType = object.eGet(JsldslPackage::eINSTANCE.entityRelationDeclaration_ReferenceType, false) as EObject;
+		 		userData.put("referenceType", referenceType?.fullyQualifiedName?.toString)
+	 			userData.put("type", "EntityDeclaration")	
+ 			}		 	
+		 	EntityDerivedDeclaration: {
+		 		userData.put("isMany", object.isIsMany.toString)
+		 		val singleTypeField = object.eGet(JsldslPackage::eINSTANCE.entityDerivedDeclaration_ReferenceType, false) as EObject;
+
+		 		if (singleTypeField instanceof EntityDeclaration) {
+		 			userData.put("type", "EntityDeclaration")
+		 			userData.put("referenceType", singleTypeField?.fullyQualifiedName?.toString)
+		 		} else if (singleTypeField instanceof PrimitiveDeclaration) {
+		 			userData.put("type", "PrimitiveDeclaration")
+		 			userData.put("referenceType", singleTypeField?.fullyQualifiedName?.toString)		 			
+		 		}
+ 			}		 	
+		 	EntityQueryDeclaration: {
+		 		val singleTypeField = object.eGet(JsldslPackage::eINSTANCE.entityQueryDeclaration_ReferenceType, false) as EObject;
+		 		userData.put("isMany", object.isIsMany.toString)
+		 		if (singleTypeField instanceof EntityDeclaration) {
+		 			userData.put("type", "EntityDeclaration")
+		 			userData.put("referenceType", singleTypeField?.fullyQualifiedName?.toString)
+		 		} else if (singleTypeField instanceof PrimitiveDeclaration) {
+		 			userData.put("type", "PrimitiveDeclaration")
+		 			userData.put("referenceType", singleTypeField?.fullyQualifiedName?.toString)		 			
+		 		}
+ 			}
+ 			QueryDeclaration: {
+		 		val referenceType = object.eGet(JsldslPackage::eINSTANCE.queryDeclaration_ReferenceType, false) as EObject;
+
+		 		userData.put("isMany", object.isIsMany.toString)
+		 		if (referenceType instanceof EntityDeclaration) {
+		 			userData.put("type", "EntityDeclaration")
+		 			userData.put("referenceType", referenceType?.fullyQualifiedName?.toString)
+		 		} else if (referenceType instanceof PrimitiveDeclaration) {
+		 			userData.put("type", "PrimitiveDeclaration")
+		 			userData.put("referenceType", referenceType?.fullyQualifiedName?.toString)		 			
+		 		}	
+ 			}
+		 }
 		return userData
 	}
 	

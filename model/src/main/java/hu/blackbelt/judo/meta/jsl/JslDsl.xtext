@@ -11,7 +11,7 @@ ModelDeclaration returns ModelDeclaration hidden(WS, SL_COMMENT, ML_COMMENT)
 	  NL*
     ;
 
-JslID : ID 
+JSLID : ID
 	| 'enum' | 'entity' | 'query' | 'field' 
 	| 'import' | 'as' | 'extends' | 'abstract' | 'required' 	
 	| 'constraint' 
@@ -30,7 +30,7 @@ ModelImport
 	;
 
 ModelImportDeclaration
-    : importName = ModelName ('as' alias = JslID)?
+    : importName = ModelName ('as' alias = JSLID)?
 	;
 
 Declaration
@@ -58,7 +58,7 @@ ClassDeclaration
  *	Entity
  ****************************/
 fragment Named
-	: name = JslID;
+	: name = JSLID;
 
 fragment Cardinality
     : isMany ?= '[]'
@@ -138,7 +138,7 @@ EntityRelationDeclaration
 	;
 
 EntityRelationOpposite
-	: 'opposite-add' oppositeName = JslID Cardinality?
+	: 'opposite-add' oppositeName = JSLID Cardinality?
 	| 'opposite' oppositeType = [EntityRelationDeclaration | LocalName]
 	;
 
@@ -148,7 +148,7 @@ EntityRelationOpposite
  ****************************/
 
 ErrorDeclaration
-	: 'error' Named ('extends' extends = [ErrorDeclaration])?
+	: 'error' Named ('extends' extends = [ErrorDeclaration | LocalName])?
 	  BLOCK_START (fields += ErrorField)* BLOCK_END
 	;
 
@@ -397,7 +397,7 @@ CreateExpression returns Expression
 	  )
 	;
 
-CreateParameter: name=JslID '=' right=MultilineExpression;
+CreateParameter: name=JSLID '=' right=MultilineExpression;
 
 /**
  * Function
@@ -517,7 +517,7 @@ InstanceFunctionDeclaration returns NamedFunctionDeclaration : {InstanceFunction
 SelectorFunctionDeclaration returns NamedFunctionDeclaration : {SelectorFunctionDeclaration} ;
 
 
-NamedFunctionDeclaration returns FunctionDeclaration : {NamedFunctionDeclaration} name = JslID;
+NamedFunctionDeclaration returns FunctionDeclaration : {NamedFunctionDeclaration} name = JSLID;
 
 FunctionParameterDeclaration
     : {FunctionParameterDeclaration} Named Cardinality isRequired ?= 'true' functionParameterType = FunctionParameterType parameterPresentedForBaseTypes += FunctionBaseType;
@@ -526,19 +526,19 @@ FunctionParameterDeclaration
 	
 
 EnumLiteralName
-	: JslID
+	: JSLID
     ;
 
 QueryParameterName
-	: JslID
+	: JSLID
     ;
 
 LocalName
-	: (ID '::')? JslID
+	: (JSLID '::')? JSLID
     ;
 
 ModelName
-	: ID('::' JslID)*
+	: JSLID('::' JSLID)*
     ;
 
 /****************************

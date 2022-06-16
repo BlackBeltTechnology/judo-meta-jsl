@@ -26,6 +26,7 @@ import hu.blackbelt.judo.meta.jsl.scoping.JslDslSpecialValueConverterService
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
+ 
 class JslDslRuntimeModule extends AbstractJslDslRuntimeModule {
     
 //    override Class<? extends IValueConverterService> bindIValueConverterService() {

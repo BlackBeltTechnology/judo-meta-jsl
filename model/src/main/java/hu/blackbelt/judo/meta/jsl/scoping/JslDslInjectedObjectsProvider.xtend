@@ -5,7 +5,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.impl.JsldslFactoryImpl
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslFactory
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.resource.EObjectDescription
-import java.util.concurrent.atomic.AtomicReference
 import org.eclipse.emf.ecore.EObject
 import hu.blackbelt.judo.meta.jsl.jsldsl.impl.JsldslPackageImpl
 import java.util.Collections
@@ -42,8 +41,7 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 	def getAdditionalObjectsResource() {
     	var resource = resourceSet.getResource(uri, false)
     	if (resource === null) {
-    		resource = resourceSet.createResource(uri)
-			val resourceAtomic = new AtomicReference(resource)		
+    		resource = resourceSet.createResource(uri)		
 	   		resource.addAllFunctions
     	}
     	return resource	

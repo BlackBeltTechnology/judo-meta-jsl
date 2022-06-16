@@ -332,7 +332,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Check
 	def checkRequiredOnEntityMemberDeclaration(EntityMemberDeclaration member) {
 		if (member instanceof EntityFieldDeclaration) {
-			val field = member as EntityFieldDeclaration
+			val field = member
 			if (field.isIsMany && field.isIsRequired) {
 				error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'",
                     JsldslPackage::eINSTANCE.entityFieldDeclaration_IsRequired,
@@ -340,7 +340,7 @@ class JslDslValidator extends AbstractJslDslValidator {
                     JsldslPackage::eINSTANCE.entityFieldDeclaration.name)
 			}
 		} else if (member instanceof EntityRelationDeclaration) {
-			val relation = member as EntityRelationDeclaration
+			val relation = member
 			if (relation.isIsMany && relation.isIsRequired) {
 				error("Collection typed relation: '" + relation.name + "' cannot have keyword: 'required'",
                     JsldslPackage::eINSTANCE.entityRelationDeclaration_IsRequired,
@@ -368,8 +368,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 		var String nameForEntityFieldSingleType
 				
 		if (memberReferenceType instanceof DataTypeDeclaration) {
-			primitive = (memberReferenceType as DataTypeDeclaration).primitive
-			nameForEntityFieldSingleType = (memberReferenceType as DataTypeDeclaration).name
+			primitive = memberReferenceType.primitive
+			nameForEntityFieldSingleType = memberReferenceType.name
 		}
 
 		if (defaultExpression.expression instanceof EnumLiteralReference) {

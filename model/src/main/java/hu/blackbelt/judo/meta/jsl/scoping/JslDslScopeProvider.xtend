@@ -55,9 +55,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunction
 import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunctionParameter
 import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunctionParameters
-import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
-import java.util.function.BinaryOperator
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -106,7 +106,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	}
 
 	def scope_LiteralFunctionParameter_declaration(LiteralFunction context, EReference ref) {
-		nullSafeScope((context.functionDeclarationReference as LiteralFunctionDeclaration).parameterDeclarations)
+		nullSafeScope(context.functionDeclarationReference.parameterDeclarations)
 	}
 	
 	def scope_InstanceFunction_entityDeclaration(LiteralFunction context, EReference ref) {
@@ -114,11 +114,11 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	}
 
 	def scope_LiteralFunctionParameter_declaration(LiteralFunctionParameter context, EReference ref) {
-		nullSafeScope(((context.eContainer as LiteralFunction).functionDeclarationReference as LiteralFunctionDeclaration).parameterDeclarations)			
+		nullSafeScope((context.eContainer as LiteralFunction).functionDeclarationReference.parameterDeclarations)			
 	}
 	
 	def scope_LiteralFunctionParameter_declaration(LiteralFunctionParameters context, EReference ref) {
-		nullSafeScope(((context.eContainer as LiteralFunction).functionDeclarationReference as LiteralFunctionDeclaration).parameterDeclarations)					
+		nullSafeScope((context.eContainer as LiteralFunction).functionDeclarationReference.parameterDeclarations)					
 	}
 	
 	def scope_LambdaFunctionParameters(LambdaFunctionParameters context, EReference ref) {
@@ -161,7 +161,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 	
 	def scope_QueryParameter_queryParameterType(QueryCallExpression context, EReference ref) {
-		nullSafeScope((context.queryDeclarationType as QueryDeclaration).parameters)
+		nullSafeScope(context.queryDeclarationType.parameters)
 	}
 
 	def scope_QueryDeclarationParameter_referenceType(QueryDeclarationParameter context, EReference ref) {
@@ -236,7 +236,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		if (container instanceof Feature) {
 			nullSafeScope(container.featureQueryDeclarationParameters)
 		} else if (container instanceof QueryCallExpression) {
-			nullSafeScope((container.queryDeclarationType as QueryDeclaration).parameters)
+			nullSafeScope(container.queryDeclarationType.parameters)
 		}		
 	}
 
@@ -319,7 +319,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 	def getNavigationBaseReferences(IScope parent, NavigationBaseReference navigationBaseReference, EReference reference) {
 		if (navigationBaseReference instanceof EntityDeclaration) {
-			return getEntityMembers(parent, navigationBaseReference as EntityDeclaration, reference)
+			return getEntityMembers(parent, navigationBaseReference, reference)
 		} else if (navigationBaseReference instanceof LambdaVariable) {
 			return getFunctionCallReferences(parent, navigationBaseReference.parentContainer(FunctionCall), reference)
 		}
@@ -369,10 +369,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			return nullSafeScope(entityMembers)
 		} else if (navigationExpression instanceof NavigationBaseExpression) {
 			return nullSafeScope(getNavigationBaseReferences(parent, 
-				getResolvedProxy(navigationExpression, (navigationExpression as NavigationBaseExpression).navigationBaseType) as NavigationBaseReference, reference
+				getResolvedProxy(navigationExpression, navigationExpression.navigationBaseType) as NavigationBaseReference, reference
 			))
 		} else if (navigationExpression instanceof QueryCallExpression) {
-			return getQueryCallExpressionReferences(parent, navigationExpression as QueryCallExpression, reference)
+			return getQueryCallExpressionReferences(parent, navigationExpression, reference)
 		}
 		parent
 	}
@@ -397,9 +397,9 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 					getResolvedProxy(context, features.last.navigationTargetType) as EntityMemberDeclaration, reference))						
 			}
 		} else if (context instanceof NavigationBaseExpression) {
-			return nullSafeScope(getNavigationBaseReferences(parent, (context as NavigationBaseExpression).navigationBaseType, reference))
+			return nullSafeScope(getNavigationBaseReferences(parent, context .navigationBaseType, reference))
 		} else if (context instanceof FunctionCall) {
-			return nullSafeScope(getFunctionCallReferences(parent, (context as FunctionCall), reference))
+			return nullSafeScope(getFunctionCallReferences(parent, context, reference))
 		}
 		parent
 	}
@@ -437,6 +437,18 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	
 	def EObject getReferenceTypeFromIndex(EObject object) {
 		if (object !== null && object.eContainer !== null) {
+			var EObject resolved = null
+			switch object {
+				EntityFieldDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType, false) as EObject
+				EntityIdentifierDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityIdentifierDeclaration_ReferenceType, false) as EObject
+				EntityRelationDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityRelationDeclaration_ReferenceType, false) as EObject
+				EntityDerivedDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityDerivedDeclaration_ReferenceType, false) as EObject
+				EntityQueryDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityQueryDeclaration_ReferenceType, false) as EObject
+				QueryDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.queryDeclaration_ReferenceType, false) as EObject
+			}
+			if (resolved !== null) {
+				return resolved
+			}			
 			val descriptor = object.EObjectDescription
 			if (descriptor !== null) {
 				val type = descriptor.getUserData("referenceType")
