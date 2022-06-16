@@ -74,7 +74,7 @@
         <judo-genmodel-generator-version>1.0.1.20220405_155701_8eaa7eb0_develop</judo-genmodel-generator-version>
         <judo-epp-common-version>4.22.0.20220503_134737_674d0b3f_develop</judo-epp-common-version>
 
-        <xtext-version>2.26.0</xtext-version>
+        <xtext-version>2.27.0</xtext-version>
         <emf-mwe2-launch-version>2.12.1</emf-mwe2-launch-version>
         <slf4j-version>1.6.6</slf4j-version>
 
@@ -682,6 +682,12 @@
     </build>
     <dependencyManagement>
         <dependencies>
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>27.1-jre</version>
+			</dependency>
+
             <dependency>
                 <groupId>hu.blackbelt.judo.meta</groupId>
                 <artifactId>hu.blackbelt.judo.meta.jsl.model</artifactId>
