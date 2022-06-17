@@ -10,7 +10,6 @@ import org.eclipse.xtext.util.IAcceptor
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 import java.util.Map
 import java.util.HashMap
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
@@ -19,11 +18,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
-import org.eclipse.xtext.linking.lazy.LazyLinkingResource.CyclicLinkingException
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
-import org.eclipse.xtext.EcoreUtil2
-import org.eclipse.emf.ecore.util.EcoreUtil
-import org.eclipse.xtext.GrammarUtil
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 
 @Singleton

@@ -39,7 +39,6 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 			[ 
 				val entity = model as EntityDeclaration;
 				val proposedEntity = EObjectOrProxy as EntityDeclaration
-				val superEntities = entity.superEntityTypes				
 				// System.out.println(" --- Obj: " + EObjectOrProxy + " - " + superEntities.join(", "))
 
 				proposedEntity !== entity && !proposedEntity.superEntityTypes.contains(entity)
