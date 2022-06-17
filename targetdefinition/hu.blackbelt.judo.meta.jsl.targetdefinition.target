@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde?>
-<target includeMode="feature" name="hu.blackbelt.judo.meta.jsl.targetdefinition.target" sequenceNumber="1651586219756">
+<target includeMode="feature" name="hu.blackbelt.judo.meta.jsl.targetdefinition.target" sequenceNumber="1655493425142">
   <locations>
     <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-      <repository location="https://nexus.judo.technology/repository/p2/judo-epp-common/4.22.0.20220503_134737_674d0b3f_develop"/>
+      <repository location="https://nexus.judo.technology/repository/p2/judo-epp-common/4.23.0.20220617_120427_1e370db3_develop"/>
       <unit id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="0.0.0"/>
       <unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="0.0.0"/>
       <unit id="org.eclipse.emf.sdk.feature.group" version="0.0.0"/>
