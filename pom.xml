@@ -81,7 +81,8 @@
         <emf-mwe2-launch-version>2.12.1</emf-mwe2-launch-version>
         <slf4j-version>1.7.36</slf4j-version>
 
-		<surefire-version>3.0.0-M5</surefire-version>
+        <surefire-version>3.0.0-M5</surefire-version>
+        <logback-test-config>${maven.multiModuleProjectDirectory}/logback-test.xml</logback-test-config>
 		
         <!-- Pax exam dependencies -->
         <karaf-version>4.3.6</karaf-version>
@@ -420,7 +421,7 @@
 						<trimStackTrace>false</trimStackTrace>
 					</configuration>
 				</plugin>
-				
+
                 <!--This plugin's configuration is used to store Eclipse m2e settings
                     only. It has no influence on the Maven build itself. -->
                 <plugin>
