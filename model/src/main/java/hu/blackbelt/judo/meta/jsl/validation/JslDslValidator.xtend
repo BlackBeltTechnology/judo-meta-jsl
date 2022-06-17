@@ -37,6 +37,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DateLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeStampLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorField
+import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 
 /**
  * This class contains custom validation rules. 
@@ -133,11 +134,11 @@ class JslDslValidator extends AbstractJslDslValidator {
 		val modelName = modelImport.modelName;
 		if (modelName !== null) {
 			val modelQualifiedName = modelName.importName.toQualifiedName
-			val found = modelImport.modelDeclaration.getVisibleClassesDescriptions.map[
+			val found = modelImport.parentContainer(ModelDeclaration).getVisibleClassesDescriptions.map[
 				desc |
 				if (desc.qualifiedName == modelQualifiedName 
-					&& desc.EObjectOrProxy != modelImport.modelDeclaration 
-					&& desc.EObjectURI.trimFragment != modelImport.modelDeclaration.eResource.URI) {
+					&& desc.EObjectOrProxy != modelImport.parentContainer(ModelDeclaration) 
+					&& desc.EObjectURI.trimFragment != modelImport.parentContainer(ModelDeclaration).eResource.URI) {
 						true
 				} else {				
 					false
@@ -194,7 +195,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 		if (entity.superEntityTypes.contains(entity)) {
 			error("Cycle in inheritence of entity '" + entity.name + "'",
-				JsldslPackage::eINSTANCE.entityDeclaration_Name,
+				JsldslPackage::eINSTANCE.named_Name,
 				INHERITENCE_CYCLE,
 				entity.name)			
 		}
@@ -202,21 +203,21 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkForDuplicateNameForEntityMemberDeclaration(EntityMemberDeclaration member) {
-		if ((member.eContainer as EntityDeclaration).getMemberNames(member).map[n | n.toLowerCase].contains(member.nameForEntityMemberDeclaration.toLowerCase)) {
-			error("Duplicate member declaration: '" + member.nameForEntityMemberDeclaration + "'",
-				member.nameAttributeForEntityMemberDeclaration,
+		if (member instanceof Named && (member.eContainer as EntityDeclaration).getMemberNames(member).map[n | n.toLowerCase].contains(member.name.toLowerCase)) {
+			error("Duplicate member declaration: '" + member.name + "'",
+				member.nameAttribute,
 				DUPLICATE_MEMBER_NAME,
-				member.nameForEntityMemberDeclaration)
+				member.name)
 		}
 	}
 
 	@Check
 	def checkEntityMemberDeclarationLength(EntityMemberDeclaration member) {
-		if (member.nameForEntityMemberDeclaration.length > MEMBER_NAME_LENGTH_MAX) {
-			error("Member name: '" + member.nameForEntityMemberDeclaration + "' is too long, must be at most " + MEMBER_NAME_LENGTH_MAX + " characters",
-				member.nameAttributeForEntityMemberDeclaration,
+		if (member instanceof Named && member.name.length > MEMBER_NAME_LENGTH_MAX) {
+			error("Member name: '" + member.name + "' is too long, must be at most " + MEMBER_NAME_LENGTH_MAX + " characters",
+				member.nameAttribute,
 				MEMBER_NAME_TOO_LONG,
-				member.nameForEntityMemberDeclaration)
+				member.name)
 		}
 	}
 
@@ -236,12 +237,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Check
 	def checkForDuplicateInheritedFields(EntityDeclaration entity) {
 		val collidingMembers = entity.allMembers
-			.groupBy[m | m.nameForEntityMemberDeclaration]
+			.filter[m | m instanceof Named]
+			.groupBy[m | m.name]
 			.filter[n, l | l.size > 1]
 			
 		if (collidingMembers.size > 0) {
 			error("Inherited member name collision for: " + collidingMembers.mapValues[l | l.map[v | "'" + v.memberFullyQualifiedName + "'"].join(", ")].values.join(", "),
-				JsldslPackage::eINSTANCE.entityDeclaration_Name,
+				JsldslPackage::eINSTANCE.named_Name,
 				INHERITED_MEMBER_NAME_COLLISION,
 				entity.name)
 		}
@@ -249,24 +251,24 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkForDuplicateNameForDeclaration(Declaration declaration) {
-		if ((declaration.eContainer as ModelDeclaration).getDeclarationNames(declaration).map[n | n.toLowerCase].contains(declaration.nameForDeclaration.toLowerCase)) {
-			error("Duplicate declaration: '" + declaration.nameForDeclaration + "'",
-				declaration.nameAttributeForDeclaration,
+		if ((declaration.eContainer as ModelDeclaration).getDeclarationNames(declaration).map[n | n.toLowerCase].contains(declaration.name.toLowerCase)) {
+			error("Duplicate declaration: '" + declaration.name + "'",
+				declaration.nameAttribute,
 				DUPLICATE_DECLARATION_NAME,
-				declaration.nameForDeclaration)
+				declaration.name)
 		}
 	}
 	
 	@Check
 	def checkModifierMaxLength(ModifierMaxLength modifier) {
-		if (modifier.maxLength <= BigInteger.ZERO) {
+		if (modifier.value <= BigInteger.ZERO) {
 			error("MaxLength must be greater than 0",
-				JsldslPackage::eINSTANCE.modifierMaxLength_MaxLength,
+				JsldslPackage::eINSTANCE.modifierMaxLength_Value,
 				MAX_LENGTH_MODIFIER_IS_NEGATIVE,
 				JsldslPackage::eINSTANCE.modifierMaxLength.name)
-		} else if (modifier.maxLength > MODIFIER_MAX_LENGTH_MAX_VALUE) {
+		} else if (modifier.value > MODIFIER_MAX_LENGTH_MAX_VALUE) {
 			error("MaxLength must be less than/equal to " + MODIFIER_MAX_LENGTH_MAX_VALUE,
-				JsldslPackage::eINSTANCE.modifierMaxLength_MaxLength,
+				JsldslPackage::eINSTANCE.modifierMaxLength_Value,
 				MAX_LENGTH_MODIFIER_IS_TOO_LARGE,
 				JsldslPackage::eINSTANCE.modifierMaxLength.name)
 		}
@@ -274,14 +276,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 	
 	@Check
 	def checkModifierPrecision(ModifierPrecision precision) {
-		if (precision.precision <= BigInteger.ZERO) {
+		if (precision.value <= BigInteger.ZERO) {
 			error("Precision must be greater than 0",
-				JsldslPackage::eINSTANCE.modifierPrecision_Precision,
+				JsldslPackage::eINSTANCE.modifierPrecision_Value,
 				PRECISION_MODIFIER_IS_NEGATIVE,
 				JsldslPackage::eINSTANCE.modifierPrecision.name)
-		} else if (precision.precision > PRECISION_MAX_VALUE) {
+		} else if (precision.value > PRECISION_MAX_VALUE) {
 			error("Precision must be less than/equal to " + PRECISION_MAX_VALUE,
-				JsldslPackage::eINSTANCE.modifierPrecision_Precision,
+				JsldslPackage::eINSTANCE.modifierPrecision_Value,
 				PRECISION_MODIFIER_IS_TOO_LARGE,
 				JsldslPackage::eINSTANCE.modifierPrecision.name)
 		}
@@ -289,15 +291,15 @@ class JslDslValidator extends AbstractJslDslValidator {
 	
 	@Check
 	def checkModifierScale(ModifierScale scale) {
-		val precisionValue = (scale.eContainer as DataTypeDeclaration).precision.precision
-		if (scale.scale < BigInteger.ZERO) {
+		val precisionValue = (scale.eContainer as DataTypeDeclaration).precision.value
+		if (scale.value < BigInteger.ZERO) {
 			error("Scale must be greater than/equal to 0",
-				JsldslPackage::eINSTANCE.modifierScale_Scale,
+				JsldslPackage::eINSTANCE.modifierScale_Value,
 				SCALE_MODIFIER_IS_NEGATIVE,
 				JsldslPackage::eINSTANCE.modifierScale.name)
-		} else if (scale.scale >= precisionValue) {
+		} else if (scale.value >= precisionValue) {
 			error("Scale must be less than the defined precision: " + precisionValue,
-				JsldslPackage::eINSTANCE.modifierScale_Scale,
+				JsldslPackage::eINSTANCE.modifierScale_Value,
 				SCALE_MODIFIER_IS_TOO_LARGE,
 				JsldslPackage::eINSTANCE.modifierScale.name)
 		}
@@ -315,7 +317,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			
 		if (collidingNames.size > 0 && collidingNames.keySet.contains(literal.name.toLowerCase)) {
 			error("Enumeration Literal name collision for: " + collidingNames.mapValues[l | l.map[v | "'" + v.fullyQualifiedName + "'"].join(", ")].values.join(", "),
-				JsldslPackage::eINSTANCE.enumLiteral_Name,
+				JsldslPackage::eINSTANCE.named_Name,
 				ENUM_LITERAL_NAME_COLLISION,
 				literal.name)
 		}
@@ -330,7 +332,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Check
 	def checkRequiredOnEntityMemberDeclaration(EntityMemberDeclaration member) {
 		if (member instanceof EntityFieldDeclaration) {
-			val field = member as EntityFieldDeclaration
+			val field = member
 			if (field.isIsMany && field.isIsRequired) {
 				error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'",
                     JsldslPackage::eINSTANCE.entityFieldDeclaration_IsRequired,
@@ -338,7 +340,7 @@ class JslDslValidator extends AbstractJslDslValidator {
                     JsldslPackage::eINSTANCE.entityFieldDeclaration.name)
 			}
 		} else if (member instanceof EntityRelationDeclaration) {
-			val relation = member as EntityRelationDeclaration
+			val relation = member
 			if (relation.isIsMany && relation.isIsRequired) {
 				error("Collection typed relation: '" + relation.name + "' cannot have keyword: 'required'",
                     JsldslPackage::eINSTANCE.entityRelationDeclaration_IsRequired,
@@ -364,10 +366,10 @@ class JslDslValidator extends AbstractJslDslValidator {
 		
 		var String primitive
 		var String nameForEntityFieldSingleType
-		
+				
 		if (memberReferenceType instanceof DataTypeDeclaration) {
-			primitive = (memberReferenceType as DataTypeDeclaration).primitive
-			nameForEntityFieldSingleType = (memberReferenceType as DataTypeDeclaration).nameForEntityFieldSingleType
+			primitive = memberReferenceType.primitive
+			nameForEntityFieldSingleType = memberReferenceType.name
 		}
 
 		if (defaultExpression.expression instanceof EnumLiteralReference) {
