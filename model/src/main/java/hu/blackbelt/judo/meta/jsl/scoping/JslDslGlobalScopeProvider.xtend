@@ -11,39 +11,37 @@ import org.eclipse.xtext.naming.IQualifiedNameConverter
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import org.eclipse.xtext.scoping.impl.ImportNormalizer
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
+import org.eclipse.xtext.resource.IResourceDescriptions
+import org.eclipse.xtext.resource.impl.ResourceSetBasedResourceDescriptions
 
 class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 
 	@Inject extension IQualifiedNameConverter
 	@Inject extension JslDslModelExtension
+	@Inject JslDslInjectedObjectsProvider injectedObjectsProvider;
 		
-	override getScope(Resource resource, EReference reference) {
-		// System.out.println("JslDslGlobalScopeProvider.getScope=" + reference);
-		super.getScope(resource, reference)		
-
-	}
-	
     override IScope getScope(Resource resource, EReference reference, Predicate<IEObjectDescription> filter) {
 		// System.out.println("JslDslGlobalScopeProvider.getScope Res: " + resource + "Ref: " + reference);
-
+    	// System.out.println("JslDslGlobalScopeProvider.scope=scope_" + reference.EContainingClass.name + "_" + reference.name + "(" + resource + " context, EReference ref) : " + reference.EReferenceType.name);
 		
 		if (JsldslPackage::eINSTANCE.modelImport_ModelName == reference) {
 			// System.out.println("JslDslGlobalScopeProvider.getScope NULL");
-			super.getScope(resource, reference, filter);
+			return new JslDslInjectedObjectsScopeWrapper(super.getScope(resource, reference, filter), injectedObjectsProvider);
+			//return super.getScope(resource, reference, filter)
+
 		}
 
 	    val overridedFilter = new Predicate<IEObjectDescription>() {
             override boolean apply(IEObjectDescription input) {
-				val model = resource.getContents().get(0).modelDeclaration
+				val model = resource.getContents().get(0).parentContainer(ModelDeclaration)
 
 				var found = false
 				for (modelImport : model.imports) {
-
-					//System.out.println("> JslDslGlobalScopeProvider.getScope Import NS: " + modelImport.modelName.toQualifiedName.toString("::") + " FIELD: " + input.qualifiedName.toString("::"));
-
+					// System.out.println("> JslDslGlobalScopeProvider.getScope Import NS: " + modelImport.modelName.importName + " FIELD: " + input.qualifiedName.toString("::"));
 					val normalizer = new ImportNormalizer(modelImport.modelName.importName.toQualifiedName, true, false);
 					if (normalizer.deresolve(input.qualifiedName) !== null) {
-					//	System.out.println("> JslDslGlobalScopeProvider.getScope=" + input.qualifiedName.toString("::"));
+						// System.out.println("> JslDslGlobalScopeProvider.getScope=" + input.qualifiedName.toString("::") + "Res: " + resource + " Ref: " + reference + " Input: " + input);
 						found = true
 					}
 				}
@@ -55,7 +53,17 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 				}
             }
         }
-        super.getScope(resource, reference, overridedFilter);
+        return new JslDslInjectedObjectsScopeWrapper(super.getScope(resource, reference, overridedFilter), injectedObjectsProvider);
+        //return super.getScope(resource, reference, overridedFilter)
+
     }
-	
+    
+    override IResourceDescriptions getResourceDescriptions(Resource resource) {
+    	val superDescr = super.getResourceDescriptions(resource)
+    	if (superDescr instanceof ResourceSetBasedResourceDescriptions) {
+	    	return new JslDslResourceDescriptionsResourceBasedWrapper(superDescr, injectedObjectsProvider)    		    		
+    	} else {
+	    	return new JslDslResourceDescriptionsWrapper(superDescr, injectedObjectsProvider)    		
+    	}
+	}
 }
