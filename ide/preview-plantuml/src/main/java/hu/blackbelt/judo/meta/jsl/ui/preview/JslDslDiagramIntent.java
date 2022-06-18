@@ -2,7 +2,6 @@ package hu.blackbelt.judo.meta.jsl.ui.preview;
 
 import hu.blackbelt.judo.meta.jsl.generator.JsldslDefaultPlantUMLDiagramGenerator;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
-import hu.blackbelt.judo.meta.jsl.runtime.JslParser;
 import net.sourceforge.plantuml.text.AbstractDiagramIntent;
 
 public class JslDslDiagramIntent extends AbstractDiagramIntent<ModelDeclaration> {
