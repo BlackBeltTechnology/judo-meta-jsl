@@ -15,7 +15,6 @@ import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.xtext.ide.server.LanguageServerImpl;
-import org.eclipse.xtext.ide.server.ServerLauncher;
 import org.eclipse.xtext.ide.server.ServerModule;
 
 import com.google.inject.Guice;
@@ -39,14 +38,15 @@ public class RunServer {
 	}
 	
     static <T> Launcher<T> createSocketLauncher(Object localService, Class<T> remoteInterface, SocketAddress socketAddress, ExecutorService executorService, Function<MessageConsumer, MessageConsumer> wrapper) throws IOException {
-        AsynchronousServerSocketChannel serverSocket = AsynchronousServerSocketChannel.open().bind(socketAddress);
-        AsynchronousSocketChannel socketChannel;
-        try {
-            socketChannel = serverSocket.accept().get();
-            return Launcher.createIoLauncher(localService, remoteInterface, Channels.newInputStream(socketChannel), Channels.newOutputStream(socketChannel), executorService, wrapper);
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
+        try (AsynchronousServerSocketChannel serverSocket = AsynchronousServerSocketChannel.open().bind(socketAddress)) {
+			AsynchronousSocketChannel socketChannel;
+			try {
+			    socketChannel = serverSocket.accept().get();
+			    return Launcher.createIoLauncher(localService, remoteInterface, Channels.newInputStream(socketChannel), Channels.newOutputStream(socketChannel), executorService, wrapper);
+			} catch (InterruptedException | ExecutionException e) {
+			    e.printStackTrace();
+			}
+		}
         return null;
     }
 

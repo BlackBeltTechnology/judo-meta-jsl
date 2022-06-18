@@ -132,7 +132,7 @@ class ImportTests {
 		'''.parse(resourceSet)
 		
 		a.assertNoErrors
-		b.assertSyntaxError("missing RULE_ID at '\\n'")
+		b.assertSyntaxError("no viable alternative at input")
 	}
 
 
@@ -188,7 +188,7 @@ class ImportTests {
 		val a = 
 		'''
 			model A
-			type string String max-length 128			
+			type string String(max-length = 128)			
 		'''.parse(resourceSet)
 		
 		val b = 
@@ -212,7 +212,7 @@ class ImportTests {
 		val a = 
 		'''
 			model A
-			type string String max-length 128			
+			type string String(max-length = 128)			
 		'''.parse(resourceSet)
 		
 		val b = 
@@ -228,7 +228,7 @@ class ImportTests {
 		b.assertError(
 			JsldslPackage::eINSTANCE.entityFieldDeclaration, 
 			"org.eclipse.xtext.diagnostics.Diagnostic.Linking",
-			"Couldn't resolve reference to EntityFieldSingleType 'A::String'."
+			"Couldn't resolve reference to SingleTYpe 'A::String'."
 		)
 	}
 
@@ -238,7 +238,7 @@ class ImportTests {
 		val a = 
 		'''
 			model A
-			type string String max-length 128			
+			type string String(max-length = 128)			
 		'''.parse(resourceSet)
 		
 		val b = 

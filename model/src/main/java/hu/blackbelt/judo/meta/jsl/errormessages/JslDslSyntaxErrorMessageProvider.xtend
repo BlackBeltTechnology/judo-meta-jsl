@@ -18,7 +18,7 @@ class JslDslSyntaxErrorMessageProvider implements ISyntaxErrorMessageProvider {
 	override SyntaxErrorMessage getSyntaxErrorMessage(IValueConverterErrorContext context) {
 		val cause = context.getValueConverterException();
 		if (cause instanceof ValueConverterWithValueException) {
-			val casted = cause as ValueConverterWithValueException;
+			val casted = cause;
 			if (casted.hasRange()) {
 				return createRangedSyntaxErrorMessage(context, casted.getOffset(), casted.getLength());
 			}
