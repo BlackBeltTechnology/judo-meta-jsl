@@ -219,12 +219,12 @@ class JslDslModelExtension {
 
     def <T> T parentContainer(EObject from, Class<T> type) {
         var T found = null;
-        var Object current = from;
+        var EObject current = from;
         while (found === null && current !== null) {
             if (type.isAssignableFrom(current.getClass())) {
                 found = current as T;
             }
-            if (from.eContainer !== null) {
+            if (current.eContainer !== null) {
                 current = (current as EObject).eContainer;
             } else {
                 current = null;
