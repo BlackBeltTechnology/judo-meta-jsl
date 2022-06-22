@@ -128,7 +128,6 @@
 		<dependency>
 			<groupId>hu.blackbelt.epsilon</groupId>
 			<artifactId>epsilon-runtime-execution</artifactId>
-			<version>${epsilon-runtime-version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -140,7 +139,6 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.2.11</version>
 		</dependency>
 	</dependencies>
 </project>

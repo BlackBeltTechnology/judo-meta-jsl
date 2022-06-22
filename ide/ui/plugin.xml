@@ -300,7 +300,7 @@
 	<extension
 			point="org.eclipse.ui.ide.markerResolution">
 		<markerResolutionGenerator
-			class="hu.blackbelt.judo.meta.jsl.ui.JslDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.quickfix.MarkerResolutionGenerator"
+			class="hu.blackbelt.judo.meta.jsl.ui.JslDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.quickfix.MarkerResolutionGenerator" 
 			markerType="model.ui.jsldsl.check.fast">
 			<attribute
 				name="FIXABLE_KEY"

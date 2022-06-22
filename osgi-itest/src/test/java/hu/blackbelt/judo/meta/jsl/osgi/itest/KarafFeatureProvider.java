@@ -186,7 +186,7 @@ public class KarafFeatureProvider {
         return getOsgiService(bundleContext, type, null, SERVICE_TIMEOUT);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static  <T> T getOsgiService(BundleContext bundleContext, Class<T> type, String filter, long timeout) {
         ServiceTracker<T, T> tracker;
         try {

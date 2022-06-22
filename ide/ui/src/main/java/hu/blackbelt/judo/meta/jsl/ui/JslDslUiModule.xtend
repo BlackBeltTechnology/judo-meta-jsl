@@ -8,6 +8,8 @@ import org.eclipse.xtext.ui.editor.syntaxcoloring.AbstractAntlrTokenToAttributeI
 import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
 import hu.blackbelt.judo.meta.jsl.ui.syntaxcoloring.HighlightingConfiguration;
 import hu.blackbelt.judo.meta.jsl.ui.syntaxcoloring.TokenHighlightingConfiguration;
+import hu.blackbelt.judo.meta.jsl.ui.syntaxcoloring.JslDslSemanticHighlightCalculator
+import org.eclipse.xtext.ide.editor.syntaxcoloring.ISemanticHighlightingCalculator
 
 /**
  * Use this class to register components to be used within the Eclipse IDE.
@@ -29,4 +31,8 @@ class JslDslUiModule extends AbstractJslDslUiModule {
 	def Class<? extends AbstractAntlrTokenToAttributeIdMapper> bindAbstractAntlrTokenToAttributeIdMapper() {
         return TokenHighlightingConfiguration;
     }
+
+	def Class<? extends ISemanticHighlightingCalculator> bindSemanticHighlightingCalculator() {
+		return JslDslSemanticHighlightCalculator;
+	}
 }
