@@ -45,7 +45,7 @@ Workflow {
 					enabled = false
 				}
 				web = {
-					overwriteSrc = false
+					overwriteSrc = true
 					enabled = true
 					name = "hu.blackbelt.judo.meta.jsl.server.web"
 					root = "${rootPath}/server-web"
