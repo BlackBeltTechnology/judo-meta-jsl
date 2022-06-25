@@ -13,14 +13,13 @@ import org.eclipse.xtext.scoping.impl.ImportNormalizer
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.eclipse.xtext.resource.IResourceDescriptions
-import org.eclipse.xtext.resource.impl.ResourceSetBasedResourceDescriptions
 
 class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 
 	@Inject extension IQualifiedNameConverter
 	@Inject extension JslDslModelExtension
-	@Inject JslDslInjectedObjectsProvider injectedObjectsProvider;
-		
+	@Inject JslDslInjectedObjectsProvider injectedObjectsProvider
+
     override IScope getScope(Resource resource, EReference reference, Predicate<IEObjectDescription> filter) {
 		// System.out.println("JslDslGlobalScopeProvider.getScope Res: " + resource + "Ref: " + reference);
     	// System.out.println("JslDslGlobalScopeProvider.scope=scope_" + reference.EContainingClass.name + "_" + reference.name + "(" + resource + " context, EReference ref) : " + reference.EReferenceType.name);
@@ -54,16 +53,9 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
             }
         }
         return new JslDslInjectedObjectsScopeWrapper(super.getScope(resource, reference, overridedFilter), injectedObjectsProvider);
-        //return super.getScope(resource, reference, overridedFilter)
-
     }
     
     override IResourceDescriptions getResourceDescriptions(Resource resource) {
-    	val superDescr = super.getResourceDescriptions(resource)
-    	if (superDescr instanceof ResourceSetBasedResourceDescriptions) {
-	    	return new JslDslResourceDescriptionsResourceBasedWrapper(superDescr, injectedObjectsProvider)    		    		
-    	} else {
-	    	return new JslDslResourceDescriptionsWrapper(superDescr, injectedObjectsProvider)    		
-    	}
+    	return new JslDslResourceDescriptionsResourceBasedWrapper(resource.resourceSet, super.getResourceDescriptions(resource), injectedObjectsProvider)    		    		
 	}
 }

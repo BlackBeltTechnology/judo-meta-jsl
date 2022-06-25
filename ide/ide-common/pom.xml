@@ -82,6 +82,11 @@
         	<artifactId>org.eclipse.xtext.ide</artifactId>
         	<version>${xtext-version}</version>
         </dependency>
+		 <dependency>
+			 <groupId>hu.blackbelt.judo.meta</groupId>
+			 <artifactId>hu.blackbelt.judo.meta.jsl.model</artifactId>
+			 <version>${project.version}</version>
+		 </dependency>
      </dependencies>
      
 </project>
