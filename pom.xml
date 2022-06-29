@@ -73,8 +73,8 @@
 		<epsilon-runtime-version>1.4.0.20220616_093846_72efef9e_develop</epsilon-runtime-version>
 		<epsilon-runtime-eclipse-version>1.4.0.20220616_120313_0d84d4a0_develop</epsilon-runtime-eclipse-version>
 
-        <emf-genmodel-generator-version>1.0.2.20220330_082302_0cadb6da_develop</emf-genmodel-generator-version>
-        <judo-genmodel-generator-version>1.0.1.20220405_155701_8eaa7eb0_develop</judo-genmodel-generator-version>
+        <emf-genmodel-generator-version>1.0.2.20220618_225039_158d46f1_develop</emf-genmodel-generator-version>
+        <judo-genmodel-generator-version>1.0.1.20220618_225527_386d550e_develop</judo-genmodel-generator-version>
         <judo-epp-common-version>4.23.0.20220617_120427_1e370db3_develop</judo-epp-common-version>
 
         <xtext-version>2.27.0</xtext-version>
@@ -88,7 +88,7 @@
         <karaf-version>4.3.6</karaf-version>
         <cxf-version>3.5.1</cxf-version>
 
-        <osgi-utils-version>1.0.12.20220316_214508_c75030f0_develop</osgi-utils-version>
+        <osgi-utils-version>1.0.12.20220628_205152_6d1b9262_develop</osgi-utils-version>
         <bouncycastle-karaf-features-version>1.61.2</bouncycastle-karaf-features-version>
         <tinybundles-karaf-features-version>1.0.0</tinybundles-karaf-features-version>
         <google-karaf-features-version>1.0.7</google-karaf-features-version>
@@ -713,7 +713,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
 								<pluginExecution>
@@ -734,7 +734,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
                             </pluginExecutions>
