@@ -134,6 +134,7 @@ class PrimitiveDefaultValuesTests {
             type date Date
             type time Time
             type timestamp Timestamp
+            type string PhoneNumber(max-length = 32, regex = "^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$")   // escape sequencing does not work in regexp!!!!
 
             entity TestIdentifiers {
             	identifier Bool a = true
@@ -170,10 +171,10 @@ class PrimitiveDefaultValuesTests {
 
             entity EntityWithPrimitiveDefaultExpressions {
                 field Integer integerAttr = 1.23!round()
-                field Scaled scaledAttr = 2.9!abs()
+                field Decimal scaledAttr = 2.9!abs()
                 field String stringAttr = true!asString()
                 field PhoneNumber regexAttr = "+36-1-123-123"
-                field Boolean boolAttr = 2 > -1
+                field Bool boolAttr = 2 > -1
                 field Date dateAttr = Date!now()
                 field Timestamp timestampAttr = Timestamp!now()
                 field Time timeAttr = Time!of(hour = 23, minute = 59, second = 59)
