@@ -99,7 +99,7 @@ EntityFieldDeclaration
 
 DefaultExpressionType
 	: {DefaultExpressionType} '=' expression = 
-		( Literal | EnumLiteralReference | NavigationExpression | CreateExpression )
+		( Expression )
 	;
 
 SingleType 

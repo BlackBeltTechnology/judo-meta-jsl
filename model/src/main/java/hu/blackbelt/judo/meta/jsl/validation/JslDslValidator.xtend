@@ -38,6 +38,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeStampLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorField
 import hu.blackbelt.judo.meta.jsl.jsldsl.Named
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionedExpression
+import hu.blackbelt.judo.meta.jsl.jsldsl.SelfExpression
+import java.util.function.BinaryOperator
+import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation
 
 /**
  * This class contains custom validation rules. 
@@ -395,7 +399,7 @@ class JslDslValidator extends AbstractJslDslValidator {
                     DEFAULT_TYPE_MISMATCH,
                     JsldslPackage::eINSTANCE.rawStringLiteral.name)
 			}
-		} else if (defaultExpression.expression instanceof BooleanLiteral) {
+		} else if ((defaultExpression.expression instanceof BooleanLiteral) || (defaultExpression.expression instanceof BinaryOperation)) {
 			if (!#["boolean"].contains(primitive)) {
 				error("Default value type: '" + BooleanLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
                     JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
@@ -437,8 +441,11 @@ class JslDslValidator extends AbstractJslDslValidator {
                     DEFAULT_TYPE_MISMATCH,
                     JsldslPackage::eINSTANCE.timeStampLiteral.name)
 			}
-		} else {
-			// use-case triggering this path was: when a NavigationExpression got through as default value, but that case might be fixed later via grammar changes
+		} else if (defaultExpression.expression instanceof SelfExpression) {
+			error("Default value type: '" + defaultExpression.expression.class.simpleName + "' not supported!",
+                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
+                    UNSUPPORTED_DEFAULT_TYPE)
+		} else if (!(defaultExpression.expression instanceof BinaryOperator) && !(defaultExpression.expression instanceof FunctionedExpression)) {
 			error("Default value type: '" + defaultExpression.expression.class.simpleName + "' not supported!",
                     JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
                     UNSUPPORTED_DEFAULT_TYPE)
