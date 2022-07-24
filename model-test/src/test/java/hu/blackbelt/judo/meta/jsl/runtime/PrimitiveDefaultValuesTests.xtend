@@ -167,6 +167,18 @@ class PrimitiveDefaultValuesTests {
                 field Time e = `22:45:22`
                 field Timestamp f = `2020-01-12T12:12:12.000Z`
             }
+
+            entity EntityWithPrimitiveDefaultExpressions {
+                field Integer integerAttr = 1.23!round()
+                field Scaled scaledAttr = 2.9!abs()
+                field String stringAttr = true!asString()
+                field PhoneNumber regexAttr = "+36-1-123-123"
+                field Boolean boolAttr = 2 > -1
+                field Date dateAttr = Date!now()
+                field Timestamp timestampAttr = Timestamp!now()
+                field Time timeAttr = Time!of(hour = 23, minute = 59, second = 59)
+            }
+
         '''.parse => [
             assertNoErrors
         ]
