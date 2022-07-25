@@ -1,7 +1,0 @@
-name: jsl
-title: JSL
-version: master
-display_version: latest
-start_page: ROOT:modeling-language/01_jsl.adoc
-nav:
-- modules/ROOT/nav.adoc
