@@ -1,0 +1,601 @@
+= JSL Service Model
+ifndef::env-site,env-github[]
+// include::../_attributes.adoc[]
+endif::[]
+// Settings
+:idprefix:
+:idseparator: -
+
+// TODO: schedule and init
+
+The service layer acts as a front-facing interface masking the underlying entity model. It can hide the complexity and the details of the entity model and provides a simpler interface to the clients of the application. Or it can provide different views for different purposes, allowing changes in functionality without changing the underlying, often rigid data model, which is often created from very different aspects. In addition, the service model also reduces the dependence between the entity model and the outside world.
+
+The main building blocks of the service model are the service access points and the transfer objects.
+
+== Transfer object
+
+A transfer object is a container for a set of data fields that is transferred between the service layer and any upper layers (e.g. user interface or external system). Additionally, transfer objects may contain activities such as internal consistency checking, validation and business logic.
+
+[NOTE]
+====
+The term "transfer object" is a short version of "transfer object type". The correct term would be "transfer object type". However, to distinguish between the type and the instance, the object is called "instance of a transfer object".
+====
+
+To define an transfer object, use the `transfer` keyword.
+
+*Syntax:*
+
+----
+transfer [abstract] <name> [extends <transfer>] [mapped <entity> as <alias>] {
+    [member] ...
+}
+----
+
+where the <name> is the name of the transfer object, and the members are defined between `{` and `}`. Possible member definitions are provided in the next section.
+
+*Example:*
+
+----
+transfer PersonTransfer {
+}
+----
+
+The example above defines an empty transfer object named PersonTransfer. This transfer object has no fields or actions.
+
+=== Field
+
+A transfer object may contain data descriptions called fields. A field has an associated domain type that can be either a primitive or other transfer object, in other words, the field is a typed element. Fields cannot store multiple primitive values (that is, lists, sets), but only a single primitive value. On the other hand, a field can contain a list of transfer object instances to store collection of values.
+
+Use the `field` keyword to specify a field within a transfer object.
+
+*Syntax:*
+
+----
+field [required] <primitive> <name>
+----
+
+where <primitive> is the name of a domain model primitive, or
+
+----
+field [required] <transfer>[[]] <name>
+----
+
+where the <transfer> is the name of a transfer object, or
+
+----
+field [required] <union> <name>
+----
+
+where <union> is the name of a union or an in place union. See unions later.
+
+The <name> is the referrable name of the field.
+
+The optional `[]` indicates that the field is a list of transfer object instances rather than a single reference to one transfer object.
+
+The `required` keyword means that the value of the field cannot be undefined at the time the object is validated. It does not mean that the field cannot be UNDEFINED, it can. However, if the transfer object is validated it will report fields that are required and having the value of UNDEFINED. See the validate command.
+
+The keyword `required` is not allowed in fields with list type.
+ 
+Unlike entities, transfer object fields do not have <default> value expression. To specify the initial value of fields, use the construct action. See object life-cycle later.
+
+*Example:*
+
+----
+transfer PersonTransfer {
+    field required String firstName
+    field required String lastName
+    field String midName = ""
+}
+----
+
+The example above defines a transfer object named PersonTransfer. This transfer object has three fields. firstName and lastName are two required strings, and midName is an optional string with an empty string by default.
+
+*Example:*
+
+----
+transfer AddressTransfer {
+    field required String line1
+    field String line2
+    field String City
+    field String ZipCode
+}
+
+transfer PersonTransfer {
+    field required AddressTransfer address
+}
+----
+
+The second example defines the AddressTransfer transfer object with its fields, and each PersonTransfer instance must have an AddressTransfer.
+
+TODO: private? - for hidden fields, protected? - for read-only fields
+
+=== Mapping and mapping field
+
+The entity layer and the service layer require to map between their different object models (e.g. between entities and transfer objects). Mapping between entities and transfer objects is a tedious and error-prone task. The mapped transfer objects are intended to facilitate this work. The mapping is a configuration approach that copies entity field values to an instance of a transfer object in a pre-defined way. A transfer object may designate an entity to be the source of the mapping. The transfer object that has a source entity assigned to the mapping is called mapped transfer object.
+
+To define a mapped transfer object use the `mapped` - `as` keyword pair.
+
+*Example:*
+
+----
+transfer PersonTransfer mapped Person as person {
+}
+----
+
+The example above defines the transfer object `PersonTransfer`. This transfer object is mapped to the `Person` entity. A particular instance of the Person entity is accessible as `person` within the scope of the PersonTransfer transfer object. We can consider the `person` as a field of type `Person`, it is called a mapping field. Although the mapping field can be considered a simple transfer object field, it can be referenced without the `self` prefix.
+
+The mapping field is not required. In some PersonTransfer instances, the mapping field may refer to a particular Person entity instance, and in others it may be undefined.
+
+Transfer objects that do not have mapping field are unmapped transfer objects.
+
+
+=== Derived field
+
+A derived field is a kind of field that provides a flexible mechanism to read its value. The value of a derived field can not set, in other words derived fields are read only. However, derived fields can be used as if they are ordinary fields, but they have a special expressions called getter expression. The getter expression is used to return the value of the derived field. The getter expression must return the same type or same transfer object or same set of transfer objects as the derived field type.
+
+[NOTE]
+====
+Unlike derived fields of entities, derived fields in transfer objects cannot have arguments.
+====
+
+Use the `derived` keyword to specify a derived field within a transfer object.
+
+*Syntax:*
+
+----
+derived <primtive> <name> = <getter>
+----
+
+where <primitive> is the name of a domain model primitive, or
+
+----
+derived <transfer>[[]] <name> = <getter>
+----
+
+where the <transfer> is the name of a transfer object, and <name> is the referable name of the derived field.
+
+The optional `[]` indicates that the derived field returns a list of transfer object instances rather than a single reference to one transfer object instance.
+
+The <getter> expression returns the value of the derived field whenever it is requested. See expressions later.
+
+*Example:*
+
+----
+entity Person {
+    field required String firstName
+    field required String lastName
+}
+
+transfer PersonTransfer mapped Person as person {
+	derived	String fullName = person.firstName + " " + \
+	                          person.lastName
+}
+----
+
+The example above defines two stored fields in Person entity. The name of the derived field in PersonTransfer is `fullName` and its value is calculated by concatenating the `firstName` and `lastName` fields of Person mapped entity with a space in the middle. Note the `person` reference in the getter expression which refers to the person mapping field.
+
+In the getter expressions of transfer objects the `self` keyword cannot be used.
+
+TBD: `self` can be used in getter of transfer objects and person mapping field shall be referenced as `self.person`. This solution allows to refer the transfer object's own fields in its getter expressions.
+
+
+transfer SalesPersonTransfer mapped SalesPerson as salesperson {
+	derived LeadTransfer[] leads = salesperson.leads
+}
+
+transfer LeadTransfer mapped Lead as lead {
+    derived CustomerTransfer customer = lead.customer
+}
+
+transfer CustomerTransfer mapped Customer as customer {
+}
+
+
+*Example:*
+
+----
+entity SalesPerson {
+    field String firstName
+    field String lastName
+    
+	relation Lead[] leads
+}
+
+entity Lead {
+	relation required Customer customer
+}
+
+entity Customer {
+}
+
+transfer SalesPersonTransfer mapped SalesPerson as salesperson {
+    // field String firstName
+    // field String lastName
+
+    derived String name => salesperson.firstName + " " + salesPerson.lastName
+    derived CustomerTransfer[] leads => salesperson.leads
+
+    query CustomerTransfer[] customers() => salesperson.leads.customer
+}
+----
+
+The example above defines two derived relations. `leads` is defined within SalesPersonTransfer and can refer to a list of LeadTransfer transfer objects that belong to a particular salesperson. `customer` transfer relation is defined within the LeadTransfer and identifies the customer who would make the purchase. 
+
+=== Action
+
+A transfer object can also define behaviors called actions. The action has a body, which is the piece of code (script) that is executed when the action is invoked.
+
+The action may return a computed value to its caller (its return value). This value is often referred to as output. In addition to the output, an action may also return different type of errors. The definition of errors is discussed in chapter Errors.
+
+Actions cannot have input parameters.
+
+Action overriding refers to a subclass redefining the implementation of a action of its parent.
+
+Use the `action` keyword to specify an action within a transfer object.
+
+*Syntax:*
+
+----
+action [static] [<type>] <name> [throws <error1> [, <error2>] ...] {
+    <script>
+}
+----
+
+where the <name> is the name of the action, and the <script> between `{` and `}` is the code to execute.
+
+The optional <type> is the output type of the action. If there is no <type> defined, the action cannot return any data. The <type> can be the following:
+
+* domain primitive
+* single entity or single transfer object
+* list of entities or list of transfer objects
+* union or in place union
+
+The `throws` keyword is used to declare a list of errors that may occur during the execution of the action code. This optional error list contains the names of the errors that the action may throw and the caller must be prepared to handle them.
+
+The optional `static` keyword is used to create actions that can be invoked without an existing instance of the transfer object. Static methods cannot use any of the fields or derived fields of the transfer object in which they were defined. In other words, static actions use the transfer objects that contain them as an embedding namespace.
+
+
+=== Life-cycle actions
+
+Understanding the concept and behavior of transfer objects is essential when creating, updating, saving, deleting, and working with them.
+
+The lifetime of transfer objects is the time that elapses between the creation and destruction of a particular instance. The events that occur during their lifetime are described by the life-cycle process. There are four important types of events in an object's life-cycle:
+
+* Construction
+* Loading
+* Saving
+* Destruction
+
+==== Construction
+
+The first event that can occur in the life-cycle of a transfer object is the construction.
+
+Once a new, uninitialized transfer object is created, the system calls its `construct` action. The construct action is a special action that is used to initialize the newly created instance. This action can be used to set initial values for fields. It is not allowed to return any data from a construct action, however it automatically returns the `self` variable.
+
+A new transfer object is created only when using the `new` command explicitly. If there is no construct action defined for a transfer object, the `new` command cannot be invoked for that transfer object type. See commands later.
+
+Use the `action` and `construct` keywords to specify a construct action within a transfer object.
+
+TBD: we may omit the action keyword.
+
+*Syntax:*
+
+----
+action construct [throws <error1> [, <error2>] ...] [{
+    <script>
+}]
+----
+
+The <script> and the enclosing curly brackets are optional. If they do not exist, the transfer object can be created using the `new` command, but the fields of the transfer object will be undefined.
+
+The `throws` keyword is used to declare a list of errors that may occur during the construct action. This optional error list contains the errors that the action may throw and the caller must be prepared to handle them. If the construct action throws an error, the object will not be created.
+
+TODO: special attention must be paid to errors and rollback!
+TODO: can the rollback be solved in a `transaction` section of script? 
+
+*Example:*
+
+----
+transfer PersonTransfer {
+    field required String firstName
+    field required String lastName
+
+    action construct {
+        self.firstName = "John"
+        self.lastName = "Doe"
+    }
+}
+----
+
+The example above adds a construct action to the PersonTransfer transfer object. It initializes the `firstName` and `lastName` fields after the object has been created.
+
+==== Destruct
+
+TODO: rewrite destruct: https://www.geeksforgeeks.org/destructors-c/
+https://docs.microsoft.com/en-us/cpp/cpp/destructors-cpp?view=msvc-170
+
+The last event that can occur in the life-cycle of a transfer object is the destruction. At the end of the destruction, the transfer object instance is deleted and will no longer be available. All references to the transfer object instance will be undefined.
+
+Before the transfer object instance is deleted, the system calls the `destruct` action. The destruct action is a special action that is used to delete mapped entity or invoke other destruct actions. It is not allowed to return any data from a destruct action.
+
+A transfer object instance is deleted when the `delete` command is invoked. The delete command does not delete automatically all of the transfer object's own fields. Fields with a transfer object type can be deleted by invoking the `delete` command in the destruct action.
+
+If there is no destruct action defined for a transfer object, the `delete` command cannot be invoked for that transfer object type.
+
+Use the `action` and `destruct` keywords to specify a destruct action within a transfer object.
+
+*Syntax:*
+
+----
+action destruct [throws <error1> [, <error2>] ...] {
+    <script>
+}
+----
+
+The <script> and the enclosing curly brackets are optional. If they do not exist, the transfer object can be deleted, but no action is taken other than deleting the instance.
+
+The `throws` keyword is used to declare a list of errors that may occur during the destruct action. This optional error list contains the errors that the action may throw and the caller must be prepared to handle them. If the destruct action throws an error, the object will not be deleted.
+
+TODO: due to the recursive manner of destruction, special attention must be paid to errors and rollback!
+
+*Example:*
+
+----
+transfer AddressTransfer mapped Address as address {
+    field required String line1
+    field String line2
+    field String City
+    field String ZipCode
+
+    action destruct {
+        delete address  // deletes the address entity
+    }
+}
+
+transfer PersonTransfer mapped Person as person {
+    field required String firstName
+    field required String lastName
+    field required AddressTransfer address
+
+    action destruct {
+        delete self.address  // deletes the address field
+        delete person        // deletes the person entity
+    }
+}
+----
+
+The example above adds a destruct action to the PersonTransfer transfer object. It deletes the mapped Person entity instance.
+
+==== Loading
+
+TODO: load reads only domain derived primitive fields, derived transfer objects shall be loaded explicitly
+
+Loading can occur any time in the life-cycle of a transfer object. Loading begins with the evaluation of the derived expressions, and the results of the evaluations are placed in the appropriate derived fields.
+
+Once the derived fields of the transfer object instance are set, the system calls the `load` action. The load action is a special action that is used to set the non-derived fields of the transfer object instance. It is not allowed to return any data from a load action, however it automatically returns the `self` variable. 
+
+Transfer object is loaded when you filter or explicitly use the `load` command. See commands later. If no load action is defined for a transfer object, the `load` command can be called, but it will only load the derived fields, if any.
+
+Use the `action` and `load` keywords to specify a load action within a transfer object.
+
+*Syntax:*
+
+----
+action load [throws <error1> [, <error2>] ...] [{
+    <script>
+}]
+----
+
+The <script> and the enclosing curly brackets are optional. If they do not exist, the transfer object can be loaded, but no action is taken other than loading the derived fields.
+
+The `throws` keyword is used to declare a list of errors that may occur during the load action. This optional error list contains the errors that the action may throw and the caller must be prepared to handle them. If the load action throws an error, the object will exist in an indeterminate state.
+
+*Example:*
+
+----
+transfer PersonTransfer mapped Person as person {
+    field String fullName
+
+    action load {
+        self.fullName = person.firstName + " " + person.lastName
+    }
+}
+----
+
+The example above adds a load action to the PersonTransfer transfer object. It sets the `fullName` field by concatenating the `firstName` and  `lastName` fields of the mapped entity.
+
+==== Save
+
+Saving can occur any time in the life-cycle of a transfer object.
+
+Transfer object is saved only when using the `save` command explicitly. Once the `save` command is invoked, the system calls the `save` action. The save action is a special action that is used to set the fields of the mapped entity according to the status of the transfer object. It is not allowed to return any data from a save action, however it automatically returns the `self` variable. 
+
+If there is no save action defined for a transfer object, the `save` command cannot be invoked for that transfer object type. See commands later.
+
+Use the `action` and `save` keywords to specify a save action within a transfer object.
+
+*Syntax:*
+
+----
+action save [throws <error1> [, <error2>] ...] [{
+    <script>
+}]
+----
+
+The <script> and the enclosing curly brackets are optional. If they do not exist, the transfer object can be saved, but no action is taken at all.
+
+The `throws` keyword is used to declare a list of errors that may occur during the save action. This optional error list contains the errors that the action may throw and the caller must be prepared to handle them. If the save action throws an error, the object will exist in an indeterminate state.
+
+*Example:*
+
+----
+transfer PersonTransfer mapped Person as person {
+    field String firstName
+    field String lastName
+
+    action save {
+        person.firstName = self.firstName
+        person.lastName = self.lastName
+    }
+}
+----
+
+The example above adds a save action to the PersonTransfer transfer object. It sets sets the `firsName` and `lastName` fields of the mapped entity field in accordance with the fields of the transfer object respectively.
+
+TODO: special attention must be paid to errors and rollback!
+
+
+
+=== Inheritance
+
+Inheritance is a mechanism by which more specific transfer objects incorporate structure of a more general transfer object (called parent transfer object).
+
+Transfer objects may inherit fields, derived fields, mapping field, actions and constraints from their parent transfer object. A transfer object and its parent transfer object are in IS-A relation, so a tranfer object can appear anywhere in the role of its parent transfer object.
+
+Inherited members of a transfer object, which were defined in the parent behave as if they were defined in the transfer object itself.
+
+A transfer object may be the parent of any number of other transfer objects, but it can have only one parent at most. In other words, the multiple inheritance is not supported between tranfer objects.
+
+A transfer object should not be inherited from itself, either directly or indirectly.
+
+A transfer object may override inherited actions, other inherited members (fields, derived fields and mapping field) cannot be overridden with the same name. It is also not allowed to override the mapping field in transfer objects that inherit a mapping field.
+
+*Example:*
+
+----
+transfer IdentifiableTransfer {
+    field required email
+}
+
+transfer PersonTransfer extends IdentifiableTransfer mapped Person as person {
+    derived String firstName = person.firstName
+    derived String lastName = person.lastName
+}
+
+transfer SalesPersonTransfer extends PersonTransfer {
+    derived PersonTransfer manager = person!asType(SalesPerson).manager
+}
+----
+
+In the above example the PersonTransfer inherits the required email field of the IdentifiableTransfer and defines two more derived fields.
+
+The SalesPersonTransfer inherits both email field and the derived fields and, in addition, defines a relation to its manager. Note that mapping is not enabled in SalesPersonTransfer. Thus, the `person` mapping field is casted (using `asType()`) to SalesPerson entity before its manager relation is accessed. 
+
+TBD: mapped entity can be narrowed in children.
+
+==== Override
+
+A transfer object may override inherited actions, including life-cycle actions. Overriding is a mechanism that enables a transfer object to provide different implementation for an action that is already defined in its parent transfer object.
+
+Use the `override` keyword to override a specific action within a transfer object.
+
+*Syntax:*
+
+----
+override <name> {
+    <script>
+}
+----
+
+where the <name> is the name of the action that will have the new <script> implementation.
+
+With the override mechanism the transfer object replaces the implementation of an action that has the same name in the parent transfer object. The <script> of the action that is executed will be determined by the transfer object instance that is used to invoke it. If an instance of a parent transfer object is used to invoke the method, then the <script> in the parent transfer object will be executed, but if an instance of the child transfer object is used to invoke the method, then the <script> in the child transfer object will be executed. In other words, it is the type of the transfer object instance being referred to (not the type of the field or variable) that determines which version of an overridden action will be executed.
+
+*Example:*
+
+----
+transfer PersonTransfer {
+    field required String firstName
+    field required String lastName
+
+    action String getLabel throws GenericError {
+        return self.firstName + " " + self.lastName
+    }
+}
+
+entity SalesPersonTransfer extends PersonTransfer {
+    override getLabel {
+        return self.firstName + " " + self.lastName + " (sales representative)"
+    }
+}
+----
+
+In the example above the `SalesPersonTransfer` overrides the implementation of the `getLabel` method defined in `PersonTransfer`. Note that neither the return value type nor the error list is redefined in the override.
+
+== Union
+
+A union is a special type to hold different type of transfer objects. A union must have at least two members, but only one member can contain a value at any given time.
+
+Unions cannot be organized into a list.
+
+Unions can be used as transfer object field types or action return types.
+
+Use the `union` keyword to specify a union.
+
+*Syntax:*
+
+----
+union <name> { <member1> | <member2> [| <member3>] ... }
+----
+
+*Example:*
+
+----
+transfer SalesPersonTransfer {
+}
+
+transfer DeveloperTransfer {
+}
+
+union Employee { SalesPersonTransfer | DeveloperTransfer }
+----
+
+The example above defines the `Employee` union, which has two members. At any point of time an Employee union may hold exactly one SalesPersonTransfer or exactly one DeveloperTransfer or none of them.
+
+=== In place union
+
+Unions can be defined in the place of their use. In place unions do not have name.
+
+*Example:*
+
+----
+transfer SalesPersonTransfer {
+}
+
+transfer DeveloperTransfer {
+}
+
+transfer SalaryTransfer {
+    field Integer amount
+    field required { SalesPersonTransfer | DeveloperTransfer } employee
+}
+----
+
+In the example above, the `employee` relation of SalaryTransfer must refer to a SalesPersonTransfer or a DeveloperTransfer transfer object.
+
+== Constraint
+
+A constraint represents some restriction related to a transfer object. A constraint is specified by a logical expression which must evaluate to a true or false. Constraint must be satisfied (i.e. evaluated to true) by a correct use of the system.
+
+One transfer object may contain multiple constraints that must be satisfied. The order in which the multiple constraints are evaluated is the same as the order in which the constraints in the jsl file are declared.
+
+Use the `constraint` keyword to specify a restriction on a transfer object. The syntax of constraint is the same as it is defined at entities.
+
+*Example:*
+
+----
+error NameIsTooShort {
+    field required String name
+}
+
+transfer Person {
+    field required String firstName
+    field required String lastName
+    field String midName = ""
+    
+    constraint self.firstName!length() + self.lastName!length() > 4 \
+    onerror NameIsTooShort(name = self.firstName + " " + self.lastName)
+}
+----
+
+Constraints defined in transfer objects are not evaluated automatically. To check a transfer object instance against its constraints, use the `validate` command. See commands later.
