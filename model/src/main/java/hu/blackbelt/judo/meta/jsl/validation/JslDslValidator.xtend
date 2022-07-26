@@ -42,6 +42,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionedExpression
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelfExpression
 import java.util.function.BinaryOperator
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation
+import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
+import hu.blackbelt.judo.meta.jsl.services.JslDslGrammarAccess.ImpliesExpressionElements
 
 /**
  * This class contains custom validation rules. 
@@ -354,6 +356,29 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 	}
 	
+	
+	def isBooleanExpression(Expression it) {
+		if ((it instanceof BinaryOperation) && (#["not", "implies", "or", "xor", "and", "!=", "==", ">=", "<=", "<", ">"].contains((it as BinaryOperation).operator))) {
+			return true;
+		}
+		return false;
+	}
+
+	def isIntegerExpression(Expression it) {
+		if ((it instanceof BinaryOperation) && (#["div", "mod", "^", "*", "/", "+", "-" ].contains((it as BinaryOperation).operator))) {
+			return true;
+		}
+		return false;
+	}
+
+	def isDecimalExpression(Expression it) {
+		if ((it instanceof BinaryOperation) && (#["^", "*", "/", "+", "-" ].contains((it as BinaryOperation).operator))) {
+			return true;
+		}
+		return false;
+	}
+
+	
 	@Check
 	def checkDefaultExpressionMatchesMemberType(DefaultExpressionType defaultExpression) {
         var EObject memberReferenceType
@@ -399,21 +424,21 @@ class JslDslValidator extends AbstractJslDslValidator {
                     DEFAULT_TYPE_MISMATCH,
                     JsldslPackage::eINSTANCE.rawStringLiteral.name)
 			}
-		} else if ((defaultExpression.expression instanceof BooleanLiteral) || (defaultExpression.expression instanceof BinaryOperation)) {
+		} else if ((defaultExpression.expression instanceof BooleanLiteral) || (defaultExpression.expression.isBooleanExpression)) {
 			if (!#["boolean"].contains(primitive)) {
 				error("Default value type: '" + BooleanLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
                     JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
                     DEFAULT_TYPE_MISMATCH,
                     JsldslPackage::eINSTANCE.booleanLiteral.name)
 			}
-		} else if (defaultExpression.expression instanceof IntegerLiteral) {
+		} else if ((defaultExpression.expression instanceof IntegerLiteral) || (defaultExpression.expression.isIntegerExpression)) {
 			if (!#["numeric"].contains(primitive)) {
 				error("Default value type: '" + IntegerLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
                     JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
                     DEFAULT_TYPE_MISMATCH,
                     JsldslPackage::eINSTANCE.integerLiteral.name)
 			}
-		} else if (defaultExpression.expression instanceof DecimalLiteral) {
+		} else if ((defaultExpression.expression instanceof DecimalLiteral) || (defaultExpression.expression.isDecimalExpression)) {
 			if (!#["numeric"].contains(primitive)) {
 				error("Default value type: '" + DecimalLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
                     JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
@@ -442,10 +467,6 @@ class JslDslValidator extends AbstractJslDslValidator {
                     JsldslPackage::eINSTANCE.timeStampLiteral.name)
 			}
 		} else if (defaultExpression.expression instanceof SelfExpression) {
-			error("Default value type: '" + defaultExpression.expression.class.simpleName + "' not supported!",
-                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
-                    UNSUPPORTED_DEFAULT_TYPE)
-		} else if (!(defaultExpression.expression instanceof BinaryOperator) && !(defaultExpression.expression instanceof FunctionedExpression)) {
 			error("Default value type: '" + defaultExpression.expression.class.simpleName + "' not supported!",
                     JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
                     UNSUPPORTED_DEFAULT_TYPE)
