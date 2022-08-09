@@ -1,130 +1,23 @@
-JUDO Specification Language
-===========================
+= judo-meta-jsl
+
+image::https://github.com/BlackBeltTechnology/judo-meta-jsl/actions/workflows/build.yml/badge.svg?branch=develop[link="https://github.com/BlackBeltTechnology/judo-meta-jsl/actions/workflows/build.yml" float="center"]
+
+== Introduction
+
+> JSL stands for JUDO Specification Language
 
 It contains JSL DSL XText based language definition.
 
-It acts as an eclipse plugin with features and sites, can be used standalone and in standarsd OSGi (without eclipse).
+It acts as an eclipse plugin with features and sites, can be used standalone and in standard OSGi (without eclipse).
 
 It contains the standalone language server which can be integrated any editor which supports Language Server Protocol.
 
-Modules:
---------
+Detailed documentation can be found at: TODO add link to asciidoc docs
 
-- targetdefinition - Eclipse target definition defines the P2 repsoitories for all of required MANFIEST feature.
-The Judo update sites based on versions, so all versions have own update site. That causes that versions are coded in the URL.
-The target definition in tycho loaded as extension, which cause there is no way to replace versions before tycho is activated.
-For that reason a profile is created which can replace the versions with the dependency versions defined in parent.
-To run version update run
-+
-----
-mvn clean install -P update-target-versions -f targetdefinition/pom.xml`
-----
+== Contributing to the project
 
-- model -XText language definition and corresponding implementations for scoping and code assists..
-It functions as an eclipse plugin. It contains the model and ecore generated java classes.
-Builder and Helpers added with MWE2 workflow.
+Everyone is welcome to contribute to JUDO! As a starter, please read the corresponding link:CONTRIBUTING.adoc[CONTRIBUTING] guide for details!
 
-- model-test - Tests for parsers and language capabilities
+== License
 
-- osgi - OSGi bundle. It repackages model and add extra information / services to able to use for transformation pipeline
-in other platforms.
-
-- osgi-itest - Karaf based smoke test to be sure it can be deployed to standard
-OSGi environment.
-
-- feature - Eclipse feature repository - to be able to use for eclipse installation
-
-- site - Eclipse Update Site - all built version compiled as an update site.
-The site definitions contains the required referenced repositoies which contains required plugins.
-The Judo update sites based on versions, so all versions have own update site. That causes that versions are coded in the URL.
-The category definition in tycho loaded as extension, which cause there is no way to replace versions before tycho is activated.
-For that reason a profile is created which can replace the versions with the dependency versions defined in parent.
-To run version update run
-+
-----
-mvn clean install -P update-category-versions -f site/pom.xml
-----
-
-- server-embedded - Standalone executable fatjar which acts a language server
-
-- server-web - A simple web servlet and ice based editor to sandbox the
-language server protocol
-
-== Version policy
-
-Two worlds collides in this project. The Maven and the Eclipse have different view about versions. While maven using SNAPSHOT
-versions eclipse using .quialifier in the qualifier part of semantic version.
-
-Which means: 1.0.0.qualifier is eqivalent of maven 1.0.0-SNAPSHOT
-To address this tycho versions plugin used to replace qualifier and maven versions for a technical version
-in every build.
-
-== CI build
-
-All built artifact are tagged in git:
-
-https://github.com/BlackBeltTechnology/judo-meta-jsl/releases
-
-You can download the ZIP release of site and add to eclipse, or
-you can add to your eclipse as Install new software and add URL from P2 Update site of the required version.
-
-
-== Installation
-
-On eclipse P2 site can be installed.
-Intall new software and add the URL of site listed on github or the uncompressed ZIP folder. It contains metamodel
-and UI provided for default editor.
-
-== Compilation
-
-=== Import project in eclipse
-
-The following plugins have to be installed to work:
-- m2e
-- epsilon
-- modeling tools
-
-Or you can use prebuilt Judo eclipse.
-
-=== Compilation in maven
-
-To compile the project in Maven the minimum version of required maven is 3.5.4.
-
-    mvn clean install
-
-If no maven is installed mven wrapper can be used.
-
-    ./mvnw clean install
-
-The maven using tycho to make eclipse build.
-
-=== Code generation in eclipse
-
-There is predefined launchers which can be used to regenerate language model and
-corresponding model helpers.
-
-Execute in eclipse the
-
-    Generate JSL.launch
-
-=== Test language in eclipse
-
-To test the jsl language in eclipse, execute
-
-    Launch JSL.launch
-
-Before run execute maven build or execute generation.
-
-
-To run code generation inside eclipse, run as MWE2 Workflow:
-   hu.blackbelt.judo.meta.jsl.model project src/workflow/generateModel.mwe2
-
-To work the XTend, XText, MWE and MWE2 features have to be installed.
-
-== Troubleshoots
-
-=== Problem with lombok:
-
-Tycho does not support lombok generation directly as mentioned in https://github.com/rzwitserloot/lombok/issues/285 .
-This will be fixed in later version. No lombok is not used in eclipse projects, all codes are generated.
-
+This project is licensed under the https://www.eclipse.org/legal/epl-2.0/[Eclipse Public License - v 2.0].
