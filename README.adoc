@@ -4,15 +4,20 @@ image::https://github.com/BlackBeltTechnology/judo-meta-jsl/actions/workflows/bu
 
 == Introduction
 
-> JSL stands for JUDO Specification Language
+> JSL is an acronym which stands for JUDO Specification Language
 
-It contains JSL DSL XText based language definition.
+This repository contains the JSL DSL XText based language definition.
 
 It acts as an eclipse plugin with features and sites, can be used standalone and in standard OSGi (without eclipse).
 
 It contains the standalone language server which can be integrated any editor which supports Language Server Protocol.
 
 Detailed documentation can be found at: TODO add link to asciidoc docs
+
+== Context
+
+This project is a building block of the https://github.com/BlackBeltTechnology/judo-community[judo-community] aggregator
+project. In order to better understand how this module fits into our ecosystem, please check the corresponding documentation!
 
 == Contributing to the project
 
