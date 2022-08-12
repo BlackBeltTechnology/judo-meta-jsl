@@ -1366,8 +1366,7 @@ The third string may accept only phone numbers. Please note that the regular exp
 type string PhoneNumber (max-length = 32, regex = "^(\\+\\d{1,2}\\s)?\\(?\\d{2,5}\\)?[\\s-]\\d{2,4}[\\s-]\\d{4}$")
 ----
 
-
-The supported operators of string are the following:
+You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of string are the following:
 
 [options="header",cols="1,1,6,5a"]
 |======================================================================
@@ -1410,7 +1409,7 @@ type numeric Integer(precision = 9, scale = 0)
 type numeric Currency(precision = 7, scale 2)
 ----
 
-The supported operators of numeric are the following:
+You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of numeric are the following:
 
 [options="header",cols="1,1,6,5a"]
 |======================================================================
@@ -1455,7 +1454,7 @@ where the <name> is the name of the domain model boolean.
 type boolean Boolean
 ----
 
-The supported operators of boolean are the following:
+You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of boolean are the following:
 
 [options="header",cols="1,1,6,5a"]
 |======================================================================
@@ -1522,7 +1521,7 @@ where the <name> is the name of the domain model date.
 type date Date
 ----
 
-The supported operators of date are the following:
+You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of date are the following:
 
 [options="header",cols="1,1,6,5a"]
 |======================================================================
@@ -1583,7 +1582,7 @@ where the <name> is the name of the domain model time.
 type time Time
 ----
 
-The supported operators of date are the following:
+You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of date are the following:
 
 [options="header",cols="1,1,6,5a"]
 |======================================================================
@@ -1643,7 +1642,7 @@ where
 `+02:00`
 ----
 
-The supported operators of timestamp are the following:
+You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of timestamp are the following:
 
 [options="header",cols="1,1,6,5a"]
 |======================================================================
