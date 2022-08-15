@@ -20,14 +20,15 @@ package hu.blackbelt.judo.meta.jsl.scoping;
  * #L%
  */
 
-import org.eclipse.xtext.common.services.DefaultTerminalConverters;
 import org.eclipse.xtext.conversion.IValueConverter;
 import org.eclipse.xtext.conversion.ValueConverter;
 
-public class JslDslSpecialValueConverterService extends DefaultTerminalConverters {
+import hu.blackbelt.judo.meta.jsl.runtime.JslTerminalConverters;
+
+public class JslDslSpecialValueConverterService extends JslTerminalConverters {
 	
-	@ValueConverter(rule = "JslID")
-	public IValueConverter<String> JslID() {
-		return ID();
+	@ValueConverter(rule = "JSLID")
+	public IValueConverter<String> JSLID() {
+		return getIDConverter();
 	}
 }

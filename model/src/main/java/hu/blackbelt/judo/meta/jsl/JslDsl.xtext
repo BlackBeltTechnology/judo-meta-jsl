@@ -11,17 +11,16 @@ ModelDeclaration returns ModelDeclaration hidden(WS, SL_COMMENT, ML_COMMENT)
 	  NL*
     ;
 
-JSLID : ID
-	| 'enum' | 'entity' | 'query' | 'field' 
-	| 'import' | 'as' | 'extends' | 'abstract' | 'required' 	
-	| 'constraint' 
-//	| 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' | 'not'
-	| 'onerror' | 'identifier' | 'derived' | 'relation' | 'opposite' | 'opposite-add' | 'error' | 'type'
-	| 'binary' |'string' | 'numeric' | 'timestamp' | 'date' | 'time' | 'boolean'
-	| 'mime-types' | 'max-file-size'
-	| 'regex' | 'max-length' 
-	| 'precision' | 'scale' 
-	
+JSLID : ID //| '`' ID '`'
+//	| 'enum' | 'entity' | 'query' | 'field' 
+//	| 'import' | 'as' | 'extends' | 'abstract' | 'required' 	
+//	| 'constraint' 
+////	| 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' | 'not'
+//	| 'onerror' | 'identifier' | 'derived' | 'relation' | 'opposite' | 'opposite-add' | 'error' | 'type'
+//	| 'binary' |'string' | 'numeric' | 'timestamp' | 'date' | 'time' | 'boolean'
+//	| 'mime-types' | 'max-file-size'
+//	| 'regex' | 'max-length' 
+//	| 'precision' | 'scale' 	
     ;
 
 

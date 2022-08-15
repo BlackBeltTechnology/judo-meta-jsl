@@ -44,7 +44,7 @@ public class JslTerminalConverters extends DefaultTerminalConverters {
 			
 			@Override
 			protected String toEscapedString(String value) {
-				if (mustEscape(value))
+				if (value != null && mustEscape(value))
 					return "\\" + value;
 				return value;
 			}
@@ -87,6 +87,12 @@ public class JslTerminalConverters extends DefaultTerminalConverters {
 		return idConverter;
 	}
 
+	@ValueConverter(rule = "LocalName")
+	public IValueConverter<String> getLocalNameConverter() {
+		return idConverter;
+	}
+
+	
 	@ValueConverter(rule = "DATE")
 	public IValueConverter<String> getDateTerminalConverter() {
 		return new IValueConverter<String>() {
