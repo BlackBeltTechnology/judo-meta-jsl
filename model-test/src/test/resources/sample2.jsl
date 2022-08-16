@@ -1,7 +1,7 @@
-model SalesModel2
+model SampleModel2
 
-import SalesModel
+import SampleModel
 entity abstract Person {
-	field SalesModel::String firstName
+	field SampleModel::String firstName
 }
 

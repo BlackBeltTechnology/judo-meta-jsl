@@ -11,7 +11,7 @@ ModelDeclaration returns ModelDeclaration hidden(WS, SL_COMMENT, ML_COMMENT)
 	  NL*
     ;
 
-JSLID : ID //| '`' ID '`'
+JSLID : ID
 //	| 'enum' | 'entity' | 'query' | 'field' 
 //	| 'import' | 'as' | 'extends' | 'abstract' | 'required' 	
 //	| 'constraint' 
@@ -586,7 +586,7 @@ terminal INTEGER returns ecore::EBigInteger
 	;
 
 terminal ID
-	: '\\'? ALPHABET (ALPHABET | DIGIT)*
+	: ALPHABET (ALPHABET | DIGIT)* | '`' ALPHABET (ALPHABET | DIGIT)* '`'
 	;
 
 terminal STRING

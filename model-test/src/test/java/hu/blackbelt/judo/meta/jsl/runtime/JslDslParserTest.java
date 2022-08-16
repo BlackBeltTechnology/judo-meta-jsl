@@ -45,15 +45,15 @@ public class JslDslParserTest {
 
     Logger log = LoggerFactory.getLogger(JslDslParserTest.class);
 
-    private static final String TEST_MODEL = "model SalesModel\n" +
+    private static final String TEST_MODEL = "model SampleModel\n" +
             "\n" +
             "type numeric Integer(precision = 9,  scale = 0)\n" +
             "type string String(max-length = 128)\n";
 
-    private static final String TEST_MODEL2 = "model SalesModel2\n" +
-            "import SalesModel\n" +
+    private static final String TEST_MODEL2 = "model SampleModel2\n" +
+            "import SampleModel\n" +
             "entity Person {\n" +
-            "field SalesModel::String name\n" +
+            "field SampleModel::String name\n" +
             "}\n";
 
 
@@ -63,7 +63,7 @@ public class JslDslParserTest {
     	XtextResourceSet resourceSet = JslParser.loadJslFromFile(Arrays.asList(new File( "src/test/resources/sample.jsl")));
     	assertTrue(resourceSet.getResources().size() == 1);
     	assertTrue(resourceSet.getResources().get(0).getContents().get(0) instanceof ModelDeclaration);
-    	assertTrue(((ModelDeclaration) resourceSet.getResources().get(0).getContents().get(0)).getName().equals("SalesModel"));
+    	assertTrue(((ModelDeclaration) resourceSet.getResources().get(0).getContents().get(0)).getName().equals("SampleModel"));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class JslDslParserTest {
     	XtextResourceSet resourceSet = JslParser.loadJslFromStream(Arrays.asList(new JslStreamSource(new ByteArrayInputStream(TEST_MODEL.getBytes("UTF-8")), URI.createURI("urn:testLoadString"))));
     	assertTrue(resourceSet.getResources().size() == 1);
     	assertTrue(resourceSet.getResources().get(0).getContents().get(0) instanceof ModelDeclaration);
-    	assertTrue(((ModelDeclaration) resourceSet.getResources().get(0).getContents().get(0)).getName().equals("SalesModel"));
+    	assertTrue(((ModelDeclaration) resourceSet.getResources().get(0).getContents().get(0)).getName().equals("SampleModel"));
     }
 
     @Test
@@ -93,66 +93,66 @@ public class JslDslParserTest {
     	XtextResourceSet resourceSet = JslParser.loadJslFromString(Arrays.asList(TEST_MODEL));
     	assertTrue(resourceSet.getResources().size() == 1);
     	assertTrue(resourceSet.getResources().get(0).getContents().get(0) instanceof ModelDeclaration);
-    	assertTrue(((ModelDeclaration) resourceSet.getResources().get(0).getContents().get(0)).getName().equals("SalesModel"));
+    	assertTrue(((ModelDeclaration) resourceSet.getResources().get(0).getContents().get(0)).getName().equals("SampleModel"));
     }
 
     @Test
     public void testGetModelDeclarationFromFiles() {
         Optional<ModelDeclaration> model = JslParser.getModelDeclarationFromFiles(
-        		"SalesModel", 
+        		"SampleModel", 
         		Arrays.asList(new File("src/test/resources/sample.jsl")));
         assertTrue(model.isPresent());
-        assertEquals("SalesModel", model.get().getName());
+        assertEquals("SampleModel", model.get().getName());
     }
 
     @Test
     public void testGetModelDeclarationFromStreamSources() throws UnsupportedEncodingException {
     	Optional<ModelDeclaration> model = JslParser.getModelDeclarationFromStreamSources(
-    			"SalesModel", 
+    			"SampleModel", 
     			Arrays.asList(new JslStreamSource(new ByteArrayInputStream(TEST_MODEL.getBytes("UTF-8")), URI.createURI("urn:testLoadFromByteArrayInputStream"))));
         assertTrue(model.isPresent());
-        assertEquals("SalesModel", model.get().getName());
+        assertEquals("SampleModel", model.get().getName());
     }
 
     @Test
     public void testGetModelDeclarationFromStrings() {
     	Optional<ModelDeclaration> model = JslParser.getModelDeclarationFromStrings(
-    			"SalesModel2", 
+    			"SampleModel2", 
     			Arrays.asList(TEST_MODEL, TEST_MODEL2));
         assertTrue(model.isPresent());
-        assertEquals("SalesModel2", model.get().getName());
+        assertEquals("SampleModel2", model.get().getName());
     }
 
     @Test
     public void testGetModelFromFiles() {
     	JslDslModel model = JslParser.getModelFromFiles(
-        		"SalesModel2", 
+        		"SampleModel2", 
         		Arrays.asList(
         				new File("src/test/resources/sample.jsl"),
         				new File("src/test/resources/sample2.jsl")        				
         				));
-        assertEquals("SalesModel2", model.getName());
+        assertEquals("SampleModel2", model.getName());
     }
 
     @Test
     public void testGetModelFromStreamSources() throws UnsupportedEncodingException {
     	JslDslModel model = JslParser.getModelFromStreamSources(
-    			"SalesModel2", 
+    			"SampleModel2", 
     			Arrays.asList(
     					new JslStreamSource(new ByteArrayInputStream(TEST_MODEL.getBytes("UTF-8")), 
     							URI.createURI("platform:/testLoadFromByteArrayInputStream.jsl")),
     					new JslStreamSource(new ByteArrayInputStream(TEST_MODEL2.getBytes("UTF-8")), 
     							URI.createURI("platform:/testLoadFromByteArrayInputStream2.jsl"))
     					));
-        assertEquals("SalesModel2", model.getName());
+        assertEquals("SampleModel2", model.getName());
     }
 
     @Test
     public void testGetModelFromStrings() {
     	JslDslModel model = JslParser.getModelFromStrings(
-    			"SalesModel2", 
+    			"SampleModel2", 
     			Arrays.asList(TEST_MODEL, TEST_MODEL2));
-        assertEquals("SalesModel2", model.getName());
+        assertEquals("SampleModel2", model.getName());
     }
 
     
