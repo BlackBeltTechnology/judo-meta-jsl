@@ -1,5 +1,7 @@
 package hu.blackbelt.judo.meta.jsl.runtime;
 
+import com.google.inject.Inject;
+
 /*-
  * #%L
  * Judo :: Jsl :: Model
@@ -21,6 +23,9 @@ package hu.blackbelt.judo.meta.jsl.runtime;
  */
 
 import com.google.inject.Singleton;
+
+import org.eclipse.xtend.lib.annotations.Delegate;
+import org.eclipse.xtext.IGrammarAccess;
 import org.eclipse.xtext.common.services.DefaultTerminalConverters;
 import org.eclipse.xtext.conversion.IValueConverter;
 import org.eclipse.xtext.conversion.ValueConverter;
@@ -30,36 +35,48 @@ import org.eclipse.xtext.nodemodel.INode;
 
 @Singleton
 public class JslTerminalConverters extends DefaultTerminalConverters {
+	
+	private IValueConverter<String> idConverter;
+	
+    @Inject
+    JslTerminalConverters(IGrammarAccess grammarAccess) {
 
-	private IValueConverter<String> idConverter = new IValueConverter<String>() {
+  		/** Must delegate, as extending it will not work with data type rules. */
+  		IDValueConverter delegate = new IDValueConverter() {
+  			@Override
+  			public String toValue(String string, INode node) {
+  				if (string == null)
+  					return null;
+  				if (string.startsWith("`") && string.endsWith("`")) {
+  					return string.substring(1, string.length() - 1);
+  				}
+  				return string;
+  			}
+  			
+  			@Override
+  			protected String toEscapedString(String value) {
+  				if (value != null && mustEscape(value))
+  					return "`" + value + "`";
+  				return value;
+  			}
+  		};
+  		delegate.setGrammarAccess(grammarAccess);
 
-		/** Must delegate, as extending it will not work with data type rules. */
-		IDValueConverter delegate = new IDValueConverter() {
-			@Override
-			public String toValue(String string, INode node) {
-				if (string == null)
-					return null;
-				return string.startsWith("\\") ? string.substring(1) : string;
-			}
-			
-			@Override
-			protected String toEscapedString(String value) {
-				if (mustEscape(value))
-					return "\\" + value;
-				return value;
-			}
-		};
-
-		@Override
-		public String toValue(String string, INode node) {
-			return delegate.toValue(string, node);
-		};
-
-		@Override
-		public String toString(String value) throws ValueConverterException {
-			return delegate.toString(value);
-		}
-	};
+    	
+  		this.idConverter = new IValueConverter<String>() {
+	
+	  		@Override
+	  		public String toValue(String string, INode node) {
+	  			return delegate.toValue(string, node);
+	  		};
+	
+	  		@Override
+	  		public String toString(String value) throws ValueConverterException {
+	  			return delegate.toString(value);
+	  		}  		
+	  	};
+	  	
+    }
 
 	@ValueConverter(rule = "ValidId")
 	public IValueConverter<String> getValidIdConverter() {
@@ -76,6 +93,11 @@ public class JslTerminalConverters extends DefaultTerminalConverters {
 		return idConverter;
 	}
 	
+	@ValueConverter(rule = "JSLID")
+	public IValueConverter<String> JSLID() {
+		return idConverter;
+	}
+
 	@ValueConverter(rule = "FeatureName")
 	public IValueConverter<String> getFeatureNameConverter() {
 		return idConverter;
@@ -87,6 +109,12 @@ public class JslTerminalConverters extends DefaultTerminalConverters {
 		return idConverter;
 	}
 
+	@ValueConverter(rule = "LocalName")
+	public IValueConverter<String> getLocalNameConverter() {
+		return idConverter;
+	}
+
+	
 	@ValueConverter(rule = "DATE")
 	public IValueConverter<String> getDateTerminalConverter() {
 		return new IValueConverter<String>() {

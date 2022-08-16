@@ -1,4 +1,4 @@
-model SalesModel
+model SampleModel
 
 type numeric Integer(precision = 9, scale = 0)
 type string String(max-length = 128)
