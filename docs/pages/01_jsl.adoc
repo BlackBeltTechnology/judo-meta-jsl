@@ -809,12 +809,21 @@ Use the `field` keyword to specify a field within an error.
 
 [subs="quotes"]
 ----
+[purple]#**field**# &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>]
+----
+
+////
+[subs="quotes"]
+----
 [purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>]
 ----
+////
 
 where <primitive> is the name of a domain model primitive, and <name> is the referable name of the field.
 
+////
 The keyword `required` means that the value of the field must be specified, so the value is not allowed to be UNDEFINED. Each newly created error instance must set this field.
+////
 
 Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the error is created, and the field is set according to the default value expression. See <<Expression>> later.
 
@@ -824,7 +833,15 @@ The `self` variable cannot be used in default expressions.
 ====
 
 *Example:*
+----
+error PersonNotFound {
+    field String email
+}
+----
 
+The example above defines an error named PersonNotFound. This error has only one field. `email` is a string that contains an email address that doesn't match any person's email address.
+
+////
 ----
 error PersonNotFound {
     field required String email
@@ -832,11 +849,21 @@ error PersonNotFound {
 ----
 
 The example above defines an error named PersonNotFound. This error has only one field. `email` is a required string that contains an email address that doesn't match any person's email address.
+////
 
 Errors can be inherited from each other using the keyword `extends`. Inheritance of errors is the same mechanism as inheritance of entities. However, errors can only have one parent. To learn more about inheritance, read the chapter on inheriting entities.
 
 *Example:*
+----
+error GenericError {
+    field Integer code
+}
 
+error PersonNotFound extends GenericError {
+    field String email
+}
+----
+////
 ----
 error GenericError {
     field required Integer code
@@ -846,6 +873,7 @@ error PersonNotFound extends GenericError {
     field required String email
 }
 ----
+////
 
 The example above shows an error inheritance. The `PersonNotFound` error inherits the numeric value `code` from the parent named `GenericError`.
 
