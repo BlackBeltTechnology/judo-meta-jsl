@@ -14,7 +14,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import hu.blackbelt.judo.meta.jsl.scoping.JslDslIndex
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierMaxLength
@@ -38,12 +37,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeStampLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorField
 import hu.blackbelt.judo.meta.jsl.jsldsl.Named
-import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionedExpression
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelfExpression
-import java.util.function.BinaryOperator
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
-import hu.blackbelt.judo.meta.jsl.services.JslDslGrammarAccess.ImpliesExpressionElements
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
 
 /**
  * This class contains custom validation rules. 
@@ -228,12 +225,12 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
-	def checkForDuplicateNameForAddedOpposite(EntityRelationOpposite opposite) {
+	def checkForDuplicateNameForAddedOpposite(EntityRelationOppositeInjected opposite) {
 		if (opposite.oppositeName !== null && !opposite.oppositeName.blank) {
 			val relation = opposite.eContainer as EntityRelationDeclaration
 			if (relation.referenceType.getMemberNames.contains(opposite.oppositeName)) {
 				error("Duplicate name: '" + opposite.oppositeName + "'",
-					JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeName,
+					JsldslPackage::eINSTANCE.entityRelationOppositeInjected_OppositeName,
 					DUPLICATE_MEMBER_NAME,
 					opposite.oppositeName)			
 			}			

@@ -18,6 +18,9 @@ import java.util.Collection
 import java.util.HashSet
 import java.util.Set
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeReferenced
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 
 @Singleton
 class JsldslDefaultPlantUMLDiagramGenerator {
@@ -191,16 +194,23 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 			«ENDFOR»
 		}
 	'''
+
+	def entityRelationOppositeInjectedRepresentation(EntityRelationOppositeInjected it)
+	'''"«oppositeName»\n«IF many»[0..*] «ELSE»[0..1]«ENDIF»" -- '''
+
+	def entityRelationOppositeReferencedRepresentation(EntityRelationOppositeReferenced it)
+	'''"«oppositeType.name»\n«oppositeType.cardinalityRepresentation»" -- '''
+
+	def entityRelationOppositeRepresentation(EntityRelationOpposite it) {
+		switch it {
+			EntityRelationOppositeInjected : it.entityRelationOppositeInjectedRepresentation
+			EntityRelationOppositeReferenced : it.entityRelationOppositeReferencedRepresentation
+		}		
+	}
 	
 	def entityRelationRepresentation(EntityRelationDeclaration it, ModelDeclaration base)
-	'''« base.getExternalNameOfEntityDeclaration(eContainer as EntityDeclaration) » «
-		IF opposite?.oppositeType !== null
-			» "«opposite.oppositeType.name»\n«opposite.oppositeType.cardinalityRepresentation»" -- «	
-		ELSEIF opposite?.oppositeName !== null
-			» "«opposite?.oppositeName»\n[0..«IF opposite.isIsMany»*«ELSE»1«ENDIF»]" -- «
-		ELSE
-			» --> «
-		ENDIF
+	'''« base.getExternalNameOfEntityDeclaration(eContainer as EntityDeclaration)» «
+		IF opposite !== null» «opposite.entityRelationOppositeRepresentation» «ELSE» --> «ENDIF
 		» "«name»\n«cardinalityRepresentation»" «base.getExternalNameOfEntityDeclaration(referenceType)»'''
 	
 	def generate(ModelDeclaration it, String style) '''
@@ -241,7 +251,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
 		«FOR external : externalReferencedRelationReferenceTypes»
 			«FOR relation : external.relations»
-				«IF relation.opposite?.oppositeName !== null && relation.referenceType?.parentContainer(ModelDeclaration)?.name === it.name»
+				«IF relation.opposite instanceof EntityRelationOppositeInjected && relation.referenceType?.parentContainer(ModelDeclaration)?.name === it.name»
 					«relation.entityRelationRepresentation(it)»
 				«ENDIF»
 			«ENDFOR»

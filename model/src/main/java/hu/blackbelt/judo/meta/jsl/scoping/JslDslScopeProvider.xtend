@@ -58,6 +58,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunctionParameters
 import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeReferenced
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -80,12 +81,13 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			EntityDerivedDeclaration case ref == JsldslPackage::eINSTANCE.queryCallExpression_QueryDeclarationType: return delegateGetScope(context, ref).filterType(FunctionDeclaration)
 			EntityDerivedDeclaration case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumDeclaration: return delegateGetScope(context, ref).filterType(FunctionDeclaration)
             EntityFieldDeclaration case ref == JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType: return delegateGetScope(context, ref).filterType(FunctionDeclaration)
+			EntityIdentifierDeclaration case ref == JsldslPackage::eINSTANCE.entityIdentifierDeclaration_ReferenceType: return delegateGetScope(context, ref).filterType(FunctionDeclaration)
     		CreateError case ref == JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType: return context.scope_ThrowParameter_errorFieldType(ref)
     		ThrowParameter case ref == JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType: return context.scope_ThrowParameter_errorFieldType(ref)
     		QueryParameter case ref == JsldslPackage::eINSTANCE.queryParameter_Parameter: return context.scope_QueryParameter_parameter(ref)
     		QueryParameter case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)
     		QueryCallExpression case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)
-    		EntityRelationOpposite case ref == JsldslPackage::eINSTANCE.entityRelationOpposite_OppositeType: return context.scope_EntityRelationOpposite_oppositeType(ref)
+    		EntityRelationOppositeReferenced case ref == JsldslPackage::eINSTANCE.entityRelationOppositeReferenced_OppositeType: return context.scope_EntityRelationOppositeReferenced_oppositeType(ref)
     		Feature case ref == JsldslPackage::eINSTANCE.feature_NavigationTargetType: return context.scope_Feature_navigationTargetType(ref)
     		Feature case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)    		
     		EnumLiteralReference case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumLiteral: return context.scope_EnumLiteralReference_enumLiteral(ref)
@@ -213,11 +215,11 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 					.filterSameParentDeclaration(context.eContainer)
 		    		.filterType(FunctionDeclaration)
 		}
-		IScope.NULLSCOPE	
+		IScope.NULLSCOPE
 	}
 		
 		
-	def scope_EntityRelationOpposite_oppositeType(EntityRelationOpposite context, EReference ref) {
+	def scope_EntityRelationOppositeReferenced_oppositeType(EntityRelationOpposite context, EReference ref) {
 		nullSafeScope(getEntityMembers(IScope.NULLSCOPE, (context.eContainer as EntityRelationDeclaration).referenceType, ref))
 	}
 	
@@ -303,6 +305,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	}
 
 	def getEntityMembers(IScope parent, EntityDeclaration entity, EReference reference) {
+		// TODO: Add opposite-add elements
 		val scope = new AtomicReference<IScope>(getLocalElementsScope(parent, entity, reference))
 		entity.extends.forEach[e | {
 			scope.set(getLocalElementsScope(scope.get, e, reference))
@@ -583,7 +586,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		nullSafeScope(input, IScope.NULLSCOPE)
 	}
 
-	
+
 	def IScope nullSafeScope(Object input, IScope fallback) {
 		if (input === null) {
 			return fallback

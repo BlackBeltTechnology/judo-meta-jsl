@@ -12,16 +12,7 @@ ModelDeclaration returns ModelDeclaration hidden(WS, SL_COMMENT, ML_COMMENT)
     ;
 
 JSLID : ID
-//	| 'enum' | 'entity' | 'query' | 'field' 
-//	| 'import' | 'as' | 'extends' | 'abstract' | 'required' 	
-//	| 'constraint' 
-////	| 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' | 'not'
-//	| 'onerror' | 'identifier' | 'derived' | 'relation' | 'opposite' | 'opposite-add' | 'error' | 'type'
-//	| 'binary' |'string' | 'numeric' | 'timestamp' | 'date' | 'time' | 'boolean'
-//	| 'mime-types' | 'max-file-size'
-//	| 'regex' | 'max-length' 
-//	| 'precision' | 'scale' 	
-    ;
+;
 
 
 ModelImport
@@ -137,8 +128,16 @@ EntityRelationDeclaration
 	;
 
 EntityRelationOpposite
+	: EntityRelationOppositeInjected
+	| EntityRelationOppositeReferenced
+	;
+
+EntityRelationOppositeInjected
 	: 'opposite-add' oppositeName = JSLID Cardinality?
-	| 'opposite' oppositeType = [EntityRelationDeclaration | LocalName]
+	;
+
+EntityRelationOppositeReferenced
+	: 'opposite' oppositeType = [EntityRelationDeclaration | LocalName]
 	;
 
 
@@ -381,6 +380,7 @@ Feature
 NavigationTarget
     : EntityMemberDeclaration
     | EntityDeclaration
+    | EntityRelationOppositeInjected
     ;
 
 
