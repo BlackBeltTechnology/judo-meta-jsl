@@ -119,7 +119,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	'''«IF extends !== null» extends «extends.name»«ENDIF»'''
 
 	def errorFieldRepsresentation(ErrorField it)
-	'''+«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF» : «referenceType.name»'''
+	'''+«name» : «referenceType.name»'''
 
 	def errorRepresentation(ErrorDeclaration it)
 	'''

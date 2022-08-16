@@ -10,7 +10,7 @@ type timestamp Timestamp
 type binary Binary
 
 error MyError {
-	field required Integer code
+	field Integer code
 	field String msg
 }
 
