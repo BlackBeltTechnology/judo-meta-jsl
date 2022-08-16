@@ -598,9 +598,12 @@ terminal RAW_STRING
 	: 'r"' (!('"' | NEWLINE))* '"'
 	;
 
+terminal MIME_TYPE_TOKEN
+	: (ALPHABET | DIGIT)+ (('_' | '.' | '+' | '-') (ALPHABET | DIGIT)+)* 
+	;
 
 terminal MIME_TYPE
-    : 'm"' (ALPHABET)+ '/' ('*' | (ALPHABET)+ ('.' (ALPHABET)+)* ) '"'
+    : 'm"' (MIME_TYPE_TOKEN)+ '/' ('*' | MIME_TYPE_TOKEN ) '"'
 	;
 
 terminal CONT_NL
