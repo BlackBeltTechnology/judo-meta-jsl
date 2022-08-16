@@ -79,6 +79,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     		EntityDerivedDeclaration case ref == JsldslPackage::eINSTANCE.navigationBaseExpression_NavigationBaseType: return context.scope_NavigationBaseExpression_navigationBaseType(ref)
 			EntityDerivedDeclaration case ref == JsldslPackage::eINSTANCE.queryCallExpression_QueryDeclarationType: return delegateGetScope(context, ref).filterType(FunctionDeclaration)
 			EntityDerivedDeclaration case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumDeclaration: return delegateGetScope(context, ref).filterType(FunctionDeclaration)
+            EntityFieldDeclaration case ref == JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType: return delegateGetScope(context, ref).filterType(FunctionDeclaration)
     		CreateError case ref == JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType: return context.scope_ThrowParameter_errorFieldType(ref)
     		ThrowParameter case ref == JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType: return context.scope_ThrowParameter_errorFieldType(ref)
     		QueryParameter case ref == JsldslPackage::eINSTANCE.queryParameter_Parameter: return context.scope_QueryParameter_parameter(ref)
