@@ -222,15 +222,26 @@ ModifierScale
 	: 'scale' '=' value = INTEGER
 	;
 
-
 ModifierMimeTypes
-	: 'mime-types' '=' values+=MIME_TYPE (',' values += MIME_TYPE)*
+	: 'mime-types' '=' '[' values += MimeType (',' values += MimeType)* ']'
+	;
+
+MimeType
+	: value = StringLiteral
 	;
 
 ModifierMaxFileSize
-	: 'max-file-size' '=' value = INTEGER
+	: 'max-file-size' '=' numeric = INTEGER (unit = DataUnit)?
 	;
 	
+enum DataUnit
+	: KB = 'kB'
+	| MB = 'MB'
+	| GB = 'GB'
+	| KiB = 'KiB'
+	| MiB = 'MiB'
+	| GiB = 'GiB'
+	;
 
 /****************************
  *	Expression
@@ -576,7 +587,6 @@ terminal DATE
 	: '`' DIGIT+ '-' DIGIT DIGIT '-' DIGIT DIGIT '`'
 	;
 
-
 terminal DECIMAL returns ecore::EBigDecimal
 	: '-'? DIGIT+ '.' DIGIT+
 	;
@@ -595,14 +605,6 @@ terminal STRING
 
 terminal RAW_STRING
 	: 'r"' (!('"' | NEWLINE))* '"'
-	;
-
-terminal MIME_TYPE_TOKEN
-	: (ALPHABET | DIGIT)+ (('_' | '.' | '+' | '-') (ALPHABET | DIGIT)+)* 
-	;
-
-terminal MIME_TYPE
-    : 'm"' (MIME_TYPE_TOKEN)+ '/' ('*' | MIME_TYPE_TOKEN ) '"'
 	;
 
 terminal CONT_NL

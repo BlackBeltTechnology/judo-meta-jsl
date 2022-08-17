@@ -1714,30 +1714,32 @@ The <max-file-size> can be expressed in bytes, kilobytes, megabytes or gigabytes
 |GiB    |1024^3^
 |======================================================================
 
-The <mime-types> is a comma-separated list of media types surrounded by brackets. A media type consists of a type and a subtype in the following format:
+The <mime-types> is a comma-separated list of strings representing media types. A media type string must consist of a type and a subtype separated by `/` in the following format:
 
 [subs="quotes"]
 ----
-&lt;type>[purple]##**/**##&lt;subtype>
+[purple]##**"**##&lt;type>/&lt;subtype>[purple]##**"**##
 ----
 
 or
 
 [subs="quotes"]
 ----
-&lt;type>[purple]##**/**##*
+[purple]##**"**##&lt;type>/*[purple]##**"**##
 ----
+
+Valid media types and subtypes can only contain alphabetic characters, digits and `.`, `_`, `-`, `+`.
 
 *Examples:*
 
 ----
-type binary Document (mime-types = [application/pdf, application/msword], max-file-size = 10MB)
+type binary Document (mime-types = ["application/pdf", "application/msword"], max-file-size = 10MB)
 ----
 
 The example above defines a Document type that accepts pdf or ms-word documents up to 10 megabytes in size.
 
 ----
-type binary Image (mime-types = [image/*], max-file-size = 500kB)
+type binary Image (mime-types = ["image/*"], max-file-size = 500kB)
 ----
 
 The second example defines an Image type that accepts any image format up to 500 kbytes in size.
