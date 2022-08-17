@@ -133,7 +133,7 @@ EntityRelationOpposite
 	;
 
 EntityRelationOppositeInjected
-	: 'opposite-add' oppositeName = JSLID Cardinality?
+	: 'opposite-add' Named Cardinality?
 	;
 
 EntityRelationOppositeReferenced

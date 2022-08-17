@@ -303,12 +303,26 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		}			
 		return featureToScope
 	}
+	
+	def getEntityRelationOppositeInjected(IScope parent, EntityDeclaration entity, EReference reference) {
+		val scope = new AtomicReference<IScope>(parent)
+		entity.getVisibleEObjectDescriptions(JsldslPackage::eINSTANCE.entityRelationDeclaration)
+			.filter[d | d.getUserData("oppositeName") !== null]
+			.filter[d | entity.fullyQualifiedName.toString.equals(entity.getResolvedProxy(d)?.referenceTypeFromIndex?.fullyQualifiedName?.toString)]
+//			.filter[d | entity.fullyQualifiedName.toString.equals((entity.getResolvedProxy(d) as EntityRelationDeclaration).referenceType.fullyQualifiedName.toString)]
+			.forEach[d | {
+				scope.set(getLocalElementsScope(scope.get, entity.getResolvedProxy(d), reference))
+			}]
+		scope.get
 
+	}
+	
 	def getEntityMembers(IScope parent, EntityDeclaration entity, EReference reference) {
-		// TODO: Add opposite-add elements
 		val scope = new AtomicReference<IScope>(getLocalElementsScope(parent, entity, reference))
+		scope.set(getEntityRelationOppositeInjected(scope.get, entity, reference))		
 		entity.extends.forEach[e | {
 			scope.set(getLocalElementsScope(scope.get, e, reference))
+			scope.set(getEntityRelationOppositeInjected(scope.get, e, reference))
 		}]		
 		scope.get
 	}
@@ -443,24 +457,24 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		if (object !== null && object.eContainer !== null) {
 			var EObject resolved = null
 			switch object {
-				EntityFieldDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType, false) as EObject
-				EntityIdentifierDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityIdentifierDeclaration_ReferenceType, false) as EObject
-				EntityRelationDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityRelationDeclaration_ReferenceType, false) as EObject
-				EntityDerivedDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityDerivedDeclaration_ReferenceType, false) as EObject
-				EntityQueryDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityQueryDeclaration_ReferenceType, false) as EObject
-				QueryDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.queryDeclaration_ReferenceType, false) as EObject
+				EntityFieldDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType, true) as EObject
+				EntityIdentifierDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityIdentifierDeclaration_ReferenceType, true) as EObject
+				EntityRelationDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityRelationDeclaration_ReferenceType, true) as EObject
+				EntityDerivedDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityDerivedDeclaration_ReferenceType, true) as EObject
+				EntityQueryDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityQueryDeclaration_ReferenceType, true) as EObject
+				QueryDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.queryDeclaration_ReferenceType, true) as EObject
 			}
 			if (resolved !== null) {
 				return resolved
 			}			
-			val descriptor = object.EObjectDescription
-			if (descriptor !== null) {
-				val type = descriptor.getUserData("referenceType")
-				val referenceDesc = object.getEObjectDescriptionByName(type)
-				if (referenceDesc !== null) {
-					return referenceDesc.EObjectOrProxy				
-				}
-			}
+//			val descriptor = object.EObjectDescription
+//			if (descriptor !== null) {
+//				val type = descriptor.getUserData("referenceType")
+//				val referenceDesc = object.getEObjectDescriptionByName(type)
+//				if (referenceDesc !== null) {
+//					return referenceDesc.EObjectOrProxy				
+//				}
+//			}
 		}
 		null
 	}

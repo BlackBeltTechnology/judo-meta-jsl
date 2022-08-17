@@ -226,13 +226,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkForDuplicateNameForAddedOpposite(EntityRelationOppositeInjected opposite) {
-		if (opposite.oppositeName !== null && !opposite.oppositeName.blank) {
+		if (opposite.name !== null && !opposite.name.blank) {
 			val relation = opposite.eContainer as EntityRelationDeclaration
-			if (relation.referenceType.getMemberNames.contains(opposite.oppositeName)) {
-				error("Duplicate name: '" + opposite.oppositeName + "'",
-					JsldslPackage::eINSTANCE.entityRelationOppositeInjected_OppositeName,
+			if (relation.referenceType.getMemberNames.contains(opposite.name)) {
+				error("Duplicate name: '" + opposite.name + "'",
+					opposite.nameAttribute,
 					DUPLICATE_MEMBER_NAME,
-					opposite.oppositeName)			
+					opposite.name)			
 			}			
 		}
 	}
