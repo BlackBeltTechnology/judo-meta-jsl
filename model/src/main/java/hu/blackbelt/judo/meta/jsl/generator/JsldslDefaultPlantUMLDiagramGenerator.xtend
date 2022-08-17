@@ -158,7 +158,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	'''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.name» =«param.^default.sourceCode»«ENDFOR»'''
 
 	def entityDerivedRepresentation(EntityDerivedDeclaration it)
-	'''~«name» : «referenceType.name»«IF isIsMany»[0..*]«ENDIF»'''
+	'''~<i>«name»</i> : «referenceType.name»«IF isIsMany»[0..*]«ENDIF»'''
 
 	def entityQueryRepresentation(EntityQueryDeclaration it)
 	'''~«name»«entityQueryParameterFragment» : «referenceType.name»[0..*]'''
@@ -193,15 +193,15 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	'''
 	
 	def entityRelationRepresentation(EntityRelationDeclaration it, ModelDeclaration base)
-	'''« base.getExternalNameOfEntityDeclaration(eContainer as EntityDeclaration)» "«name»\n«cardinalityRepresentation»" «
+	'''« base.getExternalNameOfEntityDeclaration(eContainer as EntityDeclaration) » «
 		IF opposite?.oppositeType !== null
-			» <--> "«opposite.oppositeType.name»\n«opposite.oppositeType.cardinalityRepresentation»" «	
+			» "«opposite.oppositeType.name»\n«opposite.oppositeType.cardinalityRepresentation»" -- «	
 		ELSEIF opposite?.oppositeName !== null
-			» <--> "«opposite?.oppositeName»\n[0..*]" «
+			» "«opposite?.oppositeName»\n[0..«IF opposite.isIsMany»*«ELSE»1«ENDIF»]" -- «
 		ELSE
 			» --> «
 		ENDIF
-		»«base.getExternalNameOfEntityDeclaration(referenceType)»'''
+		» "«name»\n«cardinalityRepresentation»" «base.getExternalNameOfEntityDeclaration(referenceType)»'''
 	
 	def generate(ModelDeclaration it, String style) '''
 	@startuml «name?:"none"»
