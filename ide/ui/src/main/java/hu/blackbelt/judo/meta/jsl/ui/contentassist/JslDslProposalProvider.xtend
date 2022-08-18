@@ -22,7 +22,7 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 	
 	@Inject extension JslDslModelExtension
 	
-	override completeEntityRelationOpposite_OppositeType(EObject model, Assignment assignment, 
+	override completeEntityRelationOppositeReferenced_OppositeType(EObject model, Assignment assignment, 
 		ContentAssistContext context, ICompletionProposalAcceptor acceptor
 	) {
 		// System.out.println("model: " + model + " assignment: " + assignment + " context: " + context)
