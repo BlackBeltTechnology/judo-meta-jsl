@@ -32,6 +32,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 import hu.blackbelt.judo.meta.jsl.jsldsl.Cardinality
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeReferenced
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
+import hu.blackbelt.judo.meta.jsl.jsldsl.RawStringLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierMaxFileSize
+import java.math.BigInteger
 
 @Singleton
 class JslDslModelExtension {
@@ -359,6 +363,26 @@ class JslDslModelExtension {
 
     def Collection<EnumDeclaration> allQueryDeclarations(ModelDeclaration model) {
 		model.declarations.filter[d | d instanceof QueryDeclaration].map[e | e as EnumDeclaration].toList
+	}
+	
+	def String getStringLiteralValue(Expression it) {
+		switch it {
+			RawStringLiteral: return it.value
+			EscapedStringLiteral: return it.value  // should return unescaped value using apache commons
+		}
+	}
+
+	def BigInteger getValue(ModifierMaxFileSize it) {
+		switch it.unit.literal {
+			case "kB": return it.numeric.multiply(BigInteger.valueOf(1000))
+			case "MB": return it.numeric.multiply(BigInteger.valueOf(1000 * 1000))
+			case "GB": return it.numeric.multiply(BigInteger.valueOf(1000 * 1000 * 1000))
+
+			case "KiB": return it.numeric.multiply(BigInteger.valueOf(1024))
+			case "MiB": return it.numeric.multiply(BigInteger.valueOf(1024 * 1024))
+			case "GiB": return it.numeric.multiply(BigInteger.valueOf(1024 * 1024 * 1024))
+		}
+		return it.numeric
 	}
 
 }

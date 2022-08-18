@@ -9,7 +9,7 @@ type boolean Boolean
 
 type date Date
 type timestamp Timestamp
-type binary Binary
+type binary Binary(mime-types = ["application/pdf", "application/3g"], max-file-size = 10MB)
 
 error MyError {
 	field Integer code
