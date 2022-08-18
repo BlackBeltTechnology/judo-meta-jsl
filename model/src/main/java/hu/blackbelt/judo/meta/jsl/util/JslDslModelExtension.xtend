@@ -368,11 +368,11 @@ class JslDslModelExtension {
 	def String getStringLiteralValue(Expression it) {
 		switch it {
 			RawStringLiteral: return it.value
-			EscapedStringLiteral: return it.value  // should return unescaped value using apache commons
+			EscapedStringLiteral: return it.value
 		}
 	}
 
-	def BigInteger getValue(ModifierMaxFileSize it) {
+	def BigInteger getMaxFileSizeValue(ModifierMaxFileSize it) {
 		switch it.unit.literal {
 			case "kB": return it.numeric.multiply(BigInteger.valueOf(1000))
 			case "MB": return it.numeric.multiply(BigInteger.valueOf(1000 * 1000))
