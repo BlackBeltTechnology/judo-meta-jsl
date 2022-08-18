@@ -30,6 +30,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 import hu.blackbelt.judo.meta.jsl.jsldsl.Cardinality
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeReferenced
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 
 @Singleton
 class JslDslModelExtension {
@@ -99,6 +101,17 @@ class JslDslModelExtension {
 		}
 		collected
 	}
+
+    def asEntityRelationOppositeReferenced(EntityRelationOpposite it) {
+    	if (it instanceof EntityRelationOppositeReferenced) {
+    		return it as EntityRelationOppositeReferenced
+    	}
+    	return null as EntityRelationOppositeReferenced
+    }
+
+    def oppositeType(EntityRelationOpposite it) {
+    	return asEntityRelationOppositeReferenced?.oppositeType
+    }
 
 	def isSelectableForRelation(EntityRelationDeclaration currentRelation, EntityRelationDeclaration selectableRelation) {
 		if (currentRelation.opposite === null) {
