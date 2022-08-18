@@ -179,12 +179,12 @@ public class JslTerminalConverters extends DefaultTerminalConverters {
 
 			@Override
 			public String toString(String value) throws ValueConverterException {
-				return String.format("\"%s\"", value);
+				return String.format("r\"%s\"", value);
 			}
 	
 			@Override
 			public String toValue(String string, INode node) throws ValueConverterException {
-				return string.substring(1, string.length() - 1);
+				return string.substring(2, string.length() - 1);
 			}
 
 		};

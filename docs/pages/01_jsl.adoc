@@ -1700,7 +1700,7 @@ To define binary primitive, use the `type` keyword with `binary`.
 
 where the <name> is the name of the domain model binary, the <mime-types> is a list of media types indicating the accepted formats, and the <max-file-size> is the maximum size of the file.
 
-The <max-file-size> can be expressed in bytes, kilobytes, megabytes or gigabytes using an integer and an optional unit. The unit can be based on powers of 10 (kB, MB, GB) or on powers of 2 (KiB, MiB, GiB). If there is no unit specified the value is interpreted in bytes. The table below gives the value in bytes for each unit.
+The <max-file-size> can be expressed in bytes, kilobytes, megabytes or gigabytes using an integer and an optional unit. The unit can be based on powers of 10 (kB, MB, GB) or on powers of 2 (KiB, MiB, GiB). If there is no unit specified, the value is interpreted in bytes. The table below gives the value in bytes for each unit.
 
 
 [options="header",cols="1,5"]
