@@ -7,11 +7,11 @@ entity Product {
 
 entity Discount {
 	relation Product[] products opposite-add discount
-	field required Integer `dddd`
+	field required Integer `escaped`
 }
 
 entity CartItem {
 	relation required Product product
 
-//	derived Discount b => self.product.discount
+	derived Discount b => self.product.discount
 }
