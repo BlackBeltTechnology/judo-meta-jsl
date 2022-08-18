@@ -32,7 +32,7 @@
         <feature>guice</feature>
         <feature>eclipse-xtext</feature>
         <feature>antlr3</feature>
-
+		<bundle>mvn:org.apache.commons/commons-text/1.9</bundle>
     </feature>
 
 </features>

@@ -41,6 +41,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.SelfExpression
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
+import hu.blackbelt.judo.meta.jsl.jsldsl.MimeType
+import java.util.function.BinaryOperator
+import hu.blackbelt.judo.meta.jsl.services.JslDslGrammarAccess.ImpliesExpressionElements
+import java.util.regex.Pattern
+import org.eclipse.emf.mwe2.language.mwe2.StringLiteral
 
 /**
  * This class contains custom validation rules. 
@@ -62,6 +67,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val ENUM_LITERAL_NAME_COLLISION = ISSUE_CODE_PREFIX + "EnumLiteralNameCollision"
 	public static val ENUM_LITERAL_ORDINAL_COLLISION = ISSUE_CODE_PREFIX + "EnumLiteralOrdinalCollision"
 	public static val MAX_LENGTH_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "MaxLengthIsNegative"
+	public static val INVALID_MIMETYPE = ISSUE_CODE_PREFIX + "MimetypeIsInvalid"
 	public static val PRECISION_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "PrecisionIsNegative"
 	public static val SCALE_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "ScaleIsNegative"
 	public static val MAX_LENGTH_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "MaxLengthIsTooLarge"
@@ -261,7 +267,18 @@ class JslDslValidator extends AbstractJslDslValidator {
 				declaration.name)
 		}
 	}
-	
+
+	@Check
+	def checkMimeType(MimeType mimeType) {
+		if (!Pattern.matches("^([a-zA-Z0-9]+([\\._+-][a-zA-Z0-9]+)*)/(\\*|([a-zA-Z0-9]+([\\._+-][a-zA-Z0-9]+)*))$", mimeType.value.stringLiteralValue)) { 
+			error("Invalid mime type",
+				JsldslPackage::eINSTANCE.mimeType_Value,
+				INVALID_MIMETYPE,
+				mimeType.value.stringLiteralValue
+			)
+		}
+	}	
+
 	@Check
 	def checkModifierMaxLength(ModifierMaxLength modifier) {
 		if (modifier.value <= BigInteger.ZERO) {

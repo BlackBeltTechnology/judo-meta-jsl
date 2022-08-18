@@ -1695,16 +1695,54 @@ To define binary primitive, use the `type` keyword with `binary`.
 
 [subs="quotes"]
 ----
-[purple]#**type binary**# &lt;name>
+[purple]#**type binary**# &lt;name> [purple]#**(mime-types =**# &lt;mime-types>[purple]#**, max-file-size =**# &lt;max-file-size>[purple]#**)**#
 ----
 
-where the <name> is the name of the domain model binary.
+where the <name> is the name of the domain model binary, the <mime-types> is a list of media types indicating the accepted formats, and the <max-file-size> is the maximum size of the file.
 
-*Example:*
+The <max-file-size> can be expressed in bytes, kilobytes, megabytes or gigabytes using an integer and an optional unit. The unit can be based on powers of 10 (kB, MB, GB) or on powers of 2 (KiB, MiB, GiB). If there is no unit specified, the value is interpreted in bytes. The table below gives the value in bytes for each unit.
+
+
+[options="header",cols="1,5"]
+|======================================================================
+|Unit   |Value in bytes
+|kB     |1000
+|MB     |1000^2^
+|GB     |1000^3^
+|KiB    |1024
+|MiB    |1024^2^
+|GiB    |1024^3^
+|======================================================================
+
+The <mime-types> is a comma-separated list of strings representing media types. A media type string must consist of a type and a subtype separated by `/` in the following format:
+
+[subs="quotes"]
+----
+[purple]##**"**##&lt;type>/&lt;subtype>[purple]##**"**##
+----
+
+or
+
+[subs="quotes"]
+----
+[purple]##**"**##&lt;type>/*[purple]##**"**##
+----
+
+Valid media types and subtypes can only contain alphabetic characters, digits and `.`, `_`, `-`, `+`.
+
+*Examples:*
 
 ----
-type binary Binary
+type binary Document (mime-types = ["application/pdf", "application/msword"], max-file-size = 10MB)
 ----
+
+The example above defines a Document type that accepts pdf or ms-word documents up to 10 megabytes in size.
+
+----
+type binary Image (mime-types = ["image/*"], max-file-size = 500kB)
+----
+
+The second example defines an Image type that accepts any image format up to 500 kbytes in size.
 
 Supported functions are listed in chapter <<Binary functions>>.
 
