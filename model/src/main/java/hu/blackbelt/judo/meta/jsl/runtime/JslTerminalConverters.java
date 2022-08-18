@@ -27,7 +27,7 @@ import com.google.inject.Singleton;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import org.eclipse.xtend.lib.annotations.Delegate;
+import org.apache.commons.text.StringEscapeUtils;
 import org.eclipse.xtext.IGrammarAccess;
 import org.eclipse.xtext.common.services.DefaultTerminalConverters;
 import org.eclipse.xtext.conversion.IValueConverter;
@@ -153,25 +153,43 @@ public class JslTerminalConverters extends DefaultTerminalConverters {
 	public IValueConverter<String> getLocalNameConverter() {
 		return fqNameConverter;
 	}
-
-	/*
-
-    private String getJqlDispacher(final RawStringLiteral it) {
-        return it != null
-                ? "\"" + StringEscapeUtils.escapeJava(it.getValue()
-                        .replaceAll("^r\"|\"$", "")) + "\""
-                : null;
-    }
-
-    private String getJqlDispacher(final EscapedStringLiteral it) {
-        return it != null
-                ? "\"" + it.getValue().replaceAll("^\"|\"$", "") + "\""
-                : null;
-    }
-	 * 
-	 * 
-	 */
 	
+	@ValueConverter(rule = "STRING")
+	public IValueConverter<String> getStringLiteralConverter() {
+
+		return new IValueConverter<String>() {
+
+			@Override
+			public String toString(String value) throws ValueConverterException {
+				return String.format("\"%s\"", StringEscapeUtils.escapeJava(value));
+			}
+	
+			@Override
+			public String toValue(String string, INode node) throws ValueConverterException {
+				return StringEscapeUtils.unescapeJava(string.substring(1, string.length() - 1));
+			}
+
+		};
+	}
+
+	@ValueConverter(rule = "RAW_STRING")
+	public IValueConverter<String> getRawStringLiteralConverter() {
+
+		return new IValueConverter<String>() {
+
+			@Override
+			public String toString(String value) throws ValueConverterException {
+				return String.format("\"%s\"", value);
+			}
+	
+			@Override
+			public String toValue(String string, INode node) throws ValueConverterException {
+				return string.substring(1, string.length() - 1);
+			}
+
+		};
+	}
+
 	@ValueConverter(rule = "TIMESTAMP")
 	public IValueConverter<String> getTimeStampTerminalConverter() {
 		return new IValueConverter<String>() {
