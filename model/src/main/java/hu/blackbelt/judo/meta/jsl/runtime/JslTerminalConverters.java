@@ -24,6 +24,9 @@ import com.google.inject.Inject;
 
 import com.google.inject.Singleton;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import org.eclipse.xtend.lib.annotations.Delegate;
 import org.eclipse.xtext.IGrammarAccess;
 import org.eclipse.xtext.common.services.DefaultTerminalConverters;
@@ -37,7 +40,9 @@ import org.eclipse.xtext.nodemodel.INode;
 public class JslTerminalConverters extends DefaultTerminalConverters {
 	
 	private IValueConverter<String> idConverter;
-	
+
+	private IValueConverter<String> fqNameConverter;
+
     @Inject
     JslTerminalConverters(IGrammarAccess grammarAccess) {
 
@@ -76,9 +81,34 @@ public class JslTerminalConverters extends DefaultTerminalConverters {
 	  		}  		
 	  	};
 	  	
+	  	this.fqNameConverter = new IValueConverter<String>() {
+
+			@Override
+			public String toString(String value) throws ValueConverterException {
+				if (value == null) {
+					return null;
+				}
+				return Arrays.stream(value.split("::")).map(s -> idConverter.toString(s)).collect(Collectors.joining("::"));
+			}
+
+			@Override
+			public String toValue(String string, INode node) throws ValueConverterException {
+				if (string == null) {
+					return null;
+				}
+				return Arrays.stream(string.split("::")).map(s -> idConverter.toValue(s, node)).collect(Collectors.joining("::"));
+			}
+		};
+
+	  	
     }
 
-	@ValueConverter(rule = "ValidId")
+	@ValueConverter(rule = "ModelName")
+	public IValueConverter<String> getModelNameConverter() {
+		return fqNameConverter;
+	}
+
+    @ValueConverter(rule = "ValidId")
 	public IValueConverter<String> getValidIdConverter() {
 		return idConverter;
 	}
@@ -109,29 +139,39 @@ public class JslTerminalConverters extends DefaultTerminalConverters {
 		return idConverter;
 	}
 
-	@ValueConverter(rule = "LocalName")
-	public IValueConverter<String> getLocalNameConverter() {
+	@ValueConverter(rule = "QueryParameterName")
+	public IValueConverter<String> getQueryParameterNameConverter() {
 		return idConverter;
 	}
 
+	@ValueConverter(rule = "EnumLiteralName")
+	public IValueConverter<String> getEnumLiteralNameConverter() {
+		return idConverter;
+	}
 	
-	@ValueConverter(rule = "DATE")
-	public IValueConverter<String> getDateTerminalConverter() {
-		return new IValueConverter<String>() {
-
-			@Override
-			public String toString(String value) throws ValueConverterException {
-				return String.format("`%s`", value);
-			}
-
-			@Override
-			public String toValue(String string, INode node) throws ValueConverterException {
-				return string.substring(1, string.length() - 1);
-			}
-
-		};
+	@ValueConverter(rule = "LocalName")
+	public IValueConverter<String> getLocalNameConverter() {
+		return fqNameConverter;
 	}
 
+	/*
+
+    private String getJqlDispacher(final RawStringLiteral it) {
+        return it != null
+                ? "\"" + StringEscapeUtils.escapeJava(it.getValue()
+                        .replaceAll("^r\"|\"$", "")) + "\""
+                : null;
+    }
+
+    private String getJqlDispacher(final EscapedStringLiteral it) {
+        return it != null
+                ? "\"" + it.getValue().replaceAll("^\"|\"$", "") + "\""
+                : null;
+    }
+	 * 
+	 * 
+	 */
+	
 	@ValueConverter(rule = "TIMESTAMP")
 	public IValueConverter<String> getTimeStampTerminalConverter() {
 		return new IValueConverter<String>() {
@@ -182,5 +222,23 @@ public class JslTerminalConverters extends DefaultTerminalConverters {
 
 		};
 	}
+	
+	@ValueConverter(rule = "DATE")
+	public IValueConverter<String> getDateTerminalConverter() {
+		return new IValueConverter<String>() {
+
+			@Override
+			public String toString(String value) throws ValueConverterException {
+				return String.format("`%s`", value);
+			}
+
+			@Override
+			public String toValue(String string, INode node) throws ValueConverterException {
+				return string.substring(1, string.length() - 1);
+			}
+
+		};
+	}
+
 
 }
