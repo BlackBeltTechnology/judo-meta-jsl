@@ -199,7 +199,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	'''"«name»\n«IF many»[0..*] «ELSE»[0..1]«ENDIF»" -- '''
 
 	def entityRelationOppositeReferencedRepresentation(EntityRelationOppositeReferenced it)
-	'''"«oppositeType.name»\n«oppositeType.cardinalityRepresentation»" -- '''
+	'''"«oppositeType?.name»\n«oppositeType?.cardinalityRepresentation»" -- '''
 
 	def entityRelationOppositeRepresentation(EntityRelationOpposite it) {
 		switch it {
