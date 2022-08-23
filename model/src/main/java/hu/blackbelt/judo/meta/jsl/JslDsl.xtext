@@ -175,9 +175,9 @@ DataTypeDeclaration hidden(WS, CONT_NL, SL_COMMENT, ML_COMMENT)
     : 'type'
       (
 		  BooleanPrimitive
-		| BinaryPrimitive ('(' (mimeTypes = ModifierMimeTypes? & (',' maxFileSize = ModifierMaxFileSize))? ')')?
-		| StringPrimitive ('('(maxLength = ModifierMaxLength & (',' regex = ModifierRegex)?) ')')?
-		| NumericPrimitive ('('(precision = ModifierPrecision & (',' scale = ModifierScale)) ')')?
+		| BinaryPrimitive '(' mimeTypes = ModifierMimeTypes ',' maxFileSize = ModifierMaxFileSize ')'
+		| StringPrimitive '(' maxLength = ModifierMaxLength (',' regex = ModifierRegex)? ')'
+		| NumericPrimitive '(' precision = ModifierPrecision ',' scale = ModifierScale ')'
 		| DatePrimitive
 		| TimePrimitive
 		| TimestampPrimitive
