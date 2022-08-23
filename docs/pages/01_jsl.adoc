@@ -84,6 +84,30 @@ The names of JSL domain elements must conform to the following rules:
 * A name must have at least one character.
 * A name must not be longer than 128 characters.
 
+=== Reserved words
+
+JSL has a set of words that are reserved words and cannot be used directly as element names. If you still want to use these reserved words as element names, the words must be enclosed in back-tick (```) characters as shown in the example below.
+
+----
+field String `model`
+----
+
+This is the list of reserved words in the JSL.
+
+[cols="1,1,1"]
+|======================================================================
+|abstract   |false       |opposite-add
+|and        |field       |or
+|as         |identifier  |query
+|constraint |implies     |relation
+|derived    |import      |required
+|div        |mod         |self
+|entity     |model       |true
+|enum       |not         |type
+|error      |onerror     |xor
+|extends    |opposite    |
+|======================================================================
+
 
 == Model
 
