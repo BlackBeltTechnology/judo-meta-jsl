@@ -33,10 +33,18 @@ public class TokenHighlightingConfiguration extends
     @Override
     protected String calculateId(String tokenName, int tokenType) {
     	String[] operators = {
-    			"RULE_NL",
+    			"RULE_CONT_NL",
+    			"'('",
+    			"')'",
+    			"'{'",
+    			"'}'",
+    			"'.'",
+    			"','",
+    			"'::'",
+    			"'['",
+    			"']'",
+    			"'[]'",
     			"'='",
-    			"'+='",
-    			"'-='",
     			"'<'",
     			"'>'",
     			"'?'",
@@ -58,31 +66,8 @@ public class TokenHighlightingConfiguration extends
     			"'and'",
     			"'div'",
     			"'mod'",
-    			"'not'"    			
+    			"'not'"
     	};
-
-    	String[] commands = {
-    			"'var'",
-    			"'construct'",
-    			"'destruct'",
-    			"'save'",
-    			"'load'",
-    			"'if'",
-    			"'else'",
-    			"'for'",
-    			"'in'",
-    			"'while'",
-    			"'validate'",
-    			"'unset'",
-    			"'delete'",
-    			"'return'",
-    			"'break'",
-    			"'continue'",
-    			"'new'",
-    			"'throw'",
-    			"'try'",
-    			"'catch'",
-    			"'self'"};
 
     	String[] numConstants = {
     			"RULE_INTEGER",
@@ -99,98 +84,15 @@ public class TokenHighlightingConfiguration extends
     			"RULE_TIMESTAMP",
     			"RULE_TIME"};
 
-    	String[] types = {
-    			"'actor'",
-    			"'username'",
-    			"'principal'",
-    			"'boolean'",
-    			"'binary'",
-    			"'string'",
-    			"'numeric'",
-    			"'date'",
-    			"'time'",
-    			"'timestamp'",
-    			"'mapped'",
-    			"'as'",
-    			"'abstract'",
-    			"'extends'",
-    			"'model'",
-    			"'annotate'",
-    			"'diagram'",
-    			"'entity'",
-    			"'query'",
-    			"'transfer'",
-    			"'type'",
-    			"'union'",
-    			"'error'",
-    			"'enum'"};
-
-    	String[] features = {
-    			"'authorize'",
-    			"'stage'",
-    			"'table'",
-    			"'column'",
-    			"'layout'",
-    			"'constraint'",
-    			"'field'",
-    			"'identifier'",
-    			"'derived'",
-    			"'relation'",
-    			"'action'",
-    			"'static'",
-    			"'throws'",
-    			"'group'",
-    			"'package'",
-    			"'widget'"};
-
-    	String[] parameters = {
-    			"'void'",
-    			"'override'",
-    			"'onerror'",
-    			"'class'",
-    			"'horizontal'",
-    			"'vertical'",
-    			"'hide-attributes'",
-    			"'hide-actions'",
-    			"'hide-relations'",
-    			"'expression'",
-    			"'opposite'",
-    			"'opposite-add'",
-    			"'read-only'",
-    			"'max-length'",
-    			"'mime-types'",
-    			"'max-file-size'",
-    			"'regex'",
-    			"'precision'",
-    			"'required'",
-    			"'cascade'",
-    			"'scale'",
-    			"'frame'",
-    			"'label'",
-    			"'icon'",
-    			"'stretch-horizontal'",
-    			"'stretch-vertical'",
-    			"'stretch-both'",
-    			"'width'",
-    			"'height'"};
-
-    	if (Arrays.stream(types).anyMatch(tokenName::equals)) {
-            return HighlightingConfiguration.TYPE_ID;
-        } else if (Arrays.stream(features).anyMatch(tokenName::equals)) {
-        	return HighlightingConfiguration.FEATURE_ID;
-        } else if (Arrays.stream(parameters).anyMatch(tokenName::equals)) {
-            return HighlightingConfiguration.PARAMETER_ID;
-        } else if (Arrays.stream(commands).anyMatch(tokenName::equals)) {
-            return HighlightingConfiguration.COMMAND_ID;
-        } else if (Arrays.stream(numConstants).anyMatch(tokenName::equals)) {
-            return HighlightingConfiguration.NUM_CONSTANT_ID;
+    	if (Arrays.stream(numConstants).anyMatch(tokenName::equals)) {
+            return HighlightingConfiguration.CONSTANT_ID;
         } else if (Arrays.stream(stringConstants).anyMatch(tokenName::equals)) {
-            return HighlightingConfiguration.STRING_CONSTANT_ID;
+            return HighlightingConfiguration.CONSTANT_ID;
         } else if (Arrays.stream(operators).anyMatch(tokenName::equals)) {
             return HighlightingConfiguration.OPERATOR_ID;
         }
-        
-        return super.calculateId(tokenName, tokenType);
+    	
+    	return HighlightingConfiguration.DEFAULT_ID;
     }
 
 }

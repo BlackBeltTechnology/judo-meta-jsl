@@ -1,5 +1,11 @@
 package hu.blackbelt.judo.meta.jsl.ui.syntaxcoloring;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.eclipse.emf.ecore.EClass;
+
 /*-
  * #%L
  * Judo :: Jsl :: Model
@@ -21,12 +27,13 @@ package hu.blackbelt.judo.meta.jsl.ui.syntaxcoloring;
  */
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.Keyword;
 import org.eclipse.xtext.RuleCall;
+import org.eclipse.xtext.TerminalRule;
 import org.eclipse.xtext.ide.editor.syntaxcoloring.IHighlightedPositionAcceptor;
 import org.eclipse.xtext.ide.editor.syntaxcoloring.ISemanticHighlightingCalculator;
 import org.eclipse.xtext.nodemodel.INode;
 import org.eclipse.xtext.resource.XtextResource;
-import org.eclipse.xtext.ui.editor.syntaxcoloring.DefaultHighlightingConfiguration;
 import org.eclipse.xtext.util.CancelIndicator;
 
 public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingCalculator {
@@ -34,18 +41,117 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 	@Override
 	public void provideHighlightingFor(XtextResource resource, IHighlightedPositionAcceptor acceptor,
 			CancelIndicator cancelIndicator) {
-		if (resource == null) return;
+    	String[] primitiveDeclarations = {
+    			"BooleanPrimitive",
+    			"BinaryPrimitive",
+    			"StringPrimitive",
+    			"NumericPrimitive",
+    			"DatePrimitive",
+    			"TimePrimitive",
+    			"TimestampPrimitive"
+    	};
+		
+    	String[] modifiers = {
+    			"ModifierMaxLength",
+    			"ModifierRegex",
+    			"ModifierPrecision",
+    			"ModifierScale",
+    			"ModifierMimeTypes",
+    			"ModifierMaxFileSize"
+	    	};
+
+    	if (resource == null) return;
 
 		for(INode node : resource.getParseResult().getRootNode().getAsTreeIterable()) {
 			EObject nodeGElem = node.getGrammarElement();
-			if (nodeGElem != null)
-				if (nodeGElem instanceof RuleCall) 
-					if ( ((RuleCall)nodeGElem).getRule().getName().equals("JslID") ) {						
-						acceptor.addPosition(node.getOffset(), node.getLength(),
-								DefaultHighlightingConfiguration.DEFAULT_ID);
+			if (nodeGElem != null) {
+				
+				if (nodeGElem instanceof TerminalRule) {
+					TerminalRule terminal = (TerminalRule)nodeGElem;
+
+					switch (terminal.getName()) {
+					
+					case "SL_COMMENT":
+					case "ML_COMMENT":
+						acceptor.addPosition(node.getOffset(), node.getText().length(),
+								HighlightingConfiguration.COMMENT_ID);
+						continue;
 					}
-		}
-		
+				}
+				
+				if (nodeGElem instanceof Keyword) {
+					Keyword keyword = (Keyword)nodeGElem;
+					
+					switch (keyword.getValue()) {
+
+					case "model":
+					case "import":
+					case "error":
+					case "type":
+					case "entity":
+					case "enum":
+					case "query":
+					case "as":
+					case "abstract":
+					case "extends":
+						acceptor.addPosition(node.getOffset(), node.getText().length(),
+								HighlightingConfiguration.KEYWORD_ID);
+						continue;
+
+					case "constraint":
+					case "field":
+					case "identifier":
+					case "derived":
+					case "relation":
+						acceptor.addPosition(node.getOffset(), node.getText().length(),
+								HighlightingConfiguration.FEATURE_ID);
+						continue;
+
+					case "onerror":
+					case "required":
+					case "opposite":
+					case "opposite-add":
+						acceptor.addPosition(node.getOffset(), node.getText().length(),
+								HighlightingConfiguration.FEATURE_ID);
+						continue;
+
+					case "regex":
+					case "precision":
+					case "scale":
+					case "max-length":
+					case "mime-types":
+					case "max-file-size":					
+						if (node.getParent().getGrammarElement() instanceof RuleCall) {
+							RuleCall parent = (RuleCall)node.getParent().getGrammarElement();
+
+							if (Arrays.stream(modifiers).anyMatch(parent.getRule().getName()::equals)) {	
+								acceptor.addPosition(node.getOffset(), node.getText().length(),
+										HighlightingConfiguration.FEATURE_ID);
+								continue;
+							}
+						}
+						break;
+						
+					case "boolean":
+					case "binary":
+					case "string":
+					case "numeric":
+					case "date":
+					case "time":
+					case "timestamp":
+						if (node.getParent().getGrammarElement() instanceof RuleCall) {
+							RuleCall parent = (RuleCall)node.getParent().getGrammarElement();
+							
+							if (Arrays.stream(primitiveDeclarations).anyMatch(parent.getRule().getName()::equals)) {	
+								acceptor.addPosition(node.getOffset(), node.getText().length(),
+										HighlightingConfiguration.FEATURE_ID);
+								continue;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}	
 	}
-	
 }
