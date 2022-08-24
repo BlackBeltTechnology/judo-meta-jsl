@@ -150,13 +150,17 @@ To import an existing model, use the `import` keyword.
 
 [subs="quotes"]
 ----
-[purple]#**import**# &lt;model> &#x5B;[purple]##**as**##] &lt;alias>
+[purple]#**import**# &lt;model> &#x5B;[purple]##**as**## &lt;alias>]
 ----
 
-*Example:*
+where the <model> is the fully qualified name of the imported model. 
+
+*Examples:*
 
 ----
 import judo::types
+----
+----
 import judo::user as user
 ----
 
