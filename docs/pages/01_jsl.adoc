@@ -113,16 +113,26 @@ This is the list of reserved words in the JSL.
 
 A model is a collection of type definitions and execution (business) logic belonging to the same domain. Every model file must start with the definition of the model name.
 
-The `model` keyword is used to create a model.
+The `model` keyword is used to start a model definition.
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**model**# &lt;name>
+[purple]#**model**# &lt;fq-name>
 ----
 
-*Example:*
+where the <fq-name> is the fully qualified name of the model. The fully qualified name consists of optional namespaces and the name of the model separated by double colons (`::`), for example `demo::enterprise::crm`. `crm` is the name of the model and the namespaces are `demo` and `enterprise`.
+
+=== Namespace
+
+Namespace is a naming hierarchy built from the names of the container namespaces starting at the root of the hierarchy.
+
+*Examples:*
+
+----
+model demo::enterprise::crm
+----
 
 ----
 model CustomerRelationshipManagement
@@ -140,7 +150,7 @@ To import an existing model, use the `import` keyword.
 
 [subs="quotes"]
 ----
-[purple]#**import**# &lt;name> &#x5B;[purple]##**as**##] &lt;alias>
+[purple]#**import**# &lt;model> &#x5B;[purple]##**as**##] &lt;alias>
 ----
 
 *Example:*
@@ -176,7 +186,7 @@ entity Person {
 }
 ----
 
-Notice the difference in the declaration of the `name` fields in the examples above.
+Notice the difference between the field declarations in the examples above.
 
 == Primitives
 
