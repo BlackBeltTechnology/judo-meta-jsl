@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde?>
-<target includeMode="feature" name="hu.blackbelt.judo.meta.jsl.targetdefinition.target" sequenceNumber="1660818473186">
+<target includeMode="feature" name="hu.blackbelt.judo.meta.jsl.targetdefinition.target" sequenceNumber="1661354799589">
   <locations>
     <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
       <repository location="https://nexus.judo.technology/repository/p2/judo-epp-common/4.23.0.20220617_120427_1e370db3_develop"/>
@@ -28,7 +28,7 @@
       <unit id="hu.blackbelt.judo.eclipse.emf.genmodel.generator.feature.feature.group" version="0.0.0"/>
     </location>
 	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-      <repository location="https://nexus.judo.technology/repository/p2/judo-misc-p2/1.0.0.20220818_100207_fd4d40b0_feature_JNG_3938_AddCommonsTextP2"/>
+      <repository location="https://nexus.judo.technology/repository/p2/judo-misc-p2/1.0.0.20220818_160129_dc1fee5d_develop"/>
 	  <unit id="apache.commons.text.feature.feature.group" version="0.0.0"/>
 	  <unit id="apache.commons.text.feature.source.feature.group" version="0.0.0"/>
 	</location>
