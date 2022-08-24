@@ -333,6 +333,7 @@ entity abstract Employee {
 Before explaining the entity members in detail we need to understand the reference variables (or simple references) and collections.
 
 === Reference
+
 When a new entity instance is created, its space is reserved in the persistent storage. To access an entity instance, we need a pointer element. This pointer is called a reference, which simply points to the entity instance (which is created in persistent storage).
 
 Reference variables do not have to point to an entity, or in other words references can be undefined. If no default value set for a reference, it will have an undefined value.
@@ -2232,16 +2233,18 @@ Makes sense in JCL only.
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**head(**#<variable name> [purple]##**\|**## <selector> &#x5B;[purple]##**ASC**##\|[purple]##**DESC**##][purple]##**,**## ...[purple]##**)**## : collection`
-|First, it sorts the given collection by the list of selectors, and then it returns a collection containing the first elements. If there is more than one element in the first place, all elements in the first place will be included in the result.
-// | TODO examples, and table
+|`[purple]#**head(**#<selector> [purple]#**=**# &#x5B;[purple]##**ASC**##\|[purple]##**DESC**##][purple]##**,**## ...[purple]##**)**## : collection`
+|First, it sorts the given collection by the list of selectors, and then it returns a collection containing the first elements. The selector can the name of any primitive field or primitive derived of the given entity type. If there is more than one element in the first place (due to the equality of the fields), all elements in the first place will be included in the result.
+| Example: `self.orderDetails!head(price = DESC, quantity = ASC)`
+| The example above selects the highest price item of the order. If there are several items with the same price on the top, it chooses the one with the least number of products in it (lowest quantity). If two or more items have the same price and quantity, it will return them all.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**tail(**#<variable name> [purple]##**\|**## <selector> &#x5B;[purple]##**ASC**##\|[purple]##**DESC**##][purple]##**,**## ...[purple]##**)**## : collection`
+|`[purple]#**tail(**#<selector> [purple]#**=**# &#x5B;[purple]##**ASC**##\|[purple]##**DESC**##][purple]##**,**## ...[purple]##**)**## : collection`
 |First, it sorts the given collection by the list of selectors, and then it returns a collection containing all of the non-first elements. If there is more than one element in the first place, all elements in the first place will be omitted from the result.
-// | TODO examples, and table
+| Example: `SalesPerson!tail(nrOfContracts = DESC)`
+| The example above selects all salespeople who are not the most successful.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
