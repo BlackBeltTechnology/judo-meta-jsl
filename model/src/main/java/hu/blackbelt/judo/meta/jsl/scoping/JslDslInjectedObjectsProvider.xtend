@@ -265,19 +265,19 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		*/
 		resource.addLiteralFunctionDeclaration("typeOf", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_INSTANCE])
 			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("type", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
+				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
 			])
 		resource.addLiteralFunctionDeclaration("kindOf", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_INSTANCE])
 			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("type", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
+				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
 			])
 		resource.addLiteralFunctionDeclaration("container", RT_ENTITY_INSTANCE, #[BT_ENTITY_INSTANCE])
 			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("type", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
+				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
 			])
 		resource.addLiteralFunctionDeclaration("asType", RT_ENTITY_INSTANCE, #[BT_ENTITY_INSTANCE])
 			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("type", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
+				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
 			])
 
 		/*
@@ -347,21 +347,6 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
     	return obj
   	}
 
-/*
-	def private InstanceFunctionDeclaration addInstanceFunctionDeclaration(
-		Resource resource, 
-		String name, 
-		FunctionReturnType returnTypes, 
-		Iterable<FunctionBaseType> acceptedBaseTypes
-	) {
-    	val InstanceFunctionDeclarationImpl obj = factory.createInstanceFunctionDeclaration as InstanceFunctionDeclarationImpl
-    	obj.name = name
-    	obj.returnTypes.addAll(returnTypes)
-    	obj.acceptedBaseTypes.addAll(acceptedBaseTypes)
-    	resource.contents += obj
-    	return obj
-  	}
-*/
 	def private SelectorFunctionDeclaration addSelectorFunctionDeclaration(
 		Resource resource, 
 		String name, 
@@ -411,7 +396,6 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 	def boolean isProvided(EObject object ) {
     	if (object.eClass.classifierID === JsldslPackageImpl.LITERAL_FUNCTION_DECLARATION ||
     		object.eClass.classifierID === JsldslPackageImpl.LAMBDA_FUNCTION_DECLARATION ||
-//    		object.eClass.classifierID === JsldslPackageImpl.INSTANCE_FUNCTION_DECLARATION ||
     		object.eClass.classifierID === JsldslPackageImpl.SELECTOR_FUNCTION_DECLARATION
     	) {
     		return allFunctions.contains(object)
