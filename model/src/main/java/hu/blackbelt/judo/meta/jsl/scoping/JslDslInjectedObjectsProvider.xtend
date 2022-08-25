@@ -25,8 +25,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.impl.LiteralFunctionDeclarationImpl
 import hu.blackbelt.judo.meta.jsl.jsldsl.impl.LambdaFunctionDeclarationImpl
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunctionDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.InstanceFunctionDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.impl.InstanceFunctionDeclarationImpl
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.impl.SelectorFunctionDeclarationImpl
 
@@ -243,6 +241,9 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		resource.addLiteralFunctionDeclaration("time", RT_TIME_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
 		resource.addLiteralFunctionDeclaration("asMilliseconds", RT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
 		resource.addLiteralFunctionDeclaration("fromMilliseconds", RT_TIMESTAMP_INSTANCE, #[BT_TIMESTAMP_TYPE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("milliseconds", false, true, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
+			])
 		
 		resource.addLiteralFunctionDeclaration("plus", RT_TIMESTAMP_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
 			.parameterDeclarations.addAll(#[
@@ -262,27 +263,27 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		ContainerFunction returns InstanceFunction : {InstanceFunction} name = 'container' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
 		AsTypeFunction returns InstanceFunction : {InstanceFunction} name = 'asType' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
 		*/
-		resource.addInstanceFunctionDeclaration("typeOf", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_INSTANCE])
+		resource.addLiteralFunctionDeclaration("typeOf", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_INSTANCE])
 			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("type", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
+				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
 			])
-		resource.addInstanceFunctionDeclaration("kindOf", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_INSTANCE])
+		resource.addLiteralFunctionDeclaration("kindOf", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_INSTANCE])
 			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("type", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
+				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
 			])
-		resource.addInstanceFunctionDeclaration("container", RT_ENTITY_INSTANCE, #[BT_ENTITY_INSTANCE])
+		resource.addLiteralFunctionDeclaration("container", RT_ENTITY_INSTANCE, #[BT_ENTITY_INSTANCE])
 			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("type", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
+				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
 			])
-		resource.addInstanceFunctionDeclaration("asType", RT_ENTITY_INSTANCE, #[BT_ENTITY_INSTANCE])
+		resource.addLiteralFunctionDeclaration("asType", RT_ENTITY_INSTANCE, #[BT_ENTITY_INSTANCE])
 			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("type", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
+				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
 			])
 
 		/*
 		MemberOfFunction returns LiteralFunction : {LiteralFunction} name = 'memberOf' '(' parameters += FunctionParameter ')';
 		 */
-		resource.addInstanceFunctionDeclaration("memberOf", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_INSTANCE])
+		resource.addLiteralFunctionDeclaration("memberOf", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_INSTANCE])
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("instances", false, true, PT_ENTITY_COLLECTION, #[BT_ENTITY_INSTANCE])
 			])
@@ -304,8 +305,11 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		*/
 		resource.addLiteralFunctionDeclaration("any", RT_ENTITY_INSTANCE, #[BT_ENTITY_COLLECTION])
 		resource.addLiteralFunctionDeclaration("count", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
-		resource.addInstanceFunctionDeclaration("asCollection", RT_ENTITY_COLLECTION, #[BT_ENTITY_COLLECTION])
-		resource.addInstanceFunctionDeclaration("contains", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
+		resource.addLiteralFunctionDeclaration("asCollection", RT_ENTITY_COLLECTION, #[BT_ENTITY_COLLECTION])
+		resource.addLiteralFunctionDeclaration("contains", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("instance", false, true, PT_ENTITY_INSTANCE, #[BT_ENTITY_COLLECTION])
+			])
 
 
 		/*
@@ -336,20 +340,6 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		Iterable<FunctionBaseType> acceptedBaseTypes
 	) {
     	val LiteralFunctionDeclarationImpl obj = factory.createLiteralFunctionDeclaration as LiteralFunctionDeclarationImpl
-    	obj.name = name
-    	obj.returnTypes.addAll(returnTypes)
-    	obj.acceptedBaseTypes.addAll(acceptedBaseTypes)
-    	resource.contents += obj
-    	return obj
-  	}
-
-	def private InstanceFunctionDeclaration addInstanceFunctionDeclaration(
-		Resource resource, 
-		String name, 
-		FunctionReturnType returnTypes, 
-		Iterable<FunctionBaseType> acceptedBaseTypes
-	) {
-    	val InstanceFunctionDeclarationImpl obj = factory.createInstanceFunctionDeclaration as InstanceFunctionDeclarationImpl
     	obj.name = name
     	obj.returnTypes.addAll(returnTypes)
     	obj.acceptedBaseTypes.addAll(acceptedBaseTypes)
@@ -406,7 +396,6 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 	def boolean isProvided(EObject object ) {
     	if (object.eClass.classifierID === JsldslPackageImpl.LITERAL_FUNCTION_DECLARATION ||
     		object.eClass.classifierID === JsldslPackageImpl.LAMBDA_FUNCTION_DECLARATION ||
-    		object.eClass.classifierID === JsldslPackageImpl.INSTANCE_FUNCTION_DECLARATION ||
     		object.eClass.classifierID === JsldslPackageImpl.SELECTOR_FUNCTION_DECLARATION
     	) {
     		return allFunctions.contains(object)
