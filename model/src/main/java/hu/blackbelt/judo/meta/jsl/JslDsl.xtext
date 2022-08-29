@@ -418,46 +418,37 @@ CreateParameter: name=JSLID '=' right=MultilineExpression;
 Function
 	: LiteralFunction
 	| LambdaFunction
-//	| SelectorFunction
 	;
 
 
-FunctionParameter
-	: LiteralFunctionParameters
-	| LambdaFunctionParameters
-	| SelectorFunctionParameters
-	;
+//FunctionParameter
+//	: LiteralFunctionParameters
+//	| LambdaFunctionParameters
+//	;
 
 LiteralFunction returns Function: {LiteralFunction} functionDeclarationReference = [LiteralFunctionDeclaration | LocalName ] '(' (parameters += LiteralFunctionParameter (',' parameters += LiteralFunctionParameter)*)? ')' ;
 LambdaFunction returns Function : {LambdaFunction} functionDeclarationReference = [LambdaFunctionDeclaration | LocalName ] '(' lambdaArgument=LambdaVariable '|' expression = Expression ')';
-//SelectorFunction returns Function : {SelectorFunction} => functionDeclarationReference = [SelectorFunctionDeclaration | LocalName ] '('  selectorArgument = SelectorVariable '|' selectors += SelectorDeclaration (',' selectors += SelectorDeclaration)* ')';
 
-LiteralFunctionParameters
-    : {LiteralFunctionParameters} parameters += LiteralFunctionParameter (',' parameters += LiteralFunctionParameter)*
-	;
+//LiteralFunctionParameters
+//    : {LiteralFunctionParameters} parameters += LiteralFunctionParameter (',' parameters += LiteralFunctionParameter)*
+//	;
 
 LiteralFunctionParameter 
 	: declaration = [FunctionParameterDeclaration | LocalName] '=' expression=Expression 
 	;
 
-LambdaFunctionParameters
-    : lambdaArgument=LambdaVariable '|' expression = Expression
+
+SelectorFunctionParameter 
+	: declaration = [EntityMemberDeclaration | LocalName] '=' ('DESC' | isAsc?='ASC')? 		
 	;
+
+
+//LambdaFunctionParameters
+//    : lambdaArgument=LambdaVariable '|' expression = Expression
+//	;
     
 LambdaVariable
     : {LambdaVariable} Named    	
-    ;
-
-SelectorFunctionParameters
-    : {SelectorFunctionParameters} selectorArgument=SelectorVariable '|' selectors += SelectorDeclaration (',' selectors += SelectorDeclaration)*
-	;
-
-SelectorDeclaration
-    : {SelectorDeclaration} selector = [SelectorVariable | LocalName] '.' member = [EntityMemberDeclaration | LocalName] ('DESC' | isTrue?='ASC')?
-    ;
-
-SelectorVariable
-    : {SelectorVariable} Named
     ;
 
 /**
