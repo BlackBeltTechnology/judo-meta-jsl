@@ -43,7 +43,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionedExpression
 import org.eclipse.xtext.scoping.impl.FilteringScope
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunction
-import hu.blackbelt.judo.meta.jsl.jsldsl.InstanceFunction
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationExpression
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCallExpression
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelfExpression
@@ -92,7 +91,6 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     		Feature case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)    		
     		EnumLiteralReference case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumLiteral: return context.scope_EnumLiteralReference_enumLiteral(ref)
     		LiteralFunction case ref == JsldslPackage::eINSTANCE.literalFunctionParameter_Declaration: return context.scope_LiteralFunctionParameter_declaration(ref)
-			LiteralFunction case ref == JsldslPackage::eINSTANCE.instanceFunction_EntityDeclaration: return context.scope_InstanceFunction_entityDeclaration(ref)
 			LiteralFunctionParameter case ref == JsldslPackage::eINSTANCE.literalFunctionParameter_Declaration: return context.scope_LiteralFunctionParameter_declaration(ref)
 			LiteralFunctionParameters case ref == JsldslPackage::eINSTANCE.literalFunctionParameter_Declaration: return context.scope_LiteralFunctionParameter_declaration(ref)			
 			LambdaFunction case ref == JsldslPackage::eINSTANCE.navigationBaseExpression_NavigationBaseType: return context.scope_NavigationBaseExpression_navigationBaseType(ref)
@@ -112,10 +110,6 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		nullSafeScope(context.functionDeclarationReference.parameterDeclarations)
 	}
 	
-	def scope_InstanceFunction_entityDeclaration(LiteralFunction context, EReference ref) {
-		nullSafeScope(#[])
-	}
-
 	def scope_LiteralFunctionParameter_declaration(LiteralFunctionParameter context, EReference ref) {
 		nullSafeScope((context.eContainer as LiteralFunction).functionDeclarationReference.parameterDeclarations)			
 	}
@@ -396,9 +390,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	}
 
 	def IScope getFunctionCallReferences(IScope parent, FunctionCall functionCall, EReference reference) {
-		if (functionCall.function instanceof InstanceFunction) {
-			return getEntityMembers(parent, (functionCall.function as InstanceFunction).entityDeclaration, reference)
-		} else if (functionCall.function instanceof LambdaFunction) {
+		if (functionCall.function instanceof LambdaFunction) {
 			if (functionCall.eContainer instanceof FunctionedExpression) {
 				return getFunctionedExpressionReferences(parent, functionCall.eContainer as FunctionedExpression, reference)
 			} else if (functionCall.eContainer instanceof FunctionCall) {
