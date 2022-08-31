@@ -107,7 +107,7 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		MatchesFunction returns LiteralFunction : {LiteralFunction} name = 'matches' '(' 'pattern' '=' parameters += FunctionParameter ')';
 		LikeFunction returns LiteralFunction : {LiteralFunction} name = 'like' '(' 'pattern' '=' parameters += FunctionParameter ')';
 		IlikeFunction returns LiteralFunction : {LiteralFunction} name = 'ilike' '(' 'pattern' '=' parameters += FunctionParameter ')';
-		ReplaceFunction returns LiteralFunction : {LiteralFunction} name = 'replace' '(' 'pattern' '=' parameters += FunctionParameter ',' 'replacement' '=' parameters += FunctionParameter ')';
+		ReplaceFunction returns LiteralFunction : {LiteralFunction} name = 'replace' '(' 'oldstring' '=' parameters += FunctionParameter ',' 'newstring' '=' parameters += FunctionParameter ')';
 		TrimFunction returns LiteralFunction : {LiteralFunction} name = 'trim' '(' ')';
 		LtrimFunction returns LiteralFunction : {LiteralFunction} name = 'ltrim' '(' ')';
 		RtrimFunction returns LiteralFunction : {LiteralFunction} name = 'rtrim' '(' ')';
@@ -162,8 +162,8 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 			])
 		resource.addLiteralFunctionDeclaration("replace", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("pattern", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE]),
-				createFunctionParameterDeclaration("replacement", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+				createFunctionParameterDeclaration("oldstring", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE]),
+				createFunctionParameterDeclaration("newstring", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 
 			])
 		resource.addLiteralFunctionDeclaration("trim", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
@@ -315,6 +315,9 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		resource.addLiteralFunctionDeclaration("any", RT_ENTITY_INSTANCE, #[BT_ENTITY_COLLECTION])
 		resource.addLiteralFunctionDeclaration("count", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
 		resource.addLiteralFunctionDeclaration("asCollection", RT_ENTITY_COLLECTION, #[BT_ENTITY_COLLECTION])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
+			])
 		resource.addLiteralFunctionDeclaration("contains", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("instance", false, true, PT_ENTITY_INSTANCE, #[BT_ENTITY_COLLECTION])

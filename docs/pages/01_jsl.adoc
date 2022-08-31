@@ -1803,29 +1803,29 @@ Any type functions can be applied to any type or instance except collections.
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**first(**#<n>[purple]##**)**## : string`
-|Returns the first n characters of the original string, or the original string if its size is less than n. If n is less than 1, returns an empty string.
+|`[purple]#**first(count = **#<count>[purple]##**)**## : string`
+|Returns the first <count> characters of the original string, or returns the original string if its size is less than <count>. <count> must be an integer. If <count> is less than 1, it returns an empty string.
 |Example: `"apple"!first(2)` is `"ap"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**last(**#<n>[purple]##**)**## : string`
-|Returns the last n characters of the original string, or the original string if its size is less than n. If n is less than 1, returns an empty string.
+|`[purple]#**last(count = **#<n>[purple]##**)**## : string`
+|Returns the last <count> characters of the original string, or returns the original string if its size is less than <count>. <count> must be an integer. If <count> is less than 1, returns an empty string.
 |Example: `"apple"!last(1)` is `"e"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**position(**#<subs>[purple]##**)**## : numeric`
-|Returns the position of the first occurrence of a substring in the original string, or 0 if the original string does not contain the substring. Position of the first character is 1.
+|`[purple]#**position(substring = **#<substring>[purple]##**)**## : numeric`
+|Returns the position of the first occurrence of the <substring> in the original string, or 0 if the original string does not contain the <substring>. <substring> must be a string. Position of the first character is 1.
 |Example: `'apple'!position('p')` is `2`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**substring(**#<position>[purple]##**,**## <length>[purple]##**)**## : string`
-|Returns the substring starting from position in the given length. The position of the first character is 1.
+|`[purple]#**substring(offset = **#<offset>[purple]##**, count = **## <count>[purple]##**)**## : string`
+|Returns a substring of length <count> starting at <offset>. The offset of the first character is 1. Both <offset> and <count> must be integers.
 |Example: `apple'!substring(2,3)` is `ppl`
 |======================================================================
 
@@ -1852,14 +1852,14 @@ Any type functions can be applied to any type or instance except collections.
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**matches(**#<pattern>[purple]##**)**## : boolean`
-|Returns `true` if the string matches a given regular expression pattern, `false` otherwise. A detailed description of the regular expression can be found in the <<String>> section.
+|`[purple]#**matches(pattern = **#<pattern>[purple]##**)**## : boolean`
+|Returns `true` if the string matches a given regular expression <pattern>, `false` otherwise. A detailed description of the regular expression can be found in the <<String>> section.
 |Example: `"apple"!matches(r".*pl.")` is `true`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**like(**#<pattern>[purple]##**)**## : boolean`
+|`[purple]#**like(pattern = **#<pattern>[purple]##**)**## : boolean`
 |Returns `true` if the string matches a given <pattern>, `false` otherwise. There are two wildcards used in the <pattern>:
 
 * percent sign (%)
@@ -1874,15 +1874,15 @@ If either of these two signs is not used in the <pattern>, then the function act
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**ilike(**#<pattern>[purple]##**)**## : boolean`
+|`[purple]#**ilike(pattern = **#<pattern>[purple]##**)**## : boolean`
 |Same as like(), but the pattern matching is case insensitive.
 |Example: `"apPLe"!ilike("_pple")` is `true`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**replace(**#<from>[purple]##**,**## <to>[purple]##**)**## : string`
-|Returns a string where all substrings of the original string are replaced with a string.
+|`[purple]#**replace(oldstring = **#<oldstring>[purple]##**, newstring = **## <newstring>[purple]##**)**## : string`
+|Returns a string where all occurrences of <oldstring> in the original string replaced by <newstring>.
 |Example: `"apple"!replace("le", "endix")` is `"appendix"`
 |======================================================================
 
@@ -1995,7 +1995,7 @@ If either of these two signs is not used in the <pattern>, then the function act
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**of(**#<year>[purple]##**,**## <month>[purple]##**,**## <day>[purple]##**)**## : date`
+|`[purple]#**of(year = **#<year>[purple]##**, month = **## <month>[purple]##**, day = **## <day>[purple]##**)**## : date`
 |Static function, constructs a date value from the numeric parameters <year>, <month> and <day>. If any of the parameters is not integer, the result will be undefined. If any parameter is less than 1, the result will be undefined. If <month> is greater than 12, or <day> is greater than the last day of the month, it gives an undefined result.
 
 |Example: `Date!of(2011,1,28)` is `&#x60;2011-01-28&#x60;`
@@ -2033,7 +2033,7 @@ If either of these two signs is not used in the <pattern>, then the function act
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**of(**#<hour>[purple]##**,**## <minute>[purple]##**,**## <second>[purple]##**)**## : time`
+|`[purple]#**of(hour = **#<hour>[purple]##**, minute = **## <minute>[purple]##**, second = **## <second>[purple]##**)**## : time`
 |Static function, constructs a time value from the numeric parameters <hour>, <minute> and <second>. If any of the parameters is not integer, the result will be undefined. If any parameter is less than 0, the result will be undefined. If <hour> is greater than 23, or <minute> or <second> is greater than 59, it gives an undefined result.
 |Example: `Time!of(13,45,00)` is `&#x60;13:45:00&#x60;`
 |======================================================================
@@ -2067,7 +2067,7 @@ If either of these two signs is not used in the <pattern>, then the function act
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**of(**#<date> &#x5B;[purple]##**,**##<time>][purple]##**)**## : timestamp`
+|`[purple]#**of(date = **#<date> &#x5B;[purple]##**, time = **##<time>][purple]##**)**## : timestamp`
 |Static function, constructs a timestamp value from the parameters <date> and <time>, where <date> is a date primitive and <time> is a time primitive. The <time> parameter is optional, if <time> is omitted the time part of the timestamp will be set to `&#x60;00:00:00&#x60;`.
 |Example:
 |`Timestamp!of(&#x60;2021-02-28&#x60;,&#x60;10:30:01&#x60;)` is `&#x60;2021-02-28T10:30:01Z&#x60;`
@@ -2083,51 +2083,51 @@ If either of these two signs is not used in the <pattern>, then the function act
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**fromMilliseconds(**#<millisecond>[purple]##**)**## : timestamp`
-|Static function, creates a timestamp and sets the value in milliseconds from 1970-01-01T00:00:00Z.
+|`[purple]#**fromMilliseconds(milliseconds = **#<milliseconds>[purple]##**)**## : timestamp`
+|Static function, creates a timestamp and sets the value in <milliseconds> from 1970-01-01T00:00:00Z. <milliseconds> must be an integer
 |Example: `Timestamp!fromMilliseconds(60000)` is `&#x60;1970-01-01T00:01:00Z&#x60;`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**plusMilliseconds(**#<milliseconds>[purple]##**)**## : timestamp`
-|Adds duration expressed in milliseconds to the original time. If <milliseconds> is less than 0 it subtracts duration from the original time.
+|`[purple]#**plusMilliseconds(milliseconds = **#<milliseconds>[purple]##**)**## : timestamp`
+|Adds duration expressed in <milliseconds> to the original time. <milliseconds> must be an integer. If <milliseconds> is less than 0 it subtracts duration from the original time.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**plusSeconds(**#<seconds>[purple]##**)**## : timestamp`
-|Adds duration expressed in seconds to the original time. If <seconds> is less than 0 it subtracts duration from the original time.
+|`[purple]#**plusSeconds(seconds = **#<seconds>[purple]##**)**## : timestamp`
+|Adds duration expressed in <seconds> to the original time. <seconds> must be an integer. If <seconds> is less than 0 it subtracts duration from the original time.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**plusMinutes(**#<minutes>[purple]##**)**## : timestamp`
-|Adds duration expressed in minutes to the original time. If <minutes> is less than 0 it subtracts duration from the original time.
+|`[purple]#**plusMinutes(minutes = **#<minutes>[purple]##**)**## : timestamp`
+|Adds duration expressed in <minutes> to the original time. <minutes> must be an integer. If <minutes> is less than 0 it subtracts duration from the original time.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**plusHours(**#<hours>[purple]##**)**## : timestamp`
-|Adds duration expressed in hours to the original time. If <hours> is less than 0 it subtracts duration from the original time.
+|`[purple]#**plusHours(hours = **#<hours>[purple]##**)**## : timestamp`
+|Adds duration expressed in <hours> to the original time. <hours> must be an integer. If <hours> is less than 0 it subtracts duration from the original time.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**plusDays(**#<days>[purple]##**)**## : timestamp`
-|Adds duration expressed in days to the original time. If <days> is less than 0 it subtracts duration from the original time.
+|`[purple]#**plusDays(days = **#<days>[purple]##**)**## : timestamp`
+|Adds duration expressed in <days> to the original time. <days> must be an integer. If <days> is less than 0 it subtracts duration from the original time.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**plusMonths(**#<months>[purple]##**)**## : timestamp`
-|Adds duration expressed in months to the original time. If the result date is invalid, the function sets the day to the last valid day of the month. If the If <months> is less than 0 it subtracts duration from the original time.
+|`[purple]#**plusMonths(months = **#<months>[purple]##**)**## : timestamp`
+|Adds duration expressed in <months> to the original time. <months> must be an integer. If the result date is invalid, the function sets the day to the last valid day of the month. If the If <months> is less than 0 it subtracts duration from the original time.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**plusYears(**#<years>[purple]##**)**## : timestamp`
-|Adds duration expressed in years to the original time. If <years> is less than 0 it subtracts duration from the original time.
+|`[purple]#**plusYears(years = **#<years>[purple]##**)**## : timestamp`
+|Adds duration expressed in <years> to the original time. <years> must be an integer. If <years> is less than 0 it subtracts duration from the original time.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -2187,35 +2187,35 @@ Makes sense in JCL only.
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**typeOf(**#<type>[purple]##**)**## : boolean`
-|Evaluates to `true` if the given instance conforms to the <type> but not any subtype of the <type>.  That is, an instance of <type> and not an instance of any subtype of <type>.
+|`[purple]#**typeOf(entityType = **#<entityType>[purple]##**)**## : boolean`
+|Evaluates to `true` if the given instance conforms to the <entityType> but not any subtype of the <entityType>.  That is, an instance of <entityType> and not an instance of any subtype of <entityType>.
 |Example: `self.field!typeOf(Lib::MyType)`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**kindOf(**#<type>[purple]##**)**## : boolean`
-|Evaluates to `true` if the given instance conforms to the <type>. That is, an instance of <type> or an instance of any subtype of <type>.
+|`[purple]#**kindOf(entityType = **#<entityType>[purple]##**)**## : boolean`
+|Evaluates to `true` if the given instance conforms to the <entityType>. That is, an instance of <entityType> or an instance of any subtype of <entityType>.
 |Example: `self.field!kindOf(Lib::MyType)`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**container(**#<type>[purple]##**)**## : instance`
-|Returns the container of the instance if that matches the given <type>. Type matching works according to the `typeOf()` function.
+|`[purple]#**container(entityType = **#<entityType>[purple]##**)**## : instance`
+|Returns the container of the instance if that matches the given <entityType>. Type matching works according to the `typeOf()` function.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**asType(**#<type>[purple]##**)**## : instance`
-|Returns the given instance as the <type> if the type of the given instance matches to <type>, otherwise evaluates as `undefined`. In other words, the function "casts" the instance. Type matching works according to the `kindOf()` function.
-|Example: `self.field!asType(Lib::MySubType)`
+|`[purple]#**asType(entityType = **#<entityType>[purple]##**)**## : instance`
+|Returns the given instance as the <entityType> if the type of the given instance matches to <entityType>, otherwise evaluates as `undefined`. In other words, the function "casts" the instance. Type matching works according to the `kindOf()` function.
+|Example: `self.field!asType(MyApplication::MyEntity)`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**memberOf(**#<collection>[purple]##**)**## : boolean`
-|Indicates if the <collection> contains the given instance.
+|`[purple]#**memberOf(instances = **#<instances>[purple]##**)**## : boolean`
+|Indicates if the <instances> collection contains the given instance.
 // | TODO examples
 |======================================================================
 
@@ -2272,14 +2272,14 @@ Makes sense in JCL only.
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**asCollection(**#<type>[purple]##**)**## : collection`
-|Filters the collection according to type and returns a collection of the parameter type. Members of the collection that are not of that type are not included in the result.
+|`[purple]#**asCollection(entityType = **#<entityType>[purple]##**)**## : collection`
+|Filters the collection according to <entityType> and returns a collection of the parameter <entityType>. Members of the collection that are not of that <entityType> are not included in the result. Type matching works according to the kindOf() function.
 // |Example: TODO
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**contains(**#<instance>[purple]##**)**## : boolean`
+|`[purple]#**contains(instance = **#<instance>[purple]##**)**## : boolean`
 |Indicates if the given collection contains the given <instance>.
 |======================================================================
 
