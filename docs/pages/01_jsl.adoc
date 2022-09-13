@@ -49,6 +49,13 @@ The following conventions are used in the syntax description: angle brackets (< 
 
 All symbols (keywords, parentheses, dots, brackets, etc.) in [purple]#**bold purple**# must be taken literally.
 
+For example, a simplified version of the well-known copy command looks like this with these conventions. 
+
+[subs="quotes"]
+----
+[purple]#**cp**# &#x5B;[purple]##**-a**##|[purple]##**-l**##|[purple]##**-r**##]... &lt;source>... &lt;directory>
+----
+
 === Overall Structure
 
 Domain models are defined by a sequence of JSL statements. Each domain model is in a text file. The extension of the model text files shall be "jsl". E.g. CRM.jsl file contains the model definition of the customer relationship management (CRM) model.
@@ -206,7 +213,7 @@ JSL allows the following “base types” for primitive specification:
 * time
 * timestamp
 
-The above base types cannot be used directly in domain models. However, you must define the primitive types used in your domain model. Or, you can import existing domain model primitives, for example, importing the built-in `judo::types` model.
+The above base types cannot be used directly in domain models. However, you must define the primitive types used in your domain model.
 
 To define a new domain model primitive, use the `type` keyword.
 
@@ -231,6 +238,33 @@ type string String(max-length = 128)
 
 The <<Base types>> section provide examples of each base type and its possible constraints and operations.
 
+
+[IMPORTANT]
+====
+Instead of defining the most common primitives in each project, there is a built-in judo::types model that you can import into models. It defines the following primitives:
+
+----
+type boolean Boolean
+type date Date
+type time Time
+type timestamp Timestamp
+type numeric Integer(precision = 15, scale = 0)
+type string String(max-length = 4000)
+----
+
+You can use these primitives a follows:
+
+----
+model crm
+
+import judo::types
+
+entity SalesPerson {
+    field String firstName
+    field String lastName
+}
+----
+====
 
 == Enumeration
 
@@ -300,18 +334,22 @@ Enumeration literals are not resolved yet by exposed services, they are represen
 
 == Entity
 
-Data model is the core part of the domain model that captures the real-world business entities and business rules that determine how data can be created, stored, and changed.
+Data model is the core part of the domain model that captures the real-world entities and rules that determine how data can be created, changed, and deleted.
 
-The persistent data of a domain model is stored in the form of entities. An entity type (or shortly an entity) may have identifiers, stored fields, derived fields, relations and constraints that are referred to as members of an entity. See section <<Members>>.
+The persistent data of a domain model is described in the form of entity types. In other words, an entity type is a definition of a set of similar instances.
 
-Entities in the domain model enables us to work with data in the form of domain-specific objects and properties, such as customers and customer addresses, without having to concern themselves with the underlying database tables and columns where this data is stored. With entities, you can work at a higher level of abstraction when they deal with data, and can create and maintain applications with less code than in traditional applications.
-
-Entities represent persistent data, independent of the underlying data storage mechanism. When modeling the business domain, the persistent data is defined in terms of entity types, their attributes and relations. Actual data is stored by creating instances of entity types.
+Actual data is stored by creating instances of entity types. An entity type (or shortly an entity) may have identifiers, stored fields, derived fields, relations and constraints that are referred to as members of an entity. See section <<Members>>.
 
 [NOTE]
 ====
-An important aspect of entities is that they have identity, that is, all instances of an entity have a (universally) unique identifier that never changes. This unique identifier is not accessible in JSL and should not be confused with identifier members that can be defined for entities in JSL.
+We are aware that entity and entity type are not the same. However, for ease of reading, we use the word entity instead of entity type. When talking about instances, we always use the term entity instance.
 ====
+
+////
+Entities in the domain model enables us to work with data in the form of domain-specific objects and properties, such as customers and customer addresses, without having to concern themselves with the underlying database tables and columns where this data is stored. With entities, you can work at a higher level of abstraction when they deal with data, and can create and maintain applications with less code than in traditional applications.
+
+Entities represent persistent data, independent of the underlying data storage mechanism. When modeling the business domain, the persistent data is defined in terms of entity types, their attributes and relations.
+////
 
 To define an entity, use the `entity` keyword.
 
@@ -347,11 +385,15 @@ entity abstract Employee {
 Before explaining the entity members in detail we need to understand the reference variables (or simple references) and collections.
 
 === Reference
-When a new entity instance is created, its space is reserved in the persistent storage. To access an entity instance, we need a pointer element. This pointer is called a reference, which simply points to the entity instance (which is created in persistent storage).
+When a new entity instance is created, its space is allocated in the persistent storage. To access an entity instance, we need a reference. The reference simply points to the entity instance (which is created in persistent storage).
 
-Reference variables do not have to point to an entity, or in other words references can be undefined. If no default value set for a reference, it will have an undefined value.
+References do not have to point to an entity instance, or in other words references can be undefined.
 
-When you pass a reference value to another reference, the references will point to the same entity instance. If you delete the entity instance through one of the references, both references will have an undefined value. 
+////
+If no default value set for a reference, it will have an undefined value.
+////
+
+When you pass a reference value to another reference, the two references will point to the same entity instance. If you delete the entity instance through one of the references, both references will have an undefined value. 
 
 === Collection
 
@@ -387,7 +429,9 @@ Detailed explanation of entity member declarations are provided in the later sec
 
 === Primitive field
 
-An entity can contain data descriptions called fields. A primitive field has a domain primitive type, in other words, it is a primitive typed element. Primitive fields cannot store multiple primitive values (that is, a lists), but only a single primitive value.
+An entity can contain data descriptions called fields. A primitive field has a domain primitive type, in other words, it is a primitive typed element.
+
+Primitive fields cannot store multiple primitive values, but only a single primitive value. To put it another way, there is no list of primitives.
 
 Use the `field` keyword to specify a primitive field within an entity.
 
@@ -415,11 +459,12 @@ The `self` variable cannot be used in default expressions.
 entity Person {
     field required String firstName
     field required String lastName
-    field String midName = ""
+    field String midName
+    field Title title = Title#MX
 }
 ----
 
-The example above defines an entity named Person. This entity has three primitive fields. firstName and lastName are two required strings, and midName is an optional string with an empty string by default.
+The example above defines an entity named Person. This entity has four primitive fields. firstName and lastName are two required strings, midName is an optional string with no default value and title is an optional enumeration field with a default value.
 
 === Composite field
 
@@ -517,6 +562,11 @@ entity Person {
 ----
 
 The example above defines `email` as a required string and serves as an identifier. This means you can find up to one Person if you know an email address. 
+
+[NOTE]
+====
+An important property of entity instances is that they are uniquely identifiable, i.e. each instance of an entity has a (universally) unique system generated identifier that never changes. This system generated identifier is not available in JSL and should not be confused with the identifier members discussed in this chapter.
+====
 
 === Unidirectional relation
 
