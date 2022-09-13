@@ -334,11 +334,11 @@ Enumeration literals are not resolved yet by exposed services, they are represen
 
 == Entity
 
-Data model is the core part of the domain model that captures the real-world entities and rules that determine how data can be created, changed, and deleted.
+Data model is the core part of the domain model that captures the real-world entities and the rules that determine how data can be created, changed, and deleted.
 
-The persistent data of a domain model is described in the form of entity types. In other words, an entity type is a definition of a set of similar instances.
+The persistent data of a domain model is described in the form of entity types. Actual data is stored by creating instances of entity types.
 
-Actual data is stored by creating instances of entity types. An entity type (or shortly an entity) may have identifiers, stored fields, derived fields, relations and constraints that are referred to as members of an entity. See section <<Members>>.
+An entity type (or shortly an entity) may have stored primitives and relations, derived fields and queries that are referred to as members of an entity.
 
 [NOTE]
 ====
@@ -382,28 +382,15 @@ entity abstract Employee {
 }
 ----
 
-Before explaining the entity members in detail we need to understand the reference variables (or simple references) and collections.
 
-=== Reference
-When a new entity instance is created, its space is allocated in the persistent storage. To access an entity instance, we need a reference. The reference simply points to the entity instance (which is created in persistent storage).
+== Primitive fields
 
-References do not have to point to an entity instance, or in other words references can be undefined.
+An entity instance can store primitive values in its fields.  A field can be interpreted as a container in a specific entity instance where data values can be stored (e.g. numbers or text values like "red" or "blue").
+
+A field definition of an entity specifies the name and the type of the data that are stored in the entity instances (e.g. color is the name of the field of the Pencil entity and this field has a string type).
 
 ////
-If no default value set for a reference, it will have an undefined value.
-////
-
-When you pass a reference value to another reference, the two references will point to the same entity instance. If you delete the entity instance through one of the references, both references will have an undefined value. 
-
-=== Collection
-
-A collection contains a set of (entity) references. Collections always contain unique references, which means that there are no two references in a collection that point to the same entity. Collections always keep their members sorted, which means that after sorting a collection, subsequent iterations access the members of the collection in the same order.
-
-Collections cannot be undefined, but collections can be empty. A collection cannot contain undefined reference. Once an entity instance is deleted, references to it are deleted from all collections.
-
-== Members
-
-An entity can encapsulate fields, identifiers, relations and derived fields. The following table summarizes the possible entity members and their available modifiers. There are two types of member modifiers:
+The following table summarizes the possible entity members and their available modifiers. There are two types of member modifiers:
 
 * The _list_ modifier means that the field returns a list of values rather than a single value of its type.
 
@@ -427,11 +414,16 @@ No field can be list and required at the same time.
 
 Detailed explanation of entity member declarations are provided in the later sections.
 
+
 === Primitive field
 
-An entity can contain data descriptions called fields. A primitive field has a domain primitive type, in other words, it is a primitive typed element.
+Primitive fields of entities are stor
 
-Primitive fields cannot store multiple primitive values, but only a single primitive value. To put it another way, there is no list of primitives.
+An entity can specify data descriptions called primitive fields. A primitive field has a domain primitive type, in other words, it is a primitive typed element.
+
+////
+
+A primitive field cannot store multiple primitive values, but only a single primitive value. To put it another way, there is no list of primitives.
 
 Use the `field` keyword to specify a primitive field within an entity.
 
@@ -466,13 +458,182 @@ entity Person {
 
 The example above defines an entity named Person. This entity has four primitive fields. firstName and lastName are two required strings, midName is an optional string with no default value and title is an optional enumeration field with a default value.
 
-=== Composite field
+=== Identifier
 
-A composite field, or composition, is a field member whose type is an entity. A composite field may contain a list of entity instances.
+Identifiers are regular primitive fields, but it is ensured that the value of the field for each entity instance is different (unique). Note that, the undefined value is considered different from any value. (Undefined is also considered to be different from undefined.)
+
+Use the `identifier` keyword to specify a unique field within an entity.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**identifier**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>]
+----
+
+where <primitive> is the name of a domain model primitive and <name> is the referable name of the identifier. Any primitive type can be used as an identifier, except primitives of binary base type.
+
+The keyword `required` means that the value of the identifier must be specified, so the value is not allowed to be UNDEFINED.
+
+Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the identifier is set according to the default value expression. See <<Expression>> later.
+
+[NOTE]
+====
+The `self` variable cannot be used in default expressions. 
+====
+
+*Example:*
+
+----
+entity Person {
+    identifier required String email
+}
+----
+
+The example above defines `email` as a required string and serves as an identifier. This means you can find exactly one Person if you know an email address. 
+
+[NOTE]
+====
+An important feature of entity instances is that they are uniquely identifiable, i.e. each instance of an entity has a (universally) unique system generated identifier that never changes. This system generated identifier is not available in JSL and should not be confused with the identifier members discussed in this chapter.
+====
+
+== Relations
+
+Before explaining relations between entities we need to understand references and collections.
+
+When a new entity instance is created, its space is allocated in the persistent storage. To access an entity instance, we need a **reference**. The reference simply points to the entity instance (which is created in persistent storage).
+
+References do not have to point to an entity instance, or in other words references can be undefined.
+
+////
+If no default value set for a reference, it will have an undefined value.
+////
+
+When you pass a reference value to another reference, the two references will point to the same entity instance. If you delete the entity instance through one of the references, both references will have an undefined value. 
+
+A *collection* is a set of references. Collections always contain unique references, which means that there are no two references in a collection that point to the same entity. Collections always keep their members sorted, which means that after sorting a collection, subsequent iterations access the members of the collection in the same order.
+
+Collections cannot be undefined, but collections can be empty. A collection cannot contain undefined reference. Once an entity instance is deleted, references to it are deleted from all collections.
+
+=== Unidirectional relation
+
+Relation is a reference defined within an entity. The entity instance containing the reference is the owner of the relation. The owner has access to the instance pointed to by the reference.
+
+Relations can be not only references to a single instance, but also collections. If the relation is a collection, the owner can access a set of instances at the same time.
+
+////
+Relations are used to show that entity instances could be linked to each other in run-time.
+
+[NOTE]
+====
+Unlike composite fields, when an entity is deleted, the entity instances referenced in its relations are NOT deleted.
+====
+////
+
+Relations can be unidirectional or bidirectional.
+
+An unidirectional relation can only be navigated in one direction: from the owner to the target of the relation. Navigation means that, at run-time, the owner of the relation gets the instance(s) of the target of the relation.
+
+Use the `relation` keyword to specify a relation between two entities. The syntax of the unidirectional relation is as follows.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
+----
+
+where <entity> is the name of an entity to which the relation is targeted. The <name> is used to identify the relation within the entity, it is commonly referred to as role name.
+
+The optional `[]` behind the <entity> indicates that the relation is a collection rather than a single reference to one <entity> instance. In other words, the cardinality of the relation is a collection.
+
+The keyword `required` means that the value of the relation must be specified, so the value is not allowed to be UNDEFINED. Each newly created entity instance must set this field. The keyword `required` is not allowed for collections.
+
+*Example:*
+
+----
+entity SalesPerson {
+	relation Lead[] leads
+}
+
+entity Lead {
+	relation required Customer customer
+}
+
+entity Customer {
+}
+----
+
+The example above defines two unidirectional relations. `leads` is defined within SalesPerson entity and can refer to a list of Lead entity instances that belong to a particular salesperson. `customer` relation is defined within the Lead entity and targets the customer who would make the purchase. 
+
+=== Bidirectional relation
+
+A bidirectional relation can be navigated in both directions.
+
+The syntax of the bidirectional relation is an extension of unidirectional syntax and it has two forms. The first one is:
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite**## &lt;opposite>
+----
+
+The `opposite` keyword is used to link two relations into a bidirectional relation. The `opposite` keyword must be used on both sides of the bidirectional relation.
+
+Both ends of a bidirectional relation cannot be required at the same time.
+
+*Example:*
+
+----
+entity SalesPerson {
+	relation Lead[] leads opposite salesperson
+}
+
+entity Lead {
+	relation required SalesPerson salesperson opposite leads
+}
+----
+
+Another form of bidirectional relationship declaration is as follows.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite-add**## &lt;opposite>&#x5B;[purple]##**[]**##]
+----
+
+The `opposite-add` keyword with a simple <opposite> is used to create a bidirectional relation and inject the opposite relation to an already defined entity without changing the original definition of the entity.
+
+The `opposite-add` keyword with an <opposite> and `[]` injects a collection in the target entity.
+
+The most useful feature of `opposite-add` is that it can be used with models that should not be modified. If you import a model, you can still create bidirectional relationships between your entities and the entities you imported.
+
+The example below defines two bidirectional relations. Defining the `salesperson` relation in the Lead entity also adds a collection to the SalesPerson entity named `leads`. In addition, the relation defined in the Customer entity adds a single customer relation to the Lead entity.
+
+*Example:*
+
+----
+entity SalesPerson {
+}
+
+entity Lead {
+	relation required SalesPerson salesperson opposite-add leads[]
+}
+
+entity Customer {
+	relation Lead[] leads opposite-add customer
+}
+----
+
+=== Composition
+
+A composition or composite field is a member whose type is an entity. A composition can be considered as a specific type of relation where the owner of the composition contains the referenced entity instance(s).
 
 [IMPORTANT]
 ====
-An important feature of composite fields is that after deleting an entity, all of its composite fields are also deleted. Composite fields can also be thought of as entities that are not created within the shared space of the persistent storage, but within the holding entity.
+An important feature of composition is that after deleting the owner, all entity instances in its composite fields are also deleted. Compositions can also be thought of as entity instances that are not created within the shared space of the persistent storage, but within the owner entity instance.
 ====
 
 Use the `field` keyword to specify a composite field within an entity.
@@ -494,7 +655,7 @@ where <entity> is the name of an entity and <name> is the referable name of the 
 
 The optional `[]` indicates that the composite field stores a list of entity instances rather than a single <entity> instance. In other words, the cardinality of the field is a collection.
 
-The keyword `required` means that the value of the field must be specified, so the value is not allowed to be UNDEFINED. Each newly created entity instance must set this field. The keyword `required` is not allowed in fields with an entity list type.
+The keyword `required` means that the value of the field must be specified, so the value is not allowed to be UNDEFINED. Each newly created entity instance must set this field. The keyword `required` is not allowed for collections.
 
 ////
 Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the field is set according to the default value expression. See <<Expression>> later.
@@ -511,8 +672,8 @@ The `self` variable cannot be used in default expressions.
 entity Address {
     field required String line1
     field String line2
-    field String City
-    field String ZipCode
+    field String city
+    field String zipCode
 }
 
 entity Person {
@@ -522,150 +683,11 @@ entity Person {
 
 The example defines the Address entity with its primitive fields, and each Person instance must have exactly one composite Address.
 
-=== Identifier
+== Derived members
 
-Identifiers are regular primitive fields, but it is ensured that the value of the field for each entity instance is different (unique). Note that, the undefined value is considered different from any value. (Undefined is also considered to be different from undefined.)
+Derived members provide a flexible mechanism to read their value. The value of a derived member can not set, in other words derived members are read only. However, derived members can be read as if they are stored fields, but they have a special expressions called getter expression. The getter expression is used to return the value of the derived member.
 
-Use the `identifier` keyword to specify a unique field within an entity.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**identifier**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>]
-----
-
-where <primitive> is the name of a domain model primitive and <name> is the referable name of the identifier. Not all primitive types can be used as identifiers. Only domain primitives that have the following base type can be used as identifier types:
-
-* boolean
-* string
-* numeric
-* date
-* timestamp and
-* enumerations
-
-The keyword `required` means that the value of the identifier must be specified, so the value is not allowed to be UNDEFINED.
-
-Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the identifier is set according to the default value expression. See <<Expression>> later.
-
-[NOTE]
-====
-The `self` variable cannot be used in default expressions. 
-====
-
-*Example:*
-
-----
-entity Person {
-    identifier required String email
-}
-----
-
-The example above defines `email` as a required string and serves as an identifier. This means you can find up to one Person if you know an email address. 
-
-[NOTE]
-====
-An important property of entity instances is that they are uniquely identifiable, i.e. each instance of an entity has a (universally) unique system generated identifier that never changes. This system generated identifier is not available in JSL and should not be confused with the identifier members discussed in this chapter.
-====
-
-=== Unidirectional relation
-
-Relation is an association between two entities which is used to show that instances of entities could be linked to each other in run-time. In run-time, a relation designates a unique and unordered set of instances of an entity called target entity.
-
-[NOTE]
-====
-Unlike composite fields, when an entity is deleted, the entity instances referenced in its relations are NOT deleted.
-====
-
-Relations can be unidirectional or bidirectional.
-
-An unidirectional relation can only be navigated in one direction: from the referring side to the target of the relation. Navigation means that at run-time, the owner of the relation knows the instance(s) of the target of the relation.
-
-Use the `relation` keyword to specify an association between two entities. The syntax of the unidirectional relation is as follows.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
-----
-
-where <entity> is the name of an entity to which the relation is targeted. The <name> is used to identify the relation within the entity, it is commonly referred to as role name.
-
-The optional `[]` behind the <entity> indicates that the relation is a list of entity instances rather than a single reference to one <entity>. In other words, the cardinality of the relation is a collection.
-
-The keyword `required` means that the value of the relation must be specified, so the value is not allowed to be UNDEFINED. Each newly created entity instance must set this field. The keyword `required` is not allowed in fields with an entity list type.
-
-*Example:*
-
-----
-entity SalesPerson {
-	relation Lead[] leads
-}
-
-entity Lead {
-	relation required Customer customer
-}
-
-entity Customer {
-}
-----
-
-The example above defines two uni-directional relations. `leads` is defined within SalesPerson entity and can refer to a list of Lead entities that belong to a particular salesperson. `customer` relation is defined within the Lead entity and targets the customer who would make the purchase. 
-
-=== Bidirectional relation
-
-A bidirectional relation can be navigated in both directions. Both ends of a bidirectional relation cannot be single-required at the same time.
-
-The syntax of the bidirectional relation is an extension of unidirectional syntax.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**opposite**## &lt;opposite>|[purple]##**opposite-add**## &lt;opposite>&#x5B;[purple]##**[]**##]]
-----
-
-The `opposite` keyword is used to link two relations to a bidirectional relation. The `opposite` keyword must be used on both sides of the bidirectional relation.
-
-*Example:*
-
-----
-entity SalesPerson {
-	relation Lead[] leads opposite salesperson
-}
-
-entity Lead {
-	relation required SalesPerson salesperson opposite leads
-}
-----
-
-The `opposite-add` keyword with a simple <opposite> is used to create a bidirectional relation and inject the opposite relation to an already defined entity without changing the original definition of the entity.
-
-The `opposite-add` keyword with an <opposite> and `[]` injects a list relation in the target entity.
-
-The example below defines two bidirectional relations. Defining the `salesperson` relation in the Lead entity also adds a list relation to the SalesPerson entity named `leads`. In addition, the relation defined in the Customer entity adds a single customer relation to the Lead entity.
-
-*Example:*
-
-----
-entity SalesPerson {
-}
-
-entity Lead {
-	relation required SalesPerson salesperson opposite-add leads[]
-}
-
-entity Customer {
-	relation Lead[] leads opposite-add customer
-}
-----
-
-=== Derived field
-
-A derived field is a kind of field that provides a flexible mechanism to read its value. The value of a derived field can not set, in other words derived fields are read only. However, derived fields can be used as if they are ordinary fields, but they have a special expressions called getter expression. The getter expression is used to return the value of the derived field. The getter expression must return the same type or same entity or same set of entities as the derived field type.
-
-Use the `derived` keyword to specify a derived field within an entity.
+Use the `derived` keyword to specify a derived member within an entity.
 
 *Syntax:*
 
@@ -683,9 +705,9 @@ where <primitive> is the name of a domain model primitive, and <name> is the ref
 [purple]#**derived**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**=>**## &lt;getter>
 ----
 
-where the <entity> is the name of an entity, and <name> is the referable name of the derived field. The optional `[]` indicates that the derived field returns a list of <entity> instances rather than a single reference to one <entity>.
+where the <entity> is the name of an entity, and <name> is the referable name of the derived member. The optional `[]` indicates that the derived member returns a collection rather than a single reference to one <entity>.
 
-The <getter> expression returns the value of the derived field whenever it is requested. See <<Expression>> later.
+The <getter> expression returns the value of the derived member whenever it is requested. See <<Expression>> later.
 
 [NOTE]
 ====
@@ -703,7 +725,7 @@ entity Person {
 }
 ----
 
-The example above defines two stored fields and a derived field. The name of the derived field is `fullName` and its value is calculated by concatenating the `firstName` and `lastName` with a space in the middle. Note the `self` keyword in the getter expression which refers to the current Person object.
+The example above defines two stored fields and a derived member. The name of the derived member is `fullName` and its value is calculated by concatenating the `firstName` and `lastName` with a space in the middle. Note the `self` keyword in the getter expression which refers to the current Person instance.
 
 *Example:*
 
@@ -719,7 +741,97 @@ entity Lead {
 }
 ----
 
-In the second example the `topLead` derived returns the highest value lead.
+In the second example the `topLead` derived member returns the highest value lead.
+
+
+== Query
+
+A query is a request that retrieves a primitive or entities. Each query has a return type, a name and a query expression, which is used to calculate the return value.
+
+There are two main differences between queries and derived members. Queries can have arguments, and queries are not executed automatically when an entity is referenced (so the values are not calculated immediately), but their value is calculated only when the query name is referenced.
+
+There are two types of queries
+
+* _instance query_ and
+* _static query_
+
+=== Instance query
+
+Instance queries are declared within an entity. The entity that contains the query can be referred to as `self` in the query expression.
+
+Use the `query` keyword to specify a query within an entity.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**query**# &lt;primitive> &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...[purple]##**)**##] [purple]##**=>**## &lt;expression>
+----
+
+where <primitive> is the name of a domain model primitive that will be returned, and <name> is the referable name of the query, or
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> &#x5B;[purple]##**=**## &lt;default>][purple]##**,**## ...[purple]##**)**##] [purple]##**=>**## &lt;expression>
+----
+
+where the <entity> is the name of an entity that will be returned, and <name> is the referable name of the query. The optional `[]` indicates that the query returns a list of <entity> instances rather than a single reference to one <entity>.
+
+The <expression> calculates the return value of the query whenever it is requested. See <<Expression>> later.
+
+[NOTE]
+====
+Note that queries do not use the assignment operator (=) but the arrow operator (\=>) to set the value.
+====
+
+The optional comma separated list is the arguments of the <expression>. The arguments can be used in the <expression>. <primitive> is the type of argument which can be a domain model primitive only. <argument> is the name of the argument. Arguments can be declared with optional <default> values. The default values are used when the query is executed by one or more missing arguments.
+
+*Example:*
+
+----
+entity SalesPerson {
+	relation Lead[] leads
+	
+	query Lead[] leadsBetween(Integer min = 0, Integer max = 100) => \
+	    self.leads!filter(l | l.value > min and  l.value < max)
+}
+
+entity Lead {
+    field Integer value
+}
+----
+
+The example above shows the query `leadsBetween`, which has two arguments (`min` and `max`). It returns the leads of a salesperson with a value between `min` and `max`. If no arguments are specified when executing `leadsBetween`, the query returns leads between 0 and 100. For more details about expressions, see the chapter <<Expression>>.
+
+=== Static query
+
+Static queries are very similar to instance queries, but static queries are within the scope of the model, not the scope of the entity. Thus, static queries cannot use `self` variable.
+
+The syntax of the static query declaration is the same as the syntax of the instance query declaration.
+
+*Example:*
+
+----
+entity SalesPerson {
+	relation Lead[] leads
+}
+
+entity Lead {
+    field Integer value
+}
+
+query Lead[] leadsBetween(Integer min = 0, Integer max = 100) => \
+    Lead!filter(l | l.value > min and  l.value < max)
+----
+
+The example above shows the static query `leadsBetween`, which has two arguments (`min` and `max`). It returns the leads of of all salespersons with a value between `min` and `max`.
+
+[NOTE]
+====
+Note the difference between the instance and the static query examples. The instance query uses the `self` variable as the starting point for navigation. It collects all the leads belonging to the given salesperson and then runs the filter condition. In the second example, the starting point of the static query is all the leads stored in the application. Then the static query also runs the filter condition to select the leads between the two limits. The main difference between them is the starting point of the navigation.
+====
 
 == Inheritance
 
@@ -771,90 +883,6 @@ entity SalesPerson extends Person, Employee {
 ----
 
 In the second example above the SalesPerson entity inherits the four fields of the Person entity and inherits its relationship with its manager from the Employee entity. This is an example of multiple inheritance.
-
-== Query
-
-A query is a request that retrieves a primitive or entities. Each query has a return type, a name and a query expression, which is used to calculate the return value. The query expression must return the same type or same entity or same set of entities as the query type.
-
-There are two main differences between queries and derived members. Queries can have arguments, and queries are not executed automatically when an entity is referenced (so the values are not calculated immediately), but their value is calculated only when the query name is referenced.
-
-There are two types of queries
-
-* _instance query_ and
-* _static query_
-
-=== Instance query
-
-Instance queries are declared within the scope of an entity. The entity that contains the query can be referred to as `self` in the query expression.
-
-Use the `query` keyword to specify a query within an entity.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**query**# &lt;primitive> &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...[purple]##**)**##] [purple]##**=>**## &lt;expression>
-----
-
-where <primitive> is the name of a domain model primitive that will be returned, and <name> is the referable name of the query, or
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##**,**## ...[purple]##**)**##] [purple]##**=>**## &lt;expression>
-----
-
-where the <entity> is the name of an entity that will be returned, and <name> is the referable name of the query. The optional `[]` indicates that the query returns a list of <entity> instances rather than a single reference to one <entity>.
-
-The <expression> calculates the return value of the query whenever it is requested. See <<Expression>> later.
-
-[NOTE]
-====
-Note that queries do not use the assignment operator (=) but the arrow operator (\=>) to set the value.
-====
-
-The optional comma separated list is the arguments of the <expression>. The arguments can be used in the <expression>. <primitive> is the type of argument which can be a domain model primitive only. <argument> is the name of the argument. Arguments must be declared with <default> values. The default values are used when the query is executed by one or more missing arguments.
-
-*Example:*
-
-----
-entity SalesPerson {
-	relation Lead[] leads
-	
-	query Lead[] leadsBetween(Integer min = 0, Integer max = 100) => \
-	    self.leads!filter(l | l.value > min and  l.value < max)
-}
-
-entity Lead {
-    field Integer value
-}
-----
-
-The example above shows the query `leadsBetween`, which has two arguments (`min` and `max`). It returns the leads of a salesperson with a value between `min` and `max`. If no arguments are specified when executing `leadsBetween`, the query returns leads between 0 and 100. For more details about expressions, see the chapter <<Expression>>.
-
-=== Static query
-
-Static queries are very similar to instance queries, but static queries are within the scope of the model, not the scope of the entity. Thus, static queries cannot use `self` variable.
-
-The syntax of the static query declaration is the same as the syntax of the instance query declaration.
-
-*Example:*
-
-----
-entity SalesPerson {
-	relation Lead[] leads
-}
-
-entity Lead {
-    field Integer value
-}
-
-query Lead[] leadsBetween(Integer min = 0, Integer max = 100) => \
-    SalesPerson.leads!filter(l | l.value > min and  l.value < max)
-----
-
-The example above shows the static query `leadsBetween`, which has two arguments (`min` and `max`). It returns the leads of of all salespersons with a value between `min` and `max`.
 
 == Error
 
@@ -1027,7 +1055,7 @@ The example above checks if a person's full name is longer than four characters.
 
 Constant values, entity members, operators, query executions and function calls can be combined into sequences known as expressions. Among other things, expressions are used to navigate and query a domain model.
 
-An expression is evaluated to a value, which can be primitive value (e.g. 42 or "apple"), entity instance or a collection of instances.
+An expression is evaluated to a value, which can be primitive value (e.g. `42` or `"apple"`), entity instance or a collection of instances.
 
 *Data expressions* returns values of primitive types, such as strings or integers. A data expression can be
 
@@ -1061,7 +1089,9 @@ Keywords in expressions are case insensitive, e.g. you can write the boolean `tr
 
 === Operators
 
-Operators perform a function on one or two operands. Operators that require a single operand are called unary operators. Operators that require two operands are binary operators. The `+` operator is a binary operator that sums the values of the right and left operands.
+Operators usually perform a function on two operands. Operators that require two operands are binary operators. For example, the `+` operator is a binary operator that sums the values of the right and left operands.
+
+There are two exceptions that have different numbers of operands. The logical negation operator has only one operand, the conditional (ternary) operator has three operands.
 
 An operator also returns a value. The value and its type depends on the operator and the type of its operands. For example, the arithmetic operators (perform basic arithmetic operations such as addition and subtraction) return numbers. The data type returned by the arithmetic operators depends on the type of its operands: if you add two integers, you get an integer back. An operation is said to evaluate to its result.
 
@@ -1072,7 +1102,7 @@ We can divide operators into these categories:
 * arithmetic (`+`, `-`, `*`, `/`, `div`, `mod`, `^`)
 * relational (`==`,`!=`,`<`,`>`,`>=`,`\<=`)
 * conditional (`? :`) and
-* logical (`and`, `or`, `xor`, `implies`).
+* logical (`not`, `and`, `or`, `xor`, `implies`).
 
 The following table summarizes the precedence of operators used in expressions.
 
