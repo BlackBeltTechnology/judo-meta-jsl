@@ -70,7 +70,7 @@
 
         <tycho-version>2.7.3</tycho-version>
 
-		<epsilon-runtime-version>1.4.0.20220616_093846_72efef9e_develop</epsilon-runtime-version>
+		<epsilon-runtime-version>1.5.0</epsilon-runtime-version>
 		<epsilon-runtime-eclipse-version>1.4.0.20220616_120313_0d84d4a0_develop</epsilon-runtime-eclipse-version>
 
         <emf-genmodel-generator-version>1.0.2.20220618_225039_158d46f1_develop</emf-genmodel-generator-version>
@@ -89,8 +89,8 @@
         <karaf-version>4.3.6</karaf-version>
         <cxf-version>3.5.1</cxf-version>
 
-        <osgi-utils-version>1.0.12.20220628_205152_6d1b9262_develop</osgi-utils-version>
-        <karaf-features-version>2.0.0.20220914_195648_137a7afe_feature_JNG_3834_PrepareRelease</karaf-features-version>
+        <osgi-utils-version>1.1.0</osgi-utils-version>
+        <karaf-features-version>2.0.0</karaf-features-version>
         <pax-exam-version>4.13.4</pax-exam-version>
 
 		<!-- Define overridable properties for tycho-surefire-plugin -->
