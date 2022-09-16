@@ -1141,7 +1141,7 @@ The starting point of the navigation can be
 derived Person[] allOwners => cars::Car.owner
     
 // a navigation starting from self variable
-derived Person owner => self.owner
+derived String ownerName => self.owner.name
 ----
 
 Navigation can be chained, which means that you can navigate further from a navigation result.
@@ -1250,7 +1250,7 @@ where <variable> is the name of the iterator variable that will iterate through 
 
 Iterator variables are only accessible in parentheses where they have been defined. In other words, the scope of the iterator variable is limited to after the `|` (pipe) character. If the iterator expression contains another iterator function, the iterator variable of the embedding iterator function is not accessible within the embedded iterator function.
 
-Using `self` in iterator expressions is not allowed.
+Using `self` in iterator expressions is currently not allowed.
 
 *Examples:*
 
@@ -1320,7 +1320,9 @@ Path for the current working directory: `String!getVariable("ENVIRONMENT", "PWD"
 
 UID of running OS user: `Integer!getVariable("ENVIRONMENT", "UID")`
 |`SEQUENCE`   |_sequence name_
-|Returns next value of a given sequence. If the sequence does not already exist, it creates the sequence and returns the first sequence value.
+|A continuously increasing integer is returned with each call. The maximum value cannot exceed the range of an eight-byte integer. Sequences are constant and optimized for concurrency. Sequences cannot be used for "gap-free" assignment of sequence numbers.
+
+If the sequence does not already exist, it creates the sequence and returns the first sequence value.
 
 Get next Order number: `Long!getVariable("SEQUENCE", "Order")`
 |==================================================
@@ -1402,18 +1404,20 @@ Escape sequences allow for the representation of some nongraphic characters as w
 
 Escape sequences are the followings:
 
-----
-\t    /* \u0009: horizontal tab HT */
-\n    /* \u000a: linefeed LF */
-\f    /* \u000c: form feed FF */
-\r    /* \u000d: carriage return CR */
-\"    /* \u0022: double quote " */
-\\    /* \u005c: backslash \ */
-----
+[options="header", cols="1,3"]
+|====================
+|Escape sequence    |Character
+|\t                 |Horizontal tab
+|\n                 |Linefeed 
+|\f                 |Form feed 
+|\r                 |Carriage return
+|\"                 |Double quote
+|\\                 |Backslash
+|====================
 
 In accordance with the above, multi-line string literals are allowed, inside the string literals "\n" escape sequence can be used for line breaks. The new line character is not allowed in string literals.
 
-In some situations, it may be inconvenient that escape sequences are interpreted differently than the rest of the string literals. To overcome these situations, use raw string literals with the "r" character before the opening double quote. For example, the string literal `r"apple\nbanana"` is a single line string. 
+In some situations, it may be inconvenient that escape sequences are interpreted differently than the rest of the string literals. To overcome these situations, use raw string literals with the "r" character before the opening double quote. For example, the string literal `r"apple\nbanana"` is a single line string. A typical use of raw strings is to specify regular expressions.
 
 To define string primitive, use the `type` keyword with `string`.
 
@@ -1421,10 +1425,10 @@ To define string primitive, use the `type` keyword with `string`.
 
 [subs="quotes"]
 ----
-[purple]#**type string**# &lt;name> [purple]#**(max-length =**# &lt;length> &#x5B;[purple]##**, regex =**## &lt;regular expression>][purple]#**)**#
+[purple]#**type string**# &lt;name> [purple]#**(min-length =**# &lt;min>[purple]#**, max-length =**# &lt;max>&#x5B;[purple]##**, regex =**## &lt;regular expression>][purple]#**)**#
 ----
 
-where the <name> is the name of the domain model string, and the mandatory <length> specifies the maximum length of the text that can be stored. The <length> must be between 1 and 4000.
+where the <name> is the name of the domain model string, and the mandatory <min> and <max> specify the minimum and the maximum length of the text that can be stored. Both <min> and <max> must be between 1 and 4000, and <min> cannot be greater than <max>.
 
 The optional <regular expression> is a sequence of characters that specifies a pattern, that is for validation. The following tables summarize the regular expression constructs.
 
@@ -1533,7 +1537,7 @@ Supported functions are listed in chapter <<String functions>>.
 
 // TODO: operation precision shall be described (e.g. target type defines)
 
-Numeric represents a numeric value. Numeric constants are represented by digits and at most a dot (`.`) symbol that cannot be the first nor the last character. For example `10` or `3.14`.
+Numeric represents a numeric value. Numeric constants are represented by digits and at most one dot (`.`) symbol that cannot be the first nor the last character. For example `10` or `3.14`.
 
 To define numeric primitive, use the `type` keyword with `numeric`.
 
@@ -1547,6 +1551,8 @@ To define numeric primitive, use the `type` keyword with `numeric`.
 where the <name> is the name of the domain model numeric,
 the <precision> is the maximum total number of decimal digits that will be stored, both to the left and to the right of the decimal point. The precision must be greater than 0.
 <scale> is the number of decimal digits that will be stored to the right of the decimal point (fraction). This number is subtracted from precision to determine the maximum number of digits to the left of the decimal point. Scale must be a value from 0 through precision.
+
+The number `3.14` has a precision of 3 and a scale of 2.
 
 *Example:*
 
@@ -1678,6 +1684,16 @@ You can find a detailed explanation of the operators and their precedence in the
 //|`Difference`                     |Measured|Returns the difference (time) between a date and another date. |
 |======================================================================
 
+[NOTE]
+====
+Arithmetic operators are not available for the date type. If you want to perform calculations with a date value, first convert it to a timestamp. Then use the timestamp functions and convert it back to a date type. The following example adds a week to a date.
+
+----
+Timestamp!of(date = `2021-02-28`)!plusDays(7)!date()
+----
+
+====
+
 Supported functions are listed in chapter <<Date functions>>.
 
 === Time
@@ -1735,6 +1751,15 @@ You can find a detailed explanation of the operators and their precedence in the
 |Operator                          |Result  |Meaning |Example
 |`<`, `>`, `==`, `!=`, `\<=`, `>=`  |Boolean |Comparison. | `pass:[`11:30` > `10:29`]` is `true`
 |======================================================================
+
+[NOTE]
+====
+Arithmetic operators are not available for the time type. If you want to perform calculations with a time value, first convert it to a timestamp. Then use the timestamp functions and convert it back to a date type. The following example adds 6 hours to a time.
+
+----
+Timestamp!of(date = `2021-02-28`, time = `18:59:00`)!plusHours(6)!time()
+----
+====
 
 Supported functions are listed in chapter <<Time functions>>.
 
@@ -1801,6 +1826,11 @@ You can find a detailed explanation of the operators and their precedence in the
 //|`Difference`                       |Measured  |Returns the difference (time) between a timestamp and an other timestamp. |
 |======================================================================
 
+[NOTE]
+====
+Arithmetic operators are not available for the timestamp type. If you want to perform calculations with a timestamp value, use <<Timestamp functions>>. An easy way to use arithmetic is to convert timestamp values to milliseconds.
+====
+
 Supported functions are listed in chapter <<Timestamp functions>>.
 
 === Binary
@@ -1816,7 +1846,7 @@ To define binary primitive, use the `type` keyword with `binary`.
 [purple]#**type binary**# &lt;name> [purple]#**(mime-types =**# &lt;mime-types>[purple]#**, max-file-size =**# &lt;max-file-size>[purple]#**)**#
 ----
 
-where the <name> is the name of the domain model binary, the <mime-types> is a list of media types indicating the accepted formats, and the <max-file-size> is the maximum size of the file.
+where the <name> is the name of the domain model binary, the <mime-types> is a list of mime types indicating the accepted formats, and the <max-file-size> is the maximum size of the file.
 
 The <max-file-size> can be expressed in bytes, kilobytes, megabytes or gigabytes using an integer and an optional unit. The unit can be based on powers of 10 (kB, MB, GB) or on powers of 2 (KiB, MiB, GiB). If there is no unit specified, the value is interpreted in bytes. The table below gives the value in bytes for each unit.
 
@@ -1832,7 +1862,7 @@ The <max-file-size> can be expressed in bytes, kilobytes, megabytes or gigabytes
 |GiB    |1024^3^
 |======================================================================
 
-The <mime-types> is a comma-separated list of strings representing media types. A media type string must consist of a type and a subtype separated by `/` in the following format:
+The <mime-types> is a comma-separated list of strings representing mime types. A mime type string must consist of a type and a subtype separated by `/` in the following format:
 
 [subs="quotes"]
 ----
@@ -1846,7 +1876,7 @@ or
 [purple]##**"**##&lt;type>/*[purple]##**"**##
 ----
 
-Valid media types and subtypes can only contain alphabetic characters, digits and `.`, `_`, `-`, `+`.
+Valid mime types and subtypes can only contain alphabetic characters, digits and `.`, `_`, `-`, `+`.
 
 *Examples:*
 
@@ -1899,28 +1929,28 @@ Any type functions can be applied to any type or instance except collections.
 |======================================================================
 |`[purple]#**first(count = **#<count>[purple]##**)**## : string`
 |Returns the first <count> characters of the original string, or returns the original string if its size is less than <count>. <count> must be an integer. If <count> is less than 1, it returns an empty string.
-|Example: `"apple"!first(2)` is `"ap"`
+|Example: `"apple"!first(count = 2)` is `"ap"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**last(count = **#<n>[purple]##**)**## : string`
 |Returns the last <count> characters of the original string, or returns the original string if its size is less than <count>. <count> must be an integer. If <count> is less than 1, returns an empty string.
-|Example: `"apple"!last(1)` is `"e"`
+|Example: `"apple"!last(count = 1)` is `"e"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**position(substring = **#<substring>[purple]##**)**## : numeric`
 |Returns the position of the first occurrence of the <substring> in the original string, or 0 if the original string does not contain the <substring>. <substring> must be a string. Position of the first character is 1.
-|Example: `'apple'!position('p')` is `2`
+|Example: `"apple"!position(substring = "p")` is `2`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**substring(offset = **#<offset>[purple]##**, count = **## <count>[purple]##**)**## : string`
 |Returns a substring of length <count> starting at <offset>. The offset of the first character is 1. Both <offset> and <count> must be integers.
-|Example: `apple'!substring(2,3)` is `ppl`
+|Example: `"apple"!substring(offset = 2, count = 3)` is `"ppl"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -1948,7 +1978,7 @@ Any type functions can be applied to any type or instance except collections.
 |======================================================================
 |`[purple]#**matches(pattern = **#<pattern>[purple]##**)**## : boolean`
 |Returns `true` if the string matches a given regular expression <pattern>, `false` otherwise. A detailed description of the regular expression can be found in the <<String>> section.
-|Example: `"apple"!matches(r".*pl.")` is `true`
+|Example: `"apple"!matches(pattern = r".*pl.")` is `true`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -1963,21 +1993,22 @@ Any type functions can be applied to any type or instance except collections.
 The percent sign represents zero, one, or multiple numbers or characters. The underscore represents a single number or character. These symbols can be used in combinations.
 
 If either of these two signs is not used in the <pattern>, then the function acts like the equals operator.
-|Example: `"apple"!like("%pl_")` is `true`
+|Example: `"apple"!like(pattern = "%pl_")` is `true`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**ilike(pattern = **#<pattern>[purple]##**)**## : boolean`
 |Same as like(), but the pattern matching is case insensitive.
-|Example: `"apPLe"!ilike("_pple")` is `true`
+|Example: `"apPLe"!ilike(pattern = "_pple")` is `true`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**replace(oldstring = **#<oldstring>[purple]##**, newstring = **## <newstring>[purple]##**)**## : string`
-|Returns a string where all occurrences of <oldstring> in the original string replaced by <newstring>.
-|Example: `"apple"!replace("le", "endix")` is `"appendix"`
+|Returns a string where all occurrences of <oldstring> in the original string replaced by <newstring>. Note that <oldstring> is not a regular expression pattern or a like pattern, but a simple string.
+
+|Example: `"apple"!replace(oldstring = "le", newstring = "endix")` is `"appendix"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -2092,7 +2123,7 @@ If either of these two signs is not used in the <pattern>, then the function act
 |`[purple]#**of(year = **#<year>[purple]##**, month = **## <month>[purple]##**, day = **## <day>[purple]##**)**## : date`
 |Static function, constructs a date value from the numeric parameters <year>, <month> and <day>. If any of the parameters is not integer, the result will be undefined. If any parameter is less than 1, the result will be undefined. If <month> is greater than 12, or <day> is greater than the last day of the month, it gives an undefined result.
 
-|Example: `Date!of(2011,1,28)` is `&#x60;2011-01-28&#x60;`
+|Example: `Date!of(year = 2011, month = 1, = day = 28)` is `&#x60;2011-01-28&#x60;`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -2129,7 +2160,7 @@ If either of these two signs is not used in the <pattern>, then the function act
 |======================================================================
 |`[purple]#**of(hour = **#<hour>[purple]##**, minute = **## <minute>[purple]##**, second = **## <second>[purple]##**)**## : time`
 |Static function, constructs a time value from the numeric parameters <hour>, <minute> and <second>. If any of the parameters is not integer, the result will be undefined. If any parameter is less than 0, the result will be undefined. If <hour> is greater than 23, or <minute> or <second> is greater than 59, it gives an undefined result.
-|Example: `Time!of(13,45,00)` is `&#x60;13:45:00&#x60;`
+|Example: `Time!of(hour = 13, minute = 45, second = 00)` is `&#x60;13:45:00&#x60;`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -2164,8 +2195,8 @@ If either of these two signs is not used in the <pattern>, then the function act
 |`[purple]#**of(date = **#<date> &#x5B;[purple]##**, time = **##<time>][purple]##**)**## : timestamp`
 |Static function, constructs a timestamp value from the parameters <date> and <time>, where <date> is a date primitive and <time> is a time primitive. The <time> parameter is optional, if <time> is omitted the time part of the timestamp will be set to `&#x60;00:00:00&#x60;`.
 |Example:
-|`Timestamp!of(&#x60;2021-02-28&#x60;,&#x60;10:30:01&#x60;)` is `&#x60;2021-02-28T10:30:01Z&#x60;`
-|`Timestamp!of(&#x60;2021-02-28&#x60;)` is `&#x60;2021-02-28T00:00:00Z&#x60;`
+|`Timestamp!of(date = &#x60;2021-02-28&#x60;, time = &#x60;10:30:01&#x60;)` is `&#x60;2021-02-28T10:30:01Z&#x60;`
+|`Timestamp!of(date = &#x60;2021-02-28&#x60;)` is `&#x60;2021-02-28T00:00:00Z&#x60;`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -2179,49 +2210,49 @@ If either of these two signs is not used in the <pattern>, then the function act
 |======================================================================
 |`[purple]#**fromMilliseconds(milliseconds = **#<milliseconds>[purple]##**)**## : timestamp`
 |Static function, creates a timestamp and sets the value in <milliseconds> from 1970-01-01T00:00:00Z. <milliseconds> must be an integer
-|Example: `Timestamp!fromMilliseconds(60000)` is `&#x60;1970-01-01T00:01:00Z&#x60;`
+|Example: `Timestamp!fromMilliseconds(milliseconds = 60000)` is `&#x60;1970-01-01T00:01:00Z&#x60;`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**plusMilliseconds(milliseconds = **#<milliseconds>[purple]##**)**## : timestamp`
-|Adds duration expressed in <milliseconds> to the original time. <milliseconds> must be an integer. If <milliseconds> is less than 0 it subtracts duration from the original time.
+|Adds duration expressed in <milliseconds> to the original time. <milliseconds> must be an integer. If <milliseconds> is less than 0, the result will be less than the original timestamp.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**plusSeconds(seconds = **#<seconds>[purple]##**)**## : timestamp`
-|Adds duration expressed in <seconds> to the original time. <seconds> must be an integer. If <seconds> is less than 0 it subtracts duration from the original time.
+|Adds duration expressed in <seconds> to the original time. <seconds> must be an integer. If <seconds> is less than 0, the result will be less than the original timestamp.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**plusMinutes(minutes = **#<minutes>[purple]##**)**## : timestamp`
-|Adds duration expressed in <minutes> to the original time. <minutes> must be an integer. If <minutes> is less than 0 it subtracts duration from the original time.
+|Adds duration expressed in <minutes> to the original time. <minutes> must be an integer. If <minutes> is less than 0, the result will be less than the original timestamp.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**plusHours(hours = **#<hours>[purple]##**)**## : timestamp`
-|Adds duration expressed in <hours> to the original time. <hours> must be an integer. If <hours> is less than 0 it subtracts duration from the original time.
+|Adds duration expressed in <hours> to the original time. <hours> must be an integer. If <hours> is less than 0, the result will be less than the original timestamp.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**plusDays(days = **#<days>[purple]##**)**## : timestamp`
-|Adds duration expressed in <days> to the original time. <days> must be an integer. If <days> is less than 0 it subtracts duration from the original time.
+|Adds duration expressed in <days> to the original time. <days> must be an integer. If <days> is less than 0, the result will be less than the original timestamp.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**plusMonths(months = **#<months>[purple]##**)**## : timestamp`
-|Adds duration expressed in <months> to the original time. <months> must be an integer. If the result date is invalid, the function sets the day to the last valid day of the month. If the If <months> is less than 0 it subtracts duration from the original time.
+|Adds duration expressed in <months> to the original time. <months> must be an integer. If the result date is invalid, the function sets the day to the last valid day of the month. If <months> is less than 0, the result will be less than the original timestamp.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**plusYears(years = **#<years>[purple]##**)**## : timestamp`
-|Adds duration expressed in <years> to the original time. <years> must be an integer. If <years> is less than 0 it subtracts duration from the original time.
+|Adds duration expressed in <years> to the original time. <years> must be an integer. If <years> is less than 0, the result will be less than the original timestamp.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -2283,14 +2314,14 @@ Makes sense in JCL only.
 |======================================================================
 |`[purple]#**typeOf(entityType = **#<entityType>[purple]##**)**## : boolean`
 |Evaluates to `true` if the given instance conforms to the <entityType> but not any subtype of the <entityType>.  That is, an instance of <entityType> and not an instance of any subtype of <entityType>.
-|Example: `self.field!typeOf(Lib::MyType)`
+|Example: `self.field!typeOf(entityType = Lib::MyType)`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**kindOf(entityType = **#<entityType>[purple]##**)**## : boolean`
 |Evaluates to `true` if the given instance conforms to the <entityType>. That is, an instance of <entityType> or an instance of any subtype of <entityType>.
-|Example: `self.field!kindOf(Lib::MyType)`
+|Example: `self.field!kindOf(entityType = Lib::MyType)`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -2303,7 +2334,7 @@ Makes sense in JCL only.
 |======================================================================
 |`[purple]#**asType(entityType = **#<entityType>[purple]##**)**## : instance`
 |Returns the given instance as the <entityType> if the type of the given instance matches to <entityType>, otherwise evaluates as `undefined`. In other words, the function "casts" the instance. Type matching works according to the `kindOf()` function.
-|Example: `self.field!asType(MyApplication::MyEntity)`
+|Example: `self.field!asType(entityType = MyApplication::MyEntity)`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
