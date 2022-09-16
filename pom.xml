@@ -70,11 +70,11 @@
 
         <tycho-version>2.7.3</tycho-version>
 
-		<epsilon-runtime-version>1.4.0.20220616_093846_72efef9e_develop</epsilon-runtime-version>
-		<epsilon-runtime-eclipse-version>1.4.0.20220616_120313_0d84d4a0_develop</epsilon-runtime-eclipse-version>
+		<epsilon-runtime-version>1.5.0</epsilon-runtime-version>
+		<epsilon-runtime-eclipse-version>1.5.0.20220916_075622</epsilon-runtime-eclipse-version>
 
-        <emf-genmodel-generator-version>1.0.2.20220618_225039_158d46f1_develop</emf-genmodel-generator-version>
-        <judo-genmodel-generator-version>1.0.1.20220618_225527_386d550e_develop</judo-genmodel-generator-version>
+        <emf-genmodel-generator-version>1.0.2.20220916_082646</emf-genmodel-generator-version>
+        <judo-genmodel-generator-version>1.0.1.20220916_103853</judo-genmodel-generator-version>
         <judo-epp-common-version>4.23.0.20220617_120427_1e370db3_develop</judo-epp-common-version>
         <judo-misc-p2-version>1.0.0.20220818_160129_dc1fee5d_develop</judo-misc-p2-version>
 
@@ -89,17 +89,8 @@
         <karaf-version>4.3.6</karaf-version>
         <cxf-version>3.5.1</cxf-version>
 
-        <osgi-utils-version>1.0.12.20220628_205152_6d1b9262_develop</osgi-utils-version>
-        <bouncycastle-karaf-features-version>1.61.2</bouncycastle-karaf-features-version>
-        <tinybundles-karaf-features-version>1.0.0</tinybundles-karaf-features-version>
-        <google-karaf-features-version>1.0.7</google-karaf-features-version>
-        <eclipse-emf-karaf-features-version>1.0.1</eclipse-emf-karaf-features-version>
-        <eclipse-epsilon-karaf-features-version>1.0.6</eclipse-epsilon-karaf-features-version>
-        <eclipse-xtext-karaf-features-version>1.0.2</eclipse-xtext-karaf-features-version>
-        <antlr-karaf-features-version>1.0.1</antlr-karaf-features-version>
-        <apache-poi-karaf-features-version>1.0.4</apache-poi-karaf-features-version>
-        <apache-commons-karaf-features-version>1.0.6</apache-commons-karaf-features-version>
-        <apache-httpclient-karaf-features-version>1.0.0</apache-httpclient-karaf-features-version>
+        <osgi-utils-version>1.1.0</osgi-utils-version>
+        <karaf-features-version>2.0.0</karaf-features-version>
         <pax-exam-version>4.13.4</pax-exam-version>
 
 		<!-- Define overridable properties for tycho-surefire-plugin -->
