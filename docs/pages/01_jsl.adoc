@@ -270,11 +270,16 @@ entity SalesPerson {
 
 An enumeration is a primitive data type whose values are called enumeration members. Enumeration members are listed as a pair of a text (the literal) and an integer (the ordinal). An enumeration member is represented with the qualified name of enumeration tagged with literal, for example `Titles#MR` or `example::Color#RED`.
 
-Enumeration members can be ordered by their ordinal. In addition, ordinals are for run-time storage and to help model restructuring and data migration.
+The literals of the enumeration members within an enumeration must be unique in case-insensitive manner. Enumeration literals are usually uppercase to improve readability.
 
-The ordinal parts of the enumeration members within an enumeration must be unique. The literals of the enumeration members within an enumeration must be unique in case-insensitive manner. Enumeration literals are usually uppercase to improve readability.
+The ordinal parts of the enumeration members within an enumeration must be unique. Enumeration members can be ordered by their ordinal.
 
 An enumeration must have at least one enumeration member.
+
+[NOTE]
+====
+Ordinals are for run-time database storage, and to help model restructuring and data migration. When storing an enumeration value, only the ordinal is stored in the database. This storage mechanism allows the literal values to be changed without data migration and language-independent sorting of database records.
+====
 
 To define an enumeration, use the `enum` keyword.
 
@@ -2121,7 +2126,7 @@ If either of these two signs is not used in the <pattern>, then the function act
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**of(year = **#<year>[purple]##**, month = **## <month>[purple]##**, day = **## <day>[purple]##**)**## : date`
-|Static function, constructs a date value from the numeric parameters <year>, <month> and <day>. If any of the parameters is not integer, the result will be undefined. If any parameter is less than 1, the result will be undefined. If <month> is greater than 12, or <day> is greater than the last day of the month, it gives an undefined result.
+|Static function, constructs a date value from the numeric parameters <year>, <month> and <day>. If any of the parameters is not integer, the result will be undefined. If <month> or <day> is less than 1, the result will be undefined. If <month> is greater than 12, or <day> is greater than the last day of the month, it gives an undefined result.
 
 |Example: `Date!of(year = 2011, month = 1, = day = 28)` is `&#x60;2011-01-28&#x60;`
 |======================================================================
