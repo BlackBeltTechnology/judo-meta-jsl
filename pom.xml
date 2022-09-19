@@ -26,6 +26,13 @@
         <url>http://github.com/${project-repositoryId}</url>
     </scm>
 
+    <licenses>
+        <license>
+            <name>Eclipse Public License 2.0</name>
+            <url>https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.txt</url>
+        </license>
+    </licenses>
+
     <developers>
         <developer>
             <id>robson</id>
@@ -68,14 +75,14 @@
 		<!--suppress UnresolvedMavenProperty -->
 		<logback-test-config>${maven.multiModuleProjectDirectory}/logback-test.xml</logback-test-config>
 
-        <tycho-version>2.7.3</tycho-version>
+        <tycho-version>2.7.5</tycho-version>
 
 		<epsilon-runtime-version>1.5.0</epsilon-runtime-version>
 		<epsilon-runtime-eclipse-version>1.5.0.20220916_075622</epsilon-runtime-eclipse-version>
 
         <emf-genmodel-generator-version>1.0.2.20220916_082646</emf-genmodel-generator-version>
         <judo-genmodel-generator-version>1.0.1.20220916_103853</judo-genmodel-generator-version>
-        <judo-epp-common-version>4.23.0.20220617_120427_1e370db3_develop</judo-epp-common-version>
+        <judo-epp-common-version>4.23.0.20220919_071730</judo-epp-common-version>
         <judo-misc-p2-version>1.0.0.20220818_160129_dc1fee5d_develop</judo-misc-p2-version>
 
         <xtext-version>2.27.0</xtext-version>
@@ -83,6 +90,7 @@
         <slf4j-version>1.7.36</slf4j-version>
 
         <surefire-version>3.0.0-M7</surefire-version>
+        <!--suppress UnresolvedMavenProperty -->
         <logback-test-config>${maven.multiModuleProjectDirectory}/logback-test.xml</logback-test-config>
 		
         <!-- Pax exam dependencies -->
@@ -114,29 +122,7 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>plugin-source</id>
-						<goals>
-							<goal>plugin-source</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho.extras</groupId>
-				<artifactId>tycho-source-feature-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>source-feature</id>
-						<phase>package</phase>
-						<goals>
-							<goal>source-feature</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
 
             <plugin>
                 <groupId>org.eclipse.tycho</groupId>
@@ -313,19 +299,10 @@
                                 <goal>plugin-source</goal>
                             </goals>
                         </execution>
-                    </executions>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.eclipse.tycho.extras</groupId>
-                    <artifactId>tycho-source-feature-plugin</artifactId>
-                    <version>${tycho-version}</version>
-                    <executions>
                         <execution>
-                            <id>source-feature</id>
-                            <phase>package</phase>
+                            <id>feature-source</id>
                             <goals>
-                                <goal>source-feature</goal>
+                                <goal>feature-source</goal>
                             </goals>
                         </execution>
                     </executions>
