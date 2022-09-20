@@ -1170,17 +1170,6 @@
                                 <phase>process-sources</phase>
                                 <configuration>
                                     <licenseName>epl_v2</licenseName>
-                                    <roots>
-                                        <root>ide/ide-common/src/main/java</root>
-                                        <root>ide/preview-plantuml/src/main/java</root>
-                                        <root>ide/ui/src/main/java</root>
-                                        <root>model/src/main/java</root>
-                                        <root>model-test/src/test/java</root>
-                                        <root>osgi/src/main/java</root>
-                                        <root>osgi-itest/src/test/java</root>
-                                        <root>server-embedded/src/main/java</root>
-                                        <root>server-web/src/main/java</root>
-                                    </roots>
                                 </configuration>
                             </execution>
                             <execution>
@@ -1198,5 +1187,6 @@
                 </plugins>
             </build>
         </profile>
+
 	</profiles>
 </project>
