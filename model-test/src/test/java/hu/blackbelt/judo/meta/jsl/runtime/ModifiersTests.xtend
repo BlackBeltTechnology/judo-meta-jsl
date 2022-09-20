@@ -19,41 +19,89 @@ class ModifiersTests {
 	@Inject extension ValidationTestHelper
 	
 	@Test
-	def void testMaxLengthModifierNegative() {
+	def void testMinSizeModifierNegative() {
 		'''
 			model test;
 			
-			type string String(max-length = -1);
+			type string String(min-size = -1, max-size = 128);
 			
 			entity Person{
 				field String fullName;
 			}
 
 		'''.parse => [
-			assertMaxLengthNegativeError("MaxLength must be greater than 0", JsldslPackage::eINSTANCE.modifierMaxLength)
+			assertMinSizeNegativeError("min-size must be greater than or equal to 0", JsldslPackage::eINSTANCE.modifierMinSize)
 		]
 	}
 	
 	@Test 
-	def void testMaxLengthModifierTooLarge() {
+	def void testMinSizeModifierTooLarge() {
 		'''
 			model test;
 			
-			type string String (max-length = 4001);
+			type string String (min-size = 129, max-size = 128);
 			
 			entity Person{
 				field String fullName;
 			}
 
 		'''.parse => [
-			assertMaxLengthTooLargeError("MaxLength must be less than/equal to " + JslDslValidator.MODIFIER_MAX_LENGTH_MAX_VALUE, JsldslPackage::eINSTANCE.modifierMaxLength)
+			assertMinSizeTooLargeError("min-size must be less than/equal to max-size", JsldslPackage::eINSTANCE.modifierMinSize)
 		]
 	}
 
-	def private void assertMaxLengthNegativeError(ModelDeclaration modelDeclaration, String error, EClass target) {
+	def private void assertMinSizeTooLargeError(ModelDeclaration modelDeclaration, String error, EClass target) {
 		modelDeclaration.assertError(
 			target, 
-			JslDslValidator.MAX_LENGTH_MODIFIER_IS_NEGATIVE, 
+			JslDslValidator.MIN_SIZE_MODIFIER_IS_TOO_LARGE, 
+			error
+		)
+	}
+
+	def private void assertMinSizeNegativeError(ModelDeclaration modelDeclaration, String error, EClass target) {
+		modelDeclaration.assertError(
+			target, 
+			JslDslValidator.MIN_SIZE_MODIFIER_IS_NEGATIVE, 
+			error
+		)
+	}
+
+	@Test
+	def void testMaxSizeModifierNegative() {
+		'''
+			model test;
+			
+			type string String(min-size = 0, max-size = -1);
+			
+			entity Person{
+				field String fullName;
+			}
+
+		'''.parse => [
+			assertMaxSizeNegativeError("max-size must be greater than 0", JsldslPackage::eINSTANCE.modifierMaxSize)
+		]
+	}
+	
+	@Test 
+	def void testMaxSizeModifierTooLarge() {
+		'''
+			model test;
+			
+			type string String (min-size = 0, max-size = 4001);
+			
+			entity Person{
+				field String fullName;
+			}
+
+		'''.parse => [
+			assertMaxSizeTooLargeError("max-size must be less than/equal to " + JslDslValidator.MODIFIER_MAX_SIZE_MAX_VALUE, JsldslPackage::eINSTANCE.modifierMaxSize)
+		]
+	}
+
+	def private void assertMaxSizeNegativeError(ModelDeclaration modelDeclaration, String error, EClass target) {
+		modelDeclaration.assertError(
+			target, 
+			JslDslValidator.MAX_SIZE_MODIFIER_IS_NEGATIVE, 
 			error
 		)
 	}
@@ -118,10 +166,10 @@ class ModifiersTests {
 		]
 	}
 	
-	def private void assertMaxLengthTooLargeError(ModelDeclaration modelDeclaration, String error, EClass target) {
+	def private void assertMaxSizeTooLargeError(ModelDeclaration modelDeclaration, String error, EClass target) {
 		modelDeclaration.assertError(
 			target, 
-			JslDslValidator.MAX_LENGTH_MODIFIER_IS_TOO_LARGE, 
+			JslDslValidator.MAX_SIZE_MODIFIER_IS_TOO_LARGE, 
 			error
 		)
 	}

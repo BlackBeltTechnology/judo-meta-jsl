@@ -1,8 +1,8 @@
 model SampleModel;
 
 type numeric Integer(precision = 9, scale = 0);
-type string String(max-length = 128);
-type string PhoneNumber(max-length = 32, regex = "^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$");  // escape sequencing does not work in regexp!!!!
+type string String(min-size = 0, max-size = 128);
+type string PhoneNumber(min-size = 0, max-size = 32, regex = "^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$");  // escape sequencing does not work in regexp!!!!
 type boolean Boolean;
 
 type date Date;

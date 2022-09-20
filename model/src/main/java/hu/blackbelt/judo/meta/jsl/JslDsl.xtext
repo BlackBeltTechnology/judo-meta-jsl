@@ -176,7 +176,7 @@ DataTypeDeclaration
       (
 		  BooleanPrimitive
 		| BinaryPrimitive '(' mimeTypes = ModifierMimeTypes ',' maxFileSize = ModifierMaxFileSize ')'
-		| StringPrimitive '(' maxLength = ModifierMaxLength (',' regex = ModifierRegex)? ')'
+		| StringPrimitive '(' minSize = ModifierMinSize ',' maxSize = ModifierMaxSize (',' regex = ModifierRegex)? ')'
 		| NumericPrimitive '(' precision = ModifierPrecision ',' scale = ModifierScale ')'
 		| DatePrimitive
 		| TimePrimitive
@@ -208,8 +208,12 @@ EnumLiteral
     ;
 
 
-ModifierMaxLength
-	: 'max-length' '=' value = INTEGER
+ModifierMinSize
+	: 'min-size' '=' value = INTEGER
+	;
+
+ModifierMaxSize
+	: 'max-size' '=' value = INTEGER
 	;
 
 ModifierRegex

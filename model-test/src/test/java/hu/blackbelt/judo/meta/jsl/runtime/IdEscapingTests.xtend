@@ -25,7 +25,7 @@ class IdEscapingTests {
 	def void testFieldNameReservedWord() {
 		'''
 			model Test;
-			type string String(max-length = 128);			
+			type string String(min-size = 0, max-size = 128);			
 
 			entity A {
 				field String `entity`;
@@ -41,7 +41,7 @@ class IdEscapingTests {
 	def void testEntityNameReservedWord() {
 		'''
 			model Test;
-			type string String(max-length = 128);		
+			type string String(min-size = 0, max-size = 128);			
 
 			entity `entity` {
 				field String str;
@@ -62,7 +62,7 @@ class IdEscapingTests {
 		val a = 
 		'''
 			model `entity`;
-			type string String(max-length = 128);			
+			type string String(min-size = 0, max-size = 128);			
 		'''.parse(resourceSet)
 		
 		val b = 
@@ -85,7 +85,7 @@ class IdEscapingTests {
 		val a = 
 		'''
 			model `entity`;
-			type string String(max-length = 128);			
+			type string String(min-size = 0, max-size = 128);			
 		'''.parse(resourceSet)
 		
 		val b = 
