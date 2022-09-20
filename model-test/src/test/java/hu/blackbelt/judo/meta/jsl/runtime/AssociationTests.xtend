@@ -21,13 +21,13 @@ class AssociationTests {
 	@Test 
 	def void testOppositeNameValid() {
 		'''
-			model Test
+			model Test;
 			entity A {
-				relation B b opposite a
+				relation B b opposite a;
 			}
 			
 			entity B {
-				relation A a opposite b
+				relation A a opposite b;
 			}
 			
 		'''.parse => [
@@ -38,13 +38,13 @@ class AssociationTests {
 	@Test 
 	def void testOppositeNameInvalid() {
 		'''
-			model Test
+			model Test;
 			entity A {
-				relation B b
+				relation B b;
 			}
 			
 			entity B {
-				relation A a opposite b2
+				relation A a opposite b2;
 			}
 			
 		'''.parse => [
@@ -56,13 +56,13 @@ class AssociationTests {
 	@Test 
 	def void testOppositeMissingBackReference() {
 		'''
-			model Test
+			model Test;
 			entity A {
-				relation B b
+				relation B b;
 			}
 			
 			entity B {
-				relation A a opposite b
+				relation A a opposite b;
 			}
 			
 		'''.parse => [
@@ -80,13 +80,13 @@ class AssociationTests {
 	@Test 
 	def void testOppositeNameIsAlreadyDefined() {
 		'''
-			model Test
+			model Test;
 			entity A {
-				relation B b
+				relation B b;
 			}
 			
 			entity B {
-				relation A a opposite-add b
+				relation A a opposite-add b;
 			}
 			
 		'''.parse => [

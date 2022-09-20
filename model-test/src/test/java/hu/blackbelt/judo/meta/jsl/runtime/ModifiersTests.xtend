@@ -21,12 +21,12 @@ class ModifiersTests {
 	@Test
 	def void testMaxLengthModifierNegative() {
 		'''
-			model test
+			model test;
 			
-			type string String(max-length = -1)
+			type string String(max-length = -1);
 			
 			entity Person{
-				field String fullName
+				field String fullName;
 			}
 
 		'''.parse => [
@@ -37,12 +37,12 @@ class ModifiersTests {
 	@Test 
 	def void testMaxLengthModifierTooLarge() {
 		'''
-			model test
+			model test;
 			
-			type string String (max-length = 4001)
+			type string String (max-length = 4001);
 			
 			entity Person{
-				field String fullName
+				field String fullName;
 			}
 
 		'''.parse => [
@@ -61,12 +61,12 @@ class ModifiersTests {
 	@Test
 	def void testPrecisionModifierTooLow() {
 		'''
-			model test
+			model test;
 			
-			type numeric Number1(precision = 0, scale = 0)
+			type numeric Number1(precision = 0, scale = 0);
 			
 			entity Entity {
-				field Number1 number
+				field Number1 number;
 			}
 		'''.parse => [
 			m | m.assertError(JsldslPackage::eINSTANCE.modifierPrecision, JslDslValidator.PRECISION_MODIFIER_IS_NEGATIVE, "Precision must be greater than 0")
@@ -76,12 +76,12 @@ class ModifiersTests {
 	@Test
 	def void testPrecisionModifierTooLarge() {
 		'''
-			model test
+			model test;
 			
-			type numeric Number1(precision = 16, scale = 0)
+			type numeric Number1(precision = 16, scale = 0);
 			
 			entity Entity {
-				field Number1 number
+				field Number1 number;
 			}
 		'''.parse => [
 			m | m.assertError(JsldslPackage::eINSTANCE.modifierPrecision, JslDslValidator.PRECISION_MODIFIER_IS_TOO_LARGE, "Precision must be less than/equal to " + JslDslValidator.PRECISION_MAX_VALUE)
@@ -91,12 +91,12 @@ class ModifiersTests {
 	@Test
 	def void testScaleModifierTooLow() {
 		'''
-			model test
+			model test;
 			
-			type numeric Number1(precision = 15, scale = -1)
+			type numeric Number1(precision = 15, scale = -1);
 			
 			entity Entity {
-				field Number1 number
+				field Number1 number;
 			}
 		'''.parse => [
 			m | m.assertError(JsldslPackage::eINSTANCE.modifierScale, JslDslValidator.SCALE_MODIFIER_IS_NEGATIVE, "Scale must be greater than/equal to 0")
@@ -106,12 +106,12 @@ class ModifiersTests {
 	@Test
 	def void testScaleModifierTooLarge() {
 		'''
-			model test
+			model test;
 			
-			type numeric Number1(precision = 15, scale = 15)
+			type numeric Number1(precision = 15, scale = 15);
 			
 			entity Entity {
-				field Number1 number
+				field Number1 number;
 			}
 		'''.parse => [
 			m | m.assertError(JsldslPackage::eINSTANCE.modifierScale, JslDslValidator.SCALE_MODIFIER_IS_TOO_LARGE, "Scale must be less than the defined precision: 15")

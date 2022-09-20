@@ -24,7 +24,7 @@ class ImportTests {
 	@Test 
 	def void testSimpleModelDefinition() {
 		'''
-			model A
+			model A;
 		'''.parse => [
 			assertNoErrors
 		]
@@ -33,8 +33,8 @@ class ImportTests {
 	@Test 
 	def void testTwoModelDefinitionWithDifferentName() {
 		val resourceSet = resourceSetProvider.get
-		val a = '''model A'''.parse(resourceSet)
-		val b = '''model B'''.parse(resourceSet)
+		val a = '''model A;'''.parse(resourceSet)
+		val b = '''model B;'''.parse(resourceSet)
 		
 		a.assertNoErrors
 		b.assertNoErrors
@@ -44,19 +44,20 @@ class ImportTests {
 	@Test 
 	def void testFailOfTwoModelDefinition() {
 		'''
-			model A
-			model B
+			model A;
+			model B;
 		'''.parse => 
 		[
-			assertSyntaxError("no viable alternative at input")
+			assertSyntaxError("missing EOF at 'model'")
+//			assertSyntaxError("no viable alternative at input")
 		]
 	}
 				
 	@Test 
 	def void testSelfImportClassHierarchyCycle() {
 		'''
-			model A
-			import A
+			model A;
+			import A;
 		'''.parse => 
 		[
 			assertHierarchyCycle("A")
@@ -68,20 +69,20 @@ class ImportTests {
 	def void testImportClassHierarchyCycle() {
 		val resourceSet = resourceSetProvider.get
 		val a = 
-		'''model A
-		import C		
+		'''model A;
+		import C;		
 		'''.parse(resourceSet)
 		
 		val b = 
 		'''
-			model B
-			import A
+			model B;
+			import A;
 		'''.parse(resourceSet)
 
 		val c = 
 		'''
-			model C
-			import B
+			model C;
+			import B;
 		'''.parse(resourceSet)
 
 		
@@ -93,12 +94,12 @@ class ImportTests {
 	@Test 
 	def void testTwoModelDefinitionWithImportWithSimpleName() {
 		val resourceSet = resourceSetProvider.get
-		val a = '''model A'''.parse(resourceSet)
+		val a = '''model A;'''.parse(resourceSet)
 		
 		val b = 
 		'''
-			model B
-			import A
+			model B;
+			import A;
 		'''.parse(resourceSet)
 		
 		a.assertNoErrors
@@ -108,12 +109,12 @@ class ImportTests {
 	@Test 
 	def void testTwoModelDefinitionWithIllegalImportName() {
 		val resourceSet = resourceSetProvider.get
-		val a = '''model A'''.parse(resourceSet)
+		val a = '''model A;'''.parse(resourceSet)
 		
 		val b = 
 		'''
-			model B
-			import A2
+			model B;
+			import A2;
 		'''.parse(resourceSet)
 		
 		a.assertNoErrors
@@ -123,16 +124,17 @@ class ImportTests {
 	@Test 
 	def void testTwoModelDefinitionWithEmptyImportName() {
 		val resourceSet = resourceSetProvider.get
-		val a = '''model A'''.parse(resourceSet)
+		val a = '''model A;'''.parse(resourceSet)
 		
 		val b = 
 		'''
-			model B
-			import
+			model B;
+			import;
 		'''.parse(resourceSet)
 		
 		a.assertNoErrors
-		b.assertSyntaxError("no viable alternative at input")
+//		b.assertSyntaxError("no viable alternative at input")
+		b.assertSyntaxError("no viable alternative at input ';'")
 //		b.assertSyntaxError("missing RULE_ID")
 	}
 
@@ -140,12 +142,12 @@ class ImportTests {
 	@Test 
 	def void testTwoModelDefinitionWithImportWithQualifiedName() {
 		val resourceSet = resourceSetProvider.get
-		val a = '''model ns::A'''.parse(resourceSet)
+		val a = '''model ns::A;'''.parse(resourceSet)
 		
 		val b = 
 		'''
-			model B
-			import ns::A
+			model B;
+			import ns::A;
 		'''.parse(resourceSet)
 		
 		a.assertNoErrors
@@ -155,12 +157,12 @@ class ImportTests {
 	@Test
 	def void testTwoModelDefinitionWithImportWithIllegalQualifiedName() {
 		val resourceSet = resourceSetProvider.get
-		val a = '''model ns::A'''.parse(resourceSet)
+		val a = '''model ns::A;'''.parse(resourceSet)
 		
 		val b = 
 		'''
-			model B
-			import ns2::A
+			model B;
+			import ns2::A;
 		'''.parse(resourceSet)
 		
 		a.assertNoErrors
@@ -170,12 +172,12 @@ class ImportTests {
 	@Test 
 	def void testTwoModelDefinitionWithImportWithAlias() {
 		val resourceSet = resourceSetProvider.get
-		val a = '''model A'''.parse(resourceSet)
+		val a = '''model A;'''.parse(resourceSet)
 		
 		val b = 
 		'''
-			model B
-			import A as a
+			model B;
+			import A as a;
 		'''.parse(resourceSet)
 		
 		a.assertNoErrors
@@ -188,17 +190,17 @@ class ImportTests {
 		val resourceSet = resourceSetProvider.get
 		val a = 
 		'''
-			model A
-			type string String(max-length = 128)			
+			model A;
+			type string String(max-length = 128);			
 		'''.parse(resourceSet)
 		
 		val b = 
 		'''
-			model B
-			import A
+			model B;
+			import A;
 			
 			entity abstract E {
-				field String f1
+				field String f1;
 			}	
 		'''.parse(resourceSet)
 		
@@ -212,16 +214,16 @@ class ImportTests {
 		val resourceSet = resourceSetProvider.get
 		val a = 
 		'''
-			model A
-			type string String(max-length = 128)			
+			model A;
+			type string String(max-length = 128);			
 		'''.parse(resourceSet)
 		
 		val b = 
 		'''
-			model B
+			model B;
 			
 			entity abstract E {
-				field A::String f1
+				field A::String f1;
 			}	
 		'''.parse(resourceSet)
 		
@@ -238,17 +240,17 @@ class ImportTests {
 		val resourceSet = resourceSetProvider.get
 		val a = 
 		'''
-			model A
-			type string String(max-length = 128)			
+			model A;
+			type string String(max-length = 128);			
 		'''.parse(resourceSet)
 		
 		val b = 
 		'''
-			model B
-			import A as a
+			model B;
+			import A as a;
 			
 			entity abstract E {
-				field a::String f1
+				field a::String f1;
 			}	
 		'''.parse(resourceSet)
 		

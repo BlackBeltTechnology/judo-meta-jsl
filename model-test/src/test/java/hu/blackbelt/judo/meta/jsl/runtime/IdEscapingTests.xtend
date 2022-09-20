@@ -24,12 +24,12 @@ class IdEscapingTests {
 	@Test 
 	def void testFieldNameReservedWord() {
 		'''
-			model Test
-			type string String(max-length = 128)			
+			model Test;
+			type string String(max-length = 128);			
 
 			entity A {
-				field String `entity`
-				derived String d => self.`entity`
+				field String `entity`;
+				derived String d => self.`entity`;
 			}
 		'''.parse => [
 			assertNoErrors
@@ -40,15 +40,15 @@ class IdEscapingTests {
 	@Test 
 	def void testEntityNameReservedWord() {
 		'''
-			model Test
-			type string String(max-length = 128)			
+			model Test;
+			type string String(max-length = 128);		
 
 			entity `entity` {
-				field String str
+				field String str;
 			}
 
 			entity B {
-				derived `entity`[] e => `entity`
+				derived `entity`[] e => `entity`;
 			}
 
 		'''.parse => [
@@ -61,17 +61,17 @@ class IdEscapingTests {
 		val resourceSet = resourceSetProvider.get
 		val a = 
 		'''
-			model `entity`
-			type string String(max-length = 128)			
+			model `entity`;
+			type string String(max-length = 128);			
 		'''.parse(resourceSet)
 		
 		val b = 
 		'''
-			model B
-			import `entity`
+			model B;
+			import `entity`;
 			
 			entity abstract E {
-				field String f1
+				field String f1;
 			}	
 		'''.parse(resourceSet)
 		
@@ -84,17 +84,17 @@ class IdEscapingTests {
 		val resourceSet = resourceSetProvider.get
 		val a = 
 		'''
-			model `entity`
-			type string String(max-length = 128)			
+			model `entity`;
+			type string String(max-length = 128);			
 		'''.parse(resourceSet)
 		
 		val b = 
 		'''
-			model B
-			import `entity` as a
+			model B;
+			import `entity` as a;
 			
 			entity abstract E {
-				field a::String f1
+				field a::String f1;
 			}	
 		'''.parse(resourceSet)
 		
