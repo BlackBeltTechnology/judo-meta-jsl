@@ -109,7 +109,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 	
     /*
-	@Check
 	def checkImportCycle(ModelImport modelImport) {
 		if (modelImport.importedNamespace !== null) {
 			if (modelImport.modelDeclaration.modelImportHierarchy(modelImport.importedNamespace.toQualifiedName).contains(modelImport.importedNamespace.toQualifiedName)) {
