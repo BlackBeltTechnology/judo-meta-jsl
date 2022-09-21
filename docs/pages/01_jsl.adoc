@@ -91,6 +91,11 @@ The names of JSL domain elements must conform to the following rules:
 * A name must have at least one character.
 * A name must not be longer than 128 characters.
 
+[IMPORTANT]
+====
+Even though element names (e.g. entity names, field names, enumeration literals, etc.) are case-sensitive, it is not allowed to have two elements in the same scope (e.g. two fields within an entity) whose names differ only in upper and lower case.
+====
+
 === Reserved words
 
 JSL has a set of words that are reserved words and cannot be used directly as element names. If you still want to use these reserved words as element names, the words must be enclosed in back-tick (```) characters as shown in the example below.
@@ -351,7 +356,7 @@ We are aware that entity and entity type are not the same. However, for ease of 
 ====
 
 ////
-Entities in the domain model enables us to work with data in the form of domain-specific objects and properties, such as customers and customer addresses, without having to concern themselves with the underlying database tables and columns where this data is stored. With entities, you can work at a higher level of abstraction when they deal with data, and can create and maintain applications with less code than in traditional applications.
+Entities in the domain model enable us to work with data in the form of domain-specific objects and properties, such as customers and customer addresses, without having to concern themselves with the underlying database tables and columns where this data is stored. With entities, you can work at a higher level of abstraction when they deal with data, and can create and maintain applications with less code than in traditional applications.
 
 Entities represent persistent data, independent of the underlying data storage mechanism. When modeling the business domain, the persistent data is defined in terms of entity types, their attributes and relations.
 ////
@@ -516,7 +521,11 @@ If no default value set for a reference, it will have an undefined value.
 
 When you pass a reference value to another reference, the two references will point to the same entity instance. If you delete the entity instance through one of the references, both references will have an undefined value. 
 
-A *collection* is a set of references. Collections always contain unique references, which means that there are no two references in a collection that point to the same entity. Collections always keep their members sorted, which means that after sorting a collection, subsequent iterations access the members of the collection in the same order.
+A *collection* is a set of references. Collections always contain unique references, which means that there are no two references in a collection that point to the same entity.
+
+////
+Collections always keep their members sorted, which means that after sorting a collection, subsequent iterations access the members of the collection in the same order.
+////
 
 Collections cannot be undefined, but collections can be empty. A collection cannot contain undefined reference. Once an entity instance is deleted, references to it are deleted from all collections.
 
@@ -634,7 +643,7 @@ entity Customer {
 
 === Composition
 
-A composition or composite field is a member whose type is an entity. A composition can be considered as a specific type of relation where the owner of the composition contains the referenced entity instance(s).
+A composition or composite field is a member whose type is an entity. A composition can be considered as a specific type of reference where the owner of the composition contains the referenced entity instance(s).
 
 [IMPORTANT]
 ====
@@ -690,7 +699,7 @@ The example defines the Address entity with its primitive fields, and each Perso
 
 == Derived members
 
-Derived members provide a flexible mechanism to read their value. The value of a derived member can not set, in other words derived members are read only. However, derived members can be read as if they are stored fields, but they have a special expressions called getter expression. The getter expression is used to return the value of the derived member.
+Derived members provide a flexible mechanism to read their value. The value of a derived member cannot be set, in other words derived members are read only. However, derived members can be read as if they are stored fields, but they have a special expression called getter expression. The getter expression is used to return the value of the derived member.
 
 Use the `derived` keyword to specify a derived member within an entity.
 
@@ -716,7 +725,7 @@ The <getter> expression returns the value of the derived member whenever it is r
 
 [NOTE]
 ====
-Note that the derived members do not use the assignment operator (=) but the arrow operator (\=>) to set the value.
+Note that the derived members use the arrow operator (\=>) instead of the assignment operator (=) to define the getter expression.
 ====
 
 *Example:*
@@ -835,7 +844,7 @@ The example above shows the static query `leadsBetween`, which has two arguments
 
 [NOTE]
 ====
-Note the difference between the instance and the static query examples. The instance query uses the `self` variable as the starting point for navigation. It collects all the leads belonging to the given salesperson and then runs the filter condition. In the second example, the starting point of the static query is all the leads stored in the application. Then the static query also runs the filter condition to select the leads between the two limits. The main difference between them is the starting point of the navigation.
+Note the difference between the instance and the static query examples. The instance query uses the `self` variable as the starting point for navigation. It collects all the leads belonging to the given salesperson and then runs the filter condition. In the second example, the starting point of the static query is all the leads stored in the application. Then the static query also runs the filter condition to select the leads between the two limits.
 ====
 
 == Inheritance
