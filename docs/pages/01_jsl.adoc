@@ -49,6 +49,13 @@ The following conventions are used in the syntax description: angle brackets (< 
 
 All symbols (keywords, parentheses, dots, brackets, etc.) in [purple]#**bold purple**# must be taken literally.
 
+For example, a simplified version of the well-known copy command looks like this with these conventions. 
+
+[subs="quotes"]
+----
+[purple]#**cp**# &#x5B;[purple]##**-a**##|[purple]##**-l**##|[purple]##**-r**##]... &lt;source>... &lt;directory>
+----
+
 === Overall Structure
 
 Domain models are defined by a sequence of JSL statements. Each domain model is in a text file. The extension of the model text files shall be "jsl". E.g. CRM.jsl file contains the model definition of the customer relationship management (CRM) model.
@@ -83,6 +90,11 @@ The names of JSL domain elements must conform to the following rules:
 * The first character of a name must be a letter.
 * A name must have at least one character.
 * A name must not be longer than 128 characters.
+
+[IMPORTANT]
+====
+Even though element names (e.g. entity names, field names, enumeration literals, etc.) are case-sensitive, it is not allowed to have two elements in the same scope (e.g. two fields within an entity) whose names differ only in upper and lower case.
+====
 
 === Reserved words
 
@@ -206,7 +218,7 @@ JSL allows the following “base types” for primitive specification:
 * time
 * timestamp
 
-The above base types cannot be used directly in domain models. However, you must define the primitive types used in your domain model. Or, you can import existing domain model primitives, for example, importing the built-in `judo::types` model.
+The above base types cannot be used directly in domain models. However, you must define the primitive types used in your domain model.
 
 To define a new domain model primitive, use the `type` keyword.
 
@@ -232,15 +244,47 @@ type string String(max-length = 128)
 The <<Base types>> section provide examples of each base type and its possible constraints and operations.
 
 
+[IMPORTANT]
+====
+Instead of defining the most common primitives in each project, there is a built-in judo::types model that you can import into models. It defines the following primitives:
+
+----
+type boolean Boolean
+type date Date
+type time Time
+type timestamp Timestamp
+type numeric Integer(precision = 15, scale = 0)
+type string String(max-length = 4000)
+----
+
+You can use these primitives a follows:
+
+----
+model crm
+
+import judo::types
+
+entity SalesPerson {
+    field String firstName
+    field String lastName
+}
+----
+====
+
 == Enumeration
 
 An enumeration is a primitive data type whose values are called enumeration members. Enumeration members are listed as a pair of a text (the literal) and an integer (the ordinal). An enumeration member is represented with the qualified name of enumeration tagged with literal, for example `Titles#MR` or `example::Color#RED`.
 
-Enumeration members can be ordered by their ordinal. In addition, ordinals are for run-time storage and to help model restructuring and data migration.
+The literals of the enumeration members within an enumeration must be unique in case-insensitive manner. Enumeration literals are usually uppercase to improve readability.
 
-The ordinal parts of the enumeration members within an enumeration must be unique. The literals of the enumeration members within an enumeration must be unique in case-insensitive manner. Enumeration literals are usually uppercase to improve readability.
+The ordinal parts of the enumeration members within an enumeration must be unique. Enumeration members can be ordered by their ordinal.
 
 An enumeration must have at least one enumeration member.
+
+[NOTE]
+====
+Ordinals are for run-time database storage, and to help model restructuring and data migration. When storing an enumeration value, only the ordinal is stored in the database. This storage mechanism allows the literal values to be changed without data migration and language-independent sorting of database records.
+====
 
 To define an enumeration, use the `enum` keyword.
 
@@ -300,18 +344,22 @@ Enumeration literals are not resolved yet by exposed services, they are represen
 
 == Entity
 
-Data model is the core part of the domain model that captures the real-world business entities and business rules that determine how data can be created, stored, and changed.
+Data model is the core part of the domain model that captures the real-world entities and the rules that determine how data can be created, changed, and deleted.
 
-The persistent data of a domain model is stored in the form of entities. An entity type (or shortly an entity) may have identifiers, stored fields, derived fields, relations and constraints that are referred to as members of an entity. See section <<Members>>.
+The persistent data of a domain model is described in the form of entity types. Actual data is stored by creating instances of entity types.
 
-Entities in the domain model enables us to work with data in the form of domain-specific objects and properties, such as customers and customer addresses, without having to concern themselves with the underlying database tables and columns where this data is stored. With entities, you can work at a higher level of abstraction when they deal with data, and can create and maintain applications with less code than in traditional applications.
-
-Entities represent persistent data, independent of the underlying data storage mechanism. When modeling the business domain, the persistent data is defined in terms of entity types, their attributes and relations. Actual data is stored by creating instances of entity types.
+An entity type (or shortly an entity) may have stored primitives and relations, derived fields and queries that are referred to as members of an entity.
 
 [NOTE]
 ====
-An important aspect of entities is that they have identity, that is, all instances of an entity have a (universally) unique identifier that never changes. This unique identifier is not accessible in JSL and should not be confused with identifier members that can be defined for entities in JSL.
+We are aware that entity and entity type are not the same. However, for ease of reading, we use the word entity instead of entity type. When talking about instances, we always use the term entity instance.
 ====
+
+////
+Entities in the domain model enable us to work with data in the form of domain-specific objects and properties, such as customers and customer addresses, without having to concern themselves with the underlying database tables and columns where this data is stored. With entities, you can work at a higher level of abstraction when they deal with data, and can create and maintain applications with less code than in traditional applications.
+
+Entities represent persistent data, independent of the underlying data storage mechanism. When modeling the business domain, the persistent data is defined in terms of entity types, their attributes and relations.
+////
 
 To define an entity, use the `entity` keyword.
 
@@ -344,24 +392,15 @@ entity abstract Employee {
 }
 ----
 
-Before explaining the entity members in detail we need to understand the reference variables (or simple references) and collections.
 
-=== Reference
-When a new entity instance is created, its space is reserved in the persistent storage. To access an entity instance, we need a pointer element. This pointer is called a reference, which simply points to the entity instance (which is created in persistent storage).
+== Primitive fields
 
-Reference variables do not have to point to an entity, or in other words references can be undefined. If no default value set for a reference, it will have an undefined value.
+An entity instance can store primitive values in its fields.  A field can be interpreted as a container in a specific entity instance where data values can be stored (e.g. numbers or text values like "red" or "blue").
 
-When you pass a reference value to another reference, the references will point to the same entity instance. If you delete the entity instance through one of the references, both references will have an undefined value. 
+A field definition of an entity specifies the name and the type of the data that are stored in the entity instances (e.g. color is the name of the field of the Pencil entity and this field has a string type).
 
-=== Collection
-
-A collection contains a set of (entity) references. Collections always contain unique references, which means that there are no two references in a collection that point to the same entity. Collections always keep their members sorted, which means that after sorting a collection, subsequent iterations access the members of the collection in the same order.
-
-Collections cannot be undefined, but collections can be empty. A collection cannot contain undefined reference. Once an entity instance is deleted, references to it are deleted from all collections.
-
-== Members
-
-An entity can encapsulate fields, identifiers, relations and derived fields. The following table summarizes the possible entity members and their available modifiers. There are two types of member modifiers:
+////
+The following table summarizes the possible entity members and their available modifiers. There are two types of member modifiers:
 
 * The _list_ modifier means that the field returns a list of values rather than a single value of its type.
 
@@ -385,9 +424,16 @@ No field can be list and required at the same time.
 
 Detailed explanation of entity member declarations are provided in the later sections.
 
+
 === Primitive field
 
-An entity can contain data descriptions called fields. A primitive field has a domain primitive type, in other words, it is a primitive typed element. Primitive fields cannot store multiple primitive values (that is, a lists), but only a single primitive value.
+Primitive fields of entities are stor
+
+An entity can specify data descriptions called primitive fields. A primitive field has a domain primitive type, in other words, it is a primitive typed element.
+
+////
+
+A primitive field cannot store multiple primitive values, but only a single primitive value. To put it another way, there is no list of primitives.
 
 Use the `field` keyword to specify a primitive field within an entity.
 
@@ -415,19 +461,193 @@ The `self` variable cannot be used in default expressions.
 entity Person {
     field required String firstName
     field required String lastName
-    field String midName = ""
+    field String midName
+    field Title title = Title#MX
 }
 ----
 
-The example above defines an entity named Person. This entity has three primitive fields. firstName and lastName are two required strings, and midName is an optional string with an empty string by default.
+The example above defines an entity named Person. This entity has four primitive fields. firstName and lastName are two required strings, midName is an optional string with no default value and title is an optional enumeration field with a default value.
 
-=== Composite field
+=== Identifier
 
-A composite field, or composition, is a field member whose type is an entity. A composite field may contain a list of entity instances.
+Identifiers are regular primitive fields, but it is ensured that the value of the field for each entity instance is different (unique). Note that, the undefined value is considered different from any value. (Undefined is also considered to be different from undefined.)
+
+Use the `identifier` keyword to specify a unique field within an entity.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**identifier**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>]
+----
+
+where <primitive> is the name of a domain model primitive and <name> is the referable name of the identifier. Any primitive type can be used as an identifier, except primitives of binary base type.
+
+The keyword `required` means that the value of the identifier must be specified, so the value is not allowed to be UNDEFINED.
+
+Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the identifier is set according to the default value expression. See <<Expression>> later.
+
+[NOTE]
+====
+The `self` variable cannot be used in default expressions. 
+====
+
+*Example:*
+
+----
+entity Person {
+    identifier required String email
+}
+----
+
+The example above defines `email` as a required string and serves as an identifier. This means you can find exactly one Person if you know an email address. 
+
+[NOTE]
+====
+An important feature of entity instances is that they are uniquely identifiable, i.e. each instance of an entity has a (universally) unique system generated identifier that never changes. This system generated identifier is not available in JSL and should not be confused with the identifier members discussed in this chapter.
+====
+
+== Relations
+
+Before explaining relations between entities we need to understand references and collections.
+
+When a new entity instance is created, its space is allocated in the persistent storage. To access an entity instance, we need a **reference**. The reference simply points to the entity instance (which is created in persistent storage).
+
+References do not have to point to an entity instance, or in other words references can be undefined.
+
+////
+If no default value set for a reference, it will have an undefined value.
+////
+
+When you pass a reference value to another reference, the two references will point to the same entity instance. If you delete the entity instance through one of the references, both references will have an undefined value. 
+
+A *collection* is a set of references. Collections always contain unique references, which means that there are no two references in a collection that point to the same entity.
+
+////
+Collections always keep their members sorted, which means that after sorting a collection, subsequent iterations access the members of the collection in the same order.
+////
+
+Collections cannot be undefined, but collections can be empty. A collection cannot contain undefined reference. Once an entity instance is deleted, references to it are deleted from all collections.
+
+=== Unidirectional relation
+
+Relation is a reference defined within an entity. The entity instance containing the reference is the owner of the relation. The owner has access to the instance pointed to by the reference.
+
+Relations can be not only references to a single instance, but also collections. If the relation is a collection, the owner can access a set of instances at the same time.
+
+////
+Relations are used to show that entity instances could be linked to each other in run-time.
+
+[NOTE]
+====
+Unlike composite fields, when an entity is deleted, the entity instances referenced in its relations are NOT deleted.
+====
+////
+
+Relations can be unidirectional or bidirectional.
+
+An unidirectional relation can only be navigated in one direction: from the owner to the target of the relation. Navigation means that, at run-time, the owner of the relation gets the instance(s) of the target of the relation.
+
+Use the `relation` keyword to specify a relation between two entities. The syntax of the unidirectional relation is as follows.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
+----
+
+where <entity> is the name of an entity to which the relation is targeted. The <name> is used to identify the relation within the entity, it is commonly referred to as role name.
+
+The optional `[]` behind the <entity> indicates that the relation is a collection rather than a single reference to one <entity> instance. In other words, the cardinality of the relation is a collection.
+
+The keyword `required` means that the value of the relation must be specified, so the value is not allowed to be UNDEFINED. Each newly created entity instance must set this field. The keyword `required` is not allowed for collections.
+
+*Example:*
+
+----
+entity SalesPerson {
+	relation Lead[] leads
+}
+
+entity Lead {
+	relation required Customer customer
+}
+
+entity Customer {
+}
+----
+
+The example above defines two unidirectional relations. `leads` is defined within SalesPerson entity and can refer to a list of Lead entity instances that belong to a particular salesperson. `customer` relation is defined within the Lead entity and targets the customer who would make the purchase. 
+
+=== Bidirectional relation
+
+A bidirectional relation can be navigated in both directions.
+
+The syntax of the bidirectional relation is an extension of unidirectional syntax and it has two forms. The first one is:
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite**## &lt;opposite>
+----
+
+The `opposite` keyword is used to link two relations into a bidirectional relation. The `opposite` keyword must be used on both sides of the bidirectional relation.
+
+Both ends of a bidirectional relation cannot be required at the same time.
+
+*Example:*
+
+----
+entity SalesPerson {
+	relation Lead[] leads opposite salesperson
+}
+
+entity Lead {
+	relation required SalesPerson salesperson opposite leads
+}
+----
+
+Another form of bidirectional relationship declaration is as follows.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite-add**## &lt;opposite>&#x5B;[purple]##**[]**##]
+----
+
+The `opposite-add` keyword with a simple <opposite> is used to create a bidirectional relation and inject the opposite relation to an already defined entity without changing the original definition of the entity.
+
+The `opposite-add` keyword with an <opposite> and `[]` injects a collection in the target entity.
+
+The most useful feature of `opposite-add` is that it can be used with models that should not be modified. If you import a model, you can still create bidirectional relationships between your entities and the entities you imported.
+
+The example below defines two bidirectional relations. Defining the `salesperson` relation in the Lead entity also adds a collection to the SalesPerson entity named `leads`. In addition, the relation defined in the Customer entity adds a single customer relation to the Lead entity.
+
+*Example:*
+
+----
+entity SalesPerson {
+}
+
+entity Lead {
+	relation required SalesPerson salesperson opposite-add leads[]
+}
+
+entity Customer {
+	relation Lead[] leads opposite-add customer
+}
+----
+
+=== Composition
+
+A composition or composite field is a member whose type is an entity. A composition can be considered as a specific type of reference where the owner of the composition contains the referenced entity instance(s).
 
 [IMPORTANT]
 ====
-An important feature of composite fields is that after deleting an entity, all of its composite fields are also deleted. Composite fields can also be thought of as entities that are not created within the shared space of the persistent storage, but within the holding entity.
+An important feature of composition is that after deleting the owner, all entity instances in its composite fields are also deleted. Compositions can also be thought of as entity instances that are not created within the shared space of the persistent storage, but within the owner entity instance.
 ====
 
 Use the `field` keyword to specify a composite field within an entity.
@@ -449,7 +669,7 @@ where <entity> is the name of an entity and <name> is the referable name of the 
 
 The optional `[]` indicates that the composite field stores a list of entity instances rather than a single <entity> instance. In other words, the cardinality of the field is a collection.
 
-The keyword `required` means that the value of the field must be specified, so the value is not allowed to be UNDEFINED. Each newly created entity instance must set this field. The keyword `required` is not allowed in fields with an entity list type.
+The keyword `required` means that the value of the field must be specified, so the value is not allowed to be UNDEFINED. Each newly created entity instance must set this field. The keyword `required` is not allowed for collections.
 
 ////
 Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the field is set according to the default value expression. See <<Expression>> later.
@@ -466,8 +686,8 @@ The `self` variable cannot be used in default expressions.
 entity Address {
     field required String line1
     field String line2
-    field String City
-    field String ZipCode
+    field String city
+    field String zipCode
 }
 
 entity Person {
@@ -477,145 +697,11 @@ entity Person {
 
 The example defines the Address entity with its primitive fields, and each Person instance must have exactly one composite Address.
 
-=== Identifier
+== Derived members
 
-Identifiers are regular primitive fields, but it is ensured that the value of the field for each entity instance is different (unique). Note that, the undefined value is considered different from any value. (Undefined is also considered to be different from undefined.)
+Derived members provide a flexible mechanism to read their value. The value of a derived member cannot be set, in other words derived members are read only. However, derived members can be read as if they are stored fields, but they have a special expression called getter expression. The getter expression is used to return the value of the derived member.
 
-Use the `identifier` keyword to specify a unique field within an entity.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**identifier**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>]
-----
-
-where <primitive> is the name of a domain model primitive and <name> is the referable name of the identifier. Not all primitive types can be used as identifiers. Only domain primitives that have the following base type can be used as identifier types:
-
-* boolean
-* string
-* numeric
-* date
-* timestamp and
-* enumerations
-
-The keyword `required` means that the value of the identifier must be specified, so the value is not allowed to be UNDEFINED.
-
-Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the identifier is set according to the default value expression. See <<Expression>> later.
-
-[NOTE]
-====
-The `self` variable cannot be used in default expressions. 
-====
-
-*Example:*
-
-----
-entity Person {
-    identifier required String email
-}
-----
-
-The example above defines `email` as a required string and serves as an identifier. This means you can find up to one Person if you know an email address. 
-
-=== Unidirectional relation
-
-Relation is an association between two entities which is used to show that instances of entities could be linked to each other in run-time. In run-time, a relation designates a unique and unordered set of instances of an entity called target entity.
-
-[NOTE]
-====
-Unlike composite fields, when an entity is deleted, the entity instances referenced in its relations are NOT deleted.
-====
-
-Relations can be unidirectional or bidirectional.
-
-An unidirectional relation can only be navigated in one direction: from the referring side to the target of the relation. Navigation means that at run-time, the owner of the relation knows the instance(s) of the target of the relation.
-
-Use the `relation` keyword to specify an association between two entities. The syntax of the unidirectional relation is as follows.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
-----
-
-where <entity> is the name of an entity to which the relation is targeted. The <name> is used to identify the relation within the entity, it is commonly referred to as role name.
-
-The optional `[]` behind the <entity> indicates that the relation is a list of entity instances rather than a single reference to one <entity>. In other words, the cardinality of the relation is a collection.
-
-The keyword `required` means that the value of the relation must be specified, so the value is not allowed to be UNDEFINED. Each newly created entity instance must set this field. The keyword `required` is not allowed in fields with an entity list type.
-
-*Example:*
-
-----
-entity SalesPerson {
-	relation Lead[] leads
-}
-
-entity Lead {
-	relation required Customer customer
-}
-
-entity Customer {
-}
-----
-
-The example above defines two uni-directional relations. `leads` is defined within SalesPerson entity and can refer to a list of Lead entities that belong to a particular salesperson. `customer` relation is defined within the Lead entity and targets the customer who would make the purchase. 
-
-=== Bidirectional relation
-
-A bidirectional relation can be navigated in both directions. Both ends of a bidirectional relation cannot be single-required at the same time.
-
-The syntax of the bidirectional relation is an extension of unidirectional syntax.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**opposite**## &lt;opposite>|[purple]##**opposite-add**## &lt;opposite>&#x5B;[purple]##**[]**##]]
-----
-
-The `opposite` keyword is used to link two relations to a bidirectional relation. The `opposite` keyword must be used on both sides of the bidirectional relation.
-
-*Example:*
-
-----
-entity SalesPerson {
-	relation Lead[] leads opposite salesperson
-}
-
-entity Lead {
-	relation required SalesPerson salesperson opposite leads
-}
-----
-
-The `opposite-add` keyword with a simple <opposite> is used to create a bidirectional relation and inject the opposite relation to an already defined entity without changing the original definition of the entity.
-
-The `opposite-add` keyword with an <opposite> and `[]` injects a list relation in the target entity.
-
-The example below defines two bidirectional relations. Defining the `salesperson` relation in the Lead entity also adds a list relation to the SalesPerson entity named `leads`. In addition, the relation defined in the Customer entity adds a single customer relation to the Lead entity.
-
-*Example:*
-
-----
-entity SalesPerson {
-}
-
-entity Lead {
-	relation required SalesPerson salesperson opposite-add leads[]
-}
-
-entity Customer {
-	relation Lead[] leads opposite-add customer
-}
-----
-
-=== Derived field
-
-A derived field is a kind of field that provides a flexible mechanism to read its value. The value of a derived field can not set, in other words derived fields are read only. However, derived fields can be used as if they are ordinary fields, but they have a special expressions called getter expression. The getter expression is used to return the value of the derived field. The getter expression must return the same type or same entity or same set of entities as the derived field type.
-
-Use the `derived` keyword to specify a derived field within an entity.
+Use the `derived` keyword to specify a derived member within an entity.
 
 *Syntax:*
 
@@ -633,13 +719,13 @@ where <primitive> is the name of a domain model primitive, and <name> is the ref
 [purple]#**derived**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**=>**## &lt;getter>
 ----
 
-where the <entity> is the name of an entity, and <name> is the referable name of the derived field. The optional `[]` indicates that the derived field returns a list of <entity> instances rather than a single reference to one <entity>.
+where the <entity> is the name of an entity, and <name> is the referable name of the derived member. The optional `[]` indicates that the derived member returns a collection rather than a single reference to one <entity>.
 
-The <getter> expression returns the value of the derived field whenever it is requested. See <<Expression>> later.
+The <getter> expression returns the value of the derived member whenever it is requested. See <<Expression>> later.
 
 [NOTE]
 ====
-Note that the derived members do not use the assignment operator (=) but the arrow operator (\=>) to set the value.
+Note that the derived members use the arrow operator (\=>) instead of the assignment operator (=) to define the getter expression.
 ====
 
 *Example:*
@@ -653,7 +739,7 @@ entity Person {
 }
 ----
 
-The example above defines two stored fields and a derived field. The name of the derived field is `fullName` and its value is calculated by concatenating the `firstName` and `lastName` with a space in the middle. Note the `self` keyword in the getter expression which refers to the current Person object.
+The example above defines two stored fields and a derived member. The name of the derived member is `fullName` and its value is calculated by concatenating the `firstName` and `lastName` with a space in the middle. Note the `self` keyword in the getter expression which refers to the current Person instance.
 
 *Example:*
 
@@ -669,7 +755,97 @@ entity Lead {
 }
 ----
 
-In the second example the `topLead` derived returns the highest value lead.
+In the second example the `topLead` derived member returns the highest value lead.
+
+
+== Query
+
+A query is a request that retrieves a primitive or entities. Each query has a return type, a name and a query expression, which is used to calculate the return value.
+
+There are two main differences between queries and derived members. Queries can have arguments, and queries are not executed automatically when an entity is referenced (so the values are not calculated immediately), but their value is calculated only when the query name is referenced.
+
+There are two types of queries
+
+* _instance query_ and
+* _static query_
+
+=== Instance query
+
+Instance queries are declared within an entity. The entity that contains the query can be referred to as `self` in the query expression.
+
+Use the `query` keyword to specify a query within an entity.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**query**# &lt;primitive> &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...[purple]##**)**##] [purple]##**=>**## &lt;expression>
+----
+
+where <primitive> is the name of a domain model primitive that will be returned, and <name> is the referable name of the query, or
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> &#x5B;[purple]##**=**## &lt;default>][purple]##**,**## ...[purple]##**)**##] [purple]##**=>**## &lt;expression>
+----
+
+where the <entity> is the name of an entity that will be returned, and <name> is the referable name of the query. The optional `[]` indicates that the query returns a list of <entity> instances rather than a single reference to one <entity>.
+
+The <expression> calculates the return value of the query whenever it is requested. See <<Expression>> later.
+
+[NOTE]
+====
+Note that queries do not use the assignment operator (=) but the arrow operator (\=>) to set the value.
+====
+
+The optional comma separated list is the arguments of the <expression>. The arguments can be used in the <expression>. <primitive> is the type of argument which can be a domain model primitive only. <argument> is the name of the argument. Arguments can be declared with optional <default> values. The default values are used when the query is executed by one or more missing arguments.
+
+*Example:*
+
+----
+entity SalesPerson {
+	relation Lead[] leads
+	
+	query Lead[] leadsBetween(Integer min = 0, Integer max = 100) => \
+	    self.leads!filter(l | l.value > min and  l.value < max)
+}
+
+entity Lead {
+    field Integer value
+}
+----
+
+The example above shows the query `leadsBetween`, which has two arguments (`min` and `max`). It returns the leads of a salesperson with a value between `min` and `max`. If no arguments are specified when executing `leadsBetween`, the query returns leads between 0 and 100. For more details about expressions, see the chapter <<Expression>>.
+
+=== Static query
+
+Static queries are very similar to instance queries, but static queries are within the scope of the model, not the scope of the entity. Thus, static queries cannot use `self` variable.
+
+The syntax of the static query declaration is the same as the syntax of the instance query declaration.
+
+*Example:*
+
+----
+entity SalesPerson {
+	relation Lead[] leads
+}
+
+entity Lead {
+    field Integer value
+}
+
+query Lead[] leadsBetween(Integer min = 0, Integer max = 100) => \
+    Lead!filter(l | l.value > min and  l.value < max)
+----
+
+The example above shows the static query `leadsBetween`, which has two arguments (`min` and `max`). It returns the leads of of all salespersons with a value between `min` and `max`.
+
+[NOTE]
+====
+Note the difference between the instance and the static query examples. The instance query uses the `self` variable as the starting point for navigation. It collects all the leads belonging to the given salesperson and then runs the filter condition. In the second example, the starting point of the static query is all the leads stored in the application. Then the static query also runs the filter condition to select the leads between the two limits.
+====
 
 == Inheritance
 
@@ -721,90 +897,6 @@ entity SalesPerson extends Person, Employee {
 ----
 
 In the second example above the SalesPerson entity inherits the four fields of the Person entity and inherits its relationship with its manager from the Employee entity. This is an example of multiple inheritance.
-
-== Query
-
-A query is a request that retrieves a primitive or entities. Each query has a return type, a name and a query expression, which is used to calculate the return value. The query expression must return the same type or same entity or same set of entities as the query type.
-
-There are two main differences between queries and derived members. Queries can have arguments, and queries are not executed automatically when an entity is referenced (so the values are not calculated immediately), but their value is calculated only when the query name is referenced.
-
-There are two types of queries
-
-* _instance query_ and
-* _static query_
-
-=== Instance query
-
-Instance queries are declared within the scope of an entity. The entity that contains the query can be referred to as `self` in the query expression.
-
-Use the `query` keyword to specify a query within an entity.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**query**# &lt;primitive> &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...[purple]##**)**##] [purple]##**=>**## &lt;expression>
-----
-
-where <primitive> is the name of a domain model primitive that will be returned, and <name> is the referable name of the query, or
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##**,**## ...[purple]##**)**##] [purple]##**=>**## &lt;expression>
-----
-
-where the <entity> is the name of an entity that will be returned, and <name> is the referable name of the query. The optional `[]` indicates that the query returns a list of <entity> instances rather than a single reference to one <entity>.
-
-The <expression> calculates the return value of the query whenever it is requested. See <<Expression>> later.
-
-[NOTE]
-====
-Note that queries do not use the assignment operator (=) but the arrow operator (\=>) to set the value.
-====
-
-The optional comma separated list is the arguments of the <expression>. The arguments can be used in the <expression>. <primitive> is the type of argument which can be a domain model primitive only. <argument> is the name of the argument. Arguments must be declared with <default> values. The default values are used when the query is executed by one or more missing arguments.
-
-*Example:*
-
-----
-entity SalesPerson {
-	relation Lead[] leads
-	
-	query Lead[] leadsBetween(Integer min = 0, Integer max = 100) => \
-	    self.leads!filter(l | l.value > min and  l.value < max)
-}
-
-entity Lead {
-    field Integer value
-}
-----
-
-The example above shows the query `leadsBetween`, which has two arguments (`min` and `max`). It returns the leads of a salesperson with a value between `min` and `max`. If no arguments are specified when executing `leadsBetween`, the query returns leads between 0 and 100. For more details about expressions, see the chapter <<Expression>>.
-
-=== Static query
-
-Static queries are very similar to instance queries, but static queries are within the scope of the model, not the scope of the entity. Thus, static queries cannot use `self` variable.
-
-The syntax of the static query declaration is the same as the syntax of the instance query declaration.
-
-*Example:*
-
-----
-entity SalesPerson {
-	relation Lead[] leads
-}
-
-entity Lead {
-    field Integer value
-}
-
-query Lead[] leadsBetween(Integer min = 0, Integer max = 100) => \
-    SalesPerson.leads!filter(l | l.value > min and  l.value < max)
-----
-
-The example above shows the static query `leadsBetween`, which has two arguments (`min` and `max`). It returns the leads of of all salespersons with a value between `min` and `max`.
 
 == Error
 
@@ -977,7 +1069,7 @@ The example above checks if a person's full name is longer than four characters.
 
 Constant values, entity members, operators, query executions and function calls can be combined into sequences known as expressions. Among other things, expressions are used to navigate and query a domain model.
 
-An expression is evaluated to a value, which can be primitive value (e.g. 42 or "apple"), entity instance or a collection of instances.
+An expression is evaluated to a value, which can be primitive value (e.g. `42` or `"apple"`), entity instance or a collection of instances.
 
 *Data expressions* returns values of primitive types, such as strings or integers. A data expression can be
 
@@ -1011,7 +1103,9 @@ Keywords in expressions are case insensitive, e.g. you can write the boolean `tr
 
 === Operators
 
-Operators perform a function on one or two operands. Operators that require a single operand are called unary operators. Operators that require two operands are binary operators. The `+` operator is a binary operator that sums the values of the right and left operands.
+Operators usually perform a function on two operands. Operators that require two operands are binary operators. For example, the `+` operator is a binary operator that sums the values of the right and left operands.
+
+There are two exceptions that have different numbers of operands. The logical negation operator has only one operand, the conditional (ternary) operator has three operands.
 
 An operator also returns a value. The value and its type depends on the operator and the type of its operands. For example, the arithmetic operators (perform basic arithmetic operations such as addition and subtraction) return numbers. The data type returned by the arithmetic operators depends on the type of its operands: if you add two integers, you get an integer back. An operation is said to evaluate to its result.
 
@@ -1022,7 +1116,7 @@ We can divide operators into these categories:
 * arithmetic (`+`, `-`, `*`, `/`, `div`, `mod`, `^`)
 * relational (`==`,`!=`,`<`,`>`,`>=`,`\<=`)
 * conditional (`? :`) and
-* logical (`and`, `or`, `xor`, `implies`).
+* logical (`not`, `and`, `or`, `xor`, `implies`).
 
 The following table summarizes the precedence of operators used in expressions.
 
@@ -1061,7 +1155,7 @@ The starting point of the navigation can be
 derived Person[] allOwners => cars::Car.owner
     
 // a navigation starting from self variable
-derived Person owner => self.owner
+derived String ownerName => self.owner.name
 ----
 
 Navigation can be chained, which means that you can navigate further from a navigation result.
@@ -1170,7 +1264,7 @@ where <variable> is the name of the iterator variable that will iterate through 
 
 Iterator variables are only accessible in parentheses where they have been defined. In other words, the scope of the iterator variable is limited to after the `|` (pipe) character. If the iterator expression contains another iterator function, the iterator variable of the embedding iterator function is not accessible within the embedded iterator function.
 
-Using `self` in iterator expressions is not allowed.
+Using `self` in iterator expressions is currently not allowed.
 
 *Examples:*
 
@@ -1240,7 +1334,9 @@ Path for the current working directory: `String!getVariable("ENVIRONMENT", "PWD"
 
 UID of running OS user: `Integer!getVariable("ENVIRONMENT", "UID")`
 |`SEQUENCE`   |_sequence name_
-|Returns next value of a given sequence. If the sequence does not already exist, it creates the sequence and returns the first sequence value.
+|A continuously increasing integer is returned with each call. The maximum value cannot exceed the range of an eight-byte integer. Sequences are constant and optimized for concurrency. Sequences cannot be used for "gap-free" assignment of sequence numbers.
+
+If the sequence does not already exist, it creates the sequence and returns the first sequence value.
 
 Get next Order number: `Long!getVariable("SEQUENCE", "Order")`
 |==================================================
@@ -1322,18 +1418,20 @@ Escape sequences allow for the representation of some nongraphic characters as w
 
 Escape sequences are the followings:
 
-----
-\t    /* \u0009: horizontal tab HT */
-\n    /* \u000a: linefeed LF */
-\f    /* \u000c: form feed FF */
-\r    /* \u000d: carriage return CR */
-\"    /* \u0022: double quote " */
-\\    /* \u005c: backslash \ */
-----
+[options="header", cols="1,3"]
+|====================
+|Escape sequence    |Character
+|\t                 |Horizontal tab
+|\n                 |Linefeed 
+|\f                 |Form feed 
+|\r                 |Carriage return
+|\"                 |Double quote
+|\\                 |Backslash
+|====================
 
 In accordance with the above, multi-line string literals are allowed, inside the string literals "\n" escape sequence can be used for line breaks. The new line character is not allowed in string literals.
 
-In some situations, it may be inconvenient that escape sequences are interpreted differently than the rest of the string literals. To overcome these situations, use raw string literals with the "r" character before the opening double quote. For example, the string literal `r"apple\nbanana"` is a single line string. 
+In some situations, it may be inconvenient that escape sequences are interpreted differently than the rest of the string literals. To overcome these situations, use raw string literals with the "r" character before the opening double quote. For example, the string literal `r"apple\nbanana"` is a single line string. A typical use of raw strings is to specify regular expressions.
 
 To define string primitive, use the `type` keyword with `string`.
 
@@ -1341,10 +1439,10 @@ To define string primitive, use the `type` keyword with `string`.
 
 [subs="quotes"]
 ----
-[purple]#**type string**# &lt;name> [purple]#**(max-length =**# &lt;length> &#x5B;[purple]##**, regex =**## &lt;regular expression>][purple]#**)**#
+[purple]#**type string**# &lt;name> [purple]#**(min-length =**# &lt;min>[purple]#**, max-length =**# &lt;max>&#x5B;[purple]##**, regex =**## &lt;regular expression>][purple]#**)**#
 ----
 
-where the <name> is the name of the domain model string, and the mandatory <length> specifies the maximum length of the text that can be stored. The <length> must be between 1 and 4000.
+where the <name> is the name of the domain model string, and the mandatory <min> and <max> specify the minimum and the maximum length of the text that can be stored. Both <min> and <max> must be between 1 and 4000, and <min> cannot be greater than <max>.
 
 The optional <regular expression> is a sequence of characters that specifies a pattern, that is for validation. The following tables summarize the regular expression constructs.
 
@@ -1453,7 +1551,7 @@ Supported functions are listed in chapter <<String functions>>.
 
 // TODO: operation precision shall be described (e.g. target type defines)
 
-Numeric represents a numeric value. Numeric constants are represented by digits and at most a dot (`.`) symbol that cannot be the first nor the last character. For example `10` or `3.14`.
+Numeric represents a numeric value. Numeric constants are represented by digits and at most one dot (`.`) symbol that cannot be the first nor the last character. For example `10` or `3.14`.
 
 To define numeric primitive, use the `type` keyword with `numeric`.
 
@@ -1467,6 +1565,8 @@ To define numeric primitive, use the `type` keyword with `numeric`.
 where the <name> is the name of the domain model numeric,
 the <precision> is the maximum total number of decimal digits that will be stored, both to the left and to the right of the decimal point. The precision must be greater than 0.
 <scale> is the number of decimal digits that will be stored to the right of the decimal point (fraction). This number is subtracted from precision to determine the maximum number of digits to the left of the decimal point. Scale must be a value from 0 through precision.
+
+The number `3.14` has a precision of 3 and a scale of 2.
 
 *Example:*
 
@@ -1598,6 +1698,16 @@ You can find a detailed explanation of the operators and their precedence in the
 //|`Difference`                     |Measured|Returns the difference (time) between a date and another date. |
 |======================================================================
 
+[NOTE]
+====
+Arithmetic operators are not available for the date type. If you want to perform calculations with a date value, first convert it to a timestamp. Then use the timestamp functions and convert it back to a date type. The following example adds a week to a date.
+
+----
+Timestamp!of(date = `2021-02-28`)!plusDays(7)!date()
+----
+
+====
+
 Supported functions are listed in chapter <<Date functions>>.
 
 === Time
@@ -1655,6 +1765,15 @@ You can find a detailed explanation of the operators and their precedence in the
 |Operator                          |Result  |Meaning |Example
 |`<`, `>`, `==`, `!=`, `\<=`, `>=`  |Boolean |Comparison. | `pass:[`11:30` > `10:29`]` is `true`
 |======================================================================
+
+[NOTE]
+====
+Arithmetic operators are not available for the time type. If you want to perform calculations with a time value, first convert it to a timestamp. Then use the timestamp functions and convert it back to a date type. The following example adds 6 hours to a time.
+
+----
+Timestamp!of(date = `2021-02-28`, time = `18:59:00`)!plusHours(6)!time()
+----
+====
 
 Supported functions are listed in chapter <<Time functions>>.
 
@@ -1721,6 +1840,11 @@ You can find a detailed explanation of the operators and their precedence in the
 //|`Difference`                       |Measured  |Returns the difference (time) between a timestamp and an other timestamp. |
 |======================================================================
 
+[NOTE]
+====
+Arithmetic operators are not available for the timestamp type. If you want to perform calculations with a timestamp value, use <<Timestamp functions>>. An easy way to use arithmetic is to convert timestamp values to milliseconds.
+====
+
 Supported functions are listed in chapter <<Timestamp functions>>.
 
 === Binary
@@ -1736,7 +1860,7 @@ To define binary primitive, use the `type` keyword with `binary`.
 [purple]#**type binary**# &lt;name> [purple]#**(mime-types =**# &lt;mime-types>[purple]#**, max-file-size =**# &lt;max-file-size>[purple]#**)**#
 ----
 
-where the <name> is the name of the domain model binary, the <mime-types> is a list of media types indicating the accepted formats, and the <max-file-size> is the maximum size of the file.
+where the <name> is the name of the domain model binary, the <mime-types> is a list of mime types indicating the accepted formats, and the <max-file-size> is the maximum size of the file.
 
 The <max-file-size> can be expressed in bytes, kilobytes, megabytes or gigabytes using an integer and an optional unit. The unit can be based on powers of 10 (kB, MB, GB) or on powers of 2 (KiB, MiB, GiB). If there is no unit specified, the value is interpreted in bytes. The table below gives the value in bytes for each unit.
 
@@ -1752,7 +1876,7 @@ The <max-file-size> can be expressed in bytes, kilobytes, megabytes or gigabytes
 |GiB    |1024^3^
 |======================================================================
 
-The <mime-types> is a comma-separated list of strings representing media types. A media type string must consist of a type and a subtype separated by `/` in the following format:
+The <mime-types> is a comma-separated list of strings representing mime types. A mime type string must consist of a type and a subtype separated by `/` in the following format:
 
 [subs="quotes"]
 ----
@@ -1766,7 +1890,7 @@ or
 [purple]##**"**##&lt;type>/*[purple]##**"**##
 ----
 
-Valid media types and subtypes can only contain alphabetic characters, digits and `.`, `_`, `-`, `+`.
+Valid mime types and subtypes can only contain alphabetic characters, digits and `.`, `_`, `-`, `+`.
 
 *Examples:*
 
@@ -1819,28 +1943,28 @@ Any type functions can be applied to any type or instance except collections.
 |======================================================================
 |`[purple]#**first(count = **#<count>[purple]##**)**## : string`
 |Returns the first <count> characters of the original string, or returns the original string if its size is less than <count>. <count> must be an integer. If <count> is less than 1, it returns an empty string.
-|Example: `"apple"!first(2)` is `"ap"`
+|Example: `"apple"!first(count = 2)` is `"ap"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**last(count = **#<n>[purple]##**)**## : string`
 |Returns the last <count> characters of the original string, or returns the original string if its size is less than <count>. <count> must be an integer. If <count> is less than 1, returns an empty string.
-|Example: `"apple"!last(1)` is `"e"`
+|Example: `"apple"!last(count = 1)` is `"e"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**position(substring = **#<substring>[purple]##**)**## : numeric`
 |Returns the position of the first occurrence of the <substring> in the original string, or 0 if the original string does not contain the <substring>. <substring> must be a string. Position of the first character is 1.
-|Example: `'apple'!position('p')` is `2`
+|Example: `"apple"!position(substring = "p")` is `2`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**substring(offset = **#<offset>[purple]##**, count = **## <count>[purple]##**)**## : string`
 |Returns a substring of length <count> starting at <offset>. The offset of the first character is 1. Both <offset> and <count> must be integers.
-|Example: `apple'!substring(2,3)` is `ppl`
+|Example: `"apple"!substring(offset = 2, count = 3)` is `"ppl"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -1868,7 +1992,7 @@ Any type functions can be applied to any type or instance except collections.
 |======================================================================
 |`[purple]#**matches(pattern = **#<pattern>[purple]##**)**## : boolean`
 |Returns `true` if the string matches a given regular expression <pattern>, `false` otherwise. A detailed description of the regular expression can be found in the <<String>> section.
-|Example: `"apple"!matches(r".*pl.")` is `true`
+|Example: `"apple"!matches(pattern = r".*pl.")` is `true`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -1883,21 +2007,22 @@ Any type functions can be applied to any type or instance except collections.
 The percent sign represents zero, one, or multiple numbers or characters. The underscore represents a single number or character. These symbols can be used in combinations.
 
 If either of these two signs is not used in the <pattern>, then the function acts like the equals operator.
-|Example: `"apple"!like("%pl_")` is `true`
+|Example: `"apple"!like(pattern = "%pl_")` is `true`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**ilike(pattern = **#<pattern>[purple]##**)**## : boolean`
 |Same as like(), but the pattern matching is case insensitive.
-|Example: `"apPLe"!ilike("_pple")` is `true`
+|Example: `"apPLe"!ilike(pattern = "_pple")` is `true`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**replace(oldstring = **#<oldstring>[purple]##**, newstring = **## <newstring>[purple]##**)**## : string`
-|Returns a string where all occurrences of <oldstring> in the original string replaced by <newstring>.
-|Example: `"apple"!replace("le", "endix")` is `"appendix"`
+|Returns a string where all occurrences of <oldstring> in the original string replaced by <newstring>. Note that <oldstring> is not a regular expression pattern or a like pattern, but a simple string.
+
+|Example: `"apple"!replace(oldstring = "le", newstring = "endix")` is `"appendix"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -2010,9 +2135,9 @@ If either of these two signs is not used in the <pattern>, then the function act
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**of(year = **#<year>[purple]##**, month = **## <month>[purple]##**, day = **## <day>[purple]##**)**## : date`
-|Static function, constructs a date value from the numeric parameters <year>, <month> and <day>. If any of the parameters is not integer, the result will be undefined. If any parameter is less than 1, the result will be undefined. If <month> is greater than 12, or <day> is greater than the last day of the month, it gives an undefined result.
+|Static function, constructs a date value from the numeric parameters <year>, <month> and <day>. If any of the parameters is not integer, the result will be undefined. If <month> or <day> is less than 1, the result will be undefined. If <month> is greater than 12, or <day> is greater than the last day of the month, it gives an undefined result.
 
-|Example: `Date!of(2011,1,28)` is `&#x60;2011-01-28&#x60;`
+|Example: `Date!of(year = 2011, month = 1, = day = 28)` is `&#x60;2011-01-28&#x60;`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -2049,7 +2174,7 @@ If either of these two signs is not used in the <pattern>, then the function act
 |======================================================================
 |`[purple]#**of(hour = **#<hour>[purple]##**, minute = **## <minute>[purple]##**, second = **## <second>[purple]##**)**## : time`
 |Static function, constructs a time value from the numeric parameters <hour>, <minute> and <second>. If any of the parameters is not integer, the result will be undefined. If any parameter is less than 0, the result will be undefined. If <hour> is greater than 23, or <minute> or <second> is greater than 59, it gives an undefined result.
-|Example: `Time!of(13,45,00)` is `&#x60;13:45:00&#x60;`
+|Example: `Time!of(hour = 13, minute = 45, second = 00)` is `&#x60;13:45:00&#x60;`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -2084,8 +2209,8 @@ If either of these two signs is not used in the <pattern>, then the function act
 |`[purple]#**of(date = **#<date> &#x5B;[purple]##**, time = **##<time>][purple]##**)**## : timestamp`
 |Static function, constructs a timestamp value from the parameters <date> and <time>, where <date> is a date primitive and <time> is a time primitive. The <time> parameter is optional, if <time> is omitted the time part of the timestamp will be set to `&#x60;00:00:00&#x60;`.
 |Example:
-|`Timestamp!of(&#x60;2021-02-28&#x60;,&#x60;10:30:01&#x60;)` is `&#x60;2021-02-28T10:30:01Z&#x60;`
-|`Timestamp!of(&#x60;2021-02-28&#x60;)` is `&#x60;2021-02-28T00:00:00Z&#x60;`
+|`Timestamp!of(date = &#x60;2021-02-28&#x60;, time = &#x60;10:30:01&#x60;)` is `&#x60;2021-02-28T10:30:01Z&#x60;`
+|`Timestamp!of(date = &#x60;2021-02-28&#x60;)` is `&#x60;2021-02-28T00:00:00Z&#x60;`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -2099,49 +2224,49 @@ If either of these two signs is not used in the <pattern>, then the function act
 |======================================================================
 |`[purple]#**fromMilliseconds(milliseconds = **#<milliseconds>[purple]##**)**## : timestamp`
 |Static function, creates a timestamp and sets the value in <milliseconds> from 1970-01-01T00:00:00Z. <milliseconds> must be an integer
-|Example: `Timestamp!fromMilliseconds(60000)` is `&#x60;1970-01-01T00:01:00Z&#x60;`
+|Example: `Timestamp!fromMilliseconds(milliseconds = 60000)` is `&#x60;1970-01-01T00:01:00Z&#x60;`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**plusMilliseconds(milliseconds = **#<milliseconds>[purple]##**)**## : timestamp`
-|Adds duration expressed in <milliseconds> to the original time. <milliseconds> must be an integer. If <milliseconds> is less than 0 it subtracts duration from the original time.
+|Adds duration expressed in <milliseconds> to the original time. <milliseconds> must be an integer. If <milliseconds> is less than 0, the result will be less than the original timestamp.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**plusSeconds(seconds = **#<seconds>[purple]##**)**## : timestamp`
-|Adds duration expressed in <seconds> to the original time. <seconds> must be an integer. If <seconds> is less than 0 it subtracts duration from the original time.
+|Adds duration expressed in <seconds> to the original time. <seconds> must be an integer. If <seconds> is less than 0, the result will be less than the original timestamp.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**plusMinutes(minutes = **#<minutes>[purple]##**)**## : timestamp`
-|Adds duration expressed in <minutes> to the original time. <minutes> must be an integer. If <minutes> is less than 0 it subtracts duration from the original time.
+|Adds duration expressed in <minutes> to the original time. <minutes> must be an integer. If <minutes> is less than 0, the result will be less than the original timestamp.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**plusHours(hours = **#<hours>[purple]##**)**## : timestamp`
-|Adds duration expressed in <hours> to the original time. <hours> must be an integer. If <hours> is less than 0 it subtracts duration from the original time.
+|Adds duration expressed in <hours> to the original time. <hours> must be an integer. If <hours> is less than 0, the result will be less than the original timestamp.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**plusDays(days = **#<days>[purple]##**)**## : timestamp`
-|Adds duration expressed in <days> to the original time. <days> must be an integer. If <days> is less than 0 it subtracts duration from the original time.
+|Adds duration expressed in <days> to the original time. <days> must be an integer. If <days> is less than 0, the result will be less than the original timestamp.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**plusMonths(months = **#<months>[purple]##**)**## : timestamp`
-|Adds duration expressed in <months> to the original time. <months> must be an integer. If the result date is invalid, the function sets the day to the last valid day of the month. If the If <months> is less than 0 it subtracts duration from the original time.
+|Adds duration expressed in <months> to the original time. <months> must be an integer. If the result date is invalid, the function sets the day to the last valid day of the month. If <months> is less than 0, the result will be less than the original timestamp.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**plusYears(years = **#<years>[purple]##**)**## : timestamp`
-|Adds duration expressed in <years> to the original time. <years> must be an integer. If <years> is less than 0 it subtracts duration from the original time.
+|Adds duration expressed in <years> to the original time. <years> must be an integer. If <years> is less than 0, the result will be less than the original timestamp.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -2203,14 +2328,14 @@ Makes sense in JCL only.
 |======================================================================
 |`[purple]#**typeOf(entityType = **#<entityType>[purple]##**)**## : boolean`
 |Evaluates to `true` if the given instance conforms to the <entityType> but not any subtype of the <entityType>.  That is, an instance of <entityType> and not an instance of any subtype of <entityType>.
-|Example: `self.field!typeOf(Lib::MyType)`
+|Example: `self.field!typeOf(entityType = Lib::MyType)`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**kindOf(entityType = **#<entityType>[purple]##**)**## : boolean`
 |Evaluates to `true` if the given instance conforms to the <entityType>. That is, an instance of <entityType> or an instance of any subtype of <entityType>.
-|Example: `self.field!kindOf(Lib::MyType)`
+|Example: `self.field!kindOf(entityType = Lib::MyType)`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -2223,7 +2348,7 @@ Makes sense in JCL only.
 |======================================================================
 |`[purple]#**asType(entityType = **#<entityType>[purple]##**)**## : instance`
 |Returns the given instance as the <entityType> if the type of the given instance matches to <entityType>, otherwise evaluates as `undefined`. In other words, the function "casts" the instance. Type matching works according to the `kindOf()` function.
-|Example: `self.field!asType(MyApplication::MyEntity)`
+|Example: `self.field!asType(entityType = MyApplication::MyEntity)`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
