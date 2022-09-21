@@ -80,8 +80,8 @@
 		<epsilon-runtime-version>1.5.0</epsilon-runtime-version>
 		<epsilon-runtime-eclipse-version>1.5.0.20220916_075622</epsilon-runtime-eclipse-version>
 
-        <emf-genmodel-generator-version>1.0.2.20220916_082646</emf-genmodel-generator-version>
-        <judo-genmodel-generator-version>1.0.1.20220916_103853</judo-genmodel-generator-version>
+        <emf-genmodel-generator-version>1.1.0</emf-genmodel-generator-version>
+        <judo-genmodel-generator-version>1.1.1</judo-genmodel-generator-version>
         <judo-epp-common-version>4.23.0.20220919_071730</judo-epp-common-version>
         <judo-misc-p2-version>1.0.0.20220818_160129_dc1fee5d_develop</judo-misc-p2-version>
 
@@ -1009,6 +1009,7 @@
                             <serverId>ossrh</serverId>
                             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                             <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                            <stagingProgressTimeoutMinutes>15</stagingProgressTimeoutMinutes>
                         </configuration>
                     </plugin>
                 </plugins>
