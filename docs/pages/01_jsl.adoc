@@ -762,7 +762,14 @@ In the second example the `topLead` derived member returns the highest value lea
 
 A query is a request that retrieves a primitive or entities. Each query has a return type, a name and a query expression, which is used to calculate the return value.
 
-There are two main differences between queries and derived members. Queries can have arguments, and queries are not executed automatically when an entity is referenced (so the values are not calculated immediately), but their value is calculated only when the query name is referenced.
+There are two main differences between queries and derived members.
+
+* queries can have arguments, and
+* queries are never evaluated automatically
+
+The moment of evaluation needs explanation. Queries are never evaluated automatically, and their return values will only be calculated when the query is invoked.
+
+The moment of derived fields evaluation is a bit more complicated. Derived fields that return a primitive value are evaluated immediately when the entity is referenced. However, if a derived returns an entity reference or collection, its derived expression is only evaluated during navigation.
 
 There are two types of queries
 
