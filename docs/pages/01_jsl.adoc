@@ -239,7 +239,7 @@ Parameters are constraints that restrict the use of the newly created primitive 
 ----
 type boolean Boolean
 type numeric Integer(precision = 9, scale = 0)
-type string String(max-length = 128)
+type string String(min-size = 0, max-size = 128)
 ----
 
 The <<Base types>> section provide examples of each base type and its possible constraints and operations.
@@ -255,7 +255,7 @@ type date Date
 type time Time
 type timestamp Timestamp
 type numeric Integer(precision = 15, scale = 0)
-type string String(max-length = 4000)
+type string String(min-size = 0, max-size = 4000)
 ----
 
 You can use these primitives a follows:
@@ -1064,7 +1064,7 @@ entity Person {
     field required String lastName
     field String midName = ""
     
-    constraint self.firstName!length() + self.lastName!length() > 4 \
+    constraint self.firstName!size() + self.lastName!size() > 4 \
     onerror NameIsTooShort(name = self.firstName + " " + self.lastName)
 }
 ----
@@ -1228,11 +1228,11 @@ where <navigation> is a valid navigation expression and <function> is the name o
 *Examples:*
 
 ----
-derived Integer count => self.courses!count()
-derived Integer nameLength => self.owner.name!length()
+derived Integer count => self.courses!size()
+derived Integer nameLength => self.owner.name!size()
 ----
 
-The `self.courses!count()` evaluates to an integer, the size of the courses collection and the expression `self.owner.name!length()` will return the length of the owner's name field (assuming it is a String type).
+The `self.courses!size()` evaluates to an integer, the number of the courses in the collection and the expression `self.owner.name!size()` will return the number of characters in the owner's name field (assuming it is a String type).
 
 ==== Static functions
 
@@ -1358,7 +1358,7 @@ In the case of logical values comparisons with undefined can never result in eit
 
 Navigations from undefined references will also result in undefined. In other words, if any part of a navigation or function chain results undefined, the result of the whole navigation will be undefined. For example, `self.instances.other` will evaluate to undefined, when `self.instances` is undefined.
 
-Functions applied on undefined references will also result in undefined. For example, `self.instances!count()` will evaluate to undefined instead of 0, when `self.instances` is undefined. The only exceptions are the `isDefined()` and `isUndefined()` functions. `self.name!isDefined()` will evaluate to `false` if `self.name` is undefined, and `self.name!isUndefined()` will evaluate to `false` if `self.name` is undefined.
+Functions applied on undefined references will also result in undefined. For example, `self.instances!size()` will evaluate to undefined instead of 0, when `self.instances` is undefined. The only exceptions are the `isDefined()` and `isUndefined()` functions. `self.name!isDefined()` will evaluate to `false` if `self.name` is undefined, and `self.name!isUndefined()` will evaluate to `false` if `self.name` is undefined.
 
 In arithmetic expressions, any occurrence of undefined results in an undefined value. The expression `self.a + self.b` results in undefined if `self.a` or `self.b` is undefined.
 
@@ -1445,10 +1445,10 @@ To define string primitive, use the `type` keyword with `string`.
 
 [subs="quotes"]
 ----
-[purple]#**type string**# &lt;name> [purple]#**(min-length =**# &lt;min>[purple]#**, max-length =**# &lt;max>&#x5B;[purple]##**, regex =**## &lt;regular expression>][purple]#**)**#
+[purple]#**type string**# &lt;name> [purple]#**(min-size =**# &lt;min>[purple]#**, max-size =**# &lt;max>&#x5B;[purple]##**, regex =**## &lt;regular expression>][purple]#**)**#
 ----
 
-where the <name> is the name of the domain model string, and the mandatory <min> and <max> specify the minimum and the maximum length of the text that can be stored. Both <min> and <max> must be between 1 and 4000, and <min> cannot be greater than <max>.
+where the <name> is the name of the domain model string, and the mandatory <min> and <max> specify the minimum and the maximum size of the text that can be stored. Both <min> and <max> must be between 1 and 4000, and <min> cannot be greater than <max>.
 
 The optional <regular expression> is a sequence of characters that specifies a pattern, that is for validation. The following tables summarize the regular expression constructs.
 
@@ -1521,9 +1521,9 @@ The optional <regular expression> is a sequence of characters that specifies a p
 *Example:*
 
 ----
-type string String(max-length = 128)
-type string LongString(max-length = 1024)
-type string PhoneNumber(max-length = 32, regex = r"^(\+\d{1,2}\s)?\(?\d{2,5}\)?[\s-]\d{2,4}[\s-]\d{4}$")
+type string String(min-size = 0, max-size = 128)
+type string LongString(min-size = 0, max-size = 1024)
+type string PhoneNumber(min-size = 0, max-size = 32, regex = r"^(\+\d{1,2}\s)?\(?\d{2,5}\)?[\s-]\d{2,4}[\s-]\d{4}$")
 ----
 
 This creates three domain model primitives. The first can store a maximum of 128 length text, the second may store texts up to 1024 characters.
@@ -1533,7 +1533,7 @@ The third string may accept only phone numbers. Please note that the regular exp
 *Example:*
 
 ----
-type string PhoneNumber (max-length = 32, regex = "^(\\+\\d{1,2}\\s)?\\(?\\d{2,5}\\)?[\\s-]\\d{2,4}[\\s-]\\d{4}$")
+type string PhoneNumber (min-size = 0, max-size = 32, regex = "^(\\+\\d{1,2}\\s)?\\(?\\d{2,5}\\)?[\\s-]\\d{2,4}[\\s-]\\d{4}$")
 ----
 
 You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of string are the following:
@@ -1940,9 +1940,9 @@ Any type functions can be applied to any type or instance except collections.
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**length()**# : numeric`
-|Returns the length of the string.
-|Example: `"apple"!length()` is `5`
+|`[purple]#**size()**# : numeric`
+|Returns the number of characters in the string.
+|Example: `"apple"!size()` is `5`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -2398,7 +2398,7 @@ Makes sense in JCL only.
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**count()**# : numeric`
+|`[purple]#**size()**# : numeric`
 |Returns the number of elements of a collection.
 // |TODO: examples
 |======================================================================
