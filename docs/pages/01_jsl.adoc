@@ -56,23 +56,13 @@ For example, a simplified version of the well-known copy command looks like this
 [purple]#**cp**# &#x5B;[purple]##**-a**##|[purple]##**-l**##|[purple]##**-r**##]... &lt;source>... &lt;directory>
 ----
 
-=== Overall Structure
+=== Overall structure
 
 Domain models are defined by a sequence of JSL statements. Each domain model is in a text file. The extension of the model text files shall be "jsl". E.g. CRM.jsl file contains the model definition of the customer relationship management (CRM) model.
 
 Domain models may refer to each other. References between models allow to partition domain models into multiple (sub)domains.
 
-JSL statements are terminated by the use of a new line. A `\` character can be placed at the end of the line to indicate that the following line is to be included as part of the same JSL statement.
-
-Statements are optionally terminated by a semicolon (`;`). With semicolon, two or more statements can be placed in a single line, expressing their strong relationship (e.g. two variable settings).
-
-=== Comments
-
-Comments may be inserted by use of the `//` characters at any point in the line. When `//` characters are detected, the rest of the line is considered to be a comment and ignored.
-
-Multi-line comments may be created by surrounding the lines by `/\*` and `*/`. Multi-line comments do not nest.
-
-=== Names
+=== Statements
 
 JSL statements are composed from:
 
@@ -80,31 +70,21 @@ JSL statements are composed from:
 * Expressions
 * Element names (entities, transfer objects, fields, actions, enumerations etc.)
 
-JSL keywords are case sensitive.
+JSL statements are terminated by the use of a new line. A `\` character can be placed at the end of the line to indicate that the following line is to be included as part of the same JSL statement.
 
-The names of JSL domain elements must conform to the following rules:
+Statements are optionally terminated by a semicolon (`;`). With semicolon, two or more statements can be placed in a single line, expressing their strong relationship (e.g. two variable settings).
 
-* Names are case-sensitive.
-* Name of elements must be unique within their scope in a case-insensitive manner.
-* A name can be a sequence of uppercase and lowercase English letters (A-Z, a-z) and digits (0-9).
-* The first character of a name must be a letter.
-* A name must have at least one character.
-* A name must not be longer than 128 characters.
+=== Keywords
 
-[IMPORTANT]
-====
-Even though element names (e.g. entity names, field names, enumeration literals, etc.) are case-sensitive, it is not allowed to have two elements in the same scope (e.g. two fields within an entity) whose names differ only in upper and lower case.
-====
+Keywords are predefined, reserved words used in JSL that have special meanings in the language. JSL keywords are always lowercase.
 
-=== Reserved words
-
-JSL has a set of words that are reserved words and cannot be used directly as element names. If you still want to use these reserved words as element names, the words must be enclosed in back-tick (```) characters as shown in the example below.
+Keywords cannot be used directly as element names. If you still want to use these reserved words as element names, the words must be enclosed in back-tick (```) characters as shown in the example below.
 
 ----
 field String `model`
 ----
 
-This is the list of reserved words in the JSL.
+This is the list of keywords in the JSL.
 
 [cols="1,1,1"]
 |======================================================================
@@ -120,6 +100,27 @@ This is the list of reserved words in the JSL.
 |extends    |opposite    |
 |======================================================================
 
+=== Element names
+
+The names of JSL domain elements must conform to the following rules:
+
+* Names are case-sensitive.
+* Name of elements must be unique within their scope in a case-insensitive manner.
+* A name can be a sequence of uppercase and lowercase English letters (A-Z, a-z) and digits (0-9).
+* The first character of a name must be a letter.
+* A name must have at least one character.
+* A name must not be longer than 128 characters.
+
+[IMPORTANT]
+====
+Even though element names (e.g. entity names, field names, enumeration literals, etc.) are case-sensitive, it is not allowed to have two elements in the same scope (e.g. two fields within an entity) whose names differ only in upper and lower case.
+====
+
+=== Comments
+
+Comments may be inserted by use of the `//` characters at any point in the line. When `//` characters are detected, the rest of the line is considered to be a comment and ignored.
+
+Multi-line comments may be created by surrounding the lines by `/\*` and `*/`. Multi-line comments do not nest.
 
 == Model
 
@@ -1105,8 +1106,6 @@ derived String fullName => (self.firstName +
                           self.lastName)
     
 ----
-
-Keywords in expressions are case insensitive, e.g. you can write the boolean `true` value as `TRUE` or `True` as well.
 
 === Operators
 
