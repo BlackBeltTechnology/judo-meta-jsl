@@ -16,6 +16,7 @@
     <modules>
         <module>ide-common</module>
         <module>ui</module>
+        <module>preview-plantuml</module>
         <module>feature</module>
     </modules>
 

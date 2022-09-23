@@ -1,8 +1,0 @@
-model SalesModel
-
-enum LeadStatus {
-	OPPORTUNITY = 0
-	LEAD = 1
-	PROJECT = 2
-}
-

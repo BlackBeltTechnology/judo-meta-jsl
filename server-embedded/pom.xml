@@ -1,0 +1,75 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+    <parent>
+    	<artifactId>hu.blackbelt.judo.meta.jsl</artifactId>
+		<groupId>hu.blackbelt.judo.meta</groupId>
+        <version>${revision}</version>
+	</parent>
+    
+    <artifactId>hu.blackbelt.judo.meta.jsl.server.embedded</artifactId>
+    <name>Judo :: Jsl :: Model :: JSL LSP Server Embedded</name>
+	
+	<packaging>jar</packaging>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+				<configuration>
+					<filesets combine.children="append">
+						<fileset>
+							<directory>${basedir}/xtend-gen/</directory>
+							<includes>
+								<include>**/*</include>
+							</includes>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eclipse.xtend</groupId>
+				<artifactId>xtend-maven-plugin</artifactId>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.3.0</version>
+				<executions>
+					<!-- Adds the generated sources to the compiler input -->
+					<execution>
+						<id>add-genmodel-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<!-- This should be in sync with xtext-maven-plugin//source-roots,
+                             except for /model directory -->
+							<sources>
+								<source>${project.basedir}/xtend-gen</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>hu.blackbelt.judo.meta.jsl.model</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>hu.blackbelt.judo.meta.jsl.ide.common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+</project>

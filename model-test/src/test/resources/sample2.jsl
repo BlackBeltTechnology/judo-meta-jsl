@@ -1,0 +1,7 @@
+model SampleModel2
+
+import SampleModel
+entity abstract Person {
+	field SampleModel::String firstName
+}
+

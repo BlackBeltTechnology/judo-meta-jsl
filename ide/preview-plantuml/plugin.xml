@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension
+         point="net.sourceforge.plantuml.eclipse.diagramIntentProvider">
+      
+      <diagramIntentProvider
+      	id="hu.blackbelt.judo.meta.jsl.ui.preview.JslEditorDiagramIntentProvider"
+      	providerClass="hu.blackbelt.judo.meta.jsl.ui.preview.JslEditorDiagramIntentProvider"
+      	label="Entity diagrams generated from JSL model"
+      	/>
+
+   </extension>
+
+</plugin>
