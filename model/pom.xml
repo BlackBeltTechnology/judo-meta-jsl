@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -33,7 +33,7 @@
 							</includes>
 						</fileset>
 						<fileset>
-							<directory>${basedir}/xtend-gen/</directory>
+							<directory>${basedir}/src/main/xtend-gen/</directory>
 							<includes>
 								<include>**/*</include>
 							</includes>
@@ -48,7 +48,7 @@
 							</includes>
 						</fileset>
 						<fileset>
-							<directory>${basedir}../ide/ui/xtend-gen/</directory>
+							<directory>${basedir}../ide/ui/src/main/xtend-gen/</directory>
 							<includes>
 								<include>**/*</include>
 							</includes>
@@ -71,7 +71,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<includes>hu/blackbelt/judo/meta/jslinternal/JslXtextProjectConfig.java
+					<includes>hu/blackbelt/judo/meta/jsl/JslXtextProjectConfig.java
 					</includes>
 				</configuration>
 			</plugin>
@@ -80,7 +80,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.1.0</version>
 				<executions>
 					<execution>
 						<id>mwe2Launcher-builder</id>
@@ -91,7 +91,7 @@
 						<configuration>
 							<mainClass>org.eclipse.emf.mwe2.launch.runtime.Mwe2Launcher</mainClass>
 							<arguments>
-								<argument>/${project.basedir}/src/main/java/hu/blackbelt/judo/meta/jslinternal/GenerateJslDsl.mwe2</argument>
+								<argument>/${project.basedir}/src/main/java/hu/blackbelt/judo/meta/jsl/GenerateJslDsl.mwe2</argument>
 								<argument>-p</argument>
 								<argument>rootPath=/${project.basedir}/..</argument>
 							</arguments>
@@ -118,7 +118,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.2.0</version>
+				<version>3.3.0</version>
 				<executions>
 					<!-- Adds the generated sources to the compiler input -->
 					<execution>
@@ -128,11 +128,11 @@
 							<goal>add-source</goal>
 						</goals>
 						<configuration>
-							<!-- This should be in sync with xtext-maven-plugin//source-roots,
-                             except for /model directory -->
+							<!-- This should be in sync with xtext-maven-plugin//source-roots, 
+								except for /model directory -->
 							<sources>
 								<source>${project.basedir}/src/main/xtext-gen</source>
-								<source>${project.basedir}/xtend-gen</source>
+								<source>${project.basedir}/src/main/xtend-gen</source>
 							</sources>
 						</configuration>
 					</execution>
@@ -140,25 +140,12 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.eclipse.xtext</groupId>
-				<artifactId>xtext-dev-bom</artifactId>
-				<version>${xtext-version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 	<dependencies>
 
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.ui.workbench</artifactId>
-			<version>3.122.200</version>
-			<scope>provided</scope>
+			<version>3.126.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.sun.jna</groupId>
@@ -214,6 +201,12 @@
 			<groupId>org.eclipse.xtext</groupId>
 			<artifactId>org.eclipse.xtext</artifactId>
 			<version>${xtext-version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.inject</groupId>
+					<artifactId>guice</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.xtext</groupId>
@@ -223,7 +216,12 @@
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
+			<version>4.2.3</version><!--$NO-MVN-MAN-VER$ -->
 		</dependency>
-
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>1.9</version>
+		</dependency>
 	</dependencies>
 </project>

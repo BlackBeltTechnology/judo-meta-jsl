@@ -3,11 +3,36 @@
  */
 package hu.blackbelt.judo.meta.jsl.ui
 
-import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
+import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.xtext.ui.editor.syntaxcoloring.AbstractAntlrTokenToAttributeIdMapper;
+import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
+import hu.blackbelt.judo.meta.jsl.ui.syntaxcoloring.HighlightingConfiguration;
+import hu.blackbelt.judo.meta.jsl.ui.syntaxcoloring.TokenHighlightingConfiguration;
+import hu.blackbelt.judo.meta.jsl.ui.syntaxcoloring.JslDslSemanticHighlightCalculator
+import org.eclipse.xtext.ide.editor.syntaxcoloring.ISemanticHighlightingCalculator
 
 /**
  * Use this class to register components to be used within the Eclipse IDE.
  */
-@FinalFieldsConstructor
+
 class JslDslUiModule extends AbstractJslDslUiModule {
+	
+	new(AbstractUIPlugin plugin) {
+		super(plugin)
+	}
+	
+	/**
+	 * Bind a proper highlighting configuration
+	 */
+	def Class<? extends IHighlightingConfiguration> bindIHighlightingConfiguration() {
+		return HighlightingConfiguration;
+	}
+
+	def Class<? extends AbstractAntlrTokenToAttributeIdMapper> bindAbstractAntlrTokenToAttributeIdMapper() {
+        return TokenHighlightingConfiguration;
+    }
+
+	def Class<? extends ISemanticHighlightingCalculator> bindSemanticHighlightingCalculator() {
+		return JslDslSemanticHighlightCalculator;
+	}
 }

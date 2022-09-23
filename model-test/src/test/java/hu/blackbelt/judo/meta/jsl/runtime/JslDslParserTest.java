@@ -1,108 +1,159 @@
 package hu.blackbelt.judo.meta.jsl.runtime;
 
-import com.google.common.collect.ImmutableMap;
-import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
+/*-
+ * #%L
+ * Judo :: Jsl :: Model
+ * %%
+ * Copyright (C) 2018 - 2022 BlackBelt Technology
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.matchesPattern;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.emf.ecore.xmi.XMIResource;
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
-import org.eclipse.xtext.resource.XtextResource;
-import org.eclipse.xtext.util.CancelIndicator;
-import org.eclipse.xtext.validation.CheckMode;
-import org.eclipse.xtext.validation.IResourceValidator;
-import org.eclipse.xtext.validation.Issue;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.eclipse.xtext.resource.XtextResourceSet;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel;
 
 public class JslDslParserTest {
 
     Logger log = LoggerFactory.getLogger(JslDslParserTest.class);
-    private JslParser parser;
 
-    private static final String TEST_MODEL = "model SalesModel\n" +
+    private static final String TEST_MODEL = "model SampleModel\n" +
             "\n" +
-            "enum LeadStatus {\n" +
-            "\tOPPORTUNITY = 0\n" +
-            "\tLEAD = 1\n" +
-            "\tPROJECT = 2\n" +
-            "}\n" +
-            "\n";
+            "type numeric Integer(precision = 9,  scale = 0)\n" +
+            "type string String(max-length = 128)\n";
 
-    @BeforeEach
-    public void setUp() {
-        parser = new JslParser();
-    }
+    private static final String TEST_MODEL2 = "model SampleModel2\n" +
+            "import SampleModel\n" +
+            "entity Person {\n" +
+            "field SampleModel::String name\n" +
+            "}\n";
 
-    @AfterEach
-    public void tearDown() {
-        parser = null;
-    }
 
-    private void validateResource(final XtextResource loaded) {
-        final IResourceValidator validator = loaded.getResourceServiceProvider().getResourceValidator();
-        final List<Issue> issues = validator.validate(loaded, CheckMode.ALL, CancelIndicator.NullImpl);
-
-        Assertions.assertTrue(issues.isEmpty());
-
-        Resource resource = new XMIResourceImpl(URI.createFileURI("target/classes/sample-jsl-" + UUID.randomUUID() + ".model"));
-        resource.getContents().addAll(EcoreUtil.copyAll(loaded.getContents()));
-        try {
-            resource.save(ImmutableMap.of(XMIResource.OPTION_ENCODING, "UTF-8"));
-        } catch (IOException ex) {
-            log.error("Unable to save JSL model", ex);
-        }
-    }
-
-    private void validateModelDeclaration(final ModelDeclaration modelDeclaration) {
-        Assertions.assertTrue(modelDeclaration instanceof ModelDeclaration);
-    }
 
     @Test
     public void testLoadFile() {
-        final XtextResource sample = parser.loadJslFromFile(new File( "src/test/model/sample.jsl"));
-        validateResource(sample);
+    	XtextResourceSet resourceSet = JslParser.loadJslFromFile(Arrays.asList(new File( "src/test/resources/sample.jsl")));
+    	assertTrue(resourceSet.getResources().size() == 1);
+    	assertTrue(resourceSet.getResources().get(0).getContents().get(0) instanceof ModelDeclaration);
+    	assertTrue(((ModelDeclaration) resourceSet.getResources().get(0).getContents().get(0)).getName().equals("SampleModel"));
     }
 
     @Test
-    public void testLoadStream() {
-        final XtextResource sample = parser.loadJslFromStream(new ByteArrayInputStream(TEST_MODEL.getBytes()), URI.createURI("urn:testLoadString"));
-        validateResource(sample);
+    public void testLoadInvalidFile() {
+
+    	JslParseException exception = assertThrows(JslParseException.class, () -> {
+        	JslParser.loadJslFromFile(Arrays.asList(new File( "src/test/resources/sample-invalid.jsl")));
+		});
+    	
+    	assertThat(exception.getMessage().replace("\t", "").replace("\n", ""), matchesPattern("^Error parsing JSL expression"
+    			+ "Couldn't resolve reference to SingleType 'String2'. in "
+    			+ "(.*)"
+    			+ "#//@declarations.0/@members.0 at \\[4, 8\\]"));
+
+    }
+
+    @Test
+    public void testLoadStream() throws UnsupportedEncodingException {
+    	XtextResourceSet resourceSet = JslParser.loadJslFromStream(Arrays.asList(new JslStreamSource(new ByteArrayInputStream(TEST_MODEL.getBytes("UTF-8")), URI.createURI("urn:testLoadString"))));
+    	assertTrue(resourceSet.getResources().size() == 1);
+    	assertTrue(resourceSet.getResources().get(0).getContents().get(0) instanceof ModelDeclaration);
+    	assertTrue(((ModelDeclaration) resourceSet.getResources().get(0).getContents().get(0)).getName().equals("SampleModel"));
     }
 
     @Test
     public void testLoadString() {
-        final XtextResource sample = parser.loadJslFromString(TEST_MODEL, URI.createURI("urn:testLoadStream"));
-        validateResource(sample);
+    	XtextResourceSet resourceSet = JslParser.loadJslFromString(Arrays.asList(TEST_MODEL));
+    	assertTrue(resourceSet.getResources().size() == 1);
+    	assertTrue(resourceSet.getResources().get(0).getContents().get(0) instanceof ModelDeclaration);
+    	assertTrue(((ModelDeclaration) resourceSet.getResources().get(0).getContents().get(0)).getName().equals("SampleModel"));
     }
 
     @Test
-    public void testParseFile() {
-        final ModelDeclaration modelDeclaration = parser.parseFile(new File("src/test/model/sample.jsl"));
-        validateModelDeclaration(modelDeclaration);
+    public void testGetModelDeclarationFromFiles() {
+        Optional<ModelDeclaration> model = JslParser.getModelDeclarationFromFiles(
+        		"SampleModel", 
+        		Arrays.asList(new File("src/test/resources/sample.jsl")));
+        assertTrue(model.isPresent());
+        assertEquals("SampleModel", model.get().getName());
     }
 
     @Test
-    public void testParseStream() {
-        final ModelDeclaration modelDeclaration = parser.parseStream(new ByteArrayInputStream(TEST_MODEL.getBytes()));
-        validateModelDeclaration(modelDeclaration);
+    public void testGetModelDeclarationFromStreamSources() throws UnsupportedEncodingException {
+    	Optional<ModelDeclaration> model = JslParser.getModelDeclarationFromStreamSources(
+    			"SampleModel", 
+    			Arrays.asList(new JslStreamSource(new ByteArrayInputStream(TEST_MODEL.getBytes("UTF-8")), URI.createURI("urn:testLoadFromByteArrayInputStream"))));
+        assertTrue(model.isPresent());
+        assertEquals("SampleModel", model.get().getName());
     }
 
     @Test
-    public void testParseString() {
-        final ModelDeclaration modelDeclaration = parser.parseString(TEST_MODEL);
-        validateModelDeclaration(modelDeclaration);
+    public void testGetModelDeclarationFromStrings() {
+    	Optional<ModelDeclaration> model = JslParser.getModelDeclarationFromStrings(
+    			"SampleModel2", 
+    			Arrays.asList(TEST_MODEL, TEST_MODEL2));
+        assertTrue(model.isPresent());
+        assertEquals("SampleModel2", model.get().getName());
     }
 
+    @Test
+    public void testGetModelFromFiles() {
+    	JslDslModel model = JslParser.getModelFromFiles(
+        		"SampleModel2", 
+        		Arrays.asList(
+        				new File("src/test/resources/sample.jsl"),
+        				new File("src/test/resources/sample2.jsl")        				
+        				));
+        assertEquals("SampleModel2", model.getName());
+    }
+
+    @Test
+    public void testGetModelFromStreamSources() throws UnsupportedEncodingException {
+    	JslDslModel model = JslParser.getModelFromStreamSources(
+    			"SampleModel2", 
+    			Arrays.asList(
+    					new JslStreamSource(new ByteArrayInputStream(TEST_MODEL.getBytes("UTF-8")), 
+    							URI.createURI("platform:/testLoadFromByteArrayInputStream.jsl")),
+    					new JslStreamSource(new ByteArrayInputStream(TEST_MODEL2.getBytes("UTF-8")), 
+    							URI.createURI("platform:/testLoadFromByteArrayInputStream2.jsl"))
+    					));
+        assertEquals("SampleModel2", model.getName());
+    }
+
+    @Test
+    public void testGetModelFromStrings() {
+    	JslDslModel model = JslParser.getModelFromStrings(
+    			"SampleModel2", 
+    			Arrays.asList(TEST_MODEL, TEST_MODEL2));
+        assertEquals("SampleModel2", model.getName());
+    }
+
+    
 }

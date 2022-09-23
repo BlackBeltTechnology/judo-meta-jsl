@@ -2,12 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: hu.blackbelt.judo.meta.jsl.ui
 Bundle-SymbolicName: hu.blackbelt.judo.meta.jsl.ide.ui;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
-Export-Package: hu.blackbelt.judo.meta.jsl.ui.contentassist,
+Export-Package: hu.blackbelt.judo.meta.jsl.ui,
+ hu.blackbelt.judo.meta.jsl.ui.contentassist,
  hu.blackbelt.judo.meta.jsl.ui.quickfix,
- hu.blackbelt.judo.meta.jsl.ui
+ hu.blackbelt.judo.meta.jsl.ui.syntaxcoloring
 Require-Bundle: org.eclipse.compare,
  org.eclipse.ui,
  org.eclipse.ui.editors,

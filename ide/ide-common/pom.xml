@@ -14,8 +14,13 @@
 
     <name>Judo :: Jsl :: Model :: JSL IDE Common</name>
 
+	<properties>
+		<src.dir>src/main/java</src.dir>
+	</properties>
+
 	<build>
 		<plugins>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-clean-plugin</artifactId>
@@ -26,9 +31,35 @@
 					</execution>
 				</executions>
 			</plugin>
+
+
 			<plugin>
 				<groupId>org.eclipse.xtend</groupId>
 				<artifactId>xtend-maven-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.3.0</version>
+				<executions>
+					<!-- Adds the generated sources to the compiler input -->
+					<execution>
+						<id>add-genmodel-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<!-- This should be in sync with xtext-maven-plugin//source-roots,
+                             except for /model directory -->
+							<sources>
+								<source>${project.basedir}/src/main/xtext-gen</source>
+								<source>${project.basedir}/src/main/xtend-gen</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
@@ -45,13 +76,17 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.6</version>
         </dependency>
         <dependency>
         	<groupId>org.eclipse.xtext</groupId>
         	<artifactId>org.eclipse.xtext.ide</artifactId>
         	<version>${xtext-version}</version>
         </dependency>
+		 <dependency>
+			 <groupId>hu.blackbelt.judo.meta</groupId>
+			 <artifactId>hu.blackbelt.judo.meta.jsl.model</artifactId>
+			 <version>${project.version}</version>
+		 </dependency>
      </dependencies>
      
 </project>
