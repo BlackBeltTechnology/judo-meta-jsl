@@ -1278,10 +1278,6 @@ Functions that handle individual elements in a collection use an iterator variab
 
 where <variable> is the name of the iterator variable that will iterate through all elements on the result of the <navigation> collection. The <expr> is an expression  that will provide the input list for the <function>.
 
-Iterator variables are only accessible in parentheses where they have been defined. In other words, the scope of the iterator variable is limited to after the `|` (pipe) character. If the iterator expression contains another iterator function, the iterator variable of the embedding iterator function is not accessible within the embedded iterator function.
-
-Using `self` in iterator expressions is currently not allowed.
-
 *Examples:*
 
 ----
@@ -1297,6 +1293,30 @@ self.orders!filter(order | order.price > 100)!max(order | order.discount)
 ----
 
 The list of available functions can be found in section <<Functions>>.
+
+Iterator variables are only accessible in parentheses where they have been defined. In other words, the scope of the iterator variable is limited to after the `|` (pipe) character. If the iterator expression contains another iterator function, the iterator variable of the embedding iterator function is not accessible within the embedded iterator function.
+
+Using `self` in iterator expressions is currently not allowed.
+
+[NOTE]
+====
+Even though `self` and the iterators of embedding functions cannot be used in functions, proper modeling can work around this limitation. When we need the value of the `self` or embedding iterator, use a bidirectional relation. The bidirectional relation can be used to navigate back to `self` or to any embedding iterator value.
+
+The following example selects a salesperson's leads that are less valuable than average lead values.
+
+----
+entity Lead {
+    field Integer value;
+}
+
+entity SalesPerson {
+    relation Lead[] leads opposite-add salesPerson;
+    derived Integer avgValue => self.leads!avg(l | l.value);
+    derived Lead[] belowAvgLeads = > self.leads!filter(l | l.value < l.salesPerson.avgValue);
+}
+----
+
+====
 
 === External variables
 
