@@ -123,6 +123,43 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		resource.addLiteralFunctionDeclaration("isUnDefined", RT_BOOLEAN_INSTANCE, anyFunctionBaseInstanceOrCollectionTypes)
 		resource.addLiteralFunctionDeclaration("size", RT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
 
+		resource.addLiteralFunctionDeclaration("orElse", RT_BOOLEAN_INSTANCE, #[BT_BOOLEAN_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_BOOLEAN_INSTANCE, #[BT_BOOLEAN_INSTANCE])
+			])
+		resource.addLiteralFunctionDeclaration("orElse", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+			])
+		resource.addLiteralFunctionDeclaration("orElse", RT_DATE_INSTANCE, #[BT_DATE_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_DATE_INSTANCE, #[BT_DATE_INSTANCE])
+			])
+		resource.addLiteralFunctionDeclaration("orElse", RT_TIME_INSTANCE, #[BT_TIME_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_TIME_INSTANCE, #[BT_TIME_INSTANCE])
+			])
+		resource.addLiteralFunctionDeclaration("orElse", RT_TIMESTAMP_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_TIMESTAMP_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
+			])
+		resource.addLiteralFunctionDeclaration("orElse", RT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
+			])
+		resource.addLiteralFunctionDeclaration("orElse", RT_BINARY_INSTANCE, #[BT_BINARY_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_BINARY_INSTANCE, #[BT_BINARY_INSTANCE])
+			])
+		resource.addLiteralFunctionDeclaration("orElse", RT_ENUM_LITERAL, #[BT_ENUM_LITERAL])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_ENUM_LITERAL, #[BT_ENUM_LITERAL])
+			])
+		resource.addLiteralFunctionDeclaration("orElse", RT_ENTITY_INSTANCE, #[BT_ENTITY_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_ENTITY_INSTANCE, #[BT_ENTITY_INSTANCE])
+			])
+
 		resource.addLiteralFunctionDeclaration("first", RT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("count", false, true, PT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])

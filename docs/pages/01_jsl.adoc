@@ -1967,6 +1967,16 @@ Any type functions can be applied to any type or instance except collections.
 |Example: `"apple"!isUndefined()` is `false`
 |======================================================================
 
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**orElse(value = **#<value>[purple]##**)**## : <type>`
+|Returns <value> if the given expression to which it is applied returns undefined. Otherwise, it returns the value of the given expression. The type of <value> must be the same as the given expression.
+|Examples:
+|`"apple"!orElse("grape")` is `"apple"`
+|`2!orElse(3)` is `2`
+|`self.name!orElse("unknown")` is `"unknown"` if `self.name` is `UNDEFINED`, otherwise it returns the value of `self.name`.
+|======================================================================
+
 === String functions
 
 [options="header",grid="none",cols="1a"]
