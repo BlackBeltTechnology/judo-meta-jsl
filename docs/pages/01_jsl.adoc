@@ -2489,6 +2489,20 @@ Makes sense in JCL only.
 |Example: `self.orderDetails!allTrue(od \| od.price < 10)`
 |======================================================================
 
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**anyFalse(**#<variable name> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
+|Returns true if the logical expression is false for any element in the collection.
+|Example: `self.orderDetails!anyFalse(od \| od.price < 10)`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**allFalse(**#<variable name> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
+|Returns true if the logical expression is false for all the collection elements.
+|Example: `self.orderDetails!allFalse(od \| od.price < 10)`
+|======================================================================
+
 ////
 TODO: what is this?
 [options="header",grid="none",cols="1a"]
