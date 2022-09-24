@@ -106,7 +106,6 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		CapitalizeFunction returns LiteralFunction : {LiteralFunction} name = 'capitalize' '(' ')';
 		MatchesFunction returns LiteralFunction : {LiteralFunction} name = 'matches' '(' 'pattern' '=' parameters += FunctionParameter ')';
 		LikeFunction returns LiteralFunction : {LiteralFunction} name = 'like' '(' 'pattern' '=' parameters += FunctionParameter ')';
-		IlikeFunction returns LiteralFunction : {LiteralFunction} name = 'ilike' '(' 'pattern' '=' parameters += FunctionParameter ')';
 		ReplaceFunction returns LiteralFunction : {LiteralFunction} name = 'replace' '(' 'oldstring' '=' parameters += FunctionParameter ',' 'newstring' '=' parameters += FunctionParameter ')';
 		TrimFunction returns LiteralFunction : {LiteralFunction} name = 'trim' '(' ')';
 		LtrimFunction returns LiteralFunction : {LiteralFunction} name = 'ltrim' '(' ')';
@@ -154,11 +153,8 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 			])
 		resource.addLiteralFunctionDeclaration("like", RT_BOOLEAN_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("pattern", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-			])
-		resource.addLiteralFunctionDeclaration("ilike", RT_BOOLEAN_INSTANCE, #[BT_STRING_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("pattern", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+				createFunctionParameterDeclaration("pattern", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE]),
+				createFunctionParameterDeclaration("exact", false, false, PT_BOOLEAN_INSTANCE, #[BT_BOOLEAN_INSTANCE])
 			])
 		resource.addLiteralFunctionDeclaration("replace", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
