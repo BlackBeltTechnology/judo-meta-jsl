@@ -2090,6 +2090,27 @@ If either of these two signs is not used in the <pattern>, then the function act
 |Example: `"   apple   "!rtrim()` is `"   apple"`
 |======================================================================
 
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**lpad(size = **#<size> &#x5B;[purple]##**, padstring = **##<padstring>][purple]##**)**## : string`
+|Fills up a string on the left to the specified <size> with <padstring>. If the length of <padstring> is less than the remaining length, the <padstring> is repeated until it is not filling up. If the length of <padstring> is longer than the remaining length, it will be truncated on the right. If <padstring> is not defined, one space character (`" "`) is used by default.
+|Examples:
+|`"apple"!lpad(size = 6) is `" apple"`
+|`"ple"!lpad(size = 5, padstring = "ap")` is `"apple"`
+|`"ple"!lpad(size = 6, padstring = "ap")` is `"apaple"`
+|`"ple"!lpad(size = 7, padstring = "ap")` is `"apapple"`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**rpad(size = **#<size> &#x5B;[purple]##**, padstring = **##<padstring>][purple]##**)**## : string`
+|Fills up a string on the right to the specified <size> with <padstring>. If the length of <padstring> is less than the remaining length, the <padstring> is repeated until it is not filling up. If the length of <padstring> is longer than the remaining length, it will be truncated on the left. If <padstring> is not defined, one space character (`" "`) is used by default.
+|Examples:
+|`"apple"!rpad(size = 6)` is `"apple "`
+|`"app"!rpad(size = 5, padstring = "le")` is `"apple"`
+|`"app"!rpad(size = 6, padstring = "le")` is `"applel"`
+|`"app"!rpad(size = 7, padstring = "le")` is `"applele"`
+|======================================================================
 
 === Numeric functions
 

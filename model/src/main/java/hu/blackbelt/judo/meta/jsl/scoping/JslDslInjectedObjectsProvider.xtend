@@ -63,6 +63,19 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		]
 	}
 
+	def Collection<FunctionBaseType> anyFunctionBasePrimitiveAndSingleInstances() {
+		#[
+			BT_STRING_INSTANCE,
+			BT_DATE_INSTANCE,
+			BT_BOOLEAN_INSTANCE,
+			BT_TIME_INSTANCE,
+			BT_TIMESTAMP_INSTANCE,
+			BT_NUMERIC_INSTANCE,
+			BT_BINARY_INSTANCE,
+			BT_ENTITY_INSTANCE
+		]
+	}
+
 	def Collection<FunctionBaseType> anyFunctionBasePrimitiveInstances() {
 		#[
 			BT_STRING_INSTANCE,
@@ -123,13 +136,15 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		resource.addLiteralFunctionDeclaration("isUnDefined", RT_BOOLEAN_INSTANCE, anyFunctionBaseInstanceOrCollectionTypes)
 		resource.addLiteralFunctionDeclaration("size", RT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
 
-		resource.addLiteralFunctionDeclaration("orElse", RT_BOOLEAN_INSTANCE, #[BT_BOOLEAN_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("value", false, true, PT_BOOLEAN_INSTANCE, #[BT_BOOLEAN_INSTANCE])
-			])
+		// TODO: this should be a base type dependent return type !
 		resource.addLiteralFunctionDeclaration("orElse", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("value", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+			])
+		/*
+		resource.addLiteralFunctionDeclaration("orElse", RT_BOOLEAN_INSTANCE, #[BT_BOOLEAN_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_BOOLEAN_INSTANCE, #[BT_BOOLEAN_INSTANCE])
 			])
 		resource.addLiteralFunctionDeclaration("orElse", RT_DATE_INSTANCE, #[BT_DATE_INSTANCE])
 			.parameterDeclarations.addAll(#[
@@ -159,6 +174,7 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("value", false, true, PT_ENTITY_INSTANCE, #[BT_ENTITY_INSTANCE])
 			])
+		*/
 
 		resource.addLiteralFunctionDeclaration("first", RT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
@@ -191,7 +207,7 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		resource.addLiteralFunctionDeclaration("like", RT_BOOLEAN_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("pattern", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE]),
-				createFunctionParameterDeclaration("exact", false, false, PT_BOOLEAN_INSTANCE, #[BT_BOOLEAN_INSTANCE])
+				createFunctionParameterDeclaration("exact", false, false, PT_BOOLEAN_INSTANCE, #[BT_STRING_INSTANCE])
 			])
 		resource.addLiteralFunctionDeclaration("replace", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
@@ -202,6 +218,16 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		resource.addLiteralFunctionDeclaration("trim", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 		resource.addLiteralFunctionDeclaration("ltrim", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 		resource.addLiteralFunctionDeclaration("rtrim", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+		resource.addLiteralFunctionDeclaration("lpad", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("size", false, true, PT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE]),
+				createFunctionParameterDeclaration("padstring", false, false, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+			])
+		resource.addLiteralFunctionDeclaration("rpad", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("size", false, true, PT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE]),
+				createFunctionParameterDeclaration("padstring", false, false, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+			])
 		
 		/*
 		// Numeric functions
