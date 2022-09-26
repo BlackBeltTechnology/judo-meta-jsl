@@ -2095,15 +2095,14 @@ If either of these two signs is not used in the <pattern>, then the function act
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**round()**# : numeric`
-|Returns the closest integer.
+|`[purple]#**round(**#&#x5B;[purple]##**scale = **##<scale>][purple]##**)**## : numeric`
+|Returns the closest number. The optional <scale> argument is an integer that determines the number of decimal places of rounding. The default value of <scale> is 0.
 |Example:
 |`1!round()` is `1`
-|`1.23!round()` is `1`
 |`7.89!round()` is `8`
+|`7.89!round(scale = 1)` is `7.9`
 |`2.50!round()` is `3`
 |`-2.5!round()` is `-3`
-|`-1.23!round()` is `-1`
 |`-7.89!round()` is `-8`
 |======================================================================
 
