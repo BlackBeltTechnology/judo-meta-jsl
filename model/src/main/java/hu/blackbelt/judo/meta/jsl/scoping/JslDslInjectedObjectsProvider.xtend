@@ -259,7 +259,7 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 				createFunctionParameterDeclaration("second", false, true, PT_NUMERIC_INSTANCE, #[BT_TIME_TYPE]),
 
 				createFunctionParameterDeclaration("date", false, true, PT_DATE_INSTANCE, #[BT_TIMESTAMP_TYPE]),
-				createFunctionParameterDeclaration("time", false, true, PT_TIME_INSTANCE, #[BT_TIMESTAMP_TYPE])
+				createFunctionParameterDeclaration("time", false, false, PT_TIME_INSTANCE, #[BT_TIMESTAMP_TYPE])
 
 			])
 
