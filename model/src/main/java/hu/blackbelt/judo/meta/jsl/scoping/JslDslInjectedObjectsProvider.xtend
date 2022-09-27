@@ -269,6 +269,8 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		resource.addLiteralFunctionDeclaration("year", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
 		resource.addLiteralFunctionDeclaration("month", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
 		resource.addLiteralFunctionDeclaration("day", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
+		resource.addLiteralFunctionDeclaration("dayOfWeek", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
+		resource.addLiteralFunctionDeclaration("dayOfYear", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
 
 		resource.addLiteralFunctionDeclaration("hour", RT_NUMERIC_INSTANCE, #[BT_TIME_INSTANCE])
 		resource.addLiteralFunctionDeclaration("minute", RT_NUMERIC_INSTANCE, #[BT_TIME_INSTANCE])
