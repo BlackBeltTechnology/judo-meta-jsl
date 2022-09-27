@@ -1328,7 +1328,7 @@ External variables can be accessed from the model using a category and key pair 
 
 [subs="quotes"]
 ----
-&lt;primitive>[purple]##**!getVariable**##(&lt;category>[purple]##**,**## &lt;key>[purple]##**)**##
+&lt;primitive>[purple]##**!getVariable(category = **##&lt;category>[purple]##**, key = **##&lt;key>[purple]##**)**##
 ----
 
 where <primitive> is a domain primitive that defines the type of the returned value. The valid <category> and <key> pairs a listed in the table below.
@@ -1344,7 +1344,7 @@ Domain primitive constraints are evaluated when “getVariable” is called. If 
 |`SYSTEM`     |`current_date`
 |Returns the current date.
 
-`Date!getVariable("SYSTEM", "current_date")`
+`Date!getVariable(category = "SYSTEM", key = "current_date")`
 
 Shortcut: `Date!now()`
 
@@ -1352,29 +1352,29 @@ Shortcut: `Date!now()`
 |`SYSTEM`     |`current_timestamp`
 |Returns the current time.
 
-`Timestamp!getVariable("SYSTEM", "current_timestamp")`
+`Timestamp!getVariable(category = "SYSTEM", key = "current_timestamp")`
 
 Shortcut: `Timestamp!now()`
 
 |`SYSTEM`     |`current_time`
 |Returns the current time.
 
-`Time!getVariable("SYSTEM", "current_time")`
+`Time!getVariable(category = "SYSTEM", key = "current_time")`
 
 Shortcut: `Time!now()`
 
 |`ENVIRONMENT`|_any_
 |Returns an OS environment variable.
 
-Path for the current working directory: `String!getVariable("ENVIRONMENT", "PWD")`
+Path for the current working directory: `String!getVariable(category = "ENVIRONMENT", key = "PWD")`
 
-UID of running OS user: `Integer!getVariable("ENVIRONMENT", "UID")`
+UID of running OS user: `Integer!getVariable(category = "ENVIRONMENT", key = "UID")`
 |`SEQUENCE`   |_sequence name_
 |A continuously increasing integer is returned with each call. The maximum value cannot exceed the range of an eight-byte integer. Sequences are constant and optimized for concurrency. Sequences cannot be used for "gap-free" assignment of sequence numbers.
 
 If the sequence does not already exist, it creates the sequence and returns the first sequence value.
 
-Get next Order number: `Long!getVariable("SEQUENCE", "Order")`
+Get next Order number: `Long!getVariable(category = "SEQUENCE", key = "Order")`
 |==================================================
 
 
@@ -1971,6 +1971,17 @@ Any type functions can be applied to any type or instance except collections.
 |======================================================================
 |`[purple]#**orElse(value = **#<value>[purple]##**)**## : <type>`
 |Returns <value> if the given expression to which it is applied returns undefined. Otherwise, it returns the value of the given expression. The type of <value> must be the same as the given expression.
+|Examples:
+|`"apple"!orElse("grape")` is `"apple"`
+|`2!orElse(3)` is `2`
+|`self.name!orElse("unknown")` is `"unknown"` if `self.name` is `UNDEFINED`, otherwise it returns the value of `self.name`.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**getVariable(category = **#<value>[purple]##**, key = **##<key>[purple]##**)**## : <type>`
+|Static function, returns the value of an external variable using <category> and <key> pair that are evaluated at runtime.
+|See more details in chapter <<External variables>>.
 |Examples:
 |`"apple"!orElse("grape")` is `"apple"`
 |`2!orElse(3)` is `2`
