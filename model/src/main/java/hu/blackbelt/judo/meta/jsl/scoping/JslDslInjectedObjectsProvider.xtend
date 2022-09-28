@@ -321,13 +321,13 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		
 		resource.addLiteralFunctionDeclaration("plus", RT_TIMESTAMP_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
 			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("milliseconds", false, true, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("seconds", false, true, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("minutes", false, true, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("hours", false, true, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("days", false, true, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("months", false, true, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("years", false, true, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
+				createFunctionParameterDeclaration("years", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
+				createFunctionParameterDeclaration("months", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
+				createFunctionParameterDeclaration("days", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
+				createFunctionParameterDeclaration("hours", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
+				createFunctionParameterDeclaration("minutes", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
+				createFunctionParameterDeclaration("seconds", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
+				createFunctionParameterDeclaration("milliseconds", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
 			])
 		
 		/*
