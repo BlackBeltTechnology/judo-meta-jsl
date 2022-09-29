@@ -2315,46 +2315,21 @@ If either of these two signs is not used in the <pattern>, then the function act
 |Example: `Timestamp!fromMilliseconds(milliseconds = 60000)` is `&#x60;1970-01-01T00:01:00Z&#x60;`
 |======================================================================
 
-[options="header",grid="none",cols="1a"]
-|======================================================================
-|`[purple]#**plusMilliseconds(milliseconds = **#<milliseconds>[purple]##**)**## : timestamp`
-|Adds duration expressed in <milliseconds> to the original time. <milliseconds> must be an integer. If <milliseconds> is less than 0, the result will be less than the original timestamp.
-|======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**plusSeconds(seconds = **#<seconds>[purple]##**)**## : timestamp`
-|Adds duration expressed in <seconds> to the original time. <seconds> must be an integer. If <seconds> is less than 0, the result will be less than the original timestamp.
-|======================================================================
+|`[purple]#**plus(**#&#x5B;[purple]##**milliseconds = **##<milliseconds>]&#x5B;[purple]##**, seconds = **##<seconds>]&#x5B;[purple]##**, minutes = **##<minutes>]&#x5B;[purple]##**, hours = **##<hours>]&#x5B;[purple]##**, days = **##<days>]&#x5B;[purple]##**, months = **##<months>]&#x5B;[purple]##**, years = **##<years>][purple]##**)**## : timestamp`
+|Adds duration expressed in <milliseconds>, <seconds>, <minutes>, <hours>, <days>, <months> or <days> to the original timestamp.
 
-[options="header",grid="none",cols="1a"]
-|======================================================================
-|`[purple]#**plusMinutes(minutes = **#<minutes>[purple]##**)**## : timestamp`
-|Adds duration expressed in <minutes> to the original time. <minutes> must be an integer. If <minutes> is less than 0, the result will be less than the original timestamp.
-|======================================================================
+At least one parameter is required, but any parameter can be used in conjunction with the others. All arguments passed must be integers. If any argument is less than 0, its value is subtracted from the original timestamp.
 
-[options="header",grid="none",cols="1a"]
-|======================================================================
-|`[purple]#**plusHours(hours = **#<hours>[purple]##**)**## : timestamp`
-|Adds duration expressed in <hours> to the original time. <hours> must be an integer. If <hours> is less than 0, the result will be less than the original timestamp.
-|======================================================================
+Examples:
 
-[options="header",grid="none",cols="1a"]
-|======================================================================
-|`[purple]#**plusDays(days = **#<days>[purple]##**)**## : timestamp`
-|Adds duration expressed in <days> to the original time. <days> must be an integer. If <days> is less than 0, the result will be less than the original timestamp.
-|======================================================================
+`&#x60;2019-07-18T01:11:12Z&#x60;!plus(days = 1)` is `"2019-07-19T01:11:12Z"`
 
-[options="header",grid="none",cols="1a"]
-|======================================================================
-|`[purple]#**plusMonths(months = **#<months>[purple]##**)**## : timestamp`
-|Adds duration expressed in <months> to the original time. <months> must be an integer. If the result date is invalid, the function sets the day to the last valid day of the month. If <months> is less than 0, the result will be less than the original timestamp.
-|======================================================================
+`&#x60;2019-07-18T01:11:12Z&#x60;!plus(days = 1, hours = 2)` is `"2019-07-19T03:11:12Z"`
 
-[options="header",grid="none",cols="1a"]
-|======================================================================
-|`[purple]#**plusYears(years = **#<years>[purple]##**)**## : timestamp`
-|Adds duration expressed in <years> to the original time. <years> must be an integer. If <years> is less than 0, the result will be less than the original timestamp.
+`&#x60;2019-07-18T01:11:12Z&#x60;!plus(days = 1, hours = -24)` is `"2019-07-18T01:11:12Z"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
