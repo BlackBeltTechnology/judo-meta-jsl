@@ -1,14 +1,12 @@
-grammar hu.blackbelt.judo.meta.jsl.JslDsl hidden(WS, NL, SL_COMMENT, ML_COMMENT)
+grammar hu.blackbelt.judo.meta.jsl.JslDsl hidden(WS, ML_COMMENT, SL_COMMENT)
 
 import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 generate jsldsl "http://www.blackbelt.hu/judo/meta/jsl/JslDsl"
-
  
-ModelDeclaration returns ModelDeclaration hidden(WS, SL_COMMENT, ML_COMMENT)
-    : {ModelDeclaration} 'model' name = ModelName
+ModelDeclaration returns ModelDeclaration
+    : {ModelDeclaration} 'model' name = ModelName ';'+
       imports += ModelImport*
 	  (declarations += Declaration)*
-	  NL*
     ;
 
 JSLID : ID | 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'timestamp'
@@ -16,19 +14,19 @@ JSLID : ID | 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'ti
 	       | 'DESC' | 'ASC'
 	;
 
-
 ModelImport
-    : NL+ 'import' modelName = ModelImportDeclaration
+    : 'import' modelName = ModelImportDeclaration ';'+
 	;
 
-ModelImportDeclaration
+ModelImportDeclaration 
     : importName = ModelName ('as' alias = JSLID)?
 	;
 
 Declaration
-	: NL+ (TypeDeclaration
+	: (TypeDeclaration
 	| ErrorDeclaration
-	| QueryDeclaration )
+	| QueryDeclaration)
+	  ';'*
 	;
 
 
@@ -68,24 +66,26 @@ QueryDeclaration
 	: 'query' (referenceType = [SingleType | LocalName] Cardinality?) Named
 	  ('(' parameters += QueryDeclarationParameter (',' parameters += QueryDeclarationParameter)* ')')
 	  "=>" expression = Expression
+	  ';'
 	;
 
 EntityMemberDeclaration
-	: NL+ (EntityFieldDeclaration
+	: (EntityFieldDeclaration
 	| EntityIdentifierDeclaration
 	| EntityRelationDeclaration
 	| EntityDerivedDeclaration
 	| EntityQueryDeclaration
 	| ConstraintDeclaration)
+	  ';'*
 	;
 
 ConstraintDeclaration
-	: 'constraint' Named expression = Expression ('onerror' error = CreateError)?
+	: 'constraint' Named expression = Expression ('onerror' error = CreateError)? ';'
 	;
 
 EntityFieldDeclaration
 	: 'field' (isRequired ?= 'required'? referenceType = [SingleType | LocalName] Cardinality?) Named
-	  (defaultExpression = DefaultExpressionType)?
+	  (defaultExpression = DefaultExpressionType)? ';'
 	;
 
 
@@ -101,18 +101,18 @@ SingleType
 
 EntityIdentifierDeclaration
 	: 'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] Named
-	  (defaultExpression = DefaultExpressionType)?
+	  (defaultExpression = DefaultExpressionType)? ';'
 	;
 
 EntityDerivedDeclaration
 	: 'derived' (referenceType = [SingleType | LocalName] Cardinality?) Named
-	  "=>" expression = Expression
+	  "=>" expression = Expression ';'
 	;
 
 EntityQueryDeclaration
 	: 'query' (referenceType = [EntityQueryTargetType | LocalName] Cardinality?) Named
 	  ('(' parameters += QueryDeclarationParameter (',' parameters += QueryDeclarationParameter)* ')')
-	  "=>" expression = Expression
+	  "=>" expression = Expression ';'
 	;
 
 EntityQueryTargetType
@@ -126,7 +126,7 @@ QueryDeclarationParameter
 
 EntityRelationDeclaration
 	: 'relation' (isRequired ?= 'required'? referenceType = [EntityDeclaration | LocalName] Cardinality?) Named
-	  opposite = EntityRelationOpposite?
+	  opposite = EntityRelationOpposite? ';'
 	;
 
 EntityRelationOpposite
@@ -153,8 +153,8 @@ ErrorDeclaration
 	;
 
 ErrorField
-	: NL+ 'field' referenceType = [PrimitiveDeclaration | LocalName] Named
-	  (defaultExpression = DefaultExpressionType)?
+	: 'field' referenceType = [PrimitiveDeclaration | LocalName] Named
+	  (defaultExpression = DefaultExpressionType)? ';'+
 	;
 
 CreateError
@@ -171,17 +171,17 @@ ThrowParameter
  ****************************/
 
     
-DataTypeDeclaration hidden(WS, CONT_NL, SL_COMMENT, ML_COMMENT)
+DataTypeDeclaration
     : 'type'
       (
 		  BooleanPrimitive
 		| BinaryPrimitive '(' mimeTypes = ModifierMimeTypes ',' maxFileSize = ModifierMaxFileSize ')'
-		| StringPrimitive '(' maxLength = ModifierMaxLength (',' regex = ModifierRegex)? ')'
+		| StringPrimitive '(' minSize = ModifierMinSize ',' maxSize = ModifierMaxSize (',' regex = ModifierRegex)? ')'
 		| NumericPrimitive '(' precision = ModifierPrecision ',' scale = ModifierScale ')'
 		| DatePrimitive
 		| TimePrimitive
 		| TimestampPrimitive
-      )
+      ) ';'
     ;
 
 BooleanPrimitive returns DataTypeDeclaration: primitive = 'boolean' Named;
@@ -204,12 +204,16 @@ EnumDeclaration
     ;
 
 EnumLiteral
-    : NL+ Named '=' value = INTEGER
+    : Named '=' value = INTEGER ';'+
     ;
 
 
-ModifierMaxLength
-	: 'max-length' '=' value = INTEGER
+ModifierMinSize
+	: 'min-size' '=' value = INTEGER
+	;
+
+ModifierMaxSize
+	: 'max-size' '=' value = INTEGER
 	;
 
 ModifierRegex
@@ -249,7 +253,7 @@ enum DataUnit
  *	Expression
  ***************************/
 
-Expression returns Expression hidden(WS, CONT_NL, SL_COMMENT, ML_COMMENT)
+Expression returns Expression
 	: SwitchExpression (=> ({Expression.switchExpression=current}) parenthesizedExpression=ParenthesizedExpression)*
 	;
 
@@ -257,7 +261,7 @@ ParenthesizedExpression returns Expression
 	: {ParenthesizedExpression} '(' => expression = MultilineExpression ')'
 	;
 
-MultilineExpression returns Expression hidden(WS, NL, CONT_NL, SL_COMMENT, ML_COMMENT)
+MultilineExpression returns Expression
 	: SwitchExpression
 	;
 
@@ -554,11 +558,11 @@ ModelName
  ****************************/
 
 BLOCK_START
-	: NL* '{'
+	: '{'
 	;
 
 BLOCK_END
-	: NL* '}'
+	: '}'
 	;
 
 terminal fragment DIGIT
@@ -605,9 +609,11 @@ terminal RAW_STRING
 	: 'r"' (!('"' | NEWLINE))* '"'
 	;
 
+/*
 terminal CONT_NL
 	: '\\' (' ' | '\t')* '\r'? '\n'
 	;
+*/
  
 terminal ML_COMMENT
 	: '/*'->'*/'
@@ -618,11 +624,15 @@ terminal SL_COMMENT
 	;
 
 terminal WS
+	: (' '|'\t'|'\r'|'\n')+
+	;
+
+/*    
+terminal WS
 	: (' ' | '\t')+
 	;
 
 terminal NL
 	: NEWLINE | ';'
 	;
-
-	
+ */
