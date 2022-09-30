@@ -1,4 +1,4 @@
-model SalesModelContract
+model SalesModelContract;
 
 entity Contract {
 }

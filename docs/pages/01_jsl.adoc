@@ -56,55 +56,53 @@ For example, a simplified version of the well-known copy command looks like this
 [purple]#**cp**# &#x5B;[purple]##**-a**##|[purple]##**-l**##|[purple]##**-r**##]... &lt;source>... &lt;directory>
 ----
 
-=== Overall Structure
+=== Overall structure
 
 Domain models are defined by a sequence of JSL statements. Each domain model is in a text file. The extension of the model text files shall be "jsl". E.g. CRM.jsl file contains the model definition of the customer relationship management (CRM) model.
 
 Domain models may refer to each other. References between models allow to partition domain models into multiple (sub)domains.
 
-JSL statements are terminated by the use of a new line. A `\` character can be placed at the end of the line to indicate that the following line is to be included as part of the same JSL statement.
-
-Statements are optionally terminated by a semicolon (`;`). With semicolon, two or more statements can be placed in a single line, expressing their strong relationship (e.g. two variable settings).
-
-=== Comments
-
-Comments may be inserted by use of the `//` characters at any point in the line. When `//` characters are detected, the rest of the line is considered to be a comment and ignored.
-
-Multi-line comments may be created by surrounding the lines by `/\*` and `*/`. Multi-line comments do not nest.
-
-=== Names
+=== Statements
 
 JSL statements are composed from:
 
 * JSL keywords
 * Expressions
-* Element names (entities, transfer objects, fields, actions, enumerations etc.)
+* Element names (entities, fields, enumerations etc.)
 
-JSL keywords are case sensitive.
+JSL statements are terminated by a semicolon (`;`). A semicolon is optional at the end of block declarations (`{ ... }`). However, extra `;` tokens after statements have no effect.
 
-The names of JSL domain elements must conform to the following rules:
+A statement can be broken into several lines.
 
-* Names are case-sensitive.
-* Name of elements must be unique within their scope in a case-insensitive manner.
-* A name can be a sequence of uppercase and lowercase English letters (A-Z, a-z) and digits (0-9).
-* The first character of a name must be a letter.
-* A name must have at least one character.
-* A name must not be longer than 128 characters.
+The following example is syntactically valid.
 
-[IMPORTANT]
-====
-Even though element names (e.g. entity names, field names, enumeration literals, etc.) are case-sensitive, it is not allowed to have two elements in the same scope (e.g. two fields within an entity) whose names differ only in upper and lower case.
-====
-
-=== Reserved words
-
-JSL has a set of words that are reserved words and cannot be used directly as element names. If you still want to use these reserved words as element names, the words must be enclosed in back-tick (```) characters as shown in the example below.
+*Example:*
 
 ----
-field String `model`
+model crm;
+
+type string String(min-size = 0, max-size = 128);
+
+entity Person {
+    field required String firstName = "";
+    field required String lastName = "";;;;;
+    derived String fullName =
+        self.firstName + " " + self.lastName;
+};
 ----
 
-This is the list of reserved words in the JSL.
+
+=== Keywords
+
+Keywords are predefined, reserved words used in JSL that have special meanings in the language. JSL keywords are always lowercase.
+
+Keywords cannot be used directly as element names. If you still want to use these reserved words as element names, the words must be enclosed in back-tick (```) characters as shown in the example below.
+
+----
+field String `model`;
+----
+
+This is the list of keywords in the JSL.
 
 [cols="1,1,1"]
 |======================================================================
@@ -120,6 +118,27 @@ This is the list of reserved words in the JSL.
 |extends    |opposite    |
 |======================================================================
 
+=== Element names
+
+The names of JSL domain elements must conform to the following rules:
+
+* Names are case-sensitive.
+* Name of elements must be unique within their scope in a case-insensitive manner.
+* A name can be a sequence of uppercase and lowercase English letters (A-Z, a-z) and digits (0-9).
+* The first character of a name must be a letter.
+* A name must have at least one character.
+* A name must not be longer than 128 characters.
+
+[IMPORTANT]
+====
+Even though element names (e.g. entity names, field names, enumeration literals, etc.) are case-sensitive, it is not allowed to have two elements in the same scope (e.g. two fields within an entity) whose names differ only in upper and lower case.
+====
+
+=== Comments
+
+Comments may be inserted by use of the `//` characters at any point in the line. When `//` characters are detected, the rest of the line is considered to be a comment and ignored.
+
+Multi-line comments may be created by surrounding the lines by `/\*` and `*/`. Multi-line comments do not nest.
 
 == Model
 
@@ -131,7 +150,7 @@ The `model` keyword is used to start a model definition.
 
 [subs="quotes"]
 ----
-[purple]#**model**# &lt;fq-name>
+[purple]#**model**# &lt;fq-name> [purple]#**;**#
 ----
 
 where the <fq-name> is the fully qualified name of the model. The fully qualified name consists of optional namespaces and the name of the model separated by double colons (`::`), for example `demo::enterprise::crm`. `crm` is the name of the model and the namespaces are `demo` and `enterprise`.
@@ -143,11 +162,11 @@ Namespace is a naming hierarchy built from the names of the container namespaces
 *Examples:*
 
 ----
-model demo::enterprise::crm
+model demo::enterprise::crm;
 ----
 
 ----
-model CustomerRelationshipManagement
+model CustomerRelationshipManagement;
 ----
 
 == Import
@@ -162,7 +181,7 @@ To import an existing model, use the `import` keyword.
 
 [subs="quotes"]
 ----
-[purple]#**import**# &lt;model> &#x5B;[purple]##**as**## &lt;alias>]
+[purple]#**import**# &lt;model> &#x5B;[purple]##**as**## &lt;alias>] [purple]#**;**#
 ----
 
 where the <model> is the fully qualified name of the imported model. 
@@ -170,10 +189,10 @@ where the <model> is the fully qualified name of the imported model.
 *Examples:*
 
 ----
-import judo::types
+import judo::types;
 ----
 ----
-import judo::user as user
+import judo::user as user;
 ----
 
 If the imported model is accessed successfully, it will be made available in the local namespace in one of two ways:
@@ -183,10 +202,10 @@ If the imported model is accessed successfully, it will be made available in the
 *Example:*
 
 ----
-import judo::types as types
+import judo::types as types;
 
 entity Person {
-    field types::String name
+    field types::String name;
 }
 ----
 
@@ -195,10 +214,10 @@ entity Person {
 *Example:*
 
 ----
-import judo::types
+import judo::types;
 
 entity Person {
-    field String name
+    field String name;
 }
 ----
 
@@ -226,7 +245,7 @@ To define a new domain model primitive, use the `type` keyword.
 
 [subs="quotes"]
 ----
-[purple]#**type**# &lt;basetype> &lt;name> &#x5B; [purple]#**(**#&lt;parameter name> [purple]#**=**# &lt;parameter value>][purple]#**,**# ...[purple]#**)**# ]
+[purple]#**type**# &lt;basetype> &lt;name> &#x5B; [purple]#**(**#&lt;parameter name> [purple]#**=**# &lt;parameter value>][purple]#**,**# ...[purple]#**)**# ] [purple]#**;**#
 ----
 
 where the <basetype> is one of the base types defined above, the <name> is the name of the domain model primitive, and there can be an additional list of parameters for each base type. The optional comma-separated parameter list consists of name-value pairs, using `=` between name and value.
@@ -236,9 +255,9 @@ Parameters are constraints that restrict the use of the newly created primitive 
 *Example:*
 
 ----
-type boolean Boolean
-type numeric Integer(precision = 9, scale = 0)
-type string String(max-length = 128)
+type boolean Boolean;
+type numeric Integer(precision = 9, scale = 0);
+type string String(min-size = 0, max-size = 128);
 ----
 
 The <<Base types>> section provide examples of each base type and its possible constraints and operations.
@@ -249,24 +268,24 @@ The <<Base types>> section provide examples of each base type and its possible c
 Instead of defining the most common primitives in each project, there is a built-in judo::types model that you can import into models. It defines the following primitives:
 
 ----
-type boolean Boolean
-type date Date
-type time Time
-type timestamp Timestamp
-type numeric Integer(precision = 15, scale = 0)
-type string String(max-length = 4000)
+type boolean Boolean;
+type date Date;
+type time Time;
+type timestamp Timestamp;
+type numeric Integer(precision = 15, scale = 0);
+type string String(min-size = 0, max-size = 4000);
 ----
 
 You can use these primitives a follows:
 
 ----
-model crm
+model crm;
 
-import judo::types
+import judo::types;
 
 entity SalesPerson {
-    field String firstName
-    field String lastName
+    field String firstName;
+    field String lastName;
 }
 ----
 ====
@@ -293,7 +312,7 @@ To define an enumeration, use the `enum` keyword.
 [subs="quotes"]
 ----
 [purple]#**enum**# &lt;name> [purple]#**{**#
-    &#x5B;&lt;literal> [purple]##**=**## &lt;ordinal>] ...
+    &#x5B;&lt;literal> [purple]##**=**## &lt;ordinal> [purple]#**;**#] ...
 [purple]#**}**#
 ----
 
@@ -303,14 +322,14 @@ where the <name> is the name of the enumeration, and the enumeration members are
 
 ----
 enum Direction {
-    NORTH = 1
-    EAST = 2
-    SOUTH = 3
-    WEST = 4
+    NORTH = 1;
+    EAST = 2;
+    SOUTH = 3;
+    WEST = 4;
 }
 
 entity Ship {
-    field Direction course
+    field Direction course;
 }
 ----
 
@@ -441,7 +460,7 @@ Use the `field` keyword to specify a primitive field within an entity.
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>]
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>] [purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive and <name> is the referable name of the primitive field.
@@ -459,10 +478,10 @@ The `self` variable cannot be used in default expressions.
 
 ----
 entity Person {
-    field required String firstName
-    field required String lastName
-    field String midName
-    field Title title = Title#MX
+    field required String firstName;
+    field required String lastName;
+    field String midName;
+    field Title title = Title#MX;
 }
 ----
 
@@ -478,7 +497,7 @@ Use the `identifier` keyword to specify a unique field within an entity.
 
 [subs="quotes"]
 ----
-[purple]#**identifier**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>]
+[purple]#**identifier**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>] [purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive and <name> is the referable name of the identifier. Any primitive type can be used as an identifier, except primitives of binary base type.
@@ -496,7 +515,7 @@ The `self` variable cannot be used in default expressions.
 
 ----
 entity Person {
-    identifier required String email
+    identifier required String email;
 }
 ----
 
@@ -554,7 +573,7 @@ Use the `relation` keyword to specify a relation between two entities. The synta
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]#**;**#
 ----
 
 where <entity> is the name of an entity to which the relation is targeted. The <name> is used to identify the relation within the entity, it is commonly referred to as role name.
@@ -567,11 +586,11 @@ The keyword `required` means that the value of the relation must be specified, s
 
 ----
 entity SalesPerson {
-	relation Lead[] leads
+	relation Lead[] leads;
 }
 
 entity Lead {
-	relation required Customer customer
+	relation required Customer customer;
 }
 
 entity Customer {
@@ -590,7 +609,7 @@ The syntax of the bidirectional relation is an extension of unidirectional synta
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite**## &lt;opposite>
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite**## &lt;opposite> [purple]#**;**#
 ----
 
 The `opposite` keyword is used to link two relations into a bidirectional relation. The `opposite` keyword must be used on both sides of the bidirectional relation.
@@ -601,11 +620,11 @@ Both ends of a bidirectional relation cannot be required at the same time.
 
 ----
 entity SalesPerson {
-	relation Lead[] leads opposite salesperson
+	relation Lead[] leads opposite salesperson;
 }
 
 entity Lead {
-	relation required SalesPerson salesperson opposite leads
+	relation required SalesPerson salesperson opposite leads;
 }
 ----
 
@@ -615,7 +634,7 @@ Another form of bidirectional relationship declaration is as follows.
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite-add**## &lt;opposite>&#x5B;[purple]##**[]**##]
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite-add**## &lt;opposite>&#x5B;[purple]##**[]**##] [purple]#**;**#
 ----
 
 The `opposite-add` keyword with a simple <opposite> is used to create a bidirectional relation and inject the opposite relation to an already defined entity without changing the original definition of the entity.
@@ -633,11 +652,11 @@ entity SalesPerson {
 }
 
 entity Lead {
-	relation required SalesPerson salesperson opposite-add leads[]
+	relation required SalesPerson salesperson opposite-add leads[];
 }
 
 entity Customer {
-	relation Lead[] leads opposite-add customer
+	relation Lead[] leads opposite-add customer;
 }
 ----
 
@@ -662,7 +681,7 @@ Use the `field` keyword to specify a composite field within an entity.
 ////
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]#**;**#
 ----
 
 where <entity> is the name of an entity and <name> is the referable name of the composition.
@@ -684,14 +703,14 @@ The `self` variable cannot be used in default expressions.
 
 ----
 entity Address {
-    field required String line1
-    field String line2
-    field String city
-    field String zipCode
+    field required String line1;
+    field String line2;
+    field String city;
+    field String zipCode;
 }
 
 entity Person {
-    field required Address address
+    field required Address address;
 }
 ----
 
@@ -707,7 +726,7 @@ Use the `derived` keyword to specify a derived member within an entity.
 
 [subs="quotes"]
 ----
-[purple]#**derived**# &lt;primitive> &lt;name> [purple]##**=>**## &lt;getter>
+[purple]#**derived**# &lt;primitive> &lt;name> [purple]##**=>**## &lt;getter> [purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive, and <name> is the referable name of the derived field, or
@@ -716,7 +735,7 @@ where <primitive> is the name of a domain model primitive, and <name> is the ref
 
 [subs="quotes"]
 ----
-[purple]#**derived**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**=>**## &lt;getter>
+[purple]#**derived**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**=>**## &lt;getter> [purple]#**;**#
 ----
 
 where the <entity> is the name of an entity, and <name> is the referable name of the derived member. The optional `[]` indicates that the derived member returns a collection rather than a single reference to one <entity>.
@@ -732,10 +751,10 @@ Note that the derived members use the arrow operator (\=>) instead of the assign
 
 ----
 entity Person {
-    field required String firstName
-    field required String lastName
+    field required String firstName;
+    field required String lastName;
 
-	derived	String fullName => self.firstName + " " + self.lastName
+	derived	String fullName => self.firstName + " " + self.lastName;
 }
 ----
 
@@ -745,13 +764,13 @@ The example above defines two stored fields and a derived member. The name of th
 
 ----
 entity SalesPerson {
-	relation Lead[] leads
+	relation Lead[] leads;
 	
-	derived Lead topLead => self.leads!head(l | l.value DESC)!any()
+	derived Lead topLead => self.leads!head(l | l.value DESC)!any();
 }
 
 entity Lead {
-    field Integer value
+    field Integer value;
 }
 ----
 
@@ -762,7 +781,14 @@ In the second example the `topLead` derived member returns the highest value lea
 
 A query is a request that retrieves a primitive or entities. Each query has a return type, a name and a query expression, which is used to calculate the return value.
 
-There are two main differences between queries and derived members. Queries can have arguments, and queries are not executed automatically when an entity is referenced (so the values are not calculated immediately), but their value is calculated only when the query name is referenced.
+There are two main differences between queries and derived members.
+
+* queries can have arguments, and
+* queries are never evaluated automatically
+
+The moment of evaluation needs explanation. Queries are never evaluated automatically, and their return values will only be calculated when the query is invoked.
+
+The moment of derived fields evaluation is a bit more complicated. Derived fields that return a primitive value are evaluated immediately when the entity is referenced. However, if a derived returns an entity reference or collection, its derived expression is only evaluated during navigation.
 
 There are two types of queries
 
@@ -779,7 +805,7 @@ Use the `query` keyword to specify a query within an entity.
 
 [subs="quotes"]
 ----
-[purple]#**query**# &lt;primitive> &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...[purple]##**)**##] [purple]##**=>**## &lt;expression>
+[purple]#**query**# &lt;primitive> &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...[purple]##**)**##] [purple]##**=>**## &lt;expression> [purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive that will be returned, and <name> is the referable name of the query, or
@@ -788,7 +814,7 @@ where <primitive> is the name of a domain model primitive that will be returned,
 
 [subs="quotes"]
 ----
-[purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> &#x5B;[purple]##**=**## &lt;default>][purple]##**,**## ...[purple]##**)**##] [purple]##**=>**## &lt;expression>
+[purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> &#x5B;[purple]##**=**## &lt;default>][purple]##**,**## ...[purple]##**)**##] [purple]##**=>**## &lt;expression> [purple]#**;**#
 ----
 
 where the <entity> is the name of an entity that will be returned, and <name> is the referable name of the query. The optional `[]` indicates that the query returns a list of <entity> instances rather than a single reference to one <entity>.
@@ -806,14 +832,14 @@ The optional comma separated list is the arguments of the <expression>. The argu
 
 ----
 entity SalesPerson {
-	relation Lead[] leads
+	relation Lead[] leads;
 	
-	query Lead[] leadsBetween(Integer min = 0, Integer max = 100) => \
-	    self.leads!filter(l | l.value > min and  l.value < max)
+	query Lead[] leadsBetween(Integer min = 0, Integer max = 100) =>
+	    self.leads!filter(l | l.value > min and  l.value < max);
 }
 
 entity Lead {
-    field Integer value
+    field Integer value;
 }
 ----
 
@@ -829,15 +855,15 @@ The syntax of the static query declaration is the same as the syntax of the inst
 
 ----
 entity SalesPerson {
-	relation Lead[] leads
+	relation Lead[] leads;
 }
 
 entity Lead {
-    field Integer value
+    field Integer value;
 }
 
-query Lead[] leadsBetween(Integer min = 0, Integer max = 100) => \
-    Lead!filter(l | l.value > min and  l.value < max)
+query Lead[] leadsBetween(Integer min = 0, Integer max = 100) =>
+    Lead!filter(l | l.value > min and  l.value < max);
 ----
 
 The example above shows the static query `leadsBetween`, which has two arguments (`min` and `max`). It returns the leads of of all salespersons with a value between `min` and `max`.
@@ -865,14 +891,14 @@ The `extends` keyword in the entity declaration indicates that an entity is inhe
 
 ----
 entity Person {
-    identifier required String email
-    field required String firstName
-    field required String lastName
-    field String midName = ""
+    identifier required String email;
+    field required String firstName;
+    field required String lastName;
+    field String midName = "";
 }
 
 entity SalesPerson extends Person {
-    relation Person manager
+    relation Person manager;
 }
 ----
 
@@ -882,14 +908,14 @@ In the above example the SalesPerson entity inherits the four fields of the Pers
 
 ----
 entity Person {
-    identifier required String email
-    field required String firstName
-    field required String lastName
-    field String midName = ""
+    identifier required String email;
+    field required String firstName;
+    field required String lastName;
+    field String midName = "";
 }
 
 entity abstract Employee {
-    relation Employee manager
+    relation Employee manager;
 }
 
 entity SalesPerson extends Person, Employee {
@@ -939,7 +965,7 @@ Use the `field` keyword to specify a field within an error.
 
 [subs="quotes"]
 ----
-[purple]#**field**# &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>]
+[purple]#**field**# &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>] [purple]#**;**#
 ----
 
 ////
@@ -965,7 +991,7 @@ The `self` variable cannot be used in default expressions.
 *Example:*
 ----
 error PersonNotFound {
-    field String email
+    field String email;
 }
 ----
 
@@ -986,11 +1012,11 @@ Errors can be inherited from each other using the keyword `extends`. Inheritance
 *Example:*
 ----
 error GenericError {
-    field Integer code
+    field Integer code;
 }
 
 error PersonNotFound extends GenericError {
-    field String email
+    field String email;
 }
 ----
 ////
@@ -1048,16 +1074,16 @@ where <expression> is a logical expression that is evaluated and <error> is the 
 
 ----
 error NameIsTooShort {
-    field required String name
+    field required String name;
 }
 
 entity Person {
-    field required String firstName
-    field required String lastName
-    field String midName = ""
+    field required String firstName;
+    field required String lastName;
+    field String midName = "";
     
-    constraint self.firstName!length() + self.lastName!length() > 4 \
-    onerror NameIsTooShort(name = self.firstName + " " + self.lastName)
+    constraint self.firstName!size() + self.lastName!size() > 4
+    onerror NameIsTooShort(name = self.firstName + " " + self.lastName);
 }
 ----
 
@@ -1079,27 +1105,17 @@ An expression is evaluated to a value, which can be primitive value (e.g. `42` o
 
 *Reference expressions* returns an entity instance or collection of entity instances.
 
-In most cases, an expression is a single-line construct, but to create multi-line expressions, use the `\` character at the end of the line and continue the expression on the next line. Another way to create multi-line expressions is to use parentheses because newline characters are ignored in parentheses.
-
 *Examples:*
 
 ----
 // it is a single line expression
-derived String fullName => self.firstName + " " + self.lastName
+derived String fullName => self.firstName + " " + self.lastName;
     
 // it is a multi-line expression
-derived String fullName => self.firstName + \
-                          " " + \
-                          self.lastName
-
-// it is also a valid multi-line expression
-derived String fullName => (self.firstName +
+derived String fullName => self.firstName +
                           " " +
-                          self.lastName)
-    
+                          self.lastName;
 ----
-
-Keywords in expressions are case insensitive, e.g. you can write the boolean `true` value as `TRUE` or `True` as well.
 
 === Operators
 
@@ -1152,16 +1168,16 @@ The starting point of the navigation can be
 
 ----
 // a navigation starting from static collection
-derived Person[] allOwners => cars::Car.owner
+derived Person[] allOwners => cars::Car.owner;
     
 // a navigation starting from self variable
-derived String ownerName => self.owner.name
+derived String ownerName => self.owner.name;
 ----
 
 Navigation can be chained, which means that you can navigate further from a navigation result.
 
 ----
-derived Address ownerAddress => self.owner.address
+derived Address ownerAddress => self.owner.address;
 ----
 
 In the example above, we first navigate from `self` to a Person entity who is the `owner` of the car. We then proceed to the `address` of the Person.
@@ -1187,7 +1203,7 @@ Both derived and stored field values of an entity can be read in expressions. To
 *Examples:*
 
 ----
-derived String ownerName => self.owner.name
+derived String ownerName => self.owner.name;
 ----
 
 In the example above, the expression returns the owner's name.
@@ -1201,7 +1217,7 @@ Query arguments can be literals only (e.g. `121`, `"apple"`, `true` etc.).
 *Examples:*
 
 ----
-derived Customer[] havingLeadsBetween0and10 => self.leadsBetween(min = 0, max = 10).customer
+derived Customer[] havingLeadsBetween0and10 => self.leadsBetween(min = 0, max = 10).customer;
 ----
 
 In the example above, the `leadsBetween` query is executed with two arguments.
@@ -1222,11 +1238,11 @@ where <navigation> is a valid navigation expression and <function> is the name o
 *Examples:*
 
 ----
-derived Integer count => self.courses!count()
-derived Integer nameLength => self.owner.name!length()
+derived Integer count => self.courses!size();
+derived Integer nameLength => self.owner.name!size();
 ----
 
-The `self.courses!count()` evaluates to an integer, the size of the courses collection and the expression `self.owner.name!length()` will return the length of the owner's name field (assuming it is a String type).
+The `self.courses!size()` evaluates to an integer, the number of the courses in the collection and the expression `self.owner.name!size()` will return the number of characters in the owner's name field (assuming it is a String type).
 
 ==== Static functions
 
@@ -1244,7 +1260,7 @@ where <type> is a valid domain model primitive and <function> is the name of the
 *Example:*
 
 ----
-field Time tm = Time!of(23,59,59)
+field Time tm = Time!of(hour = 23, minute = 59, second = 59);
 ----
 
 The above example sets the `tm` field to `&#x60;23:59:59&#x60;` as default value.
@@ -1262,14 +1278,10 @@ Functions that handle individual elements in a collection use an iterator variab
 
 where <variable> is the name of the iterator variable that will iterate through all elements on the result of the <navigation> collection. The <expr> is an expression  that will provide the input list for the <function>.
 
-Iterator variables are only accessible in parentheses where they have been defined. In other words, the scope of the iterator variable is limited to after the `|` (pipe) character. If the iterator expression contains another iterator function, the iterator variable of the embedding iterator function is not accessible within the embedded iterator function.
-
-Using `self` in iterator expressions is currently not allowed.
-
 *Examples:*
 
 ----
-derived Integer averagePrice => self.orders!avg(order | order.price)
+derived Integer averagePrice => self.orders!avg(order | order.price);
 ----
 
 In the example above, we navigate to a collection orders and define an iterator variable named `order`. Then, we read the `price` field of orders and pass this list to the `avg` built-in function. The example calculates the average price of the orders.
@@ -1282,6 +1294,30 @@ self.orders!filter(order | order.price > 100)!max(order | order.discount)
 
 The list of available functions can be found in section <<Functions>>.
 
+Iterator variables are only accessible in parentheses where they have been defined. In other words, the scope of the iterator variable is limited to after the `|` (pipe) character. If the iterator expression contains another iterator function, the iterator variable of the embedding iterator function is not accessible within the embedded iterator function.
+
+Using `self` in iterator expressions is currently not allowed.
+
+[NOTE]
+====
+Even though `self` and the iterators of embedding functions cannot be used in functions, proper modeling can work around this limitation. When we need the value of the `self` or embedding iterator, use a bidirectional relation. The bidirectional relation can be used to navigate back to `self` or to any embedding iterator value.
+
+The following example selects a salesperson's leads that are less valuable than average lead values.
+
+----
+entity Lead {
+    field Integer value;
+}
+
+entity SalesPerson {
+    relation Lead[] leads opposite-add salesPerson;
+    derived Integer avgValue => self.leads!avg(l | l.value);
+    derived Lead[] belowAvgLeads = > self.leads!filter(l | l.value < l.salesPerson.avgValue);
+}
+----
+
+====
+
 === External variables
 
 Some expressions require dynamic values that are provided by the surrounding environment and cannot be "wired" to the model as a constant, e.g. current time or OS environment variables. Variables of this type are referred to as external variables.
@@ -1292,7 +1328,7 @@ External variables can be accessed from the model using a category and key pair 
 
 [subs="quotes"]
 ----
-&lt;primitive>[purple]##**!getVariable**##(&lt;category>[purple]##**,**## &lt;key>[purple]##**)**##
+&lt;primitive>[purple]##**!getVariable(category = **##&lt;category>[purple]##**, key = **##&lt;key>[purple]##**)**##
 ----
 
 where <primitive> is a domain primitive that defines the type of the returned value. The valid <category> and <key> pairs a listed in the table below.
@@ -1308,7 +1344,7 @@ Domain primitive constraints are evaluated when “getVariable” is called. If 
 |`SYSTEM`     |`current_date`
 |Returns the current date.
 
-`Date!getVariable("SYSTEM", "current_date")`
+`Date!getVariable(category = "SYSTEM", key = "current_date")`
 
 Shortcut: `Date!now()`
 
@@ -1316,29 +1352,29 @@ Shortcut: `Date!now()`
 |`SYSTEM`     |`current_timestamp`
 |Returns the current time.
 
-`Timestamp!getVariable("SYSTEM", "current_timestamp")`
+`Timestamp!getVariable(category = "SYSTEM", key = "current_timestamp")`
 
 Shortcut: `Timestamp!now()`
 
 |`SYSTEM`     |`current_time`
 |Returns the current time.
 
-`Time!getVariable("SYSTEM", "current_time")`
+`Time!getVariable(category = "SYSTEM", key = "current_time")`
 
 Shortcut: `Time!now()`
 
 |`ENVIRONMENT`|_any_
 |Returns an OS environment variable.
 
-Path for the current working directory: `String!getVariable("ENVIRONMENT", "PWD")`
+Path for the current working directory: `String!getVariable(category = "ENVIRONMENT", key = "PWD")`
 
-UID of running OS user: `Integer!getVariable("ENVIRONMENT", "UID")`
+UID of running OS user: `Integer!getVariable(category = "ENVIRONMENT", key = "UID")`
 |`SEQUENCE`   |_sequence name_
 |A continuously increasing integer is returned with each call. The maximum value cannot exceed the range of an eight-byte integer. Sequences are constant and optimized for concurrency. Sequences cannot be used for "gap-free" assignment of sequence numbers.
 
 If the sequence does not already exist, it creates the sequence and returns the first sequence value.
 
-Get next Order number: `Long!getVariable("SEQUENCE", "Order")`
+Get next Order number: `Long!getVariable(category = "SEQUENCE", key = "Order")`
 |==================================================
 
 
@@ -1352,7 +1388,7 @@ In the case of logical values comparisons with undefined can never result in eit
 
 Navigations from undefined references will also result in undefined. In other words, if any part of a navigation or function chain results undefined, the result of the whole navigation will be undefined. For example, `self.instances.other` will evaluate to undefined, when `self.instances` is undefined.
 
-Functions applied on undefined references will also result in undefined. For example, `self.instances!count()` will evaluate to undefined instead of 0, when `self.instances` is undefined. The only exceptions are the `isDefined()` and `isUndefined()` functions. `self.name!isDefined()` will evaluate to `false` if `self.name` is undefined, and `self.name!isUndefined()` will evaluate to `false` if `self.name` is undefined.
+Functions applied on undefined references will also result in undefined. For example, `self.instances!size()` will evaluate to undefined instead of 0, when `self.instances` is undefined. The only exceptions are the `isDefined()` and `isUndefined()` functions. `self.name!isDefined()` will evaluate to `false` if `self.name` is undefined, and `self.name!isUndefined()` will evaluate to `false` if `self.name` is undefined.
 
 In arithmetic expressions, any occurrence of undefined results in an undefined value. The expression `self.a + self.b` results in undefined if `self.a` or `self.b` is undefined.
 
@@ -1439,10 +1475,10 @@ To define string primitive, use the `type` keyword with `string`.
 
 [subs="quotes"]
 ----
-[purple]#**type string**# &lt;name> [purple]#**(min-length =**# &lt;min>[purple]#**, max-length =**# &lt;max>&#x5B;[purple]##**, regex =**## &lt;regular expression>][purple]#**)**#
+[purple]#**type string**# &lt;name> [purple]#**(min-size =**# &lt;min>[purple]#**, max-size =**# &lt;max>&#x5B;[purple]##**, regex =**## &lt;regular expression>][purple]#**)**# [purple]#**;**#
 ----
 
-where the <name> is the name of the domain model string, and the mandatory <min> and <max> specify the minimum and the maximum length of the text that can be stored. Both <min> and <max> must be between 1 and 4000, and <min> cannot be greater than <max>.
+where the <name> is the name of the domain model string, and the mandatory <min> and <max> specify the minimum and the maximum size of the text that can be stored. Both <min> and <max> must be between 1 and 4000, and <min> cannot be greater than <max>.
 
 The optional <regular expression> is a sequence of characters that specifies a pattern, that is for validation. The following tables summarize the regular expression constructs.
 
@@ -1515,9 +1551,10 @@ The optional <regular expression> is a sequence of characters that specifies a p
 *Example:*
 
 ----
-type string String(max-length = 128)
-type string LongString(max-length = 1024)
-type string PhoneNumber(max-length = 32, regex = r"^(\+\d{1,2}\s)?\(?\d{2,5}\)?[\s-]\d{2,4}[\s-]\d{4}$")
+type string String(min-size = 0, max-size = 128);
+type string LongString(min-size = 0, max-size = 1024);
+type string PhoneNumber(min-size = 0, max-size = 32, regex = 
+r"^(\+\d{1,2}\s)?\(?\d{2,5}\)?[\s-]\d{2,4}[\s-]\d{4}$");
 ----
 
 This creates three domain model primitives. The first can store a maximum of 128 length text, the second may store texts up to 1024 characters.
@@ -1527,7 +1564,7 @@ The third string may accept only phone numbers. Please note that the regular exp
 *Example:*
 
 ----
-type string PhoneNumber (max-length = 32, regex = "^(\\+\\d{1,2}\\s)?\\(?\\d{2,5}\\)?[\\s-]\\d{2,4}[\\s-]\\d{4}$")
+type string PhoneNumber (min-size = 0, max-size = 32, regex = "^(\\+\\d{1,2}\\s)?\\(?\\d{2,5}\\)?[\\s-]\\d{2,4}[\\s-]\\d{4}$");
 ----
 
 You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of string are the following:
@@ -1559,7 +1596,7 @@ To define numeric primitive, use the `type` keyword with `numeric`.
 
 [subs="quotes"]
 ----
-[purple]#**type numeric**# &lt;name> [purple]#**(precision =**# &lt;precision>[purple]#**, scale =**# &lt;scale>[purple]#**)**#
+[purple]#**type numeric**# &lt;name> [purple]#**(precision =**# &lt;precision>[purple]#**, scale =**# &lt;scale>[purple]#**)**# [purple]#**;**#
 ----
 
 where the <name> is the name of the domain model numeric,
@@ -1571,8 +1608,8 @@ The number `3.14` has a precision of 3 and a scale of 2.
 *Example:*
 
 ----
-type numeric Integer(precision = 9, scale = 0)
-type numeric Currency(precision = 7, scale 2)
+type numeric Integer(precision = 9, scale = 0);
+type numeric Currency(precision = 7, scale 2);
 ----
 
 You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of numeric are the following:
@@ -1609,7 +1646,7 @@ To define boolean primitive, use the `type` keyword with `boolean`.
 
 [subs="quotes"]
 ----
-[purple]#**type boolean**# &lt;name>
+[purple]#**type boolean**# &lt;name> [purple]#**;**#
 ----
 
 where the <name> is the name of the domain model boolean.
@@ -1676,7 +1713,7 @@ To define date primitive, use the `type` keyword with `date`.
 
 [subs="quotes"]
 ----
-[purple]#**type date**# &lt;name>
+[purple]#**type date**# &lt;name> [purple]#**;**#
 ----
 
 where the <name> is the name of the domain model date.
@@ -1684,7 +1721,7 @@ where the <name> is the name of the domain model date.
 *Example:*
 
 ----
-type date Date
+type date Date;
 ----
 
 You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of date are the following:
@@ -1747,7 +1784,7 @@ To define time primitive, use the `type` keyword with `time`.
 
 [subs="quotes"]
 ----
-[purple]#**type time**# &lt;name>
+[purple]#**type time**# &lt;name> [purple]#**;**#
 ----
 
 where the <name> is the name of the domain model time.
@@ -1755,7 +1792,7 @@ where the <name> is the name of the domain model time.
 *Example:*
 
 ----
-type time Time
+type time Time;
 ----
 
 You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of date are the following:
@@ -1795,7 +1832,7 @@ To define timestamp primitive, use the `type` keyword with `timestamp`.
 
 [subs="quotes"]
 ----
-[purple]#**type timestamp**# &lt;name>
+[purple]#**type timestamp**# &lt;name> [purple]#**;**#
 ----
 
 where the <name> is the name of the domain model timestamp.
@@ -1803,7 +1840,7 @@ where the <name> is the name of the domain model timestamp.
 *Example:*
 
 ----
-type timestamp Timestamp
+type timestamp Timestamp;
 ----
 
 Some timestamp functions may expect time zone information as input. Use the following format to specify the time zone:
@@ -1857,7 +1894,7 @@ To define binary primitive, use the `type` keyword with `binary`.
 
 [subs="quotes"]
 ----
-[purple]#**type binary**# &lt;name> [purple]#**(mime-types =**# &lt;mime-types>[purple]#**, max-file-size =**# &lt;max-file-size>[purple]#**)**#
+[purple]#**type binary**# &lt;name> [purple]#**(mime-types =**# &lt;mime-types>[purple]#**, max-file-size =**# &lt;max-file-size>[purple]#**)**# [purple]#**;**#
 ----
 
 where the <name> is the name of the domain model binary, the <mime-types> is a list of mime types indicating the accepted formats, and the <max-file-size> is the maximum size of the file.
@@ -1895,13 +1932,13 @@ Valid mime types and subtypes can only contain alphabetic characters, digits and
 *Examples:*
 
 ----
-type binary Document (mime-types = ["application/pdf", "application/msword"], max-file-size = 10MB)
+type binary Document (mime-types = ["application/pdf", "application/msword"], max-file-size = 10MB);
 ----
 
 The example above defines a Document type that accepts pdf or ms-word documents up to 10 megabytes in size.
 
 ----
-type binary Image (mime-types = ["image/*"], max-file-size = 500kB)
+type binary Image (mime-types = ["image/*"], max-file-size = 500kB);
 ----
 
 The second example defines an Image type that accepts any image format up to 500 kbytes in size.
@@ -1930,13 +1967,34 @@ Any type functions can be applied to any type or instance except collections.
 |Example: `"apple"!isUndefined()` is `false`
 |======================================================================
 
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**orElse(value = **#<value>[purple]##**)**## : <type>`
+|Returns <value> if the given expression to which it is applied returns undefined. Otherwise, it returns the value of the given expression. The type of <value> must be the same as the given expression.
+|Examples:
+|`"apple"!orElse("grape")` is `"apple"`
+|`2!orElse(3)` is `2`
+|`self.name!orElse("unknown")` is `"unknown"` if `self.name` is `UNDEFINED`, otherwise it returns the value of `self.name`.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**getVariable(category = **#<value>[purple]##**, key = **##<key>[purple]##**)**## : <type>`
+|Static function, returns the value of an external variable using <category> and <key> pair that are evaluated at runtime.
+|See more details in chapter <<External variables>>.
+|Examples:
+|`"apple"!orElse("grape")` is `"apple"`
+|`2!orElse(3)` is `2`
+|`self.name!orElse("unknown")` is `"unknown"` if `self.name` is `UNDEFINED`, otherwise it returns the value of `self.name`.
+|======================================================================
+
 === String functions
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**length()**# : numeric`
-|Returns the length of the string.
-|Example: `"apple"!length()` is `5`
+|`[purple]#**size()**# : numeric`
+|Returns the number of characters in the string.
+|Example: `"apple"!size()` is `5`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -1997,8 +2055,10 @@ Any type functions can be applied to any type or instance except collections.
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**like(pattern = **#<pattern>[purple]##**)**## : boolean`
-|Returns `true` if the string matches a given <pattern>, `false` otherwise. There are two wildcards used in the <pattern>:
+|`[purple]#**like(pattern = **#<pattern> &#x5B;[purple]##**, exact = **##<exact>][purple]##**)**## : boolean`
+|Returns `true` if the string matches a given <pattern>, `false` otherwise. The optional <exact> is a boolean parameter. If <exact> is true the pattern matching is case-sensitive. If <exact> is false the pattern matching is case-insensitive. If no <exact> argument is passed, the pattern matching is case-sensitive.
+
+There are two wildcards used in the <pattern>:
 
 * percent sign (%)
 
@@ -2007,14 +2067,9 @@ Any type functions can be applied to any type or instance except collections.
 The percent sign represents zero, one, or multiple numbers or characters. The underscore represents a single number or character. These symbols can be used in combinations.
 
 If either of these two signs is not used in the <pattern>, then the function acts like the equals operator.
-|Example: `"apple"!like(pattern = "%pl_")` is `true`
-|======================================================================
-
-[options="header",grid="none",cols="1a"]
-|======================================================================
-|`[purple]#**ilike(pattern = **#<pattern>[purple]##**)**## : boolean`
-|Same as like(), but the pattern matching is case insensitive.
-|Example: `"apPLe"!ilike(pattern = "_pple")` is `true`
+|Examples:
+|`"apple"!like(pattern = "%pl_")` is `true`
+|`"apPLe"!like(pattern = "_pple", exact = false)` is `true`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -2046,20 +2101,40 @@ If either of these two signs is not used in the <pattern>, then the function act
 |Example: `"   apple   "!rtrim()` is `"   apple"`
 |======================================================================
 
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**lpad(size = **#<size> &#x5B;[purple]##**, padstring = **##<padstring>][purple]##**)**## : string`
+|Fills up a string on the left to the specified <size> with <padstring>. If the length of <padstring> is less than the remaining length, the <padstring> is repeated until it is not filling up. If the length of <padstring> is longer than the remaining length, it will be truncated on the right. If <padstring> is not defined, one space character (`" "`) is used by default.
+|Examples:
+|`"apple"!lpad(size = 6) is `" apple"`
+|`"ple"!lpad(size = 5, padstring = "ap")` is `"apple"`
+|`"ple"!lpad(size = 6, padstring = "ap")` is `"apaple"`
+|`"ple"!lpad(size = 7, padstring = "ap")` is `"apapple"`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**rpad(size = **#<size> &#x5B;[purple]##**, padstring = **##<padstring>][purple]##**)**## : string`
+|Fills up a string on the right to the specified <size> with <padstring>. If the length of <padstring> is less than the remaining length, the <padstring> is repeated until it is not filling up. If the length of <padstring> is longer than the remaining length, it will be truncated on the left. If <padstring> is not defined, one space character (`" "`) is used by default.
+|Examples:
+|`"apple"!rpad(size = 6)` is `"apple "`
+|`"app"!rpad(size = 5, padstring = "le")` is `"apple"`
+|`"app"!rpad(size = 6, padstring = "le")` is `"applel"`
+|`"app"!rpad(size = 7, padstring = "le")` is `"applele"`
+|======================================================================
 
 === Numeric functions
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**round()**# : numeric`
-|Returns the closest integer.
+|`[purple]#**round(**#&#x5B;[purple]##**scale = **##<scale>][purple]##**)**## : numeric`
+|Returns the closest number. The optional <scale> argument is an integer that determines the number of decimal places of rounding. The default value of <scale> is 0.
 |Example:
 |`1!round()` is `1`
-|`1.23!round()` is `1`
 |`7.89!round()` is `8`
+|`7.89!round(scale = 1)` is `7.9`
 |`2.50!round()` is `3`
 |`-2.5!round()` is `-3`
-|`-1.23!round()` is `-1`
 |`-7.89!round()` is `-8`
 |======================================================================
 
@@ -2136,8 +2211,21 @@ If either of these two signs is not used in the <pattern>, then the function act
 |======================================================================
 |`[purple]#**of(year = **#<year>[purple]##**, month = **## <month>[purple]##**, day = **## <day>[purple]##**)**## : date`
 |Static function, constructs a date value from the numeric parameters <year>, <month> and <day>. If any of the parameters is not integer, the result will be undefined. If <month> or <day> is less than 1, the result will be undefined. If <month> is greater than 12, or <day> is greater than the last day of the month, it gives an undefined result.
-
 |Example: `Date!of(year = 2011, month = 1, = day = 28)` is `&#x60;2011-01-28&#x60;`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**dayOfWeek()**# : numeric`
+|Returns an  integer representing the weekday index for a date. The return value follows the ISO-8601 standard, from 1 (Monday) to 7 (Sunday).
+|Example: `&#x60;1970-01-01&#x60;!dayOfWeek()` is `4`, i.e. it was Thursday.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**dayOfYear()**# : numeric`
+|Returns the day of the year for a given date (a number from 1 to 366).
+|Example: `&#x60;2020-02-01&#x60;!dayOfYear()` is `32`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -2227,46 +2315,21 @@ If either of these two signs is not used in the <pattern>, then the function act
 |Example: `Timestamp!fromMilliseconds(milliseconds = 60000)` is `&#x60;1970-01-01T00:01:00Z&#x60;`
 |======================================================================
 
-[options="header",grid="none",cols="1a"]
-|======================================================================
-|`[purple]#**plusMilliseconds(milliseconds = **#<milliseconds>[purple]##**)**## : timestamp`
-|Adds duration expressed in <milliseconds> to the original time. <milliseconds> must be an integer. If <milliseconds> is less than 0, the result will be less than the original timestamp.
-|======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**plusSeconds(seconds = **#<seconds>[purple]##**)**## : timestamp`
-|Adds duration expressed in <seconds> to the original time. <seconds> must be an integer. If <seconds> is less than 0, the result will be less than the original timestamp.
-|======================================================================
+|`[purple]#**plus(**#&#x5B;[purple]##**milliseconds = **##<milliseconds>]&#x5B;[purple]##**, seconds = **##<seconds>]&#x5B;[purple]##**, minutes = **##<minutes>]&#x5B;[purple]##**, hours = **##<hours>]&#x5B;[purple]##**, days = **##<days>]&#x5B;[purple]##**, months = **##<months>]&#x5B;[purple]##**, years = **##<years>][purple]##**)**## : timestamp`
+|Adds duration expressed in <milliseconds>, <seconds>, <minutes>, <hours>, <days>, <months> or <days> to the original timestamp.
 
-[options="header",grid="none",cols="1a"]
-|======================================================================
-|`[purple]#**plusMinutes(minutes = **#<minutes>[purple]##**)**## : timestamp`
-|Adds duration expressed in <minutes> to the original time. <minutes> must be an integer. If <minutes> is less than 0, the result will be less than the original timestamp.
-|======================================================================
+At least one parameter is required, but any parameter can be used in conjunction with the others. All arguments passed must be integers. If any argument is less than 0, its value is subtracted from the original timestamp.
 
-[options="header",grid="none",cols="1a"]
-|======================================================================
-|`[purple]#**plusHours(hours = **#<hours>[purple]##**)**## : timestamp`
-|Adds duration expressed in <hours> to the original time. <hours> must be an integer. If <hours> is less than 0, the result will be less than the original timestamp.
-|======================================================================
+Examples:
 
-[options="header",grid="none",cols="1a"]
-|======================================================================
-|`[purple]#**plusDays(days = **#<days>[purple]##**)**## : timestamp`
-|Adds duration expressed in <days> to the original time. <days> must be an integer. If <days> is less than 0, the result will be less than the original timestamp.
-|======================================================================
+`&#x60;2019-07-18T01:11:12Z&#x60;!plus(days = 1)` is `"2019-07-19T01:11:12Z"`
 
-[options="header",grid="none",cols="1a"]
-|======================================================================
-|`[purple]#**plusMonths(months = **#<months>[purple]##**)**## : timestamp`
-|Adds duration expressed in <months> to the original time. <months> must be an integer. If the result date is invalid, the function sets the day to the last valid day of the month. If <months> is less than 0, the result will be less than the original timestamp.
-|======================================================================
+`&#x60;2019-07-18T01:11:12Z&#x60;!plus(days = 1, hours = 2)` is `"2019-07-19T03:11:12Z"`
 
-[options="header",grid="none",cols="1a"]
-|======================================================================
-|`[purple]#**plusYears(years = **#<years>[purple]##**)**## : timestamp`
-|Adds duration expressed in <years> to the original time. <years> must be an integer. If <years> is less than 0, the result will be less than the original timestamp.
+`&#x60;2019-07-18T01:11:12Z&#x60;!plus(days = 1, hours = -24)` is `"2019-07-18T01:11:12Z"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -2392,7 +2455,7 @@ Makes sense in JCL only.
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**count()**# : numeric`
+|`[purple]#**size()**# : numeric`
 |Returns the number of elements of a collection.
 // |TODO: examples
 |======================================================================
@@ -2443,6 +2506,20 @@ Makes sense in JCL only.
 |`[purple]#**allTrue(**#<variable name> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
 |Returns true if the logical expression is true for all the collection elements.
 |Example: `self.orderDetails!allTrue(od \| od.price < 10)`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**anyFalse(**#<variable name> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
+|Returns true if the logical expression is false for any element in the collection.
+|Example: `self.orderDetails!anyFalse(od \| od.price < 10)`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**allFalse(**#<variable name> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
+|Returns true if the logical expression is false for all the collection elements.
+|Example: `self.orderDetails!allFalse(od \| od.price < 10)`
 |======================================================================
 
 ////

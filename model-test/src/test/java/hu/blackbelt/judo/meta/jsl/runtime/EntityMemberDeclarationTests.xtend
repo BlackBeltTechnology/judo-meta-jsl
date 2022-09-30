@@ -22,16 +22,16 @@ class EntityMemberDeclarationTests {
 	@Test 
 	def void testDuplicateInheritedMembersInvalid() {
 		'''
-			model test
+			model test;
 			
-			type string String(max-length = 12)
+			type string String(min-size = 0, max-size = 12);
 			
 			entity B1 {
-			    field String name
+			    field String name;
 			}
 			
 			entity B2 {
-			    field String name
+			    field String name;
 			}
 			
 			entity A extends B1,B2 {
@@ -45,12 +45,12 @@ class EntityMemberDeclarationTests {
 	@Test 
 	def void testMemberNameTooLong() {
 		'''
-			model test
+			model test;
 			
-			type string String(max-length = 12)
+			type string String(min-size = 0, max-size = 12);
 			
 			entity Person {
-				field String tgvkyzidsggsdxxrszoscrljgnnixjzkyztoxpdvvqbmlrpzaakkwcczsarbqrqjnphrlfkfcjgcmgbxdexakswitdmcfjyjblkmiknvdgtyxlunkolxzaneifhyizgureqemldvypsongytiwmfaqrnxuodiunflyduwzerdossywvzgkmvdbfvpumaqzdazqomqwoaqynrixrwirmtbqmihmwkjmdaulwnfoxcmzldaxyjnihbluepwdswz
+				field String tgvkyzidsggsdxxrszoscrljgnnixjzkyztoxpdvvqbmlrpzaakkwcczsarbqrqjnphrlfkfcjgcmgbxdexakswitdmcfjyjblkmiknvdgtyxlunkolxzaneifhyizgureqemldvypsongytiwmfaqrnxuodiunflyduwzerdossywvzgkmvdbfvpumaqzdazqomqwoaqynrixrwirmtbqmihmwkjmdaulwnfoxcmzldaxyjnihbluepwdswz;
 			}
 
 		'''.parse => [
@@ -61,12 +61,12 @@ class EntityMemberDeclarationTests {
 	@Test 
 	def void testFieldIsManyRequired() {
 		'''
-			model test
+			model test;
 			
-			type string String(max-length = 1000)
+			type string String(min-size = 0, max-size = 1000);
 			
 			entity B1 {
-			    field required String[] attr
+			    field required String[] attr;
 			}
 
 		'''.parse => [
@@ -77,16 +77,16 @@ class EntityMemberDeclarationTests {
 	@Test 
 	def void testRelationIsManyRequired() {
 		'''
-			model test
+			model test;
 			
-			type string String(max-length = 1000)
+			type string String(min-size = 0, max-size = 1000);
 			
 			entity B1 {
-			    relation required B2[] others
+			    relation required B2[] others;
 			}
 
 			entity B2 {
-			    String name
+			    String name;
 			}
 		'''.parse => [
 			m | m.assertError(JsldslPackage::eINSTANCE.entityRelationDeclaration, JslDslValidator.USING_REQUIRED_WITH_IS_MANY, "Collection typed relation: 'others' cannot have keyword: 'required'")

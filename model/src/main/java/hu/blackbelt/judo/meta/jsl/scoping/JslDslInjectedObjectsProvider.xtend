@@ -63,6 +63,19 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		]
 	}
 
+	def Collection<FunctionBaseType> anyFunctionBasePrimitiveAndSingleInstances() {
+		#[
+			BT_STRING_INSTANCE,
+			BT_DATE_INSTANCE,
+			BT_BOOLEAN_INSTANCE,
+			BT_TIME_INSTANCE,
+			BT_TIMESTAMP_INSTANCE,
+			BT_NUMERIC_INSTANCE,
+			BT_BINARY_INSTANCE,
+			BT_ENTITY_INSTANCE
+		]
+	}
+
 	def Collection<FunctionBaseType> anyFunctionBasePrimitiveInstances() {
 		#[
 			BT_STRING_INSTANCE,
@@ -106,7 +119,6 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		CapitalizeFunction returns LiteralFunction : {LiteralFunction} name = 'capitalize' '(' ')';
 		MatchesFunction returns LiteralFunction : {LiteralFunction} name = 'matches' '(' 'pattern' '=' parameters += FunctionParameter ')';
 		LikeFunction returns LiteralFunction : {LiteralFunction} name = 'like' '(' 'pattern' '=' parameters += FunctionParameter ')';
-		IlikeFunction returns LiteralFunction : {LiteralFunction} name = 'ilike' '(' 'pattern' '=' parameters += FunctionParameter ')';
 		ReplaceFunction returns LiteralFunction : {LiteralFunction} name = 'replace' '(' 'oldstring' '=' parameters += FunctionParameter ',' 'newstring' '=' parameters += FunctionParameter ')';
 		TrimFunction returns LiteralFunction : {LiteralFunction} name = 'trim' '(' ')';
 		LtrimFunction returns LiteralFunction : {LiteralFunction} name = 'ltrim' '(' ')';
@@ -122,7 +134,47 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		
 		resource.addLiteralFunctionDeclaration("isDefined", RT_BOOLEAN_INSTANCE, anyFunctionBaseInstanceOrCollectionTypes)
 		resource.addLiteralFunctionDeclaration("isUnDefined", RT_BOOLEAN_INSTANCE, anyFunctionBaseInstanceOrCollectionTypes)
-		resource.addLiteralFunctionDeclaration("length", RT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
+		resource.addLiteralFunctionDeclaration("size", RT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
+
+		// TODO: this should be a base type dependent return type !
+		resource.addLiteralFunctionDeclaration("orElse", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+			])
+		/*
+		resource.addLiteralFunctionDeclaration("orElse", RT_BOOLEAN_INSTANCE, #[BT_BOOLEAN_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_BOOLEAN_INSTANCE, #[BT_BOOLEAN_INSTANCE])
+			])
+		resource.addLiteralFunctionDeclaration("orElse", RT_DATE_INSTANCE, #[BT_DATE_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_DATE_INSTANCE, #[BT_DATE_INSTANCE])
+			])
+		resource.addLiteralFunctionDeclaration("orElse", RT_TIME_INSTANCE, #[BT_TIME_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_TIME_INSTANCE, #[BT_TIME_INSTANCE])
+			])
+		resource.addLiteralFunctionDeclaration("orElse", RT_TIMESTAMP_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_TIMESTAMP_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
+			])
+		resource.addLiteralFunctionDeclaration("orElse", RT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
+			])
+		resource.addLiteralFunctionDeclaration("orElse", RT_BINARY_INSTANCE, #[BT_BINARY_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_BINARY_INSTANCE, #[BT_BINARY_INSTANCE])
+			])
+		resource.addLiteralFunctionDeclaration("orElse", RT_ENUM_LITERAL, #[BT_ENUM_LITERAL])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_ENUM_LITERAL, #[BT_ENUM_LITERAL])
+			])
+		resource.addLiteralFunctionDeclaration("orElse", RT_ENTITY_INSTANCE, #[BT_ENTITY_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("value", false, true, PT_ENTITY_INSTANCE, #[BT_ENTITY_INSTANCE])
+			])
+		*/
 
 		resource.addLiteralFunctionDeclaration("first", RT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
@@ -154,11 +206,8 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 			])
 		resource.addLiteralFunctionDeclaration("like", RT_BOOLEAN_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("pattern", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-			])
-		resource.addLiteralFunctionDeclaration("ilike", RT_BOOLEAN_INSTANCE, #[BT_STRING_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("pattern", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+				createFunctionParameterDeclaration("pattern", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE]),
+				createFunctionParameterDeclaration("exact", false, false, PT_BOOLEAN_INSTANCE, #[BT_STRING_INSTANCE])
 			])
 		resource.addLiteralFunctionDeclaration("replace", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
@@ -169,6 +218,16 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		resource.addLiteralFunctionDeclaration("trim", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 		resource.addLiteralFunctionDeclaration("ltrim", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 		resource.addLiteralFunctionDeclaration("rtrim", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+		resource.addLiteralFunctionDeclaration("lpad", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("size", false, true, PT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE]),
+				createFunctionParameterDeclaration("padstring", false, false, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+			])
+		resource.addLiteralFunctionDeclaration("rpad", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("size", false, true, PT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE]),
+				createFunctionParameterDeclaration("padstring", false, false, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+			])
 		
 		/*
 		// Numeric functions
@@ -179,6 +238,10 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		AsStringFunction returns LiteralFunction : {LiteralFunction} name = 'asString' '(' ')';
 		 */
 		resource.addLiteralFunctionDeclaration("round", RT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("scale", false, false, PT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
+
+			])
 		resource.addLiteralFunctionDeclaration("floor", RT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
 		resource.addLiteralFunctionDeclaration("ceil", RT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
 		resource.addLiteralFunctionDeclaration("abs", RT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
@@ -206,6 +269,8 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		resource.addLiteralFunctionDeclaration("year", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
 		resource.addLiteralFunctionDeclaration("month", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
 		resource.addLiteralFunctionDeclaration("day", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
+		resource.addLiteralFunctionDeclaration("dayOfWeek", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
+		resource.addLiteralFunctionDeclaration("dayOfYear", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
 
 		resource.addLiteralFunctionDeclaration("hour", RT_NUMERIC_INSTANCE, #[BT_TIME_INSTANCE])
 		resource.addLiteralFunctionDeclaration("minute", RT_NUMERIC_INSTANCE, #[BT_TIME_INSTANCE])
@@ -222,7 +287,7 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 				createFunctionParameterDeclaration("second", false, true, PT_NUMERIC_INSTANCE, #[BT_TIME_TYPE]),
 
 				createFunctionParameterDeclaration("date", false, true, PT_DATE_INSTANCE, #[BT_TIMESTAMP_TYPE]),
-				createFunctionParameterDeclaration("time", false, true, PT_TIME_INSTANCE, #[BT_TIMESTAMP_TYPE])
+				createFunctionParameterDeclaration("time", false, false, PT_TIME_INSTANCE, #[BT_TIMESTAMP_TYPE])
 
 			])
 
@@ -256,13 +321,13 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		
 		resource.addLiteralFunctionDeclaration("plus", RT_TIMESTAMP_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
 			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("milliseconds", false, true, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("seconds", false, true, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("minutes", false, true, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("hours", false, true, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("days", false, true, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("months", false, true, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("years", false, true, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
+				createFunctionParameterDeclaration("years", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
+				createFunctionParameterDeclaration("months", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
+				createFunctionParameterDeclaration("days", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
+				createFunctionParameterDeclaration("hours", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
+				createFunctionParameterDeclaration("minutes", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
+				createFunctionParameterDeclaration("seconds", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
+				createFunctionParameterDeclaration("milliseconds", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
 			])
 		
 		/*
@@ -313,7 +378,7 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		ContainsFunction returns LiteralFunction : {LiteralFunction} name = 'contains' '(' parameters += FunctionParameter ')';
 		*/
 		resource.addLiteralFunctionDeclaration("any", RT_ENTITY_INSTANCE, #[BT_ENTITY_COLLECTION])
-		resource.addLiteralFunctionDeclaration("count", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
+		resource.addLiteralFunctionDeclaration("size", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
 		resource.addLiteralFunctionDeclaration("asCollection", RT_ENTITY_COLLECTION, #[BT_ENTITY_COLLECTION])
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
@@ -337,6 +402,8 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		resource.addLambdaFunctionDeclaration("filter", RT_ENTITY_COLLECTION, #[BT_ENTITY_COLLECTION])
 		resource.addLambdaFunctionDeclaration("anyTrue", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
 		resource.addLambdaFunctionDeclaration("allTrue", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
+		resource.addLambdaFunctionDeclaration("anyFalse", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
+		resource.addLambdaFunctionDeclaration("allFalse", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
 
 		resource.addLambdaFunctionDeclaration("min", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
 		resource.addLambdaFunctionDeclaration("max", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])

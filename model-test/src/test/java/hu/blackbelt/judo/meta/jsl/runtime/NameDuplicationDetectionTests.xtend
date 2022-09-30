@@ -22,16 +22,16 @@ class NameDuplicationDetectionTests {
 	@Test 
 	def void testDuplicateMemberNameValid() {
 		'''
-			model Test
-			type string String(max-length = 128)
+			model Test;
+			type string String(min-size = 0, max-size = 128);
 
 			entity A {
-				relation B b opposite a
-				field String b
+				relation B b opposite a;
+				field String b;
 			}
 
 			entity B {
-				relation A a opposite b
+				relation A a opposite b;
 			}
 			
 		'''.parse => [
@@ -43,16 +43,16 @@ class NameDuplicationDetectionTests {
 	@Test 
 	def void testInheritedDuplicateMemberNameValid() {
 		'''
-			model Inheritence
+			model Inheritence;
 			
-			type string String(max-length = 100)
+			type string String(min-size = 0, max-size = 100);
 			
 			entity A {
-				field String name
+				field String name;
 			}
 			
 			entity A1 extends A {
-				field String name
+				field String name;
 			}
 		'''.parse => [
 			assertOppositeMismatchError("Duplicate member declaration: 'name'", JsldslPackage::eINSTANCE.entityFieldDeclaration)
@@ -62,9 +62,9 @@ class NameDuplicationDetectionTests {
 	@Test 
 	def void testDuplicateDeclarationName() {
 		'''
-			model DuplicatedEntityName
+			model DuplicatedEntityName;
 			
-			type string String(max-length = 100)
+			type string String(min-size =0, max-size = 100);
 			
 			entity A {
 			}
@@ -79,9 +79,9 @@ class NameDuplicationDetectionTests {
 	@Test 
 	def void testDuplicateDeclarationWithCaseName() {
 		'''
-			model DuplicatedEntityName
+			model DuplicatedEntityName;
 			
-			type string String(max-length = 100)
+			type string String(min-size = 0, max-size = 100);
 			
 			entity A {
 			}
@@ -98,9 +98,9 @@ class NameDuplicationDetectionTests {
 	@Test 
 	def void testDuplicateDeclarationEntityWithErrorCollosion() {
 		'''
-			model DuplicatedEntityName
+			model DuplicatedEntityName;
 			
-			type string String(max-length = 100)
+			type string String(min-size = 0, max-size = 100);
 			
 			entity A {
 			}

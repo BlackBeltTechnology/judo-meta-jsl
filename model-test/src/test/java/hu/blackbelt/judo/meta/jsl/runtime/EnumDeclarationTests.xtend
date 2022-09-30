@@ -20,16 +20,16 @@ class EnumDeclarationTests {
 	@Test
 	def void testEnumLiteralCaseInsensitiveNameCollision() {
 		'''
-			model test
+			model test;
 			
 			enum Genre {
-				CLASSIC = 0
-				POP = 1
-				pop = 2
+				CLASSIC = 0;
+				POP = 1;
+				pop = 2;
 			}
 			
 			entity Person {
-				field Genre favoredGenre
+				field Genre favoredGenre;
 			}
 		'''.parse => [
 			m | m.assertError(JsldslPackage::eINSTANCE.enumLiteral, JslDslValidator.ENUM_LITERAL_NAME_COLLISION, "Enumeration Literal name collision for: 'test.Genre.POP', 'test.Genre.pop'")
@@ -39,16 +39,16 @@ class EnumDeclarationTests {
 	@Test
 	def void testEnumLiteralOrdinalCollision() {
 		'''
-			model test
+			model test;
 			
 			enum Genre {
-				CLASSIC = 0
-				POP = 1
-				METAL = 1
+				CLASSIC = 0;
+				POP = 1;
+				METAL = 1;
 			}
 			
 			entity Person {
-				field Genre favoredGenre
+				field Genre favoredGenre;
 			}
 		'''.parse => [
 			m | m.assertError(JsldslPackage::eINSTANCE.enumLiteral, JslDslValidator.ENUM_LITERAL_ORDINAL_COLLISION, "Enumeration Literal ordinal collision for: 'test.Genre.POP': '1', 'test.Genre.METAL': '1'")
@@ -58,20 +58,20 @@ class EnumDeclarationTests {
 	@Test
 	def void testEnumDefaultTypeMismatch() {
 		'''
-			model test
+			model test;
 			
 			enum Genre {
-				CLASSIC = 0
-				POP = 1
-				METAL = 2
+				CLASSIC = 0;
+				POP = 1;
+				METAL = 2;
 			}
 			
 			enum GenreOther {
-				HOUSE = 0
+				HOUSE = 0;
 			}
 			
 			entity Person {
-				field Genre favoredGenre = GenreOther#HOUSE
+				field Genre favoredGenre = GenreOther#HOUSE;
 			}
 		'''.parse => [
 			m | m.assertError(JsldslPackage::eINSTANCE.defaultExpressionType, JslDslValidator.DEFAULT_TYPE_MISMATCH, "Default value type: 'GenreOther' does not match member type: 'Genre'")
