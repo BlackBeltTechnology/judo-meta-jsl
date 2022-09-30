@@ -21,7 +21,7 @@ class CyclicInheritenceTests {
 	@Test 
 	def void testInheritedSame() {
 		'''
-			model Test
+			model Test;
 
 			entity A extends A {
 			}
@@ -34,7 +34,7 @@ class CyclicInheritenceTests {
 	@Test 
 	def void testInheritedDuplicateMemberNameValid() {
 		'''
-			model Inheritence
+			model Inheritence;
 			
 			entity A extends C {
 			}
