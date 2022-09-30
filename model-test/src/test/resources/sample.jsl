@@ -1,58 +1,58 @@
-model SampleModel
+model SampleModel;
 
-type numeric Integer(precision = 9, scale = 0)
-type string String(max-length = 128)
-type string PhoneNumber(max-length = 32, regex = "^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$")  // escape sequencing does not work in regexp!!!!
-type boolean Boolean
+type numeric Integer(precision = 9, scale = 0);
+type string String(min-size = 0, max-size = 128);
+type string PhoneNumber(min-size = 0, max-size = 32, regex = "^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$");  // escape sequencing does not work in regexp!!!!
+type boolean Boolean;
 
-type date Date
-type timestamp Timestamp
-type binary Binary(mime-types = ["application/xyz"], max-file-size = 10MB)
+type date Date;
+type timestamp Timestamp;
+type binary Binary(mime-types = ["application/xyz"], max-file-size = 10MB);
 
 error MyError {
-	field Integer code
-	field String msg
+	field Integer code;
+	field String msg;
 }
 
 error MyExtendedError extends MyError {
-	field Integer extra = 0
+	field Integer extra = 0;
 }
 
 enum LeadStatus {
-	OPPORTUNITY = 0
-	LEAD = 1
-	PROJECT = 2
+	OPPORTUNITY = 0;
+	LEAD = 1;
+	PROJECT = 2;
 }
 
 entity abstract Person {
-	field String firstName
-	field String lastName
+	field String firstName;
+	field String lastName;
 	// TODO JNG-3772 CreateExpressions are not supported yet JNG-3772
 	// field Lead[] i = new Lead[new Lead()]
 
 
-	derived	String fullName => self.firstName + " " \
+	derived	String fullName => self.firstName + " "
 		+ self.lastName ;
 }
 
 entity SalesPerson extends Person {
-	relation Lead[] leads opposite salesPerson
-	query Customer[] leadsOver(Integer limit = 100) => self.leads!filter(lead | lead.value > limit)
-	derived Customer[] leadsOver10 => self.leadsOver(limit = 10)
+	relation Lead[] leads opposite salesPerson;
+	query Customer[] leadsOver(Integer limit = 100) => self.leads!filter(lead | lead.value > limit);
+	derived Customer[] leadsOver10 => self.leadsOver(limit = 10);
 }
 
 entity Lead {
-	field Integer value = 100000
+	field Integer value = 100000;
 
-	relation required SalesPerson salesPerson opposite leads
+	relation required SalesPerson salesPerson opposite leads;
 
-	constraint valueLessThan10 self.value > 10 onerror MyError(code = 10, msg = "Error message")
+	constraint valueLessThan10 self.value > 10 onerror MyError(code = 10, msg = "Error message");
 }
 
 entity Customer {
-	identifier required String name
+	identifier required String name;
 
-	relation Lead[] lead opposite-add customer
+	relation Lead[] lead opposite-add customer;
 }
 
 

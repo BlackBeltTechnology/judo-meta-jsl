@@ -45,15 +45,15 @@ public class JslDslParserTest {
 
     Logger log = LoggerFactory.getLogger(JslDslParserTest.class);
 
-    private static final String TEST_MODEL = "model SampleModel\n" +
+    private static final String TEST_MODEL = "model SampleModel;\n" +
             "\n" +
-            "type numeric Integer(precision = 9,  scale = 0)\n" +
-            "type string String(max-length = 128)\n";
+            "type numeric Integer(precision = 9,  scale = 0);\n" +
+            "type string String(min-size = 0, max-size = 128);\n";
 
-    private static final String TEST_MODEL2 = "model SampleModel2\n" +
-            "import SampleModel\n" +
+    private static final String TEST_MODEL2 = "model SampleModel2;\n" +
+            "import SampleModel;\n" +
             "entity Person {\n" +
-            "field SampleModel::String name\n" +
+            "field SampleModel::String name;\n" +
             "}\n";
 
 
