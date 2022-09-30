@@ -1,5 +1,5 @@
-model SalesModelinvalid
+model SalesModelinvalid;
 
 entity abstract Person {
-	field String2 firstName
+	field String2 firstName;
 }

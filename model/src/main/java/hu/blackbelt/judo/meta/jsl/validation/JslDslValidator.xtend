@@ -16,7 +16,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierMaxLength
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierMaxSize
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierMinSize
 import java.math.BigInteger
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierPrecision
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierScale
@@ -66,11 +67,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val INHERITED_MEMBER_NAME_COLLISION = ISSUE_CODE_PREFIX + "InheritedMemberNameCollision"
 	public static val ENUM_LITERAL_NAME_COLLISION = ISSUE_CODE_PREFIX + "EnumLiteralNameCollision"
 	public static val ENUM_LITERAL_ORDINAL_COLLISION = ISSUE_CODE_PREFIX + "EnumLiteralOrdinalCollision"
-	public static val MAX_LENGTH_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "MaxLengthIsNegative"
+	public static val MAX_SIZE_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "MaxSizeIsNegative"
+	public static val MIN_SIZE_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "MinSizeIsNegative"
 	public static val INVALID_MIMETYPE = ISSUE_CODE_PREFIX + "MimetypeIsInvalid"
 	public static val PRECISION_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "PrecisionIsNegative"
 	public static val SCALE_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "ScaleIsNegative"
-	public static val MAX_LENGTH_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "MaxLengthIsTooLarge"
+	public static val MAX_SIZE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "MaxSizeIsTooLarge"
+	public static val MIN_SIZE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "MinSizeIsTooLarge"
 	public static val PRECISION_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "PrecisionIsTooLarge"
 	public static val SCALE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "ScaleIsLargerThanPrecision"
 	public static val USING_REQUIRED_WITH_IS_MANY = ISSUE_CODE_PREFIX + "UsingRequiredWithIsMany"
@@ -78,7 +81,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val UNSUPPORTED_DEFAULT_TYPE = ISSUE_CODE_PREFIX + "UnsupportedDefaultValueType"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
-	public static val MODIFIER_MAX_LENGTH_MAX_VALUE = BigInteger.valueOf(4000)
+	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
 	public static val PRECISION_MAX_VALUE = BigInteger.valueOf(15)
 
 
@@ -279,17 +282,33 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}	
 
 	@Check
-	def checkModifierMaxLength(ModifierMaxLength modifier) {
+	def checkModifierMinSize(ModifierMinSize modifier) {
+		val maxValue = (modifier.eContainer as DataTypeDeclaration).maxSize.value
+		if (modifier.value < BigInteger.ZERO) {
+			error("min-size must be greater than or equal to 0",
+				JsldslPackage::eINSTANCE.modifierMinSize_Value,
+				MIN_SIZE_MODIFIER_IS_NEGATIVE,
+				JsldslPackage::eINSTANCE.modifierMinSize.name)
+		} else if (modifier.value > maxValue) {
+			error("min-size must be less than/equal to max-size",
+				JsldslPackage::eINSTANCE.modifierMinSize_Value,
+				MIN_SIZE_MODIFIER_IS_TOO_LARGE,
+				JsldslPackage::eINSTANCE.modifierMinSize.name)
+		}
+	}
+
+	@Check
+	def checkModifierMaxSize(ModifierMaxSize modifier) {
 		if (modifier.value <= BigInteger.ZERO) {
-			error("MaxLength must be greater than 0",
-				JsldslPackage::eINSTANCE.modifierMaxLength_Value,
-				MAX_LENGTH_MODIFIER_IS_NEGATIVE,
-				JsldslPackage::eINSTANCE.modifierMaxLength.name)
-		} else if (modifier.value > MODIFIER_MAX_LENGTH_MAX_VALUE) {
-			error("MaxLength must be less than/equal to " + MODIFIER_MAX_LENGTH_MAX_VALUE,
-				JsldslPackage::eINSTANCE.modifierMaxLength_Value,
-				MAX_LENGTH_MODIFIER_IS_TOO_LARGE,
-				JsldslPackage::eINSTANCE.modifierMaxLength.name)
+			error("max-size must be greater than 0",
+				JsldslPackage::eINSTANCE.modifierMaxSize_Value,
+				MAX_SIZE_MODIFIER_IS_NEGATIVE,
+				JsldslPackage::eINSTANCE.modifierMaxSize.name)
+		} else if (modifier.value > MODIFIER_MAX_SIZE_MAX_VALUE) {
+			error("max-size must be less than/equal to " + MODIFIER_MAX_SIZE_MAX_VALUE,
+				JsldslPackage::eINSTANCE.modifierMaxSize_Value,
+				MAX_SIZE_MODIFIER_IS_TOO_LARGE,
+				JsldslPackage::eINSTANCE.modifierMaxSize.name)
 		}
 	}
 	
