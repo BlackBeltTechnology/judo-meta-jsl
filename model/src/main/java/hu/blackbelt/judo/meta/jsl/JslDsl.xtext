@@ -313,8 +313,8 @@ SpawnOperation returns Expression
 	;
 
 UnaryOperation returns Expression
-	: {UnaryOperation} operator=('not' | '-') operand=FunctionedExpression
-    | FunctionedExpression
+	: {UnaryOperation} operator=('not' | '-' | '+') operand=UnaryOperation
+	| FunctionedExpression
     ;
 
 FunctionedExpression returns Expression
@@ -590,11 +590,11 @@ terminal DATE
 	;
 
 terminal DECIMAL returns ecore::EBigDecimal
-	: '-'? DIGIT+ '.' DIGIT+
+	: DIGIT+ '.' DIGIT+
 	;
 
 terminal INTEGER returns ecore::EBigInteger
-	: '-'? DIGIT+
+	: DIGIT+
 	;
 
 terminal ID
