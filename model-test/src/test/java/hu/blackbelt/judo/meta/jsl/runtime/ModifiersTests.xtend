@@ -18,22 +18,6 @@ class ModifiersTests {
 	@Inject extension ParseHelper<ModelDeclaration> 
 	@Inject extension ValidationTestHelper
 	
-	@Test
-	def void testMinSizeModifierNegative() {
-		'''
-			model test;
-			
-			type string String(min-size = -1, max-size = 128);
-			
-			entity Person{
-				field String fullName;
-			}
-
-		'''.parse => [
-			assertMinSizeNegativeError("min-size must be greater than or equal to 0", JsldslPackage::eINSTANCE.modifierMinSize)
-		]
-	}
-	
 	@Test 
 	def void testMinSizeModifierTooLarge() {
 		'''
@@ -67,11 +51,11 @@ class ModifiersTests {
 	}
 
 	@Test
-	def void testMaxSizeModifierNegative() {
+	def void testMaxSizeModifierZero() {
 		'''
 			model test;
 			
-			type string String(min-size = 0, max-size = -1);
+			type string String(min-size = 0, max-size = 0);
 			
 			entity Person{
 				field String fullName;
@@ -136,21 +120,6 @@ class ModifiersTests {
 		]
 	}
 	
-	@Test
-	def void testScaleModifierTooLow() {
-		'''
-			model test;
-			
-			type numeric Number1(precision = 15, scale = -1);
-			
-			entity Entity {
-				field Number1 number;
-			}
-		'''.parse => [
-			m | m.assertError(JsldslPackage::eINSTANCE.modifierScale, JslDslValidator.SCALE_MODIFIER_IS_NEGATIVE, "Scale must be greater than/equal to 0")
-		]
-	}
-
 	@Test
 	def void testScaleModifierTooLarge() {
 		'''
