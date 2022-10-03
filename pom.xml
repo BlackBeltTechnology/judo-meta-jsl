@@ -75,7 +75,7 @@
 		<!--suppress UnresolvedMavenProperty -->
 		<logback-test-config>${maven.multiModuleProjectDirectory}/logback-test.xml</logback-test-config>
 
-        <tycho-version>2.7.5</tycho-version>
+        <tycho-version>3.0.0</tycho-version>
 
 		<epsilon-runtime-version>1.5.0</epsilon-runtime-version>
 		<epsilon-runtime-eclipse-version>1.5.1</epsilon-runtime-eclipse-version>
