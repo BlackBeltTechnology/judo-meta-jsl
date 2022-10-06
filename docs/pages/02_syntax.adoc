@@ -1,0 +1,110 @@
+ifndef::env-site,env-github[]
+include::../_attributes.adoc[]
+endif::[]
+// Settings
+:idprefix:
+:idseparator: -
+:icons: font
+:KW: [purple]##**
+:KWE: **##
+
+= JSL Syntax
+
+This section describes the common elements of JSL syntax.
+
+== Conventions
+
+The following conventions are used in the syntax description: angle brackets (< and >) indicate variable parts, brackets ([ and ]) indicate optional parts. Vertical lines (|) indicate that you must choose one alternative. Dots (...) mean that the preceding element can be repeated.
+
+All symbols (keywords, parentheses, dots, brackets, etc.) in [purple]#**bold purple**# must be taken literally.
+
+For example, a simplified version of the well-known copy command looks like this with these conventions. 
+
+[subs="quotes"]
+----
+[purple]#**cp**# &#x5B;[purple]##**-a**##|[purple]##**-l**##|[purple]##**-r**##]... &lt;source>... &lt;directory>
+----
+
+== Overall structure
+
+Domain models are defined by a sequence of JSL statements. Each domain model is in a text file. The extension of the model text files shall be "jsl". E.g. CRM.jsl file contains the model definition of the customer relationship management (CRM) model.
+
+Domain models may refer to each other. References between models allow to partition domain models into multiple (sub)domains.
+
+== Statements
+
+JSL statements are composed from:
+
+* JSL keywords
+* Expressions
+* Element names (entities, fields, enumerations etc.)
+
+JSL statements are terminated by a semicolon (`;`). A semicolon is optional at the end of block declarations (`{ ... }`). However, extra `;` tokens after statements have no effect.
+
+A statement can be broken into several lines.
+
+The following example is syntactically valid.
+
+*Example:*
+
+----
+model shop;
+
+type string String(min-size = 0, max-size = 128);
+
+entity Person {
+    field required String firstName = "";
+    field required String lastName = "";;;;;
+    derived String fullName =
+        self.firstName + " " + self.lastName;
+};
+----
+
+
+== Keywords
+
+Keywords are predefined, reserved words used in JSL that have special meanings in the language. JSL keywords are always lowercase.
+
+Keywords cannot be used directly as element names. If you still want to use these reserved words as element names, the words must be enclosed in back-tick (```) characters as shown in the example below.
+
+----
+field String `model`;
+----
+
+This is the list of keywords in the JSL.
+
+[cols="1,1,1"]
+|======================================================================
+|abstract   |false       |opposite-add
+|and        |field       |or
+|as         |identifier  |query
+|constraint |implies     |relation
+|derived    |import      |required
+|div        |mod         |self
+|entity     |model       |true
+|enum       |not         |type
+|error      |onerror     |xor
+|extends    |opposite    |
+|======================================================================
+
+== Element names
+
+The names of JSL domain elements must conform to the following rules:
+
+* Names are case-sensitive.
+* Name of elements must be unique within their scope in a case-insensitive manner.
+* A name can be a sequence of uppercase and lowercase English letters (A-Z, a-z) and digits (0-9).
+* The first character of a name must be a letter.
+* A name must have at least one character.
+* A name must not be longer than 128 characters.
+
+[IMPORTANT]
+====
+Even though element names (e.g. entity names, field names, enumeration literals, etc.) are case-sensitive, it is not allowed to have two elements in the same scope (e.g. two fields within an entity) whose names differ only in upper and lower case.
+====
+
+== Comments
+
+Comments may be inserted by use of the `//` characters at any point in the line. When `//` characters are detected, the rest of the line is considered to be a comment and ignored.
+
+Multi-line comments may be created by surrounding the lines by `/\*` and `*/`. Multi-line comments do not nest.
