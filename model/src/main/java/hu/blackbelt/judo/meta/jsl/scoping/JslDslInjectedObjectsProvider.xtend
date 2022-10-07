@@ -240,7 +240,6 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		resource.addLiteralFunctionDeclaration("round", RT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("scale", false, false, PT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
-
 			])
 		resource.addLiteralFunctionDeclaration("floor", RT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
 		resource.addLiteralFunctionDeclaration("ceil", RT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
@@ -275,6 +274,12 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		resource.addLiteralFunctionDeclaration("hour", RT_NUMERIC_INSTANCE, #[BT_TIME_INSTANCE])
 		resource.addLiteralFunctionDeclaration("minute", RT_NUMERIC_INSTANCE, #[BT_TIME_INSTANCE])
 		resource.addLiteralFunctionDeclaration("second", RT_NUMERIC_INSTANCE, #[BT_TIME_INSTANCE])
+		
+		resource.addLiteralFunctionDeclaration("fromSeconds", RT_TIME_INSTANCE, #[BT_TIME_TYPE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("seconds", false, true, PT_NUMERIC_INSTANCE, #[BT_TIME_TYPE])
+			])
+		resource.addLiteralFunctionDeclaration("asSeconds", RT_NUMERIC_INSTANCE, #[BT_TIME_TYPE])
 
 		resource.addLiteralFunctionDeclaration("of", RT_BASE_TYPE_INSTANCE, #[BT_DATE_TYPE, BT_TIME_TYPE, BT_TIMESTAMP_TYPE])
 			.parameterDeclarations.addAll(#[
