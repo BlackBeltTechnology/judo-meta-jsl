@@ -36,11 +36,13 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.RawStringLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierMaxFileSize
 import java.math.BigInteger
+import hu.blackbelt.judo.meta.jsl.jsldsl.support.JslDslModelResourceSupport
+import java.util.stream.Collectors
 
 @Singleton
 class JslDslModelExtension {
 	
-	@Inject extension IQualifiedNameProvider
+	@Inject extension IQualifiedNameProvider	
 
 	/*
 	def ModelDeclaration modelDeclaration(EObject obj) {
@@ -383,6 +385,24 @@ class JslDslModelExtension {
 			case "GiB": return it.numeric.multiply(BigInteger.valueOf(1024 * 1024 * 1024))
 		}
 		return it.numeric
+	}
+
+
+	def JslDslModelResourceSupport fromModel(ModelDeclaration model) {
+		JslDslModelResourceSupport.jslDslModelResourceSupportBuilder().resourceSet(model.eResource.getResourceSet()).build();
+	}
+
+	def Collection<EntityDeclaration> entities(JslDslModelResourceSupport it) {
+		getStreamOf(EntityDeclaration).collect(Collectors.toList)		
+	}
+
+	
+	def EntityDeclaration entityByName(JslDslModelResourceSupport it, String name) {
+		return getStreamOf(EntityDeclaration).filter[e | e.name.equals(name)].findFirst.orElseThrow[new IllegalArgumentException("EntityDeclaration not found: " + name)]
+	}
+
+	def EntityMemberDeclaration memberByName(EntityDeclaration it, String name) {
+		members.stream.filter[e | e.name.equals(name)].findFirst.orElseThrow[new IllegalArgumentException("EntityMemberDeclaration not found: " + name)]
 	}
 
 }

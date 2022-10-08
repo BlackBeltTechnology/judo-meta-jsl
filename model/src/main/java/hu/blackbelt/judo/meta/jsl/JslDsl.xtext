@@ -480,6 +480,7 @@ enum FunctionReturnType
 	| RT_DATE_INSTANCE
 	| RT_TIME_INSTANCE
 	| RT_TIMESTAMP_INSTANCE
+	| RT_INPUT_SAME
 	;
 
 enum FunctionBaseType

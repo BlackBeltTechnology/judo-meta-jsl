@@ -104,26 +104,6 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 	}
 
 	def void addAllFunctions(Resource resource) {
-		/*
-		// String functions
-		GetVariableFunction returns LiteralFunction : {LiteralFunction} name = 'getVariable' '(' parameters += FunctionParameter ')' ;
-		IsDefinedFunction returns LiteralFunction : {LiteralFunction} name = 'isDefined' '(' ')';
-		IsUnDefinedFunction returns LiteralFunction : {LiteralFunction} name = 'isUnDefined' '(' ')';
-		LengthFunction returns LiteralFunction : {LiteralFunction} name = 'length' '(' ')';
-		FirstFunction returns LiteralFunction : {LiteralFunction} name = 'first' '(' 'count' '=' parameters += FunctionParameter ')';
-		LastFunction returns LiteralFunction : {LiteralFunction} name = 'last' '(' 'count' '=' parameters += FunctionParameter ')';
-		PositionFunction returns LiteralFunction : {LiteralFunction} name = 'position' '(' 'offset' '='parameters += FunctionParameter ')';
-		SubstringFunction returns LiteralFunction : {LiteralFunction} name = 'substring' '(' 'offset' '=' parameters += FunctionParameter ',' 'count' '=' parameters += FunctionParameter ')';
-		LowerFunction returns LiteralFunction : {LiteralFunction} name = 'lower' '(' ')';
-		UpperFunction returns LiteralFunction : {LiteralFunction} name = 'upper' '(' ')';
-		CapitalizeFunction returns LiteralFunction : {LiteralFunction} name = 'capitalize' '(' ')';
-		MatchesFunction returns LiteralFunction : {LiteralFunction} name = 'matches' '(' 'pattern' '=' parameters += FunctionParameter ')';
-		LikeFunction returns LiteralFunction : {LiteralFunction} name = 'like' '(' 'pattern' '=' parameters += FunctionParameter ')';
-		ReplaceFunction returns LiteralFunction : {LiteralFunction} name = 'replace' '(' 'oldstring' '=' parameters += FunctionParameter ',' 'newstring' '=' parameters += FunctionParameter ')';
-		TrimFunction returns LiteralFunction : {LiteralFunction} name = 'trim' '(' ')';
-		LtrimFunction returns LiteralFunction : {LiteralFunction} name = 'ltrim' '(' ')';
-		RtrimFunction returns LiteralFunction : {LiteralFunction} name = 'rtrim' '(' ')';
-		*/
 		resource.addLiteralFunctionDeclaration("getVariable", RT_BASE_TYPE_INSTANCE, anyFunctionBasePrimitiveTypes())
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("category", false, true, PT_STRING_INSTANCE, anyFunctionBasePrimitiveTypes),
@@ -134,53 +114,18 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		
 		resource.addLiteralFunctionDeclaration("isDefined", RT_BOOLEAN_INSTANCE, anyFunctionBaseInstanceOrCollectionTypes)
 		resource.addLiteralFunctionDeclaration("isUnDefined", RT_BOOLEAN_INSTANCE, anyFunctionBaseInstanceOrCollectionTypes)
-		resource.addLiteralFunctionDeclaration("size", RT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
+		resource.addLiteralFunctionDeclaration("size", RT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE, BT_ENTITY_COLLECTION])
 
-		// TODO: this should be a base type dependent return type !
-		resource.addLiteralFunctionDeclaration("orElse", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+		resource.addLiteralFunctionDeclaration("orElse", RT_INPUT_SAME, anyFunctionBasePrimitiveInstances)
 			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("value", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+				createFunctionParameterDeclaration("value", false, true, PT_INPUT_SAME, anyFunctionBasePrimitiveInstances)
 			])
-		/*
-		resource.addLiteralFunctionDeclaration("orElse", RT_BOOLEAN_INSTANCE, #[BT_BOOLEAN_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("value", false, true, PT_BOOLEAN_INSTANCE, #[BT_BOOLEAN_INSTANCE])
-			])
-		resource.addLiteralFunctionDeclaration("orElse", RT_DATE_INSTANCE, #[BT_DATE_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("value", false, true, PT_DATE_INSTANCE, #[BT_DATE_INSTANCE])
-			])
-		resource.addLiteralFunctionDeclaration("orElse", RT_TIME_INSTANCE, #[BT_TIME_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("value", false, true, PT_TIME_INSTANCE, #[BT_TIME_INSTANCE])
-			])
-		resource.addLiteralFunctionDeclaration("orElse", RT_TIMESTAMP_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("value", false, true, PT_TIMESTAMP_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
-			])
-		resource.addLiteralFunctionDeclaration("orElse", RT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("value", false, true, PT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
-			])
-		resource.addLiteralFunctionDeclaration("orElse", RT_BINARY_INSTANCE, #[BT_BINARY_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("value", false, true, PT_BINARY_INSTANCE, #[BT_BINARY_INSTANCE])
-			])
-		resource.addLiteralFunctionDeclaration("orElse", RT_ENUM_LITERAL, #[BT_ENUM_LITERAL])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("value", false, true, PT_ENUM_LITERAL, #[BT_ENUM_LITERAL])
-			])
-		resource.addLiteralFunctionDeclaration("orElse", RT_ENTITY_INSTANCE, #[BT_ENTITY_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("value", false, true, PT_ENTITY_INSTANCE, #[BT_ENTITY_INSTANCE])
-			])
-		*/
 
-		resource.addLiteralFunctionDeclaration("first", RT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
+		resource.addLiteralFunctionDeclaration("first", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("count", false, true, PT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
 			])
-		resource.addLiteralFunctionDeclaration("last", RT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
+		resource.addLiteralFunctionDeclaration("last", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("count", false, true, PT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
 			])
@@ -190,7 +135,7 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 				createFunctionParameterDeclaration("substring", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 			])
 
-		resource.addLiteralFunctionDeclaration("substring", RT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
+		resource.addLiteralFunctionDeclaration("substring", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("count", false, true, PT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE]),
 				createFunctionParameterDeclaration("offset", false, true, PT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
@@ -229,14 +174,6 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 				createFunctionParameterDeclaration("padstring", false, false, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 			])
 		
-		/*
-		// Numeric functions
-		RoundFunction returns LiteralFunction : {LiteralFunction} name = 'round' '(' ')';
-		FloorFunction returns LiteralFunction : {LiteralFunction} name = 'floor' '(' ')';
-		CeilFunction returns LiteralFunction : {LiteralFunction} name = 'ceil' '(' ')';
-		AbsFunction returns LiteralFunction : {LiteralFunction} name = 'abs' '(' ')';
-		AsStringFunction returns LiteralFunction : {LiteralFunction} name = 'asString' '(' ')';
-		 */
 		resource.addLiteralFunctionDeclaration("round", RT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("scale", false, false, PT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
@@ -247,25 +184,6 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		resource.addLiteralFunctionDeclaration("abs", RT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
 		resource.addLiteralFunctionDeclaration("asString", RT_STRING_INSTANCE, anyFunctionBasePrimitiveInstances())
 		
-		/*
-		// Date functions
-		YearFunction returns LiteralFunction : {LiteralFunction} name = 'year' '(' ')';
-		MonthFunction returns LiteralFunction : {LiteralFunction} name = 'month' '(' ')';
-		DayFunction returns LiteralFunction : {LiteralFunction} name = 'day' '(' ')';
-		DateOfFunction returns LiteralFunction : {LiteralFunction} name = 'of' '('
-			  ('year' '=' parameters += FunctionParameter ',' 'month' '=' parameters += FunctionParameter ',' 'day' '=' parameters += FunctionParameter) 
-			')'
-			;
-		// Time functions
-		HourFunction returns LiteralFunction : {LiteralFunction} name = 'hour' '(' ')';
-		MinuteFunction returns LiteralFunction : {LiteralFunction} name = 'minute' '(' ')';
-		SecondFunction returns LiteralFunction : {LiteralFunction} name = 'second' '(' ')';
-		TimeOfFunction returns LiteralFunction : {LiteralFunction} name = 'of' '('
-			('hour' '=' parameters += FunctionParameter ',' 'minute' '=' parameters += FunctionParameter ',' 'second' '=' parameters += FunctionParameter)
-			')'
-			;
-		// AsStringFunction returns Named : {AsStringFunction} name = 'asString' '(' ')';
-		 */
 		resource.addLiteralFunctionDeclaration("year", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
 		resource.addLiteralFunctionDeclaration("month", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
 		resource.addLiteralFunctionDeclaration("day", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
@@ -291,26 +209,6 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 
 			])
 
-		/*
-		// Timestamp functions
-		DateFunction returns LiteralFunction : {LiteralFunction} name = 'date' '(' ')';
-		TimeFunction returns LiteralFunction : {LiteralFunction} name = 'time' '(' ')';
-		AsMillisecondsFunction returns LiteralFunction : {LiteralFunction} name = 'asMilliseconds' '(' ')';
-		FromMillisecondsFunction returns LiteralFunction : {LiteralFunction} name = 'fromMilliseconds' '(' 'millisecond' '=' parameters += FunctionParameter ')';
-		PlusMillisecondsFunction returns LiteralFunction : {LiteralFunction} name = 'plusMilliseconds' '(' 'millisecond' '=' parameters += FunctionParameter ')';
-		PlusSecondsFunction returns LiteralFunction : {LiteralFunction} name = 'plusSeconds' '(' 'sec' '=' parameters += FunctionParameter ')';
-		PlusMinutesFunction returns LiteralFunction : {LiteralFunction} name = 'plusMinutes' '(' 'min' '=' parameters += FunctionParameter ')';
-		PlusHoursFunction returns LiteralFunction : {LiteralFunction} name = 'plusHours' '(' 'hour' '=' parameters += FunctionParameter ')';
-		PlusDaysFunction returns LiteralFunction : {LiteralFunction} name = 'plusDays' '(' 'day' '=' parameters += FunctionParameter ')';
-		PlusMonthsFunction returns LiteralFunction : {LiteralFunction} name = 'plusMonths' '(' 'month' '=' parameters += FunctionParameter ')';
-		PlusYearsFunction returns LiteralFunction : {LiteralFunction} name = 'plusYears' '(' 'year' '=' parameters += FunctionParameter ')';
-		// AsStringFunction returns Named : {AsBooleanAsStringFunction} name = 'asString' '(' ')';
-		TimestampOfFunction returns LiteralFunction : {LiteralFunction} name = 'of' '('
-			('date' '=' parameters += FunctionParameter ',' 'time' '=' parameters += FunctionParameter)
-			')'
-			;
-		 */		
-
 		resource.addLiteralFunctionDeclaration("date", RT_DATE_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
 		resource.addLiteralFunctionDeclaration("time", RT_TIME_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
 		resource.addLiteralFunctionDeclaration("asMilliseconds", RT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
@@ -330,13 +228,6 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 				createFunctionParameterDeclaration("milliseconds", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
 			])
 		
-		/*
-		// Instance functions
-		TypeOfFunction returns InstanceFunction : {InstanceFunction} name = 'typeOf' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
-		KindOfFunction returns InstanceFunction : {InstanceFunction} name = 'kindOf' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
-		ContainerFunction returns InstanceFunction : {InstanceFunction} name = 'container' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
-		AsTypeFunction returns InstanceFunction : {InstanceFunction} name = 'asType' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
-		*/
 		resource.addLiteralFunctionDeclaration("typeOf", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_INSTANCE])
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
@@ -354,31 +245,17 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
 			])
 
-		/*
-		MemberOfFunction returns LiteralFunction : {LiteralFunction} name = 'memberOf' '(' parameters += FunctionParameter ')';
-		 */
 		resource.addLiteralFunctionDeclaration("memberOf", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_INSTANCE])
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("instances", false, true, PT_ENTITY_COLLECTION, #[BT_ENTITY_INSTANCE])
 			])
 
-		/*
-		 // Collection function
-		HeadFunction returns SelectorFunction : {SelectorFunction} name = 'head' '(' selectorArgument = SelectorFunctionParameters ')';
-		TailFunction returns SelectorFunction : {SelectorFunction} name = 'tail' '(' selectorArgument = SelectorFunctionParameters ')';
-		*/
 		resource.addSelectorFunctionDeclaration("head", RT_ENTITY_COLLECTION, #[BT_ENTITY_COLLECTION])
 		resource.addSelectorFunctionDeclaration("tail", RT_ENTITY_COLLECTION, #[BT_ENTITY_COLLECTION])
 
 
-		/*
-		AnyFunction returns LambdaFunction : {LambdaFunction} name = 'any' '(' ')';
-		CountFunction returns LiteralFunction : {LiteralFunction} name = 'count' '(' ')';
-		AsCollectionFunction returns InstanceFunction : {InstanceFunction} name = 'asCollection' '(' entityDeclaration = [EntityDeclaration | LocalName] ')';
-		ContainsFunction returns LiteralFunction : {LiteralFunction} name = 'contains' '(' parameters += FunctionParameter ')';
-		*/
 		resource.addLiteralFunctionDeclaration("any", RT_ENTITY_INSTANCE, #[BT_ENTITY_COLLECTION])
-		resource.addLiteralFunctionDeclaration("size", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
+		// resource.addLiteralFunctionDeclaration("size", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
 		resource.addLiteralFunctionDeclaration("asCollection", RT_ENTITY_COLLECTION, #[BT_ENTITY_COLLECTION])
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
@@ -389,17 +266,7 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 			])
 
 
-		/*
-		FilterFunction returns LambdaFunction : {LambdaFunction} name = 'filter' '(' lambdaArgument = LambdaFunctionParameters ')';
-		AnyTrueFunction returns LambdaFunction : {LambdaFunction} name = 'anyTrue' '(' lambdaArgument = LambdaFunctionParameters ')';
-		AllTrueFunction returns LambdaFunction : {LambdaFunction} name = 'allTrue' '(' lambdaArgument = LambdaFunctionParameters ')';
-		MinFunction returns LambdaFunction : {LambdaFunction} name = 'min' '(' lambdaArgument = LambdaFunctionParameters ')';
-		MaxFunction returns LambdaFunction : {LambdaFunction} name = 'max' '(' lambdaArgument = LambdaFunctionParameters ')';
-		AvgFunction returns LambdaFunction : {LambdaFunction} name = 'avg' '(' lambdaArgument = LambdaFunctionParameters ')';
-		SumFunction returns LambdaFunction : {LambdaFunction} name = 'sum' '(' lambdaArgument = LambdaFunctionParameters ')';		
-		 */
-
-		resource.addLambdaFunctionDeclaration("filter", RT_ENTITY_COLLECTION, #[BT_ENTITY_COLLECTION])
+		resource.addLambdaFunctionDeclaration("filter", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
 		resource.addLambdaFunctionDeclaration("anyTrue", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
 		resource.addLambdaFunctionDeclaration("allTrue", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
 		resource.addLambdaFunctionDeclaration("anyFalse", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
