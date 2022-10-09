@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import static org.junit.jupiter.api.Assertions.assertEquals
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 
@@ -278,44 +277,6 @@ class TypeInfoTests {
 
 
 	@Test
-	def void testGetVariableFunction() {
-		val m = '''
-			model TestModel;
-			
-			type numeric Integer(precision = 9, scale = 0);
-			type date Date;
-			type timestamp Timestamp;
-			type time Time;
-			type string String(min-size = 0, max-size = 32);
-			type boolean Boolean;
-			
-			entity Test {
-				derived Integer numeric => Integer!getVariable(category = "ENV", key = "NUMERIC");
-				derived Date date => Date!getVariable(category = "ENV", key = "DATE");
-				derived Timestamp timestamp => Timestamp!getVariable(category = "ENV", key = "TIMESTAMP");
-				derived Time time => Time!getVariable(category = "ENV", key = "TIME");
-				derived String string => String!getVariable(category = "ENV", key = "STRING");
-				derived Boolean boolean => Boolean!getVariable(category = "ENV", key = "BOOLEAN");
-			}
-		'''.parse.fromModel
-	
-		val testEntity = m.entityByName("Test") 
-		val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
-		val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
-		val timestampField = testEntity.memberByName("timestamp") as EntityDerivedDeclaration
-		val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
-		val stringField = testEntity.memberByName("string") as EntityDerivedDeclaration
-		val booleanField = testEntity.memberByName("boolean") as EntityDerivedDeclaration
-
-		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(numericField.expression).getPrimitive);
-		assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.expression).getPrimitive);
-		assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(timestampField.expression).getPrimitive);
-		assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.expression).getPrimitive);
-		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(stringField.expression).getPrimitive);
-		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(booleanField.expression).getPrimitive);
-	}
-
-	@Test
 	def void testLiterals() {
 		val m = '''
 			model TestModel;
@@ -382,7 +343,7 @@ class TypeInfoTests {
 				derived String rtrim => "Test"!rtrim();
 				derived String lpad => "Test"!lpad(size = 10, padsring = "--");
 				derived String rpad => "Test"!rpad(size = 10, padsring = "--");
-				
+				derived Integer size => "Test"!size();
 			}
 		'''.parse.fromModel
 	
@@ -407,6 +368,7 @@ class TypeInfoTests {
 		val rtrimField = testEntity.memberByName("rtrim") as EntityDerivedDeclaration
 		val lpadField = testEntity.memberByName("lpad") as EntityDerivedDeclaration
 		val rpadField = testEntity.memberByName("rpad") as EntityDerivedDeclaration
+		val sizeField = testEntity.memberByName("size") as EntityDerivedDeclaration
 
 
 		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(firstField.expression).getPrimitive);
@@ -429,184 +391,556 @@ class TypeInfoTests {
 		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(rtrimField.expression).getPrimitive);
 		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(lpadField.expression).getPrimitive);
 		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(rpadField.expression).getPrimitive);
-
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sizeField.expression).getPrimitive);
 
 	}
 	
-	/*
-		resource.addLiteralFunctionDeclaration("getVariable", RT_BASE_TYPE_INSTANCE, anyFunctionBasePrimitiveTypes())
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("category", false, true, PT_STRING_INSTANCE, anyFunctionBasePrimitiveTypes),
-				createFunctionParameterDeclaration("key", false, true, PT_STRING_INSTANCE, anyFunctionBasePrimitiveTypes)
-			])
-
-		resource.addLiteralFunctionDeclaration("now", RT_BASE_TYPE_INSTANCE, #[BT_DATE_INSTANCE, BT_TIME_INSTANCE, BT_TIMESTAMP_INSTANCE])
-		
-		resource.addLiteralFunctionDeclaration("isDefined", RT_BOOLEAN_INSTANCE, anyFunctionBaseInstanceOrCollectionTypes)
-		resource.addLiteralFunctionDeclaration("isUnDefined", RT_BOOLEAN_INSTANCE, anyFunctionBaseInstanceOrCollectionTypes)
-		resource.addLiteralFunctionDeclaration("size", RT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
-
-		resource.addLiteralFunctionDeclaration("orElse", RT_INPUT_SAME, anyFunctionBasePrimitiveInstances)
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("value", false, true, PT_INPUT_SAME, anyFunctionBasePrimitiveInstances)
-			])
-
-		resource.addLiteralFunctionDeclaration("first", RT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("count", false, true, PT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
-			])
-		resource.addLiteralFunctionDeclaration("last", RT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("count", false, true, PT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
-			])
-
-		resource.addLiteralFunctionDeclaration("position", RT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("substring", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-			])
-
-		resource.addLiteralFunctionDeclaration("substring", RT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("count", false, true, PT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE]),
-				createFunctionParameterDeclaration("offset", false, true, PT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
-			])
-		resource.addLiteralFunctionDeclaration("lower", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-		resource.addLiteralFunctionDeclaration("lowerCase", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-		resource.addLiteralFunctionDeclaration("upper", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-		resource.addLiteralFunctionDeclaration("upperCase", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-		resource.addLiteralFunctionDeclaration("capitalize", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-		resource.addLiteralFunctionDeclaration("matches", RT_BOOLEAN_INSTANCE, #[BT_STRING_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("pattern", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-			])
-		resource.addLiteralFunctionDeclaration("like", RT_BOOLEAN_INSTANCE, #[BT_STRING_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("pattern", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE]),
-				createFunctionParameterDeclaration("exact", false, false, PT_BOOLEAN_INSTANCE, #[BT_STRING_INSTANCE])
-			])
-		resource.addLiteralFunctionDeclaration("replace", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("oldstring", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE]),
-				createFunctionParameterDeclaration("newstring", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-
-			])
-		resource.addLiteralFunctionDeclaration("trim", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-		resource.addLiteralFunctionDeclaration("ltrim", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-		resource.addLiteralFunctionDeclaration("rtrim", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-		resource.addLiteralFunctionDeclaration("lpad", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("size", false, true, PT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE]),
-				createFunctionParameterDeclaration("padstring", false, false, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-			])
-		resource.addLiteralFunctionDeclaration("rpad", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("size", false, true, PT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE]),
-				createFunctionParameterDeclaration("padstring", false, false, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
-			])
-		
-		resource.addLiteralFunctionDeclaration("round", RT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("scale", false, false, PT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
-
-			])
-		resource.addLiteralFunctionDeclaration("floor", RT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
-		resource.addLiteralFunctionDeclaration("ceil", RT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
-		resource.addLiteralFunctionDeclaration("abs", RT_NUMERIC_INSTANCE, #[BT_NUMERIC_INSTANCE])
-		resource.addLiteralFunctionDeclaration("asString", RT_STRING_INSTANCE, anyFunctionBasePrimitiveInstances())
-		
-		resource.addLiteralFunctionDeclaration("year", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
-		resource.addLiteralFunctionDeclaration("month", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
-		resource.addLiteralFunctionDeclaration("day", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
-		resource.addLiteralFunctionDeclaration("dayOfWeek", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
-		resource.addLiteralFunctionDeclaration("dayOfYear", RT_NUMERIC_INSTANCE, #[BT_DATE_INSTANCE])
-
-		resource.addLiteralFunctionDeclaration("hour", RT_NUMERIC_INSTANCE, #[BT_TIME_INSTANCE])
-		resource.addLiteralFunctionDeclaration("minute", RT_NUMERIC_INSTANCE, #[BT_TIME_INSTANCE])
-		resource.addLiteralFunctionDeclaration("second", RT_NUMERIC_INSTANCE, #[BT_TIME_INSTANCE])
-
-		resource.addLiteralFunctionDeclaration("of", RT_BASE_TYPE_INSTANCE, #[BT_DATE_TYPE, BT_TIME_TYPE, BT_TIMESTAMP_TYPE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("year", false, true, PT_NUMERIC_INSTANCE, #[BT_DATE_TYPE]),
-				createFunctionParameterDeclaration("month", false, true, PT_NUMERIC_INSTANCE, #[BT_DATE_TYPE]),
-				createFunctionParameterDeclaration("day", false, true, PT_NUMERIC_INSTANCE, #[BT_DATE_TYPE]),
-
-				createFunctionParameterDeclaration("hour", false, true, PT_NUMERIC_INSTANCE, #[BT_TIME_TYPE]),
-				createFunctionParameterDeclaration("minute", false, true, PT_NUMERIC_INSTANCE, #[BT_TIME_TYPE]),
-				createFunctionParameterDeclaration("second", false, true, PT_NUMERIC_INSTANCE, #[BT_TIME_TYPE]),
-
-				createFunctionParameterDeclaration("date", false, true, PT_DATE_INSTANCE, #[BT_TIMESTAMP_TYPE]),
-				createFunctionParameterDeclaration("time", false, false, PT_TIME_INSTANCE, #[BT_TIMESTAMP_TYPE])
-
-			])
-
-		resource.addLiteralFunctionDeclaration("date", RT_DATE_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
-		resource.addLiteralFunctionDeclaration("time", RT_TIME_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
-		resource.addLiteralFunctionDeclaration("asMilliseconds", RT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
-		resource.addLiteralFunctionDeclaration("fromMilliseconds", RT_TIMESTAMP_INSTANCE, #[BT_TIMESTAMP_TYPE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("milliseconds", false, true, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
-			])
-		
-		resource.addLiteralFunctionDeclaration("plus", RT_TIMESTAMP_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("years", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("months", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("days", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("hours", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("minutes", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("seconds", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE]),
-				createFunctionParameterDeclaration("milliseconds", false, false, PT_NUMERIC_INSTANCE, #[BT_TIMESTAMP_INSTANCE])
-			])
-		
-		resource.addLiteralFunctionDeclaration("typeOf", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
-			])
-		resource.addLiteralFunctionDeclaration("kindOf", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
-			])
-		resource.addLiteralFunctionDeclaration("container", RT_ENTITY_INSTANCE, #[BT_ENTITY_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
-			])
-		resource.addLiteralFunctionDeclaration("asType", RT_ENTITY_INSTANCE, #[BT_ENTITY_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
-			])
-
-		resource.addLiteralFunctionDeclaration("memberOf", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_INSTANCE])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("instances", false, true, PT_ENTITY_COLLECTION, #[BT_ENTITY_INSTANCE])
-			])
-
-		resource.addSelectorFunctionDeclaration("head", RT_ENTITY_COLLECTION, #[BT_ENTITY_COLLECTION])
-		resource.addSelectorFunctionDeclaration("tail", RT_ENTITY_COLLECTION, #[BT_ENTITY_COLLECTION])
-
-
-		resource.addLiteralFunctionDeclaration("any", RT_ENTITY_INSTANCE, #[BT_ENTITY_COLLECTION])
-		resource.addLiteralFunctionDeclaration("size", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
-		resource.addLiteralFunctionDeclaration("asCollection", RT_ENTITY_COLLECTION, #[BT_ENTITY_COLLECTION])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("entityType", false, true, PT_ENTITY_TYPE, #[BT_ENTITY_INSTANCE])
-			])
-		resource.addLiteralFunctionDeclaration("contains", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
-			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("instance", false, true, PT_ENTITY_INSTANCE, #[BT_ENTITY_COLLECTION])
-			])
-
-
-		resource.addLambdaFunctionDeclaration("filter", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
-		resource.addLambdaFunctionDeclaration("anyTrue", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
-		resource.addLambdaFunctionDeclaration("allTrue", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
-		resource.addLambdaFunctionDeclaration("anyFalse", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
-		resource.addLambdaFunctionDeclaration("allFalse", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
-
-		resource.addLambdaFunctionDeclaration("min", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
-		resource.addLambdaFunctionDeclaration("max", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
-		resource.addLambdaFunctionDeclaration("avg", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
-		resource.addLambdaFunctionDeclaration("sum", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
-
-	 */
 	
+	@Test
+	def void testGetVariableFunction() {
+		val m = '''
+			model TestModel;
+			
+			type numeric Integer(precision = 9, scale = 0);
+			type date Date;
+			type timestamp Timestamp;
+			type time Time;
+			type string String(min-size = 0, max-size = 32);
+			type boolean Boolean;
+			
+			entity Test {
+				derived Integer numeric => Integer!getVariable(category = "ENV", key = "NUMERIC");
+				derived Date date => Date!getVariable(category = "ENV", key = "DATE");
+				derived Timestamp timestamp => Timestamp!getVariable(category = "ENV", key = "TIMESTAMP");
+				derived Time time => Time!getVariable(category = "ENV", key = "TIME");
+				derived String string => String!getVariable(category = "ENV", key = "STRING");
+				derived Boolean boolean => Boolean!getVariable(category = "ENV", key = "BOOLEAN");
+			}
+		'''.parse.fromModel
+	
+		val testEntity = m.entityByName("Test") 
+		val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
+		val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
+		val timestampField = testEntity.memberByName("timestamp") as EntityDerivedDeclaration
+		val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
+		val stringField = testEntity.memberByName("string") as EntityDerivedDeclaration
+		val booleanField = testEntity.memberByName("boolean") as EntityDerivedDeclaration
+
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(numericField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(timestampField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(stringField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(booleanField.expression).getPrimitive);
+	}
+	
+	@Test
+	def void testNowFunction() {
+		val m = '''
+			model TestModel;
+			
+			type date Date;
+			type timestamp Timestamp;
+			type time Time;
+			
+			entity Test {
+				derived Date date => Date!now();
+				derived Timestamp timestamp => Timestamp!now();
+				derived Time time => Time!now();
+			}
+		'''.parse.fromModel
+	
+		val testEntity = m.entityByName("Test") 
+		val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
+		val timestampField = testEntity.memberByName("timestamp") as EntityDerivedDeclaration
+		val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
+
+		assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(timestampField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.expression).getPrimitive);
+	}
+
+	@Test
+	def void testDefinedFunction() {
+		val m = '''
+			model TestModel;
+			
+			type numeric Integer(precision = 9, scale = 0);
+			type date Date;
+			type timestamp Timestamp;
+			type time Time;
+			type string String(min-size = 0, max-size = 32);
+			type boolean Boolean;
+			
+			entity Test {
+				derived Boolean numeric => Integer!getVariable(category = "ENV", key = "NUMERIC")!isDefined();
+				derived Boolean date => Date!getVariable(category = "ENV", key = "DATE")!isDefined();
+				derived Boolean timestamp => Timestamp!getVariable(category = "ENV", key = "TIMESTAMP")!isDefined();
+				derived Boolean time => Time!getVariable(category = "ENV", key = "TIME")!isDefined();
+				derived Boolean string => String!getVariable(category = "ENV", key = "STRING")!isDefined();
+				derived Boolean boolean => Boolean!getVariable(category = "ENV", key = "BOOLEAN")!isDefined();
+			}
+		'''.parse.fromModel
+	
+		val testEntity = m.entityByName("Test") 
+		val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
+		val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
+		val timestampField = testEntity.memberByName("timestamp") as EntityDerivedDeclaration
+		val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
+		val stringField = testEntity.memberByName("string") as EntityDerivedDeclaration
+		val booleanField = testEntity.memberByName("boolean") as EntityDerivedDeclaration
+
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(numericField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(dateField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(timestampField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(timeField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(stringField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(booleanField.expression).getPrimitive);
+	}
+
+	@Test
+	def void testUndefinedFunction() {
+		val m = '''
+			model TestModel;
+			
+			type numeric Integer(precision = 9, scale = 0);
+			type date Date;
+			type timestamp Timestamp;
+			type time Time;
+			type string String(min-size = 0, max-size = 32);
+			type boolean Boolean;
+			
+			entity Test {
+				derived Integer numeric => 12!isUndefined();
+				derived Date date => `2022-01-01`!isUndefined();
+				derived Timestamp timestamp => `2022-01-01T12:00:00Z`!isUndefined();
+				derived Time time => `12:00:00`!isUndefined();
+				derived String string => "Test"!isUndefined();
+				derived Boolean boolean => true!isUndefined();
+
+			}
+		'''.parse.fromModel
+	
+		val testEntity = m.entityByName("Test") 
+		val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
+		val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
+		val timestampField = testEntity.memberByName("timestamp") as EntityDerivedDeclaration
+		val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
+		val stringField = testEntity.memberByName("string") as EntityDerivedDeclaration
+		val booleanField = testEntity.memberByName("boolean") as EntityDerivedDeclaration
+
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(numericField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(dateField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(timestampField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(timeField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(stringField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(booleanField.expression).getPrimitive);
+	}
+	
+	@Test
+	def void testCollectionSizeFunction() {
+		val m = '''
+			model TestModel;
+			
+			type numeric Integer(precision = 9, scale = 0);
+			type date Date;
+			type timestamp Timestamp;
+			type time Time;
+			type string String(min-size = 0, max-size = 32);
+			type boolean Boolean;
+
+			entity T1 {				
+			}
+			
+			entity Test {
+				relation T1[] t1s;
+				derived Integer size => self.t1s!size();
+
+			}
+		'''.parse.fromModel
+	
+		val testEntity = m.entityByName("Test") 
+		val sizeField = testEntity.memberByName("size") as EntityDerivedDeclaration
+
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sizeField.expression).getPrimitive);
+	}
+
+	@Test
+	def void testOrElseFunction() {
+		val m = '''
+			model TestModel;
+			
+			type numeric Integer(precision = 9, scale = 0);
+			type date Date;
+			type timestamp Timestamp;
+			type time Time;
+			type string String(min-size = 0, max-size = 32);
+			type boolean Boolean;
+
+			entity Test {
+				relation T1[] t1s;
+				derived Integer numeric => 12!orElse(value = 11);
+				derived Date date => `2022-01-01`!orElse(value = `2022-01-01`);
+				derived Timestamp timestamp => `2022-01-01T12:00:00Z`!orElse(value = `2023-01-01T12:00:00Z`);
+				derived Time time => `12:00:00`!orElse(value = `13:00:00`);
+				derived String string => "Test"!orElse(value = "Test2");
+				derived Boolean boolean => true!orElse(value = false);
+			}
+		'''.parse.fromModel
+	
+		val testEntity = m.entityByName("Test") 
+		val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
+		val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
+		val timestampField = testEntity.memberByName("timestamp") as EntityDerivedDeclaration
+		val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
+		val stringField = testEntity.memberByName("string") as EntityDerivedDeclaration
+		val booleanField = testEntity.memberByName("boolean") as EntityDerivedDeclaration
+
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(numericField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(timestampField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(stringField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(booleanField.expression).getPrimitive);
+	}
+
+	@Test
+	def void testNumericFunction() {
+		val m = '''
+			model TestModel;
+			
+			type numeric Decimal(precision = 9, scale = 2);
+			
+			entity Test {
+				derived Integer floor => 12!floor();
+				derived Integer ceil => 12!ceil();
+				derived Integer abs => 12!abs();
+				derived Integer round => 12!round(scale = 2);
+			}
+		'''.parse.fromModel
+	
+		val testEntity = m.entityByName("Test") 
+		val floorField = testEntity.memberByName("floor") as EntityDerivedDeclaration
+		val ceilField = testEntity.memberByName("ceil") as EntityDerivedDeclaration
+		val absField = testEntity.memberByName("abs") as EntityDerivedDeclaration
+		val roundField = testEntity.memberByName("round") as EntityDerivedDeclaration
+
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(floorField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(ceilField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(absField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(roundField.expression).getPrimitive);
+	}
+	
+	
+	@Test
+	def void testAsStringFunction() {
+		val m = '''
+			model TestModel;
+			
+			type numeric Integer(precision = 9, scale = 0);
+			type date Date;
+			type timestamp Timestamp;
+			type time Time;
+			type string String(min-size = 0, max-size = 32);
+			type boolean Boolean;
+
+			entity Test {
+				derived Integer numeric => 12!asString();
+				derived Date date => `2022-01-01`!asString();
+				derived Timestamp timestamp => `2022-01-01T12:00:00Z`!asString();
+				derived Time time => `12:00:00`!asString();
+				derived String string => "Test"!asString();
+				derived Boolean boolean => true!asString();
+			}
+		'''.parse.fromModel
+	
+		val testEntity = m.entityByName("Test") 
+		val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
+		val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
+		val timestampField = testEntity.memberByName("timestamp") as EntityDerivedDeclaration
+		val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
+		val stringField = testEntity.memberByName("string") as EntityDerivedDeclaration
+		val booleanField = testEntity.memberByName("boolean") as EntityDerivedDeclaration
+
+		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(numericField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(dateField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(timestampField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(timeField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(stringField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(booleanField.expression).getPrimitive);
+	}
+
+	@Test
+	def void testDateFunctions() {
+		val m = '''
+			model TestModel;
+			
+			type date Date;
+
+			entity Test {
+				derived Integer year => `2022-01-01`!year();
+				derived Integer month => `2022-01-01`!month();
+				derived Integer day => `2022-01-01`!day();
+				derived Integer dayOfWeek => `2022-01-01`!dayOfWeek();
+				derived Integer dayOfYear => `2022-01-01`!dayOfYear();
+				derived Date date => Date!of(year = 2022, month = 1, day = 1);
+			}
+		'''.parse.fromModel
+	
+		val testEntity = m.entityByName("Test") 
+		val yearField = testEntity.memberByName("year") as EntityDerivedDeclaration
+		val monthField = testEntity.memberByName("month") as EntityDerivedDeclaration
+		val dayField = testEntity.memberByName("day") as EntityDerivedDeclaration
+		val dayOfWeekField = testEntity.memberByName("dayOfWeek") as EntityDerivedDeclaration
+		val dayOfYearField = testEntity.memberByName("dayOfYear") as EntityDerivedDeclaration
+		val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
+
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(yearField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(monthField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(dayField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(dayOfWeekField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(dayOfYearField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.expression).getPrimitive);
+
+	}
+
+	@Test
+	def void testTimeFunctions() {
+		val m = '''
+			model TestModel;
+			
+			type time Time;
+
+			entity Test {
+				derived Integer hour => `12:00:00`!hour();
+				derived Integer minute => `12:00:00`!minute();
+				derived Integer second => `12:00:00`!second();
+				derived Time time => Time!of(hour = 12, minute = 2, second = 23);
+			}
+		'''.parse.fromModel
+	
+		val testEntity = m.entityByName("Test") 
+		val hourField = testEntity.memberByName("hour") as EntityDerivedDeclaration
+		val minuteField = testEntity.memberByName("minute") as EntityDerivedDeclaration
+		val secondField = testEntity.memberByName("second") as EntityDerivedDeclaration
+		val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
+
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(hourField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(minuteField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(secondField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.expression).getPrimitive);
+	}
+
+	@Test
+	def void testTimestampFunctions() {
+		val m = '''
+			model TestModel;
+			
+			type timestamp Timestamp;
+
+			entity Test {
+				derived Date date => `2022-01-01T12:00:00Z`!date();
+				derived Time time => `2022-01-01T12:00:00Z`!time();
+				derived Integer asMilliseconds => `2022-01-01T12:00:00Z`!asMilliseconds();
+				derived Timestamp fromMilliseconds => Timestamp!fromMilliseconds(milliseconds = 12);
+				derived Timestamp timestamp => Timestamp!of(date = Date!of(year = 2022, month = 1, day = 1), time = Time!of(hour = 12, minute = 2, second = 23));
+				derived Timestamp plus => `2022-01-01T12:00:00Z`!plus(years = 1, months = -1, days = 0, hours = 12, minutes = 11, seconds = 1, milliseconds = 12);
+
+			}
+		'''.parse.fromModel
+	
+		val testEntity = m.entityByName("Test") 
+		val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
+		val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
+		val asMillisecondsField = testEntity.memberByName("asMilliseconds") as EntityDerivedDeclaration
+		val fromMillisecondsField = testEntity.memberByName("fromMilliseconds") as EntityDerivedDeclaration
+		val timestampField = testEntity.memberByName("timestamp") as EntityDerivedDeclaration
+		val plusField = testEntity.memberByName("plus") as EntityDerivedDeclaration
+
+		assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(asMillisecondsField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(fromMillisecondsField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(timestampField.expression).getPrimitive);
+		assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(plusField.expression).getPrimitive);
+
+	}
+
+	@Test
+	def void testEntityInstanceFunctions() {
+		val m = '''
+			model TestModel;
+			
+			type boolean Boolean;
+
+			entity T1 {
+			}
+
+			entity T2 extends T1 {
+			}
+
+			entity Test {
+				field T1 t1;
+				field T2 t2;
+				field T2[] t2s;
+
+				derived Boolean typeOf => self.t1!typeOf(entityType = T1);
+				derived Boolean kindOf => self.t1!kindOf(entityType = T1);
+				derived Test container => self.t1!container(entityType = Test);
+				derived T1 asType => self.t2!asType(entityType = T1);
+				derived Boolean memberOf => self.t2!memberOf(instances = self.t2s);
+
+			}
+		'''.parse.fromModel
+	
+		val testEntity = m.entityByName("Test") 
+		val t1Field = testEntity.memberByName("t1") as EntityFieldDeclaration		
+
+		val typeOfField = testEntity.memberByName("typeOf") as EntityDerivedDeclaration
+		val kindOfField = testEntity.memberByName("kindOf") as EntityDerivedDeclaration
+		val containerField = testEntity.memberByName("container") as EntityDerivedDeclaration
+		val asTypeField = testEntity.memberByName("asType") as EntityDerivedDeclaration
+
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(typeOfField.expression).getPrimitive)
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(kindOfField.expression).getPrimitive)
+		
+		val TypeInfo containerTypeInfo = TypeInfo.getTargetType(containerField.expression)
+		assertEquals(t1Field.referenceType, containerTypeInfo.getEntity)
+		assertEquals(true, containerTypeInfo.isInstance)
+		assertEquals(false, containerTypeInfo.isCollection)		
+
+		val TypeInfo asTypeTypeInfo = TypeInfo.getTargetType(asTypeField.expression)
+		assertEquals(t1Field.referenceType, asTypeTypeInfo.getEntity)
+		assertEquals(true, containerTypeInfo.isInstance)
+		assertEquals(false, containerTypeInfo.isCollection)		
+
+		val memberOfField = testEntity.memberByName("memberOf") as EntityDerivedDeclaration
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(memberOfField.expression).getPrimitive)
+
+	}
+
+	@Test
+	def void testSelectorFunctions() {
+		val m = '''
+			model TestModel;
+			
+			type string String(min-size = 0, max-size = 32);
+
+			entity T1 {
+				field String name;
+			}
+
+			entity Test {
+				field T1[] t1s;
+				field T1 t1;
+
+				// derived T1[] head => self.t1s!head(name = ASC);
+				// derived T1[] tail => self.t1s!tail(name = ASC);
+				derived T1 any => self.t1s!any();
+				derived Integer size => self.t1s!size();
+				derived T1[] asCollection => self.t1!asCollection(entityType = T1);
+				derived Boolean contains => self.t1s!contains(instance = self.t1);
+
+			}
+		'''.parse.fromModel
+	
+		val testEntity = m.entityByName("Test") 
+		val t1sField = testEntity.memberByName("t1s") as EntityFieldDeclaration		
+		val t1Field = testEntity.memberByName("t1") as EntityFieldDeclaration		
+
+		// val headField = testEntity.memberByName("head") as EntityDerivedDeclaration		
+		// val tailField = testEntity.memberByName("tail") as EntityDerivedDeclaration		
+		val anyField = testEntity.memberByName("any") as EntityDerivedDeclaration		
+		val sizeField = testEntity.memberByName("size") as EntityDerivedDeclaration		
+		val asCollectionField = testEntity.memberByName("asCollection") as EntityDerivedDeclaration		
+		val containsField = testEntity.memberByName("contains") as EntityDerivedDeclaration		
+		
+		// val TypeInfo headTypeInfo = TypeInfo.getTargetType(headField.expression)
+		// assertEquals(t1sField.referenceType, headTypeInfo.getEntity)
+		// assertEquals(true, headTypeInfo.isInstance)
+		// assertEquals(true, headTypeInfo.isCollection)		
+
+		// val TypeInfo tailTypeInfo = TypeInfo.getTargetType(tailField.expression)
+		// assertEquals(t1sField.referenceType, tailTypeInfo.getEntity)
+		// assertEquals(true, tailTypeInfo.isInstance)
+		// assertEquals(true, tailTypeInfo.isCollection)		
+
+		val TypeInfo anyTypeInfo = TypeInfo.getTargetType(anyField.expression)
+		assertEquals(anyField.referenceType, anyTypeInfo.getEntity)
+		assertEquals(true, anyTypeInfo.isInstance)
+		assertEquals(false, anyTypeInfo.isCollection)		
+
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sizeField.expression).getPrimitive)
+
+		val TypeInfo asCollectionTypeInfo = TypeInfo.getTargetType(anyField.expression)
+		assertEquals(asCollectionField.referenceType, asCollectionTypeInfo.getEntity)
+		assertEquals(true, anyTypeInfo.isInstance)
+		assertEquals(false, anyTypeInfo.isCollection)
+		
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(containsField.expression).getPrimitive)
+		
+	}
+
+	@Test
+	def void testLambdaFunctions() {
+		val m = '''
+			model TestModel;
+			
+			type string String(min-size = 0, max-size = 32);
+			type numeric Decimal(precision = 9, scale = 2);
+			
+			entity T1 {
+				field String name;
+				field Decimal price;
+			}
+
+			entity Test {
+				field T1[] t1s;
+				field T1 t1;
+
+				derived T1[] filter => self.t1s!filter(t | t.name = "Test");
+				derived Boolean anyTrue => self.t1s!anyTrue(t | t.name = "Test");
+				derived Boolean allTrue => self.t1s!allTrue(t | t.name = "Test");
+				derived Boolean anyFalse => self.t1s!anyFalse(t | t.name = "Test");
+				derived Boolean allFalse => self.t1s!allFalse(t | t.name = "Test");
+
+				derived Decimal min => self.t1s!min(t | t.price);
+				derived Decimal max => self.t1s!max(t | t.price);
+				derived Decimal avg => self.t1s!avg(t | t.price);
+				derived Decimal sum => self.t1s!sum(t | t.price);
+
+			}
+		'''.parse.fromModel
+	
+		val testEntity = m.entityByName("Test") 
+		val t1sField = testEntity.memberByName("t1s") as EntityFieldDeclaration		
+		val t1Field = testEntity.memberByName("t1") as EntityFieldDeclaration		
+
+		val filterField = testEntity.memberByName("filter") as EntityDerivedDeclaration		
+		val anyTrueField = testEntity.memberByName("anyTrue") as EntityDerivedDeclaration		
+		val allTrueField = testEntity.memberByName("allTrue") as EntityDerivedDeclaration		
+		val anyFalseField = testEntity.memberByName("anyFalse") as EntityDerivedDeclaration		
+		val allFalseField = testEntity.memberByName("allFalse") as EntityDerivedDeclaration		
+		val minField = testEntity.memberByName("min") as EntityDerivedDeclaration		
+		val maxField = testEntity.memberByName("max") as EntityDerivedDeclaration		
+		val avgField = testEntity.memberByName("avg") as EntityDerivedDeclaration		
+		val sumField = testEntity.memberByName("sum") as EntityDerivedDeclaration		
+		
+		val TypeInfo filterTypeInfo = TypeInfo.getTargetType(filterField.expression)
+		assertEquals(filterField.referenceType, filterTypeInfo.getEntity)
+		assertEquals(true, filterTypeInfo.isInstance)
+		assertEquals(true, filterTypeInfo.isCollection)
+
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(anyTrueField.expression).getPrimitive)
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(allTrueField.expression).getPrimitive)
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(anyFalseField.expression).getPrimitive)
+		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(allFalseField.expression).getPrimitive)
+
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(minField.expression).getPrimitive)
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(maxField.expression).getPrimitive)
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(avgField.expression).getPrimitive)
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sumField.expression).getPrimitive)
+
+	}
+
 }

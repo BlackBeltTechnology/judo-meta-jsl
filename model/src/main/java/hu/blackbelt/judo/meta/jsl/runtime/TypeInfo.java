@@ -25,11 +25,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Feature;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Function;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionBaseType;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall;
-import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionReturnType;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionedExpression;
 import hu.blackbelt.judo.meta.jsl.jsldsl.IntegerLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunction;
+import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunctionDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable;
 import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunction;
 import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunctionDeclaration;
@@ -42,74 +42,19 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget;
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCallExpression;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclarationParameter;
 import hu.blackbelt.judo.meta.jsl.jsldsl.RawStringLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelfExpression;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeStampLiteral;
 
 class TypeInfo {
-/*
-enum FunctionReturnType
-	: RT_ENTITY_INSTANCE
-	| RT_ENTITY_COLLECTION
-	| RT_BASE_TYPE_INSTANCE
-	| RT_BASE_TYPE_COLLECTION
-	| RT_ENUM_LITERAL
-	| RT_BOOLEAN_INSTANCE
-	| RT_BINARY_INSTANCE
-	| RT_STRING_INSTANCE
-	| RT_NUMERIC_INSTANCE
-	| RT_DATE_INSTANCE
-	| RT_TIME_INSTANCE
-	| RT_TIMESTAMP_INSTANCE
-	| RT_INPUT_SAME
-	;
-
-enum FunctionBaseType
-	: BT_ENTITY_INSTANCE
-	| BT_ENTITY_COLLECTION
-	| BT_ENUM_LITERAL
-	| BT_BOOLEAN_INSTANCE
-	| BT_BINARY_INSTANCE
-	| BT_STRING_INSTANCE
-	| BT_NUMERIC_INSTANCE
-	| BT_DATE_INSTANCE
-	| BT_TIME_INSTANCE
-	| BT_TIMESTAMP_INSTANCE
-	| BT_BOOLEAN_TYPE
-	| BT_BINARY_TYPE 
-	| BT_STRING_TYPE
-	| BT_NUMERIC_TYPE
-	| BT_DATE_TYPE
-	| BT_TIME_TYPE
-	| BT_TIMESTAMP_TYPE
-	;
-
-enum FunctionParameterType
-	: PT_ENTITY_INSTANCE
-	| PT_ENTITY_COLLECTION
-	| PT_ENTITY_TYPE
-	| PT_ENUM_LITERAL
-	| PT_BOOLEAN_INSTANCE
-	| PT_BINARY_INSTANCE
-	| PT_STRING_INSTANCE
-	| PT_NUMERIC_INSTANCE
-	| PT_DATE_INSTANCE
-	| PT_TIME_INSTANCE
-	| PT_TIMESTAMP_INSTANCE
-	| PT_INPUT_SAME
-	;
-*/
 	
 	public enum PrimitiveType {
 		BOOLEAN, BINARY, STRING, NUMERIC, DATE, TIME, TIMESTAMP 
 	}
 
 	boolean isCollection = false;
-	boolean isInstance = true;
-	
-	
+	boolean isInstance = true;	
 	Object type;
 
 	public TypeInfo(Object type, boolean isCollection, boolean isInstance) {
@@ -118,7 +63,6 @@ enum FunctionParameterType
 		this.isInstance = isInstance;
 	}
 
-	
 	public boolean isCollection() {
 		return isCollection;
 	}
@@ -182,64 +126,10 @@ enum FunctionParameterType
 		return (DataTypeDeclaration) type;
 	}
 
-
-	/*
-	public boolean isBoolean() {
-		if (isDataType() && getDataType().getPrimitive().equals("boolean")) {
-			return true;
-		} else if (isPrimitive() && getO) {
-			return isBoolean;
-		}
-		return false;
-	}
-
-	public boolean isBinary() {
-		if (isDataType() && getDataType().getPrimitive().equals("binary")) {
-			return true;
-		}
-		return false;
-	}
-
-	public boolean isDate() {
-		if (isDataType() && getDataType().getPrimitive().equals("date")) {
-			return true;
-		}
-		return false;
-	}
-
-	public boolean isTime() {
-		if (isDataType() && getDataType().getPrimitive().equals("time")) {
-			return true;
-		}
-		return false;
-	}
-
-	public boolean isTimestamp() {
-		if (isDataType() && getDataType().getPrimitive().equals("timestamp")) {
-			return true;
-		}
-		return false;
-	}
-
-	public boolean isNumeric() {
-		if (isDataType() && getDataType().getPrimitive().equals("numeric")) {
-			return true;
-		}
-		return false;
-	}
-
-	public boolean isString() {
-		if (isDataType() && getDataType().getPrimitive().equals("string")) {
-			return true;
-		}
-		return false;
-	} */
-
 	public Object getType() {
 		return type;
 	}
 
-	
     static <T> T parentContainer(EObject from, Class<T> type) {
         T found = null;
         EObject current = from;
@@ -290,25 +180,13 @@ enum FunctionParameterType
 	 */
 	public static FunctionBaseType getFunctionBaseType(TypeInfo typeInfo) {
 		if (typeInfo.isEntity()) {
-			throw new IllegalStateException("Type is entity");
-//		} else if (typeInfo.isDataType()) {
-//			if (typeInfo.getDataType().getPrimitive().equals("boolean")) {
-//				return FunctionBaseType.BT_BOOLEAN_TYPE;
-//			} else if (typeInfo.getDataType().getPrimitive().equals("date")) {
-//				return FunctionBaseType.BT_DATE_TYPE;				
-//			} else if (typeInfo.getDataType().getPrimitive().equals("time")) {
-//				return FunctionBaseType.BT_TIME_TYPE;				
-//			} else if (typeInfo.getDataType().getPrimitive().equals("timestamp")) {
-//				return FunctionBaseType.BT_TIMESTAMP_TYPE;				
-//			} else if (typeInfo.getDataType().getPrimitive().equals("numeric")) {
-//				return FunctionBaseType.BT_NUMERIC_TYPE;				
-//			} else if (typeInfo.getDataType().getPrimitive().equals("string")) {
-//				return FunctionBaseType.BT_STRING_TYPE;				
-//			} else if (typeInfo.getDataType().getPrimitive().equals("binary")) {
-//				return FunctionBaseType.BT_BINARY_TYPE;				
-//			}
+			if (typeInfo.isCollection) {
+				return FunctionBaseType.BT_ENTITY_COLLECTION;
+			} else {
+				return FunctionBaseType.BT_ENTITY_INSTANCE;								
+			}
 		} else if (typeInfo.isPrimitive() || typeInfo.isDataType()) {
-			if (typeInfo.isInstance) {
+			if (typeInfo.isInstance) { // || returnType == FunctionReturnType.RT_BASE_TYPE_INSTANCE) {
 				if (typeInfo.getPrimitive() == PrimitiveType.BOOLEAN) {
 					return FunctionBaseType.BT_BOOLEAN_INSTANCE;
 				} else if (typeInfo.getPrimitive() == PrimitiveType.DATE) {
@@ -324,7 +202,7 @@ enum FunctionParameterType
 				} else if (typeInfo.getPrimitive() == PrimitiveType.BINARY) {
 					return FunctionBaseType.BT_BINARY_INSTANCE;				
 				}				
-			} else {
+			} else if (!typeInfo.isInstance) {
 				if (typeInfo.getPrimitive() == PrimitiveType.BOOLEAN) {
 					return FunctionBaseType.BT_BOOLEAN_TYPE;
 				} else if (typeInfo.getPrimitive() == PrimitiveType.DATE) {
@@ -344,24 +222,23 @@ enum FunctionParameterType
 		}
 		throw new IllegalStateException("Could not determinate function base type: " + typeInfo);		
 	}
-	
-	
+
 	/*
-		enum FunctionReturnType
-			: RT_ENTITY_INSTANCE
-			| RT_ENTITY_COLLECTION
-			| RT_BASE_TYPE_INSTANCE
-			| RT_BASE_TYPE_COLLECTION
-			| RT_ENUM_LITERAL
-			| RT_BOOLEAN_INSTANCE
-			| RT_BINARY_INSTANCE
-			| RT_STRING_INSTANCE
-			| RT_NUMERIC_INSTANCE
-			| RT_DATE_INSTANCE
-			| RT_TIME_INSTANCE
-			| RT_TIMESTAMP_INSTANCE
-			| RT_INPUT_SAME
-			;
+	enum FunctionReturnType
+		: RT_ENTITY_INSTANCE
+		| RT_ENTITY_COLLECTION
+		| RT_BASE_TYPE_INSTANCE
+		| RT_BASE_TYPE_COLLECTION
+		| RT_ENUM_LITERAL
+		| RT_BOOLEAN_INSTANCE
+		| RT_BINARY_INSTANCE
+		| RT_STRING_INSTANCE
+		| RT_NUMERIC_INSTANCE
+		| RT_DATE_INSTANCE
+		| RT_TIME_INSTANCE
+		| RT_TIMESTAMP_INSTANCE
+		| RT_INPUT_SAME
+		;	
 	 */
 	public static TypeInfo getTargetType(TypeInfo baseTypeInfo, FunctionReturnType functionReturnType) {
 		if (functionReturnType == FunctionReturnType.RT_INPUT_SAME) {
@@ -392,8 +269,6 @@ enum FunctionParameterType
 		throw new IllegalArgumentException("Could not determinate function return type: " + functionReturnType.getName());
 	}
 
-	
-	
 	static TypeInfo getTargetType(EntityFieldDeclaration entityFieldDeclaration) {
 		return new TypeInfo(entityFieldDeclaration.getReferenceType(), entityFieldDeclaration.isIsMany(), true);
 	}
@@ -457,7 +332,6 @@ enum FunctionParameterType
 	static TypeInfo getTargetType(EntityRelationOppositeInjected entityRelationOppositeInjected, boolean isMany) {
 		return new TypeInfo((EntityDeclaration) entityRelationOppositeInjected.eContainer(), isMany, true);
 	}
-
 	
 	/*
 		EntityRelationOppositeReferenced
@@ -482,14 +356,11 @@ enum FunctionParameterType
 		}
 		throw new IllegalArgumentException("Could not determinate type for entity relation opposite: " + getName(entityRelationOpposite));
 	}
-
-
 	
 	static TypeInfo getTargetType(EntityDeclaration entityDeclaration, boolean isMany, boolean isType) {
 		return new TypeInfo(entityDeclaration, isMany, isType);
 	}
 	
-
 	/*
 		NavigationTarget
 		    : EntityMemberDeclaration
@@ -547,51 +418,54 @@ enum FunctionParameterType
 		throw new IllegalArgumentException("Could not determinate type for navigation base reference: " + getName(navigationBaseReference));
 	}
 	
-	static TypeInfo getFunctionCallReturnType(FunctionCall functionCall) {
+	static TypeInfo getParentFunctionCallReturnType(FunctionCall functionCall) {
 		if (functionCall.eContainer() instanceof FunctionedExpression) {
 			return getTargetType(((FunctionedExpression) functionCall.eContainer()).getOperand());
 		} else if (functionCall.eContainer() instanceof FunctionCall) {
-			return getLastFeatureTargetType((NavigationExpression) functionCall.eContainer(), ((FunctionCall) functionCall.eContainer()).getFeatures());
+			return getLastFeatureTargetType(functionCall.eContainer(), ((FunctionCall) functionCall.eContainer()).getFeatures(), false);
 		} 
 		throw new IllegalArgumentException("Could not determinate function call return type: " + functionCall);		
 	}
 	
 	static TypeInfo getTargetType(LiteralFunction literalFunction) {
 		FunctionCall functionCall = (FunctionCall) literalFunction.eContainer();
-		TypeInfo baseType = getFunctionCallReturnType(functionCall);		
+		TypeInfo baseType = getParentFunctionCallReturnType(functionCall);
 		
-		// Processing types
 		LiteralFunctionDeclaration spec = literalFunction.getFunctionDeclarationReference();
-		FunctionReturnType returnType = spec.getReturnTypes().get(0);
-		
-		if (!spec.getAcceptedBaseTypes().contains(getFunctionBaseType(baseType))) {
-			throw new IllegalArgumentException("Given base type is not accepted: " + getFunctionBaseType(baseType));			
-		}
-		
-		return getTargetType(baseType, returnType);
 
-		// List<LiteralFunctionParameter> functionParameters = literalFunction.getParameters();		
-		// List<FunctionParameterDeclaration> params = spec.getParameterDeclarations();
-		
-		// throw new IllegalArgumentException("Could not determinate type for literal function: " + literalFunction.getFunctionDeclarationReference().getName());
+		FunctionBaseType functionBaseType = getFunctionBaseType(baseType);		
+		if (!spec.getAcceptedBaseTypes().contains(functionBaseType)) {
+			throw new IllegalArgumentException("Given base type is not accepted: " + functionBaseType);			
+		}
+
+		if (spec.getName().equals("asType")) {
+			LiteralFunctionParameter functionParameter = literalFunction.getParameters().stream()
+				.filter(p -> p.getDeclaration().getName().equals("entityType")).findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("Function asType does not have entityType parameter"));
+			return getTargetType(functionParameter.getExpression());
+		} else {
+			// Return type can be collection?
+			FunctionReturnType returnType = spec.getReturnTypes().get(0);
+			return getTargetType(baseType, returnType);
+		}
+
 	}
 
 	static TypeInfo getTargetType(LambdaFunction lambdaFunction) {
 		FunctionCall functionCall = (FunctionCall) lambdaFunction.eContainer();
-		TypeInfo baseType = getFunctionCallReturnType(functionCall);		
+		TypeInfo baseType = getParentFunctionCallReturnType(functionCall);	
 
-		throw new IllegalArgumentException("Could not determinate type for lambda function: " + lambdaFunction.getFunctionDeclarationReference().getName());
+		LambdaFunctionDeclaration spec = lambdaFunction.getFunctionDeclarationReference();
+
+		FunctionBaseType functionBaseType = getFunctionBaseType(baseType);		
+		if (!spec.getAcceptedBaseTypes().contains(functionBaseType)) {
+			throw new IllegalArgumentException("Given base type is not accepted: " + functionBaseType);			
+		}
+
+		// Return type can be collection?
+		FunctionReturnType returnType = spec.getReturnTypes().get(0);
+		return getTargetType(baseType, returnType);
 	}
-
-
-	/*
-	static TypeInfo getTargetType(LambdaFunction lambdaFunction) {
-		if (functionCall.eContainer() instanceof FunctionedExpression) {
-			return getTargetType((FunctionedExpression) functionCall.eContainer());
-		} else if (functionCall.eContainer() instanceof FunctionCall) {
-			return getLastFeatureNavigationTargetReferences((NavigationExpression) functionCall.eContainer(), ((FunctionCall) functionCall.eContainer()).getFeatures());
-		}			
-	} */
 
 
 	/*
@@ -616,25 +490,13 @@ enum FunctionParameterType
 	
 	*/
 	static TypeInfo getTargetType(FunctionCall functionCall) {
-		return getTargetType(functionCall.getFunction());
-		/*
-		if (functionCall.getFunction() instanceof LambdaFunction) {
-			if (functionCall.eContainer() instanceof FunctionedExpression) {
-				return getTargetType((FunctionedExpression) functionCall.eContainer());
-			} else if (functionCall.eContainer() instanceof FunctionCall) {
-				return getLastFeatureTargetType((NavigationExpression) functionCall.eContainer(), ((FunctionCall) functionCall.eContainer()).getFeatures());
-			} 
-		} else if (functionCall.getFunction() instanceof LiteralFunction) {
-			return getTargetType((LiteralFunction) functionCall.getFunction());
+		if (functionCall.getCall() != null) {
+			return getTargetType(functionCall.getCall());			
+		} else {
+			return getTargetType(functionCall.getFunction());
 		}
-
-		throw new IllegalArgumentException("Could not determinate type for function call: " + functionCall);
-		*/
-
 	}
 
-	
-	
 				
 //	static TypeInfo getEntityMemberDeclarationReferences(EntityMemberDeclaration entityMemberDeclaration) {
 //		return getTargetType(entityMemberDeclaration);
@@ -664,13 +526,13 @@ enum FunctionParameterType
 	static TypeInfo getTargetType(NavigationExpression navigationExpression) {
 		if (navigationExpression instanceof SelfExpression) {
 			SelfExpression selfExpression = (SelfExpression) navigationExpression;
-			return getLastFeatureTargetType(selfExpression, selfExpression.getFeatures());
+			return getLastFeatureTargetType(selfExpression, selfExpression.getFeatures(), true);
 		} else if (navigationExpression instanceof NavigationBaseExpression) {
 			NavigationBaseExpression navigationBase = (NavigationBaseExpression) navigationExpression;
-			return getLastFeatureTargetType(navigationBase, navigationBase.getFeatures());
+			return getLastFeatureTargetType(navigationBase, navigationBase.getFeatures(), true);
 		} else if (navigationExpression instanceof QueryCallExpression) {
 			QueryCallExpression queryCall = (QueryCallExpression) navigationExpression;
-			return getLastFeatureTargetType(queryCall, queryCall.getFeatures());
+			return getLastFeatureTargetType(queryCall, queryCall.getFeatures(), true);
 		}
 		throw new IllegalArgumentException("Could not determinate type for navigation expression: " + navigationExpression);
 	}
@@ -739,19 +601,22 @@ enum FunctionParameterType
 	}
 
 		
-	static TypeInfo getLastFeatureTargetType(NavigationExpression context, List<Feature> features) {
+	static TypeInfo getLastFeatureTargetType(EObject context, List<Feature> features, boolean traverseDown) {
 		if (features != null && features.size() > 0 && features.get(features.size() - 1).getNavigationTargetType() != null) {
 			NavigationTarget navigationTarget = features.get(features.size() - 1).getNavigationTargetType();
 			return getTargetType(navigationTarget);
 		} else if (context instanceof NavigationBaseExpression) {
 			return getTargetType(((NavigationBaseExpression) context).getNavigationBaseType());
 		} else if (context instanceof FunctionCall) {
-			return getTargetType((FunctionCall) context);
+			if (traverseDown) {
+				return getTargetType((FunctionCall) context);				
+			} else {
+				return getTargetType(((FunctionCall) context).getFunction());				
+			}
 		}		
 		throw new IllegalArgumentException("Could not determinate type for last feature: " + context);
 	}
 
-	/*
 	static TypeInfo getFeatureScopeForNavigationTargetTypeReferences(Feature featureToScope, NavigationExpression navigationExpression) {
 		if (featureToScope != null && featureToScope.getNavigationTargetType() != null) {
 			if (featureToScope.getNavigationTargetType() instanceof EntityMemberDeclaration) {
@@ -825,5 +690,5 @@ enum FunctionParameterType
 					);
 		}
 		return null;
-	} */
+	}
 }
