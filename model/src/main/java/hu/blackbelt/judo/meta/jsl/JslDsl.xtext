@@ -312,7 +312,6 @@ UnaryOperation returns Expression
 
 FunctionedExpression returns Expression
 	: FunctionableExpression ({FunctionedExpression.operand=current} functionCall=FunctionCall)?
-	| ParenthesizedExpression
 	| EnumLiteralReference
     ;
 
@@ -347,6 +346,7 @@ TemporalLiteral returns Expression
 FunctionableExpression returns Expression
 	: NavigationExpression
 	| Literal
+	| ParenthesizedExpression
 	;
 
 NavigationExpression returns Expression
