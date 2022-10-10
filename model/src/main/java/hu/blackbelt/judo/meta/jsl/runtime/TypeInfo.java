@@ -68,7 +68,7 @@ public class TypeInfo {
 	}
 	
 	public boolean isPrimitive() {
-		return type instanceof PrimitiveType;
+		return (type instanceof PrimitiveType) || (type instanceof DataTypeDeclaration);
 	}
 
 	public boolean isEntity() {
