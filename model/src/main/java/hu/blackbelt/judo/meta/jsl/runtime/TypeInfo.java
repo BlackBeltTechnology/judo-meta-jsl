@@ -47,7 +47,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.SelfExpression;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeStampLiteral;
 
-class TypeInfo {
+public class TypeInfo {
 	
 	public enum PrimitiveType {
 		BOOLEAN, BINARY, STRING, NUMERIC, DATE, TIME, TIMESTAMP 
@@ -146,7 +146,7 @@ class TypeInfo {
         return found;
     }
 
-	static String getName(EObject object) {
+	public static String getName(EObject object) {
 		if (object == null) {
 			return null;
 		}
@@ -269,31 +269,31 @@ class TypeInfo {
 		throw new IllegalArgumentException("Could not determinate function return type: " + functionReturnType.getName());
 	}
 
-	static TypeInfo getTargetType(EntityFieldDeclaration entityFieldDeclaration) {
+	public static TypeInfo getTargetType(EntityFieldDeclaration entityFieldDeclaration) {
 		return new TypeInfo(entityFieldDeclaration.getReferenceType(), entityFieldDeclaration.isIsMany(), true);
 	}
 
-	static TypeInfo getTargetType(EntityIdentifierDeclaration entityFieldDeclaration) {
+	public static TypeInfo getTargetType(EntityIdentifierDeclaration entityFieldDeclaration) {
 		return new TypeInfo(entityFieldDeclaration.getReferenceType(), false, true);
 	}
 
-	static TypeInfo getTargetType(EntityRelationDeclaration entityRelationDeclaration) {
+	public static TypeInfo getTargetType(EntityRelationDeclaration entityRelationDeclaration) {
 		return new TypeInfo(entityRelationDeclaration.getReferenceType(), entityRelationDeclaration.isIsMany(), true);
 	}
 
-	static TypeInfo getTargetType(EntityDerivedDeclaration entityDerivedDeclaration) {
+	public static TypeInfo getTargetType(EntityDerivedDeclaration entityDerivedDeclaration) {
 		return new TypeInfo(entityDerivedDeclaration.getReferenceType(), entityDerivedDeclaration.isIsMany(), true);
 	}
 
-	static TypeInfo getTargetType(EntityQueryDeclaration entityQueryDeclaration) {
+	public static TypeInfo getTargetType(EntityQueryDeclaration entityQueryDeclaration) {
 		return new TypeInfo(entityQueryDeclaration.getReferenceType(), entityQueryDeclaration.isIsMany(), true);
 	}
 
-	static TypeInfo getTargetType(EnumDeclaration enumDeclaration, boolean isType) {
+	public static TypeInfo getTargetType(EnumDeclaration enumDeclaration, boolean isType) {
 		return new TypeInfo(enumDeclaration, false, isType);
 	}
 
-	static TypeInfo getTargetType(DataTypeDeclaration dataTypeDeclaration, boolean isType) {
+	public static TypeInfo getTargetType(DataTypeDeclaration dataTypeDeclaration, boolean isType) {
 		return new TypeInfo(dataTypeDeclaration, false, isType);
 	}
 
@@ -308,7 +308,7 @@ class TypeInfo {
 		  ';'*
 		;
 	*/
-	static TypeInfo getTargetType(EntityMemberDeclaration entityMemberDeclaration) {
+	public static TypeInfo getTargetType(EntityMemberDeclaration entityMemberDeclaration) {
 		if (entityMemberDeclaration instanceof EntityFieldDeclaration) {
 			return getTargetType((EntityFieldDeclaration) entityMemberDeclaration);
 		} else if (entityMemberDeclaration instanceof EntityIdentifierDeclaration) {
@@ -329,7 +329,7 @@ class TypeInfo {
 			: 'opposite-add' Named Cardinality?
 			;
 	 */
-	static TypeInfo getTargetType(EntityRelationOppositeInjected entityRelationOppositeInjected, boolean isMany) {
+	public static TypeInfo getTargetType(EntityRelationOppositeInjected entityRelationOppositeInjected, boolean isMany) {
 		return new TypeInfo((EntityDeclaration) entityRelationOppositeInjected.eContainer(), isMany, true);
 	}
 	
@@ -338,7 +338,7 @@ class TypeInfo {
 			: 'opposite' oppositeType = [EntityRelationDeclaration | LocalName]
 			;
 	 */
-	static TypeInfo getTargetType(EntityRelationOppositeReferenced entityRelationOppositeReferenced, boolean isMany) {
+	public static TypeInfo getTargetType(EntityRelationOppositeReferenced entityRelationOppositeReferenced, boolean isMany) {
 		return new TypeInfo(entityRelationOppositeReferenced.getOppositeType(), isMany, true);
 	}
 
@@ -348,7 +348,7 @@ class TypeInfo {
 			| EntityRelationOppositeReferenced
 			;
 	 */
-	static TypeInfo getTargetType(EntityRelationOpposite entityRelationOpposite, boolean isMany) {
+	public static TypeInfo getTargetType(EntityRelationOpposite entityRelationOpposite, boolean isMany) {
 		if (entityRelationOpposite instanceof EntityRelationOppositeInjected) {
 			return getTargetType((EntityRelationOppositeInjected) entityRelationOpposite);
 		} else if (entityRelationOpposite instanceof EntityRelationOppositeInjected) {
@@ -357,7 +357,7 @@ class TypeInfo {
 		throw new IllegalArgumentException("Could not determinate type for entity relation opposite: " + getName(entityRelationOpposite));
 	}
 	
-	static TypeInfo getTargetType(EntityDeclaration entityDeclaration, boolean isMany, boolean isType) {
+	public static TypeInfo getTargetType(EntityDeclaration entityDeclaration, boolean isMany, boolean isType) {
 		return new TypeInfo(entityDeclaration, isMany, isType);
 	}
 	
@@ -368,7 +368,7 @@ class TypeInfo {
 		    | EntityRelationOppositeInjected
 		    ;
 	*/	
-	static TypeInfo getTargetType(NavigationTarget navigationTarget) {
+	public static TypeInfo getTargetType(NavigationTarget navigationTarget) {
 		if (navigationTarget instanceof EntityMemberDeclaration) {
 			return getTargetType((EntityMemberDeclaration) navigationTarget);
 		} else if (navigationTarget instanceof EntityDeclaration) {
@@ -385,7 +385,7 @@ class TypeInfo {
 			| DataTypeDeclaration
 		    ;
 	 */
-	static TypeInfo getTargetType(PrimitiveDeclaration primitiveDeclaration, boolean isType) {
+	public static TypeInfo getTargetType(PrimitiveDeclaration primitiveDeclaration, boolean isType) {
 		if (primitiveDeclaration instanceof EnumDeclaration) {
 			return getTargetType((EnumDeclaration) primitiveDeclaration, isType);
 		} else if (primitiveDeclaration instanceof DataTypeDeclaration) {
@@ -403,7 +403,7 @@ class TypeInfo {
 			| PrimitiveDeclaration
 			;	
 	 */
-	static TypeInfo getTargetType(NavigationBaseReference navigationBaseReference) {
+	public static TypeInfo getTargetType(NavigationBaseReference navigationBaseReference) {
 		if (navigationBaseReference instanceof EntityDeclaration) {
 			return getTargetType((EntityDeclaration) navigationBaseReference, false, false);
 		} else if (navigationBaseReference instanceof QueryDeclaration) {
@@ -418,7 +418,7 @@ class TypeInfo {
 		throw new IllegalArgumentException("Could not determinate type for navigation base reference: " + getName(navigationBaseReference));
 	}
 	
-	static TypeInfo getParentFunctionCallReturnType(FunctionCall functionCall) {
+	public static TypeInfo getParentFunctionCallReturnType(FunctionCall functionCall) {
 		if (functionCall.eContainer() instanceof FunctionedExpression) {
 			return getTargetType(((FunctionedExpression) functionCall.eContainer()).getOperand());
 		} else if (functionCall.eContainer() instanceof FunctionCall) {
@@ -427,7 +427,7 @@ class TypeInfo {
 		throw new IllegalArgumentException("Could not determinate function call return type: " + functionCall);		
 	}
 	
-	static TypeInfo getTargetType(LiteralFunction literalFunction) {
+	public static TypeInfo getTargetType(LiteralFunction literalFunction) {
 		FunctionCall functionCall = (FunctionCall) literalFunction.eContainer();
 		TypeInfo baseType = getParentFunctionCallReturnType(functionCall);
 		
@@ -451,7 +451,7 @@ class TypeInfo {
 
 	}
 
-	static TypeInfo getTargetType(LambdaFunction lambdaFunction) {
+	public static TypeInfo getTargetType(LambdaFunction lambdaFunction) {
 		FunctionCall functionCall = (FunctionCall) lambdaFunction.eContainer();
 		TypeInfo baseType = getParentFunctionCallReturnType(functionCall);	
 
@@ -474,7 +474,7 @@ class TypeInfo {
 		| LambdaFunction
 		;
 	*/
-	static TypeInfo getTargetType(Function function) {
+	public static TypeInfo getTargetType(Function function) {
 		if (function instanceof LiteralFunction) {		
 			return getTargetType((LiteralFunction) function);
 		} else if (function instanceof LambdaFunction) {
@@ -489,7 +489,7 @@ class TypeInfo {
 		: {FunctionCall} '!' function=Function features+=Feature* call=FunctionCall?
 	
 	*/
-	static TypeInfo getTargetType(FunctionCall functionCall) {
+	public static TypeInfo getTargetType(FunctionCall functionCall) {
 		if (functionCall.getCall() != null) {
 			return getTargetType(functionCall.getCall());			
 		} else {
@@ -498,21 +498,21 @@ class TypeInfo {
 	}
 
 				
-//	static TypeInfo getEntityMemberDeclarationReferences(EntityMemberDeclaration entityMemberDeclaration) {
+//	public static TypeInfo getEntityMemberDeclarationReferences(EntityMemberDeclaration entityMemberDeclaration) {
 //		return getTargetType(entityMemberDeclaration);
 //	}
 
 
-//	static TypeInfo getTargetType(QueryDeclaration queryDeclaration) {
+//	public static TypeInfo getTargetType(QueryDeclaration queryDeclaration) {
 //		return new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isIsMany());
 //	}
 
 	
-	static TypeInfo getTargetType(QueryCallExpression queryCallExpression) {
+	public static TypeInfo getTargetType(QueryCallExpression queryCallExpression) {
 		return getTargetType(queryCallExpression.getQueryDeclarationType());
 	}
 
-	static TypeInfo getTargetType(SelfExpression selfExpression) {
+	public static TypeInfo getTargetType(SelfExpression selfExpression) {
 		return getTargetType((EntityDeclaration) parentContainer(selfExpression, EntityDeclaration.class), false, true);
 	}
 
@@ -523,7 +523,7 @@ class TypeInfo {
 		| QueryCallExpression
 		;
 	 */	
-	static TypeInfo getTargetType(NavigationExpression navigationExpression) {
+	public static TypeInfo getTargetType(NavigationExpression navigationExpression) {
 		if (navigationExpression instanceof SelfExpression) {
 			SelfExpression selfExpression = (SelfExpression) navigationExpression;
 			return getLastFeatureTargetType(selfExpression, selfExpression.getFeatures(), true);
@@ -537,7 +537,7 @@ class TypeInfo {
 		throw new IllegalArgumentException("Could not determinate type for navigation expression: " + navigationExpression);
 	}
 
-	static TypeInfo getTargetType(FunctionedExpression functionedExpression) {
+	public static TypeInfo getTargetType(FunctionedExpression functionedExpression) {
 		return getTargetType(functionedExpression.getFunctionCall());
 		//return getTargetType(functionedExpression.getOperand());
 	}
@@ -575,7 +575,7 @@ class TypeInfo {
 			| {TimeLiteral} value=TIME
 			;
 	 */
-	static TypeInfo getTargetType(Expression expression) {
+	public static TypeInfo getTargetType(Expression expression) {
 		if (expression instanceof FunctionedExpression) {
 			return getTargetType((FunctionedExpression) expression);
 		} else if (expression instanceof NavigationExpression) {			
@@ -601,7 +601,7 @@ class TypeInfo {
 	}
 
 		
-	static TypeInfo getLastFeatureTargetType(EObject context, List<Feature> features, boolean traverseDown) {
+	public static TypeInfo getLastFeatureTargetType(EObject context, List<Feature> features, boolean traverseDown) {
 		if (features != null && features.size() > 0 && features.get(features.size() - 1).getNavigationTargetType() != null) {
 			NavigationTarget navigationTarget = features.get(features.size() - 1).getNavigationTargetType();
 			return getTargetType(navigationTarget);
@@ -617,7 +617,7 @@ class TypeInfo {
 		throw new IllegalArgumentException("Could not determinate type for last feature: " + context);
 	}
 
-	static TypeInfo getFeatureScopeForNavigationTargetTypeReferences(Feature featureToScope, NavigationExpression navigationExpression) {
+	public static TypeInfo getFeatureScopeForNavigationTargetTypeReferences(Feature featureToScope, NavigationExpression navigationExpression) {
 		if (featureToScope != null && featureToScope.getNavigationTargetType() != null) {
 			if (featureToScope.getNavigationTargetType() instanceof EntityMemberDeclaration) {
 				return getTargetType((EntityMemberDeclaration) featureToScope.getNavigationTargetType());
@@ -628,7 +628,7 @@ class TypeInfo {
 		return null;				
 	}
 
-	static TypeInfo getFunctionCallExpressionTargetTypeReferences(Feature featureToScope, FunctionCall functionCall) {
+	public static TypeInfo getFunctionCallExpressionTargetTypeReferences(Feature featureToScope, FunctionCall functionCall) {
 		if (featureToScope != null && featureToScope.getNavigationTargetType() != null) {
 			if (featureToScope.getNavigationTargetType() instanceof EntityMemberDeclaration) {
 				return getTargetType(featureToScope.getNavigationTargetType());
@@ -639,7 +639,7 @@ class TypeInfo {
 		return null;
 	}
 	
-	static TypeInfo getQueryCallExpressionTargetTypeReferences(Feature featureToScope, QueryCallExpression queryCallExpression) {
+	public static TypeInfo getQueryCallExpressionTargetTypeReferences(Feature featureToScope, QueryCallExpression queryCallExpression) {
 		if (featureToScope != null && featureToScope.getNavigationTargetType() != null) {
 			if (featureToScope.getNavigationTargetType() instanceof EntityMemberDeclaration) {
 				return getTargetType(featureToScope.getNavigationTargetType());
@@ -651,7 +651,7 @@ class TypeInfo {
 	}
 
 
-	static Feature getPreviousFeature(Feature context, List<Feature> features) {
+	public static Feature getPreviousFeature(Feature context, List<Feature> features) {
 		Feature featureToScope = null;
 		int contextIndex = features.indexOf(context) - 1;
 		if (contextIndex > -1) {
@@ -661,7 +661,7 @@ class TypeInfo {
 	}
 	
 	
-	static TypeInfo getTargetType(Feature context) {		
+	public static TypeInfo getTargetType(Feature context) {		
 		if (context.eContainer() instanceof SelfExpression) {
 			return 
 					getFeatureScopeForNavigationTargetTypeReferences(
