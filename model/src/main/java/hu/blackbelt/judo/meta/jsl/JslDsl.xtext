@@ -434,11 +434,6 @@ LiteralFunctionParameters
 	;
 
 
-LiteralFunctionParameterOrder
-	: {LiteralFunctionParameterOrder} ('DESC' | isAscending?='ASC')
-	;
-
-
 LiteralFunctionParameter 
 	: declaration = [FunctionParameterDeclaration | LocalName] '=' expression=Expression
 	;
