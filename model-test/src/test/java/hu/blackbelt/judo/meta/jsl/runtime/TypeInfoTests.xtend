@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -942,5 +943,140 @@ class TypeInfoTests {
 		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sumField.expression).getPrimitive)
 
 	}
+
+	@Test
+	def void testQueryFunctions() {
+		val m = '''
+			model TestModel;
+			
+			type numeric Integer(precision = 9, scale = 0);
+			type string String(min-size = 0, max-size = 128);
+			
+			query Lead[] staticLeadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) => Lead!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
+			query Lead[] staticLeadsOverWithMin(Integer minLeadsOverMin = 5) => staticLeadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
+			query Integer staticLeadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) => Lead!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
+			query Integer staticLeadsOverWithMinCount(Integer minLeadsOverMin = 5) => staticLeadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
+			query Lead[] staticLeadsBetweenAndSalesPersonLeads(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) =>
+				Lead!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween).salesPerson.leadsBetween(minLeadsBetween = minLeadsBetween, maxLeadsBetween = maxLeadsBetween);
+			
+			entity SalesPerson {
+			    relation Lead[] leads opposite salesPerson;
+			
+			    query Lead[] leadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) => self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
+			    query Lead[] leadsOverWithMin(Integer minLeadsOverMin = 5) => self.leadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
+			    query Lead[] leadsOverWithMinStatic(Integer minLeadsOverMin = 5) => staticLeadsBetween(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
+			    
+			    derived Lead[] leadsOver10 => self.leadsOverWithMin(minLeadsOverMin = 10);			
+			    derived Lead[] leadsOver20 => self.leadsBetween(minLeadsBetween = 20);			
+			    derived Lead[] leadsOver10Static => staticLeadsOverWithMin(minLeadsOverMin = 10);			
+			    derived Lead[] leadsOver20Static => staticLeadsBetween(minLeadsBetween = 20);
+			    
+			    query Integer leadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) => self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
+			    query Integer leadsOverWithMinCount(Integer minLeadsOverMin = 5) => self.leadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
+
+			    derived Integer leadsOver10Count => self.leadsOverWithMinCount(minLeadsOverMin = 10);			
+			    derived Integer leadsOver20Count => self.leadsBetweenCount(minLeadsBetween = 20);
+			    derived Integer leadsOver10CountStatic => staticLeadsOverWithMinCount(minLeadsOverMin = 10);
+				derived Integer leadsOver20CountStatic => staticLeadsBetweenCount(minLeadsBetween = 20);
+			}
+			
+			entity Lead {
+			    field Integer value = 100000;
+			    relation required SalesPerson salesPerson opposite leads;
+			}
+		'''.parse.fromModel
+	
+		val testEntity = m.entityByName("SalesPerson") 
+		
+		val staticLeadsBetweenQuery = m.queryByName("staticLeadsBetween")
+		val staticLeadsOverWithMinQuery = m.queryByName("staticLeadsOverWithMin")
+		val staticLeadsBetweenCountQuery = m.queryByName("staticLeadsBetweenCount")
+		val staticLeadsOverWithMinCountQuery = m.queryByName("staticLeadsOverWithMinCount")
+		val staticLeadsBetweenAndSalesPersonLeadsQuery = m.queryByName("staticLeadsBetweenAndSalesPersonLeads")
+
+		val leadsRelation = testEntity.memberByName("leads") as EntityRelationDeclaration		
+
+		val leadsBetweenQuery = testEntity.memberByName("leadsBetween") as EntityQueryDeclaration
+
+		val leadsOverWithMinQuery = testEntity.memberByName("leadsOverWithMin") as EntityQueryDeclaration
+		val leadsOverWithMinStaticQuery = testEntity.memberByName("leadsOverWithMinStatic") as EntityQueryDeclaration
+
+		val leadsOver10Field = testEntity.memberByName("leadsOver10") as EntityDerivedDeclaration		
+		val leadsOver20Field = testEntity.memberByName("leadsOver20") as EntityDerivedDeclaration		
+		val leadsOver10StaticField = testEntity.memberByName("leadsOver10Static") as EntityDerivedDeclaration		
+		val leadsOver20StaticField = testEntity.memberByName("leadsOver20Static") as EntityDerivedDeclaration		
+
+		val leadsBetweenCountQuery = testEntity.memberByName("leadsBetweenCount") as EntityQueryDeclaration
+		val leadsOverWithMinCountQuery = testEntity.memberByName("leadsOverWithMinCount") as EntityQueryDeclaration
+
+		val leadsOver10CountField = testEntity.memberByName("leadsOver10Count") as EntityDerivedDeclaration		
+		val leadsOver20CountField = testEntity.memberByName("leadsOver20Count") as EntityDerivedDeclaration		
+		val leadsOver10CountStaticField = testEntity.memberByName("leadsOver10CountStatic") as EntityDerivedDeclaration		
+		val leadsOver20CountStaticField = testEntity.memberByName("leadsOver20CountStatic") as EntityDerivedDeclaration		
+
+
+		val TypeInfo staticLeadsBetweenTypeInfo = TypeInfo.getTargetType(staticLeadsBetweenQuery.expression)
+		assertEquals(staticLeadsBetweenQuery.referenceType, staticLeadsBetweenTypeInfo.getEntity)
+		assertEquals(true, staticLeadsBetweenTypeInfo.isInstance)
+		assertEquals(true, staticLeadsBetweenTypeInfo.isCollection)
+
+		val TypeInfo staticLeadsOverWithMinTypeInfo = TypeInfo.getTargetType(staticLeadsOverWithMinQuery.expression)
+		assertEquals(staticLeadsOverWithMinQuery.referenceType, staticLeadsOverWithMinTypeInfo.getEntity)
+		assertEquals(true, staticLeadsBetweenTypeInfo.isInstance)
+		assertEquals(true, staticLeadsBetweenTypeInfo.isCollection)
+
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(staticLeadsBetweenCountQuery.expression).getPrimitive)
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(staticLeadsOverWithMinCountQuery.expression).getPrimitive)
+
+		val TypeInfo staticLeadsBetweenAndSalesPersonLeadsTypeInfo = TypeInfo.getTargetType(staticLeadsBetweenAndSalesPersonLeadsQuery.expression)
+		assertEquals(staticLeadsBetweenAndSalesPersonLeadsQuery.referenceType, staticLeadsBetweenAndSalesPersonLeadsTypeInfo.getEntity)
+		assertEquals(true, staticLeadsBetweenAndSalesPersonLeadsTypeInfo.isInstance)
+		assertEquals(true, staticLeadsBetweenAndSalesPersonLeadsTypeInfo.isCollection)
+
+		val TypeInfo leadsBetweenTypeInfo = TypeInfo.getTargetType(leadsBetweenQuery.expression)
+		assertEquals(leadsBetweenQuery.referenceType, leadsBetweenTypeInfo.getEntity)
+		assertEquals(true, staticLeadsBetweenAndSalesPersonLeadsTypeInfo.isInstance)
+		assertEquals(true, staticLeadsBetweenAndSalesPersonLeadsTypeInfo.isCollection)
+
+		val TypeInfo leadsOverWithMinTypeInfo = TypeInfo.getTargetType(leadsOverWithMinQuery.expression)
+		assertEquals(leadsOverWithMinQuery.referenceType, leadsOverWithMinTypeInfo.getEntity)
+		assertEquals(true, leadsOverWithMinTypeInfo.isInstance)
+		assertEquals(true, leadsOverWithMinTypeInfo.isCollection)
+
+		val TypeInfo leadsOverWithMinStaticTypeInfo = TypeInfo.getTargetType(leadsOverWithMinStaticQuery.expression)
+		assertEquals(leadsOverWithMinStaticQuery.referenceType, leadsOverWithMinStaticTypeInfo.getEntity)
+		assertEquals(true, leadsOverWithMinStaticTypeInfo.isInstance)
+		assertEquals(true, leadsOverWithMinStaticTypeInfo.isCollection)
+
+		val TypeInfo leadsOver10TypeInfo = TypeInfo.getTargetType(leadsOver10Field.expression)
+		assertEquals(leadsOver10Field.referenceType, leadsOver10TypeInfo.getEntity)
+		assertEquals(true, leadsOver10TypeInfo.isInstance)
+		assertEquals(true, leadsOver10TypeInfo.isCollection)
+
+		val TypeInfo leadsOver20TypeInfo = TypeInfo.getTargetType(leadsOver20Field.expression)
+		assertEquals(leadsOver20Field.referenceType, leadsOver20TypeInfo.getEntity)
+		assertEquals(true, leadsOver20TypeInfo.isInstance)
+		assertEquals(true, leadsOver20TypeInfo.isCollection)
+
+		val TypeInfo leadsOver10StaticTypeInfo = TypeInfo.getTargetType(leadsOver10StaticField.expression)
+		assertEquals(leadsOver10StaticField.referenceType, leadsOver10StaticTypeInfo.getEntity)
+		assertEquals(true, leadsOver10StaticTypeInfo.isInstance)
+		assertEquals(true, leadsOver10StaticTypeInfo.isCollection)
+
+		val TypeInfo leadsOver20StaticTypeInfo = TypeInfo.getTargetType(leadsOver20StaticField.expression)
+		assertEquals(leadsOver20StaticField.referenceType, leadsOver20StaticTypeInfo.getEntity)
+		assertEquals(true, leadsOver20StaticTypeInfo.isInstance)
+		assertEquals(true, leadsOver20StaticTypeInfo.isCollection)
+				
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsBetweenCountQuery.expression).getPrimitive)
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsOverWithMinCountQuery.expression).getPrimitive)
+		
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsOver10CountField.expression).getPrimitive)
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsOver20CountField.expression).getPrimitive)
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsOver10CountStaticField.expression).getPrimitive)
+		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsOver20CountStaticField.expression).getPrimitive)
+
+	}
+
 
 }

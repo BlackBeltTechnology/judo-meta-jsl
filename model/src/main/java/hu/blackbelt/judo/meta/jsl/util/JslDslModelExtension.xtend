@@ -401,6 +401,11 @@ class JslDslModelExtension {
 		return getStreamOf(EntityDeclaration).filter[e | e.name.equals(name)].findFirst.orElseThrow[new IllegalArgumentException("EntityDeclaration not found: " + name)]
 	}
 
+	
+	def QueryDeclaration queryByName(JslDslModelResourceSupport it, String name) {
+		return getStreamOf(QueryDeclaration).filter[e | e.name.equals(name)].findFirst.orElseThrow[new IllegalArgumentException("QueryDeclaration not found: " + name)]
+	}
+
 	def EntityMemberDeclaration memberByName(EntityDeclaration it, String name) {
 		members.stream.filter[e | e.name.equals(name)].findFirst.orElseThrow[new IllegalArgumentException("EntityMemberDeclaration not found: " + name)]
 	}

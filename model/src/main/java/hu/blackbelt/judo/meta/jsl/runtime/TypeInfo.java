@@ -289,6 +289,10 @@ public class TypeInfo {
 		return new TypeInfo(entityQueryDeclaration.getReferenceType(), entityQueryDeclaration.isIsMany(), true);
 	}
 
+	public static TypeInfo getTargetType(QueryDeclaration queryDeclaration) {
+		return new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isIsMany(), true);
+	}
+
 	public static TypeInfo getTargetType(EnumDeclaration enumDeclaration, boolean isType) {
 		return new TypeInfo(enumDeclaration, false, isType);
 	}
@@ -405,7 +409,7 @@ public class TypeInfo {
 	 */
 	public static TypeInfo getTargetType(NavigationBaseReference navigationBaseReference) {
 		if (navigationBaseReference instanceof EntityDeclaration) {
-			return getTargetType((EntityDeclaration) navigationBaseReference, false, false);
+			return getTargetType((EntityDeclaration) navigationBaseReference, true, true);
 		} else if (navigationBaseReference instanceof QueryDeclaration) {
 			return getTargetType((QueryDeclaration) navigationBaseReference);
 		} else if (navigationBaseReference instanceof LambdaVariable) {
@@ -613,7 +617,9 @@ public class TypeInfo {
 			} else {
 				return getTargetType(((FunctionCall) context).getFunction());				
 			}
-		}		
+		} else if (context instanceof QueryCallExpression) {
+			return getTargetType((QueryCallExpression) context);
+		}
 		throw new IllegalArgumentException("Could not determinate type for last feature: " + context);
 	}
 
