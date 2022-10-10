@@ -252,20 +252,13 @@ enum DataUnit
 /****************************
  *	Expression
  ***************************/
-
-Expression returns Expression
-	: SwitchExpression (=> ({Expression.switchExpression=current}) parenthesizedExpression=ParenthesizedExpression)*
-	;
+Expression returns Expression:
+    SwitchExpression;
 
 ParenthesizedExpression returns Expression
-	: {ParenthesizedExpression} '(' => expression = MultilineExpression ')'
+	: {ParenthesizedExpression} '(' => expression = Expression ')'		
 	;
 
-MultilineExpression returns Expression
-	: SwitchExpression
-	;
-
-// right associative rule
 SwitchExpression returns Expression
 	: ImpliesExpression (=> ({TernaryOperation.condition=current} '?')
 	  thenExpression=SwitchExpression ':'
@@ -409,11 +402,11 @@ QueryParameter
 CreateExpression returns Expression
 	: {CreateExpression} 'new' createType=[ClassDeclaration | LocalName]
 	  (   '(' (assignments+=CreateParameter (',' assignments+=CreateParameter)*)? ')'
-	  	| '[' (creates += MultilineExpression (',' creates += MultilineExpression)*)? ']'
+	  	| '[' (creates += Expression (',' creates += Expression)*)? ']'
 	  )
 	;
 
-CreateParameter: name=JSLID '=' right=MultilineExpression;
+CreateParameter: name=JSLID '=' right=Expression;
 
 /**
  * Function
@@ -440,8 +433,14 @@ LiteralFunctionParameters
     : {LiteralFunctionParameters} parameters += LiteralFunctionParameter (',' parameters += LiteralFunctionParameter)*
 	;
 
+
+LiteralFunctionParameterOrder
+	: {LiteralFunctionParameterOrder} ('DESC' | isAscending?='ASC')
+	;
+
+
 LiteralFunctionParameter 
-	: declaration = [FunctionParameterDeclaration | LocalName] '=' expression=Expression 
+	: declaration = [FunctionParameterDeclaration | LocalName] '=' expression=Expression
 	;
 
 LambdaFunctionParameters
@@ -480,6 +479,7 @@ enum FunctionReturnType
 	| RT_DATE_INSTANCE
 	| RT_TIME_INSTANCE
 	| RT_TIMESTAMP_INSTANCE
+	| RT_INPUT_SAME
 	;
 
 enum FunctionBaseType
@@ -514,6 +514,7 @@ enum FunctionParameterType
 	| PT_DATE_INSTANCE
 	| PT_TIME_INSTANCE
 	| PT_TIMESTAMP_INSTANCE
+	| PT_INPUT_SAME
 	;
 
 FunctionDeclaration 
