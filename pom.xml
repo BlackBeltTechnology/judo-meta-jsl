@@ -937,6 +937,7 @@
             </activation>
             <modules>
                 <module>targetdefinition</module>
+                <module>docs</module>
                 <module>model</module>
                 <module>model-test</module>
                 <module>osgi</module>
