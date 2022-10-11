@@ -1,0 +1,648 @@
+ifndef::env-site,env-github[]
+include::../_attributes.adoc[]
+endif::[]
+// Settings
+:idprefix:
+:idseparator: -
+:icons: font
+:KW: [purple]##**
+:KWE: **##
+
+= Types
+
+== Primitives
+
+In order to support JSL as a rigorous modeling formalism, the primitive data types in the model must be specified.
+
+JSL allows the following “base types” for primitive specification:
+
+* boolean
+* binary
+* string
+* numeric
+* date
+* time
+* timestamp
+
+The above base types cannot be used directly in domain models. However, you must define the primitive types used in your domain model.
+
+To define a new domain model primitive, use the `type` keyword.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**type**# &lt;basetype> &lt;name> &#x5B; [purple]#**(**#&lt;parameter name> [purple]#**=**# &lt;parameter value>][purple]#**,**# ...[purple]#**)**# ] [purple]#**;**#
+----
+
+where the <basetype> is one of the base types defined above, the <name> is the name of the domain model primitive, and there can be an additional list of parameters for each base type. The optional comma-separated parameter list consists of name-value pairs, using `=` between name and value.
+
+Parameters are constraints that restrict the use of the newly created primitive data type.
+
+*Example:*
+
+----
+type boolean Boolean;
+type numeric Integer(precision = 9, scale = 0);
+type string String(min-size = 0, max-size = 128);
+----
+
+The <<Base types>> section provide examples of each base type and its possible constraints and operations.
+
+
+[IMPORTANT]
+====
+Instead of defining the most common primitives in each project, there is a built-in judo::types model that you can import into models. It defines the following primitives:
+
+----
+type boolean Boolean;
+type date Date;
+type time Time;
+type timestamp Timestamp;
+type numeric Integer(precision = 15, scale = 0);
+type string String(min-size = 0, max-size = 4000);
+----
+
+You can use these primitives a follows:
+
+----
+model shop;
+
+import judo::types;
+
+entity Person {
+    field String firstName;
+    field String lastName;
+}
+----
+====
+
+== Enumeration
+
+An enumeration is a primitive data type whose values are called enumeration members. Enumeration members are listed as a pair of a text (the literal) and an integer (the ordinal). An enumeration member is represented with the qualified name of enumeration tagged with literal, for example `Titles#MR` or `example::Color#RED`.
+
+The literals of the enumeration members within an enumeration must be unique in case-insensitive manner. Enumeration literals are usually uppercase to improve readability.
+
+The ordinal parts of the enumeration members within an enumeration must be unique. Enumeration members can be ordered by their ordinal.
+
+An enumeration must have at least one enumeration member.
+
+[NOTE]
+====
+Ordinals are for run-time database storage, and to help model restructuring and data migration. When storing an enumeration value, only the ordinal is stored in the database. This storage mechanism allows the literal values to be changed without data migration and language-independent sorting of database records.
+====
+
+To define an enumeration, use the `enum` keyword.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**enum**# &lt;name> [purple]#**{**#
+    &#x5B;&lt;literal> [purple]##**=**## &lt;ordinal> [purple]#**;**#] ...
+[purple]#**}**#
+----
+
+where the <name> is the name of the enumeration, and the enumeration members are defined between `{` and `}`. Enumeration members are defined as a list of <literal> and <ordinal> pairs using `=` between them.
+
+*Example:*
+
+----
+enum OrderStatus {
+	OPEN = 1;
+	PAID = 2;
+	DELIVERED = 3;
+}
+
+entity Order {
+	field OrderStatus status;
+}
+----
+
+In the example above, the Order entity has a status field that shows its current state.
+
+The supported operators of enumeration are the following:
+
+[options="header",cols="1,1,6,5a"]
+|======================================================================
+|Operator              |Result  |Meaning |Example
+|`<`, `>`, `==`, `!=`, `\<=`, `>=`|Boolean |Comparison. Enumeration members of two different enumerations are not comparable.|
+
+* `shop::OrderStatus#OPEN == shop::OrderStatus#PAID` is `false`
+* `shop::OrderStatus#OPEN != shop::OrderStatus#OPEN` is `true`
+* `shop::OrderStatus#OPEN == other::Color#RED` is not valid
+|======================================================================
+
+Supported functions are listed in chapter <<Enumeration functions>>.
+
+////
+[NOTE]
+====
+Persistent enumeration members are stored as numbers (ordinal), literals are resolved based on current model by JUDO runtime.
+====
+
+[WARNING]
+====
+Enumeration literals are not resolved yet by exposed services, they are represented with their ordinal values on REST interfaces.
+====
+////
+
+== Base types
+
+=== String
+
+String represents a text. String literals are delimited by double quotes. For example `"apple"`.
+
+Escape sequences allow for the representation of some nongraphic characters as well as the double quote, and backslash characters in string literals.
+
+Escape sequences are the followings:
+
+[options="header", cols="1,3"]
+|====================
+|Escape sequence    |Character
+|\t                 |Horizontal tab
+|\n                 |Linefeed 
+|\f                 |Form feed 
+|\r                 |Carriage return
+|\"                 |Double quote
+|\\                 |Backslash
+|====================
+
+In accordance with the above, multi-line string literals are allowed, inside the string literals "\n" escape sequence can be used for line breaks. The new line character is not allowed in string literals.
+
+In some situations, it may be inconvenient that escape sequences are interpreted differently than the rest of the string literals. To overcome these situations, use raw string literals with the "r" character before the opening double quote. For example, the string literal `r"apple\nbanana"` is a single line string. A typical use of raw strings is to specify regular expressions.
+
+To define string primitive, use the `type` keyword with `string`.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**type string**# &lt;name> [purple]#**(min-size =**# &lt;min>[purple]#**, max-size =**# &lt;max>&#x5B;[purple]##**, regex =**## &lt;regular expression>][purple]#**)**# [purple]#**;**#
+----
+
+where the <name> is the name of the domain model string, and the mandatory <min> and <max> specify the minimum and the maximum size of the text that can be stored. <max> must be a value from 1 through 4000 and <min> must be a value from 0 through <max>.
+
+The optional <regular expression> is a sequence of characters that specifies a pattern, that is for validation. The following tables summarize the regular expression constructs.
+
+[options="header", cols="1,2"]
+|====================
+|Characters |Matches
+|`x`        |The character x
+|`\uhhhh`   |The character with hexadecimal value 0xhhhh
+|`\t`       |The tab character
+|`\n`       |The newline character 
+|`\f`       |The form-feed character 
+|`\r`       |The carriage-return character
+|`\\`       |The backslash character
+|====================
+
+
+[options="header", cols="1,2"]
+|====================
+|Character classes  |Matches
+|`[abc]`            |a, b, or c
+|`[^abc]`           |Any character except a, b, or c
+|`[a-z]`            |a through z
+|`[^a-z]`           |Any character except a through z
+|`[a-zA-Z]`         |a through z or A through Z
+|====================
+
+
+[options="header", cols="1,2"]
+|====================
+|Predefined classes |Matches
+|`.`                |Any character
+|`\d`               |Digit: [0-9]
+|`\D`               |Non-digit
+|`\s`               |Whitespace character: [ \t\n\r]
+|`\S`               |Non-whitespace character
+|`\w`               |Word character: [a-zA-Z_0-9]
+|`\W`               |Non-word character
+|====================
+
+
+[options="header", cols="1,2"]
+|====================
+|Quantifiers    |Matches
+|`x?`           |x, once or not at all
+|`x*`           |x, zero or more times
+|`x+`           |x, one or more times
+|`x{n}`         |x, exactly n times
+|`x{n,m}`       |x, at least n but not more than m times
+|`x{n,}`        |x, at least n times
+|====================
+
+
+[options="header", cols="1,2"]
+|====================
+|Logical operators  |Matches
+|`xy`               |x followed by y
+|`x\|y`             |Either x or y
+|`(x)`              |x as a group
+|====================
+
+
+[options="header", cols="1,2"]
+|====================
+|Boundaries |Matches
+|`^`        |Start of line
+|`$`        |End of line
+|====================
+
+
+*Example:*
+
+----
+type string String(min-size = 0, max-size = 128);
+type string LongString(min-size = 0, max-size = 1024);
+type string Email(min-size = 0, max-size = 64, regex = r"^\w+@\w+(\.\w+)+$");
+----
+
+This creates three domain model primitives. The first can store a maximum of 128 length text, the second may store texts up to 1024 characters.
+
+The third string may accept only email addresses. Please note that the regular expression is specified in a raw string using the `r` prefix. In the raw string the backslash (`\`) characters of the regular expression are not escaped. If you use the regular (non-raw) string to specify regex, you must escape the backslash characters as follows.
+
+*Example:*
+
+----
+type string Email(min-size = 0, max-size = 64, regex = "^\\w+@\\w+(\\.\\w+)+$");
+----
+
+You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of string are the following:
+
+[options="header",cols="1,1,6,5a"]
+|======================================================================
+|Operator |Result  |Meaning |Example
+|`==`       |Boolean |Case-sensitive comparison. |
+* `"apple" == "apple"` is `true`
+* `"Apple" == "apple"` is `false`
+|`<`, `>`  |Boolean |Case-insensitive ordering. |
+* `"apple" < "pear"` is `true`
+* `"Apple" > "plum"` is `false`
+|`+`       |String  |Concatenates two strings into a single string result. |
+* `"apple" + "tree"` is `"appletree"`
+|======================================================================
+
+Supported functions are listed in chapter <<String functions>>.
+
+=== Numeric
+
+// TODO: operation precision shall be described (e.g. target type defines)
+
+Numeric represents a numeric value. Numeric constants are represented by digits and at most one dot (`.`) symbol that cannot be the first nor the last character. For example `10` or `3.14`.
+
+To define numeric primitive, use the `type` keyword with `numeric`.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**type numeric**# &lt;name> [purple]#**(precision =**# &lt;precision>[purple]#**, scale =**# &lt;scale>[purple]#**)**# [purple]#**;**#
+----
+
+where the <name> is the name of the domain model numeric,
+the <precision> is the maximum total number of decimal digits that will be stored, both to the left and to the right of the decimal point. The precision must be greater than 0.
+<scale> is the number of decimal digits that will be stored to the right of the decimal point (fraction). This number is subtracted from precision to determine the maximum number of digits to the left of the decimal point. Scale must be a value from 0 through precision.
+
+The number `3.14` has a precision of 3 and a scale of 2.
+
+*Example:*
+
+----
+type numeric Integer(precision = 9, scale = 0);
+type numeric Price(precision = 7, scale 2);
+----
+
+You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of numeric are the following:
+
+[options="header",cols="1,1,6,5a"]
+|======================================================================
+|Operator              |Result  |Meaning |Example
+|`<`, `>`, `==`, `!=`, `\<=`, `>=`    |Boolean |Comparison. |
+* `-1 < 10` is `true`
+* `-1 > 0` is `false`
+* `1.00 == 1` is `true`
+* `0.9999 != 1` is `true`
+* `10 >= 10` is `true`
+* `9 \<= 8` is `false`
+|`+`, `-`, `*`, `/`     |Numeric |Arithmetic operations. |
+* `1 + 2` is `3`
+* `2 - 3` is `-1`
+* `2 * 2 * 3.14` is `12.56`
+* `9.0 / 2` is `4.5`
+|`mod`, `div`           |Numeric |Integer arithmetic operations, scale of both arguments must be 0. |
+* `9 mod 2` is `1`
+* `9 div 2` is `4`
+|======================================================================
+
+Supported functions are listed in chapter <<Numeric functions>>.
+
+=== Boolean
+
+Boolean represents a logical value: `true` or `false`.
+
+To define boolean primitive, use the `type` keyword with `boolean`.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**type boolean**# &lt;name> [purple]#**;**#
+----
+
+where the <name> is the name of the domain model boolean.
+
+*Example:*
+
+----
+type boolean Boolean
+----
+
+You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of boolean are the following:
+
+[options="header",cols="1,1,6,5a"]
+|======================================================================
+|Operator  |Result  |Meaning |Example
+|`not`     |boolean |logical negation | `not true` is `false`
+|`and`     |boolean |logical AND | `true and false` is `false`
+|`or`      |boolean |inclusive logical OR | `true and false` is `true`
+|`xor`     |boolean |exclusive logical OR | `true and true` is `false`
+|`implies` |boolean |logical material implication | `true implies false` is `false`
+|`? :`     |<any>   |conditional branching
+|`true ? "A" : "B"` is `"A"`
+
+`false ? "A" : "B"` is `"B"`
+
+|======================================================================
+
+// TODO: IN operator should be in expression
+
+Besides true and false, the result of logical expressions can also be undefined. This three-valued logic is a consequence of supporting undefined to mark absent data. If a logical expression contains an undefined value, the result is calculated according to the Kleene three-valued logic. The truth table of the three-valued logic is as follows:
+
+[options="header"]
+|=============================================================================================
+|`p`            |`q`            |`p or q`       |`p and q`      |`p xor q`      |`p implies q`
+|`true`	        |`true`	        |`true` 	    |`true`	        |`false`        |`true`
+|`true`	        |`false`	    |`true`         |`false`	    |`true`         |`false`
+|`true`	        |`undefined`	|`true`	        |`undefined`	|`undefined`    |`undefined`
+|`false`	    |`true`	        |`true`	        |`false`	    |`true`         |`true`
+|`false`	    |`false`	    |`false`	    |`false`	    |`false`        |`true`
+|`false`	    |`undefined`	|`undefined`	|`false`	    |`undefined`    |`true`
+|`undefined`	|`true`	        |`true`	        |`undefined`	|`undefined`    |`true`
+|`undefined`	|`false`	    |`undefined`	|`false`	    |`undefined`    |`undefined`
+|`undefined`	|`undefined`	|`undefined`	|`undefined`	|`undefined`    |`undefined`
+|=============================================================================================
+
+[options="header"]
+|=====================
+|`p`          |`not p`
+|`true`       |`false`
+|`false`      |`true`
+|`undefined`  |`undefined`
+|=====================
+
+Supported functions are listed in chapter <<Boolean functions>>.
+
+
+=== Date
+
+Date is a calendar date with no time nor time zone information. Date is delimited by backtick, for example `pass:[`2020-02-18`]`.
+
+To define date primitive, use the `type` keyword with `date`.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**type date**# &lt;name> [purple]#**;**#
+----
+
+where the <name> is the name of the domain model date.
+
+*Example:*
+
+----
+type date Date;
+----
+
+You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of date are the following:
+
+[options="header",cols="1,1,6,5a"]
+|======================================================================
+|Operator                          |Result  |Meaning |Example
+|`<`, `>`, `==`, `!=`, `\<=`, `>=`   |Boolean |Comparison. | `pass:[`2020-02-18` > `2020-01-01`]` is `true`
+//|`+`                              |Date    |Adds n days to the original date where n must be a day architecture unit. |
+//|`-`                              |Date    |Subtracts n days from the original date where n must be a day architecture unit. |
+//|`Difference`                     |Measured|Returns the difference (time) between a date and another date. |
+|======================================================================
+
+[NOTE]
+====
+Arithmetic operators are not available for the date type. If you want to perform calculations with a date value, first convert it to a timestamp. Then use the timestamp functions and convert it back to a date type. The following example adds a week to a date.
+
+----
+Timestamp!of(date = `2021-02-28`)!plus(days = 7)!date()
+----
+
+====
+
+Supported functions are listed in chapter <<Date functions>>.
+
+=== Time
+
+Time represents the time of day, independent of any particular day and with no time zone information.
+
+Time literals can be represented as literals using the following syntax.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]##**\`**##&lt;hh>[purple]##**:**##&lt;mm>&#x5B;[purple]##**:**##&lt;ss>][purple]##**`**##
+----
+
+where
+
+* <hh> refers to a zero-padded hour between 00 and 23,
+* <mm> refers to a zero-padded minute between 00 and 59,
+* <ss> refers to a zero-padded second between 00 and 59,
+* the surrounding backticks are required.
+
+The valid values of time are between `pass:[`00:00:00`]` and `pass:[`23:59:59`]`.
+
+The following examples are valid time literals.
+
+*Example:*
+
+----
+`23:59:59`
+`23:59`
+----
+
+To define time primitive, use the `type` keyword with `time`.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**type time**# &lt;name> [purple]#**;**#
+----
+
+where the <name> is the name of the domain model time.
+
+*Example:*
+
+----
+type time Time;
+----
+
+You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of date are the following:
+
+[options="header",cols="1,1,6,5a"]
+|======================================================================
+|Operator                          |Result  |Meaning |Example
+|`<`, `>`, `==`, `!=`, `\<=`, `>=`  |Boolean |Comparison. | `pass:[`11:30` > `10:29`]` is `true`
+|======================================================================
+
+[NOTE]
+====
+Arithmetic operators are not available for the time type. If you want to perform calculations with a time value, first convert it to a timestamp. Then use the timestamp functions and convert it back to a date type. The following example adds 6 hours to a time.
+
+----
+Timestamp!of(date = `2021-02-28`, time = `18:59:00`)!plus(hours = 6)!time()
+----
+====
+
+Supported functions are listed in chapter <<Time functions>>.
+
+=== Timestamp
+
+Timestamp is a value identifying when a certain event occurred or when a certain event will occur. The accuracy of the timestamp is in milliseconds, which is used for comparison.
+
+Timestamp is surrounded by backticks ( ` ) and formatted using ISO-8601 standard, for example
+
+`pass:[`2020-02-18T10:11:12Z`]`
+
+`pass:[`2019-07-18T11:11:12+02:00`]`
+
+`pass:[`2019-07-18T11:11:12.003+02:00`]`
+
+To define timestamp primitive, use the `type` keyword with `timestamp`.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**type timestamp**# &lt;name> [purple]#**;**#
+----
+
+where the <name> is the name of the domain model timestamp.
+
+*Example:*
+
+----
+type timestamp Timestamp;
+----
+
+Some timestamp functions may expect time zone information as input. Use the following format to specify the time zone:
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]##**\`**##&#x5B;[purple]##**+**##|[purple]##**-**##]&lt;hh>[purple]##**:**##&lt;mm>[purple]##**`**##
+----
+
+where
+
+* <hh> refers to a zero-padded hour between 00 and 23,
+* <mm> refers to a zero-padded minute between 00 and 59,
+* the surrounding backticks are required.
+
+*Example:*
+
+----
+`+02:00`
+----
+
+You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of timestamp are the following:
+
+[options="header",cols="1,1,6,5a"]
+|======================================================================
+|Operator                          |Result    |Meaning |Example
+|`<`, `>`, `==`, `!=`, `\<=`, `>=`    |Boolean   |Comparison |
+* `pass:[`2020-02-18T10:11:12Z` != `2020-02-18T00:00:00Z`]` is `true`
+* `pass:[`2020-02-18T09:11:12Z` == `2020-02-18T10:11:12+01:00`] is `true`
+//|`+`                                |Timestamp |Adds duration to the original timestamp where duration must be a measured (time). |
+//|`-`                                |Timestamp |Subtracts duration from the original timestamp where duration must be a measured (time). |
+//|`Difference`                       |Measured  |Returns the difference (time) between a timestamp and an other timestamp. |
+|======================================================================
+
+[NOTE]
+====
+Arithmetic operators are not available for the timestamp type. If you want to perform calculations with a timestamp value, use <<Timestamp functions>>. An easy way to use arithmetic is to convert timestamp values to milliseconds.
+====
+
+Supported functions are listed in chapter <<Timestamp functions>>.
+
+=== Binary
+
+The binary data type contains an unlimited number of bytes.
+
+To define binary primitive, use the `type` keyword with `binary`.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**type binary**# &lt;name> [purple]#**(mime-types =**# &lt;mime-types>[purple]#**, max-file-size =**# &lt;max-file-size>[purple]#**)**# [purple]#**;**#
+----
+
+where the <name> is the name of the domain model binary, the <mime-types> is a list of mime types indicating the accepted formats, and the <max-file-size> is the maximum size of the file.
+
+The <max-file-size> can be expressed in bytes, kilobytes, megabytes or gigabytes using an integer and an optional unit. The unit can be based on powers of 10 (kB, MB, GB) or on powers of 2 (KiB, MiB, GiB). If there is no unit specified, the value is interpreted in bytes. The table below gives the value in bytes for each unit.
+
+
+[options="header",cols="1,5"]
+|======================================================================
+|Unit   |Value in bytes
+|kB     |1000
+|MB     |1000^2^
+|GB     |1000^3^
+|KiB    |1024
+|MiB    |1024^2^
+|GiB    |1024^3^
+|======================================================================
+
+The <mime-types> is a comma-separated list of strings representing mime types. A mime type string must consist of a type and a subtype separated by `/` in the following format:
+
+[subs="quotes"]
+----
+[purple]##**"**##&lt;type>/&lt;subtype>[purple]##**"**##
+----
+
+or
+
+[subs="quotes"]
+----
+[purple]##**"**##&lt;type>/*[purple]##**"**##
+----
+
+Valid mime types and subtypes can only contain alphabetic characters, digits and `.`, `_`, `-`, `+`.
+
+*Examples:*
+
+----
+type binary Document (mime-types = ["application/pdf", "application/msword"], max-file-size = 10MB);
+----
+
+The example above defines a Document type that accepts pdf or ms-word documents up to 10 megabytes in size.
+
+----
+type binary Image (mime-types = ["image/*"], max-file-size = 500kB);
+----
+
+The second example defines an Image type that accepts any image format up to 500 kbytes in size.
+
+Supported functions are listed in chapter <<Binary functions>>.
