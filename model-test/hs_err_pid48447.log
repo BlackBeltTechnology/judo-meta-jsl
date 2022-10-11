@@ -1,0 +1,152 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGSEGV (0xb) at pc=0x000000010c9c1108, pid=48447, tid=259
+#
+# JRE version: OpenJDK Runtime Environment Zulu11.54+23-CA (11.0.14+9) (build 11.0.14+9-LTS)
+# Java VM: OpenJDK 64-Bit Server VM Zulu11.54+23-CA (11.0.14+9-LTS, mixed mode, tiered, compressed oops, g1 gc, bsd-aarch64)
+# Problematic frame:
+# J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1108 [0x000000010c9c1100+0x0000000000000008]
+#
+# No core dump will be written. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+# If you would like to submit a bug report, please visit:
+#   http://www.azul.com/support/
+#
+
+---------------  S U M M A R Y ------------
+
+Command Line: -ea -Dfile.encoding=UTF-8 org.eclipse.jdt.internal.junit.runner.RemoteTestRunner -version 3 -port 50844 -testLoaderClass org.eclipse.jdt.internal.junit5.runner.JUnit5TestLoader -loaderpluginname org.eclipse.jdt.junit5.runtime -classNames hu.blackbelt.judo.meta.jsl.runtime.TypeInfoTests
+
+Host: MacBookPro18,1 arm64 1 MHz, 10 cores, 32G, Darwin 21.5.0
+Time: Mon Oct 10 09:58:46 2022 CEST elapsed time: 1.096788 seconds (0d 0h 0m 1s)
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x0000000127809000):  JavaThread "main" [_thread_in_Java, id=259, stack(0x000000016b73c000,0x000000016d73c000)]
+
+Stack: [0x000000016b73c000,0x000000016d73c000],  sp=0x000000016cf53f60,  free space=24671k
+Native frames: (J=compiled Java code, A=aot compiled Java code, j=interpreted, Vv=VM code, C=native code)
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1108 [0x000000010c9c1100+0x0000000000000008]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+J 3502 c1 hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.getTargetType(Lhu/blackbelt/judo/meta/jsl/jsldsl/NavigationBaseReference;)Lhu/blackbelt/judo/meta/jsl/runtime/TypeInfo; (97 bytes) @ 0x000000010c9c1534 [0x000000010c9c1100+0x0000000000000434]
+...<more frames>...
+
+
+siginfo: si_signo: 11 (SIGSEGV), si_code: 2 (SEGV_ACCERR), si_addr: 0x000000016cf3ff60
+
+Register to memory mapping:
+
+ x0=0x00000000000009c8 is an unknown value
+ x1=0x00000005dd8cfc68 is an oop: hu.blackbelt.judo.meta.jsl.jsldsl.impl.QueryDeclarationImpl 
+{0x00000005dd8cfc68} - klass: 'hu/blackbelt/judo/meta/jsl/jsldsl/impl/QueryDeclarationImpl'
+ x2=0x00000008002adb00 is a pointer to class: 
+hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration {0x00000008002adb00}
+ x3=0x0000000800386968 is a pointer to class: 
+hu.blackbelt.judo.meta.jsl.jsldsl.impl.QueryDeclarationImpl {0x0000000800386968}
+ x4=0x0000000800386968 is a pointer to class: 
+hu.blackbelt.judo.meta.jsl.jsldsl.impl.QueryDeclarationImpl {0x0000000800386968}
+ x5=0x0000000800386968 is a pointer to class: 
+hu.blackbelt.judo.meta.jsl.jsldsl.impl.QueryDeclarationImpl {0x0000000800386968}
+ x6=0x0 is NULL
+ x7=0x0000000127809000 is a thread
+ x8=0x00000008002adb00 is a pointer to class: 
+hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration {0x00000008002adb00}
+ x9=
