@@ -43,6 +43,7 @@ See the JUDO Java documentation for APIs and programming concepts.
 
 We use the model below as example code in this guide.
 
+[source,jsl]
 ----
 model shop;
 

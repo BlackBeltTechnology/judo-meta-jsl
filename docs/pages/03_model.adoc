@@ -29,10 +29,12 @@ Namespace is a naming hierarchy built from the names of the container namespaces
 
 *Examples:*
 
+[source,jsl]
 ----
 model judo::example::shop;
 ----
 
+[source,jsl]
 ----
 model shop;
 ----
@@ -56,9 +58,11 @@ where the <model> is the fully qualified name of the imported model.
 
 *Examples:*
 
+[source,jsl]
 ----
 import judo::types;
 ----
+[source,jsl]
 ----
 import judo::types as types;
 ----
@@ -69,6 +73,7 @@ If the imported model is accessed successfully, it will be made available in the
 
 *Example:*
 
+[source,jsl]
 ----
 import judo::types as types;
 
@@ -81,6 +86,7 @@ entity Person {
 
 *Example:*
 
+[source,jsl]
 ----
 import judo::types;
 

@@ -41,6 +41,7 @@ Parameters are constraints that restrict the use of the newly created primitive 
 
 *Example:*
 
+[source,jsl]
 ----
 type boolean Boolean;
 type numeric Integer(precision = 9, scale = 0);
@@ -54,6 +55,7 @@ The <<Base types>> section provide examples of each base type and its possible c
 ====
 Instead of defining the most common primitives in each project, there is a built-in judo::types model that you can import into models. It defines the following primitives:
 
+[source,jsl]
 ----
 type boolean Boolean;
 type date Date;
@@ -65,6 +67,7 @@ type string String(min-size = 0, max-size = 4000);
 
 You can use these primitives a follows:
 
+[source,jsl]
 ----
 model shop;
 
@@ -107,6 +110,7 @@ where the <name> is the name of the enumeration, and the enumeration members are
 
 *Example:*
 
+[source,jsl]
 ----
 enum OrderStatus {
 	OPEN = 1;
@@ -133,7 +137,7 @@ The supported operators of enumeration are the following:
 * `shop::OrderStatus#OPEN == other::Color#RED` is not valid
 |======================================================================
 
-Supported functions are listed in chapter <<Enumeration functions>>.
+Supported functions are listed in chapter xref:06_expression.adoc#enumeration_functions[Enumeration functions].
 
 ////
 [NOTE]
@@ -148,7 +152,7 @@ Enumeration literals are not resolved yet by exposed services, they are represen
 ////
 
 == Base types
-
+[#string]
 === String
 
 String represents a text. String literals are delimited by double quotes. For example `"apple"`.
@@ -253,6 +257,7 @@ The optional <regular expression> is a sequence of characters that specifies a p
 
 *Example:*
 
+[source,jsl]
 ----
 type string String(min-size = 0, max-size = 128);
 type string LongString(min-size = 0, max-size = 1024);
@@ -265,11 +270,12 @@ The third string may accept only email addresses. Please note that the regular e
 
 *Example:*
 
+[source,jsl]
 ----
 type string Email(min-size = 0, max-size = 64, regex = "^\\w+@\\w+(\\.\\w+)+$");
 ----
 
-You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of string are the following:
+You can find a detailed explanation of the operators and their precedence in the xref:06_expression.adoc#operators[Operators] chapter. The supported operators of string are the following:
 
 [options="header",cols="1,1,6,5a"]
 |======================================================================
@@ -284,7 +290,7 @@ You can find a detailed explanation of the operators and their precedence in the
 * `"apple" + "tree"` is `"appletree"`
 |======================================================================
 
-Supported functions are listed in chapter <<String functions>>.
+Supported functions are listed in chapter xref:06_expression.adoc#string_functions[String functions].
 
 === Numeric
 
@@ -309,12 +315,13 @@ The number `3.14` has a precision of 3 and a scale of 2.
 
 *Example:*
 
+[source,jsl]
 ----
 type numeric Integer(precision = 9, scale = 0);
 type numeric Price(precision = 7, scale 2);
 ----
 
-You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of numeric are the following:
+You can find a detailed explanation of the operators and their precedence in the xref:06_expression.adoc#operators[Operators] chapter. The supported operators of numeric are the following:
 
 [options="header",cols="1,1,6,5a"]
 |======================================================================
@@ -336,7 +343,7 @@ You can find a detailed explanation of the operators and their precedence in the
 * `9 div 2` is `4`
 |======================================================================
 
-Supported functions are listed in chapter <<Numeric functions>>.
+Supported functions are listed in chapter xref:06_expression.adoc#numeric_functions[Numeric functions].
 
 === Boolean
 
@@ -355,21 +362,26 @@ where the <name> is the name of the domain model boolean.
 
 *Example:*
 
+[source,jsl]
 ----
-type boolean Boolean
+type boolean Boolean;
 ----
 
-You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of boolean are the following:
+You can find a detailed explanation of the operators and their precedence in the xref:06_expression.adoc#operators[Operators] chapter. The supported operators of boolean are the following:
 
 [options="header",cols="1,1,6,5a"]
 |======================================================================
 |Operator  |Result  |Meaning |Example
-|`not`     |boolean |logical negation | `not true` is `false`
-|`and`     |boolean |logical AND | `true and false` is `false`
-|`or`      |boolean |inclusive logical OR | `true and false` is `true`
-|`xor`     |boolean |exclusive logical OR | `true and true` is `false`
-|`implies` |boolean |logical material implication | `true implies false` is `false`
-|`? :`     |<any>   |conditional branching
+|```not```     |boolean |logical negation | `not true` is `false`
+|```and```     |boolean |logical AND | `true and false` is `false`
+|```or```      |boolean |inclusive logical OR | `true and false` is `true`
+|```xor```     |boolean |exclusive logical OR | `true and true` is `false`
+|```implies``` |boolean |logical material implication | `true implies false` is `false`
+|```? :```     |<any>   |conditional branching +
+The conditional branching has three operands: +
+a condition followed by a question mark (`?`), +
+then an expression to be executed if the condition is true, followed by a colon (`:`), +
+and the expression to be executed if the condition is false or undefined.
 |`true ? "A" : "B"` is `"A"`
 
 `false ? "A" : "B"` is `"B"`
@@ -402,7 +414,7 @@ Besides true and false, the result of logical expressions can also be undefined.
 |`undefined`  |`undefined`
 |=====================
 
-Supported functions are listed in chapter <<Boolean functions>>.
+Supported functions are listed in chapter xref:06_expression.adoc#boolean_functions[Boolean functions].
 
 
 === Date
@@ -422,11 +434,12 @@ where the <name> is the name of the domain model date.
 
 *Example:*
 
+[source,jsl]
 ----
 type date Date;
 ----
 
-You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of date are the following:
+You can find a detailed explanation of the operators and their precedence in the xref:06_expression.adoc#operators[Operators] chapter. The supported operators of date are the following:
 
 [options="header",cols="1,1,6,5a"]
 |======================================================================
@@ -441,13 +454,14 @@ You can find a detailed explanation of the operators and their precedence in the
 ====
 Arithmetic operators are not available for the date type. If you want to perform calculations with a date value, first convert it to a timestamp. Then use the timestamp functions and convert it back to a date type. The following example adds a week to a date.
 
+[source,jsl]
 ----
 Timestamp!of(date = `2021-02-28`)!plus(days = 7)!date()
 ----
 
 ====
 
-Supported functions are listed in chapter <<Date functions>>.
+Supported functions are listed in chapter xref:06_expression.adoc#date_functions[Date functions].
 
 === Time
 
@@ -475,6 +489,7 @@ The following examples are valid time literals.
 
 *Example:*
 
+[source,jsl]
 ----
 `23:59:59`
 `23:59`
@@ -493,11 +508,12 @@ where the <name> is the name of the domain model time.
 
 *Example:*
 
+[source,jsl]
 ----
 type time Time;
 ----
 
-You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of date are the following:
+You can find a detailed explanation of the operators and their precedence in the xref:06_expression.adoc#operators[Operators] chapter. The supported operators of date are the following:
 
 [options="header",cols="1,1,6,5a"]
 |======================================================================
@@ -509,12 +525,13 @@ You can find a detailed explanation of the operators and their precedence in the
 ====
 Arithmetic operators are not available for the time type. If you want to perform calculations with a time value, first convert it to a timestamp. Then use the timestamp functions and convert it back to a date type. The following example adds 6 hours to a time.
 
+[source,jsl]
 ----
 Timestamp!of(date = `2021-02-28`, time = `18:59:00`)!plus(hours = 6)!time()
 ----
 ====
 
-Supported functions are listed in chapter <<Time functions>>.
+Supported functions are listed in chapter xref:06_expression.adoc#time_functions[Time functions].
 
 === Timestamp
 
@@ -541,6 +558,7 @@ where the <name> is the name of the domain model timestamp.
 
 *Example:*
 
+[source,jsl]
 ----
 type timestamp Timestamp;
 ----
@@ -562,11 +580,12 @@ where
 
 *Example:*
 
+[source,jsl]
 ----
 `+02:00`
 ----
 
-You can find a detailed explanation of the operators and their precedence in the <<Operators>> chapter. The supported operators of timestamp are the following:
+You can find a detailed explanation of the operators and their precedence in the xref:06_expression.adoc#operators[Operators] chapter. The supported operators of timestamp are the following:
 
 [options="header",cols="1,1,6,5a"]
 |======================================================================
@@ -581,10 +600,10 @@ You can find a detailed explanation of the operators and their precedence in the
 
 [NOTE]
 ====
-Arithmetic operators are not available for the timestamp type. If you want to perform calculations with a timestamp value, use <<Timestamp functions>>. An easy way to use arithmetic is to convert timestamp values to milliseconds.
+Arithmetic operators are not available for the timestamp type. If you want to perform calculations with a timestamp value, use xref:06_expression.adoc#timestamp_functions[Timestamp functions]. An easy way to use arithmetic is to convert timestamp values to milliseconds.
 ====
 
-Supported functions are listed in chapter <<Timestamp functions>>.
+Supported functions are listed in chapter xref:06_expression.adoc#timestamp_functions[Timestamp functions].
 
 === Binary
 
@@ -633,16 +652,18 @@ Valid mime types and subtypes can only contain alphabetic characters, digits and
 
 *Examples:*
 
+[source,jsl]
 ----
 type binary Document (mime-types = ["application/pdf", "application/msword"], max-file-size = 10MB);
 ----
 
 The example above defines a Document type that accepts pdf or ms-word documents up to 10 megabytes in size.
 
+[source,jsl]
 ----
 type binary Image (mime-types = ["image/*"], max-file-size = 500kB);
 ----
 
 The second example defines an Image type that accepts any image format up to 500 kbytes in size.
 
-Supported functions are listed in chapter <<Binary functions>>.
+Supported functions are listed in chapter xref:06_expression.adoc#binary_functions[Binary functions].
