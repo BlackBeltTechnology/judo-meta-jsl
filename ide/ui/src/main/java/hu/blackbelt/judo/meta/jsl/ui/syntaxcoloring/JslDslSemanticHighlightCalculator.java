@@ -52,12 +52,17 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
     	};
 		
     	String[] modifiers = {
-    			"ModifierMaxLength",
+    			"ModifierMaxSize",
+    			"ModifierMinSize",
     			"ModifierRegex",
     			"ModifierPrecision",
     			"ModifierScale",
     			"ModifierMimeTypes",
     			"ModifierMaxFileSize"
+	    	};
+    	
+    	String[] QueryDeclaration = {
+    			"EntityQueryDeclaration"
 	    	};
 
     	if (resource == null) return;
@@ -84,13 +89,13 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 					
 					switch (keyword.getValue()) {
 
+					
 					case "model":
 					case "import":
 					case "error":
 					case "type":
 					case "entity":
 					case "enum":
-					case "query":
 					case "as":
 					case "abstract":
 					case "extends":
@@ -98,6 +103,21 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 								HighlightingConfiguration.KEYWORD_ID);
 						continue;
 
+					case "query":
+						boolean highlighted=false;
+						if (node.getParent().getGrammarElement() instanceof RuleCall) {
+							RuleCall parent = (RuleCall)node.getParent().getGrammarElement();
+							if (Arrays.stream(QueryDeclaration).anyMatch(parent.getRule().getName()::equals)) {	
+								acceptor.addPosition(node.getOffset(), node.getText().length(),
+										HighlightingConfiguration.FEATURE_ID);
+								highlighted=true;
+							}
+						}
+						if(!highlighted) {
+							acceptor.addPosition(node.getOffset(), node.getText().length(),
+									HighlightingConfiguration.KEYWORD_ID);
+						}
+						continue;
 					case "constraint":
 					case "field":
 					case "identifier":
@@ -118,7 +138,8 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 					case "regex":
 					case "precision":
 					case "scale":
-					case "max-length":
+					case "min-size":
+					case "max-size":
 					case "mime-types":
 					case "max-file-size":					
 						if (node.getParent().getGrammarElement() instanceof RuleCall) {
