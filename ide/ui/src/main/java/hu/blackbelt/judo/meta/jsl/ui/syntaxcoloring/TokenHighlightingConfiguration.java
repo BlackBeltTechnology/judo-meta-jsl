@@ -33,7 +33,6 @@ public class TokenHighlightingConfiguration extends
     @Override
     protected String calculateId(String tokenName, int tokenType) {
     	String[] operators = {
-    			"RULE_CONT_NL",
     			"'('",
     			"')'",
     			"'{'",
@@ -48,6 +47,7 @@ public class TokenHighlightingConfiguration extends
     			"'<'",
     			"'>'",
     			"'?'",
+    			"':'",
     			"'!='",
     			"'=='",
     			"'>='",
