@@ -2,7 +2,6 @@ ifndef::env-site,env-github[]
 include::../_attributes.adoc[]
 endif::[]
 // Settings
-:toctitle: Entity
 :idprefix:
 :idseparator: -
 :icons: font
@@ -10,6 +9,7 @@ endif::[]
 :KWE: **##
 
 = Entity
+:page-toctitle:Entity
 
 Data model is the core part of the domain model that captures the real-world entities and the rules that determine how data can be created, changed, and deleted.
 
@@ -43,6 +43,7 @@ where the <name> is the name of the entity, and the entity members are defined b
 
 *Example:*
 
+[source,jsl]
 ----
 entity Person {
 }
@@ -54,6 +55,7 @@ An entity can be defined as an abstract using the keyword `abstract`. An abstrac
 
 *Example:*
 
+[source,jsl]
 ----
 entity abstract User {
 }
@@ -113,9 +115,9 @@ Use the `field` keyword to specify a primitive field within an entity.
 
 where <primitive> is the name of a domain model primitive and <name> is the referable name of the primitive field.
 
-The keyword `required` means that the value of the field must be specified, so the value is not allowed to be UNDEFINED. Each newly created entity instance must set this field.
+The keyword `required` means that the value of the field must be specified, so the value is not allowed to be undefined. Each newly created entity instance must set this field.
 
-Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the field is set according to the default value expression. See <<Expression>> later.
+Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the field is set according to the default value expression. See xref:06_expression.adoc[Expression] later.
 
 [NOTE]
 ====
@@ -124,6 +126,7 @@ The `self` variable cannot be used in default expressions.
 
 *Example:*
 
+[source,jsl]
 ----
 entity Person {
     field required String firstName;
@@ -150,9 +153,9 @@ Use the `identifier` keyword to specify a unique field within an entity.
 
 where <primitive> is the name of a domain model primitive and <name> is the referable name of the identifier. Any primitive type can be used as an identifier, except primitives of binary base type.
 
-The keyword `required` means that the value of the identifier must be specified, so the value is not allowed to be UNDEFINED.
+The keyword `required` means that the value of the identifier must be specified, so the value is not allowed to be undefined.
 
-Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the identifier is set according to the default value expression. See <<Expression>> later.
+Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the identifier is set according to the default value expression. See xref:06_expression.adoc[] later.
 
 [NOTE]
 ====
@@ -161,6 +164,7 @@ The `self` variable cannot be used in default expressions.
 
 *Example:*
 
+[source,jsl]
 ----
 entity User {
     identifier required String email;
@@ -228,10 +232,11 @@ where <entity> is the name of an entity to which the relation is targeted. The <
 
 The optional `[]` behind the <entity> indicates that the relation is a collection rather than a single reference to one <entity> instance. In other words, the cardinality of the relation is a collection.
 
-The keyword `required` means that the value of the relation must be specified, so the value is not allowed to be UNDEFINED. Each newly created entity instance must set this field. The keyword `required` is not allowed for collections.
+The keyword `required` means that the value of the relation must be specified, so the value is not allowed to be undefined. Each newly created entity instance must set this field. The keyword `required` is not allowed for collections.
 
 *Example:*
 
+[source,jsl]
 ----
 entity Customer {
 	relation Order[] orders;
@@ -263,6 +268,7 @@ Both ends of a bidirectional relation cannot be required at the same time.
 
 *Example:*
 
+[source,jsl]
 ----
 entity Customer {
 	relation Order[] orders opposite customer;
@@ -292,12 +298,26 @@ The example below defines a bidirectional relation. Defining the `product` relat
 
 *Example:*
 
+[source,jsl]
 ----
 entity OrderItem {
 	relation required Product product opposite-add orderItems[];
 }
 
 entity Product {
+}
+----
+
+The model in the above example is equivalent to the following example.
+
+[source,jsl]
+----
+entity OrderItem {
+	relation required Product product opposite orderItems;
+}
+
+entity Product {
+    relation OrderItem orderItems[] opposite product;
 }
 ----
 
@@ -329,7 +349,7 @@ where <entity> is the name of an entity and <name> is the referable name of the 
 
 The optional `[]` indicates that the composite field stores a list of entity instances rather than a single <entity> instance. In other words, the cardinality of the field is a collection.
 
-The keyword `required` means that the value of the field must be specified, so the value is not allowed to be UNDEFINED. Each newly created entity instance must set this field. The keyword `required` is not allowed for collections.
+The keyword `required` means that the value of the field must be specified, so the value is not allowed to be undefined. Each newly created entity instance must set this field. The keyword `required` is not allowed for collections.
 
 ////
 Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the field is set according to the default value expression. See <<Expression>> later.
@@ -342,6 +362,7 @@ The `self` variable cannot be used in default expressions.
 
 *Example:*
 
+[source,jsl]
 ----
 entity Address {
     field required String line1;
@@ -382,7 +403,9 @@ where <primitive> is the name of a domain model primitive, and <name> is the ref
 
 where the <entity> is the name of an entity, and <name> is the referable name of the derived member. The optional `[]` indicates that the derived member returns a collection rather than a single reference to one <entity>.
 
-The <getter> expression returns the value of the derived member whenever it is requested. See <<Expression>> later.
+The <getter> expression returns the value of the derived member whenever it is evaluated. The moment of evaluation needs explanation. Derived fields that return a primitive value are evaluated immediately when the owner entity is referenced. However, if a derived returns an entity reference or collection, its derived expression is only evaluated during navigation.
+
+See xref:06_expression.adoc[Expression] later.
 
 [NOTE]
 ====
@@ -391,6 +414,7 @@ Note that the derived members use the arrow operator (\=>) instead of the assign
 
 *Example:*
 
+[source,jsl]
 ----
 entity Person {
     field required String firstName;
@@ -404,6 +428,7 @@ The example above defines two stored fields and a derived member. The name of th
 
 *Example:*
 
+[source,jsl]
 ----
 entity Customer extends User, Person {
 	derived Order[] undeliveredOrders =>
@@ -420,11 +445,7 @@ A query is a request that retrieves a primitive or entities. Each query has a re
 There are two main differences between queries and derived members.
 
 * queries can have arguments, and
-* queries are never evaluated automatically
-
-The moment of evaluation needs explanation. Queries are never evaluated automatically, and their return values will only be calculated when the query is invoked.
-
-The moment of derived fields evaluation is a bit more complicated. Derived fields that return a primitive value are evaluated immediately when the entity is referenced. However, if a derived returns an entity reference or collection, its derived expression is only evaluated during navigation.
+* queries are never evaluated automatically, their return values will only be calculated when the query is invoked.
 
 There are two types of queries
 
@@ -455,7 +476,7 @@ where <primitive> is the name of a domain model primitive that will be returned,
 
 where the <entity> is the name of an entity that will be returned, and <name> is the referable name of the query. The optional `[]` indicates that the query returns a list of <entity> instances rather than a single reference to one <entity>.
 
-The <expression> calculates the return value of the query whenever it is requested. See <<Expression>> later.
+The <expression> calculates the return value of the query whenever it is requested. See xref:06_expression.adoc[Expression] later.
 
 [NOTE]
 ====
@@ -466,6 +487,7 @@ The optional comma separated list is the arguments of the <expression>. The argu
 
 *Example:*
 
+[source,jsl]
 ----
 entity Customer {
 	relation Order[] orders opposite customer;
@@ -475,7 +497,7 @@ entity Customer {
 }
 ----
 
-The example above shows the query `ordersBetween`, which has two arguments (`min` and `max`). It returns the orders of a customer with a price between `min` and `max`. If no arguments are specified when executing `ordersBetween`, the query returns orders between 0 and 100. For more details about expressions, see the chapter <<Expression>>.
+The example above shows the query `ordersBetween`, which has two arguments (`min` and `max`). It returns the orders of a customer with a price between `min` and `max`. If no arguments are specified when executing `ordersBetween`, the query returns orders between 0 and 100. For more details about expressions, see the chapter xref:06_expression.adoc[Expression].
 
 === Static query
 
@@ -485,6 +507,7 @@ The syntax of the static query declaration is the same as the syntax of the inst
 
 *Example:*
 
+[source,jsl]
 ----
 entity Customer {
 	relation Order[] orders opposite customer;
@@ -517,6 +540,7 @@ The `extends` keyword in the entity declaration indicates that an entity is inhe
 
 *Example:*
 
+[source,jsl]
 ----
 entity Person {
 	field required String firstName;
@@ -534,6 +558,7 @@ In the above example the Customer entity inherits the three fields of the Person
 
 *Example:*
 
+[source,jsl]
 ----
 entity Person {
 	field required String firstName;

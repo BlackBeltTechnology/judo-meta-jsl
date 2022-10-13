@@ -24,6 +24,7 @@ An expression is evaluated to a value, which can be primitive value (e.g. `42` o
 
 *Examples:*
 
+[source,jsl]
 ----
 // it is a single line expression
 derived String fullName => self.firstName + " " + self.lastName;
@@ -34,11 +35,12 @@ derived String fullName => self.firstName +
                           self.lastName;
 ----
 
+[#operators]
 == Operators
 
-Operators usually perform a function on two operands. Operators that require two operands are binary operators. For example, the `+` operator is a binary operator that sums the values of the right and left operands.
+Operators usually perform a function on two operands. Operators that require two operands are binary operators. For example, the `*` operator is a binary operator that multiplies the values of the right and left operands.
 
-There are two exceptions that have different numbers of operands. The logical negation operator has only one operand, the conditional (ternary) operator has three operands.
+There are four exceptions that have different numbers of operands. The logical negation (`not`) has only one operand, the arithmetic minus (`-`) and plus (`+`) may have only one operand (e.g. `-3`, `+3`), the conditional (ternary) operator has three operands.
 
 An operator also returns a value. The value and its type depends on the operator and the type of its operands. For example, the arithmetic operators (perform basic arithmetic operations such as addition and subtraction) return numbers. The data type returned by the arithmetic operators depends on the type of its operands: if you add two integers, you get an integer back. An operation is said to evaluate to its result.
 
@@ -85,6 +87,7 @@ The starting point of the navigation can be
 
 *Examples:*
 
+[source,jsl]
 ----
 // a navigation starting from static collection
 derived Products[] orderedProducts => shop::Order.items.product;
@@ -103,7 +106,7 @@ Navigation types can also be classified as follows.
 
 When navigating from a single instance, the result of the navigation depends on the cardinality of the relation being navigated.
 
-* If the cardinality of the relation being navigated is single, the navigation returns a single entity instance or an UNDEFINED value.
+* If the cardinality of the relation being navigated is single, the navigation returns a single entity instance or undefined.
 
 * If the cardinality of the relation being navigated is collection, the navigation returns a collection even if there is no actual instance or there is only one instance in the collection.
 
@@ -117,6 +120,7 @@ Both derived and stored field values of an entity can be read in expressions. To
 
 *Examples:*
 
+[source,jsl]
 ----
 derived String productName => self.product.name;
 ----
@@ -131,6 +135,7 @@ Query arguments can be literals only (e.g. `121`, `"apple"`, `true` etc.).
 
 *Examples:*
 
+[source,jsl]
 ----
 derived Customer[] havingOrdersBetween0and10 => shop::ordersBetween(min = 0, max = 10).customer;
 ----
@@ -152,6 +157,7 @@ where <navigation> is a valid navigation expression and <function> is the name o
 
 *Examples:*
 
+[source,jsl]
 ----
 derived Integer count => self.items!size();
 derived Integer nameLength => self.fullName!size();
@@ -174,6 +180,7 @@ where <type> is a valid domain model primitive and <function> is the name of the
 
 *Example:*
 
+[source,jsl]
 ----
 field Time tm = Time!of(hour = 23, minute = 59, second = 59);
 ----
@@ -195,6 +202,7 @@ where <variable> is the name of the iterator variable that will iterate through 
 
 *Examples:*
 
+[source,jsl]
 ----
 derived Integer averagePrice => self.orders!avg(order | order.price);
 ----
@@ -203,11 +211,12 @@ In the example above, we navigate to a collection orders and define an iterator 
 
 Functions can also be chained. For example the expression below filters the orders based on their price, then it returns the average price of the filtered orders.
 
+[source,jsl]
 ----
 self.orders!filter(order | order.price > 100)!avg(order | order.price)
 ----
 
-The list of available functions can be found in section <<Functions>>.
+The list of available functions can be found in section <<List of functions>>.
 
 Iterator variables are only accessible in parentheses where they have been defined. In other words, the scope of the iterator variable is limited to after the `|` (pipe) character. If the iterator expression contains another iterator function, the iterator variable of the embedding iterator function is not accessible within the embedded iterator function.
 
@@ -219,6 +228,7 @@ Even though `self` and the iterators of embedding functions cannot be used in fu
 
 The following example selects a customer's orders that are cheaper than average order prices.
 
+[source,jsl]
 ----
 entity Customer {
 	relation Order[] orders opposite customer;
@@ -292,21 +302,25 @@ Get next Order number: `Long!getVariable(category = "SEQUENCE", key = "Order")`
 
 == Undefined
 
-Field selectors and navigations can evaluate to undefined. Since undefined is not a possible value of any data type, it is not considered a __value__, but rather a marker (or placeholder) indicating the absence of value.
-
-Any expression containing undefined value will also evaluate to undefined, e.g. `self.optionalAttribute + 2` will result undefined if `self.optionalAttribute` is not set.
-
-In the case of logical values comparisons with undefined can never result in either true or false, but always in a third logical result, undefined.
-
-Navigations from undefined references will also result in undefined. In other words, if any part of a navigation or function chain results undefined, the result of the whole navigation will be undefined. For example, `self.instances.other` will evaluate to undefined, when `self.instances` is undefined.
-
-Functions applied on undefined references will also result in undefined. For example, `self.instances!size()` will evaluate to undefined instead of 0, when `self.instances` is undefined. The only exceptions are the `isDefined()` and `isUndefined()` functions. `self.name!isDefined()` will evaluate to `false` if `self.name` is undefined, and `self.name!isUndefined()` will evaluate to `false` if `self.name` is undefined.
+Field selectors, navigations and expressions can evaluate to undefined. Since undefined is not a possible value of any data type, it is not considered a __value__, but rather a marker (or placeholder) indicating the absence of value.
 
 In arithmetic expressions, any occurrence of undefined results in an undefined value. The expression `self.a + self.b` results in undefined if `self.a` or `self.b` is undefined.
 
 The expression `self.firstName + " " + self.lastName` results in an undefined string if `self.firstName` or `self.lastName` is undefined.
 
-To check if a field or relation is undefined use the `isDefined()` or `isUndefined()` functions. See <<Any type functions>>.
+In the case of logical values, the comparison with undefined can never result in either true or false, but always a third logical result, undefined.
+
+Navigations from undefined references will also result in undefined. In other words, if any part of a navigation or function chain results undefined, the result of the whole navigation will be undefined. For example, `self.customer.name` will evaluate to undefined, when `self.customer` is undefined.
+
+Functions applied on undefined references will also result in undefined. For example, `self.name!size()` will evaluate to undefined instead of 0, when `self.name` is undefined. The only exceptions are the `isDefined()`, `isUndefined()` and `orElse()` functions:
+
+* `self.name!isDefined()` will evaluate to `false` if `self.name` is undefined.
+* `self.name!isUndefined()` will evaluate to `true` if `self.name` is undefined.
+* `self.name!orElse(value = "unknown")` will evaluate to `"unknown"` if `self.name` is undefined.
+
+The conditional ternary operator executes the false branch if the condition evaluates to undefined. `self.name == "" ? "A" : "B"` is `"B"` if the `self.name` is undefined.
+
+There is no literal for undefined in JSL, thus to check if a field, relation or the result of an expression is undefined use the `isDefined()` or `isUndefined()` functions. See <<Any type functions>>.
 
 ////
 
@@ -384,22 +398,19 @@ Any type functions can be applied to any type or instance except collections.
 |`[purple]#**orElse(value = **#<value>[purple]##**)**## : <type>`
 |Returns <value> if the given expression to which it is applied returns undefined. Otherwise, it returns the value of the given expression. The type of <value> must be the same as the given expression.
 |Examples:
-|`"apple"!orElse("grape")` is `"apple"`
-|`2!orElse(3)` is `2`
-|`self.name!orElse("unknown")` is `"unknown"` if `self.name` is `UNDEFINED`, otherwise it returns the value of `self.name`.
+|`"apple"!orElse(value = "grape")` is `"apple"`
+|`2!orElse(value = 3)` is `2`
+|`self.name!orElse(value = "unknown")` is `"unknown"` if `self.name` is undefined, otherwise it returns the value of `self.name`.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**getVariable(category = **#<value>[purple]##**, key = **##<key>[purple]##**)**## : <type>`
 |Static function, returns the value of an external variable using <category> and <key> pair that are evaluated at runtime.
-|See more details in chapter <<External variables>>.
-|Examples:
-|`"apple"!orElse("grape")` is `"apple"`
-|`2!orElse(3)` is `2`
-|`self.name!orElse("unknown")` is `"unknown"` if `self.name` is `UNDEFINED`, otherwise it returns the value of `self.name`.
+|See more details and the examples in chapter <<External variables>>.
 |======================================================================
 
+[#string_functions]
 === String functions
 
 [options="header",grid="none",cols="1a"]
@@ -461,7 +472,7 @@ Any type functions can be applied to any type or instance except collections.
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**matches(pattern = **#<pattern>[purple]##**)**## : boolean`
-|Returns `true` if the string matches a given regular expression <pattern>, `false` otherwise. A detailed description of the regular expression can be found in the <<String>> section.
+|Returns `true` if the string matches a given regular expression <pattern>, `false` otherwise. A detailed description of the regular expression can be found in the xref:04_types.adoc#string[String] section.
 |Example: `"apple"!matches(pattern = r".*pl.")` is `true`
 |======================================================================
 
@@ -535,6 +546,7 @@ If either of these two signs is not used in the <pattern>, then the function act
 |`"app"!rpad(size = 7, padstring = "le")` is `"applele"`
 |======================================================================
 
+[#numeric_functions]
 === Numeric functions
 
 [options="header",grid="none",cols="1a"]
@@ -546,8 +558,8 @@ If either of these two signs is not used in the <pattern>, then the function act
 |`7.89!round()` is `8`
 |`7.89!round(scale = 1)` is `7.9`
 |`2.50!round()` is `3`
-|`-2.5!round()` is `-3`
-|`-7.89!round()` is `-8`
+|`(-2.5)!round()` is `-3`
+|`(-7.89)!round()` is `-8`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -557,7 +569,7 @@ If either of these two signs is not used in the <pattern>, then the function act
 |Example:
 |`1!floor()` is `1`
 |`2.9!floor()` is `2`
-|`-2.9!floor()` is `-3`
+|`(-2.9)!floor()` is `-3`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -567,7 +579,7 @@ If either of these two signs is not used in the <pattern>, then the function act
 |Example:
 |`1!ceil()` is `1`
 |`2.9!ceil()` is `3`
-|`-2.9!ceil()` is `-2`
+|`(-2.9)!ceil()` is `-2`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -577,7 +589,7 @@ If either of these two signs is not used in the <pattern>, then the function act
 |Example:
 |`1!abs()` is `1`
 |`2.9!abs()` is `2.9`
-|`-3!abs()` is `3`
+|`(-3)!abs()` is `3`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -587,6 +599,12 @@ If either of these two signs is not used in the <pattern>, then the function act
 |Example: `123456.789!asString()` is `"123456.789"`
 |======================================================================
 
+[NOTE]
+====
+Be careful when calling numeric functions on negative constant values! Since the precedence of the function call (`!`) is higher than the precedence of the minus operator (`-`), the functions are called first and only then is the arithmetic negation performed. For example, if you want to calculate the absolute value of `-3`, enclose the constant in parentheses: `(-3)!abs()`. Without parentheses, the expression `-3!abs()` returns `-3`.
+====
+
+[#boolean_functions]
 === Boolean functions
 
 [options="header",grid="none",cols="1a"]
@@ -596,6 +614,7 @@ If either of these two signs is not used in the <pattern>, then the function act
 |Example: `true!asString()` is `"true"`
 |======================================================================
 
+[#date_functions]
 === Date functions
 
 [options="header",grid="none",cols="1a"]
@@ -647,6 +666,7 @@ If either of these two signs is not used in the <pattern>, then the function act
 |Example: `&#x60;2021-03-02&#x60;!asString()` is `"2021-03-02"`
 |======================================================================
 
+[#time_functions]
 === Time functions
 
 [options="header",grid="none",cols="1a"]
@@ -684,6 +704,7 @@ If either of these two signs is not used in the <pattern>, then the function act
 |Example: `&#x60;23:15:59&#x60;!asString()` is `"23:15:59"`
 |======================================================================
 
+[#timestamp_functions]
 === Timestamp functions
 
 [options="header",grid="none",cols="1a"]
@@ -751,6 +772,7 @@ Examples:
 |Example: `&#x60;2019-07-18T01:11:12Z&#x60;!asString()` is `"2019-07-18T01:11:12Z"`
 |======================================================================
 
+[#binary_functions]
 === Binary functions
 
 There are no binary functions.
@@ -778,6 +800,7 @@ There are no binary functions.
 |======================================================================
 ////
 
+[#enumeration_functions]
 === Enumeration functions
 
 [options="header",grid="none",cols="1a"]
@@ -822,7 +845,7 @@ Makes sense in JCL only.
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**asType(entityType = **#<entityType>[purple]##**)**## : instance`
-|Returns the given instance as the <entityType> if the type of the given instance matches to <entityType>, otherwise evaluates as `undefined`. In other words, the function "casts" the instance. Type matching works according to the `kindOf()` function.
+|Returns the given instance as the <entityType> if the type of the given instance matches to <entityType>, otherwise evaluates as undefined. In other words, the function "casts" the instance. Type matching works according to the `kindOf()` function.
 |Example: `self.field!asType(entityType = MyApplication::MyEntity)`
 |======================================================================
 
@@ -908,7 +931,7 @@ Makes sense in JCL only.
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**anyTrue(**#<variable name> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
-|Returns true if the logical expression is true for any element in the collection.
+|Returns true if the logical expression is true for any element in the collection. Note that the return value is false for an empty collection.
 |Example: `self.orderDetails!anyTrue(od \| od.price < 10)`
 |======================================================================
 
@@ -916,21 +939,21 @@ Makes sense in JCL only.
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**allTrue(**#<variable name> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
-|Returns true if the logical expression is true for all the collection elements.
+|Returns true if the logical expression is true for all the collection elements. If there is an element for which <logical expression> is false or undefined, then the return value is false. Note that the return value is true for an empty collection.
 |Example: `self.orderDetails!allTrue(od \| od.price < 10)`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**anyFalse(**#<variable name> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
-|Returns true if the logical expression is false for any element in the collection.
+|Returns true if the logical expression is false for any element in the collection. Note that the return value is false for an empty collection.
 |Example: `self.orderDetails!anyFalse(od \| od.price < 10)`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**allFalse(**#<variable name> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
-|Returns true if the logical expression is false for all the collection elements.
+|Returns true if the logical expression is false for all the collection elements. If there is an element for which <logical expression> is true or undefined, then the return value is false. Note that the return value is true for an empty collection.
 |Example: `self.orderDetails!allFalse(od \| od.price < 10)`
 |======================================================================
 

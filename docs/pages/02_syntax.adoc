@@ -47,6 +47,7 @@ The following example is syntactically valid.
 
 *Example:*
 
+[source,jsl]
 ----
 model shop;
 
@@ -67,6 +68,7 @@ Keywords are predefined, reserved words used in JSL that have special meanings i
 
 Keywords cannot be used directly as element names. If you still want to use these reserved words as element names, the words must be enclosed in back-tick (```) characters as shown in the example below.
 
+[source,jsl]
 ----
 field String `model`;
 ----
