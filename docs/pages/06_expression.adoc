@@ -931,7 +931,7 @@ Makes sense in JCL only.
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**anyTrue(**#<variable name> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
-|Returns true if the logical expression is true for any element in the collection.
+|Returns true if the logical expression is true for any element in the collection. Note that the return value is false for an empty collection.
 |Example: `self.orderDetails!anyTrue(od \| od.price < 10)`
 |======================================================================
 
@@ -939,21 +939,21 @@ Makes sense in JCL only.
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**allTrue(**#<variable name> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
-|Returns true if the logical expression is true for all the collection elements.
+|Returns true if the logical expression is true for all the collection elements. If there is an element for which <logical expression> is false or undefined, then the return value is false. Note that the return value is true for an empty collection.
 |Example: `self.orderDetails!allTrue(od \| od.price < 10)`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**anyFalse(**#<variable name> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
-|Returns true if the logical expression is false for any element in the collection.
+|Returns true if the logical expression is false for any element in the collection. Note that the return value is false for an empty collection.
 |Example: `self.orderDetails!anyFalse(od \| od.price < 10)`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**allFalse(**#<variable name> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
-|Returns true if the logical expression is false for all the collection elements.
+|Returns true if the logical expression is false for all the collection elements. If there is an element for which <logical expression> is true or undefined, then the return value is false. Note that the return value is true for an empty collection.
 |Example: `self.orderDetails!allFalse(od \| od.price < 10)`
 |======================================================================
 
