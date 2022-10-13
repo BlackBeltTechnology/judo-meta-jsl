@@ -88,14 +88,14 @@ entity Customer extends User, Person {
 entity Order {
 	field required OrderStatus status = OrderStatus#OPEN;
 	relation required Customer customer opposite orders;
-	field OrderItem[] items;
+	field OrderItem[] orderItems;
 	field required Timestamp creationTime = Timestamp!now();
 	
-	derived Price price => self.items!sum(item | item.price);
+	derived Price price => self.orderItems!sum(item | item.price);
 }
 
 entity OrderItem {
-	relation required Product product opposite-add orderItems;
+	relation required Product product opposite-add orderItems[];
 
 	field required Price productPrice;
 	field required Integer amount;
@@ -108,6 +108,8 @@ entity Product {
 	field required Price price;
 }
 ----
+
+// diagram should be updated
 
 [plantuml, target=diagram-classes, format=png]
 ....
@@ -186,43 +188,43 @@ package shop {
 
 together {
 	class Address << Entity >>  {
-		+<b>line1</b> : String
+		+**line1** : String
 		+line2 : String
-		+<b>country</b> : String
-		+<b>city</b> : String
-		+<b>zipCode</b> : String
+		+**country** : String
+		+**city** : String
+		+**zipCode** : String
 	}
 	class Person << Entity >>  {
-		+<b>firstName</b> : String
-		+<b>lastName</b> : String
-		~<i>fullName</i> : String
+		+**firstName** : String
+		+**lastName** : String
+		~//fullName// : String
 	}
 	class User <<  Abstract >>   {
-		+<u><b>email</b></u> : Email
+		+<u>**email**</u> : Email
 	}
 	class Customer << Entity >> extends User, Person {
-		+<b>address</b> : Address
-		~<i>undeliveredOrders</i> : Order[0..*]
+		+**address** : Address
+		~//undeliveredOrders// : Order[0..*]
 	}
 	class Order << Entity >>  {
-		+<b>status</b> : OrderStatus
-		+items : OrderItem[0..*]
-		+<b>creationTime</b> : Timestamp
-		~<i>price</i> : Price
+		+**status** : OrderStatus
+		+orderItems : OrderItem[0..*]
+		+**creationTime** : Timestamp
+		~//price// : Price
 	}
 	class OrderItem << Entity >>  {
-		+<b>productPrice</b> : Price
-		+<b>amount</b> : Integer
-		~<i>price</i> : Price
+		+**productPrice** : Price
+		+**amount** : Integer
+		~//price// : Price
 	}
 	class Product << Entity >>  {
-		+<b>name</b> : String
-		+<b>price</b> : Price
+		+**name** : String
+		+**price** : Price
 	}
 	
 
 	Customer  "customer\n[1..1]" --   "orders\n[0..*]" Order
-	OrderItem  "orderItems\n[0..1]" --   "product\n[1..1]" Product
+	OrderItem  "orderItems\n[0..*]" --   "product\n[1..1]" Product
 
 
 }
