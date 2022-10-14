@@ -90,10 +90,10 @@ The starting point of the navigation can be
 [source,jsl]
 ----
 // a navigation starting from static collection
-derived Products[] orderedProducts => shop::Order.items.product;
+derived Products[] orderedProducts => shop::Order.orderItems.product;
 
 // a navigation starting from self variable in Order entity
-derived Products[] orderedProducts => self.items.product;
+derived Products[] orderedProducts => self.orderItems.product;
 ----
 
 Navigation can be chained, which means that you can navigate further from a navigation result.
@@ -159,11 +159,11 @@ where <navigation> is a valid navigation expression and <function> is the name o
 
 [source,jsl]
 ----
-derived Integer count => self.items!size();
+derived Integer count => self.orderItems!size();
 derived Integer nameLength => self.fullName!size();
 ----
 
-The `self.items!size()` evaluates to an integer, it returns the number of the ordered items in the order. The expression `self.fullName!size()` will return the number of characters in the customers's name field (assuming it is a String type).
+The `self.orderItems!size()` evaluates to an integer, it returns the number of the ordered items in the order. The expression `self.fullName!size()` will return the number of characters in the customers's name field (assuming it is a String type).
 
 === Static functions
 
@@ -204,7 +204,7 @@ where <variable> is the name of the iterator variable that will iterate through 
 
 [source,jsl]
 ----
-derived Integer averagePrice => self.orders!avg(order | order.price);
+derived Integer averagePrice => self.orders!avg(field = price);
 ----
 
 In the example above, we navigate to a collection orders and define an iterator variable named `order`. Then, we read the `price` field of orders and pass this list to the `avg` built-in function. The example calculates the average price of the orders.
@@ -213,7 +213,7 @@ Functions can also be chained. For example the expression below filters the orde
 
 [source,jsl]
 ----
-self.orders!filter(order | order.price > 100)!avg(order | order.price)
+self.orders!filter(order | order.price > 100)!avg(field = price)
 ----
 
 The list of available functions can be found in section <<List of functions>>.
@@ -233,7 +233,7 @@ The following example selects a customer's orders that are cheaper than average 
 entity Customer {
 	relation Order[] orders opposite customer;
 
-    derived Price avgPrice => self.orders!avg(order | oorder.price);
+    derived Price avgPrice => self.orders!avg(field = price);
     derived Order[] belowAvgOrders => self.orders!filter(order | order.price < order.customer.avgPrice);
 }
 ----
@@ -383,14 +383,18 @@ Any type functions can be applied to any type or instance except collections.
 |======================================================================
 |`[purple]#**isDefined()**# : boolean`
 |Evaluates to true if the value exists. Note, that `isDefined()` cannot be used for collections.
-|Example: `"apple"!isDefined()` is `true`
+|Example:
+|`"apple"!isDefined()` is `true`
+|`self.line2!isDefined()` is `true` if `line2` field has a value, otherwise `false`.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**isUndefined()**# : boolean`
 |Evaluates to true if the value does not exist, e.g. it is undefined. Note, that `isUndefined()` cannot be used for collections.
-|Example: `"apple"!isUndefined()` is `false`
+|Example:
+|`"apple"!isUndefined()` is `false`
+|`self.line2!isUndefined()` is `false` if `line2` field has a value, otherwise `true`.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -807,7 +811,7 @@ There are no binary functions.
 |======================================================================
 |`[purple]#**asString()**# : string`
 |Enumeration literal as string.
-|Example: `Title#MRS!asString()` is `"MRS"`
+|Example: `OrderStatus#OPEN!asString()` is `"OPEN"`
 |======================================================================
 
 === Instance functions
@@ -826,34 +830,40 @@ Makes sense in JCL only.
 |======================================================================
 |`[purple]#**typeOf(entityType = **#<entityType>[purple]##**)**## : boolean`
 |Evaluates to `true` if the given instance conforms to the <entityType> but not any subtype of the <entityType>.  That is, an instance of <entityType> and not an instance of any subtype of <entityType>.
-|Example: `self.field!typeOf(entityType = Lib::MyType)`
+|Example:
+|`self.customer!typeOf(entityType = shop::Customer)` is `true` if `self.customer` is a customer, but neither an enterprise nor a person. For the model, see the xref:01_into.adoc[Introduction] chapter.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**kindOf(entityType = **#<entityType>[purple]##**)**## : boolean`
 |Evaluates to `true` if the given instance conforms to the <entityType>. That is, an instance of <entityType> or an instance of any subtype of <entityType>.
-|Example: `self.field!kindOf(entityType = Lib::MyType)`
+|Example:
+|`self.customer!kindOf(entityType = shop::Customer)` is `true` if `self.customer` is either a customer, an enterprise, or a person. For the model, see the xref:01_into.adoc[Introduction] chapter.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**container(entityType = **#<entityType>[purple]##**)**## : instance`
-|Returns the container of the instance if that matches the given <entityType>. Type matching works according to the `typeOf()` function.
+|Returns the container of the instance if that matches the given <entityType>. Type matching works according to the `kindOf()` function.
+|Example:
+|`self!container(entityType = shop::Customer)` navigates from the Address to the Customer if the container is an instance of Customer or any subtype of Customer (Enterprise or Person). For the model, see the xref:01_into.adoc[Introduction] chapter.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**asType(entityType = **#<entityType>[purple]##**)**## : instance`
 |Returns the given instance as the <entityType> if the type of the given instance matches to <entityType>, otherwise evaluates as undefined. In other words, the function "casts" the instance. Type matching works according to the `kindOf()` function.
-|Example: `self.field!asType(entityType = MyApplication::MyEntity)`
+|Example:
+|`self.customer!asType(entityType = shop::Enterprise)` navigates from Order to Customer and it returns an Enterprise instance. If the result of the navigation is a Person, it returns undefined. For the model, see the xref:01_into.adoc[Introduction] chapter.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**memberOf(instances = **#<instances>[purple]##**)**## : boolean`
 |Indicates if the <instances> collection contains the given instance.
-// | TODO examples
+|Example:
+|`self!memberOf(shop::Enterprise.orders.orderItems.product)` within a product, it checks whether it has ever been ordered by any enterprise. For the model, see the xref:01_into.adoc[Introduction] chapter.
 |======================================================================
 
 === Collection functions
@@ -871,28 +881,31 @@ Makes sense in JCL only.
 |======================================================================
 |`[purple]#**head(field = **#<field> &#x5B;[purple]##**, reverse = **## <reverse>][purple]##**)**## : collection`
 |First, it sorts the given collection by the <field>, and then it returns a collection containing the first elements. If there is more than one element in the first place, all elements in the first place will be included in the result. The <field> is the name of an entity field or derived. The field must have a primitive type. The optional <reverse> is a boolean value. If <reverse> is true the collection will be sorted in descending order, otherwise in ascending order.
-// | TODO examples, and table
+| Example:
+|`self.orderItems.product!head(field = price, reverse = true)` returns the highest priced products of an order.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**tail(field = **#<field> &#x5B;[purple]##**, reverse = **## <reverse>][purple]##**)**## : collection`
 |First, it sorts the given collection by the <field>, and then it returns a collection containing all of the non-first elements. If there is more than one element in the first place, all elements in the first place will be omitted from the result. The <field> is the name of an entity field or derived. The field must have a primitive type. The optional <reverse> is a boolean value. If <reverse> is true the collection will be sorted in descending order, otherwise in ascending order.
-// | TODO examples, and table
+|Example:
+|`self.orderItems.product!tail(field = price, reverse = true)` returns all products in the order except the highest priced products.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**any()**# : instance`
 |Returns an arbitrary element of a collection.
-// | TODO examples
+|Example:
+|`self.orderItems!any()` returns one of the items in the order.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**size()**# : numeric`
 |Returns the number of elements of a collection.
-// |TODO: examples
+|`self.orderItems!size()` returns the number of the items in the order.
 |======================================================================
 
 ////
@@ -911,20 +924,24 @@ Makes sense in JCL only.
 |======================================================================
 |`[purple]#**asCollection(entityType = **#<entityType>[purple]##**)**## : collection`
 |Filters the collection according to <entityType> and returns a collection of the parameter <entityType>. Members of the collection that are not of that <entityType> are not included in the result. Type matching works according to the kindOf() function.
-// |Example: TODO
+|Example:
+|`shop::Order.customer!asCollection(entityType = shop::Enterprise)` returns all enterprises that have at least one order.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**contains(instance = **#<instance>[purple]##**)**## : boolean`
 |Indicates if the given collection contains the given <instance>.
+|Example:
+|`shop::Enterprise.orders.orderItems.product!contains(shop::Product!filter(p \| p.name == "gadget").any())` checks whether there is an enterprise that has already ordered the product named "gadget".
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**filter(**#<variable> [purple]##**\|**## <logical expression>[purple]##**)**## : collection`
 |Filters the collection according to the <logical expression> and returns a collection. Members of the collection that do not match the logical expression are not included in the result.
-|Example: `self.orderDetails!filter(od \| od.price < 10)`
+|Example:
+|`self.orderItems!filter(od \| od.price > 10)` collects order items more expensive than 10.
 |======================================================================
 
 // "exists" in previous version
@@ -932,7 +949,8 @@ Makes sense in JCL only.
 |======================================================================
 |`[purple]#**anyTrue(**#<variable> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
 |Returns true if the logical expression is true for any element in the collection. Note that the return value is false for an empty collection.
-|Example: `self.orderDetails!anyTrue(od \| od.price < 10)`
+|Example:
+|`self.orderItems!anyTrue(od \| od.price > 10)` checks if there is an item in the order that is more expensive than 10.
 |======================================================================
 
 // "forAll" in previous version 
@@ -940,21 +958,24 @@ Makes sense in JCL only.
 |======================================================================
 |`[purple]#**allTrue(**#<variable> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
 |Returns true if the logical expression is true for all the collection elements. If there is an element for which <logical expression> is false or undefined, then the return value is false. Note that the return value is true for an empty collection.
-|Example: `self.orderDetails!allTrue(od \| od.price < 10)`
+|Example:
+|`self.orderDetails!allTrue(od \| od.price > 10)` checks that all items in the order are more expensive than 10.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**anyFalse(**#<variable> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
 |Returns true if the logical expression is false for any element in the collection. Note that the return value is false for an empty collection.
-|Example: `self.orderDetails!anyFalse(od \| od.price < 10)`
+|Example:
+|`self.orderDetails!anyFalse(od \| od.price > 10)` returns true if there is an item in the order that is equal to or cheaper than 10.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**allFalse(**#<variable> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
 |Returns true if the logical expression is false for all the collection elements. If there is an element for which <logical expression> is true or undefined, then the return value is false. Note that the return value is true for an empty collection.
-|Example: `self.orderDetails!allFalse(od \| od.price < 10)`
+|Example:
+|`self.orderDetails!allFalse(od \| od.price > 10)` returns true if all items in the order are 10 or less cheaper.
 |======================================================================
 
 ////
@@ -971,28 +992,32 @@ TODO: what is this?
 |======================================================================
 |`[purple]#**min(field = **#<field>[purple]##**)**## : numeric`
 |Returns the minimum value from the set of values selected by the <field>. The <field> is the name of an entity field or derived. The field must have a numeric type.
-|Example: `self.orderItems!min(field = price)` returns the lowest `price` from the prices of elements of `orderItems` list.
+|Example:
+|`self.orderItems!min(field = price)` returns the lowest `price` from the prices of elements of `orderItems` list.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**max(field = **#<field>[purple]##**)**## : numeric`
 |Returns the maximum value from the set of values selected by the <field>. The <field> is the name of an entity field or derived. The field must have a numeric type.
-|Example: `self.orderItems!max(field = price)` returns the highest `price` from the prices of elements of `orderItems` list.
+|Example:
+|`self.orderItems!max(field = price)` returns the highest `price` from the prices of elements of `orderItems` list.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**avg(field = **#<field>[purple]##**)**## : numeric`
 |Returns the average of the set of values selected by the <field>. The <field> is the name of an entity field or derived. The field must have a numeric type.
-|Example: `self.orderItems!avg(field = price)` returns the average `price` of the elements of `orderItems` list.
+|Example:
+|`self.orderItems!avg(field = price)` returns the average `price` of the elements of `orderItems` list.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**sum(field = **#<field>[purple]##**)**## : numeric`
 |Returns the sum of the set of values selected by the <field>. The <field> is the name of an entity field or derived. The field must have a numeric type.
-|Example: `self.orderItems!sum(field = price)` returns the sum of `price` of the elements of `orderItems` list.
+|Example:
+|`self.orderItems!sum(field = price)` returns the sum of `price` of the elements of `orderItems` list.
 |======================================================================
 
 ////

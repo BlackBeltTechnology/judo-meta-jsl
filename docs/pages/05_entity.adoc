@@ -57,7 +57,7 @@ An entity can be defined as an abstract using the keyword `abstract`. An abstrac
 
 [source,jsl]
 ----
-entity abstract User {
+entity abstract Customer {
 }
 ----
 
@@ -365,11 +365,9 @@ The `self` variable cannot be used in default expressions.
 [source,jsl]
 ----
 entity Address {
-    field required String line1;
-    field String line2;
-    field required String country;
+    field required String line;
     field required String city;
-    field required String zipCode;
+    field required country;
 }
 
 entity Customer {
@@ -542,37 +540,35 @@ The `extends` keyword in the entity declaration indicates that an entity is inhe
 
 [source,jsl]
 ----
-entity Person {
-	field required String firstName;
-	field required String lastName;
-	
-	derived	String fullName => self.firstName + " " + self.lastName;
+entity abstract Customer {
+    field required Address address;
+	relation Order[] orders opposite customer;
 }
 
-entity Customer extends Person {
-	relation Order[] orders;
+entity Enterprise extends Customer {
+	field required String name;
 }
 ----
 
-In the above example the Customer entity inherits the three fields of the Person entity and defines a relation to her orders.
+In the above example the Enterprise entity inherits the field and the relation of the Customer entity and defines a name field.
 
 *Example:*
 
 [source,jsl]
 ----
-entity Person {
-	field required String firstName;
-	field required String lastName;
-	
-	derived	String fullName => self.firstName + " " + self.lastName;
-}
-
-entity abstract User {
+entity User {
 	identifier required Email email;
 } 
 
-entity Customer extends User, Person {
+entity abstract Customer {
+    field required Address address;
+	relation Order[] orders opposite customer;
+}
+
+entity Person extends Customer, User {
+	field required String firstName;
+	field required String lastName;
 }
 ----
 
-In the second example above the Customer entity inherits the three fields of the Person entity and inherits the email identifier from the User entity. This is an example of multiple inheritance.
+In the second example above the Person entity inherits the email identifier of the User entity and inherits two other members from the Customer entity. This is an example of multiple inheritance.
