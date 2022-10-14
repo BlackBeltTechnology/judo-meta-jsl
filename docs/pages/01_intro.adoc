@@ -177,15 +177,15 @@ skinparam package<<DataTypes>> {
 }	
 
 package shop {
-	class Address << Entity >>  {
+	class Address << Entity >> {
 		+<b>street</b> : String
 		+<b>city</b> : String
 		+country : String
 	}
-	class User << Entity >>  {
+	class User << Entity >> {
 		+<u><b>email</b></u> : Email
 	}
-	class Customer << Abstract >>   {
+	class Customer << Abstract >>  {
 		+<b>address</b> : Address
 	}
 	class Person << Entity >> {
@@ -196,17 +196,17 @@ package shop {
 	class Enterprise << Entity >> {
 		+<b>name</b> : String
 	}
-	class Order << Entity >>  {
+	class Order << Entity >> {
 		+<b>status</b> : OrderStatus
 		+orderItems : OrderItem[0..*]
 		~<i>price</i> : Integer
 	}
-	class OrderItem << Entity >>  {
+	class OrderItem << Entity >> {
 		+<b>amount</b> : Integer
 		~<i>productName</i> : String
 		~<i>price</i> : Integer
 	}
-	class Product << Entity >>  {
+	class Product << Entity >> {
 		+<b>price</b> : Integer
 		+<u><b>name</b></u> : String
 	}
@@ -214,7 +214,7 @@ package shop {
 	Customer  "customer\n[1..1]" -right-   "orders\n[0..*]" Order
 	OrderItem  "orderItems\n[0..*] " --   "product\n[1..1]" Product
 
-    Person -up-|> User
+    Person --|> User
     Person -up-|> Customer
     Enterprise -up-|> Customer
 
