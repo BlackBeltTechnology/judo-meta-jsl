@@ -16,6 +16,7 @@ import org.eclipse.xtext.resource.IResourceDescriptions
 
 class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 
+	@Inject extension JslDslIndex
 	@Inject extension IQualifiedNameConverter
 	@Inject extension JslDslModelExtension
 	@Inject JslDslInjectedObjectsProvider injectedObjectsProvider
@@ -24,25 +25,32 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 		// System.out.println("JslDslGlobalScopeProvider.getScope Res: " + resource + "Ref: " + reference);
     	// System.out.println("JslDslGlobalScopeProvider.scope=scope_" + reference.EContainingClass.name + "_" + reference.name + "(" + resource + " context, EReference ref) : " + reference.EReferenceType.name);
 		
-		if (JsldslPackage::eINSTANCE.modelImport_ModelName == reference) {
+		if (JsldslPackage::eINSTANCE.modelImportDeclaration_Model == reference) {
 			// System.out.println("JslDslGlobalScopeProvider.getScope NULL");
-			return new JslDslInjectedObjectsScopeWrapper(super.getScope(resource, reference, filter), injectedObjectsProvider);
-			//return super.getScope(resource, reference, filter)
+			//return new JslDslInjectedObjectsScopeWrapper(super.getScope(resource, reference, filter), injectedObjectsProvider);
+			return super.getScope(resource, reference, filter)
 
 		}
 
+		val model = resource.getContents().get(0).parentContainer(ModelDeclaration)
+
 	    val overridedFilter = new Predicate<IEObjectDescription>() {
             override boolean apply(IEObjectDescription input) {
-				val model = resource.getContents().get(0).parentContainer(ModelDeclaration)
 
+				//System.out.println("> ModelDeclaration: " + model.name);
+				//System.out.println("> Input: " + input)
 				var found = false
-				for (modelImport : model.imports) {
-					// System.out.println("> JslDslGlobalScopeProvider.getScope Import NS: " + modelImport.modelName.importName + " FIELD: " + input.qualifiedName.toString("::"));
-					val normalizer = new ImportNormalizer(modelImport.modelName.importName.toQualifiedName, true, false);
-					if (normalizer.deresolve(input.qualifiedName) !== null) {
-						// System.out.println("> JslDslGlobalScopeProvider.getScope=" + input.qualifiedName.toString("::") + "Res: " + resource + " Ref: " + reference + " Input: " + input);
-						found = true
-					}
+				for (String import : model.EObjectDescription.getUserData("imports").split(",")) {
+					if (import.contains("=")) {
+						val split = import.split("=")
+						val ns = split.get(0);
+						// System.out.println("\tImport: " + ns.toQualifiedName);
+						val normalizer = new ImportNormalizer(ns.toQualifiedName, true, false);
+						if (normalizer.deresolve(input.qualifiedName) !== null) {
+							// System.out.println("> JslDslGlobalScopeProvider.getScope=" + input.qualifiedName.toString("::") + "Res: " + resource + " Ref: " + reference + " Input: " + input);
+							found = true
+						}
+					}				
 				}
 	
 				if (filter === null) {

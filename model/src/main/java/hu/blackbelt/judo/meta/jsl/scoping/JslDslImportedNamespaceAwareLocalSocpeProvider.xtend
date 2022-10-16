@@ -5,40 +5,34 @@ import org.eclipse.xtext.scoping.impl.ImportNormalizer
 import org.eclipse.emf.ecore.EObject
 import java.util.List
 import com.google.inject.Inject
-import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImport
 import org.eclipse.xtext.naming.IQualifiedNameConverter
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.eclipse.emf.ecore.EReference
 import java.util.ArrayList
+import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 
 class JslDslImportedNamespaceAwareLocalSocpeProvider extends ImportedNamespaceAwareLocalScopeProvider {
 
 	@Inject extension IQualifiedNameConverter
-
-	/* 
-	override getImplicitImports(boolean ignoreCase) {
-		newArrayList(new ImportNormalizer(QualifiedName.create("smalljava", "lang"), true, ignoreCase
-		))
-	} */	
-	// https://github.com/eclipse/xtext-extras/blob/master/org.eclipse.xtext.xbase/deprecated/org/eclipse/xtext/xbase/scoping/XbaseImportedNamespaceScopeProvider.java
-	
-	override protected getImportedNamespace(EObject object) {		
-		if (object instanceof ModelImport) {
-			val modelImport = object;
-			modelImport.modelName.importName			
-		}
-	}
+	@Inject extension JslDslIndex
+	@Inject extension JslDslModelExtension
 
 	override protected List<ImportNormalizer> internalGetImportedNamespaceResolvers(EObject context, boolean ignoreCase) {
 		val resolvers = new ArrayList<ImportNormalizer>()
-		
 		if (context instanceof ModelDeclaration) {
-			val root = context
-			for (ModelImport modelImport : root.imports) {
-				if (modelImport.importedNamespace !== null && modelImport.importedNamespace.toQualifiedName !== null) {
-					resolvers += new JslDslImportNormalizer(modelImport.modelName.alias, modelImport.importedNamespace.toQualifiedName, true, ignoreCase)
+			//System.out.println("Import NS: " + model.EObjectDescription.getUserData("imports"))
+			
+			for (String import : context.EObjectDescription.getUserData("imports").split(",")) {
+				if (import.contains("=")) {
+					val split = import.split("=")
+					val ns = split.get(0);
+					var alias = null as String;
+					if (split.size > 1) {
+						alias = split.get(1)						
+					}
+					resolvers += new JslDslImportNormalizer(alias, ns.toQualifiedName, true, ignoreCase)					
 				}
-			}
+			}		
 		}
 		resolvers
 	}

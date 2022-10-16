@@ -21,6 +21,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
 
 @Singleton
 class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy {
@@ -38,10 +39,9 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 
 				acceptor.accept(
 					EObjectDescription::create(
-						modelDeclaration.fullyQualifiedName, modelDeclaration
+						modelDeclaration.fullyQualifiedName, modelDeclaration, modelDeclaration.indexInfo
 					)
 				)					
-
 
 				modelDeclaration.declarations.forEach[
 					declaration |
@@ -49,8 +49,6 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 					val fullyQualifiedName = declaration.fullyQualifiedName
 	
 					if (fullyQualifiedName !== null)
-						// System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ declaration + " fq: " + fullyQualifiedName.toString("::"));
-						// System.out.println("Indexing: " + fullyQualifiedName)
 
 						acceptor.accept(
 							EObjectDescription::create(
@@ -127,6 +125,39 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 		val Map<String, String> userData = new HashMap<String, String>
 		 	
 		switch object {
+		 	ModelDeclaration: {
+	 			if (object.name !== null) {
+	 				userData.put("fullyQualifiedName", object.name)
+	 			}
+	 			
+	 			if (object.imports !== null) {
+	 				val importNames = new StringBuilder();
+	 				object.imports.forEach[
+	 					import |
+	 					
+	 					if (import.model != null) {
+		 					if (importNames.toString.length > 0) {
+		 						importNames.append(",")
+		 					}
+		 					var alias = import.alias;
+		 					if (alias == null) {
+		 						alias = "";
+		 					}
+		 					importNames.append(import.model.name + "=" + alias)	 						
+	 					}
+	 				]
+	 				userData.put("imports", importNames.toString)
+
+	 			}
+ 			}		 	
+
+		 	ModelImportDeclaration: {
+	 			if (object.model !== null) {
+	 				userData.put("fullyQualifiedName", (object.eContainer as ModelDeclaration).name)
+	 				userData.put("importQualifiedName", object.model.name)
+	 			}
+ 			}		 	
+
 		 	EntityRelationDeclaration: {
 	 			if (object.opposite !== null && object.opposite instanceof EntityRelationOppositeInjected) {
 	 				userData.put("oppositeName", (object.opposite as EntityRelationOppositeInjected).name)

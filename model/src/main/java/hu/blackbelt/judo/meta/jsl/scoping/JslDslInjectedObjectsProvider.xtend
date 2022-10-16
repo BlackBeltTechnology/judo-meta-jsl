@@ -27,6 +27,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.impl.LambdaFunctionDeclarationImpl
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.impl.SelectorFunctionDeclarationImpl
+import hu.blackbelt.judo.meta.jsl.jsldsl.impl.ModelDeclarationImpl
+import java.math.BigInteger
+import java.math.BigDecimal
 
 @Singleton
 class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
@@ -41,6 +44,7 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
     	if (resource === null) {
     		resource = resourceSet.createResource(uri)		
 	   		resource.addAllFunctions
+	   		resource.addJudoTypes
     	}
     	return resource	
 	}
@@ -101,6 +105,23 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 			BT_TIME_INSTANCE,
 			BT_TIMESTAMP_INSTANCE
 		]
+	}
+
+
+	def void addJudoTypes(Resource resource) {
+		val modelDeclaration = factory.createModelDeclaration
+		modelDeclaration.name = "judo::types"
+		
+		val string = factory.createDataTypeDeclaration
+		string.minSize = factory.createModifierMinSize
+		string.maxSize = factory.createModifierMaxSize
+		string.minSize.value = BigInteger.valueOf(1)
+		string.maxSize.value = BigInteger.valueOf(128)
+		
+		modelDeclaration.declarations.add(string)
+		
+		resource.contents += modelDeclaration
+
 	}
 
 	def void addAllFunctions(Resource resource) {

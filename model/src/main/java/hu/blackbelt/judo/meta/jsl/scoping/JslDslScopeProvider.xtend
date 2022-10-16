@@ -58,6 +58,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeReferenced
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -70,11 +71,12 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
     override getScope(EObject context, EReference ref) {
     	//System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
-    	//	"\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper 
-    	//		+ ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
+    	//  "\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper 
+    	//     + ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
     	//printParents(context)
     	
     	switch context {
+    		ModelImportDeclaration case ref == JsldslPackage::eINSTANCE.modelImportDeclaration_Model: return context.scope_ModelImportDeclaration_model(ref)
 			EntityDeclaration case ref == JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType: return delegateGetScope(context, ref).filterType(FunctionDeclaration)
     		EntityDerivedDeclaration case ref == JsldslPackage::eINSTANCE.navigationBaseExpression_NavigationBaseType: return context.scope_NavigationBaseExpression_navigationBaseType(ref)
 			EntityDerivedDeclaration case ref == JsldslPackage::eINSTANCE.queryCallExpression_QueryDeclarationType: return delegateGetScope(context, ref).filterType(FunctionDeclaration)
@@ -104,6 +106,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
     	}
     	return super.getScope(context, ref)
+	}
+
+	def scope_ModelImportDeclaration_model(ModelImportDeclaration context, EReference ref) {
+		nullSafeScope(super.getScope(context, ref))
 	}
 
 	def scope_LiteralFunctionParameter_declaration(LiteralFunction context, EReference ref) {

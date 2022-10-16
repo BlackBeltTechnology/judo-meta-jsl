@@ -4,7 +4,6 @@ import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.validation.Check
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
-import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImport
 import com.google.inject.Inject
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.naming.IQualifiedNameConverter
@@ -47,6 +46,7 @@ import java.util.function.BinaryOperator
 import hu.blackbelt.judo.meta.jsl.services.JslDslGrammarAccess.ImpliesExpressionElements
 import java.util.regex.Pattern
 import org.eclipse.emf.mwe2.language.mwe2.StringLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -125,26 +125,31 @@ class JslDslValidator extends AbstractJslDslValidator {
     */
     
 	@Check
-	def checkSelfImport(ModelImport modelImport) {
+	def checkSelfImport(ModelImportDeclaration modelImport) {
 		//System.out.println("checkSelfImport: " + modelImport.importedNamespace + " " + modelImport.eContainer().fullyQualifiedName.toString("::"))
 		
-		if (modelImport.modelName === null) {
+		if (modelImport.model === null) {
 			return
 		}
-		if (modelImport.modelName.importName.toQualifiedName.equals(modelImport.eContainer().fullyQualifiedName)) {
+
+		if (modelImport.model.name === null) {
+			return
+		}
+
+		if (modelImport.model.name.toQualifiedName.equals(modelImport.eContainer().fullyQualifiedName)) {
 			//System.out.println("==== ERROR: " + modelImport.importedNamespace)
-			error("Cycle in hierarchy of model '" + modelImport.modelName.importName + "'",
-				JsldslPackage::eINSTANCE.modelImport_ModelName,
+			error("Cycle in hierarchy of model '" + modelImport.model.name + "'",
+				JsldslPackage::eINSTANCE.modelImportDeclaration_Model,
 				HIERARCHY_CYCLE,
-				modelImport.modelName.importName)
+				modelImport.model.name)
 		}
 	}
 
 	@Check
-	def checkImportSanity(ModelImport modelImport) {
-		val modelName = modelImport.modelName;
-		if (modelName !== null) {
-			val modelQualifiedName = modelName.importName.toQualifiedName
+	def checkImportSanity(ModelImportDeclaration modelImport) {
+		val model = modelImport.model;
+		if (model !== null) {
+			val modelQualifiedName = model.name.toQualifiedName
 			val found = modelImport.parentContainer(ModelDeclaration).getVisibleClassesDescriptions.map[
 				desc |
 				if (desc.qualifiedName == modelQualifiedName 
@@ -156,16 +161,16 @@ class JslDslValidator extends AbstractJslDslValidator {
 				}
 			].exists[l | l]
 			if (!found) {
-				error("Imported model '" + modelImport.modelName.importName + "' not found",
-					JsldslPackage::eINSTANCE.modelImport_ModelName,
+				error("Imported model '" + modelImport.model.name + "' not found",
+					JsldslPackage::eINSTANCE.modelImportDeclaration_Model,
 					IMPORTED_MODEL_NOT_FOUND,
-					modelImport.modelName.importName)				
+					modelImport.model.name)				
 			}
 		} else {			
 				error("Imported model is not defined",
-					JsldslPackage::eINSTANCE.modelImport_ModelName,
+					JsldslPackage::eINSTANCE.modelImportDeclaration_Model,
 					IMPORTED_MODEL_NOT_FOUND,
-					modelImport.modelName.importName)				
+					modelImport.model.name)				
 		}
     }
 
@@ -410,7 +415,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		return false;
 	}
 
-	
+
 	@Check
 	def checkDefaultExpressionMatchesMemberType(DefaultExpressionType defaultExpression) {
         var EObject memberReferenceType

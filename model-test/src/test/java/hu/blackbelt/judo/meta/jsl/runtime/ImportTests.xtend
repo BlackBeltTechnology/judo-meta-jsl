@@ -260,7 +260,7 @@ class ImportTests {
 		
 	def private void assertHierarchyCycle(ModelDeclaration modelDeclaration, String expectedClassName) {
 		modelDeclaration.assertError(
-			JsldslPackage::eINSTANCE.modelImport,
+			JsldslPackage::eINSTANCE.modelImportDeclaration,
 			JslDslValidator::HIERARCHY_CYCLE,
 			"cycle in hierarchy of model '" + expectedClassName + "'"
 		)
@@ -268,7 +268,7 @@ class ImportTests {
 
 	def private void assertModelReferenceError(ModelDeclaration modelDeclaration, String expectedClassName) {
 		modelDeclaration.assertError(
-			JsldslPackage::eINSTANCE.modelImport,
+			JsldslPackage::eINSTANCE.modelImportDeclaration,
 			JslDslValidator::IMPORTED_MODEL_NOT_FOUND,
 			"Imported model '" + expectedClassName + "' not found"
 		)
@@ -276,7 +276,7 @@ class ImportTests {
 	
 	def private void assertSyntaxError(ModelDeclaration modelDeclaration, String error) {
 		modelDeclaration.assertError(
-			JsldslPackage::eINSTANCE.modelDeclaration, 
+			JsldslPackage::eINSTANCE.modelImportDeclaration, 
 			"org.eclipse.xtext.diagnostics.Diagnostic.Syntax", 
 			error
 		)

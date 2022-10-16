@@ -22,6 +22,14 @@ import hu.blackbelt.judo.meta.jsl.generator.JslDslOutputConfigurationProvider
 import org.eclipse.xtext.linking.ILinkingDiagnosticMessageProvider
 import hu.blackbelt.judo.meta.jsl.errormessages.JslDslLinkingDiagnosticMessageProvider
 import hu.blackbelt.judo.meta.jsl.runtime.JslTerminalConverters
+import com.google.inject.matcher.AbstractMatcher
+import com.google.inject.spi.TypeListener
+import com.google.inject.TypeLiteral
+import com.google.inject.spi.TypeEncounter
+import com.google.inject.spi.InjectionListener
+import org.eclipse.xtext.resource.IResourceDescriptions
+import org.eclipse.xtext.resource.impl.ResourceSetBasedResourceDescriptions
+import hu.blackbelt.judo.meta.jsl.scoping.JslDslResourceSetBasedDescriptions
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
@@ -66,4 +74,10 @@ class JslDslRuntimeModule extends AbstractJslDslRuntimeModule {
 	override Class<? extends IValueConverterService> bindIValueConverterService() {
 	  return JslTerminalConverters
 	}
+	
+	override configureIResourceDescriptions(Binder binder) {
+		binder.bind(IResourceDescriptions).to(JslDslResourceSetBasedDescriptions)
+	}
+	
 }
+
