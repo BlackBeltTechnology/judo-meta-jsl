@@ -455,21 +455,21 @@ Any type functions can be applied to any type or instance except collections.
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**lower()**# : string`
-|Returns the original string with all alphabetic characters in lowercase.
+|Returns the original string with all alphabetic characters in lowercase. Note that the actual locale of the database affects the behavior of this function.
 |Example: `"ApPlE"!lower()` is `"apple"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**upper()**# : string`
-|Returns the original string with all alphabetic characters in uppercase.
+|Returns the original string with all alphabetic characters in uppercase. Note that the actual locale of the database affects the behavior of this function. 
 |Example: `"ApPlE"!upper()` is `"APPLE"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**capitalize()**# : string`
-|Returns a string with the first letter capitalized and all other characters lowercased.
+|Returns a string with the first letter capitalized and all other characters lowercased. Note that the actual locale of the database affects the behavior of this function.
 |Example: `"apPlE"!capitalize()` is `"Apple"`
 |======================================================================
 
