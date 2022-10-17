@@ -129,7 +129,7 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 	 			if (object.name !== null) {
 	 				userData.put("fullyQualifiedName", object.name)
 	 			}
-	 			
+ 				System.out.println("Indexing " + object.name)	 			
 	 			if (object.imports !== null) {
 	 				val importNames = new StringBuilder();
 	 				object.imports.forEach[
@@ -146,6 +146,7 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 		 					importNames.append(import.model.name + "=" + alias)	 						
 	 					}
 	 				]
+	 				System.out.println("\tImport: " + importNames)
 	 				userData.put("imports", importNames.toString)
 
 	 			}

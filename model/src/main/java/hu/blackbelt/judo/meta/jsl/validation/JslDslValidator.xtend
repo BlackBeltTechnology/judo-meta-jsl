@@ -145,6 +145,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 	}
 
+/*
 	@Check
 	def checkImportSanity(ModelImportDeclaration modelImport) {
 		val model = modelImport.model;
@@ -173,7 +174,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 					modelImport.model.name)				
 		}
     }
-
+*/
 
 	@Check
 	def checkAssociation(EntityRelationDeclaration relation) {

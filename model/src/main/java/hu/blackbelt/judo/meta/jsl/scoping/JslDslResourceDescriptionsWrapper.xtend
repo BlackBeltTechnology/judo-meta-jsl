@@ -17,31 +17,37 @@ class JslDslResourceDescriptionsWrapper implements IResourceDescriptions {
 	}	
 	
 	override getAllResourceDescriptions() {
+		System.out.println("JslDslResourceDescriptionsWrapper.getAllResourceDescriptions")
 	    val resources = descriptions.allResourceDescriptions.toList
 	    resources.add(provider)
 	    resources
 	}
 	
 	override getResourceDescription(URI uri) {
+		System.out.println("JslDslResourceDescriptionsWrapper.getResourceDescription: " + uri)
 	    if( uri == provider.URI ) provider
 	    else descriptions.getResourceDescription(uri)
 	}
 	
 	override getExportedObjects() {
+		System.out.println("JslDslResourceDescriptionsWrapper.getExportedObjects")
 	    val descriptions = descriptions.exportedObjects.toList
 	    descriptions.addAll(provider.exportedObjects)	
 	    descriptions
 	}
 	
 	override getExportedObjects(EClass type, QualifiedName name, boolean ignoreCase) {
+		System.out.println("JslDslResourceDescriptionsWrapper.getExportedObjects - " + type + " QN: " + name + " IgnoreCase: " + ignoreCase)
 		descriptions.getExportedObjects(type, name, ignoreCase)
 	}
 	
 	override getExportedObjectsByObject(EObject object) {
+		System.out.println("JslDslResourceDescriptionsWrapper.getExportedObjects - " + object)
 		descriptions.getExportedObjectsByObject(object)
 	}
 	
 	override getExportedObjectsByType(EClass type) {
+		System.out.println("JslDslResourceDescriptionsWrapper.getExportedObjects - " + type)
 		descriptions.getExportedObjectsByType(type)
 	}
 	

@@ -10,6 +10,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.eclipse.emf.ecore.EReference
 import java.util.ArrayList
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
+import org.eclipse.xtext.scoping.IScope
 
 class JslDslImportedNamespaceAwareLocalSocpeProvider extends ImportedNamespaceAwareLocalScopeProvider {
 
@@ -20,28 +21,31 @@ class JslDslImportedNamespaceAwareLocalSocpeProvider extends ImportedNamespaceAw
 	override protected List<ImportNormalizer> internalGetImportedNamespaceResolvers(EObject context, boolean ignoreCase) {
 		val resolvers = new ArrayList<ImportNormalizer>()
 		if (context instanceof ModelDeclaration) {
-			//System.out.println("Import NS: " + model.EObjectDescription.getUserData("imports"))
-			
-			for (String import : context.EObjectDescription.getUserData("imports").split(",")) {
-				if (import.contains("=")) {
-					val split = import.split("=")
-					val ns = split.get(0);
-					var alias = null as String;
-					if (split.size > 1) {
-						alias = split.get(1)						
-					}
-					resolvers += new JslDslImportNormalizer(alias, ns.toQualifiedName, true, ignoreCase)					
-				}
-			}		
+			System.out.println("Import NS: " + context.EObjectDescription.getUserData("imports"))
+			for (e : context.allImports.entrySet) {
+				resolvers += new JslDslImportNormalizer(e.value, e.key.toQualifiedName, true, ignoreCase)				
+			}			
 		}
 		resolvers
 	}
 	
 	override getScope(EObject context, EReference ref) {
-    	// System.out.println("JslDslImportedNamespaceAwareLocalSocpeProvider.scope=scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref) : " + ref.EReferenceType.name);
+    	System.out.println("JslDslImportedNamespaceAwareLocalSocpeProvider.scope=scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref) : " + ref.EReferenceType.name);
     	// printParents(context)
-		return super.getScope(context, ref)		
+	
+		if (context == null)
+			throw new NullPointerException("context");
+		var IScope result = null;
+		if (context.eContainer() != null) {
+			System.out.println("\tContainr scope")
+			result = getScope(context.eContainer(), ref);
+		} else {
+			System.out.println("\tResource scope")
+			result = getResourceScope(context.eResource(), ref);
+		}
+		return getLocalElementsScope(result, context, ref);
 	}
+	
 	
 	def void printParents(EObject obj) {
 		var EObject t = obj;

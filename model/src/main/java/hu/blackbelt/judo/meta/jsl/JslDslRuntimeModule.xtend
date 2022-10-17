@@ -75,9 +75,9 @@ class JslDslRuntimeModule extends AbstractJslDslRuntimeModule {
 	  return JslTerminalConverters
 	}
 	
-	override configureIResourceDescriptions(Binder binder) {
-		binder.bind(IResourceDescriptions).to(JslDslResourceSetBasedDescriptions)
-	}
+//	override configureIResourceDescriptions(Binder binder) {
+//		binder.bind(IResourceDescriptions).to(JslDslResourceSetBasedDescriptions)
+//	}
 	
 }
 

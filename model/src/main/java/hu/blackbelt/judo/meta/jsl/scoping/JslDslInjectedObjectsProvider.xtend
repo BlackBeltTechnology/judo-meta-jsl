@@ -6,7 +6,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslFactory
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.resource.EObjectDescription
 import org.eclipse.emf.ecore.EObject
-import hu.blackbelt.judo.meta.jsl.jsldsl.impl.JsldslPackageImpl
 import java.util.Collections
 import javax.inject.Singleton
 import com.google.inject.Inject
@@ -27,24 +26,31 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.impl.LambdaFunctionDeclarationImpl
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.impl.SelectorFunctionDeclarationImpl
-import hu.blackbelt.judo.meta.jsl.jsldsl.impl.ModelDeclarationImpl
 import java.math.BigInteger
-import java.math.BigDecimal
+import org.eclipse.xtext.naming.IQualifiedNameProvider
+import java.util.ArrayList
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
+import org.eclipse.xtext.resource.IEObjectDescription
+import java.util.List
+import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 
 @Singleton
 class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 	
 	val uri = org.eclipse.emf.common.util.URI.createPlatformResourceURI("__injectedobjectprovider/_synthetic.jsl", true)
 	
-	@Inject
-	XtextResourceSet resourceSet
+	@Inject XtextResourceSet resourceSet
+	
+	@Inject extension IQualifiedNameProvider
+	@Inject extension JslResourceDescriptionStrategy
 	
 	def getAdditionalObjectsResource() {
     	var resource = resourceSet.getResource(uri, false)
     	if (resource === null) {
     		resource = resourceSet.createResource(uri)		
 	   		resource.addAllFunctions
-//	   		resource.addJudoTypes
+	   		resource.addJudoTypes
     	}
     	return resource	
 	}
@@ -113,6 +119,7 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		modelDeclaration.name = "judo::types"
 		
 		val string = factory.createDataTypeDeclaration
+		string.name = "String"
 		string.minSize = factory.createModifierMinSize
 		string.maxSize = factory.createModifierMaxSize
 		string.minSize.value = BigInteger.valueOf(1)
@@ -365,22 +372,91 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 
 	
 	def boolean isProvided(EObject object ) {
-    	if (object.eClass.classifierID === JsldslPackageImpl.LITERAL_FUNCTION_DECLARATION ||
-    		object.eClass.classifierID === JsldslPackageImpl.LAMBDA_FUNCTION_DECLARATION ||
-    		object.eClass.classifierID === JsldslPackageImpl.SELECTOR_FUNCTION_DECLARATION
-    	) {
-    		return allFunctions.contains(object)
-   		} else {
-        	return false    	
-    	}
+//    	if (object.eClass.classifierID === JsldslPackageImpl.LITERAL_FUNCTION_DECLARATION ||
+//    		object.eClass.classifierID === JsldslPackageImpl.LAMBDA_FUNCTION_DECLARATION ||
+//    		object.eClass.classifierID === JsldslPackageImpl.SELECTOR_FUNCTION_DECLARATION
+//    	) {
+//    		return allFunctions.contains(object)
+//   		} else {
+//        	return false    	
+//    	}
+		System.out.println("IsProvided: " + object + " - " + allObjects.contains(object));
+
+		allObjects.contains(object)
   	}
 
+/*
 	def Collection<NamedFunctionDeclaration> getAllFunctions() {
 		additionalObjectsResource.allContents.toIterable.filter(NamedFunctionDeclaration).toList
 	} 
-	
-	override protected computeExportedObjects() {
+
+	def List<IEObjectDescription> getAllTypes() {
+		val List<IEObjectDescription> objects = new ArrayList()
+		objects.addAll(additionalObjectsResource.allContents.filter(ModelDeclaration).map[m | 
+					EObjectDescription::create(
+						m.fullyQualifiedName, m, m.indexInfo
+					)].toList)
+
+		objects.addAll(additionalObjectsResource.allContents.filter(Declaration).map[d | 
+					EObjectDescription::create(
+						d.fullyQualifiedName, d, d.indexInfo
+					)].toList)
+					
+		return objects
+	} 
+
+	def List<IEObjectDescription> getAllFunctionDescription() {
 		getAllFunctions().map[e | EObjectDescription.create(e.name, e, null)].toList
+	}
+*/	
+
+	def List<EObject> getAllObjects() {
+		val List<EObject> objects = new ArrayList()
+		
+		objects.addAll(additionalObjectsResource.allContents.filter(NamedFunctionDeclaration).toList)
+		objects.addAll(additionalObjectsResource.allContents.filter(ModelDeclaration).toList)
+		objects.addAll(additionalObjectsResource.allContents.filter(Declaration).toList)
+		return objects
+
+	}
+
+	override protected computeExportedObjects() {
+		val List<IEObjectDescription> objects = new ArrayList()
+
+		objects.addAll(allObjects.filter(ModelDeclaration).filter[o | o.fullyQualifiedName != null].map[o |
+					EObjectDescription::create(
+						o.fullyQualifiedName, o, o.indexInfo
+					)			
+		].toList)
+
+		objects.addAll(allObjects.filter(Declaration).map(o | o as Named).filter[o | o.fullyQualifiedName != null].map[o |
+					EObjectDescription::create(
+						o.fullyQualifiedName, o, o.indexInfo
+					)			
+		].toList)
+
+		objects.addAll(allObjects.filter(NamedFunctionDeclaration).filter[o | o.fullyQualifiedName != null].map[o |
+					EObjectDescription::create(
+						o.name, o, o.indexInfo
+					)			
+		].toList)
+
+		/*
+
+		objects.addAll(additionalObjectsResource.allContents.filter(ModelDeclaration).map[m | 
+					EObjectDescription::create(
+						m.fullyQualifiedName, m, m.indexInfo
+					)
+		].toList)
+
+		objects.addAll(additionalObjectsResource.allContents.filter(Declaration).map[d | 
+					EObjectDescription::create(
+						d.fullyQualifiedName, d, d.indexInfo
+					)
+		].toList) */
+					
+		return objects
+
 	}
 	
 	override getImportedNames() {

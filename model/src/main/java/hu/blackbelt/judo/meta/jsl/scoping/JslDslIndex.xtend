@@ -10,6 +10,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
 import org.eclipse.emf.ecore.resource.Resource
+import java.util.HashMap
+import java.util.TreeMap
+import java.util.Map
+import java.util.LinkedHashMap
 
 class JslDslIndex {
 	
@@ -40,6 +44,22 @@ class JslDslIndex {
 		val index = rdp.getResourceDescriptions(resource)
 		val resourceDescription = index.getResourceDescription(resource.URI)
 		resourceDescription.getExportedObjectsByType(JsldslPackage.Literals.MODEL_DECLARATION)
+	}
+	
+	def getAllImports(ModelDeclaration context) {
+		var Map<String, String> imports = new LinkedHashMap;
+		for (String import : context.EObjectDescription.getUserData("imports").split(",")) {
+			if (import.contains("=")) {
+				val split = import.split("=")
+				val ns = split.get(0);
+				var alias = null as String;
+				if (split.size > 1) {
+					alias = split.get(1)						
+				}
+				imports.put(ns, alias);
+			}
+		}	
+		return imports
 	}
 	
 	def getVisibleEObjectDescriptions(EObject o) {
