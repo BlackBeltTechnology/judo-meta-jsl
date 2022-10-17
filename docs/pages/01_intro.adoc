@@ -126,7 +126,7 @@ skinparam class {
 	ArrowColor #black
 
 	FontSize 13
-	FontStyle bold
+	'FontStyle bold
 
 	BackgroundColor<< Abstract >> white|#cfe3e8
 	HeaderBackgroundColor<< Abstract >> #cee2e6/#bed8df
