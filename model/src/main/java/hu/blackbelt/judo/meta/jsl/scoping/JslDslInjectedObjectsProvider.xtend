@@ -255,9 +255,16 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 				createFunctionParameterDeclaration("instances", false, true, PT_ENTITY_COLLECTION, #[BT_ENTITY_INSTANCE])
 			])
 
-		resource.addSelectorFunctionDeclaration("head", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
-		resource.addSelectorFunctionDeclaration("tail", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
-
+		resource.addLiteralFunctionDeclaration("head", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("member", false, true, PT_STRING_INSTANCE, #[BT_ENTITY_COLLECTION]),
+				createFunctionParameterDeclaration("reverse", false, false, PT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
+			])
+		resource.addLiteralFunctionDeclaration("tail", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("member", false, true, PT_STRING_INSTANCE, #[BT_ENTITY_COLLECTION]),
+				createFunctionParameterDeclaration("reverse", false, false, PT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
+			])
 
 		resource.addLiteralFunctionDeclaration("any", RT_ENTITY_INSTANCE, #[BT_ENTITY_COLLECTION])
 		resource.addLiteralFunctionDeclaration("asCollection", RT_ENTITY_COLLECTION, #[BT_ENTITY_INSTANCE])
@@ -269,17 +276,28 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 				createFunctionParameterDeclaration("instance", false, true, PT_ENTITY_INSTANCE, #[BT_ENTITY_COLLECTION])
 			])
 
-
 		resource.addLambdaFunctionDeclaration("filter", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
 		resource.addLambdaFunctionDeclaration("anyTrue", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
 		resource.addLambdaFunctionDeclaration("allTrue", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
 		resource.addLambdaFunctionDeclaration("anyFalse", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
 		resource.addLambdaFunctionDeclaration("allFalse", RT_BOOLEAN_INSTANCE, #[BT_ENTITY_COLLECTION])
 
-		resource.addLambdaFunctionDeclaration("min", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
-		resource.addLambdaFunctionDeclaration("max", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
-		resource.addLambdaFunctionDeclaration("avg", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
-		resource.addLambdaFunctionDeclaration("sum", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
+		resource.addLiteralFunctionDeclaration("min", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("member", false, true, PT_STRING_INSTANCE, #[BT_ENTITY_COLLECTION])
+			])
+		resource.addLiteralFunctionDeclaration("max", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("member", false, true, PT_STRING_INSTANCE, #[BT_ENTITY_COLLECTION])
+			])
+		resource.addLiteralFunctionDeclaration("avg", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("member", false, true, PT_STRING_INSTANCE, #[BT_ENTITY_COLLECTION])
+			])
+		resource.addLiteralFunctionDeclaration("sum", RT_NUMERIC_INSTANCE, #[BT_ENTITY_COLLECTION])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("member", false, true, PT_STRING_INSTANCE, #[BT_ENTITY_COLLECTION])
+			])
 
 	}
 
