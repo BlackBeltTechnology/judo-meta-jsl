@@ -460,7 +460,7 @@ Use the `query` keyword to specify a query within an entity.
 
 [subs="quotes"]
 ----
-[purple]#**query**# &lt;primitive> &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...[purple]##**)**##] [purple]##**=>**## &lt;expression> [purple]#**;**#
+[purple]#**query**# &lt;primitive> &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...][purple]##**)**## [purple]##**=>**## &lt;expression> [purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive that will be returned, and <name> is the referable name of the query, or
@@ -469,7 +469,7 @@ where <primitive> is the name of a domain model primitive that will be returned,
 
 [subs="quotes"]
 ----
-[purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> &#x5B;[purple]##**=**## &lt;default>][purple]##**,**## ...[purple]##**)**##] [purple]##**=>**## &lt;expression> [purple]#**;**#
+[purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> &#x5B;[purple]##**=**## &lt;default>][purple]##**,**## ...][purple]##**)**## [purple]##**=>**## &lt;expression> [purple]#**;**#
 ----
 
 where the <entity> is the name of an entity that will be returned, and <name> is the referable name of the query. The optional `[]` indicates that the query returns a list of <entity> instances rather than a single reference to one <entity>.
