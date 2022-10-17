@@ -139,7 +139,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	'''«FOR extend : extends BEFORE 'extends ' SEPARATOR ', '»«extend.name»«ENDFOR»'''
 
 	def entityStereotypeFragment(EntityDeclaration it)
-	'''«IF isIsAbstract» <<  Abstract >> «ELSE» << Entity >>«ENDIF»'''
+	'''«IF isIsAbstract» << Abstract >> «ELSE» << Entity >>«ENDIF»'''
 
 	def entityFieldCardinalityFragment(EntityFieldDeclaration it)
 	'''«IF isIsMany»[0..*]«ENDIF»'''
@@ -176,7 +176,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
 	def entityRepresentation(EntityDeclaration it)
 	'''
-		class «name?:"none"»«entityStereotypeFragment» «entityExtendsFragment» {
+		class «name?:"none"»«entityStereotypeFragment» {
 			«FOR field : fields»
 				«field.entityFieldRepresentation»
 			«ENDFOR»
@@ -193,6 +193,13 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 				«constraint.constraintRepresentation»
 			«ENDFOR»
 		}
+	'''
+
+	def entityExtends(EntityDeclaration it)
+	'''
+		«FOR supertype : it.extends»
+			«name» --|> «supertype.name»
+		«ENDFOR»
 	'''
 
 	def entityRelationOppositeInjectedRepresentation(EntityRelationOppositeInjected it)
@@ -245,6 +252,10 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 			class «getExternalNameOfEntityDeclaration(entity)» <«entity.parentContainer(ModelDeclaration)?.name»> << External >> 
 		«ENDFOR»
 
+		«FOR entity : entityDeclarations»
+			«entity.entityExtends»
+		«ENDFOR»
+
 		«FOR relation : getAllRelations(true)»
 			«relation.entityRelationRepresentation(it)»
 		«ENDFOR»
@@ -269,6 +280,11 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 			for (relation : entity.relations) {
 				if (relation.referenceType?.parentContainer(ModelDeclaration)?.name !== it.name) {
 					externalEntities.add(relation.referenceType)
+				}
+			}
+			for (superType : entity.extends) {
+				if (superType.parentContainer(ModelDeclaration)?.name !== it.name) {
+					externalEntities.add(superType)
 				}
 			}
 		}
