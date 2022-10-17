@@ -8,19 +8,27 @@ import org.eclipse.emf.common.notify.Notifier
 import org.eclipse.xtext.EcoreUtil2
 import org.eclipse.emf.ecore.resource.ResourceSet
 import com.google.inject.Singleton
+import org.eclipse.emf.ecore.resource.Resource
+import hu.blackbelt.judo.meta.jsl.jsldsl.impl.JsldslFactoryImpl
+import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslFactory
+import java.math.BigInteger
 
 @Singleton
 class JslDslResourceSetBasedDescriptions extends ResourceSetBasedResourceDescriptions {
 
-	val uri = org.eclipse.emf.common.util.URI.createPlatformResourceURI("platform:/resource/judo-types.jsl", true)
-	//val uri = org.eclipse.emf.common.util.URI.createPlatformResourceURI("__judotypes/_synthetic.jsl", true)
+	//val uri = org.eclipse.emf.common.util.URI.createPlatformResourceURI("platform:/resource/judo-types.jsl", true)
+	val uri = org.eclipse.emf.common.util.URI.createPlatformResourceURI("__judotypes/_synthetic.jsl", true)
 	
 
-	override synchronized setContext(Notifier ctx) {
+	override setContext(Notifier ctx) {
 		super.context = ctx;
-		
+		System.out.println("=====================++DD")
 		//val resourceSet = EcoreUtil2.getResourceSet(ctx);
-		//loadJudoTypes(super.resourceSet);
+		loadJudoTypes(super.resourceSet);
+		if (resourceSet != null) {
+			data = ResourceDescriptionsData.ResourceSetAdapter.findResourceDescriptionsData(resourceSet);
+		}
+		
 		//if (resourceSet != null) {
 		//	data = ResourceDescriptionsData.ResourceSetAdapter.findResourceDescriptionsData(resourceSet);
 		//}
@@ -32,11 +40,35 @@ class JslDslResourceSetBasedDescriptions extends ResourceSetBasedResourceDescrip
 	    	var resource = resourceSet.getResource(uri, false)
 	    	if (resource === null) {
 	    		resource = resourceSet.createResource(uri)		
-		        val InputStream in = new ByteArrayInputStream(judoTypes().toString().getBytes("UTF-8"))
-		        resource.load(in, resourceSet.getLoadOptions())
+		        //val InputStream in = new ByteArrayInputStream(judoTypes().toString().getBytes("UTF-8"))
+		        //resource.load(in, resourceSet.getLoadOptions())
+		        addJudoTypes(resource)
 	    	}    		
     	}
     }
+
+	def private getFactory() {
+    	JsldslFactoryImpl.init()
+    	val JsldslFactory factory = new JsldslFactoryImpl()		
+    	return factory
+	}		
+
+
+	def void addJudoTypes(Resource resource) {
+		val modelDeclaration = factory.createModelDeclaration
+		modelDeclaration.name = "judo::types"
+		
+		val string = factory.createDataTypeDeclaration
+		string.minSize = factory.createModifierMinSize
+		string.maxSize = factory.createModifierMaxSize
+		string.minSize.value = BigInteger.valueOf(1)
+		string.maxSize.value = BigInteger.valueOf(128)
+		
+		modelDeclaration.declarations.add(string)
+		
+		resource.contents += modelDeclaration
+
+	}
 	    
     def judoTypes() '''
 		model judo::types;

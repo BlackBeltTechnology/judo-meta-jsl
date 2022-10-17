@@ -44,7 +44,7 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
     	if (resource === null) {
     		resource = resourceSet.createResource(uri)		
 	   		resource.addAllFunctions
-	   		resource.addJudoTypes
+//	   		resource.addJudoTypes
     	}
     	return resource	
 	}
