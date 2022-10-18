@@ -19,7 +19,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterType
 import static hu.blackbelt.judo.meta.jsl.jsldsl.FunctionReturnType.*
 import static hu.blackbelt.judo.meta.jsl.jsldsl.FunctionBaseType.*
 import static hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterType.*
-import hu.blackbelt.judo.meta.jsl.jsldsl.NamedFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.impl.LiteralFunctionDeclarationImpl
 import hu.blackbelt.judo.meta.jsl.jsldsl.impl.LambdaFunctionDeclarationImpl
@@ -28,32 +27,40 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.impl.SelectorFunctionDeclarationImpl
 import java.math.BigInteger
 import org.eclipse.xtext.naming.IQualifiedNameProvider
-import java.util.ArrayList
-import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
-import org.eclipse.xtext.resource.IEObjectDescription
 import java.util.List
-import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.Named
+import org.eclipse.xtext.scoping.IScope
+import org.eclipse.xtext.naming.QualifiedName
+import org.eclipse.xtext.naming.IQualifiedNameConverter
+import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
+import org.eclipse.xtext.resource.IResourceDescriptions
+import org.eclipse.xtext.resource.IResourceDescription
+import org.eclipse.xtext.resource.IResourceServiceProvider
 
 @Singleton
-class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
+class JslDslFunctionsScope extends AbstractResourceDescription implements IScope {
 	
 	val uri = org.eclipse.emf.common.util.URI.createPlatformResourceURI("__injectedobjectprovider/_synthetic.jsl", true)
 	
 	@Inject XtextResourceSet resourceSet
-	
 	@Inject extension IQualifiedNameProvider
 	@Inject extension JslResourceDescriptionStrategy
+	@Inject ResourceDescriptionsProvider indexProvider;
+	@Inject IResourceServiceProvider resourceServiceProvider;
 	
 	def getAdditionalObjectsResource() {
     	var resource = resourceSet.getResource(uri, false)
     	if (resource === null) {
     		resource = resourceSet.createResource(uri)		
 	   		resource.addAllFunctions
-	   		resource.addJudoTypes
     	}
     	return resource	
 	}
+
+ 	def configure(Resource resource) {
+	    val IResourceDescriptions descriptionIndex = indexProvider.getResourceDescriptions(resource)
+	    val IResourceDescription descr = descriptionIndex.getResourceDescription(resource.getURI())
+	    val manager = resourceServiceProvider.getContainerManager()
+  	}
 
 	def private getFactory() {
     	JsldslFactoryImpl.init()
@@ -369,94 +376,20 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
     	return obj
   	}
 
-
-	
 	def boolean isProvided(EObject object ) {
-//    	if (object.eClass.classifierID === JsldslPackageImpl.LITERAL_FUNCTION_DECLARATION ||
-//    		object.eClass.classifierID === JsldslPackageImpl.LAMBDA_FUNCTION_DECLARATION ||
-//    		object.eClass.classifierID === JsldslPackageImpl.SELECTOR_FUNCTION_DECLARATION
-//    	) {
-//    		return allFunctions.contains(object)
-//   		} else {
-//        	return false    	
-//    	}
-		System.out.println("IsProvided: " + object + " - " + allObjects.contains(object));
-
-		allObjects.contains(object)
+		#[functions].flatten.contains(object)
   	}
 
-/*
-	def Collection<NamedFunctionDeclaration> getAllFunctions() {
-		additionalObjectsResource.allContents.toIterable.filter(NamedFunctionDeclaration).toList
-	} 
-
-	def List<IEObjectDescription> getAllTypes() {
-		val List<IEObjectDescription> objects = new ArrayList()
-		objects.addAll(additionalObjectsResource.allContents.filter(ModelDeclaration).map[m | 
-					EObjectDescription::create(
-						m.fullyQualifiedName, m, m.indexInfo
-					)].toList)
-
-		objects.addAll(additionalObjectsResource.allContents.filter(Declaration).map[d | 
-					EObjectDescription::create(
-						d.fullyQualifiedName, d, d.indexInfo
-					)].toList)
-					
-		return objects
-	} 
-
-	def List<IEObjectDescription> getAllFunctionDescription() {
-		getAllFunctions().map[e | EObjectDescription.create(e.name, e, null)].toList
-	}
-*/	
-
-	def List<EObject> getAllObjects() {
-		val List<EObject> objects = new ArrayList()
-		
-		objects.addAll(additionalObjectsResource.allContents.filter(NamedFunctionDeclaration).toList)
-		objects.addAll(additionalObjectsResource.allContents.filter(ModelDeclaration).toList)
-		objects.addAll(additionalObjectsResource.allContents.filter(Declaration).toList)
-		return objects
-
+	def List<EObject> getFunctions() {
+		additionalObjectsResource.allContents.toList
 	}
 
 	override protected computeExportedObjects() {
-		val List<IEObjectDescription> objects = new ArrayList()
-
-		objects.addAll(allObjects.filter(ModelDeclaration).filter[o | o.fullyQualifiedName != null].map[o |
+		functions.filter[o | o.fullyQualifiedName != null].map[o |
 					EObjectDescription::create(
 						o.fullyQualifiedName, o, o.indexInfo
 					)			
-		].toList)
-
-		objects.addAll(allObjects.filter(Declaration).map(o | o as Named).filter[o | o.fullyQualifiedName != null].map[o |
-					EObjectDescription::create(
-						o.fullyQualifiedName, o, o.indexInfo
-					)			
-		].toList)
-
-		objects.addAll(allObjects.filter(NamedFunctionDeclaration).filter[o | o.fullyQualifiedName != null].map[o |
-					EObjectDescription::create(
-						o.name, o, o.indexInfo
-					)			
-		].toList)
-
-		/*
-
-		objects.addAll(additionalObjectsResource.allContents.filter(ModelDeclaration).map[m | 
-					EObjectDescription::create(
-						m.fullyQualifiedName, m, m.indexInfo
-					)
-		].toList)
-
-		objects.addAll(additionalObjectsResource.allContents.filter(Declaration).map[d | 
-					EObjectDescription::create(
-						d.fullyQualifiedName, d, d.indexInfo
-					)
-		].toList) */
-					
-		return objects
-
+		].toList
 	}
 	
 	override getImportedNames() {
@@ -471,4 +404,24 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		uri
 	}
 	
+	override getAllElements() {
+		exportedObjects
+	}
+	
+	override getElements(QualifiedName name) {
+		allElements.filter[it.name == name]
+	}
+	
+	override getElements(EObject object) {
+		this.getExportedObjectsByObject(object);
+	}
+	
+	override getSingleElement(QualifiedName name) {
+		allElements.filter[it.name == name].head
+	}
+	
+	override getSingleElement(EObject object) {
+		this.getExportedObjectsByObject(object).head;
+	}
+		
 }

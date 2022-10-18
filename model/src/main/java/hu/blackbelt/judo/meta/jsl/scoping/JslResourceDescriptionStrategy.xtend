@@ -27,7 +27,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
 class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy {
 
 	@Inject extension IQualifiedNameProvider
-	@Inject JslDslInjectedObjectsProvider injectedObjectsProvider;
+	@Inject JslDslFunctionsScope functionsScope;
 
 	override createEObjectDescriptions(EObject eObject, IAcceptor<IEObjectDescription> acceptor) {
 
@@ -36,7 +36,6 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 			
 			if (modelDeclaration.fullyQualifiedName !== null) {
 				// System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ modelDeclaration + " fq: " + modelDeclaration.fullyQualifiedName.toString("::"));
-
 				acceptor.accept(
 					EObjectDescription::create(
 						modelDeclaration.fullyQualifiedName, modelDeclaration, modelDeclaration.indexInfo
@@ -129,7 +128,7 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 	 			if (object.name !== null) {
 	 				userData.put("fullyQualifiedName", object.name)
 	 			}
- 				System.out.println("Indexing " + object.name)	 			
+ 				// System.out.println("Indexing " + object.name)	 			
 	 			if (object.imports !== null) {
 	 				val importNames = new StringBuilder();
 	 				object.imports.forEach[
@@ -146,7 +145,7 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 		 					importNames.append(import.model.name + "=" + alias)	 						
 	 					}
 	 				]
-	 				System.out.println("\tImport: " + importNames)
+	 				// System.out.println("\tImport: " + importNames)
 	 				userData.put("imports", importNames.toString)
 
 	 			}
@@ -169,11 +168,11 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 	}
 	
 	
-	override isResolvedAndExternal(EObject from, EObject to) {
-	 	if (injectedObjectsProvider.isProvided(to)) {
-	 		true
- 		} else {
- 			super.isResolvedAndExternal(from, to)
-		}
-     }
+//	override isResolvedAndExternal(EObject from, EObject to) {
+//	 	if (functionsScope.isProvided(to)) {
+//	 		true
+//		} else {
+// 			super.isResolvedAndExternal(from, to)
+//		}
+//     }
 }

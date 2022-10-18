@@ -91,6 +91,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Inject extension JslDslIndex
 	
 	
+	
 	// perform this check only on file save
 	@Check(CheckType::NORMAL)
 	def checkDuplicateModelsInFiles(ModelDeclaration modelDeclaration) {
@@ -144,37 +145,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 				modelImport.model.name)
 		}
 	}
-
-/*
-	@Check
-	def checkImportSanity(ModelImportDeclaration modelImport) {
-		val model = modelImport.model;
-		if (model !== null) {
-			val modelQualifiedName = model.name.toQualifiedName
-			val found = modelImport.parentContainer(ModelDeclaration).getVisibleClassesDescriptions.map[
-				desc |
-				if (desc.qualifiedName == modelQualifiedName 
-					&& desc.EObjectOrProxy != modelImport.parentContainer(ModelDeclaration) 
-					&& desc.EObjectURI.trimFragment != modelImport.parentContainer(ModelDeclaration).eResource.URI) {
-						true
-				} else {				
-					false
-				}
-			].exists[l | l]
-			if (!found) {
-				error("Imported model '" + modelImport.model.name + "' not found",
-					JsldslPackage::eINSTANCE.modelImportDeclaration_Model,
-					IMPORTED_MODEL_NOT_FOUND,
-					modelImport.model.name)				
-			}
-		} else {			
-				error("Imported model is not defined",
-					JsldslPackage::eINSTANCE.modelImportDeclaration_Model,
-					IMPORTED_MODEL_NOT_FOUND,
-					modelImport.model.name)				
-		}
-    }
-*/
 
 	@Check
 	def checkAssociation(EntityRelationDeclaration relation) {
