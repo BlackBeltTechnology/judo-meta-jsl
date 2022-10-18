@@ -905,10 +905,10 @@ class TypeInfoTests {
 				derived Boolean anyFalse => self.t1s!anyFalse(t | t.name = "Test");
 				derived Boolean allFalse => self.t1s!allFalse(t | t.name = "Test");
 
-				derived Decimal min => self.t1s!min(t | t.price);
-				derived Decimal max => self.t1s!max(t | t.price);
-				derived Decimal avg => self.t1s!avg(t | t.price);
-				derived Decimal sum => self.t1s!sum(t | t.price);
+				derived Decimal min => self.t1s!min(member = price);
+				derived Decimal max => self.t1s!max(member = price);
+				derived Decimal avg => self.t1s!avg(member = price);
+				derived Decimal sum => self.t1s!sum(member = price);
 
 			}
 		'''.parse.fromModel
