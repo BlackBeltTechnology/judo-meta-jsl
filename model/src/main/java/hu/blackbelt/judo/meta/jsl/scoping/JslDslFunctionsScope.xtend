@@ -259,9 +259,10 @@ class JslDslFunctionsScope extends AbstractResourceDescription implements IScope
 				createFunctionParameterDeclaration("instances", false, true, PT_ENTITY_COLLECTION, #[BT_ENTITY_INSTANCE])
 			])
 
-		resource.addSelectorFunctionDeclaration("head", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
-		resource.addSelectorFunctionDeclaration("tail", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
-
+		resource.addLambdaFunctionDeclaration("first", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
+		resource.addLambdaFunctionDeclaration("last", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
+		resource.addLambdaFunctionDeclaration("front", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
+		resource.addLambdaFunctionDeclaration("back", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
 
 		resource.addLiteralFunctionDeclaration("any", RT_ENTITY_INSTANCE, #[BT_ENTITY_COLLECTION])
 		resource.addLiteralFunctionDeclaration("asCollection", RT_ENTITY_COLLECTION, #[BT_ENTITY_INSTANCE])
