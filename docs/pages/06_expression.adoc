@@ -882,7 +882,7 @@ Makes sense in JCL only.
 |`[purple]#**first(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : collection`
 |Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing the first elements. If there is more than one element in the first place, all elements in the first place are included in the result. The <expression> must navigate to a primitive type field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
 | Example:
-|`self.orderItems.product!first(item | item.price)` returns the cheapest products of an order.
+|`self.orderItems.product!first(item \| item.price)` returns the cheapest products of an order.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -890,14 +890,14 @@ Makes sense in JCL only.
 |`[purple]#**last(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : collection`
 |Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing the last elements. If there is more than one element in the last place, all elements in the last place are included in the result. The <expression> must navigate to a primitive type field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
 |Example:
-|`self.orderItems.product!last(item | item.price)` returns the highest priced products of an order.
+|`self.orderItems.product!last(item \| item.price)` returns the highest priced products of an order.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**front(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : collection`
 |Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing all of the non-last elements. If there is more than one element in the last place, all elements in the last place are omitted from the result. The <expression> must navigate to a primitive type field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
-|`self.orderItems.product!front(item | item.price)` returns all products in the order, except the highest priced products.
+|`self.orderItems.product!front(item \| item.price)` returns all products in the order, except the highest priced products.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -905,7 +905,7 @@ Makes sense in JCL only.
 |`[purple]#**back(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : collection`
 |Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing all of the non-first elements. If there is more than one element in the first place, all elements in the first place are omitted from the result. The <expression> must navigate to a primitive type field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
 |Example:
-|`self.orderItems.product!back(item | item.price)` returns all products in the order, except the cheapest products.
+|`self.orderItems.product!back(item \| item.price)` returns all products in the order, except the cheapest products.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
