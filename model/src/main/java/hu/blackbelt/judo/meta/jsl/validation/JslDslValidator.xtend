@@ -178,13 +178,19 @@ class JslDslValidator extends AbstractJslDslValidator {
 				unsupportedLamdaFunctionSelectorError(function);
 			}
 
-			if (!(nbe.features.get(0).navigationTargetType instanceof EntityFieldDeclaration)) {
-				unsupportedLamdaFunctionSelectorError(function);
-			}
+			if (nbe.features.get(0).navigationTargetType instanceof EntityFieldDeclaration) {
+				val EntityFieldDeclaration field = nbe.features.get(0).navigationTargetType as EntityFieldDeclaration
 
-			val EntityFieldDeclaration field = nbe.features.get(0).navigationTargetType as EntityFieldDeclaration
+				if (!(field.referenceType instanceof PrimitiveDeclaration)) {
+					unsupportedLamdaFunctionSelectorError(function);
+				}
+			} else if (nbe.features.get(0).navigationTargetType instanceof EntityDerivedDeclaration) {
+				val EntityDerivedDeclaration derived = nbe.features.get(0).navigationTargetType as EntityDerivedDeclaration
 
-			if (!(field.referenceType instanceof PrimitiveDeclaration)) {
+				if (!(derived.referenceType instanceof PrimitiveDeclaration)) {
+					unsupportedLamdaFunctionSelectorError(function);
+				}
+			} else {
 				unsupportedLamdaFunctionSelectorError(function);
 			}
 		}
