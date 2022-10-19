@@ -6,7 +6,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslFactory
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.resource.EObjectDescription
 import org.eclipse.emf.ecore.EObject
-import hu.blackbelt.judo.meta.jsl.jsldsl.impl.JsldslPackageImpl
 import java.util.Collections
 import javax.inject.Singleton
 import com.google.inject.Inject
@@ -20,21 +19,33 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterType
 import static hu.blackbelt.judo.meta.jsl.jsldsl.FunctionReturnType.*
 import static hu.blackbelt.judo.meta.jsl.jsldsl.FunctionBaseType.*
 import static hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterType.*
-import hu.blackbelt.judo.meta.jsl.jsldsl.NamedFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.impl.LiteralFunctionDeclarationImpl
 import hu.blackbelt.judo.meta.jsl.jsldsl.impl.LambdaFunctionDeclarationImpl
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.impl.SelectorFunctionDeclarationImpl
+import java.math.BigInteger
+import org.eclipse.xtext.naming.IQualifiedNameProvider
+import java.util.List
+import org.eclipse.xtext.scoping.IScope
+import org.eclipse.xtext.naming.QualifiedName
+import org.eclipse.xtext.naming.IQualifiedNameConverter
+import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
+import org.eclipse.xtext.resource.IResourceDescriptions
+import org.eclipse.xtext.resource.IResourceDescription
+import org.eclipse.xtext.resource.IResourceServiceProvider
 
 @Singleton
-class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
+class JslDslFunctionsScope extends AbstractResourceDescription implements IScope {
 	
 	val uri = org.eclipse.emf.common.util.URI.createPlatformResourceURI("__injectedobjectprovider/_synthetic.jsl", true)
 	
-	@Inject
-	XtextResourceSet resourceSet
+	@Inject XtextResourceSet resourceSet
+	@Inject extension IQualifiedNameProvider
+	@Inject extension JslResourceDescriptionStrategy
+	@Inject ResourceDescriptionsProvider indexProvider;
+	@Inject IResourceServiceProvider resourceServiceProvider;
 	
 	def getAdditionalObjectsResource() {
     	var resource = resourceSet.getResource(uri, false)
@@ -44,6 +55,12 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
     	}
     	return resource	
 	}
+
+ 	def configure(Resource resource) {
+	    val IResourceDescriptions descriptionIndex = indexProvider.getResourceDescriptions(resource)
+	    val IResourceDescription descr = descriptionIndex.getResourceDescription(resource.getURI())
+	    val manager = resourceServiceProvider.getContainerManager()
+  	}
 
 	def private getFactory() {
     	JsldslFactoryImpl.init()
@@ -101,6 +118,24 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 			BT_TIME_INSTANCE,
 			BT_TIMESTAMP_INSTANCE
 		]
+	}
+
+
+	def void addJudoTypes(Resource resource) {
+		val modelDeclaration = factory.createModelDeclaration
+		modelDeclaration.name = "judo::types"
+		
+		val string = factory.createDataTypeDeclaration
+		string.name = "String"
+		string.minSize = factory.createModifierMinSize
+		string.maxSize = factory.createModifierMaxSize
+		string.minSize.value = BigInteger.valueOf(1)
+		string.maxSize.value = BigInteger.valueOf(128)
+		
+		modelDeclaration.declarations.add(string)
+		
+		resource.contents += modelDeclaration
+
 	}
 
 	def void addAllFunctions(Resource resource) {
@@ -341,25 +376,20 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
     	return obj
   	}
 
-
-	
 	def boolean isProvided(EObject object ) {
-    	if (object.eClass.classifierID === JsldslPackageImpl.LITERAL_FUNCTION_DECLARATION ||
-    		object.eClass.classifierID === JsldslPackageImpl.LAMBDA_FUNCTION_DECLARATION ||
-    		object.eClass.classifierID === JsldslPackageImpl.SELECTOR_FUNCTION_DECLARATION
-    	) {
-    		return allFunctions.contains(object)
-   		} else {
-        	return false    	
-    	}
+		#[functions].flatten.contains(object)
   	}
 
-	def Collection<NamedFunctionDeclaration> getAllFunctions() {
-		additionalObjectsResource.allContents.toIterable.filter(NamedFunctionDeclaration).toList
-	} 
-	
+	def List<EObject> getFunctions() {
+		additionalObjectsResource.allContents.toList
+	}
+
 	override protected computeExportedObjects() {
-		getAllFunctions().map[e | EObjectDescription.create(e.name, e, null)].toList
+		functions.filter[o | o.fullyQualifiedName != null].map[o |
+					EObjectDescription::create(
+						o.fullyQualifiedName, o, o.indexInfo
+					)			
+		].toList
 	}
 	
 	override getImportedNames() {
@@ -374,4 +404,24 @@ class JslDslInjectedObjectsProvider extends AbstractResourceDescription {
 		uri
 	}
 	
+	override getAllElements() {
+		exportedObjects
+	}
+	
+	override getElements(QualifiedName name) {
+		allElements.filter[it.name == name]
+	}
+	
+	override getElements(EObject object) {
+		this.getExportedObjectsByObject(object);
+	}
+	
+	override getSingleElement(QualifiedName name) {
+		allElements.filter[it.name == name].head
+	}
+	
+	override getSingleElement(EObject object) {
+		this.getExportedObjectsByObject(object).head;
+	}
+		
 }

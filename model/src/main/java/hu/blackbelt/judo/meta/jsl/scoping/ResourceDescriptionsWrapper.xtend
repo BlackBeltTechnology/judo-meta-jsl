@@ -7,14 +7,15 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.resource.impl.ResourceSetBasedResourceDescriptions
 import org.eclipse.xtext.resource.IResourceDescriptions
 import org.eclipse.emf.ecore.resource.ResourceSet
+import org.eclipse.xtext.resource.IResourceDescription
 
-class JslDslResourceDescriptionsResourceBasedWrapper extends ResourceSetBasedResourceDescriptions {
+class ResourceDescriptionsWrapper extends ResourceSetBasedResourceDescriptions {
 	
-	var JslDslInjectedObjectsProvider provider;
+	var IResourceDescription provider;
 	var IResourceDescriptions descriptions;
 	var ResourceSet resourceSet;
 
-	new(ResourceSet fallbackResourceSet, IResourceDescriptions descriptionsParam, JslDslInjectedObjectsProvider providerParam) {    
+	new(ResourceSet fallbackResourceSet, IResourceDescriptions descriptionsParam, IResourceDescription providerParam) {    
 		descriptions = descriptionsParam
 		provider = providerParam
 		resourceSet = fallbackResourceSet

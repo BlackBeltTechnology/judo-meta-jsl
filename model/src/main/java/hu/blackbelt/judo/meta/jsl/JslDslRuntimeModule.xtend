@@ -66,4 +66,10 @@ class JslDslRuntimeModule extends AbstractJslDslRuntimeModule {
 	override Class<? extends IValueConverterService> bindIValueConverterService() {
 	  return JslTerminalConverters
 	}
+	
+//	override configureIResourceDescriptions(Binder binder) {
+//		binder.bind(IResourceDescriptions).to(JslDslResourceSetBasedDescriptions)
+//	}
+	
 }
+
