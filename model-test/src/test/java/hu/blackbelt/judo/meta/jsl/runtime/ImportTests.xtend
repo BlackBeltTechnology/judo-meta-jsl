@@ -40,7 +40,6 @@ class ImportTests {
 		b.assertNoErrors
 	}
 
-	/*
 	@Test 
 	def void testFailOfTwoModelDefinition() {
 		'''
@@ -51,7 +50,7 @@ class ImportTests {
 			assertSyntaxError("missing EOF at 'model'")
 			assertSyntaxError("")
 		]
-	} */
+	}
 				
 	@Test 
 	def void testSelfImportClassHierarchyCycle() {

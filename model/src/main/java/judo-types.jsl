@@ -1,8 +1,0 @@
-model judo::types;
-
-type boolean Boolean;
-type date Date;
-type time Time;
-type timestamp Timestamp;
-type numeric Integer(precision = 15, scale = 0);
-type string String(min-size = 0, max-size = 4000);
