@@ -25,7 +25,7 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 	override completeEntityRelationOppositeReferenced_OppositeType(EObject model, Assignment assignment, 
 		ContentAssistContext context, ICompletionProposalAcceptor acceptor
 	) {
-		System.out.println("model: " + model + " assignment: " + assignment + " context: " + context)
+		// System.out.println("model: " + model + " assignment: " + assignment + " context: " + context)
 		lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor,
 			[ ((model as EntityRelationOpposite).eContainer as EntityRelationDeclaration)
 				.isSelectableForRelation(EObjectOrProxy as EntityRelationDeclaration)
@@ -34,7 +34,7 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 	}
 	
 	override completeEntityDeclaration_Extends(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		System.out.println(" - model: " + model + " assignment: " + assignment + " context: " + context)
+		// System.out.println(" - model: " + model + " assignment: " + assignment + " context: " + context)
 		lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor,
 			[ 
 				val entity = model as EntityDeclaration;
