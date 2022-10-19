@@ -483,7 +483,7 @@ Any type functions can be applied to any type or instance except collections.
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**like(pattern = **#<pattern> &#x5B;[purple]##**, exact = **##<exact>][purple]##**)**## : boolean`
-|Returns `true` if the string matches a given <pattern>, `false` otherwise. The optional <exact> is a boolean parameter. If <exact> is true the pattern matching is case-sensitive. If <exact> is false the pattern matching is case-insensitive. If no <exact> argument is passed, the pattern matching is case-sensitive.
+|Returns `true` if the string matches a given <pattern>, `false` otherwise. The optional <exact> is a boolean parameter. If <exact> is true the pattern matching is case-sensitive. If <exact> is false or undefined the pattern matching is case-insensitive. If no <exact> argument is passed, the pattern matching is case-sensitive.
 
 There are two wildcards used in the <pattern>:
 
