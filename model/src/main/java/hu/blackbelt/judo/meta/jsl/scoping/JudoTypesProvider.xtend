@@ -11,92 +11,70 @@ import com.google.common.base.Predicate
 import org.eclipse.xtext.util.StringInputStream
 import java.io.IOException
 import org.eclipse.xtext.scoping.impl.SimpleScope
-import org.eclipse.xtext.resource.IResourceServiceProvider
-import org.eclipse.xtext.naming.IQualifiedNameConverter
 import java.util.List
-import org.eclipse.xtext.resource.IResourceFactory
-import hu.blackbelt.judo.meta.jsl.JslDslStandaloneSetupGenerated
 import com.google.inject.Injector
-import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.resource.XtextResourceSet
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 
 @Singleton
 class JudoTypesProvider {
 	
 	@Inject IResourceDescription.Manager mgr;
-	@Inject IResourceServiceProvider.Registry rspr
-	@Inject IQualifiedNameConverter converter
+	@Inject Injector injector
 
-    static final String JSLSCRIPT_CONTENT_TYPE = "jsl";
-    static Injector injectorInstance;
-
-    def static Injector injector() {
-        if (injectorInstance == null) {
-            injectorInstance = new JslDslStandaloneSetupGenerated().createInjectorAndDoEMFRegistration();
-            Resource.Factory.Registry.INSTANCE.getContentTypeToFactoryMap().put(JSLSCRIPT_CONTENT_TYPE,
-                    injectorInstance.getInstance(IResourceFactory));
-        }
-        return injectorInstance;
-    }
-
-	def Resource getResource(Resource parentResource) {
-		// val URI libaryResourceURI = URI.createURI("dummy://system/judo-types.jsl");
-		val libaryResourceURI = org.eclipse.emf.common.util.URI.createPlatformResourceURI("__injectedjudotypes/_synthetic.jsl", true)
+	def Resource getResource() {
+		val judoTypesResourceURI = org.eclipse.emf.common.util.URI.createPlatformResourceURI("__injectedjudotypes/_synthetic.jsl", true)
 		
-		val XtextResourceSet xtextResourceSet =  injector().getInstance(XtextResourceSet);	
-		var Resource libaryResource = xtextResourceSet.getResource(libaryResourceURI, false);
-		if (libaryResource == null) {
-			libaryResource = xtextResourceSet.createResource(libaryResourceURI);
+		val XtextResourceSet xtextResourceSet =  injector.getInstance(XtextResourceSet);	
+		var Resource judoTypesResource = xtextResourceSet.getResource(judoTypesResourceURI, false);
+		if (judoTypesResource == null) {
+			judoTypesResource = xtextResourceSet.createResource(judoTypesResourceURI);
 			try {
-				libaryResource.load(new StringInputStream(model().toString), null);
+				judoTypesResource.load(new StringInputStream(model().toString), null);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		libaryResource		
+		judoTypesResource		
 	}
 
 
-	def List<IEObjectDescription> getDescriptions(Resource parentResource) {
-		val IResourceDescription resourceDescription = mgr.getResourceDescription(getResource(parentResource));
+	def List<IEObjectDescription> getDescriptions() {
+		val IResourceDescription resourceDescription = mgr.getResourceDescription(getResource());
 		resourceDescription.getExportedObjects().toList;
 	}
 
-	def IScope getScope(IScope parentScope, Resource parentResource, EReference reference, Predicate<IEObjectDescription> filter) {
-		var library = getDescriptions(parentResource)
+	def IScope getScope(IScope parentScope, EReference reference, Predicate<IEObjectDescription> filter) {
+		var judoTypes = getDescriptions()
 		if (filter != null) {
-			library = library.filter[f | filter.apply(f)].toList
+			judoTypes = judoTypes
+				.filter[f | !(f.EObjectOrProxy instanceof ModelDeclaration)]
+				.filter[f | filter.apply(f)].toList
 		}
-		return new SimpleScope(parentScope, library, false);	
+		return new SimpleScope(parentScope, judoTypes, false);	
 	}
-	 
-	def getResourceDescription(Resource parentResource) {
-		val resource = getResource(parentResource)
-	    val resServiceProvider = rspr.getResourceServiceProvider(resource.URI)
-	    val manager = resServiceProvider.getResourceDescriptionManager()
-	    manager.getResourceDescription(resource)		
+
+	def IScope getModelDeclarationScope(IScope parentScope) {
+		var judoTypes = getDescriptions().filter[f | f.EObjectOrProxy instanceof ModelDeclaration].toList
+		return new SimpleScope(parentScope, judoTypes, false);	
 	}
-	 
-	def void printExportedObjects(Resource parentResource) {
-	    for (eod : getResourceDescription(parentResource).exportedObjects) {
-	        println(converter.toString(eod.qualifiedName))
-	    }
-	}
-	
+
+	 	
 	def model() '''
 		model judo::types;
 		
-		type string String(min-size = 0, max-size = 128);
-		// type string Text(min-size = 0, max-size = 2048);
-		// type string UPC(min-size = 0, max-size = 12, regex = r"[0-9]{12}");
-		// type string PhoneNumber(min-size = 0, max-size = 32, regex = "^(\\+\\d{1,2}\\s)?\\(?\\d{2,5}\\)?[\\s-]\\d{2,4}[\\s-]\\d{4}$");
-		// type string PostalCode(min-size = 0, max-size = 5, regex = r"[0-9]{12}");
-		//
-		//
-		// type numeric Price(precision = 12, scale = 2);
-		// type numeric Integer(precision = 12, scale = 0);
-		//
-		// type boolean Boolean;	
+		type boolean Boolean;
+		type date Date;
+		type time Time;
+		type timestamp Timestamp;
+		type numeric Integer(precision = 15, scale = 0);
+		type string String(min-size = 0, max-size = 4000);
+		
+		// type numeric Scaled(precision = 9, scale = 2);
+		// type binary Binary(mime-types = ["application/octet-stream", "text/plain"], max-file-size=1 MB);
+		// type binary Image(mime-types = ["image/*"], max-file-size=1 MB);
+		// type binary PDF(mime-types = ["application/pdf"], max-file-size=5 MB);
+
 	'''
 		
 }

@@ -46,19 +46,4 @@ class JslDslImportedNamespaceAwareLocalSocpeProvider extends ImportedNamespaceAw
 		return getLocalElementsScope(result, context, ref);
 	}
 	
-	
-	def void printParents(EObject obj) {
-		var EObject t = obj;
-		var int indent = 1
-		while (t.eContainer !== null) {
-			for (var i = 0; i<indent; i++) {
-				System.out.print("\t");
-			}
-			indent ++
-			System.out.println(t)
-			t = t.eContainer
-		}
-		System.out.println("")	
-	}
-	
 }

@@ -31,7 +31,7 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 			val modelDeclaration = eObject
 			
 			if (modelDeclaration.fullyQualifiedName !== null) {
-				System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ modelDeclaration + " fq: " + modelDeclaration.fullyQualifiedName.toString("::"));
+				// System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ modelDeclaration + " fq: " + modelDeclaration.fullyQualifiedName.toString("::"));
 				acceptor.accept(
 					EObjectDescription::create(
 						modelDeclaration.fullyQualifiedName, modelDeclaration, modelDeclaration.indexInfo
@@ -121,7 +121,7 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 		 	
 		switch object {
 		 	ModelDeclaration: {
-			 	System.out.println("(ModeltDeclaration) index:" + object.name)
+			 	// System.out.println("(ModeltDeclaration) index:" + object.name)
 
 	 			if (object.name != null) {
 	 				userData.put("fullyQualifiedName", object.name)
@@ -149,7 +149,7 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 		 					
 		 					importNames.append(importName + "=" + alias)	 						
 
-			 				System.out.println("(ModelDeclaration) Import name:" + importName + " Alias: " + alias)
+			 				// System.out.println("(ModelDeclaration) Import name:" + importName + " Alias: " + alias)
 	 					}
 	 				]
 	 				// System.out.println("\tImport: " + importNames)
@@ -157,18 +157,6 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 	 			}
  			}		 	
 
-/*
-		 	ModelImportDeclaration: {
-			 	System.out.println("(ModelImportDeclaration) owner:" + (object.eContainer as ModelDeclaration).name)
- 				userData.put("fullyQualifiedName", (object.eContainer as ModelDeclaration).name)
-
-				val importNode = NodeModelUtils.findNodesForFeature(object, JsldslPackage::eINSTANCE.modelImportDeclaration_Model).head
-	 			if (importNode !== null) {
-			 		System.out.println("(ModelImportDeclaration) model:" + importNode.text)
-	 				userData.put("importQualifiedName", importNode.text)
-	 			}
- 			}		 	
-*/
 		 	EntityRelationDeclaration: {
 	 			if (object.opposite !== null && object.opposite instanceof EntityRelationOppositeInjected) {
 	 				userData.put("oppositeName", (object.opposite as EntityRelationOppositeInjected).name)
@@ -176,14 +164,5 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
  			}		 	
 		 }
 		return userData
-	}
-	
-	
-//	override isResolvedAndExternal(EObject from, EObject to) {
-//	 	if (functionsScope.isProvided(to)) {
-//	 		true
-//		} else {
-// 			super.isResolvedAndExternal(from, to)
-//		}
-//     }
+	}	
 }
