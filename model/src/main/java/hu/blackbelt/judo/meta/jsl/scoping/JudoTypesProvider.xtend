@@ -14,6 +14,11 @@ import org.eclipse.xtext.scoping.impl.SimpleScope
 import org.eclipse.xtext.resource.IResourceServiceProvider
 import org.eclipse.xtext.naming.IQualifiedNameConverter
 import java.util.List
+import org.eclipse.xtext.resource.IResourceFactory
+import hu.blackbelt.judo.meta.jsl.JslDslStandaloneSetupGenerated
+import com.google.inject.Injector
+import org.eclipse.emf.ecore.resource.ResourceSet
+import org.eclipse.xtext.resource.XtextResourceSet
 
 @Singleton
 class JudoTypesProvider {
@@ -22,13 +27,26 @@ class JudoTypesProvider {
 	@Inject IResourceServiceProvider.Registry rspr
 	@Inject IQualifiedNameConverter converter
 
+    static final String JSLSCRIPT_CONTENT_TYPE = "jsl";
+    static Injector injectorInstance;
+
+    def static Injector injector() {
+        if (injectorInstance == null) {
+            injectorInstance = new JslDslStandaloneSetupGenerated().createInjectorAndDoEMFRegistration();
+            Resource.Factory.Registry.INSTANCE.getContentTypeToFactoryMap().put(JSLSCRIPT_CONTENT_TYPE,
+                    injectorInstance.getInstance(IResourceFactory));
+        }
+        return injectorInstance;
+    }
+
 	def Resource getResource(Resource parentResource) {
 		// val URI libaryResourceURI = URI.createURI("dummy://system/judo-types.jsl");
 		val libaryResourceURI = org.eclipse.emf.common.util.URI.createPlatformResourceURI("__injectedjudotypes/_synthetic.jsl", true)
-	
-		var Resource libaryResource = parentResource.getResourceSet().getResource(libaryResourceURI, false);
+		
+		val XtextResourceSet xtextResourceSet =  injector().getInstance(XtextResourceSet);	
+		var Resource libaryResource = xtextResourceSet.getResource(libaryResourceURI, false);
 		if (libaryResource == null) {
-			libaryResource = parentResource.getResourceSet().createResource(libaryResourceURI);
+			libaryResource = xtextResourceSet.createResource(libaryResourceURI);
 			try {
 				libaryResource.load(new StringInputStream(model().toString), null);
 			} catch (IOException e) {

@@ -23,21 +23,20 @@ class JudoTypesTests {
 	
 				
 
-	/*
 	@Test 
 	def void testJudoTypesImport() {
 		val resourceSet = resourceSetProvider.get
 		val a = 
-		'''model A;
-		import judo::types;
-		
-		entity {
-			String str;
-		}	
+		'''
+			model A;
+			
+			import judo::types;
+			
+			entity A {
+				field String str;
+			}	
 		'''.parse(resourceSet)
 		
 		a.assertNoErrors
 	}
-	* 
-	*/
 }	
