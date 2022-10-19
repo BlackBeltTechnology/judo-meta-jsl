@@ -19,13 +19,13 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
  * on how to customize the content assistant.
  */
 class JslDslProposalProvider extends AbstractJslDslProposalProvider {
-	
+	// TODO: https://stackoverflow.com/questions/47005235/customizing-content-proposal-in-xtext-for-web-editors
 	@Inject extension JslDslModelExtension
 	
 	override completeEntityRelationOppositeReferenced_OppositeType(EObject model, Assignment assignment, 
 		ContentAssistContext context, ICompletionProposalAcceptor acceptor
 	) {
-		// System.out.println("model: " + model + " assignment: " + assignment + " context: " + context)
+		System.out.println("model: " + model + " assignment: " + assignment + " context: " + context)
 		lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor,
 			[ ((model as EntityRelationOpposite).eContainer as EntityRelationDeclaration)
 				.isSelectableForRelation(EObjectOrProxy as EntityRelationDeclaration)
@@ -34,7 +34,7 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 	}
 	
 	override completeEntityDeclaration_Extends(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		// System.out.println(" - model: " + model + " assignment: " + assignment + " context: " + context)
+		System.out.println(" - model: " + model + " assignment: " + assignment + " context: " + context)
 		lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor,
 			[ 
 				val entity = model as EntityDeclaration;

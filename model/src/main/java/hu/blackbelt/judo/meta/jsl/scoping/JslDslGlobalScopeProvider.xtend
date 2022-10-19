@@ -13,32 +13,39 @@ import org.eclipse.xtext.scoping.impl.ImportNormalizer
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.eclipse.xtext.resource.IResourceDescriptions
+import org.eclipse.xtext.scoping.impl.FilteringScope
+import org.eclipse.xtext.scoping.Scopes
 
 class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 
+	@Inject extension JslDslIndex
 	@Inject extension IQualifiedNameConverter
 	@Inject extension JslDslModelExtension
-	@Inject JslDslInjectedObjectsProvider injectedObjectsProvider
+	@Inject JudoTypesProvider judoTypesProvider
 
     override IScope getScope(Resource resource, EReference reference, Predicate<IEObjectDescription> filter) {
 		// System.out.println("JslDslGlobalScopeProvider.getScope Res: " + resource + "Ref: " + reference);
     	// System.out.println("JslDslGlobalScopeProvider.scope=scope_" + reference.EContainingClass.name + "_" + reference.name + "(" + resource + " context, EReference ref) : " + reference.EReferenceType.name);
+		// System.out.println("\tRes: " + resource + "Ref: " + reference);
+		val model = resource.getContents().get(0).parentContainer(ModelDeclaration)
 		
-		if (JsldslPackage::eINSTANCE.modelImport_ModelName == reference) {
-			// System.out.println("JslDslGlobalScopeProvider.getScope NULL");
-			return new JslDslInjectedObjectsScopeWrapper(super.getScope(resource, reference, filter), injectedObjectsProvider);
-			//return super.getScope(resource, reference, filter)
-
+				
+		if (JsldslPackage::eINSTANCE.modelImportDeclaration_Model == reference) {			
+			//System.out.println("JslDslGlobalScopeProvider.getScope ModelImportDeclaration - " + model.name);
+	        //return super.getScope(resource, reference, filter)
+			return judoTypesProvider.getModelDeclarationScope(super.getScope(resource, reference, filter));  
 		}
-
+				
 	    val overridedFilter = new Predicate<IEObjectDescription>() {
             override boolean apply(IEObjectDescription input) {
-				val model = resource.getContents().get(0).parentContainer(ModelDeclaration)
+
+				// System.out.println("> ModelDeclaration: " + model);
+				// System.out.println("> Input: " + input)
+				// System.out.println("> Import NS: " + model.EObjectDescription.getUserData("imports"))
 
 				var found = false
-				for (modelImport : model.imports) {
-					// System.out.println("> JslDslGlobalScopeProvider.getScope Import NS: " + modelImport.modelName.importName + " FIELD: " + input.qualifiedName.toString("::"));
-					val normalizer = new ImportNormalizer(modelImport.modelName.importName.toQualifiedName, true, false);
+				for (e : model.allImports.entrySet) {
+					val normalizer = new ImportNormalizer(e.key.toQualifiedName, true, false);
 					if (normalizer.deresolve(input.qualifiedName) !== null) {
 						// System.out.println("> JslDslGlobalScopeProvider.getScope=" + input.qualifiedName.toString("::") + "Res: " + resource + " Ref: " + reference + " Input: " + input);
 						found = true
@@ -52,10 +59,24 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 				}
             }
         }
-        return new JslDslInjectedObjectsScopeWrapper(super.getScope(resource, reference, overridedFilter), injectedObjectsProvider);
+        //super.getScope(resource, reference, overridedFilter)
+        		
+        return judoTypesProvider.getScope(super.getScope(resource, reference, overridedFilter), reference, overridedFilter);    
     }
+
+	def typeOnly(IScope parent, Class<?> type) {
+		return new FilteringScope(parent, [desc | {
+			val obj = desc.EObjectOrProxy
+			if (type.isAssignableFrom(obj.class)) {
+				return true								
+			}
+			false
+		}]);
+	}
     
     override IResourceDescriptions getResourceDescriptions(Resource resource) {
-    	return new JslDslResourceDescriptionsResourceBasedWrapper(resource.resourceSet, super.getResourceDescriptions(resource), injectedObjectsProvider)    		    		
+    	//System.out.println("=== JslDslGlobalScopeProvider.getResourceDescriptions = " + resource);
+    	//return new ResourceDescriptionsWrapper(resource.resourceSet, super.getResourceDescriptions(resource), judoTypesProvider.getResourceDescription(resource))    		
+    	return super.getResourceDescriptions(resource)
 	}
 }
