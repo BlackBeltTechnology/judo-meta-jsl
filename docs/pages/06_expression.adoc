@@ -426,16 +426,16 @@ Any type functions can be applied to any type or instance except collections.
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**first(count = **#<count>[purple]##**)**## : string`
-|Returns the first <count> characters of the original string, or returns the original string if its size is less than <count>. <count> must be an integer. If <count> is less than 1, it returns an empty string.
-|Example: `"apple"!first(count = 2)` is `"ap"`
+|`[purple]#**left(count = **#<count>[purple]##**)**## : string`
+|Returns the left <count> characters of the original string, or returns the original string if its size is less than <count>. <count> must be an integer. If <count> is less than 1, it returns an empty string.
+|Example: `"apple"!left(count = 2)` is `"ap"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**last(count = **#<n>[purple]##**)**## : string`
-|Returns the last <count> characters of the original string, or returns the original string if its size is less than <count>. <count> must be an integer. If <count> is less than 1, returns an empty string.
-|Example: `"apple"!last(count = 1)` is `"e"`
+|`[purple]#**right(count = **#<n>[purple]##**)**## : string`
+|Returns the right <count> characters of the original string, or returns the original string if its size is less than <count>. <count> must be an integer. If <count> is less than 1, returns an empty string.
+|Example: `"apple"!right(count = 1)` is `"e"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]

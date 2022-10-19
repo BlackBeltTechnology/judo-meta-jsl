@@ -327,8 +327,8 @@ class TypeInfoTests {
 
 			
 			entity Test {
-				derived String first => "Test"!first(count = 1);
-				derived String last => "Test"!last(count = 1);
+				derived String first => "Test"!left(count = 1);
+				derived String last => "Test"!right(count = 1);
 				derived Integer position => "Test"!position(substring = "es");
 				derived String substring => "Test"!substring(count = 1, offset = 2);
 				derived String lower => "Test"!lower();
