@@ -49,8 +49,8 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 	            	
 	            }
             }
-	            
-			return judoTypesProvider.getScope(super.getScope(resource, reference, overridedFilter), resource, reference, overridedFilter);  
+	        super.getScope(resource, reference, overridedFilter)
+			//return judoTypesProvider.getScope(super.getScope(resource, reference, overridedFilter), resource, reference, overridedFilter);  
 		}
 				
 	    val overridedFilter = new Predicate<IEObjectDescription>() {
@@ -75,8 +75,10 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 	            	return filter.apply(input) && found					
 				}
             }
-        }		
-        return judoTypesProvider.getScope(super.getScope(resource, reference, overridedFilter), resource, reference, overridedFilter);    
+        }
+        super.getScope(resource, reference, overridedFilter)
+        		
+        //return judoTypesProvider.getScope(super.getScope(resource, reference, overridedFilter), resource, reference, overridedFilter);    
     }
 
 	def typeOnly(IScope parent, Class<?> type) {

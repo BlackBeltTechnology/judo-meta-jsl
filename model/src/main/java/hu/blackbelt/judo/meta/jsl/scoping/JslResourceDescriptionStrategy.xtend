@@ -22,12 +22,14 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 
 @Singleton
 class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy {
 
 	@Inject extension IQualifiedNameProvider
 	@Inject JslDslFunctionsScope functionsScope;
+	@Inject extension JslDslIndex
 
 	override createEObjectDescriptions(EObject eObject, IAcceptor<IEObjectDescription> acceptor) {
 
@@ -133,8 +135,10 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 	 				val importNames = new StringBuilder();
 	 				object.imports.forEach[
 	 					import |
-	 					
-	 					if (import.model != null) {
+	 					val importNode = NodeModelUtils.findNodesForFeature(import, JsldslPackage::eINSTANCE.modelImportDeclaration_Model).head
+	 					if (importNode != null) {
+			 				System.out.println("(ModelDeclaration) Import name:" + importNode.text)
+
 		 					if (importNames.toString.length > 0) {
 		 						importNames.append(",")
 		 					}
@@ -152,9 +156,12 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
  			}		 	
 
 		 	ModelImportDeclaration: {
-	 			if (object.model !== null) {
-	 				userData.put("fullyQualifiedName", (object.eContainer as ModelDeclaration).name)
-	 				userData.put("importQualifiedName", object.model.name)
+ 				userData.put("fullyQualifiedName", (object.eContainer as ModelDeclaration).name)
+
+				val importNode = NodeModelUtils.findNodesForFeature(object, JsldslPackage::eINSTANCE.modelImportDeclaration_Model).head
+	 			if (importNode !== null) {
+			 		System.out.println("(ModelImportDeclaration) model:" + importNode.text)
+	 				userData.put("importQualifiedName", importNode.text)
 	 			}
  			}		 	
 
