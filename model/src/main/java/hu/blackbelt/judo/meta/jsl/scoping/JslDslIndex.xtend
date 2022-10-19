@@ -51,12 +51,14 @@ class JslDslIndex {
 		for (String import : context.EObjectDescription.getUserData("imports").split(",")) {
 			if (import.contains("=")) {
 				val split = import.split("=")
-				val ns = split.get(0);
-				var alias = null as String;
-				if (split.size > 1) {
-					alias = split.get(1)						
+				if (split.size > 0) {
+					val ns = split.get(0);
+					var alias = null as String;
+					if (split.size > 1) {
+						alias = split.get(1)						
+					}
+					imports.put(ns, alias);
 				}
-				imports.put(ns, alias);
 			}
 		}	
 		return imports

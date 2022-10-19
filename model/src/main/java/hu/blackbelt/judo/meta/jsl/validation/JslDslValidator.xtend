@@ -57,7 +57,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	protected static val ISSUE_CODE_PREFIX = "hu.blackbelt.judo.meta.jsl.jsldsl."
 	public static val HIERARCHY_CYCLE = ISSUE_CODE_PREFIX + "HierarchyCycle"
-	public static val IMPORTED_MODEL_NOT_FOUND = ISSUE_CODE_PREFIX + "ImportedModelNotFound"
 	public static val DUPLICATE_MODEL = ISSUE_CODE_PREFIX + "DuplicateModel"
 	public static val OPPOSITE_TYPE_MISMATH = ISSUE_CODE_PREFIX + "OppositeTypeMismatch"
 	public static val DUPLICATE_MEMBER_NAME = ISSUE_CODE_PREFIX + "DuplicateMemberName"
@@ -91,7 +90,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Inject extension JslDslIndex
 	
 	
-	
 	// perform this check only on file save
 	@Check(CheckType::NORMAL)
 	def checkDuplicateModelsInFiles(ModelDeclaration modelDeclaration) {
@@ -111,19 +109,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 		]
 	}
-	
-    /*
-	def checkImportCycle(ModelImport modelImport) {
-		if (modelImport.importedNamespace !== null) {
-			if (modelImport.modelDeclaration.modelImportHierarchy(modelImport.importedNamespace.toQualifiedName).contains(modelImport.importedNamespace.toQualifiedName)) {
-				error("cycle in hierarchy of model '" + modelImport.importedNamespace + "'",
-					JsldslPackage::eINSTANCE.modelImport_ImportedNamespace,
-					HIERARCHY_CYCLE,
-					modelImport.importedNamespace)
-			}			
-		}
-	}
-    */
     
 	@Check
 	def checkSelfImport(ModelImportDeclaration modelImport) {

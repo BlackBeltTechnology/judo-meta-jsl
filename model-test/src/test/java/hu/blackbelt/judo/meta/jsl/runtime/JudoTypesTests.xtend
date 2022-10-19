@@ -23,6 +23,7 @@ class JudoTypesTests {
 	
 				
 
+	/*
 	@Test 
 	def void testJudoTypesImport() {
 		val resourceSet = resourceSetProvider.get
@@ -37,4 +38,6 @@ class JudoTypesTests {
 		
 		a.assertNoErrors
 	}
+	* 
+	*/
 }	

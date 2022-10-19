@@ -32,24 +32,7 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 				
 		if (JsldslPackage::eINSTANCE.modelImportDeclaration_Model == reference) {			
 			System.out.println("JslDslGlobalScopeProvider.getScope ModelImportDeclaration - " + model.name);
-			val overridedFilter = new Predicate<IEObjectDescription>() {
-	            override boolean apply(IEObjectDescription input) {
-					var found = true
-					for (e : model.allImports.entrySet) {
-						if (e.key.equals(model.name)) {
-							return false;
-						}
-					}
-
-					if (filter === null) {
-						return found
-					} else {
-		            	return filter.apply(input) && found					
-					}
-	            	
-	            }
-            }
-	        super.getScope(resource, reference, overridedFilter)
+	        return super.getScope(resource, reference, filter)
 			//return judoTypesProvider.getScope(super.getScope(resource, reference, overridedFilter), resource, reference, overridedFilter);  
 		}
 				
@@ -93,6 +76,7 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
     
     override IResourceDescriptions getResourceDescriptions(Resource resource) {
     	//System.out.println("=== JslDslGlobalScopeProvider.getResourceDescriptions = " + resource);
-    	return new ResourceDescriptionsWrapper(resource.resourceSet, super.getResourceDescriptions(resource), judoTypesProvider.getResourceDescription(resource))    		
+    	// return new ResourceDescriptionsWrapper(resource.resourceSet, super.getResourceDescriptions(resource), judoTypesProvider.getResourceDescription(resource))    		
+    	return super.getResourceDescriptions(resource)
 	}
 }

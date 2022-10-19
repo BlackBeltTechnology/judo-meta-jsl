@@ -12,16 +12,10 @@ import org.eclipse.xtext.naming.IQualifiedNameProvider
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import java.util.Map
 import java.util.HashMap
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
-import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 
 @Singleton
@@ -37,7 +31,7 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 			val modelDeclaration = eObject
 			
 			if (modelDeclaration.fullyQualifiedName !== null) {
-				// System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ modelDeclaration + " fq: " + modelDeclaration.fullyQualifiedName.toString("::"));
+				System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ modelDeclaration + " fq: " + modelDeclaration.fullyQualifiedName.toString("::"));
 				acceptor.accept(
 					EObjectDescription::create(
 						modelDeclaration.fullyQualifiedName, modelDeclaration, modelDeclaration.indexInfo
@@ -127,7 +121,9 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 		 	
 		switch object {
 		 	ModelDeclaration: {
-	 			if (object.name !== null) {
+			 	System.out.println("(ModeltDeclaration) index:" + object.name)
+
+	 			if (object.name != null) {
 	 				userData.put("fullyQualifiedName", object.name)
 	 			}
  				// System.out.println("Indexing " + object.name)	 			
@@ -137,25 +133,33 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 	 					import |
 	 					val importNode = NodeModelUtils.findNodesForFeature(import, JsldslPackage::eINSTANCE.modelImportDeclaration_Model).head
 	 					if (importNode != null) {
-			 				System.out.println("(ModelDeclaration) Import name:" + importNode.text)
+							var importName = importNode.text.trim
+		 					if (importName.startsWith("`") && importName.endsWith("`")) {
+		 						importName = importName.substring(1, importName.length - 1);
+		 					}
 
 		 					if (importNames.toString.length > 0) {
 		 						importNames.append(",")
 		 					}
-		 					var alias = import.alias;
-		 					if (alias == null) {
-		 						alias = "";
+		 					val aliasNode = NodeModelUtils.findNodesForFeature(import, JsldslPackage::eINSTANCE.modelImportDeclaration_Alias).head
+							var alias = "";
+		 					if (aliasNode != null) {
+		 						alias = aliasNode.text.trim;
 		 					}
-		 					importNames.append(import.model.name + "=" + alias)	 						
+		 					
+		 					importNames.append(importName + "=" + alias)	 						
+
+			 				System.out.println("(ModelDeclaration) Import name:" + importName + " Alias: " + alias)
 	 					}
 	 				]
 	 				// System.out.println("\tImport: " + importNames)
 	 				userData.put("imports", importNames.toString)
-
 	 			}
  			}		 	
 
+/*
 		 	ModelImportDeclaration: {
+			 	System.out.println("(ModelImportDeclaration) owner:" + (object.eContainer as ModelDeclaration).name)
  				userData.put("fullyQualifiedName", (object.eContainer as ModelDeclaration).name)
 
 				val importNode = NodeModelUtils.findNodesForFeature(object, JsldslPackage::eINSTANCE.modelImportDeclaration_Model).head
@@ -164,7 +168,7 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 	 				userData.put("importQualifiedName", importNode.text)
 	 			}
  			}		 	
-
+*/
 		 	EntityRelationDeclaration: {
 	 			if (object.opposite !== null && object.opposite instanceof EntityRelationOppositeInjected) {
 	 				userData.put("oppositeName", (object.opposite as EntityRelationOppositeInjected).name)
