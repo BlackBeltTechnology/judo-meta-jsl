@@ -75,6 +75,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val USING_REQUIRED_WITH_IS_MANY = ISSUE_CODE_PREFIX + "UsingRequiredWithIsMany"
 	public static val DEFAULT_TYPE_MISMATCH = ISSUE_CODE_PREFIX + "DefaultValueTypeMismatch"
 	public static val UNSUPPORTED_DEFAULT_TYPE = ISSUE_CODE_PREFIX + "UnsupportedDefaultValueType"
+	public static val UNSUPPORTED_SELECTOR = ISSUE_CODE_PREFIX + "UnsupportedSelector"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -125,6 +126,67 @@ class JslDslValidator extends AbstractJslDslValidator {
 				JsldslPackage::eINSTANCE.modelImportDeclaration_Model,
 				HIERARCHY_CYCLE,
 				modelImport.model.name)
+		}
+	}
+
+	@Check
+	def checkImportSanity(ModelImport modelImport) {
+		val modelName = modelImport.modelName;
+		if (modelName !== null) {
+			val modelQualifiedName = modelName.importName.toQualifiedName
+			val found = modelImport.parentContainer(ModelDeclaration).getVisibleClassesDescriptions.map[
+				desc |
+				if (desc.qualifiedName == modelQualifiedName 
+					&& desc.EObjectOrProxy != modelImport.parentContainer(ModelDeclaration) 
+					&& desc.EObjectURI.trimFragment != modelImport.parentContainer(ModelDeclaration).eResource.URI) {
+						true
+				} else {				
+					false
+				}
+			].exists[l | l]
+			if (!found) {
+				error("Imported model '" + modelImport.modelName.importName + "' not found",
+					JsldslPackage::eINSTANCE.modelImport_ModelName,
+					IMPORTED_MODEL_NOT_FOUND,
+					modelImport.modelName.importName)				
+			}
+		} else {			
+				error("Imported model is not defined",
+					JsldslPackage::eINSTANCE.modelImport_ModelName,
+					IMPORTED_MODEL_NOT_FOUND,
+					modelImport.modelName.importName)				
+		}
+    }
+
+	def unsupportedLamdaFunctionSelectorError(LambdaFunction function) {
+			error("Expression must select an immediate field or derived",
+				JsldslPackage::eINSTANCE.lambdaFunction_Expression,
+				UNSUPPORTED_SELECTOR,
+				function.name)
+	}
+
+	@Check
+	def checkSelector(LambdaFunction function) {
+		if (Arrays.asList("max", "min", "sum", "avg", "first", "last", "front", "back").contains(function.functionDeclarationReference.name)) {
+			if (!(function.expression instanceof NavigationBaseExpression)) {
+				unsupportedLamdaFunctionSelectorError(function);
+			}
+
+			val NavigationBaseExpression nbe = function.expression as NavigationBaseExpression
+			
+			if (nbe.features.size != 1) {
+				unsupportedLamdaFunctionSelectorError(function);
+			}
+
+			if (!(nbe.features.get(0).navigationTargetType instanceof EntityFieldDeclaration)) {
+				unsupportedLamdaFunctionSelectorError(function);
+			}
+
+			val EntityFieldDeclaration field = nbe.features.get(0).navigationTargetType as EntityFieldDeclaration
+
+			if (!(field.referenceType instanceof PrimitiveDeclaration)) {
+				unsupportedLamdaFunctionSelectorError(function);
+			}
 		}
 	}
 
@@ -368,7 +430,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		return false;
 	}
 
-
+	
 	@Check
 	def checkDefaultExpressionMatchesMemberType(DefaultExpressionType defaultExpression) {
         var EObject memberReferenceType
