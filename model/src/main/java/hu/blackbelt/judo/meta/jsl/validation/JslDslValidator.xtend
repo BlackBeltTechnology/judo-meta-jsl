@@ -42,10 +42,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
 import hu.blackbelt.judo.meta.jsl.jsldsl.MimeType
-import java.util.function.BinaryOperator
-import hu.blackbelt.judo.meta.jsl.services.JslDslGrammarAccess.ImpliesExpressionElements
 import java.util.regex.Pattern
-import org.eclipse.emf.mwe2.language.mwe2.StringLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
 
 /**

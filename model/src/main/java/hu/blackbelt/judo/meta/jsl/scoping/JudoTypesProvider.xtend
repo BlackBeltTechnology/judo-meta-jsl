@@ -27,7 +27,7 @@ class JudoTypesProvider {
 		
 		val XtextResourceSet xtextResourceSet =  injector.getInstance(XtextResourceSet);	
 		var Resource judoTypesResource = xtextResourceSet.getResource(judoTypesResourceURI, false);
-		if (judoTypesResource == null) {
+		if (judoTypesResource === null) {
 			judoTypesResource = xtextResourceSet.createResource(judoTypesResourceURI);
 			try {
 				judoTypesResource.load(new StringInputStream(model().toString), null);
@@ -46,7 +46,7 @@ class JudoTypesProvider {
 
 	def IScope getScope(IScope parentScope, EReference reference, Predicate<IEObjectDescription> filter) {
 		var judoTypes = getDescriptions()
-		if (filter != null) {
+		if (filter !== null) {
 			judoTypes = judoTypes
 				.filter[f | !(f.EObjectOrProxy instanceof ModelDeclaration)]
 				.filter[f | filter.apply(f)].toList

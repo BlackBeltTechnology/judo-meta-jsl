@@ -25,16 +25,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.impl.LambdaFunctionDeclarationImpl
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.impl.SelectorFunctionDeclarationImpl
-import java.math.BigInteger
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import java.util.List
 import org.eclipse.xtext.scoping.IScope
 import org.eclipse.xtext.naming.QualifiedName
-import org.eclipse.xtext.naming.IQualifiedNameConverter
-import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
-import org.eclipse.xtext.resource.IResourceDescriptions
-import org.eclipse.xtext.resource.IResourceDescription
-import org.eclipse.xtext.resource.IResourceServiceProvider
 
 @Singleton
 class JslDslFunctionsScope extends AbstractResourceDescription implements IScope {
@@ -44,9 +38,7 @@ class JslDslFunctionsScope extends AbstractResourceDescription implements IScope
 	@Inject XtextResourceSet resourceSet
 	@Inject extension IQualifiedNameProvider
 	@Inject extension JslResourceDescriptionStrategy
-	@Inject ResourceDescriptionsProvider indexProvider;
-	@Inject IResourceServiceProvider resourceServiceProvider;
-	
+
 	def getAdditionalObjectsResource() {
     	var resource = resourceSet.getResource(uri, false)
     	if (resource === null) {
@@ -55,12 +47,6 @@ class JslDslFunctionsScope extends AbstractResourceDescription implements IScope
     	}
     	return resource	
 	}
-
- 	def configure(Resource resource) {
-	    val IResourceDescriptions descriptionIndex = indexProvider.getResourceDescriptions(resource)
-	    val IResourceDescription descr = descriptionIndex.getResourceDescription(resource.getURI())
-	    val manager = resourceServiceProvider.getContainerManager()
-  	}
 
 	def private getFactory() {
     	JsldslFactoryImpl.init()
@@ -120,23 +106,6 @@ class JslDslFunctionsScope extends AbstractResourceDescription implements IScope
 		]
 	}
 
-
-	def void addJudoTypes(Resource resource) {
-		val modelDeclaration = factory.createModelDeclaration
-		modelDeclaration.name = "judo::types"
-		
-		val string = factory.createDataTypeDeclaration
-		string.name = "String"
-		string.minSize = factory.createModifierMinSize
-		string.maxSize = factory.createModifierMaxSize
-		string.minSize.value = BigInteger.valueOf(1)
-		string.maxSize.value = BigInteger.valueOf(128)
-		
-		modelDeclaration.declarations.add(string)
-		
-		resource.contents += modelDeclaration
-
-	}
 
 	def void addAllFunctions(Resource resource) {
 		resource.addLiteralFunctionDeclaration("getVariable", RT_BASE_TYPE_INSTANCE, anyFunctionBasePrimitiveTypes())
@@ -385,7 +354,7 @@ class JslDslFunctionsScope extends AbstractResourceDescription implements IScope
 	}
 
 	override protected computeExportedObjects() {
-		functions.filter[o | o.fullyQualifiedName != null].map[o |
+		functions.filter[o | o.fullyQualifiedName !== null].map[o |
 					EObjectDescription::create(
 						o.fullyQualifiedName, o, o.indexInfo
 					)			

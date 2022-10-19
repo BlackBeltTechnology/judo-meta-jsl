@@ -9,14 +9,12 @@ import org.eclipse.xtext.naming.IQualifiedNameConverter
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.eclipse.emf.ecore.EReference
 import java.util.ArrayList
-import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import org.eclipse.xtext.scoping.IScope
 
 class JslDslImportedNamespaceAwareLocalSocpeProvider extends ImportedNamespaceAwareLocalScopeProvider {
 
 	@Inject extension IQualifiedNameConverter
 	@Inject extension JslDslIndex
-	@Inject extension JslDslModelExtension
 
 	override protected List<ImportNormalizer> internalGetImportedNamespaceResolvers(EObject context, boolean ignoreCase) {
 		val resolvers = new ArrayList<ImportNormalizer>()
@@ -33,10 +31,10 @@ class JslDslImportedNamespaceAwareLocalSocpeProvider extends ImportedNamespaceAw
     	// System.out.println("JslDslImportedNamespaceAwareLocalSocpeProvider.scope=scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref) : " + ref.EReferenceType.name);
     	// printParents(context)
 	
-		if (context == null)
+		if (context === null)
 			throw new NullPointerException("context");
 		var IScope result = null;
-		if (context.eContainer() != null) {
+		if (context.eContainer() !== null) {
 			// System.out.println("\tContainr scope")
 			result = getScope(context.eContainer(), ref);
 		} else {

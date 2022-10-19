@@ -10,8 +10,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
 import org.eclipse.emf.ecore.resource.Resource
-import java.util.HashMap
-import java.util.TreeMap
 import java.util.Map
 import java.util.LinkedHashMap
 
@@ -25,7 +23,7 @@ class JslDslIndex {
 
 	// Returns all ModelDeclaration	
 	def getAllModelDelcaration(EObject context) {
-		if (context.eResource == null) {
+		if (context.eResource === null) {
 			return #[]
 		}
 		val index = rdp.getResourceDescriptions(context.eResource)
@@ -109,7 +107,7 @@ class JslDslIndex {
 	}
 
 	def getVisibleContainers(EObject o) {
-		if (o == null || o.eResource == null) {
+		if (o === null || o.eResource === null) {
 			return emptyList
 		}
 		val index = rdp.getResourceDescriptions(o.eResource)

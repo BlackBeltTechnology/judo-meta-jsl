@@ -22,8 +22,6 @@ import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy {
 
 	@Inject extension IQualifiedNameProvider
-	@Inject JslDslFunctionsScope functionsScope;
-	@Inject extension JslDslIndex
 
 	override createEObjectDescriptions(EObject eObject, IAcceptor<IEObjectDescription> acceptor) {
 
@@ -123,7 +121,7 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 		 	ModelDeclaration: {
 			 	// System.out.println("(ModeltDeclaration) index:" + object.name)
 
-	 			if (object.name != null) {
+	 			if (object.name !== null) {
 	 				userData.put("fullyQualifiedName", object.name)
 	 			}
  				// System.out.println("Indexing " + object.name)	 			
@@ -132,7 +130,7 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 	 				object.imports.forEach[
 	 					import |
 	 					val importNode = NodeModelUtils.findNodesForFeature(import, JsldslPackage::eINSTANCE.modelImportDeclaration_Model).head
-	 					if (importNode != null) {
+	 					if (importNode !== null) {
 							var importName = importNode.text.trim
 		 					if (importName.startsWith("`") && importName.endsWith("`")) {
 		 						importName = importName.substring(1, importName.length - 1);
@@ -143,7 +141,7 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 		 					}
 		 					val aliasNode = NodeModelUtils.findNodesForFeature(import, JsldslPackage::eINSTANCE.modelImportDeclaration_Alias).head
 							var alias = "";
-		 					if (aliasNode != null) {
+		 					if (aliasNode !== null) {
 		 						alias = aliasNode.text.trim;
 		 					}
 		 					

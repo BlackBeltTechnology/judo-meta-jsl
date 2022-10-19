@@ -14,7 +14,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.eclipse.xtext.resource.IResourceDescriptions
 import org.eclipse.xtext.scoping.impl.FilteringScope
-import org.eclipse.xtext.scoping.Scopes
 
 class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 
