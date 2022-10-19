@@ -4,7 +4,6 @@ import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.validation.Check
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
-import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImport
 import com.google.inject.Inject
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.naming.IQualifiedNameConverter
@@ -43,10 +42,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
 import hu.blackbelt.judo.meta.jsl.jsldsl.MimeType
-import java.util.function.BinaryOperator
-import hu.blackbelt.judo.meta.jsl.services.JslDslGrammarAccess.ImpliesExpressionElements
 import java.util.regex.Pattern
-import org.eclipse.emf.mwe2.language.mwe2.StringLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -57,7 +54,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	protected static val ISSUE_CODE_PREFIX = "hu.blackbelt.judo.meta.jsl.jsldsl."
 	public static val HIERARCHY_CYCLE = ISSUE_CODE_PREFIX + "HierarchyCycle"
-	public static val IMPORTED_MODEL_NOT_FOUND = ISSUE_CODE_PREFIX + "ImportedModelNotFound"
 	public static val DUPLICATE_MODEL = ISSUE_CODE_PREFIX + "DuplicateModel"
 	public static val OPPOSITE_TYPE_MISMATH = ISSUE_CODE_PREFIX + "OppositeTypeMismatch"
 	public static val DUPLICATE_MEMBER_NAME = ISSUE_CODE_PREFIX + "DuplicateMemberName"
@@ -110,65 +106,27 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 		]
 	}
-	
-    /*
-	def checkImportCycle(ModelImport modelImport) {
-		if (modelImport.importedNamespace !== null) {
-			if (modelImport.modelDeclaration.modelImportHierarchy(modelImport.importedNamespace.toQualifiedName).contains(modelImport.importedNamespace.toQualifiedName)) {
-				error("cycle in hierarchy of model '" + modelImport.importedNamespace + "'",
-					JsldslPackage::eINSTANCE.modelImport_ImportedNamespace,
-					HIERARCHY_CYCLE,
-					modelImport.importedNamespace)
-			}			
-		}
-	}
-    */
     
 	@Check
-	def checkSelfImport(ModelImport modelImport) {
+	def checkSelfImport(ModelImportDeclaration modelImport) {
 		//System.out.println("checkSelfImport: " + modelImport.importedNamespace + " " + modelImport.eContainer().fullyQualifiedName.toString("::"))
 		
-		if (modelImport.modelName === null) {
+		if (modelImport.model === null) {
 			return
 		}
-		if (modelImport.modelName.importName.toQualifiedName.equals(modelImport.eContainer().fullyQualifiedName)) {
+
+		if (modelImport.model.name === null) {
+			return
+		}
+
+		if (modelImport.model.name.toQualifiedName.equals(modelImport.eContainer().fullyQualifiedName)) {
 			//System.out.println("==== ERROR: " + modelImport.importedNamespace)
-			error("Cycle in hierarchy of model '" + modelImport.modelName.importName + "'",
-				JsldslPackage::eINSTANCE.modelImport_ModelName,
+			error("Cycle in hierarchy of model '" + modelImport.model.name + "'",
+				JsldslPackage::eINSTANCE.modelImportDeclaration_Model,
 				HIERARCHY_CYCLE,
-				modelImport.modelName.importName)
+				modelImport.model.name)
 		}
 	}
-
-	@Check
-	def checkImportSanity(ModelImport modelImport) {
-		val modelName = modelImport.modelName;
-		if (modelName !== null) {
-			val modelQualifiedName = modelName.importName.toQualifiedName
-			val found = modelImport.parentContainer(ModelDeclaration).getVisibleClassesDescriptions.map[
-				desc |
-				if (desc.qualifiedName == modelQualifiedName 
-					&& desc.EObjectOrProxy != modelImport.parentContainer(ModelDeclaration) 
-					&& desc.EObjectURI.trimFragment != modelImport.parentContainer(ModelDeclaration).eResource.URI) {
-						true
-				} else {				
-					false
-				}
-			].exists[l | l]
-			if (!found) {
-				error("Imported model '" + modelImport.modelName.importName + "' not found",
-					JsldslPackage::eINSTANCE.modelImport_ModelName,
-					IMPORTED_MODEL_NOT_FOUND,
-					modelImport.modelName.importName)				
-			}
-		} else {			
-				error("Imported model is not defined",
-					JsldslPackage::eINSTANCE.modelImport_ModelName,
-					IMPORTED_MODEL_NOT_FOUND,
-					modelImport.modelName.importName)				
-		}
-    }
-
 
 	@Check
 	def checkAssociation(EntityRelationDeclaration relation) {
@@ -410,7 +368,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		return false;
 	}
 
-	
+
 	@Check
 	def checkDefaultExpressionMatchesMemberType(DefaultExpressionType defaultExpression) {
         var EObject memberReferenceType

@@ -1,11 +1,5 @@
 package hu.blackbelt.judo.meta.jsl.ui.syntaxcoloring;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.eclipse.emf.ecore.EClass;
-
 /*-
  * #%L
  * Judo :: Jsl :: Model
@@ -26,6 +20,7 @@ import org.eclipse.emf.ecore.EClass;
  * #L%
  */
 
+import java.util.Arrays;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.Keyword;
 import org.eclipse.xtext.RuleCall;

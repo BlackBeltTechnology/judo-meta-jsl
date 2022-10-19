@@ -293,15 +293,15 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	
 	def String getExternalNameOfEntityDeclaration(ModelDeclaration it, EntityDeclaration entityDeclaration) {
 		if (it.name !== entityDeclaration?.parentContainer(ModelDeclaration)?.name) {
-			val importList = imports.filter[i | i.modelName.importName.equals(entityDeclaration.parentContainer(ModelDeclaration).name)]
-				.map[i | i.modelName.alias !== null ? i.modelName.alias + "::" + entityDeclaration.name : entityDeclaration.name]
+			val importList = imports.filter[i | i.model.name.equals(entityDeclaration.parentContainer(ModelDeclaration).name)]
+				.map[i | i.alias !== null ? i.alias + "::" + entityDeclaration.name : entityDeclaration.name]
 			if (importList !== null && importList.size > 0) { 
-				importList.get(0)
+				return importList.get(0)
 			} else {
-				entityDeclaration.name
+				return entityDeclaration.name
 			}
 		} else {
-			entityDeclaration.name
+			return entityDeclaration.name
 		}
 	}
 

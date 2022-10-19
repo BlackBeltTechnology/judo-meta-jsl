@@ -130,7 +130,8 @@ public class TypeInfo {
 		return type;
 	}
 
-    static <T> T parentContainer(EObject from, Class<T> type) {
+    @SuppressWarnings("unchecked")
+	static <T> T parentContainer(EObject from, Class<T> type) {
         T found = null;
         EObject current = from;
         while (found == null && current != null) {
