@@ -12,21 +12,18 @@ import org.eclipse.xtext.naming.IQualifiedNameProvider
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import java.util.Map
 import java.util.HashMap
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 
 @Singleton
 class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy {
 
 	@Inject extension IQualifiedNameProvider
-	@Inject JslDslInjectedObjectsProvider injectedObjectsProvider;
+	@Inject JslDslFunctionsScope functionsScope;
+	@Inject extension JslDslIndex
 
 	override createEObjectDescriptions(EObject eObject, IAcceptor<IEObjectDescription> acceptor) {
 
@@ -35,13 +32,11 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 			
 			if (modelDeclaration.fullyQualifiedName !== null) {
 				// System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ modelDeclaration + " fq: " + modelDeclaration.fullyQualifiedName.toString("::"));
-
 				acceptor.accept(
 					EObjectDescription::create(
-						modelDeclaration.fullyQualifiedName, modelDeclaration
+						modelDeclaration.fullyQualifiedName, modelDeclaration, modelDeclaration.indexInfo
 					)
 				)					
-
 
 				modelDeclaration.declarations.forEach[
 					declaration |
@@ -49,8 +44,6 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 					val fullyQualifiedName = declaration.fullyQualifiedName
 	
 					if (fullyQualifiedName !== null)
-						// System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ declaration + " fq: " + fullyQualifiedName.toString("::"));
-						// System.out.println("Indexing: " + fullyQualifiedName)
 
 						acceptor.accept(
 							EObjectDescription::create(
@@ -127,6 +120,43 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 		val Map<String, String> userData = new HashMap<String, String>
 		 	
 		switch object {
+		 	ModelDeclaration: {
+			 	// System.out.println("(ModeltDeclaration) index:" + object.name)
+
+	 			if (object.name != null) {
+	 				userData.put("fullyQualifiedName", object.name)
+	 			}
+ 				// System.out.println("Indexing " + object.name)	 			
+	 			if (object.imports !== null) {
+	 				val importNames = new StringBuilder();
+	 				object.imports.forEach[
+	 					import |
+	 					val importNode = NodeModelUtils.findNodesForFeature(import, JsldslPackage::eINSTANCE.modelImportDeclaration_Model).head
+	 					if (importNode != null) {
+							var importName = importNode.text.trim
+		 					if (importName.startsWith("`") && importName.endsWith("`")) {
+		 						importName = importName.substring(1, importName.length - 1);
+		 					}
+
+		 					if (importNames.toString.length > 0) {
+		 						importNames.append(",")
+		 					}
+		 					val aliasNode = NodeModelUtils.findNodesForFeature(import, JsldslPackage::eINSTANCE.modelImportDeclaration_Alias).head
+							var alias = "";
+		 					if (aliasNode != null) {
+		 						alias = aliasNode.text.trim;
+		 					}
+		 					
+		 					importNames.append(importName + "=" + alias)	 						
+
+			 				// System.out.println("(ModelDeclaration) Import name:" + importName + " Alias: " + alias)
+	 					}
+	 				]
+	 				// System.out.println("\tImport: " + importNames)
+	 				userData.put("imports", importNames.toString)
+	 			}
+ 			}		 	
+
 		 	EntityRelationDeclaration: {
 	 			if (object.opposite !== null && object.opposite instanceof EntityRelationOppositeInjected) {
 	 				userData.put("oppositeName", (object.opposite as EntityRelationOppositeInjected).name)
@@ -134,14 +164,5 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
  			}		 	
 		 }
 		return userData
-	}
-	
-	
-	override isResolvedAndExternal(EObject from, EObject to) {
-	 	if (injectedObjectsProvider.isProvided(to)) {
-	 		true
- 		} else {
- 			super.isResolvedAndExternal(from, to)
-		}
-     }
+	}	
 }

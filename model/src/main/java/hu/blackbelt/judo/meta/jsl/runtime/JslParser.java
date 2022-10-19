@@ -24,7 +24,7 @@ import com.google.inject.Injector;
 import hu.blackbelt.judo.meta.jsl.JslDslStandaloneSetupGenerated;
 import hu.blackbelt.judo.meta.jsl.generator.JsldslDefaultPlantUMLDiagramGenerator;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImport;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel;
 
 import org.eclipse.emf.common.notify.Notifier;
@@ -198,9 +198,9 @@ public class JslParser {
     }
 
     private static void collectImportedModelDeclaration(ModelDeclaration modelDeclaration,  Collection<ModelDeclaration> all, Collection<ModelDeclaration> collected) {
-        for (ModelImport modelImport : modelDeclaration.getImports()) {
-            if (!collected.stream().anyMatch(d -> d.getName().equals(modelImport.getModelName().getImportName()))) {
-                ModelDeclaration imported = all.stream().filter(d -> d.getName().equals(modelImport.getModelName().getImportName())).findFirst().orElseThrow(() -> new IllegalStateException("Model not found: " + modelImport.getModelName().getImportName()));
+        for (ModelImportDeclaration modelImport : modelDeclaration.getImports()) {
+            if (!collected.stream().anyMatch(d -> d.getName().equals(modelImport.getModel().getName()))) {
+                ModelDeclaration imported = all.stream().filter(d -> d.getName().equals(modelImport.getModel().getName())).findFirst().orElseThrow(() -> new IllegalStateException("Model not found: " + modelImport.getModel().getName()));
                 collected.add(imported);
                 collectImportedModelDeclaration(imported, all, collected);
             }
