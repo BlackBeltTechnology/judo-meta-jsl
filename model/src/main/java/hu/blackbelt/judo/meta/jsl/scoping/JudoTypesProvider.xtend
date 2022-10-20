@@ -29,11 +29,7 @@ class JudoTypesProvider {
 		var Resource judoTypesResource = xtextResourceSet.getResource(judoTypesResourceURI, false);
 		if (judoTypesResource === null) {
 			judoTypesResource = xtextResourceSet.createResource(judoTypesResourceURI);
-			try {
-				judoTypesResource.load(new StringInputStream(model().toString), null);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			judoTypesResource.load(new StringInputStream(model().toString), null);
 		}
 		judoTypesResource		
 	}

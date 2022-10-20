@@ -97,13 +97,7 @@ class JslDslIndex {
 	}
 
 	def getImportedModelDeclarationFullyQualifiedName(ModelImportDeclaration model) {
-		
-		getVisibleEObjectDescriptions(JsldslPackage::eINSTANCE.modelImportDeclaration)
-		
-		//val importNames = model.imports.map[i | i.model.name].toList
-		//model.getVisibleEObjectDescriptions.filter[d |
-		//	importNames.exists[i | d.qualifiedName.toString.startsWith(i) && instance.isInstance(d.EObjectOrProxy)]
-		//].toList
+		return getVisibleEObjectDescriptions(JsldslPackage::eINSTANCE.modelImportDeclaration)		
 	}
 
 	def getVisibleContainers(EObject o) {
