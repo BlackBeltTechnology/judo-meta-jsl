@@ -195,16 +195,16 @@ Functions that handle individual elements in a collection use an iterator variab
 
 [subs="quotes"]
 ----
-&lt;navigation>[purple]#**!**#&lt;function>[purple]#**(**#&lt;variable> [purple]#**|**# &lt;expr>[purple]#**)**#
+&lt;navigation>[purple]#**!**#&lt;function>[purple]#**(**#&lt;variable> [purple]#**|**# &lt;expression>[purple]#**)**#
 ----
 
-where <variable> is the name of the iterator variable that will iterate through all elements on the result of the <navigation> collection. The <expr> is an expression  that will provide the input list for the <function>.
+where <variable> is the name of the iterator variable that will iterate through all elements on the result of the <navigation> collection. The <expression> is an expression  that will provide the input list for the <function>.
 
 *Examples:*
 
 [source,jsl]
 ----
-derived Integer averagePrice => self.orders!avg(field = price);
+derived Integer averagePrice => self.orders!avg(order | order.price);
 ----
 
 In the example above, we navigate to a collection orders and define an iterator variable named `order`. Then, we read the `price` field of orders and pass this list to the `avg` built-in function. The example calculates the average price of the orders.
@@ -213,7 +213,7 @@ Functions can also be chained. For example the expression below filters the orde
 
 [source,jsl]
 ----
-self.orders!filter(order | order.price > 100)!avg(field = price)
+self.orders!filter(order | order.price > 100)!avg(order | order.price)
 ----
 
 The list of available functions can be found in section <<List of functions>>.
@@ -426,16 +426,16 @@ Any type functions can be applied to any type or instance except collections.
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**first(count = **#<count>[purple]##**)**## : string`
-|Returns the first <count> characters of the original string, or returns the original string if its size is less than <count>. <count> must be an integer. If <count> is less than 1, it returns an empty string.
-|Example: `"apple"!first(count = 2)` is `"ap"`
+|`[purple]#**left(count = **#<count>[purple]##**)**## : string`
+|Returns the left <count> characters of the original string, or returns the original string if its size is less than <count>. <count> must be an integer. If <count> is less than 1, it returns an empty string.
+|Example: `"apple"!left(count = 2)` is `"ap"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**last(count = **#<n>[purple]##**)**## : string`
-|Returns the last <count> characters of the original string, or returns the original string if its size is less than <count>. <count> must be an integer. If <count> is less than 1, returns an empty string.
-|Example: `"apple"!last(count = 1)` is `"e"`
+|`[purple]#**right(count = **#<n>[purple]##**)**## : string`
+|Returns the right <count> characters of the original string, or returns the original string if its size is less than <count>. <count> must be an integer. If <count> is less than 1, returns an empty string.
+|Example: `"apple"!right(count = 1)` is `"e"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -483,7 +483,7 @@ Any type functions can be applied to any type or instance except collections.
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**like(pattern = **#<pattern> &#x5B;[purple]##**, exact = **##<exact>][purple]##**)**## : boolean`
-|Returns `true` if the string matches a given <pattern>, `false` otherwise. The optional <exact> is a boolean parameter. If <exact> is true the pattern matching is case-sensitive. If <exact> is false the pattern matching is case-insensitive. If no <exact> argument is passed, the pattern matching is case-sensitive.
+|Returns `true` if the string matches a given <pattern>, `false` otherwise. The optional <exact> is a boolean parameter. If <exact> is true the pattern matching is case-sensitive. If <exact> is false or undefined the pattern matching is case-insensitive. If no <exact> argument is passed, the pattern matching is case-sensitive.
 
 There are two wildcards used in the <pattern>:
 
@@ -879,18 +879,33 @@ Makes sense in JCL only.
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**head(field = **#<field> &#x5B;[purple]##**, reverse = **## <reverse>][purple]##**)**## : collection`
-|First, it sorts the given collection by the <field>, and then it returns a collection containing the first elements. If there is more than one element in the first place, all elements in the first place will be included in the result. The <field> is the name of an entity field or derived. The field must have a primitive type. The optional <reverse> is a boolean value. If <reverse> is true the collection will be sorted in descending order, otherwise in ascending order.
+|`[purple]#**first(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : collection`
+|Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing the first elements. If there is more than one element in the first place, all elements in the first place are included in the result. The <expression> must navigate to a primitive type field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
 | Example:
-|`self.orderItems.product!head(field = price, reverse = true)` returns the highest priced products of an order.
+|`self.orderItems.product!first(item \| item.price)` returns the cheapest products of an order.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**tail(field = **#<field> &#x5B;[purple]##**, reverse = **## <reverse>][purple]##**)**## : collection`
-|First, it sorts the given collection by the <field>, and then it returns a collection containing all of the non-first elements. If there is more than one element in the first place, all elements in the first place will be omitted from the result. The <field> is the name of an entity field or derived. The field must have a primitive type. The optional <reverse> is a boolean value. If <reverse> is true the collection will be sorted in descending order, otherwise in ascending order.
+|`[purple]#**last(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : collection`
+|Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing the last elements. If there is more than one element in the last place, all elements in the last place are included in the result. The <expression> must navigate to a primitive type field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
 |Example:
-|`self.orderItems.product!tail(field = price, reverse = true)` returns all products in the order except the highest priced products.
+|`self.orderItems.product!last(item \| item.price)` returns the highest priced products of an order.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**front(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : collection`
+|Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing all of the non-last elements. If there is more than one element in the last place, all elements in the last place are omitted from the result. The <expression> must navigate to a primitive type field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
+|`self.orderItems.product!front(item \| item.price)` returns all products in the order, except the highest priced products.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**back(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : collection`
+|Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing all of the non-first elements. If there is more than one element in the first place, all elements in the first place are omitted from the result. The <expression> must navigate to a primitive type field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
+|Example:
+|`self.orderItems.product!back(item \| item.price)` returns all products in the order, except the cheapest products.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -990,35 +1005,36 @@ TODO: what is this?
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**min(field = **#<field>[purple]##**)**## : numeric`
-|Returns the minimum value from the set of values selected by the <field>. The <field> is the name of an entity field or derived. The field must have a numeric type.
+|`[purple]#**min(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : numeric`
+|Returns the minimum value from the set of values selected by the <expression>. The <expression> must navigate to a numeric field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter. 
 |Example:
-|`self.orderItems!min(field = price)` returns the lowest `price` from the prices of elements of `orderItems` list.
+|`self.orderItems!min(item \| item.price)` returns the lowest price from the prices of elements of `orderItems` list.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**max(field = **#<field>[purple]##**)**## : numeric`
-|Returns the maximum value from the set of values selected by the <field>. The <field> is the name of an entity field or derived. The field must have a numeric type.
+|`[purple]#**max(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : numeric`
+|Returns the maximum value from the set of values selected by the <expression>. The <expression> must navigate to a numeric field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
 |Example:
-|`self.orderItems!max(field = price)` returns the highest `price` from the prices of elements of `orderItems` list.
+|`self.orderItems!max(item \| item.price)` returns the highest price from the prices of elements of `orderItems` list.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**avg(field = **#<field>[purple]##**)**## : numeric`
-|Returns the average of the set of values selected by the <field>. The <field> is the name of an entity field or derived. The field must have a numeric type.
+|`[purple]#**avg(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : numeric`
+|Returns the average of the set of values selected by the <expression>. The <expression> must navigate to a numeric field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
 |Example:
-|`self.orderItems!avg(field = price)` returns the average `price` of the elements of `orderItems` list.
+|`self.orderItems!avg(item \| item.price)` returns the average price of the elements of `orderItems` list.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**sum(field = **#<field>[purple]##**)**## : numeric`
-|Returns the sum of the set of values selected by the <field>. The <field> is the name of an entity field or derived. The field must have a numeric type.
+|`[purple]#**sum(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : numeric`
+|Returns the sum of the set of values selected by the <expression>. The <expression> must navigate to a numeric field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
 |Example:
-|`self.orderItems!sum(field = price)` returns the sum of `price` of the elements of `orderItems` list.
+|`self.orderItems!sum(item \| item.price)` returns the sum of the prices of the items in the `orderItems` list.
 |======================================================================
+
 
 ////
 [options="header",grid="none",cols="1a"]

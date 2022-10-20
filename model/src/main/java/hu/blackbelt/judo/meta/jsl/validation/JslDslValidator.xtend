@@ -44,6 +44,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
 import hu.blackbelt.judo.meta.jsl.jsldsl.MimeType
 import java.util.regex.Pattern
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunction
+import java.util.Arrays
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseExpression
+import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -75,6 +80,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val USING_REQUIRED_WITH_IS_MANY = ISSUE_CODE_PREFIX + "UsingRequiredWithIsMany"
 	public static val DEFAULT_TYPE_MISMATCH = ISSUE_CODE_PREFIX + "DefaultValueTypeMismatch"
 	public static val UNSUPPORTED_DEFAULT_TYPE = ISSUE_CODE_PREFIX + "UnsupportedDefaultValueType"
+	public static val UNSUPPORTED_SELECTOR = ISSUE_CODE_PREFIX + "UnsupportedSelector"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -125,6 +131,44 @@ class JslDslValidator extends AbstractJslDslValidator {
 				JsldslPackage::eINSTANCE.modelImportDeclaration_Model,
 				HIERARCHY_CYCLE,
 				modelImport.model.name)
+		}
+	}
+	
+	def unsupportedLamdaFunctionSelectorError(LambdaFunction function) {
+			error("Expression must select an immediate field or derived",
+				JsldslPackage::eINSTANCE.lambdaFunction_Expression,
+				UNSUPPORTED_SELECTOR,
+				function.name)
+	}
+
+	@Check
+	def checkSelector(LambdaFunction function) {
+		if (Arrays.asList("max", "min", "sum", "avg", "first", "last", "front", "back").contains(function.functionDeclarationReference.name)) {
+			if (!(function.expression instanceof NavigationBaseExpression)) {
+				unsupportedLamdaFunctionSelectorError(function);
+			}
+
+			val NavigationBaseExpression nbe = function.expression as NavigationBaseExpression
+			
+			if (nbe.features.size != 1) {
+				unsupportedLamdaFunctionSelectorError(function);
+			}
+
+			if (nbe.features.get(0).navigationTargetType instanceof EntityFieldDeclaration) {
+				val EntityFieldDeclaration field = nbe.features.get(0).navigationTargetType as EntityFieldDeclaration
+
+				if (!(field.referenceType instanceof PrimitiveDeclaration)) {
+					unsupportedLamdaFunctionSelectorError(function);
+				}
+			} else if (nbe.features.get(0).navigationTargetType instanceof EntityDerivedDeclaration) {
+				val EntityDerivedDeclaration derived = nbe.features.get(0).navigationTargetType as EntityDerivedDeclaration
+
+				if (!(derived.referenceType instanceof PrimitiveDeclaration)) {
+					unsupportedLamdaFunctionSelectorError(function);
+				}
+			} else {
+				unsupportedLamdaFunctionSelectorError(function);
+			}
 		}
 	}
 
@@ -368,7 +412,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		return false;
 	}
 
-
+	
 	@Check
 	def checkDefaultExpressionMatchesMemberType(DefaultExpressionType defaultExpression) {
         var EObject memberReferenceType
