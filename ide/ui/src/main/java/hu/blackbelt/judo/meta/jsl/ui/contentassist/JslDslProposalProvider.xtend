@@ -19,7 +19,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
  * on how to customize the content assistant.
  */
 class JslDslProposalProvider extends AbstractJslDslProposalProvider {
-	
+	// TODO: https://stackoverflow.com/questions/47005235/customizing-content-proposal-in-xtext-for-web-editors
 	@Inject extension JslDslModelExtension
 	
 	override completeEntityRelationOppositeReferenced_OppositeType(EObject model, Assignment assignment, 
