@@ -44,6 +44,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
 import hu.blackbelt.judo.meta.jsl.jsldsl.MimeType
 import java.util.regex.Pattern
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunction
+import java.util.Arrays
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseExpression
+import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -128,36 +133,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 				modelImport.model.name)
 		}
 	}
-
-	@Check
-	def checkImportSanity(ModelImport modelImport) {
-		val modelName = modelImport.modelName;
-		if (modelName !== null) {
-			val modelQualifiedName = modelName.importName.toQualifiedName
-			val found = modelImport.parentContainer(ModelDeclaration).getVisibleClassesDescriptions.map[
-				desc |
-				if (desc.qualifiedName == modelQualifiedName 
-					&& desc.EObjectOrProxy != modelImport.parentContainer(ModelDeclaration) 
-					&& desc.EObjectURI.trimFragment != modelImport.parentContainer(ModelDeclaration).eResource.URI) {
-						true
-				} else {				
-					false
-				}
-			].exists[l | l]
-			if (!found) {
-				error("Imported model '" + modelImport.modelName.importName + "' not found",
-					JsldslPackage::eINSTANCE.modelImport_ModelName,
-					IMPORTED_MODEL_NOT_FOUND,
-					modelImport.modelName.importName)				
-			}
-		} else {			
-				error("Imported model is not defined",
-					JsldslPackage::eINSTANCE.modelImport_ModelName,
-					IMPORTED_MODEL_NOT_FOUND,
-					modelImport.modelName.importName)				
-		}
-    }
-
+	
 	def unsupportedLamdaFunctionSelectorError(LambdaFunction function) {
 			error("Expression must select an immediate field or derived",
 				JsldslPackage::eINSTANCE.lambdaFunction_Expression,
