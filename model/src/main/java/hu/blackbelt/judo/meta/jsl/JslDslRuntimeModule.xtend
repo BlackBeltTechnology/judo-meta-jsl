@@ -65,5 +65,6 @@ class JslDslRuntimeModule extends AbstractJslDslRuntimeModule {
     
 	override Class<? extends IValueConverterService> bindIValueConverterService() {
 	  return JslTerminalConverters
-	}
+	}	
 }
+
