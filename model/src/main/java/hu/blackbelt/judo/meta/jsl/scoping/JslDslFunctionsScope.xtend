@@ -155,8 +155,11 @@ class JslDslFunctionsScope extends AbstractResourceDescription implements IScope
 			])
 		resource.addLiteralFunctionDeclaration("like", RT_BOOLEAN_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
-				createFunctionParameterDeclaration("pattern", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE]),
-				createFunctionParameterDeclaration("exact", false, false, PT_BOOLEAN_INSTANCE, #[BT_STRING_INSTANCE])
+				createFunctionParameterDeclaration("pattern", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+			])
+		resource.addLiteralFunctionDeclaration("ilike", RT_BOOLEAN_INSTANCE, #[BT_STRING_INSTANCE])
+			.parameterDeclarations.addAll(#[
+				createFunctionParameterDeclaration("pattern", false, true, PT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 			])
 		resource.addLiteralFunctionDeclaration("replace", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
