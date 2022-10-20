@@ -125,11 +125,11 @@ class JslDslFunctionsScope extends AbstractResourceDescription implements IScope
 				createFunctionParameterDeclaration("value", false, true, PT_INPUT_SAME, anyFunctionBasePrimitiveInstances)
 			])
 
-		resource.addLiteralFunctionDeclaration("first", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+		resource.addLiteralFunctionDeclaration("left", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("count", false, true, PT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
 			])
-		resource.addLiteralFunctionDeclaration("last", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
+		resource.addLiteralFunctionDeclaration("right", RT_STRING_INSTANCE, #[BT_STRING_INSTANCE])
 			.parameterDeclarations.addAll(#[
 				createFunctionParameterDeclaration("count", false, true, PT_NUMERIC_INSTANCE, #[BT_STRING_INSTANCE])
 			])
@@ -262,9 +262,10 @@ class JslDslFunctionsScope extends AbstractResourceDescription implements IScope
 				createFunctionParameterDeclaration("instances", false, true, PT_ENTITY_COLLECTION, #[BT_ENTITY_INSTANCE])
 			])
 
-		resource.addSelectorFunctionDeclaration("head", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
-		resource.addSelectorFunctionDeclaration("tail", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
-
+		resource.addLambdaFunctionDeclaration("first", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
+		resource.addLambdaFunctionDeclaration("last", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
+		resource.addLambdaFunctionDeclaration("front", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
+		resource.addLambdaFunctionDeclaration("back", RT_INPUT_SAME, #[BT_ENTITY_COLLECTION])
 
 		resource.addLiteralFunctionDeclaration("any", RT_ENTITY_INSTANCE, #[BT_ENTITY_COLLECTION])
 		resource.addLiteralFunctionDeclaration("asCollection", RT_ENTITY_COLLECTION, #[BT_ENTITY_INSTANCE])
