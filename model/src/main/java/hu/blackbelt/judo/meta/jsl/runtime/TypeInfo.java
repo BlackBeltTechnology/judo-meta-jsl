@@ -157,6 +157,8 @@ public class TypeInfo {
 			throw new IllegalArgumentException("Object is not Named: " + object);
 		}
 	}
+	
+	// TODO: JNG-4185
 
 	/*
 	enum FunctionBaseType
