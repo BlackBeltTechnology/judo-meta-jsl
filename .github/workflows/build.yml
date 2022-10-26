@@ -214,7 +214,14 @@ jobs:
           name: v${{ steps.version.outputs.version }}
           tag: v${{ steps.version.outputs.version }}
           generateReleaseNotes: false
-          body: ${{steps.create_changelog.outputs.changelog}}
+          body: |-
+            **P2 Update Site:** 
+
+            https://nexus.judo.technology/repository/p2/judo-meta-jsl/{{ steps.version.outputs.version }}
+
+            ** Changelog **
+            
+            ${{steps.create_changelog.outputs.changelog}}
           draft: false
           prerelease: true
 
