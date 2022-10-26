@@ -217,7 +217,7 @@ jobs:
           body: |-
             **P2 Update Site:** 
 
-            https://nexus.judo.technology/repository/p2/judo-meta-jsl/{{ steps.version.outputs.version }}
+            https://nexus.judo.technology/repository/p2/judo-meta-jsl/${{ steps.version.outputs.version }}
 
             ** Changelog **
             
