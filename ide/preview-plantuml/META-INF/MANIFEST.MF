@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: hu.blackbelt.judo.meta.jsl.ide.preview.plantuml
 Bundle-SymbolicName: hu.blackbelt.judo.meta.jsl.ide.preview.plantuml;singleton:=true
-Bundle-Version: 1.0.1.qualifier
+Bundle-Version: 1.0.1
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.compare,
