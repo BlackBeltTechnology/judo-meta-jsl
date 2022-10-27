@@ -57,5 +57,7 @@ wercker.env
 .release
 **/.flattened-pom.xml
 **/.antlr-generator-3.2.0-patch.jar
+/**/*.plantuml
+
 
 

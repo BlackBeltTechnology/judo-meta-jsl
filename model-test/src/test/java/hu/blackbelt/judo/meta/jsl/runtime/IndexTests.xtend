@@ -21,7 +21,7 @@ class IndexTests {
 	@Test 
 	def void testSimpleModelExport() {
 		'''
-			model A
+			model A;
 		'''.parse => [
 			assertExportedEObjectDescriptions("A")
 		]
@@ -30,8 +30,8 @@ class IndexTests {
 	@Test 
 	def void testEntityExport() {
 		'''
-			model A
-			entity T1
+			model A;
+			entity T1;
 		'''.parse => [
 			assertExportedEObjectDescriptions("A, A::T1")
 		]

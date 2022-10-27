@@ -1,0 +1,1046 @@
+ifndef::env-site,env-github[]
+include::../_attributes.adoc[]
+endif::[]
+// Settings
+:idprefix:
+:idseparator: -
+:icons: font
+:KW: [purple]##**
+:KWE: **##
+
+= Expression
+
+Constant values, entity members, operators, query executions and function calls can be combined into sequences known as expressions. Among other things, expressions are used to navigate and query a domain model.
+
+An expression is evaluated to a value, which can be primitive value (e.g. `42` or `"apple"`), entity instance or a collection of instances.
+
+*Data expressions* returns values of primitive types, such as strings or integers. A data expression can be
+
+* a literal (e.g. `"Hello world"`, `3.14`),
+* a field selector (`self.firstName`, `self.orders.orderItems`)
+* an expression containing other data expressions and operators, such as `self.amount * self.productPrice`
+
+*Reference expressions* returns an entity instance or collection of entity instances.
+
+*Examples:*
+
+[source,jsl]
+----
+// it is a single line expression
+derived String fullName => self.firstName + " " + self.lastName;
+    
+// it is a multi-line expression
+derived String fullName => self.firstName +
+                          " " +
+                          self.lastName;
+----
+
+[#operators]
+== Operators
+
+Operators usually perform a function on two operands. Operators that require two operands are binary operators. For example, the `*` operator is a binary operator that multiplies the values of the right and left operands.
+
+There are four exceptions that have different numbers of operands. The logical negation (`not`) has only one operand, the arithmetic minus (`-`) and plus (`+`) may have only one operand (e.g. `-3`, `+3`), the conditional (ternary) operator has three operands.
+
+An operator also returns a value. The value and its type depends on the operator and the type of its operands. For example, the arithmetic operators (perform basic arithmetic operations such as addition and subtraction) return numbers. The data type returned by the arithmetic operators depends on the type of its operands: if you add two integers, you get an integer back. An operation is said to evaluate to its result.
+
+We can divide operators into these categories:
+
+// * assignment (`=`,`+=`,`-=`)
+* navigation, field selection and query execution (`.`)
+* function call (`!`)
+* assignment (`=`)
+* arithmetic (`+`, `-`, `*`, `/`, `div`, `mod`, `^`)
+* relational (`==`,`!=`,`<`,`>`,`>=`,`\<=`)
+* conditional (`? :`) and
+* logical (`not`, `and`, `or`, `xor`, `implies`).
+
+The following table summarizes the precedence of operators used in expressions.
+
+[options="header", cols="1,2"]
+|====================
+|Precedence |Operator
+|10         |`()`, `.`, `!`
+|9          |```not```
+|8          |`*`, `/`, `div`, `mod`
+|7          |`+`, `-`
+|6          |`>`, `<`, `\<=`, `>=`
+|5          |`==`, `!=`
+|4          |```and```
+|3          |```or```
+|2          |```?``` ```:```
+// |1          |`=`, `+=`, `-=`
+|1          |```=```
+|====================
+
+== Navigation
+
+Navigation is used to traverse model relations to access the instance(s) linked to an instance or set of instances.
+
+In expressions, the `.` (dot) character is used to navigate from an instance or a collection of instances.
+
+The starting point of the navigation can be
+
+* a static collection of references using the syntax `shop::Order`, which means all instances of the Order entity, or
+* a static query execution using the syntax `shop::MyQuery()`, which means all entity instances returned by the query `shop::MyQuery`
+* the predefined variable called `self`. The `self` keyword refers to the current instance in an expression.
+
+*Examples:*
+
+[source,jsl]
+----
+// a navigation starting from static collection
+derived Products[] orderedProducts => shop::Order.orderItems.product;
+
+// a navigation starting from self variable in Order entity
+derived Products[] orderedProducts => self.orderItems.product;
+----
+
+Navigation can be chained, which means that you can navigate further from a navigation result.
+
+In the example above, we first navigate from `self` to the list of order items. We then proceed to the `product` of the OrderItem. This navigation will result a list of products that are in the order.
+
+Navigation types can also be classified as follows.
+
+*Instance navigation*
+
+When navigating from a single instance, the result of the navigation depends on the cardinality of the relation being navigated.
+
+* If the cardinality of the relation being navigated is single, the navigation returns a single entity instance or undefined.
+
+* If the cardinality of the relation being navigated is collection, the navigation returns a collection even if there is no actual instance or there is only one instance in the collection.
+
+*Collection navigation*
+
+When navigating from an instance collection, regardless of the cardinality of relation being navigated, the result is always a collection.
+
+== Field selection
+
+Both derived and stored field values of an entity can be read in expressions. To read a field value use the `.` (dot) character. The field selection can be chained for navigation expression. The field selection can only be chained for navigation that returns a single instance.
+
+*Examples:*
+
+[source,jsl]
+----
+derived String productName => self.product.name;
+----
+
+In the example above, the expression returns the product's name.
+
+=== Query execution
+
+Static and instance queries can be used in expressions. To execute an instance query use the `.` (dot) character before the query name and append the arguments in parentheses. To execute a static query use its name as a navigation starting point and append the arguments in parentheses. If you do not pass arguments to a query append parentheses with no arguments between them.
+
+Query arguments can be literals only (e.g. `121`, `"apple"`, `true` etc.).
+
+*Examples:*
+
+[source,jsl]
+----
+derived Customer[] havingOrdersBetween0and10 => shop::ordersBetween(min = 0, max = 10).customer;
+----
+
+In the example above, the `ordersBetween` query is executed with two arguments.
+
+== Built-in functions
+
+There are a number of built-in functions that are always available in expressions. To invoke a built-in function use the `!` character after a navigation, field or type selection.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+&lt;navigation>[purple]#**!**#&lt;function>[purple]#**(**#&#x5B;&lt;parameter>][purple]##**,**##...[purple]#**)**#
+----
+
+where <navigation> is a valid navigation expression and <function> is the name of the function to be invoked. After the function name, the input parameters of the function are in parentheses.
+
+*Examples:*
+
+[source,jsl]
+----
+derived Integer count => self.orderItems!size();
+derived Integer nameLength => self.fullName!size();
+----
+
+The `self.orderItems!size()` evaluates to an integer, it returns the number of the ordered items in the order. The expression `self.fullName!size()` will return the number of characters in the customers's name field (assuming it is a String type).
+
+=== Static functions
+
+A special group of functions is __static functions__. Static functions are invoked on types rather than on instances or collections.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+&lt;type>[purple]#**!**#&lt;function>[purple]#**(**#&#x5B;&lt;parameter>][purple]##**,**##...[purple]#**)**#
+----
+
+where <type> is a valid domain model primitive and <function> is the name of the function to be invoked. After the function name, the input parameters of the function are in parentheses.
+
+*Example:*
+
+[source,jsl]
+----
+field Time tm = Time!of(hour = 23, minute = 59, second = 59);
+----
+
+The above example sets the `tm` field to `&#x60;23:59:59&#x60;` as default value.
+
+=== Iterator functions
+
+Functions that handle individual elements in a collection use an iterator variable.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+&lt;navigation>[purple]#**!**#&lt;function>[purple]#**(**#&lt;variable> [purple]#**|**# &lt;expression>[purple]#**)**#
+----
+
+where <variable> is the name of the iterator variable that will iterate through all elements on the result of the <navigation> collection. The <expression> is an expression  that will provide the input list for the <function>.
+
+*Examples:*
+
+[source,jsl]
+----
+derived Integer averagePrice => self.orders!avg(order | order.price);
+----
+
+In the example above, we navigate to a collection orders and define an iterator variable named `order`. Then, we read the `price` field of orders and pass this list to the `avg` built-in function. The example calculates the average price of the orders.
+
+Functions can also be chained. For example the expression below filters the orders based on their price, then it returns the average price of the filtered orders.
+
+[source,jsl]
+----
+self.orders!filter(order | order.price > 100)!avg(order | order.price)
+----
+
+The list of available functions can be found in section <<List of functions>>.
+
+Iterator variables are only accessible in parentheses where they have been defined. In other words, the scope of the iterator variable is limited to after the `|` (pipe) character. If the iterator expression contains another iterator function, the iterator variable of the embedding iterator function is not accessible within the embedded iterator function.
+
+Using `self` in iterator expressions is currently not allowed.
+
+[NOTE]
+====
+Even though `self` and the iterators of embedding functions cannot be used in functions, proper modeling can work around this limitation. When we need the value of the `self` or embedding iterator, use a bidirectional relation. The bidirectional relation can be used to navigate back to `self` or to any embedding iterator value.
+
+The following example selects a customer's orders that are cheaper than average order prices.
+
+[source,jsl]
+----
+entity Customer {
+	relation Order[] orders opposite customer;
+
+    derived Price avgPrice => self.orders!avg(field = price);
+    derived Order[] belowAvgOrders => self.orders!filter(order | order.price < order.customer.avgPrice);
+}
+----
+
+====
+
+== External variables
+
+Some expressions require dynamic values that are provided by the surrounding environment and cannot be "wired" to the model as a constant, e.g. current time or OS environment variables. Variables of this type are referred to as external variables.
+
+External variables can be accessed from the model using a category and key pair that are evaluated at runtime.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+&lt;primitive>[purple]##**!getVariable(category = **##&lt;category>[purple]##**, key = **##&lt;key>[purple]##**)**##
+----
+
+where <primitive> is a domain primitive that defines the type of the returned value. The valid <category> and <key> pairs a listed in the table below.
+
+[NOTE]
+====
+Domain primitive constraints are evaluated when “getVariable” is called. If the return value does not meet the primitive constraints, an error occurs.
+====
+
+[options="header",cols="2a,3a,6a"]
+|==================================================
+|Category     |Key                     |Description
+|`SYSTEM`     |`current_date`
+|Returns the current date.
+
+`Date!getVariable(category = "SYSTEM", key = "current_date")`
+
+Shortcut: `Date!now()`
+
+
+|`SYSTEM`     |`current_timestamp`
+|Returns the current time.
+
+`Timestamp!getVariable(category = "SYSTEM", key = "current_timestamp")`
+
+Shortcut: `Timestamp!now()`
+
+|`SYSTEM`     |`current_time`
+|Returns the current time.
+
+`Time!getVariable(category = "SYSTEM", key = "current_time")`
+
+Shortcut: `Time!now()`
+
+|`ENVIRONMENT`|_any_
+|Returns an OS environment variable.
+
+Path for the current working directory: `String!getVariable(category = "ENVIRONMENT", key = "PWD")`
+
+UID of running OS user: `Integer!getVariable(category = "ENVIRONMENT", key = "UID")`
+|`SEQUENCE`   |_sequence name_
+|A continuously increasing integer is returned with each call. The maximum value cannot exceed the range of an eight-byte integer. Sequences are constant and optimized for concurrency. Sequences cannot be used for "gap-free" assignment of sequence numbers.
+
+If the sequence does not already exist, it creates the sequence and returns the first sequence value.
+
+Get next Order number: `Long!getVariable(category = "SEQUENCE", key = "Order")`
+|==================================================
+
+
+== Undefined
+
+Field selectors, navigations and expressions can evaluate to undefined. Since undefined is not a possible value of any data type, it is not considered a __value__, but rather a marker (or placeholder) indicating the absence of value.
+
+In arithmetic expressions, any occurrence of undefined results in an undefined value. The expression `self.a + self.b` results in undefined if `self.a` or `self.b` is undefined.
+
+The expression `self.firstName + " " + self.lastName` results in an undefined string if `self.firstName` or `self.lastName` is undefined.
+
+In the case of logical values, the comparison with undefined can never result in either true or false, but always a third logical result, undefined.
+
+Navigations from undefined references will also result in undefined. In other words, if any part of a navigation or function chain results undefined, the result of the whole navigation will be undefined. For example, `self.customer.name` will evaluate to undefined, when `self.customer` is undefined.
+
+Functions applied on undefined references will also result in undefined. For example, `self.name!size()` will evaluate to undefined instead of 0, when `self.name` is undefined. The only exceptions are the `isDefined()`, `isUndefined()` and `orElse()` functions:
+
+* `self.name!isDefined()` will evaluate to `false` if `self.name` is undefined.
+* `self.name!isUndefined()` will evaluate to `true` if `self.name` is undefined.
+* `self.name!orElse(value = "unknown")` will evaluate to `"unknown"` if `self.name` is undefined.
+
+The conditional ternary operator executes the false branch if the condition evaluates to undefined. `self.name == "" ? "A" : "B"` is `"B"` if the `self.name` is undefined.
+
+There is no literal for undefined in JSL, thus to check if a field, relation or the result of an expression is undefined use the `isDefined()` or `isUndefined()` functions. See <<Any type functions>>.
+
+////
+
+=== Create instance
+
+// next release
+
+A new instance of an entity type can be created with the name of the entity or with the optional the `new` keyword. The newly created instance can be assigned to a field.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+&#x5B;[purple]##**new**##] &lt;entity> [purple]#**(**#&#x5B;&lt;field> [purple]##**=**## &lt;value>][purple]##**,**##...[purple]#**)**#
+----
+
+*Example:*
+
+----
+Person(name = "John Doe", age = 20)
+new Person(name = "John Doe", age = 20)
+----
+
+Both statements in the above example create a Person entity instance with `name` and `age` fields.
+
+[NOTE]
+====
+When creating a new instance, all required fields and relations must be defined in the list of member values.
+====
+
+To create a list of entities use the following syntax.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+&#x5B;[purple]##**new**##] &lt;entity> [purple]##**&#x5B;**##&#x5B;&lt;element>][purple]##**,**## ... [purple]##**]**##
+----
+
+*Example:*
+
+----
+Person [Person(name = "John Doe", age = 20), Person(name = "Jane Doe", age = 19)]
+----
+
+The example above creates a list of persons with two entities in the list.
+
+////
+
+
+== List of functions
+
+// TODO: use "given" expression in descriptions
+
+=== Any type functions
+
+Any type functions can be applied to any type or instance except collections.
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**isDefined()**# : boolean`
+|Evaluates to true if the value exists. Note, that `isDefined()` cannot be used for collections.
+|Example:
+|`"apple"!isDefined()` is `true`
+|`self.line2!isDefined()` is `true` if `line2` field has a value, otherwise `false`.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**isUndefined()**# : boolean`
+|Evaluates to true if the value does not exist, e.g. it is undefined. Note, that `isUndefined()` cannot be used for collections.
+|Example:
+|`"apple"!isUndefined()` is `false`
+|`self.line2!isUndefined()` is `false` if `line2` field has a value, otherwise `true`.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**orElse(value = **#<value>[purple]##**)**## : <type>`
+|Returns <value> if the given expression to which it is applied returns undefined. Otherwise, it returns the value of the given expression. The type of <value> must be the same as the given expression.
+|Examples:
+|`"apple"!orElse(value = "grape")` is `"apple"`
+|`2!orElse(value = 3)` is `2`
+|`self.name!orElse(value = "unknown")` is `"unknown"` if `self.name` is undefined, otherwise it returns the value of `self.name`.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**getVariable(category = **#<value>[purple]##**, key = **##<key>[purple]##**)**## : <type>`
+|Static function, returns the value of an external variable using <category> and <key> pair that are evaluated at runtime.
+|See more details and the examples in chapter <<External variables>>.
+|======================================================================
+
+[#string_functions]
+=== String functions
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**size()**# : numeric`
+|Returns the number of characters in the string.
+|Example: `"apple"!size()` is `5`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**left(count = **#<count>[purple]##**)**## : string`
+|Returns the left <count> characters of the original string, or returns the original string if its size is less than <count>. <count> must be an integer. If <count> is less than 1, it returns an empty string.
+|Example: `"apple"!left(count = 2)` is `"ap"`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**right(count = **#<n>[purple]##**)**## : string`
+|Returns the right <count> characters of the original string, or returns the original string if its size is less than <count>. <count> must be an integer. If <count> is less than 1, returns an empty string.
+|Example: `"apple"!right(count = 1)` is `"e"`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**position(substring = **#<substring>[purple]##**)**## : numeric`
+|Returns the position of the first occurrence of the <substring> in the original string, or 0 if the original string does not contain the <substring>. <substring> must be a string. Position of the first character is 1.
+|Example: `"apple"!position(substring = "p")` is `2`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**substring(offset = **#<offset>[purple]##**, count = **## <count>[purple]##**)**## : string`
+|Returns a substring of length <count> starting at <offset>. The offset of the first character is 1. Both <offset> and <count> must be integers.
+|Example: `"apple"!substring(offset = 2, count = 3)` is `"ppl"`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**lower()**# : string`
+|Returns the original string with all alphabetic characters in lowercase. Note that the actual locale of the database affects the behavior of this function.
+|Example: `"ApPlE"!lower()` is `"apple"`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**upper()**# : string`
+|Returns the original string with all alphabetic characters in uppercase. Note that the actual locale of the database affects the behavior of this function. 
+|Example: `"ApPlE"!upper()` is `"APPLE"`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**capitalize()**# : string`
+|Returns a string with the first letter capitalized and all other characters lowercased. Note that the actual locale of the database affects the behavior of this function.
+|Example: `"apPlE"!capitalize()` is `"Apple"`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**matches(pattern = **#<pattern>[purple]##**)**## : boolean`
+|Returns `true` if the string matches a given regular expression <pattern>, `false` otherwise. A detailed description of the regular expression can be found in the xref:04_types.adoc#string[String] section.
+|Example: `"apple"!matches(pattern = r".*pl.")` is `true`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**like(pattern = **#<pattern> &#x5B;[purple]##**, exact = **##<exact>][purple]##**)**## : boolean`
+|Returns `true` if the string matches a given <pattern>, `false` otherwise. The optional <exact> is a boolean parameter. If <exact> is true the pattern matching is case-sensitive. If <exact> is false or undefined the pattern matching is case-insensitive. If no <exact> argument is passed, the pattern matching is case-sensitive.
+
+There are two wildcards used in the <pattern>:
+
+* percent sign (%)
+
+* underscore (_)
+
+The percent sign represents zero, one, or multiple numbers or characters. The underscore represents a single number or character. These symbols can be used in combinations.
+
+If either of these two signs is not used in the <pattern>, then the function acts like the equals operator.
+|Examples:
+|`"apple"!like(pattern = "%pl_")` is `true`
+|`"apPLe"!like(pattern = "_pple", exact = false)` is `true`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**replace(oldstring = **#<oldstring>[purple]##**, newstring = **## <newstring>[purple]##**)**## : string`
+|Returns a string where all occurrences of <oldstring> in the original string replaced by <newstring>. Note that <oldstring> is not a regular expression pattern or a like pattern, but a simple string.
+
+|Example: `"apple"!replace(oldstring = "le", newstring = "endix")` is `"appendix"`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**trim()**# : string`
+|Returns the original string with all leading and trailing whitespace characters removed.
+|Example: `"   apple   "!trim()` is `"apple"`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**ltrim()**# : string`
+|Returns the original string with all leading whitespace characters removed.
+|Example: `"   apple   "!ltrim()` is `"apple  "`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**rtrim()**# : string`
+|Returns the original string with all trailing whitespace characters removed.
+|Example: `"   apple   "!rtrim()` is `"   apple"`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**lpad(size = **#<size> &#x5B;[purple]##**, padstring = **##<padstring>][purple]##**)**## : string`
+|Fills up a string on the left to the specified <size> with <padstring>. If the length of <padstring> is less than the remaining length, the <padstring> is repeated until it is not filling up. If the length of <padstring> is longer than the remaining length, it will be truncated on the right. If <padstring> is not defined, one space character (`" "`) is used by default.
+|Examples:
+|`"apple"!lpad(size = 6) is `" apple"`
+|`"ple"!lpad(size = 5, padstring = "ap")` is `"apple"`
+|`"ple"!lpad(size = 6, padstring = "ap")` is `"apaple"`
+|`"ple"!lpad(size = 7, padstring = "ap")` is `"apapple"`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**rpad(size = **#<size> &#x5B;[purple]##**, padstring = **##<padstring>][purple]##**)**## : string`
+|Fills up a string on the right to the specified <size> with <padstring>. If the length of <padstring> is less than the remaining length, the <padstring> is repeated until it is not filling up. If the length of <padstring> is longer than the remaining length, it will be truncated on the left. If <padstring> is not defined, one space character (`" "`) is used by default.
+|Examples:
+|`"apple"!rpad(size = 6)` is `"apple "`
+|`"app"!rpad(size = 5, padstring = "le")` is `"apple"`
+|`"app"!rpad(size = 6, padstring = "le")` is `"applel"`
+|`"app"!rpad(size = 7, padstring = "le")` is `"applele"`
+|======================================================================
+
+[#numeric_functions]
+=== Numeric functions
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**round(**#&#x5B;[purple]##**scale = **##<scale>][purple]##**)**## : numeric`
+|Returns the closest number. The optional <scale> argument is an integer that determines the number of decimal places of rounding. The default value of <scale> is 0.
+|Example:
+|`1!round()` is `1`
+|`7.89!round()` is `8`
+|`7.89!round(scale = 1)` is `7.9`
+|`2.50!round()` is `3`
+|`(-2.5)!round()` is `-3`
+|`(-7.89)!round()` is `-8`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**floor()**# : numeric`
+|Returns the largest integer that is less than or equal to the argument.
+|Example:
+|`1!floor()` is `1`
+|`2.9!floor()` is `2`
+|`(-2.9)!floor()` is `-3`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**ceil()**# : numeric`
+|Returns the smallest integer that is greater than or equal to the argument.
+|Example:
+|`1!ceil()` is `1`
+|`2.9!ceil()` is `3`
+|`(-2.9)!ceil()` is `-2`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**abs()**# : numeric`
+|Returns the absolute value of the argument.
+|Example:
+|`1!abs()` is `1`
+|`2.9!abs()` is `2.9`
+|`(-3)!abs()` is `3`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**asString()**# : string`
+|Numeric value as string.
+|Example: `123456.789!asString()` is `"123456.789"`
+|======================================================================
+
+[NOTE]
+====
+Be careful when calling numeric functions on negative constant values! Since the precedence of the function call (`!`) is higher than the precedence of the minus operator (`-`), the functions are called first and only then is the arithmetic negation performed. For example, if you want to calculate the absolute value of `-3`, enclose the constant in parentheses: `(-3)!abs()`. Without parentheses, the expression `-3!abs()` returns `-3`.
+====
+
+[#boolean_functions]
+=== Boolean functions
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**asString()**# : string`
+|Boolean value as string.
+|Example: `true!asString()` is `"true"`
+|======================================================================
+
+[#date_functions]
+=== Date functions
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**year()**# : numeric`
+|Returns the year part of date.
+|Example: `&#x60;2021-03-02&#x60;!year()` is `2021`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**month()**# : numeric`
+|Returns the month part of date.
+|Example: `&#x60;2021-03-02&#x60;!month()` is `3`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**day()**# : numeric`
+|Returns the day part of date.
+|Example: `&#x60;2021-03-02&#x60;!day()` is `2`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**of(year = **#<year>[purple]##**, month = **## <month>[purple]##**, day = **## <day>[purple]##**)**## : date`
+|Static function, constructs a date value from the numeric parameters <year>, <month> and <day>. If any of the parameters is not integer, the result will be undefined. If <month> or <day> is less than 1, the result will be undefined. If <month> is greater than 12, or <day> is greater than the last day of the month, it gives an undefined result.
+|Example: `Date!of(year = 2011, month = 1, = day = 28)` is `&#x60;2011-01-28&#x60;`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**dayOfWeek()**# : numeric`
+|Returns an  integer representing the weekday index for a date. The return value follows the ISO-8601 standard, from 1 (Monday) to 7 (Sunday).
+|Example: `&#x60;1970-01-01&#x60;!dayOfWeek()` is `4`, i.e. it was Thursday.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**dayOfYear()**# : numeric`
+|Returns the day of the year for a given date (a number from 1 to 366).
+|Example: `&#x60;2020-02-01&#x60;!dayOfYear()` is `32`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**asString()**# : string`
+|Date value as string according to the ISO-8601 standard.
+|Example: `&#x60;2021-03-02&#x60;!asString()` is `"2021-03-02"`
+|======================================================================
+
+[#time_functions]
+=== Time functions
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**hour()**# : numeric`
+|Returns the hour part of time.
+|Example: `&#x60;23:15:59&#x60;!hour()` is `23`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**minute()**# : numeric`
+|Returns the minute part of time.
+|Example: `&#x60;23:15:59&#x60;!minute()` is `15`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**second()**# : numeric`
+|Returns the second part of time.
+|Example: `&#x60;23:15:59&#x60;!second()` is `59`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**of(hour = **#<hour>[purple]##**, minute = **## <minute>[purple]##**, second = **## <second>[purple]##**)**## : time`
+|Static function, constructs a time value from the numeric parameters <hour>, <minute> and <second>. If any of the parameters is not integer, the result will be undefined. If any parameter is less than 0, the result will be undefined. If <hour> is greater than 23, or <minute> or <second> is greater than 59, it gives an undefined result.
+|Example: `Time!of(hour = 13, minute = 45, second = 00)` is `&#x60;13:45:00&#x60;`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**asString()**# : string`
+|Time value as string according to the ISO-8601 standard.
+|Example: `&#x60;23:15:59&#x60;!asString()` is `"23:15:59"`
+|======================================================================
+
+[#timestamp_functions]
+=== Timestamp functions
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**date()**# : date`
+|Returns the date part of the timestamp in UTC+0 timezone.
+|Example:
+|`&#x60;2019-07-18T01:11:12Z&#x60;!date()` is `&#x60;2019-07-18&#x60;`
+|`&#x60;2019-07-18T01:11:12+02:00&#x60;!date()` is `&#x60;2019-07-17&#x60;`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**time()**# : time`
+|Returns the time part of the timestamp in UTC+0 timezone.
+|Example:
+|`&#x60;2019-07-18T01:11:12Z&#x60;!time()` is `&#x60;01:11:12&#x60;`
+|`&#x60;2019-07-18T01:11:12+02:00&#x60;!time()` is `&#x60;23:11:12&#x60;`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**of(date = **#<date> &#x5B;[purple]##**, time = **##<time>][purple]##**)**## : timestamp`
+|Static function, constructs a timestamp value from the parameters <date> and <time>, where <date> is a date primitive and <time> is a time primitive. The <time> parameter is optional, if <time> is omitted the time part of the timestamp will be set to `&#x60;00:00:00&#x60;`.
+|Example:
+|`Timestamp!of(date = &#x60;2021-02-28&#x60;, time = &#x60;10:30:01&#x60;)` is `&#x60;2021-02-28T10:30:01Z&#x60;`
+|`Timestamp!of(date = &#x60;2021-02-28&#x60;)` is `&#x60;2021-02-28T00:00:00Z&#x60;`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**asMilliseconds()**# : numeric`
+|Returns the timestamp in milliseconds from 1970-01-01T00:00:00Z.
+|Example: `&#x60;1970-01-01T00:01:00Z&#x60;!asMilliseconds()` is `60000`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**fromMilliseconds(milliseconds = **#<milliseconds>[purple]##**)**## : timestamp`
+|Static function, creates a timestamp and sets the value in <milliseconds> from 1970-01-01T00:00:00Z. <milliseconds> must be an integer
+|Example: `Timestamp!fromMilliseconds(milliseconds = 60000)` is `&#x60;1970-01-01T00:01:00Z&#x60;`
+|======================================================================
+
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**plus(**#&#x5B;[purple]##**milliseconds = **##<milliseconds>]&#x5B;[purple]##**, seconds = **##<seconds>]&#x5B;[purple]##**, minutes = **##<minutes>]&#x5B;[purple]##**, hours = **##<hours>]&#x5B;[purple]##**, days = **##<days>]&#x5B;[purple]##**, months = **##<months>]&#x5B;[purple]##**, years = **##<years>][purple]##**)**## : timestamp`
+|Adds duration expressed in <milliseconds>, <seconds>, <minutes>, <hours>, <days>, <months> or <days> to the original timestamp.
+
+At least one parameter is required, but any parameter can be used in conjunction with the others. All arguments passed must be integers. If any argument is less than 0, its value is subtracted from the original timestamp.
+
+Examples:
+
+`&#x60;2019-07-18T01:11:12Z&#x60;!plus(days = 1)` is `"2019-07-19T01:11:12Z"`
+
+`&#x60;2019-07-18T01:11:12Z&#x60;!plus(days = 1, hours = 2)` is `"2019-07-19T03:11:12Z"`
+
+`&#x60;2019-07-18T01:11:12Z&#x60;!plus(days = 1, hours = -24)` is `"2019-07-18T01:11:12Z"`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**asString()**# : string`
+|Timestamp value as string according to the ISO-8601 standard.
+|Example: `&#x60;2019-07-18T01:11:12Z&#x60;!asString()` is `"2019-07-18T01:11:12Z"`
+|======================================================================
+
+[#binary_functions]
+=== Binary functions
+
+There are no binary functions.
+
+////
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**mimeType()**# : <string>`
+|TODO: returns milliseconds elapsed from epoch
+|TODO
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**size()**# : <numeric>`
+|TODO: returns size in bytes
+|TODO
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**filename()**# : <numeric>`
+|TODO: returns the original name of the uploaded file
+|TODO
+|======================================================================
+////
+
+[#enumeration_functions]
+=== Enumeration functions
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**asString()**# : string`
+|Enumeration literal as string.
+|Example: `OrderStatus#OPEN!asString()` is `"OPEN"`
+|======================================================================
+
+=== Instance functions
+
+////
+Makes sense in JCL only.
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**asString()**# : string`
+|Returns the type and the unique identifier of the instance in the following format: <type>@<uid> 
+|Example: `person!asString()` is `"CRM::Person@123e4567-e89b-12d3-a456-426614174000"`
+|======================================================================
+////
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**typeOf(entityType = **#<entityType>[purple]##**)**## : boolean`
+|Evaluates to `true` if the given instance conforms to the <entityType> but not any subtype of the <entityType>.  That is, an instance of <entityType> and not an instance of any subtype of <entityType>.
+|Example:
+|`self.customer!typeOf(entityType = shop::Customer)` is `true` if `self.customer` is a customer, but neither an enterprise nor a person. For the model, see the xref:01_into.adoc[Introduction] chapter.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**kindOf(entityType = **#<entityType>[purple]##**)**## : boolean`
+|Evaluates to `true` if the given instance conforms to the <entityType>. That is, an instance of <entityType> or an instance of any subtype of <entityType>.
+|Example:
+|`self.customer!kindOf(entityType = shop::Customer)` is `true` if `self.customer` is either a customer, an enterprise, or a person. For the model, see the xref:01_into.adoc[Introduction] chapter.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**container(entityType = **#<entityType>[purple]##**)**## : instance`
+|Returns the container of the instance if that matches the given <entityType>. Type matching works according to the `kindOf()` function.
+|Example:
+|`self!container(entityType = shop::Customer)` navigates from the Address to the Customer if the container is an instance of Customer or any subtype of Customer (Enterprise or Person). For the model, see the xref:01_into.adoc[Introduction] chapter.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**asType(entityType = **#<entityType>[purple]##**)**## : instance`
+|Returns the given instance as the <entityType> if the type of the given instance matches to <entityType>, otherwise evaluates as undefined. In other words, the function "casts" the instance. Type matching works according to the `kindOf()` function.
+|Example:
+|`self.customer!asType(entityType = shop::Enterprise)` navigates from Order to Customer and it returns an Enterprise instance. If the result of the navigation is a Person, it returns undefined. For the model, see the xref:01_into.adoc[Introduction] chapter.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**memberOf(instances = **#<instances>[purple]##**)**## : boolean`
+|Indicates if the <instances> collection contains the given instance.
+|Example:
+|`self!memberOf(shop::Enterprise.orders.orderItems.product)` within a product, it checks whether it has ever been ordered by any enterprise. For the model, see the xref:01_into.adoc[Introduction] chapter.
+|======================================================================
+
+=== Collection functions
+
+////
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**asString()**# : string`
+|Returns the type and the unique identifier of the instance in the following format: <type>@<uid>, <type>@<uid> ...
+|Example: `persons!asString()` is `"CRM::Person@123e4567-e89b-12d3-a456-426614174000, CRM::Person@0b69be87-3911-4994-b4c6-afdbe11a97be"`
+|======================================================================
+////
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**first(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : collection`
+|Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing the first elements. If there is more than one element in the first place, all elements in the first place are included in the result. The <expression> must navigate to a primitive type field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
+| Example:
+|`self.orderItems.product!first(item \| item.price)` returns the cheapest products of an order.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**last(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : collection`
+|Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing the last elements. If there is more than one element in the last place, all elements in the last place are included in the result. The <expression> must navigate to a primitive type field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
+|Example:
+|`self.orderItems.product!last(item \| item.price)` returns the highest priced products of an order.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**front(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : collection`
+|Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing all of the non-last elements. If there is more than one element in the last place, all elements in the last place are omitted from the result. The <expression> must navigate to a primitive type field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
+|`self.orderItems.product!front(item \| item.price)` returns all products in the order, except the highest priced products.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**back(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : collection`
+|Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing all of the non-first elements. If there is more than one element in the first place, all elements in the first place are omitted from the result. The <expression> must navigate to a primitive type field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
+|Example:
+|`self.orderItems.product!back(item \| item.price)` returns all products in the order, except the cheapest products.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**any()**# : instance`
+|Returns an arbitrary element of a collection.
+|Example:
+|`self.orderItems!any()` returns one of the items in the order.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**size()**# : numeric`
+|Returns the number of elements of a collection.
+|`self.orderItems!size()` returns the number of the items in the order.
+|======================================================================
+
+////
+// TODO: sortAsc, sortDesc with only one selector (for multisort chain the functions) 
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**sort(**#<variable name> [purple]##**\|**## <selector> &#x5B;[purple]##**ASC**##\|[purple]##**DESC**##][purple]##**,**## ...[purple]##**)**## : collection`
+|Evaluates to a sorted collection.
+|Example:
+|`self.products!sort(p \| p.unitPrice)`
+|`self.products!sort(p \| p.unitPrice DESC, p.productName DESC)`
+|======================================================================
+////
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**asCollection(entityType = **#<entityType>[purple]##**)**## : collection`
+|Filters the collection according to <entityType> and returns a collection of the parameter <entityType>. Members of the collection that are not of that <entityType> are not included in the result. Type matching works according to the kindOf() function.
+|Example:
+|`shop::Order.customer!asCollection(entityType = shop::Enterprise)` returns all enterprises that have at least one order.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**contains(instance = **#<instance>[purple]##**)**## : boolean`
+|Indicates if the given collection contains the given <instance>.
+|Example:
+|`shop::Enterprise.orders.orderItems.product!contains(shop::Product!filter(p \| p.name == "gadget").any())` checks whether there is an enterprise that has already ordered the product named "gadget".
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**filter(**#<variable> [purple]##**\|**## <logical expression>[purple]##**)**## : collection`
+|Filters the collection according to the <logical expression> and returns a collection. Members of the collection that do not match the logical expression are not included in the result.
+|Example:
+|`self.orderItems!filter(od \| od.price > 10)` collects order items more expensive than 10.
+|======================================================================
+
+// "exists" in previous version
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**anyTrue(**#<variable> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
+|Returns true if the logical expression is true for any element in the collection. Note that the return value is false for an empty collection.
+|Example:
+|`self.orderItems!anyTrue(od \| od.price > 10)` checks if there is an item in the order that is more expensive than 10.
+|======================================================================
+
+// "forAll" in previous version 
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**allTrue(**#<variable> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
+|Returns true if the logical expression is true for all the collection elements. If there is an element for which <logical expression> is false or undefined, then the return value is false. Note that the return value is true for an empty collection.
+|Example:
+|`self.orderDetails!allTrue(od \| od.price > 10)` checks that all items in the order are more expensive than 10.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**anyFalse(**#<variable> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
+|Returns true if the logical expression is false for any element in the collection. Note that the return value is false for an empty collection.
+|Example:
+|`self.orderDetails!anyFalse(od \| od.price > 10)` returns true if there is an item in the order that is equal to or cheaper than 10.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**allFalse(**#<variable> [purple]##**\|**## <logical expression>[purple]##**)**## : boolean`
+|Returns true if the logical expression is false for all the collection elements. If there is an element for which <logical expression> is true or undefined, then the return value is false. Note that the return value is true for an empty collection.
+|Example:
+|`self.orderDetails!allFalse(od \| od.price > 10)` returns true if all items in the order are 10 or less cheaper.
+|======================================================================
+
+////
+TODO: what is this?
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**empty()**# : ???`
+|TODO
+// |TODO Example: 
+|======================================================================
+////
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**min(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : numeric`
+|Returns the minimum value from the set of values selected by the <expression>. The <expression> must navigate to a numeric field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter. 
+|Example:
+|`self.orderItems!min(item \| item.price)` returns the lowest price from the prices of elements of `orderItems` list.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**max(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : numeric`
+|Returns the maximum value from the set of values selected by the <expression>. The <expression> must navigate to a numeric field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
+|Example:
+|`self.orderItems!max(item \| item.price)` returns the highest price from the prices of elements of `orderItems` list.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**avg(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : numeric`
+|Returns the average of the set of values selected by the <expression>. The <expression> must navigate to a numeric field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
+|Example:
+|`self.orderItems!avg(item \| item.price)` returns the average price of the elements of `orderItems` list.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**sum(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : numeric`
+|Returns the sum of the set of values selected by the <expression>. The <expression> must navigate to a numeric field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
+|Example:
+|`self.orderItems!sum(item \| item.price)` returns the sum of the prices of the items in the `orderItems` list.
+|======================================================================
+
+
+////
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**join(**#<variable name> [purple]##**\|**## <selector>[purple]##**,**## <delimiter>[purple]##**)**## : string`
+|Evaluates to a string, where the given selection is concatenated using delimiter.
+|Example: `self.products!join(p \| p.productName, ', ')`
+|======================================================================
+////

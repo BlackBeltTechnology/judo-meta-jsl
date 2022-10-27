@@ -23,19 +23,19 @@ class OppositeAddTests {
 	def void testSimpleOppositeAdd() {
 		
 		'''
-			model SimpleOppositeAdd
+			model SimpleOppositeAdd;
 			
 			entity Product {
 			}
 			
 			entity Discount {
-				relation Product[] products opposite-add discount
+				relation Product[] products opposite-add discount;
 			}
 			
 			
 			entity CartItem {
-				relation required Product product
-				derived Discount b => self.product.discount
+				relation required Product product;
+				derived Discount b => self.product.discount;
 			}
         '''.parse => [
             assertNoErrors
@@ -46,19 +46,19 @@ class OppositeAddTests {
 	def void testSimpleWithMultipleCardinalityOppositeAdd() {
 		
 		'''
-			model SimpleWithMultipleCardinalityOppositeAdd
+			model SimpleWithMultipleCardinalityOppositeAdd;
 			
 			entity Product {
 			}
 			
 			entity Discount {
-				relation Product[] products opposite-add discounts[]
+				relation Product[] products opposite-add discounts[];
 			}
 			
 			
 			entity CartItem {
-				relation required Product product
-				derived Discount[] b => self.product.discounts
+				relation required Product product;
+				derived Discount[] b => self.product.discounts;
 			}
         '''.parse => [
             assertNoErrors
@@ -68,10 +68,10 @@ class OppositeAddTests {
 	@Test
 	def void testInheritedOppositeAdd() {
 		'''
-			model InheritedOppositeAdd
+			model InheritedOppositeAdd;
 
 			entity Product {
-			//	relation Discount diss
+			//	relation Discount diss;
 			}
 			
 			entity ChildProduct extends Product {
@@ -79,13 +79,13 @@ class OppositeAddTests {
 			
 			
 			entity Discount {
-				relation Product[] products opposite-add discount
+				relation Product[] products opposite-add discount;
 			}
 			
 			
 			entity CartItem {
-				relation required ChildProduct product
-				derived Discount b => self.product.discount
+				relation required ChildProduct product;
+				derived Discount b => self.product.discount;
 			}
         '''.parse => [
             assertNoErrors
@@ -99,7 +99,7 @@ class OppositeAddTests {
 		val resourceSet = resourceSetProvider.get
 		val a = 
 		'''
-			model ImportedModelNavigationProduct
+			model ImportedModelNavigationProduct;
 			
 			entity Product {
 			}			
@@ -107,17 +107,17 @@ class OppositeAddTests {
 		
 		val b = 
 		'''
-			model ImportedModelNavigation
-			import ImportedModelNavigationProduct as P
+			model ImportedModelNavigation;
+			import ImportedModelNavigationProduct as P;
 
 			entity Discount {
-				relation P::Product[] products opposite-add discount
+				relation P::Product[] products opposite-add discount;
 			}
 			
 			
 			entity CartItem {
-				relation required P::Product product
-				derived Discount b => self.product.discount
+				relation required P::Product product;
+				derived Discount b => self.product.discount;
 			}
 
 
@@ -133,7 +133,7 @@ class OppositeAddTests {
 		val resourceSet = resourceSetProvider.get
 		val a = 
 		'''
-			model InheritedImportedModelNavigationProduct
+			model InheritedImportedModelNavigationProduct;
 			
 			entity Product {
 			}			
@@ -141,21 +141,21 @@ class OppositeAddTests {
 		
 		val b = 
 		'''
-			model InheritedImportedModelNavigation
-			import InheritedImportedModelNavigationProduct as P
+			model InheritedImportedModelNavigation;
+			import InheritedImportedModelNavigationProduct as P;
 
 			entity ChildProduct extends P::Product {
 			}
 			
 
 			entity Discount {
-				relation ChildProduct products opposite-add discount
+				relation ChildProduct products opposite-add discount;
 			}
 			
 			
 			entity CartItem {
-				relation required ChildProduct product
-				derived Discount b => self.product.discount
+				relation required ChildProduct product;
+				derived Discount b => self.product.discount;
 			}
 
 

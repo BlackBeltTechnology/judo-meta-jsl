@@ -1,0 +1,225 @@
+ifndef::env-site,env-github[]
+include::../_attributes.adoc[]
+endif::[]
+// Settings
+:idprefix:
+:idseparator: -
+:icons: font
+:KW: [purple]##**
+:KWE: **##
+:source-highlighter: highlight.js
+
+////
+TODO
+
+* plantUML pictures
+* optimistic locking
+* remove judo word from judo::types ???
+* case-sensitive (==) and case-insensitive (<,>) comparsion of strings shall be reviewed
+
+* field keyword is optional (or not?)
+* float primitive type
+* numeric operators must be tested
+* millisecond in arithmetic in sql shall be tested
+* add syntax highlight to example codes
+* there are no domain model primitives defined by default shall be discussed more in details
+
+////
+
+= Introduction
+
+JUDO Specification Language (JSL) is an implementation independent text-based modeling language. The overall goal of the language is to provide unambiguous and readable descriptions of different business domains and their incorporated business logic.
+
+Because of the accuracy of JSL, models can be run, tested, and integrated into coding projects.
+
+[WARNING]
+====
+All concepts and rules described in this document are valid in JSL.
+
+See the JUDO Java documentation for APIs and programming concepts. 
+====
+
+== Example model
+
+We use the model below as example data model in this guide.
+
+[source,jsl]
+----
+model shop;
+
+import judo::types;
+
+type string Email(min-size = 0, max-size = 64, regex = r"^\w+@\w+(\.\w+)+$");
+
+enum OrderStatus {
+	OPEN = 1;
+	PAID = 2;
+	DELIVERED = 3;
+}
+
+entity Address {
+    field required String street;
+    field required String city;
+    field String country;
+}
+
+entity User {
+	identifier required Email email;
+} 
+
+entity abstract Customer {
+    field required Address address;
+	relation Order[] orders opposite customer;
+}
+
+entity Person extends Customer, User {
+	field required String firstName;
+	field required String lastName;
+	derived	String fullName => self.firstName + " " + self.lastName;
+}
+
+entity Enterprise extends Customer {
+	field required String name;
+}
+
+entity Order {
+	field required OrderStatus status = OrderStatus#OPEN;
+	field OrderItem[] orderItems;
+	relation required Customer customer opposite orders;
+	derived Integer price => self.orderItems!sum(item | item.price);
+}
+
+entity OrderItem {
+	relation required Product product opposite-add orderItems[];
+	field required Integer amount;
+	derived	String productName => self.product.name;
+	derived Integer price => self.amount * self.product.price;
+}
+
+entity Product {
+	identifier required String name;
+	field required Integer price;
+}
+----
+
+// diagram should be updated
+
+[plantuml, target=diagram-classes, format=png]
+....
+@startuml shop
+'!pragma layout smetana
+'left to right direction
+
+skinparam nodesep 150
+skinparam ranksep 90
+
+hide circle
+hide stereotype
+
+skinparam padding 2
+skinparam roundCorner 8
+skinparam linetype ortho
+
+skinparam class {
+	BackgroundColor #moccasin
+	BorderColor #grey
+	ArrowColor #black
+
+	FontSize 13
+	'FontStyle bold
+
+	BackgroundColor<< Abstract >> white|#cfe3e8
+	HeaderBackgroundColor<< Abstract >> #cee2e6/#bed8df
+	FontStyle<< Abstract >> italic
+
+	BackgroundColor<< Entity >> white|#cfe3e8
+	HeaderBackgroundColor<< Entity >> #cee2e6/#bed8df
+
+	BackgroundColor<< Enumeration >> white|#d6e6c8
+	HeaderBackgroundColor<< Enumeration >> #d6e6c8/#c8e0be
+
+	BackgroundColor<< Error >> white|#e69987
+	HeaderBackgroundColor<< Error >> #d69080
+	FontStyle<< Error >> normal
+
+	BackgroundColor<< numeric >> white|#d6e6c8
+	HeaderBackgroundColor<< numeric >> #d6e6c8/#c8e0be
+
+	BackgroundColor<< string >> white|#d6e6c8
+	HeaderBackgroundColor<< string >> #d6e6c8/#c8e0be
+
+	BackgroundColor<< date >> white|#d6e6c8
+	HeaderBackgroundColor<< date >> #d6e6c8/#c8e0be
+
+	BackgroundColor<< timestamp >> white|#d6e6c8
+	HeaderBackgroundColor<< timestamp >> #d6e6c8/#c8e0be
+
+	BackgroundColor<< time >> white|#d6e6c8
+	HeaderBackgroundColor<< time >> #d6e6c8/#c8e0be
+
+	BackgroundColor<< binary >> white|#d6e6c8
+	HeaderBackgroundColor<< binary >> #d6e6c8/#c8e0be
+
+	BackgroundColor<< boolean >> white|#d6e6c8
+	HeaderBackgroundColor<< boolean >> #d6e6c8/#c8e0be
+
+	BackgroundColor<< External >> white|#efefef
+	HeaderBackgroundColor<< External >> #dedede/#d7d7d7
+	FontColor<< External >> #7f7f7f
+	AttributeFontColor<< External >> #7f7f7f		
+}
+
+skinparam package<<DataTypes>> {
+	borderColor Transparent
+	backgroundColor Transparent
+	fontColor Transparent
+	stereotypeFontColor Transparent
+}	
+
+package shop {
+	class Address << Entity >> {
+		+<b>street</b> : String
+		+<b>city</b> : String
+		+country : String
+	}
+	class User << Entity >> {
+		+<u><b>email</b></u> : Email
+	}
+	class Customer << Abstract >>  {
+		+<b>address</b> : Address
+	}
+	class Person << Entity >> {
+		+<b>firstName</b> : String
+		+<b>lastName</b> : String
+		~<i>fullName</i> : String
+	}
+	class Enterprise << Entity >> {
+		+<b>name</b> : String
+	}
+	class Order << Entity >> {
+		+<b>status</b> : OrderStatus
+		+orderItems : OrderItem[0..*]
+		~<i>price</i> : Integer
+	}
+	class OrderItem << Entity >> {
+		+<b>amount</b> : Integer
+		~<i>productName</i> : String
+		~<i>price</i> : Integer
+	}
+	class Product << Entity >> {
+		+<b>price</b> : Integer
+		+<u><b>name</b></u> : String
+	}
+
+	Customer  "customer\n[1..1]" -right-   "orders\n[0..*]" Order
+	OrderItem  "orderItems\n[0..*] " --   "product\n[1..1]" Product
+
+    Person --|> User
+    Person -up-|> Customer
+    Enterprise -up-|> Customer
+
+    Order -down[hidden]- OrderItem
+}
+
+@enduml
+....
