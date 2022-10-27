@@ -80,10 +80,10 @@
 		<epsilon-runtime-version>1.5.0</epsilon-runtime-version>
 		<epsilon-runtime-eclipse-version>1.5.1</epsilon-runtime-eclipse-version>
 
-        <emf-genmodel-generator-version>1.1.1.20220930_100337_62864061_develop</emf-genmodel-generator-version>
-        <judo-genmodel-generator-version>1.1.2.20221005_230703_6a1653f3_develop</judo-genmodel-generator-version>
-        <judo-epp-common-version>4.23.2.20220923_134801_d39d5940_develop</judo-epp-common-version>
-        <judo-misc-p2-version>1.0.1.20220923_065334_96df90c8_develop</judo-misc-p2-version>
+        <emf-genmodel-generator-version>1.1.0</emf-genmodel-generator-version>
+        <judo-genmodel-generator-version>1.1.1</judo-genmodel-generator-version>
+        <judo-epp-common-version>4.23.1</judo-epp-common-version>
+        <judo-misc-p2-version>1.0.0</judo-misc-p2-version>
 
         <xtext-version>2.28.0</xtext-version>
         <emf-mwe2-launch-version>2.13.0</emf-mwe2-launch-version>
@@ -97,8 +97,8 @@
         <karaf-version>4.4.1</karaf-version>
         <cxf-version>3.5.1</cxf-version>
 
-        <osgi-utils-version>1.1.1.20221026_231146_086b80be_develop</osgi-utils-version>
-        <karaf-features-version>2.0.1.20220926_213446_a786c6cc_develop</karaf-features-version>
+        <osgi-utils-version>1.1.0</osgi-utils-version>
+        <karaf-features-version>2.0.1</karaf-features-version>
         <pax-exam-version>4.13.4</pax-exam-version>
 
 		<!-- Define overridable properties for tycho-surefire-plugin -->
