@@ -1,6 +1,3 @@
 src/main/xtext-gen
 src/main/xtend-gen
 model/generated/*
-
-
-/model/

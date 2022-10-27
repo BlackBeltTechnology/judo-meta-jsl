@@ -4,7 +4,6 @@ import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.validation.Check
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
-import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImport
 import com.google.inject.Inject
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.naming.IQualifiedNameConverter
@@ -16,7 +15,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierMaxLength
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierMaxSize
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierMinSize
 import java.math.BigInteger
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierPrecision
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierScale
@@ -42,10 +42,13 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
 import hu.blackbelt.judo.meta.jsl.jsldsl.MimeType
-import java.util.function.BinaryOperator
-import hu.blackbelt.judo.meta.jsl.services.JslDslGrammarAccess.ImpliesExpressionElements
 import java.util.regex.Pattern
-import org.eclipse.emf.mwe2.language.mwe2.StringLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunction
+import java.util.Arrays
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseExpression
+import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -56,7 +59,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	protected static val ISSUE_CODE_PREFIX = "hu.blackbelt.judo.meta.jsl.jsldsl."
 	public static val HIERARCHY_CYCLE = ISSUE_CODE_PREFIX + "HierarchyCycle"
-	public static val IMPORTED_MODEL_NOT_FOUND = ISSUE_CODE_PREFIX + "ImportedModelNotFound"
 	public static val DUPLICATE_MODEL = ISSUE_CODE_PREFIX + "DuplicateModel"
 	public static val OPPOSITE_TYPE_MISMATH = ISSUE_CODE_PREFIX + "OppositeTypeMismatch"
 	public static val DUPLICATE_MEMBER_NAME = ISSUE_CODE_PREFIX + "DuplicateMemberName"
@@ -66,19 +68,22 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val INHERITED_MEMBER_NAME_COLLISION = ISSUE_CODE_PREFIX + "InheritedMemberNameCollision"
 	public static val ENUM_LITERAL_NAME_COLLISION = ISSUE_CODE_PREFIX + "EnumLiteralNameCollision"
 	public static val ENUM_LITERAL_ORDINAL_COLLISION = ISSUE_CODE_PREFIX + "EnumLiteralOrdinalCollision"
-	public static val MAX_LENGTH_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "MaxLengthIsNegative"
+	public static val MAX_SIZE_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "MaxSizeIsNegative"
+	public static val MIN_SIZE_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "MinSizeIsNegative"
 	public static val INVALID_MIMETYPE = ISSUE_CODE_PREFIX + "MimetypeIsInvalid"
 	public static val PRECISION_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "PrecisionIsNegative"
 	public static val SCALE_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "ScaleIsNegative"
-	public static val MAX_LENGTH_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "MaxLengthIsTooLarge"
+	public static val MAX_SIZE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "MaxSizeIsTooLarge"
+	public static val MIN_SIZE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "MinSizeIsTooLarge"
 	public static val PRECISION_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "PrecisionIsTooLarge"
 	public static val SCALE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "ScaleIsLargerThanPrecision"
 	public static val USING_REQUIRED_WITH_IS_MANY = ISSUE_CODE_PREFIX + "UsingRequiredWithIsMany"
 	public static val DEFAULT_TYPE_MISMATCH = ISSUE_CODE_PREFIX + "DefaultValueTypeMismatch"
 	public static val UNSUPPORTED_DEFAULT_TYPE = ISSUE_CODE_PREFIX + "UnsupportedDefaultValueType"
+	public static val UNSUPPORTED_SELECTOR = ISSUE_CODE_PREFIX + "UnsupportedSelector"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
-	public static val MODIFIER_MAX_LENGTH_MAX_VALUE = BigInteger.valueOf(4000)
+	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
 	public static val PRECISION_MAX_VALUE = BigInteger.valueOf(15)
 
 
@@ -107,65 +112,65 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 		]
 	}
-	
-    /*
-	def checkImportCycle(ModelImport modelImport) {
-		if (modelImport.importedNamespace !== null) {
-			if (modelImport.modelDeclaration.modelImportHierarchy(modelImport.importedNamespace.toQualifiedName).contains(modelImport.importedNamespace.toQualifiedName)) {
-				error("cycle in hierarchy of model '" + modelImport.importedNamespace + "'",
-					JsldslPackage::eINSTANCE.modelImport_ImportedNamespace,
-					HIERARCHY_CYCLE,
-					modelImport.importedNamespace)
-			}			
-		}
-	}
-    */
     
 	@Check
-	def checkSelfImport(ModelImport modelImport) {
+	def checkSelfImport(ModelImportDeclaration modelImport) {
 		//System.out.println("checkSelfImport: " + modelImport.importedNamespace + " " + modelImport.eContainer().fullyQualifiedName.toString("::"))
 		
-		if (modelImport.modelName === null) {
+		if (modelImport.model === null) {
 			return
 		}
-		if (modelImport.modelName.importName.toQualifiedName.equals(modelImport.eContainer().fullyQualifiedName)) {
-			//System.out.println("==== ERROR: " + modelImport.importedNamespace)
-			error("Cycle in hierarchy of model '" + modelImport.modelName.importName + "'",
-				JsldslPackage::eINSTANCE.modelImport_ModelName,
-				HIERARCHY_CYCLE,
-				modelImport.modelName.importName)
+
+		if (modelImport.model.name === null) {
+			return
 		}
+
+		if (modelImport.model.name.toQualifiedName.equals(modelImport.eContainer().fullyQualifiedName)) {
+			//System.out.println("==== ERROR: " + modelImport.importedNamespace)
+			error("Cycle in hierarchy of model '" + modelImport.model.name + "'",
+				JsldslPackage::eINSTANCE.modelImportDeclaration_Model,
+				HIERARCHY_CYCLE,
+				modelImport.model.name)
+		}
+	}
+	
+	def unsupportedLamdaFunctionSelectorError(LambdaFunction function) {
+			error("Expression must select an immediate field or derived",
+				JsldslPackage::eINSTANCE.lambdaFunction_Expression,
+				UNSUPPORTED_SELECTOR,
+				function.name)
 	}
 
 	@Check
-	def checkImportSanity(ModelImport modelImport) {
-		val modelName = modelImport.modelName;
-		if (modelName !== null) {
-			val modelQualifiedName = modelName.importName.toQualifiedName
-			val found = modelImport.parentContainer(ModelDeclaration).getVisibleClassesDescriptions.map[
-				desc |
-				if (desc.qualifiedName == modelQualifiedName 
-					&& desc.EObjectOrProxy != modelImport.parentContainer(ModelDeclaration) 
-					&& desc.EObjectURI.trimFragment != modelImport.parentContainer(ModelDeclaration).eResource.URI) {
-						true
-				} else {				
-					false
-				}
-			].exists[l | l]
-			if (!found) {
-				error("Imported model '" + modelImport.modelName.importName + "' not found",
-					JsldslPackage::eINSTANCE.modelImport_ModelName,
-					IMPORTED_MODEL_NOT_FOUND,
-					modelImport.modelName.importName)				
+	def checkSelector(LambdaFunction function) {
+		if (Arrays.asList("max", "min", "sum", "avg", "first", "last", "front", "back").contains(function.functionDeclarationReference.name)) {
+			if (!(function.expression instanceof NavigationBaseExpression)) {
+				unsupportedLamdaFunctionSelectorError(function);
 			}
-		} else {			
-				error("Imported model is not defined",
-					JsldslPackage::eINSTANCE.modelImport_ModelName,
-					IMPORTED_MODEL_NOT_FOUND,
-					modelImport.modelName.importName)				
-		}
-    }
 
+			val NavigationBaseExpression nbe = function.expression as NavigationBaseExpression
+			
+			if (nbe.features.size != 1) {
+				unsupportedLamdaFunctionSelectorError(function);
+			}
+
+			if (nbe.features.get(0).navigationTargetType instanceof EntityFieldDeclaration) {
+				val EntityFieldDeclaration field = nbe.features.get(0).navigationTargetType as EntityFieldDeclaration
+
+				if (!(field.referenceType instanceof PrimitiveDeclaration)) {
+					unsupportedLamdaFunctionSelectorError(function);
+				}
+			} else if (nbe.features.get(0).navigationTargetType instanceof EntityDerivedDeclaration) {
+				val EntityDerivedDeclaration derived = nbe.features.get(0).navigationTargetType as EntityDerivedDeclaration
+
+				if (!(derived.referenceType instanceof PrimitiveDeclaration)) {
+					unsupportedLamdaFunctionSelectorError(function);
+				}
+			} else {
+				unsupportedLamdaFunctionSelectorError(function);
+			}
+		}
+	}
 
 	@Check
 	def checkAssociation(EntityRelationDeclaration relation) {
@@ -279,17 +284,33 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}	
 
 	@Check
-	def checkModifierMaxLength(ModifierMaxLength modifier) {
+	def checkModifierMinSize(ModifierMinSize modifier) {
+		val maxValue = (modifier.eContainer as DataTypeDeclaration).maxSize.value
+		if (modifier.value < BigInteger.ZERO) {
+			error("min-size must be greater than or equal to 0",
+				JsldslPackage::eINSTANCE.modifierMinSize_Value,
+				MIN_SIZE_MODIFIER_IS_NEGATIVE,
+				JsldslPackage::eINSTANCE.modifierMinSize.name)
+		} else if (modifier.value > maxValue) {
+			error("min-size must be less than/equal to max-size",
+				JsldslPackage::eINSTANCE.modifierMinSize_Value,
+				MIN_SIZE_MODIFIER_IS_TOO_LARGE,
+				JsldslPackage::eINSTANCE.modifierMinSize.name)
+		}
+	}
+
+	@Check
+	def checkModifierMaxSize(ModifierMaxSize modifier) {
 		if (modifier.value <= BigInteger.ZERO) {
-			error("MaxLength must be greater than 0",
-				JsldslPackage::eINSTANCE.modifierMaxLength_Value,
-				MAX_LENGTH_MODIFIER_IS_NEGATIVE,
-				JsldslPackage::eINSTANCE.modifierMaxLength.name)
-		} else if (modifier.value > MODIFIER_MAX_LENGTH_MAX_VALUE) {
-			error("MaxLength must be less than/equal to " + MODIFIER_MAX_LENGTH_MAX_VALUE,
-				JsldslPackage::eINSTANCE.modifierMaxLength_Value,
-				MAX_LENGTH_MODIFIER_IS_TOO_LARGE,
-				JsldslPackage::eINSTANCE.modifierMaxLength.name)
+			error("max-size must be greater than 0",
+				JsldslPackage::eINSTANCE.modifierMaxSize_Value,
+				MAX_SIZE_MODIFIER_IS_NEGATIVE,
+				JsldslPackage::eINSTANCE.modifierMaxSize.name)
+		} else if (modifier.value > MODIFIER_MAX_SIZE_MAX_VALUE) {
+			error("max-size must be less than/equal to " + MODIFIER_MAX_SIZE_MAX_VALUE,
+				JsldslPackage::eINSTANCE.modifierMaxSize_Value,
+				MAX_SIZE_MODIFIER_IS_TOO_LARGE,
+				JsldslPackage::eINSTANCE.modifierMaxSize.name)
 		}
 	}
 	

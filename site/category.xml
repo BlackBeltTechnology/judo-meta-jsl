@@ -3,47 +3,63 @@
    <description>
       To install these features, point Eclipse at this site.
    </description>
-
-    <category-def name="jsl" label="Judo Jsl Model">
-       <description>
-          Judo Jsl Model Update Site: contains all features in this build.
-       </description>
-    </category-def>
-    <category-def name="jsl_source" label="Judo Jsl Model Source">
-       <description>
-          Judo Jsl Model source code.
-       </description>
-    </category-def>
-
-    <category-def name="jsl_ide" label="Judo Jsl IDE">
-       <description>
-          Judo Jsl Model IDE intrgration.
-       </description>
-    </category-def>
-    <category-def name="jsl_ide_source" label="Judo Jsl IDE Source">
-       <description>
-          Judo Jsl Model IDE intrgration source code
-       </description>
-    </category-def>
-
    <feature id="hu.blackbelt.judo.meta.jsl.feature">
       <category name="jsl"/>
    </feature>
-
    <feature id="hu.blackbelt.judo.meta.jsl.feature.source">
       <category name="jsl_source"/>
    </feature>
-
    <feature id="hu.blackbelt.judo.meta.jsl.ide.feature">
       <category name="jsl_ide"/>
    </feature>
-
    <feature id="hu.blackbelt.judo.meta.jsl.ide.feature.source">
       <category name="jsl_ide_source"/>
    </feature>
-
-	<!--
-    <repository-reference location="https://nexus.judo.technology/repository/p2/epsilon-runtime-eclipse/1.4.0.20210919_133947_3330a32_develop" enabled="true" />
-    <repository-reference location="https://nexus.judo.technology/repository/p2/judo-epp-common/4.22.0.20220316_195019_68b6d470_develop" enabled="true" />
-    -->
+   <feature id="net.sourceforge.plantuml.ecore.feature">
+      <category name="plantuml"/>
+   </feature>
+   <feature id="net.sourceforge.plantuml.ecore.feature.source">
+      <category name="plantuml_source"/>
+   </feature>
+   <feature id="net.sourceforge.plantuml.feature">
+      <category name="plantuml"/>
+   </feature>
+   <feature id="net.sourceforge.plantuml.feature.source">
+      <category name="plantuml_source"/>
+   </feature>
+   <feature id="net.sourceforge.plantuml.lib.elk.feature">
+      <category name="plantuml"/>
+   </feature>
+   <feature id="net.sourceforge.plantuml.lib.feature">
+      <category name="plantuml"/>
+   </feature>
+   <feature id="net.sourceforge.plantuml.lib.jlatexmath.feature">
+      <category name="plantuml"/>
+   </feature>
+   <feature id="apache.commons.text.feature">
+      <category name="misc_p2"/>
+   </feature>
+   <category-def name="jsl" label="Judo Jsl Model">
+      <description>
+         Judo Jsl Model Update Site: contains all features in this build.
+      </description>
+   </category-def>
+   <category-def name="jsl_source" label="Judo Jsl Model Source">
+      <description>
+         Judo Jsl Model source code.
+      </description>
+   </category-def>
+   <category-def name="jsl_ide" label="Judo Jsl IDE">
+      <description>
+         Judo Jsl Model IDE intrgration.
+      </description>
+   </category-def>
+   <category-def name="jsl_ide_source" label="Judo Jsl IDE Source">
+      <description>
+         Judo Jsl Model IDE intrgration source code
+      </description>
+   </category-def>
+   <category-def name="plantuml" label="PlantUML"/>
+   <category-def name="plantuml_source" label="PlantUML Source"/>
+   <category-def name="misc_p2" label="Misc P2"/>
 </site>

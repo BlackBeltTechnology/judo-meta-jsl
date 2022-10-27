@@ -53,7 +53,7 @@
     </developers>
 
     <properties>
-        <revision>1.0.0</revision>
+        <revision>1.0.1</revision>
         <maven>3.8.3</maven>
         <project-shortname>judo-meta-jsl</project-shortname>
         <project-repositoryId>BlackBeltTechnology/judo-meta-psm-jsl
@@ -98,7 +98,7 @@
         <cxf-version>3.5.1</cxf-version>
 
         <osgi-utils-version>1.1.0</osgi-utils-version>
-        <karaf-features-version>2.0.0</karaf-features-version>
+        <karaf-features-version>2.0.1</karaf-features-version>
         <pax-exam-version>4.13.4</pax-exam-version>
 
 		<!-- Define overridable properties for tycho-surefire-plugin -->
@@ -129,6 +129,7 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-source-plugin</artifactId>
+                <version>${tycho-version}</version>
 			</plugin>
 
             <plugin>
@@ -176,6 +177,7 @@
             <plugin>
                 <groupId>org.eclipse.tycho</groupId>
                 <artifactId>tycho-versions-plugin</artifactId>
+                <version>${tycho-version}</version>
             </plugin>
 
             <plugin>
@@ -917,6 +919,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>5.9.1</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
             <groupId>com.jcabi</groupId>
             <artifactId>jcabi-log</artifactId>
             <version>0.22.0</version>
@@ -935,6 +944,7 @@
             </activation>
             <modules>
                 <module>targetdefinition</module>
+                <module>docs</module>
                 <module>model</module>
                 <module>model-test</module>
                 <module>osgi</module>
@@ -1152,7 +1162,7 @@
                                         <toc>left</toc>
                                         <icons>font</icons>
                                         <sectanchors>true</sectanchors>
-                                        <idprefix/>
+                                        <idprefix />
                                         <idseparator>-</idseparator>
                                     </attributes>
                                 </configuration>
