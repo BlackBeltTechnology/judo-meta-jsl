@@ -1,5 +1,7 @@
 package hu.blackbelt.judo.meta.jsl.runtime;
 
+import com.google.common.collect.ImmutableSet;
+
 /*-
  * #%L
  * Judo :: Jsl :: Model
@@ -50,11 +52,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class JslParser {
 
     private static final Logger log = LoggerFactory.getLogger(JslParser.class);
+    
+    public static Set<String> INTERNAL_IMPORTS = ImmutableSet.of("judo::types");
 
     public static final String JSLSCRIPT_CONTENT_TYPE = "jsl";
     private static Injector injectorInstance;
@@ -199,11 +204,13 @@ public class JslParser {
 
     private static void collectImportedModelDeclaration(ModelDeclaration modelDeclaration,  Collection<ModelDeclaration> all, Collection<ModelDeclaration> collected) {
         for (ModelImportDeclaration modelImport : modelDeclaration.getImports()) {
-            if (!collected.stream().anyMatch(d -> d.getName().equals(modelImport.getModel().getName()))) {
-                ModelDeclaration imported = all.stream().filter(d -> d.getName().equals(modelImport.getModel().getName())).findFirst().orElseThrow(() -> new IllegalStateException("Model not found: " + modelImport.getModel().getName()));
-                collected.add(imported);
-                collectImportedModelDeclaration(imported, all, collected);
-            }
+        	if (!INTERNAL_IMPORTS.contains(modelImport.getModel().getName())) {
+                if (!collected.stream().anyMatch(d -> d.getName().equals(modelImport.getModel().getName()))) {
+                    ModelDeclaration imported = all.stream().filter(d -> d.getName().equals(modelImport.getModel().getName())).findFirst().orElseThrow(() -> new IllegalStateException("Model not found: " + modelImport.getModel().getName()));
+                    collected.add(imported);
+                    collectImportedModelDeclaration(imported, all, collected);
+                }        		
+        	}
         }
     }
 
