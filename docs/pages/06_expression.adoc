@@ -482,8 +482,8 @@ Any type functions can be applied to any type or instance except collections.
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**like(pattern = **#<pattern> &#x5B;[purple]##**, exact = **##<exact>][purple]##**)**## : boolean`
-|Returns `true` if the string matches a given <pattern>, `false` otherwise. The optional <exact> is a boolean parameter. If <exact> is true the pattern matching is case-sensitive. If <exact> is false or undefined the pattern matching is case-insensitive. If no <exact> argument is passed, the pattern matching is case-sensitive.
+|`[purple]#**like(pattern = **#<pattern>[purple]##**)**## : boolean`
+|Returns `true` if the string matches a given <pattern> case sensitively, `false` otherwise. The <pattern> can only be a constant string.
 
 There are two wildcards used in the <pattern>:
 
@@ -496,7 +496,22 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 If either of these two signs is not used in the <pattern>, then the function acts like the equals operator.
 |Examples:
 |`"apple"!like(pattern = "%pl_")` is `true`
-|`"apPLe"!like(pattern = "_pple", exact = false)` is `true`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**ilike(pattern = **#<pattern>[purple]##**)**## : boolean`
+|Returns `true` if the string matches a given <pattern> case insensitively, `false` otherwise. The <pattern> can only be a constant string.
+
+There are two wildcards used in the <pattern>:
+
+* percent sign (%)
+
+* underscore (_)
+
+The percent sign represents zero, one, or multiple numbers or characters. The underscore represents a single number or character. These symbols can be used in combinations.
+|Examples:
+|`"apple"!like(pattern = "%PL_")` is `true`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
