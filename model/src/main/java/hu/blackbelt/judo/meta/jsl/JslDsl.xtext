@@ -117,7 +117,7 @@ EntityQueryTargetType
 	;
 
 QueryDeclarationParameter
-	: referenceType = [PrimitiveDeclaration | LocalName] Named "=" default = Literal
+	: referenceType = [PrimitiveDeclaration | LocalName] Named ("=" default = Literal)?
 	;
 
 EntityRelationDeclaration
