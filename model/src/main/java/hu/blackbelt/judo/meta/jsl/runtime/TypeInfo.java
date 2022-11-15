@@ -3,8 +3,7 @@ package hu.blackbelt.judo.meta.jsl.runtime;
 import java.util.Arrays;
 
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EObject;
-
+ 
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration;
@@ -171,7 +170,7 @@ public class TypeInfo {
 		if (this.baseType == BaseType.ENTITY && other.baseType == BaseType.ENTITY) {
 			if (this.isCollection ^ other.isCollection) return false;
 			
-			return this.type.equals(other.type) || modelExtension.getSuperEntityTypes((EntityDeclaration)this.type).contains((EntityDeclaration)other.type);
+			return this.type.equals(other.type) || modelExtension.getSuperEntityTypes((EntityDeclaration)other.type).contains((EntityDeclaration)this.type);
 		}
 
 		return this.baseType == other.baseType;
@@ -297,9 +296,11 @@ public class TypeInfo {
 	}
 	
 	private static TypeInfo getTargetType(EList<Feature> features, TypeInfo typeInfo) {
+		boolean isCollection = typeInfo != null ? typeInfo.isCollection : false;
+		
 		if (features.size() > 0) {
 			typeInfo = getTargetType(features.get(features.size() - 1).getNavigationTargetType());
-			typeInfo.isCollection = typeInfo.isCollection || features.stream().anyMatch(f -> isMany(f.getNavigationTargetType()));
+			typeInfo.isCollection = isCollection || features.stream().anyMatch(f -> isMany(f.getNavigationTargetType()));
 		}
 		
 		return typeInfo;
@@ -339,7 +340,6 @@ public class TypeInfo {
 			QueryDeclaration queryDeclaration = (QueryDeclaration)navigationBaseReference;
 			typeInfo = new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isIsMany());
 		} else if (navigationBaseReference instanceof LambdaVariable) {
-			System.out.println(((LambdaVariable) navigationBaseReference).getName());
 			getTargetType((LambdaVariable) navigationBaseReference).print();
 			typeInfo = getTargetType((LambdaVariable) navigationBaseReference);
 		} else if (navigationBaseReference instanceof QueryDeclarationParameter) {
@@ -398,7 +398,6 @@ public class TypeInfo {
 		} else if (functionCall.eContainer() instanceof FunctionCall) {
 			TypeInfo typeInfo = getTargetType(((FunctionCall) functionCall.eContainer()).getFeatures(), null);
 			return typeInfo != null ? typeInfo : getParentFunctionCallReturnType((FunctionCall) functionCall.eContainer());
-			// return getLastFeatureTargetType(functionCall.eContainer(), ((FunctionCall) functionCall.eContainer()).getFeatures(), false);
 		} 
 		throw new IllegalArgumentException("Could not determinate function call return type: " + functionCall);		
 	}

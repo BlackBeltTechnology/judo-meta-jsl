@@ -24,20 +24,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
-import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference
-import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.RawStringLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.IntegerLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.DecimalLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.DateLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.TimeStampLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorField
 import hu.blackbelt.judo.meta.jsl.jsldsl.Named
-import hu.blackbelt.judo.meta.jsl.jsldsl.SelfExpression
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
@@ -51,7 +39,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.runtime.TypeInfo
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
-import java.util.function.BinaryOperator
 import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnaryOperation
 
@@ -558,10 +545,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Check
 	def checkEntityDerived(EntityDerivedDeclaration derived) {
 		if (derived.expression !== null && !TypeInfo.getTargetType(derived).isCompatible(TypeInfo.getTargetType(derived.expression))) {
-			System.out.println("Type mismatch:" + derived.name);
-			TypeInfo.getTargetType(derived).print();
-			TypeInfo.getTargetType(derived.expression).print();
-
 			error("Type mismatch",
                 JsldslPackage::eINSTANCE.entityDerivedDeclaration_Expression,
                 DEFAULT_TYPE_MISMATCH,
