@@ -361,6 +361,7 @@ public class TypeInfo {
 	
 	private static TypeInfo getTargetType(SelfExpression selfExpression) {
 		TypeInfo typeInfo = getTargetType(modelExtension.parentContainer(selfExpression, EntityDeclaration.class));
+		typeInfo.isCollection = false;
 		return getTargetType(selfExpression.getFeatures(), typeInfo);
 	}
 
@@ -390,7 +391,18 @@ public class TypeInfo {
 
 		throw new IllegalArgumentException("Could not determinate type for navigation target:" + navigationTarget);
 	}
-		
+	
+	public static TypeInfo getParentFunctionCallReturnType(FunctionCall functionCall) {
+		if (functionCall.eContainer() instanceof FunctionedExpression) {
+			return getTargetType(((FunctionedExpression) functionCall.eContainer()).getOperand());
+		} else if (functionCall.eContainer() instanceof FunctionCall) {
+			TypeInfo typeInfo = getTargetType(((FunctionCall) functionCall.eContainer()).getFeatures(), null);
+			return typeInfo != null ? typeInfo : getParentFunctionCallReturnType((FunctionCall) functionCall.eContainer());
+			// return getLastFeatureTargetType(functionCall.eContainer(), ((FunctionCall) functionCall.eContainer()).getFeatures(), false);
+		} 
+		throw new IllegalArgumentException("Could not determinate function call return type: " + functionCall);		
+	}
+	
 	public static TypeInfo getTargetType(EntityMemberDeclaration entityMemberDeclaration) {
 		if (entityMemberDeclaration instanceof EntityFieldDeclaration) {
 			EntityFieldDeclaration entityFieldDeclaration = (EntityFieldDeclaration)entityMemberDeclaration;
