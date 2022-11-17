@@ -23,7 +23,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Function;
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionBaseType;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall;
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterType;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionReturnType;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionedExpression;
 import hu.blackbelt.judo.meta.jsl.jsldsl.IntegerLiteral;
@@ -56,9 +58,21 @@ public class TypeInfo {
     
     private enum BaseType {BOOLEAN, BINARY, STRING, NUMERIC, DATE, TIME, TIMESTAMP, ENUM, ENTITY}
     
-	private boolean isCollection;
+    private boolean isLiteral = false;
+	private boolean isCollection = false;
 	private BaseType baseType;
 	private SingleType type;
+
+	public String toString() {
+		switch (this.baseType) {
+			case ENUM:
+				return ((EnumDeclaration)this.type).getName() + (this.isLiteral ? " literal" : "");
+			case ENTITY:
+				return ((EntityDeclaration)this.type).getName() + (this.isCollection ? " collection" : "");
+			default:
+				return this.baseType.toString().toLowerCase() + (this.isLiteral ? " literal" : "");
+		}
+	}
 
 	public void print() {
 		System.out.println("BaseType:     " + this.baseType);
@@ -66,18 +80,17 @@ public class TypeInfo {
 		System.out.println("type: " 		+ this.type);
 	}
 	
-	private TypeInfo(BaseType baseType) {
+	private TypeInfo(BaseType baseType, boolean isLiteral) {
 		if (baseType == BaseType.ENUM || baseType == BaseType.ENTITY) {
 			throw new IllegalArgumentException("TypeInfo got illegal argument: " + baseType);
 		}
 		
-		this.isCollection = false;
+		this.isLiteral = isLiteral;
 		this.baseType = baseType;
 	}
 
 	private TypeInfo(SingleType type, boolean isCollection) {
 		if (type instanceof DataTypeDeclaration) {
-			this.isCollection = false;
 			this.type = type;
 
 			DataTypeDeclaration dataType = (DataTypeDeclaration) type;
@@ -100,7 +113,6 @@ public class TypeInfo {
 				throw new IllegalArgumentException("TypeInfo got illegal primitive argument: " + dataType.getPrimitive());
 			}			
 		} else if (type instanceof EnumDeclaration) {
-			this.isCollection = false;
 			this.type = type;
 			this.baseType = BaseType.ENUM;
 		} else if (type instanceof EntityDeclaration) {
@@ -162,7 +174,15 @@ public class TypeInfo {
 		return this.isCollection;
 	}
 
+	public boolean isLiteral() {
+		return this.isLiteral;
+	}
+
 	public boolean isCompatible(TypeInfo other) {
+		if (this.isLiteral && !other.isLiteral) {
+			return false;
+		}
+		
 		if (this.baseType == BaseType.ENUM && other.baseType == BaseType.ENUM) {
 			return ((EnumDeclaration)this.type).equals(((EnumDeclaration)other.type));
 		}
@@ -214,32 +234,63 @@ public class TypeInfo {
 		return type;
 	}
 	
+	public static TypeInfo getTargetType(FunctionParameterType functionParameterType) {
+		switch (functionParameterType) {
+			case PT_BOOLEAN_INSTANCE:   return new TypeInfo(BaseType.BOOLEAN, false);
+			case PT_BINARY_INSTANCE:    return new TypeInfo(BaseType.BINARY, false);
+			case PT_STRING_INSTANCE:    return new TypeInfo(BaseType.STRING, false);
+			case PT_NUMERIC_INSTANCE:   return new TypeInfo(BaseType.NUMERIC, false);
+			case PT_DATE_INSTANCE:      return new TypeInfo(BaseType.DATE, false);
+			case PT_TIME_INSTANCE:      return new TypeInfo(BaseType.TIME, false);
+			case PT_TIMESTAMP_INSTANCE: return new TypeInfo(BaseType.TIMESTAMP, false);
+
+			case PT_BOOLEAN_LITERAL:    return new TypeInfo(BaseType.BOOLEAN, true);
+			case PT_BINARY_LITERAL:     return new TypeInfo(BaseType.BINARY, true);
+			case PT_STRING_LITERAL:     return new TypeInfo(BaseType.STRING, true);
+			case PT_NUMERIC_LITERAL:    return new TypeInfo(BaseType.NUMERIC, true);
+			case PT_DATE_LITERAL:       return new TypeInfo(BaseType.DATE, true);
+			case PT_TIME_LITERAL:       return new TypeInfo(BaseType.TIME, true);
+			case PT_TIMESTAMP_LITERAL:  return new TypeInfo(BaseType.TIMESTAMP, true);
+
+			default:
+				throw new IllegalArgumentException("Could not determinate function parameter type: " + functionParameterType.getName());
+		}
+	}
 	
-	
+	public FunctionBaseType getFunctionBaseType() {
+		switch (this.baseType) {
+			case BOOLEAN:   return FunctionBaseType.BT_BOOLEAN_INSTANCE;
+			case BINARY:    return FunctionBaseType.BT_BINARY_INSTANCE;
+			case STRING:    return FunctionBaseType.BT_STRING_INSTANCE;
+			case NUMERIC:   return FunctionBaseType.BT_NUMERIC_INSTANCE;
+			case DATE:      return FunctionBaseType.BT_DATE_INSTANCE;
+			case TIME:      return FunctionBaseType.BT_TIME_INSTANCE;
+			case TIMESTAMP: return FunctionBaseType.BT_TIMESTAMP_INSTANCE;
+
+			default:
+				throw new IllegalArgumentException("Could not determinate function base type");
+		}
+	}
+
 	private static TypeInfo getTargetType(EnumLiteralReference enumReference) {
-		return new TypeInfo(enumReference.getEnumDeclaration());
-	}
-	
-	private static TypeInfo getTargetType(ParenthesizedExpression parenthesizedExpression) {
-		return getTargetType(parenthesizedExpression.getExpression());
-	}
-	
-	private static TypeInfo getTargetType(TernaryOperation ternaryOperation) {
-		return getTargetType(ternaryOperation.getThenExpression());
+		TypeInfo typeInfo = new TypeInfo(enumReference.getEnumDeclaration());
+		typeInfo.isLiteral = true;
+		return typeInfo;
 	}
 	
 	private static TypeInfo getTargetType(BinaryOperation binaryOperation) {
 		if (Arrays.asList("!=","==",">=","<=",">","<").contains(binaryOperation.getOperator())) {
-			return new TypeInfo(BaseType.BOOLEAN); 
+			return new TypeInfo(BaseType.BOOLEAN, false); 
 		}
 		
-		return getTargetType(binaryOperation.getLeftOperand());
+		TypeInfo typeInfo = getTargetType(binaryOperation.getLeftOperand());
+		typeInfo.isLiteral = false;
+		
+		return typeInfo;
 	}
 
 	private static TypeInfo getTargetType(FunctionedExpression functionedExpression) {
-		TypeInfo typeInfo = getTargetType(functionedExpression.getOperand());
-
-		return getTargetType(functionedExpression.getFunctionCall(), typeInfo);
+		return getTargetType(functionedExpression.getFunctionCall(), getTargetType(functionedExpression.getOperand()));
 	}
 
 	private static TypeInfo getTargetType(Function function, TypeInfo typeInfo) {
@@ -277,19 +328,19 @@ public class TypeInfo {
 		} else if (functionReturnType == FunctionReturnType.RT_BASE_TYPE_COLLECTION) {
 			throw new IllegalArgumentException("Invalid function return type:RT_BASE_TYPE_COLLECTION");
 		} else if (functionReturnType == FunctionReturnType.RT_BOOLEAN_INSTANCE) {
-			return new TypeInfo(BaseType.BOOLEAN);
+			return new TypeInfo(BaseType.BOOLEAN, false);
 		} else if (functionReturnType == FunctionReturnType.RT_BINARY_INSTANCE) {
-			return new TypeInfo(BaseType.BINARY);
+			return new TypeInfo(BaseType.BINARY, false);
 		} else if (functionReturnType == FunctionReturnType.RT_STRING_INSTANCE) {
-			return new TypeInfo(BaseType.STRING);
+			return new TypeInfo(BaseType.STRING, false);
 		} else if (functionReturnType == FunctionReturnType.RT_NUMERIC_INSTANCE) {
-			return new TypeInfo(BaseType.NUMERIC);
+			return new TypeInfo(BaseType.NUMERIC, false);
 		} else if (functionReturnType == FunctionReturnType.RT_DATE_INSTANCE) {
-			return new TypeInfo(BaseType.DATE);
+			return new TypeInfo(BaseType.DATE, false);
 		} else if (functionReturnType == FunctionReturnType.RT_TIME_INSTANCE) {
-			return new TypeInfo(BaseType.TIME);
+			return new TypeInfo(BaseType.TIME, false);
 		} else if (functionReturnType == FunctionReturnType.RT_TIMESTAMP_INSTANCE) {
-			return new TypeInfo(BaseType.TIMESTAMP);
+			return new TypeInfo(BaseType.TIMESTAMP, false);
 		}
 
 		throw new IllegalArgumentException("Could not determinate function return type: " + functionReturnType.getName());
@@ -307,6 +358,8 @@ public class TypeInfo {
 	}
 
 	private static TypeInfo getTargetType(FunctionCall functionCall, TypeInfo typeInfo) {
+		typeInfo.isLiteral = false;
+		
 		typeInfo = getTargetType(functionCall.getFunction(), typeInfo);
 		typeInfo = getTargetType(functionCall.getFeatures(), typeInfo);
 		
@@ -340,7 +393,6 @@ public class TypeInfo {
 			QueryDeclaration queryDeclaration = (QueryDeclaration)navigationBaseReference;
 			typeInfo = new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isIsMany());
 		} else if (navigationBaseReference instanceof LambdaVariable) {
-			getTargetType((LambdaVariable) navigationBaseReference).print();
 			typeInfo = getTargetType((LambdaVariable) navigationBaseReference);
 		} else if (navigationBaseReference instanceof QueryDeclarationParameter) {
 			typeInfo = new TypeInfo( ((QueryDeclarationParameter) navigationBaseReference).getReferenceType());
@@ -401,7 +453,7 @@ public class TypeInfo {
 		} 
 		throw new IllegalArgumentException("Could not determinate function call return type: " + functionCall);		
 	}
-	
+
 	public static TypeInfo getTargetType(EntityMemberDeclaration entityMemberDeclaration) {
 		if (entityMemberDeclaration instanceof EntityFieldDeclaration) {
 			EntityFieldDeclaration entityFieldDeclaration = (EntityFieldDeclaration)entityMemberDeclaration;
@@ -423,15 +475,28 @@ public class TypeInfo {
 		throw new IllegalArgumentException("Could not determinate type for entity member");
 	}
 
+	private static TypeInfo getTargetType(ParenthesizedExpression expression) {
+		TypeInfo typeInfo = getTargetType( expression.getExpression() );
+		typeInfo.isLiteral = false;
+		return typeInfo;
+	}
+	
+	private static TypeInfo getTargetType(TernaryOperation expression) {
+		TypeInfo typeInfo = getTargetType( expression.getThenExpression() );
+		typeInfo.isLiteral = false;
+		return typeInfo;
+	}
+
+
 	public static TypeInfo getTargetType(Expression expression) {
 		if (expression instanceof ParenthesizedExpression) {
-			return getTargetType( (ParenthesizedExpression) expression);
+			return getTargetType( (ParenthesizedExpression) expression );
 		} else if (expression instanceof TernaryOperation) {
-			return getTargetType( (TernaryOperation) expression);
+			return getTargetType( (TernaryOperation) expression );
 		} else if (expression instanceof BinaryOperation) {
 			return getTargetType( (BinaryOperation) expression);
 		} else if (expression instanceof UnaryOperation) {
-			return new TypeInfo(BaseType.BOOLEAN);
+			return new TypeInfo(BaseType.BOOLEAN, false);
 		} else if (expression instanceof FunctionedExpression) {
 			return getTargetType( (FunctionedExpression) expression);
 		} else if (expression instanceof SelfExpression) {
@@ -441,29 +506,25 @@ public class TypeInfo {
 		} else if (expression instanceof QueryCallExpression) {
 			return getTargetType( (QueryCallExpression) expression);
 		} else if (expression instanceof IntegerLiteral) {
-			return new TypeInfo(BaseType.NUMERIC);
+			return new TypeInfo(BaseType.NUMERIC, true);
 		} else if (expression instanceof DecimalLiteral) {
-			return new TypeInfo(BaseType.NUMERIC);
+			return new TypeInfo(BaseType.NUMERIC, true);
 		} else if (expression instanceof BooleanLiteral) {
-			return new TypeInfo(BaseType.BOOLEAN);
+			return new TypeInfo(BaseType.BOOLEAN, true);
 		} else if (expression instanceof EscapedStringLiteral) {
-			return new TypeInfo(BaseType.STRING);
+			return new TypeInfo(BaseType.STRING, true);
 		} else if (expression instanceof RawStringLiteral) {
-			return new TypeInfo(BaseType.STRING);
+			return new TypeInfo(BaseType.STRING, true);
 		} else if (expression instanceof DateLiteral) {
-			return new TypeInfo(BaseType.DATE);
+			return new TypeInfo(BaseType.DATE, true);
 		} else if (expression instanceof TimeLiteral) {
-			return new TypeInfo(BaseType.TIME);
+			return new TypeInfo(BaseType.TIME, true);
 		} else if (expression instanceof TimeStampLiteral) {
-			return new TypeInfo(BaseType.TIMESTAMP);
+			return new TypeInfo(BaseType.TIMESTAMP, true);
 		} else if (expression instanceof EnumLiteralReference) {
 			return getTargetType( (EnumLiteralReference) expression);
 		}
 		
 		throw new IllegalArgumentException("Could not determinate type for expression: " + expression);
-	}
-
-	public String toString() {
-		return "Type: " + type + " Collection: " + isCollection;
 	}
 }
