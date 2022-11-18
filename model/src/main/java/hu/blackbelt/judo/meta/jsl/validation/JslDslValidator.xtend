@@ -206,6 +206,23 @@ class JslDslValidator extends AbstractJslDslValidator {
 		                FUNCTION_PARAMETER_TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.literalFunctionParameter.name)
 				}
+				
+				if (parameter.declaration.functionParameterType == FunctionParameterType.PT_ENUM_LITERAL ||
+					parameter.declaration.functionParameterType == FunctionParameterType.PT_BOOLEAN_LITERAL ||
+					parameter.declaration.functionParameterType == FunctionParameterType.PT_BINARY_LITERAL ||
+					parameter.declaration.functionParameterType == FunctionParameterType.PT_STRING_LITERAL ||
+					parameter.declaration.functionParameterType == FunctionParameterType.PT_NUMERIC_LITERAL ||
+					parameter.declaration.functionParameterType == FunctionParameterType.PT_DATE_LITERAL ||
+					parameter.declaration.functionParameterType == FunctionParameterType.PT_TIME_LITERAL ||
+					parameter.declaration.functionParameterType == FunctionParameterType.PT_TIMESTAMP_LITERAL)
+				{
+					if (!exprTypeInfo.literal) {
+						error("Function parameter type mismatch. Value must be " + parameterTypeInfo + ".",
+			                JsldslPackage::eINSTANCE.literalFunctionParameter_Expression,
+			                FUNCTION_PARAMETER_TYPE_MISMATCH,
+			                JsldslPackage::eINSTANCE.literalFunctionParameter.name)
+					}
+				}
 			}		
 		} catch (IllegalArgumentException illegalArgumentException) {
             return
@@ -216,8 +233,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkLiteralFunctionParameterDuplication(LiteralFunctionParameter parameter) {
 		val LiteralFunction function = parameter.eContainer as LiteralFunction;
 
-		if (function.parameters.filter[p | p.name.equals(parameter.name)].size > 1) {
-			error("Duplicate function parameter",
+		if (function.parameters.filter[p | p.declaration.equals(parameter.declaration)].size > 1) {
+			error("Duplicate function parameter:" + parameter.declaration.name,
                 JsldslPackage::eINSTANCE.literalFunctionParameter_Declaration,
                 DUPLICATE_FUNCTION_PARAMETER,
                 JsldslPackage::eINSTANCE.literalFunctionParameter.name)
@@ -226,19 +243,21 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkLiteralFunctionRequiredParameters(LiteralFunction function) {
-		val TypeInfo typeInfo = TypeInfo.getParentFunctionCallReturnType(function.eContainer as FunctionCall);
-		val FunctionBaseType functionBaseType = 
-		val Iterator<FunctionParameterDeclaration> itr = function.functionDeclarationReference.parameterDeclarations.filter[p | p.isRequired && p.parameterPresentedForBaseTypes.contains()].iterator;
-		
-		while (itr.hasNext) {
-			val FunctionParameterDeclaration declaration = itr.next;
-			// System.out.println("Function:"+function.functionDeclarationReference.name + " parameter:"+declaration.name);
+		if (function.functionDeclarationReference.acceptedBaseTypes.size == 1) {
+			// val TypeInfo typeInfo = TypeInfo.getParentFunctionCallReturnType(function.eContainer as FunctionCall);
+			// val FunctionBaseType functionBaseType = typeInfo.
+			val Iterator<FunctionParameterDeclaration> itr = function.functionDeclarationReference.parameterDeclarations.filter[p | p.isRequired].iterator;
 			
-			if (!function.parameters.exists[p | p.declaration.equals(declaration)]) {
-				error("Missing required function parameter:" + declaration.name,
-	                JsldslPackage::eINSTANCE.literalFunction_FunctionDeclarationReference,
-	                MISSING_REQUIRED_FUNCTION_PARAMETER,
-	                JsldslPackage::eINSTANCE.literalFunction.name)
+			while (itr.hasNext) {
+				val FunctionParameterDeclaration declaration = itr.next;
+				// System.out.println("Function:"+function.functionDeclarationReference.name + " parameter:"+declaration.name);
+				
+				if (!function.parameters.exists[p | p.declaration.equals(declaration)]) {
+					error("Missing required function parameter:" + declaration.name,
+		                JsldslPackage::eINSTANCE.literalFunction_FunctionDeclarationReference,
+		                MISSING_REQUIRED_FUNCTION_PARAMETER,
+		                JsldslPackage::eINSTANCE.literalFunction.name)
+				}
 			}
 		}
 	}

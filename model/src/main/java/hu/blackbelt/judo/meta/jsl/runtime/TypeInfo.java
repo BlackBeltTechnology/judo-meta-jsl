@@ -179,10 +179,6 @@ public class TypeInfo {
 	}
 
 	public boolean isCompatible(TypeInfo other) {
-		if (this.isLiteral && !other.isLiteral) {
-			return false;
-		}
-		
 		if (this.baseType == BaseType.ENUM && other.baseType == BaseType.ENUM) {
 			return ((EnumDeclaration)this.type).equals(((EnumDeclaration)other.type));
 		}
@@ -271,7 +267,7 @@ public class TypeInfo {
 				throw new IllegalArgumentException("Could not determinate function base type");
 		}
 	}
-
+	
 	private static TypeInfo getTargetType(EnumLiteralReference enumReference) {
 		TypeInfo typeInfo = new TypeInfo(enumReference.getEnumDeclaration());
 		typeInfo.isLiteral = true;
@@ -298,6 +294,11 @@ public class TypeInfo {
 		
 		if (function instanceof LiteralFunction) {
 			LiteralFunction literalFunction = (LiteralFunction)function;
+			
+			if (literalFunction.getFunctionDeclarationReference().getReturnTypes().size() < 1) {
+				throw new IllegalArgumentException("Could not determinate function return type.");
+			}
+			
 			functionReturnType = literalFunction.getFunctionDeclarationReference().getReturnTypes().get(0);
 
 			if (functionReturnType == FunctionReturnType.RT_ENTITY_INSTANCE) {
