@@ -1,7 +1,5 @@
 package hu.blackbelt.judo.meta.jsl.validation
 
-import org.eclipse.emf.common.util.URI
-import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.validation.Check
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import com.google.inject.Inject
@@ -24,22 +22,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
-import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference
-import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.RawStringLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.IntegerLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.DecimalLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.DateLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.TimeStampLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorField
 import hu.blackbelt.judo.meta.jsl.jsldsl.Named
-import hu.blackbelt.judo.meta.jsl.jsldsl.SelfExpression
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation
-import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
 import hu.blackbelt.judo.meta.jsl.jsldsl.MimeType
 import java.util.regex.Pattern
@@ -49,6 +34,17 @@ import java.util.Arrays
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseExpression
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
+import hu.blackbelt.judo.meta.jsl.runtime.TypeInfo
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation
+import hu.blackbelt.judo.meta.jsl.jsldsl.UnaryOperation
+import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunction
+import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunctionParameter
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall
+import java.util.Iterator
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterType
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionBaseType
 
 /**
  * This class contains custom validation rules. 
@@ -81,6 +77,11 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val DEFAULT_TYPE_MISMATCH = ISSUE_CODE_PREFIX + "DefaultValueTypeMismatch"
 	public static val UNSUPPORTED_DEFAULT_TYPE = ISSUE_CODE_PREFIX + "UnsupportedDefaultValueType"
 	public static val UNSUPPORTED_SELECTOR = ISSUE_CODE_PREFIX + "UnsupportedSelector"
+	public static val ENUM_MEMBER_MISSING = ISSUE_CODE_PREFIX + "EnumMemberMissing"
+	public static val DUPLICATE_FUNCTION_PARAMETER = ISSUE_CODE_PREFIX + "DuplicateFunctionParameter"
+	public static val MISSING_REQUIRED_FUNCTION_PARAMETER = ISSUE_CODE_PREFIX + "MissingRequiredFunctionParameter"
+	public static val INVALID_FUNCTION_PARAMETER_VALUE = ISSUE_CODE_PREFIX + "InvalidFunctionParameterValue"
+	public static val FUNCTION_PARAMETER_TYPE_MISMATCH = ISSUE_CODE_PREFIX + "FunctionParameterTypeMismatch"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -169,6 +170,111 @@ class JslDslValidator extends AbstractJslDslValidator {
 			} else {
 				unsupportedLamdaFunctionSelectorError(function);
 			}
+		}
+	}
+
+	@Check
+	def checkLiteralFunctionParameterType(LiteralFunctionParameter parameter) {
+		try {
+			val LiteralFunction function = parameter.eContainer as LiteralFunction;
+			val FunctionCall functionCall = function.eContainer as FunctionCall;
+			val TypeInfo exprTypeInfo = TypeInfo.getTargetType(parameter.expression);
+
+			if (parameter.declaration.functionParameterType == FunctionParameterType.PT_INPUT_SAME) {
+				if (!TypeInfo.getParentFunctionCallReturnType(functionCall).isCompatible(exprTypeInfo)) {
+					error("Type mismatch",
+		                JsldslPackage::eINSTANCE.literalFunctionParameter_Expression,
+		                DEFAULT_TYPE_MISMATCH,
+		                JsldslPackage::eINSTANCE.literalFunctionParameter.name)
+				}
+			} else if (parameter.declaration.functionParameterType == FunctionParameterType.PT_ENTITY_INSTANCE) {
+				
+			} else if (parameter.declaration.functionParameterType == FunctionParameterType.PT_ENTITY_COLLECTION) {
+				
+			} else if (parameter.declaration.functionParameterType == FunctionParameterType.PT_ENTITY_TYPE) {
+				
+			} else if (parameter.declaration.functionParameterType == FunctionParameterType.PT_ENUM_INSTANCE) {
+				
+			} else if (parameter.declaration.functionParameterType == FunctionParameterType.PT_ENUM_LITERAL) {
+				
+			} else {
+				val TypeInfo parameterTypeInfo = TypeInfo.getTargetType(parameter.declaration.functionParameterType);
+				
+				if (!parameterTypeInfo.isCompatible(exprTypeInfo)) {
+					error("Function parameter type mismatch. Value must be " + parameterTypeInfo + ".",
+		                JsldslPackage::eINSTANCE.literalFunctionParameter_Expression,
+		                FUNCTION_PARAMETER_TYPE_MISMATCH,
+		                JsldslPackage::eINSTANCE.literalFunctionParameter.name)
+				}
+				
+				if (parameter.declaration.functionParameterType == FunctionParameterType.PT_ENUM_LITERAL ||
+					parameter.declaration.functionParameterType == FunctionParameterType.PT_BOOLEAN_LITERAL ||
+					parameter.declaration.functionParameterType == FunctionParameterType.PT_BINARY_LITERAL ||
+					parameter.declaration.functionParameterType == FunctionParameterType.PT_STRING_LITERAL ||
+					parameter.declaration.functionParameterType == FunctionParameterType.PT_NUMERIC_LITERAL ||
+					parameter.declaration.functionParameterType == FunctionParameterType.PT_DATE_LITERAL ||
+					parameter.declaration.functionParameterType == FunctionParameterType.PT_TIME_LITERAL ||
+					parameter.declaration.functionParameterType == FunctionParameterType.PT_TIMESTAMP_LITERAL)
+				{
+					if (!exprTypeInfo.literal) {
+						error("Function parameter type mismatch. Value must be " + parameterTypeInfo + ".",
+			                JsldslPackage::eINSTANCE.literalFunctionParameter_Expression,
+			                FUNCTION_PARAMETER_TYPE_MISMATCH,
+			                JsldslPackage::eINSTANCE.literalFunctionParameter.name)
+					}
+				}
+			}		
+		} catch (IllegalArgumentException illegalArgumentException) {
+            return
+		}
+	}
+
+	@Check
+	def checkLiteralFunctionParameterDuplication(LiteralFunctionParameter parameter) {
+		val LiteralFunction function = parameter.eContainer as LiteralFunction;
+
+		if (function.parameters.filter[p | p.declaration.equals(parameter.declaration)].size > 1) {
+			error("Duplicate function parameter:" + parameter.declaration.name,
+                JsldslPackage::eINSTANCE.literalFunctionParameter_Declaration,
+                DUPLICATE_FUNCTION_PARAMETER,
+                JsldslPackage::eINSTANCE.literalFunctionParameter.name)
+		}
+	}
+
+	@Check
+	def checkLiteralFunctionRequiredParameters(LiteralFunction function) {
+		if (function.functionDeclarationReference.acceptedBaseTypes.size == 1) {
+			// val TypeInfo typeInfo = TypeInfo.getParentFunctionCallReturnType(function.eContainer as FunctionCall);
+			// val FunctionBaseType functionBaseType = typeInfo.
+			val Iterator<FunctionParameterDeclaration> itr = function.functionDeclarationReference.parameterDeclarations.filter[p | p.isRequired].iterator;
+			
+			while (itr.hasNext) {
+				val FunctionParameterDeclaration declaration = itr.next;
+				// System.out.println("Function:"+function.functionDeclarationReference.name + " parameter:"+declaration.name);
+				
+				if (!function.parameters.exists[p | p.declaration.equals(declaration)]) {
+					error("Missing required function parameter:" + declaration.name,
+		                JsldslPackage::eINSTANCE.literalFunction_FunctionDeclarationReference,
+		                MISSING_REQUIRED_FUNCTION_PARAMETER,
+		                JsldslPackage::eINSTANCE.literalFunction.name)
+				}
+			}
+		}
+	}
+
+	@Check
+	def checkLiteralFunction(LiteralFunction function) {
+		try {
+			if (function.functionDeclarationReference.name.equals("orElse")) {
+				if (TypeInfo.getParentFunctionCallReturnType(function.eContainer as FunctionCall).collection) {
+					error("Type mismatch: orElse() is not allowed to call on collection",
+		                JsldslPackage::eINSTANCE.literalFunction_FunctionDeclarationReference,
+		                DEFAULT_TYPE_MISMATCH,
+		                JsldslPackage::eINSTANCE.literalFunction.name)
+				}
+			}
+		} catch (IllegalArgumentException illegalArgumentException) {
+            return
 		}
 	}
 
@@ -346,6 +452,16 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 	
 	@Check
+	def checkEnumLiteralMinimum(EnumDeclaration _enum) {
+		if (_enum.literals.size < 1) {
+			error("Enumeration must have at least one member",
+				JsldslPackage::eINSTANCE.enumDeclaration_Literals,
+				ENUM_MEMBER_MISSING,
+				JsldslPackage::eINSTANCE.enumDeclaration.name)
+		}
+	}
+	 
+	@Check
 	def checkEnumLiteralCollision(EnumLiteral literal) {
 		val declaration = literal.eContainer as EnumDeclaration
 		val collidingNames = declaration.literals
@@ -389,126 +505,181 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 		}
 	}
-	
-	
-	def isBooleanExpression(Expression it) {
-		if ((it instanceof BinaryOperation) && (#["not", "implies", "or", "xor", "and", "!=", "==", ">=", "<=", "<", ">"].contains((it as BinaryOperation).operator))) {
-			return true;
-		}
-		return false;
-	}
 
-	def isIntegerExpression(Expression it) {
-		if ((it instanceof BinaryOperation) && (#["div", "mod", "^", "*", "/", "+", "-" ].contains((it as BinaryOperation).operator))) {
-			return true;
-		}
-		return false;
-	}
-
-	def isDecimalExpression(Expression it) {
-		if ((it instanceof BinaryOperation) && (#["^", "*", "/", "+", "-" ].contains((it as BinaryOperation).operator))) {
-			return true;
-		}
-		return false;
-	}
-
-	
 	@Check
-	def checkDefaultExpressionMatchesMemberType(DefaultExpressionType defaultExpression) {
-        var EObject memberReferenceType
-		
-        if (defaultExpression.eContainer instanceof EntityFieldDeclaration) {
-			memberReferenceType = (defaultExpression.eContainer as EntityFieldDeclaration).referenceType
-        } else if (defaultExpression.eContainer instanceof EntityIdentifierDeclaration) {
-			memberReferenceType = (defaultExpression.eContainer as EntityIdentifierDeclaration).referenceType
-        } else if (defaultExpression.eContainer instanceof ErrorField) {
-            memberReferenceType = (defaultExpression.eContainer as ErrorField).referenceType
-        } else {
-            throw new IllegalArgumentException("Unsupported default expression for member type: " + defaultExpression.eContainer.class.simpleName)
-        }
-		
-		var String primitive
-		var String nameForEntityFieldSingleType
-				
-		if (memberReferenceType instanceof DataTypeDeclaration) {
-			primitive = memberReferenceType.primitive
-			nameForEntityFieldSingleType = memberReferenceType.name
-		}
-
-		if (defaultExpression.expression instanceof EnumLiteralReference) {
-			val enumLiteral = defaultExpression.expression as EnumLiteralReference
-			
-			if (enumLiteral.enumDeclaration !== memberReferenceType) {
-				error("Default value type: '" + enumLiteral.enumDeclaration.name + "' does not match member type: '" + (memberReferenceType as EnumDeclaration).name + "'",
-                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
-                    DEFAULT_TYPE_MISMATCH,
-                    JsldslPackage::eINSTANCE.enumLiteralReference_EnumLiteral.name)
+	def checkTenaryOperation(TernaryOperation it) {
+		try {
+			val TypeInfo conditionTypeInfo = TypeInfo.getTargetType(it.condition)
+			val TypeInfo thenTypeInfo = TypeInfo.getTargetType(it.thenExpression)
+			val TypeInfo elseTypeInfo = TypeInfo.getTargetType(it.elseExpression)
+	
+			if (!conditionTypeInfo.isBoolean()) {
+				error("Ternary condition must be boolean type",
+	                JsldslPackage::eINSTANCE.ternaryOperation_Condition,
+	                DEFAULT_TYPE_MISMATCH)
+			}	
+			if (!elseTypeInfo.isCompatible(thenTypeInfo)) {
+				error("'else' branch must be compatible with 'then' branch",
+	                JsldslPackage::eINSTANCE.ternaryOperation_ThenExpression,
+	                DEFAULT_TYPE_MISMATCH)
 			}
-		} else if (defaultExpression.expression instanceof EscapedStringLiteral) {
-			if (!#["string"].contains(primitive)) {
-				error("Default value type: '" + EscapedStringLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
-                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
-                    DEFAULT_TYPE_MISMATCH,
-                    JsldslPackage::eINSTANCE.escapedStringLiteral.name)
-			}
-		} else if (defaultExpression.expression instanceof RawStringLiteral) {
-			if (!#["string"].contains(primitive)) {
-				error("Default value type: '" + RawStringLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
-                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
-                    DEFAULT_TYPE_MISMATCH,
-                    JsldslPackage::eINSTANCE.rawStringLiteral.name)
-			}
-		} else if ((defaultExpression.expression instanceof BooleanLiteral) || (defaultExpression.expression.isBooleanExpression)) {
-			if (!#["boolean"].contains(primitive)) {
-				error("Default value type: '" + BooleanLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
-                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
-                    DEFAULT_TYPE_MISMATCH,
-                    JsldslPackage::eINSTANCE.booleanLiteral.name)
-			}
-		} else if ((defaultExpression.expression instanceof IntegerLiteral) || (defaultExpression.expression.isIntegerExpression)) {
-			if (!#["numeric"].contains(primitive)) {
-				error("Default value type: '" + IntegerLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
-                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
-                    DEFAULT_TYPE_MISMATCH,
-                    JsldslPackage::eINSTANCE.integerLiteral.name)
-			}
-		} else if ((defaultExpression.expression instanceof DecimalLiteral) || (defaultExpression.expression.isDecimalExpression)) {
-			if (!#["numeric"].contains(primitive)) {
-				error("Default value type: '" + DecimalLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
-                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
-                    DEFAULT_TYPE_MISMATCH,
-                    JsldslPackage::eINSTANCE.decimalLiteral.name)
-			}
-		} else if (defaultExpression.expression instanceof DateLiteral) {
-			if (!#["date"].contains(primitive)) {
-				error("Default value type: '" + DecimalLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
-                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
-                    DEFAULT_TYPE_MISMATCH,
-                    JsldslPackage::eINSTANCE.dateLiteral.name)
-			}
-		} else if (defaultExpression.expression instanceof TimeLiteral) {
-			if (!#["time"].contains(primitive)) {
-				error("Default value type: '" + DecimalLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
-                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
-                    DEFAULT_TYPE_MISMATCH,
-                    JsldslPackage::eINSTANCE.timeLiteral.name)
-			}
-		} else if (defaultExpression.expression instanceof TimeStampLiteral) {
-			if (!#["timestamp"].contains(primitive)) {
-				error("Default value type: '" + DecimalLiteral.simpleName + "' does not match member type: '" + nameForEntityFieldSingleType + "'",
-                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
-                    DEFAULT_TYPE_MISMATCH,
-                    JsldslPackage::eINSTANCE.timeStampLiteral.name)
-			}
-		} else if (defaultExpression.expression instanceof SelfExpression) {
-			error("Default value type: '" + defaultExpression.expression.class.simpleName + "' not supported!",
-                    JsldslPackage::eINSTANCE.defaultExpressionType_Expression,
-                    UNSUPPORTED_DEFAULT_TYPE)
+		} catch (IllegalArgumentException illegalArgumentException) {
+            return
 		}
 	}
 
-	def currentElem(EObject grammarElement) {
-		return grammarElement.eResource.resourceSet.getResource(URI.createURI("self_synthetic"), true).contents.get(0)
+	@Check
+	def checkUnaryOperation(UnaryOperation it) {
+		try {
+			if (!TypeInfo.getTargetType(it).isBoolean()) {
+				error("Operand must be binary type",
+	                JsldslPackage::eINSTANCE.unaryOperation_Operand,
+	                DEFAULT_TYPE_MISMATCH,
+	                JsldslPackage::eINSTANCE.unaryOperation_Operator.name)
+			}
+		} catch (IllegalArgumentException illegalArgumentException) {
+            return
+		}
+	}
+
+	@Check
+	def checkBinaryOperation(BinaryOperation it) {
+		try {
+			val TypeInfo leftTypeInfo = TypeInfo.getTargetType(it.leftOperand)
+			val TypeInfo rightTypeInfo = TypeInfo.getTargetType(it.rightOperand)
+	
+			if (leftTypeInfo.binary) {
+				error("Left operand cannot be binary type",
+	                JsldslPackage::eINSTANCE.binaryOperation_LeftOperand,
+	                DEFAULT_TYPE_MISMATCH,
+	                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
+			}
+			if (rightTypeInfo.binary) {
+				error("Right operand cannot be binary type",
+	                JsldslPackage::eINSTANCE.binaryOperation_RightOperand,
+	                DEFAULT_TYPE_MISMATCH,
+	                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
+			}
+	
+			if (Arrays.asList("!=","==",">=","<=",">","<").contains(it.getOperator())) {
+				if (leftTypeInfo.collection) {
+					error("Left operand cannot be collection",
+		                JsldslPackage::eINSTANCE.binaryOperation_LeftOperand,
+		                DEFAULT_TYPE_MISMATCH,
+		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
+				}
+				if (rightTypeInfo.collection) {
+					error("Right operand cannot be collection",
+		                JsldslPackage::eINSTANCE.binaryOperation_RightOperand,
+		                DEFAULT_TYPE_MISMATCH,
+		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
+				}
+			} else if ("+".equals(it.getOperator())) {
+				if (!leftTypeInfo.numeric && !leftTypeInfo.string) {
+					error("Left operand must be numeric or string type",
+		                JsldslPackage::eINSTANCE.binaryOperation_LeftOperand,
+		                DEFAULT_TYPE_MISMATCH,
+		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
+				}
+				if (!rightTypeInfo.numeric && !rightTypeInfo.string) {
+					error("Right operand must be numeric or string type",
+		                JsldslPackage::eINSTANCE.binaryOperation_RightOperand,
+		                DEFAULT_TYPE_MISMATCH,
+		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
+				}	
+			} else if (Arrays.asList("^", "-", "*", "/", "mod", "div").contains(it.getOperator())) {
+				if (!leftTypeInfo.numeric) {
+					error("Left operand must be numeric type",
+		                JsldslPackage::eINSTANCE.binaryOperation_LeftOperand,
+		                DEFAULT_TYPE_MISMATCH,
+		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
+				}
+				if (!rightTypeInfo.numeric) {
+					error("Right operand must be numeric type",
+		                JsldslPackage::eINSTANCE.binaryOperation_RightOperand,
+		                DEFAULT_TYPE_MISMATCH,
+		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
+				}	
+			} else if (Arrays.asList("implies","or","xor","and").contains(it.getOperator())) {
+				if (!leftTypeInfo.isBoolean()) {
+					error("Left operand must be boolean type",
+		                JsldslPackage::eINSTANCE.binaryOperation_LeftOperand,
+		                DEFAULT_TYPE_MISMATCH,
+		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
+				}
+				if (!rightTypeInfo.isBoolean()) {
+					error("Right operand must be boolean type",
+		                JsldslPackage::eINSTANCE.binaryOperation_RightOperand,
+		                DEFAULT_TYPE_MISMATCH,
+		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
+				}	
+			}
+			
+			if (!leftTypeInfo.isCompatible(rightTypeInfo)) {
+				error("Left and right operand type mismatch",
+	                JsldslPackage::eINSTANCE.binaryOperation_Operator,
+	                DEFAULT_TYPE_MISMATCH,
+	                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
+			}
+		} catch (IllegalArgumentException illegalArgumentException) {
+            return
+		}
+	}
+
+	@Check
+	def checkEntityField(EntityFieldDeclaration field) {
+		try {
+			if (field.defaultExpression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.defaultExpression.expression))) {
+				error("Default value does not match field type",
+	                JsldslPackage::eINSTANCE.entityFieldDeclaration_DefaultExpression,
+	                DEFAULT_TYPE_MISMATCH)
+			}
+		} catch (IllegalArgumentException illegalArgumentException) {
+            return
+		}
+	}
+
+	@Check
+	def checkEntityIdentifier(EntityIdentifierDeclaration field) {
+		try {
+			if (field.defaultExpression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.defaultExpression.expression))) {
+				error("Type mismatch",
+	                JsldslPackage::eINSTANCE.entityIdentifierDeclaration_DefaultExpression,
+	                DEFAULT_TYPE_MISMATCH,
+	                JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
+			}
+		} catch (IllegalArgumentException illegalArgumentException) {
+            return
+		}
+	}
+
+	@Check
+	def checkEntityDerived(EntityDerivedDeclaration derived) {
+		try {
+			if (derived.expression !== null && !TypeInfo.getTargetType(derived).isCompatible(TypeInfo.getTargetType(derived.expression))) {
+				error("Type mismatch",
+	                JsldslPackage::eINSTANCE.entityDerivedDeclaration_Expression,
+	                DEFAULT_TYPE_MISMATCH,
+	                JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
+			}
+		} catch (IllegalArgumentException illegalArgumentException) {
+            return
+		}
+	}
+
+	@Check
+	def checkEntityQuery(EntityQueryDeclaration query) {
+		try {
+			if (query.expression !== null && !TypeInfo.getTargetType(query).isCompatible(TypeInfo.getTargetType(query.expression))) {
+				error("Type mismatch",
+	                JsldslPackage::eINSTANCE.entityQueryDeclaration_Expression,
+	                DEFAULT_TYPE_MISMATCH,
+	                JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
+			}
+		} catch (IllegalArgumentException illegalArgumentException) {
+            return
+		}
+		
 	}
 
 }
