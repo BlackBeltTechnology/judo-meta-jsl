@@ -20,7 +20,7 @@ ModelImportDeclaration
 
 Declaration
 	: (TypeDeclaration
-//	| ErrorDeclaration
+	| ErrorDeclaration
 	| QueryDeclaration
 	| FunctionDeclaration
 	| LambdaDeclaration)
