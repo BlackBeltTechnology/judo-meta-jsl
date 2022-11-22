@@ -9,7 +9,7 @@ ModelDeclaration returns ModelDeclaration
 	  (declarations += Declaration)*
     ;
 
-JSLID : ID | 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'timestamp'
+JSLID : ID | 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'timestamp' | 'enum'
 	       | 'regex' | 'precision' | 'scale'
 	       | 'DESC' | 'ASC'
 	;
@@ -20,8 +20,10 @@ ModelImportDeclaration
 
 Declaration
 	: (TypeDeclaration
-	| ErrorDeclaration
-	| QueryDeclaration)
+//	| ErrorDeclaration
+	| QueryDeclaration
+	| FunctionDeclaration
+	| LambdaDeclaration)
 	  ';'*
 	;
 
@@ -71,12 +73,9 @@ EntityMemberDeclaration
 	| EntityRelationDeclaration
 	| EntityDerivedDeclaration
 	| EntityQueryDeclaration
-	| ConstraintDeclaration)
+//	| ConstraintDeclaration
+	)
 	  ';'*
-	;
-
-ConstraintDeclaration
-	: 'constraint' Named expression = Expression ('onerror' error = CreateError)? ';'
 	;
 
 EntityFieldDeclaration
@@ -84,6 +83,10 @@ EntityFieldDeclaration
 	  (defaultExpression = DefaultExpressionType)? ';'
 	;
 
+EntityIdentifierDeclaration
+	: 'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] Named
+	  (defaultExpression = DefaultExpressionType)? ';'
+	;
 
 DefaultExpressionType
 	: {DefaultExpressionType} '=' expression = 
@@ -95,10 +98,6 @@ SingleType
 	| EntityDeclaration
 	;
 
-EntityIdentifierDeclaration
-	: 'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] Named
-	  (defaultExpression = DefaultExpressionType)? ';'
-	;
 
 EntityDerivedDeclaration
 	: 'derived' (referenceType = [SingleType | LocalName] Cardinality?) Named
@@ -135,33 +134,9 @@ EntityRelationOppositeReferenced
 
 
 /****************************
- *	Error
- ****************************/
-
-ErrorDeclaration
-	: 'error' Named ('extends' extends = [ErrorDeclaration | LocalName])?
-	  BLOCK_START (fields += ErrorField)* BLOCK_END
-	;
-
-ErrorField
-	: 'field' referenceType = [PrimitiveDeclaration | LocalName] Named
-	  (defaultExpression = DefaultExpressionType)? ';'+
-	;
-
-CreateError
-	: errorDeclarationType=[ErrorDeclaration | LocalName] ('(' (parameters+=ThrowParameter (',' parameters+=ThrowParameter)*)? ')')?
-	;
-
-ThrowParameter
-	: errorFieldType=[ErrorField | LocalName] '=' expession=Literal;
-
-
-
-/****************************
  *	Datatype
  ****************************/
 
-    
 DataTypeDeclaration
     : 'type'
       (
@@ -195,16 +170,16 @@ EnumDeclaration
     ;
 
 EnumLiteral
-    : Named '=' value = INTEGER ';'+
+    : Named '=' value = Integer ';'+
     ;
 
 
 ModifierMinSize
-	: 'min-size' '=' value = INTEGER
+	: 'min-size' '=' value = Integer
 	;
 
 ModifierMaxSize
-	: 'max-size' '=' value = INTEGER
+	: 'max-size' '=' value = Integer
 	;
 
 ModifierRegex
@@ -212,11 +187,11 @@ ModifierRegex
 	;
 
 ModifierPrecision
-	: 'precision' '=' value = INTEGER
+	: 'precision' '=' value = Integer
 	;
 
 ModifierScale
-	: 'scale' '=' value = INTEGER
+	: 'scale' '=' value = Integer
 	;
 
 ModifierMimeTypes
@@ -228,7 +203,7 @@ MimeType
 	;
 
 ModifierMaxFileSize
-	: 'max-file-size' '=' numeric = INTEGER (unit = DataUnit)?
+	: 'max-file-size' '=' numeric = Integer (unit = DataUnit)?
 	;
 	
 enum DataUnit
@@ -294,12 +269,118 @@ ExponentExpression returns Expression
  
 UnaryOperation returns Expression
 	: {UnaryOperation} operator='not' operand=UnaryOperation
-	| FunctionedExpression
+	| Navigation
     ;
 
+/*
 FunctionedExpression returns Expression
 	: FunctionableExpression ({FunctionedExpression.operand=current} functionCall=FunctionCall)?
 //	| EnumLiteralReference
+    ;
+*/
+ 
+/*
+FunctionableExpression returns Expression
+	: NavigationExpression
+	| Literal
+	| ParenthesizedExpression
+	;
+*/
+
+Navigation returns Expression
+	: NavigationBase ({Navigation.base = current} '.' feature = Feature)*
+	;
+
+NavigationBase returns Expression
+	: SelfExpression
+	| ParenthesizedExpression
+	| NavigationBaseDeclarationReference
+	| Literal
+	;
+
+SelfExpression returns Expression
+	: {SelfExpression} isSelf ?= 'self'		
+	;
+ 
+NavigationBaseDeclarationReference returns Expression
+	: {NavigationBaseDeclarationReference} reference = [NavigationBaseDeclaration | LocalName]
+ 	;
+ 
+NavigationBaseDeclaration
+	: EntityDeclaration
+	| QueryDeclaration
+	| LambdaVariable
+	| QueryDeclarationParameter
+	| PrimitiveDeclaration
+	;
+
+Feature
+	: MemberReference
+	| Call
+	;
+
+MemberReference
+    : member = [NavigationTarget | LocalName]
+    ;
+
+Call
+	: FunctionOrQueryCall
+	| LambdaCall
+	;
+
+FunctionOrQueryCall
+	: declaration = [FunctionOrQueryDeclaration | LocalName ] '(' (arguments += Argument (',' arguments += Argument)*)? ')'
+	;
+
+Argument
+    : Named '=' expression = Expression
+    ;
+
+LambdaCall
+	: declaration = [LambdaDeclaration | LocalName ] '(' variable = LambdaVariable '|' expression = Expression ')';
+
+LambdaVariable
+    : {LambdaVariable} Named    	
+    ;
+
+FunctionOrQueryDeclaration
+	: FunctionDeclaration
+	| EntityQueryDeclaration
+	;
+
+FunctionDeclaration
+	: 'function' returnType = TypeDescription Named '(' (parameters += FunctionParameterDeclaration (',' parameters += FunctionParameterDeclaration)*)? ')' 'on' baseType = TypeDescription ';'
+	;
+
+FunctionParameterDeclaration
+	: (isRequired ?= 'required')? type = TypeDescription Named
+	;
+
+TypeDescription
+	: {TypeDescription} type = Type
+	| collection ?= 'collection' '<' type = Type '>'
+	| declaration ?= 'declaration' '<' type = Type '>'
+	| literal ?= 'literal' '<' type = Type '>'
+	;
+
+Type
+	: 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'timestamp' | 'enum' | 'entity'
+	;
+
+LambdaDeclaration 
+	: 'lambda' returnType = TypeDescription Named '(' ')' ';'
+	;
+ 
+EnumLiteralReference returns Expression
+    : {EnumLiteralReference} enumDeclaration = [EnumDeclaration | LocalName] '#' enumLiteral = [EnumLiteral | EnumLiteralName ]    	
+    ;
+
+NavigationTarget
+    : EntityFieldDeclaration
+	| EntityIdentifierDeclaration
+	| EntityRelationDeclaration
+	| EntityDerivedDeclaration
+    | EntityRelationOppositeInjected
     ;
 
 Literal returns Expression
@@ -314,9 +395,17 @@ BooleanLiteral returns Expression
 	: {BooleanLiteral} ('false' | isTrue?='true')
 	;
 
-NumberLiteral returns Expression hidden()
-	: {IntegerLiteral} (minus ?= "-" | "+")? value=INTEGER
-	| {DecimalLiteral} (minus ?= "-" | "+")? value=DECIMAL
+NumberLiteral returns Expression
+	: IntegerLiteral
+	| DecimalLiteral
+	;
+
+IntegerLiteral hidden()
+	: (minus ?= "-" | "+")? value=Integer
+	;
+
+DecimalLiteral hidden()
+	: (minus ?= "-" | "+")? value=Decimal
 	;
 
 StringLiteral returns Expression
@@ -331,57 +420,39 @@ TemporalLiteral returns Expression
 	;
 
 
-FunctionableExpression returns Expression
-	: NavigationExpression
-	| Literal
-	| ParenthesizedExpression
+ // ************************************
+ // For later use
+ // ************************************
+ 
+ ConstraintDeclaration
+	: 'constraint' Named expression = Expression ('onerror' error = CreateError)? ';'
 	;
 
-NavigationExpression returns Expression
-	: SelfExpression
-	| NavigationBaseExpression
-	| QueryCallExpression
+ 
+/****************************
+ *	Error
+ ****************************/
+
+ErrorDeclaration
+	: 'error' Named ('extends' extends = [ErrorDeclaration | LocalName])?
+	  BLOCK_START (fields += ErrorField)* BLOCK_END
 	;
 
-NavigationBaseExpression returns NavigationExpression
-	: {NavigationBaseExpression} navigationBaseType = [NavigationBaseReference | LocalName]  (features+=Feature*)
-	;
-	
-NavigationBaseReference
-	: EntityDeclaration
-	| QueryDeclaration
-	| LambdaVariable
-	| QueryDeclarationParameter
-	| PrimitiveDeclaration
-	;
-	
-SelfExpression returns NavigationExpression
-	: {SelfExpression} isSelf ?= 'self' (features+=Feature*)		
+ErrorField
+	: 'field' referenceType = [PrimitiveDeclaration | LocalName] Named
+	  (defaultExpression = DefaultExpressionType)? ';'+
 	;
 
-QueryCallExpression returns NavigationExpression
-	: {QueryCallExpression} queryDeclarationType = [ QueryDeclaration | LocalName ] '(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')' (features+=Feature*)
+CreateError
+	: errorDeclarationType=[ErrorDeclaration | LocalName] ('(' (parameters+=ThrowParameter (',' parameters+=ThrowParameter)*)? ')')?
 	;
 
-EnumLiteralReference returns NavigationExpression
-    : {EnumLiteralReference} enumDeclaration = [EnumDeclaration | LocalName] '#' enumLiteral = [EnumLiteral | EnumLiteralName ]    	
-    ;
-
-FunctionCall
-	: {FunctionCall} '!' function=Function features+=Feature* call=FunctionCall?
-	;
-
-Feature
-    : {Feature} {Feature.base = current} '.' navigationTargetType = [NavigationTarget | LocalName]('(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')')?
-    ;
-
-NavigationTarget
-    : EntityMemberDeclaration
-    | EntityDeclaration
-    | EntityRelationOppositeInjected
-    ;
+ThrowParameter
+	: errorFieldType=[ErrorField | LocalName] '=' expession=Literal;
 
 
+
+/*
 QueryParameter
 	:  queryParameterType=[QueryDeclarationParameter | QueryParameterName] '=' (literal = Literal | parameter = [QueryDeclarationParameter | QueryParameterName])     // expression=MultilineExpression
 	;
@@ -395,27 +466,27 @@ CreateExpression returns Expression
 	;
 
 CreateParameter: name=JSLID '=' right=Expression;
-
+ */
+ 
 /**
  * Function
- */
 
-Function
-	: LiteralFunction
-	| LambdaFunction
-//	| SelectorFunction
+FunctionCall
+	: LiteralCall
+	| LambdaCall
 	;
 
 
 FunctionParameter
 	: LiteralFunctionParameters
 	| LambdaFunctionParameters
-	| SelectorFunctionParameters
 	;
 
-LiteralFunction returns Function: {LiteralFunction} functionDeclarationReference = [LiteralFunctionDeclaration | LocalName ] '(' (parameters += LiteralFunctionParameter (',' parameters += LiteralFunctionParameter)*)? ')' ;
-LambdaFunction returns Function : {LambdaFunction} functionDeclarationReference = [LambdaFunctionDeclaration | LocalName ] '(' lambdaArgument=LambdaVariable '|' expression = Expression ')';
-//SelectorFunction returns Function : {SelectorFunction} => functionDeclarationReference = [SelectorFunctionDeclaration | LocalName ] '('  selectorArgument = SelectorVariable '|' selectors += SelectorDeclaration (',' selectors += SelectorDeclaration)* ')';
+LiteralCall declaration = [LiteralFunctionDeclaration | LocalName ] '(' (parameters += LiteralFunctionParameter (',' parameters += LiteralFunctionParameter)*)? ')' ;
+LambdaCall returns Function : {LambdaFunction} functionDeclarationReference = [LambdaFunctionDeclaration | LocalName ] '(' lambdaArgument=LambdaVariable '|' expression = Expression ')';
+QueryCall returns NavigationExpression
+	: {QueryCallExpression} queryDeclarationType = [ QueryDeclaration | LocalName ] '(' (parameters+=QueryParameter (',' parameters+=QueryParameter)*)? ')' (features+=Feature*)
+	;
 
 LiteralFunctionParameters
     : {LiteralFunctionParameters} parameters += LiteralFunctionParameter (',' parameters += LiteralFunctionParameter)*
@@ -445,10 +516,13 @@ SelectorDeclaration
 SelectorVariable
     : {SelectorVariable} Named
     ;
+ */
 
 /**
  *  Function declaration
  */
+ 
+/*
 enum FunctionReturnType
 	: RT_ENTITY_INSTANCE
 	| RT_ENTITY_COLLECTION
@@ -508,7 +582,8 @@ enum FunctionParameterType
 	| PT_TIMESTAMP_LITERAL
 	| PT_INPUT_SAME
 	;
-
+ */
+/*
 FunctionDeclaration 
 	: (
 	LiteralFunctionDeclaration
@@ -526,9 +601,16 @@ NamedFunctionDeclaration returns FunctionDeclaration : {NamedFunctionDeclaration
 
 FunctionParameterDeclaration
     : {FunctionParameterDeclaration} Named Cardinality isRequired ?= 'true' functionParameterType = FunctionParameterType parameterPresentedForBaseTypes += FunctionBaseType;
-    
+ */  
 
 	
+Decimal returns ecore::EBigDecimal
+	: NUMBER '.' NUMBER
+	;
+
+Integer returns ecore::EBigDecimal
+	: NUMBER
+	;
 
 EnumLiteralName
 	: JSLID
@@ -582,11 +664,13 @@ terminal DATE
 	: '`' DIGIT+ '-' DIGIT DIGIT '-' DIGIT DIGIT '`'
 	;
 
+/*
 terminal DECIMAL returns ecore::EBigDecimal
 	: DIGIT+ '.' DIGIT+
 	;
-
-terminal INTEGER returns ecore::EBigInteger
+*/
+ 
+terminal NUMBER
 	: DIGIT+
 	;
 
@@ -629,3 +713,5 @@ terminal NL
 	: NEWLINE | ';'
 	;
  */
+ 
+ 
