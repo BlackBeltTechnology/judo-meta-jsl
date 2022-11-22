@@ -92,6 +92,18 @@ public class TypeInfo {
 		this.baseType = baseType;
 	}
 
+	private TypeInfo(TypeDescription typeDescription) {
+		this.baseType = getBaseType(typeDescription);
+
+		if (typeDescription.isLiteral()) {
+			this.modifier = typeModifier.LITERAL;
+		} else if (typeDescription.isDeclaration()) {
+			this.modifier = typeModifier.DECLARATION;
+		} else if (typeDescription.isCollection()) {
+			this.modifier = typeModifier.COLLECTION;
+		}
+	}
+	
 	private static BaseType getBaseType(String type) {
 		switch (type) {
 			case "boolean":		return BaseType.BOOLEAN; 
@@ -136,7 +148,7 @@ public class TypeInfo {
 		} else if (type instanceof EntityDeclaration) {
 			this.type = type;
 			this.baseType = BaseType.ENTITY;
-			this.modifier = typeModifier.COLLECTION;
+			this.modifier = isCollection ? typeModifier.COLLECTION : typeModifier.NONE;
 		}
 	}
 
@@ -371,6 +383,10 @@ public class TypeInfo {
 		}
 
 		throw new IllegalArgumentException("Could not determinate type for navigation target:" + navigationTarget);
+	}
+	
+	public static TypeInfo getTargetType(TypeDescription typeDescription) {
+		return new TypeInfo(typeDescription);
 	}
 	
 	public static TypeInfo getTargetType(EntityMemberDeclaration entityMemberDeclaration) {

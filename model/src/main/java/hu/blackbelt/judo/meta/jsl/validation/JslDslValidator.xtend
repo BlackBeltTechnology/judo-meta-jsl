@@ -29,22 +29,18 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
 import hu.blackbelt.judo.meta.jsl.jsldsl.MimeType
 import java.util.regex.Pattern
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaFunction
 import java.util.Arrays
-import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseExpression
-import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.runtime.TypeInfo
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnaryOperation
-import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunction
-import hu.blackbelt.judo.meta.jsl.jsldsl.LiteralFunctionParameter
-import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall
 import java.util.Iterator
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterType
-import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionBaseType
+import hu.blackbelt.judo.meta.jsl.jsldsl.Argument
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryCall
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -79,8 +75,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val UNSUPPORTED_SELECTOR = ISSUE_CODE_PREFIX + "UnsupportedSelector"
 	public static val ENUM_MEMBER_MISSING = ISSUE_CODE_PREFIX + "EnumMemberMissing"
 	public static val DUPLICATE_FUNCTION_PARAMETER = ISSUE_CODE_PREFIX + "DuplicateFunctionParameter"
-	public static val MISSING_REQUIRED_FUNCTION_PARAMETER = ISSUE_CODE_PREFIX + "MissingRequiredFunctionParameter"
-	public static val INVALID_FUNCTION_PARAMETER_VALUE = ISSUE_CODE_PREFIX + "InvalidFunctionParameterValue"
+	public static val MISSING_REQUIRED_PARAMETER = ISSUE_CODE_PREFIX + "MissingRequiredParameter"
+	public static val INVALID_PARAMETER = ISSUE_CODE_PREFIX + "InvalidParameter"
 	public static val FUNCTION_PARAMETER_TYPE_MISMATCH = ISSUE_CODE_PREFIX + "FunctionParameterTypeMismatch"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
@@ -135,146 +131,56 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 	}
 	
-	def unsupportedLamdaFunctionSelectorError(LambdaFunction function) {
-			error("Expression must select an immediate field or derived",
-				JsldslPackage::eINSTANCE.lambdaFunction_Expression,
-				UNSUPPORTED_SELECTOR,
-				function.name)
-	}
-
 	@Check
-	def checkSelector(LambdaFunction function) {
-		if (Arrays.asList("max", "min", "sum", "avg", "first", "last", "front", "back").contains(function.functionDeclarationReference.name)) {
-			if (!(function.expression instanceof NavigationBaseExpression)) {
-				unsupportedLamdaFunctionSelectorError(function);
+	def checkArgument(Argument argument) {
+		val FunctionOrQueryCall functionOrQueryCall = argument.eContainer as FunctionOrQueryCall;
+		val TypeInfo exprTypeInfo = TypeInfo.getTargetType(argument.expression);
+		
+		if (functionOrQueryCall.declaration instanceof FunctionDeclaration) {
+			val FunctionDeclaration functionDeclaration = functionOrQueryCall.declaration as FunctionDeclaration;
+
+			if (functionDeclaration.parameters.filter[p | p.name.equals(argument.name)].size > 1) {
+				error("Duplicate function parameter:" + argument.name,
+	                JsldslPackage::eINSTANCE.named_Name,
+	                DUPLICATE_FUNCTION_PARAMETER,
+	                JsldslPackage::eINSTANCE.argument.name)
 			}
 
-			val NavigationBaseExpression nbe = function.expression as NavigationBaseExpression
+			val FunctionParameterDeclaration parameterDeclaration = functionDeclaration.parameters.findFirst[p | p.name.equals(argument.name)];
 			
-			if (nbe.features.size != 1) {
-				unsupportedLamdaFunctionSelectorError(function);
+			if (parameterDeclaration === null) {
+				error("Invalid parameter " + argument.name,
+	                JsldslPackage::eINSTANCE.named_Name,
+	                INVALID_PARAMETER,
+	                JsldslPackage::eINSTANCE.argument.name)
 			}
-
-			if (nbe.features.get(0).navigationTargetType instanceof EntityFieldDeclaration) {
-				val EntityFieldDeclaration field = nbe.features.get(0).navigationTargetType as EntityFieldDeclaration
-
-				if (!(field.referenceType instanceof PrimitiveDeclaration)) {
-					unsupportedLamdaFunctionSelectorError(function);
-				}
-			} else if (nbe.features.get(0).navigationTargetType instanceof EntityDerivedDeclaration) {
-				val EntityDerivedDeclaration derived = nbe.features.get(0).navigationTargetType as EntityDerivedDeclaration
-
-				if (!(derived.referenceType instanceof PrimitiveDeclaration)) {
-					unsupportedLamdaFunctionSelectorError(function);
-				}
-			} else {
-				unsupportedLamdaFunctionSelectorError(function);
-			}
-		}
-	}
-
-	@Check
-	def checkLiteralFunctionParameterType(LiteralFunctionParameter parameter) {
-		try {
-			val LiteralFunction function = parameter.eContainer as LiteralFunction;
-			val FunctionCall functionCall = function.eContainer as FunctionCall;
-			val TypeInfo exprTypeInfo = TypeInfo.getTargetType(parameter.expression);
-
-			if (parameter.declaration.functionParameterType == FunctionParameterType.PT_INPUT_SAME) {
-				if (!TypeInfo.getParentFunctionCallReturnType(functionCall).isCompatible(exprTypeInfo)) {
-					error("Type mismatch",
-		                JsldslPackage::eINSTANCE.literalFunctionParameter_Expression,
-		                DEFAULT_TYPE_MISMATCH,
-		                JsldslPackage::eINSTANCE.literalFunctionParameter.name)
-				}
-			} else if (parameter.declaration.functionParameterType == FunctionParameterType.PT_ENTITY_INSTANCE) {
-				
-			} else if (parameter.declaration.functionParameterType == FunctionParameterType.PT_ENTITY_COLLECTION) {
-				
-			} else if (parameter.declaration.functionParameterType == FunctionParameterType.PT_ENTITY_TYPE) {
-				
-			} else if (parameter.declaration.functionParameterType == FunctionParameterType.PT_ENUM_INSTANCE) {
-				
-			} else if (parameter.declaration.functionParameterType == FunctionParameterType.PT_ENUM_LITERAL) {
-				
-			} else {
-				val TypeInfo parameterTypeInfo = TypeInfo.getTargetType(parameter.declaration.functionParameterType);
-				
-				if (!parameterTypeInfo.isCompatible(exprTypeInfo)) {
-					error("Function parameter type mismatch. Value must be " + parameterTypeInfo + ".",
-		                JsldslPackage::eINSTANCE.literalFunctionParameter_Expression,
-		                FUNCTION_PARAMETER_TYPE_MISMATCH,
-		                JsldslPackage::eINSTANCE.literalFunctionParameter.name)
-				}
-				
-				if (parameter.declaration.functionParameterType == FunctionParameterType.PT_ENUM_LITERAL ||
-					parameter.declaration.functionParameterType == FunctionParameterType.PT_BOOLEAN_LITERAL ||
-					parameter.declaration.functionParameterType == FunctionParameterType.PT_BINARY_LITERAL ||
-					parameter.declaration.functionParameterType == FunctionParameterType.PT_STRING_LITERAL ||
-					parameter.declaration.functionParameterType == FunctionParameterType.PT_NUMERIC_LITERAL ||
-					parameter.declaration.functionParameterType == FunctionParameterType.PT_DATE_LITERAL ||
-					parameter.declaration.functionParameterType == FunctionParameterType.PT_TIME_LITERAL ||
-					parameter.declaration.functionParameterType == FunctionParameterType.PT_TIMESTAMP_LITERAL)
-				{
-					if (!exprTypeInfo.literal) {
-						error("Function parameter type mismatch. Value must be " + parameterTypeInfo + ".",
-			                JsldslPackage::eINSTANCE.literalFunctionParameter_Expression,
-			                FUNCTION_PARAMETER_TYPE_MISMATCH,
-			                JsldslPackage::eINSTANCE.literalFunctionParameter.name)
-					}
-				}
-			}		
-		} catch (IllegalArgumentException illegalArgumentException) {
-            return
-		}
-	}
-
-	@Check
-	def checkLiteralFunctionParameterDuplication(LiteralFunctionParameter parameter) {
-		val LiteralFunction function = parameter.eContainer as LiteralFunction;
-
-		if (function.parameters.filter[p | p.declaration.equals(parameter.declaration)].size > 1) {
-			error("Duplicate function parameter:" + parameter.declaration.name,
-                JsldslPackage::eINSTANCE.literalFunctionParameter_Declaration,
-                DUPLICATE_FUNCTION_PARAMETER,
-                JsldslPackage::eINSTANCE.literalFunctionParameter.name)
-		}
-	}
-
-	@Check
-	def checkLiteralFunctionRequiredParameters(LiteralFunction function) {
-		if (function.functionDeclarationReference.acceptedBaseTypes.size == 1) {
-			// val TypeInfo typeInfo = TypeInfo.getParentFunctionCallReturnType(function.eContainer as FunctionCall);
-			// val FunctionBaseType functionBaseType = typeInfo.
-			val Iterator<FunctionParameterDeclaration> itr = function.functionDeclarationReference.parameterDeclarations.filter[p | p.isRequired].iterator;
 			
+			if (!TypeInfo.getTargetType(parameterDeclaration.description).isCompatible(exprTypeInfo)) {
+				error("Type mismatch",
+	                JsldslPackage::eINSTANCE.argument_Expression,
+	                DEFAULT_TYPE_MISMATCH,
+	                JsldslPackage::eINSTANCE.argument.name)
+			}
+		}
+	}
+
+	@Check
+	def checkLiteralFunctionRequiredParameters(FunctionOrQueryCall functionOrQueryCall) {
+		if (functionOrQueryCall.declaration instanceof FunctionDeclaration) {
+			val FunctionDeclaration functionDeclaration = functionOrQueryCall.declaration as FunctionDeclaration;
+
+			val Iterator<FunctionParameterDeclaration> itr = functionDeclaration.parameters.filter[p | p.isRequired].iterator;
+
 			while (itr.hasNext) {
 				val FunctionParameterDeclaration declaration = itr.next;
-				// System.out.println("Function:"+function.functionDeclarationReference.name + " parameter:"+declaration.name);
-				
-				if (!function.parameters.exists[p | p.declaration.equals(declaration)]) {
-					error("Missing required function parameter:" + declaration.name,
-		                JsldslPackage::eINSTANCE.literalFunction_FunctionDeclarationReference,
-		                MISSING_REQUIRED_FUNCTION_PARAMETER,
-		                JsldslPackage::eINSTANCE.literalFunction.name)
-				}
-			}
-		}
-	}
 
-	@Check
-	def checkLiteralFunction(LiteralFunction function) {
-		try {
-			if (function.functionDeclarationReference.name.equals("orElse")) {
-				if (TypeInfo.getParentFunctionCallReturnType(function.eContainer as FunctionCall).collection) {
-					error("Type mismatch: orElse() is not allowed to call on collection",
-		                JsldslPackage::eINSTANCE.literalFunction_FunctionDeclarationReference,
-		                DEFAULT_TYPE_MISMATCH,
-		                JsldslPackage::eINSTANCE.literalFunction.name)
+				if (!functionOrQueryCall.arguments.exists[a | a.name.equals(declaration.name)]) {
+					error("Missing required function parameter:" + declaration.name,
+		                JsldslPackage::eINSTANCE.functionOrQueryCall_Arguments,
+		                MISSING_REQUIRED_PARAMETER,
+		                JsldslPackage::eINSTANCE.functionOrQueryCall.name)
 				}
 			}
-		} catch (IllegalArgumentException illegalArgumentException) {
-            return
 		}
 	}
 
@@ -370,6 +276,9 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkForDuplicateNameForDeclaration(Declaration declaration) {
+		if (declaration instanceof FunctionDeclaration) return;
+		if (declaration instanceof LambdaDeclaration) return;
+		
 		if ((declaration.eContainer as ModelDeclaration).getDeclarationNames(declaration).map[n | n.toLowerCase].contains(declaration.name.toLowerCase)) {
 			error("Duplicate declaration: '" + declaration.name + "'",
 				declaration.nameAttribute,
@@ -657,6 +566,9 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkEntityDerived(EntityDerivedDeclaration derived) {
 		try {
 			if (derived.expression !== null && !TypeInfo.getTargetType(derived).isCompatible(TypeInfo.getTargetType(derived.expression))) {
+				System.out.println("Derived:" + derived.name + " type:" + TypeInfo.getTargetType(derived));
+				System.out.println("Expression:" + TypeInfo.getTargetType(derived.expression));
+				
 				error("Type mismatch",
 	                JsldslPackage::eINSTANCE.entityDerivedDeclaration_Expression,
 	                DEFAULT_TYPE_MISMATCH,

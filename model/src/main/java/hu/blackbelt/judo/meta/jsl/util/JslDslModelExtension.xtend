@@ -38,6 +38,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierMaxFileSize
 import java.math.BigInteger
 import hu.blackbelt.judo.meta.jsl.jsldsl.support.JslDslModelResourceSupport
 import java.util.stream.Collectors
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -191,7 +193,7 @@ class JslDslModelExtension {
 	}
 
 	def Collection<String> getDeclarationNames(ModelDeclaration model, Declaration exclude) {
-		model.declarations.filter[m | m !== exclude].map[m | m.name].filter[n | n.trim != ""].toSet
+		model.declarations.filter[m | m !== exclude && !(m instanceof FunctionDeclaration) && !(m instanceof LambdaDeclaration)].map[m | m.name].filter[n | n.trim != ""].toSet
 	}
 
 

@@ -288,7 +288,7 @@ FunctionableExpression returns Expression
 */
 
 Navigation returns Expression
-	: NavigationBase ({Navigation.base = current} '.' feature = Feature)*
+	: NavigationBase ({Navigation.base = current} feature = Feature)*
 	;
 
 NavigationBase returns Expression
@@ -315,8 +315,8 @@ NavigationBaseDeclaration
 	;
 
 Feature
-	: MemberReference
-	| Call
+	: '.' MemberReference
+	| ('.' | '!') Call
 	;
 
 MemberReference
@@ -353,7 +353,7 @@ FunctionDeclaration
 	;
 
 FunctionParameterDeclaration
-	: (isRequired ?= 'required')? type = TypeDescription Named
+	: (isRequired ?= 'required')? description = TypeDescription Named
 	;
 
 TypeDescription
@@ -608,7 +608,7 @@ Decimal returns ecore::EBigDecimal
 	: NUMBER '.' NUMBER
 	;
 
-Integer returns ecore::EBigDecimal
+Integer returns ecore::EBigInteger
 	: NUMBER
 	;
 
