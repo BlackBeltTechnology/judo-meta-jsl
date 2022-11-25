@@ -854,7 +854,7 @@ Makes sense in JCL only.
 |`[purple]#**typeOf(entityType = **#<entityType>[purple]##**)**## : boolean`
 |Evaluates to `true` if the given instance conforms to the <entityType> but not any subtype of the <entityType>.  That is, an instance of <entityType> and not an instance of any subtype of <entityType>.
 |Example:
-|`self.customer!typeOf(entityType = shop::Customer)` is `true` if `self.customer` is a customer, but neither an enterprise nor a person. For the model, see the xref:01_into.adoc[Introduction] chapter.
+|`self.customer!typeOf(entityType = shop::Customer)` is `true` if `self.customer` is a customer, but neither an enterprise nor a person. For the model, see the xref:01_intro.adoc[Introduction] chapter.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -862,7 +862,7 @@ Makes sense in JCL only.
 |`[purple]#**kindOf(entityType = **#<entityType>[purple]##**)**## : boolean`
 |Evaluates to `true` if the given instance conforms to the <entityType>. That is, an instance of <entityType> or an instance of any subtype of <entityType>.
 |Example:
-|`self.customer!kindOf(entityType = shop::Customer)` is `true` if `self.customer` is either a customer, an enterprise, or a person. For the model, see the xref:01_into.adoc[Introduction] chapter.
+|`self.customer!kindOf(entityType = shop::Customer)` is `true` if `self.customer` is either a customer, an enterprise, or a person. For the model, see the xref:01_intro.adoc[Introduction] chapter.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -870,7 +870,7 @@ Makes sense in JCL only.
 |`[purple]#**container(entityType = **#<entityType>[purple]##**)**## : instance`
 |Returns the container of the instance if that matches the given <entityType>. Type matching works according to the `kindOf()` function.
 |Example:
-|`self!container(entityType = shop::Customer)` navigates from the Address to the Customer if the container is an instance of Customer or any subtype of Customer (Enterprise or Person). For the model, see the xref:01_into.adoc[Introduction] chapter.
+|`self!container(entityType = shop::Customer)` navigates from the Address to the Customer if the container is an instance of Customer or any subtype of Customer (Enterprise or Person). For the model, see the xref:01_intro.adoc[Introduction] chapter.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -878,7 +878,7 @@ Makes sense in JCL only.
 |`[purple]#**asType(entityType = **#<entityType>[purple]##**)**## : instance`
 |Returns the given instance as the <entityType> if the type of the given instance matches to <entityType>, otherwise evaluates as undefined. In other words, the function "casts" the instance. Type matching works according to the `kindOf()` function.
 |Example:
-|`self.customer!asType(entityType = shop::Enterprise)` navigates from Order to Customer and it returns an Enterprise instance. If the result of the navigation is a Person, it returns undefined. For the model, see the xref:01_into.adoc[Introduction] chapter.
+|`self.customer!asType(entityType = shop::Enterprise)` navigates from Order to Customer and it returns an Enterprise instance. If the result of the navigation is a Person, it returns undefined. For the model, see the xref:01_intro.adoc[Introduction] chapter.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -886,7 +886,7 @@ Makes sense in JCL only.
 |`[purple]#**memberOf(instances = **#<instances>[purple]##**)**## : boolean`
 |Indicates if the <instances> collection contains the given instance.
 |Example:
-|`self!memberOf(shop::Enterprise.orders.orderItems.product)` within a product, it checks whether it has ever been ordered by any enterprise. For the model, see the xref:01_into.adoc[Introduction] chapter.
+|`self!memberOf(shop::Enterprise.orders.orderItems.product)` within a product, it checks whether it has ever been ordered by any enterprise. For the model, see the xref:01_intro.adoc[Introduction] chapter.
 |======================================================================
 
 [req=true]
