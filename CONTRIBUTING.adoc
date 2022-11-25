@@ -50,7 +50,6 @@ it in transformation pipelines in other platforms.
 ### Plugin requirements
 
 - m2e
-- epsilon
 - modeling tools
 
 ### Installation

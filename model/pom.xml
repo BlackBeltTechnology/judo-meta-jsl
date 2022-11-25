@@ -194,10 +194,6 @@
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>hu.blackbelt.epsilon</groupId>
-			<artifactId>epsilon-runtime-execution</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.eclipse.xtext</groupId>
 			<artifactId>org.eclipse.xtext</artifactId>
 			<version>${xtext-version}</version>
