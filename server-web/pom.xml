@@ -126,11 +126,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>hu.blackbelt.epsilon</groupId>
-			<artifactId>epsilon-runtime-execution</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jul-to-slf4j</artifactId>
 			<version>${slf4j-version}</version>
