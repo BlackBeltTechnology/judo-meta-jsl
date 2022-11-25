@@ -8,6 +8,7 @@ endif::[]
 :KW: [purple]##**
 :KWE: **##
 
+[req=true]
 = Expression
 
 Constant values, entity members, operators, query executions and function calls can be combined into sequences known as expressions. Among other things, expressions are used to navigate and query a domain model.
@@ -35,7 +36,7 @@ derived String fullName => self.firstName +
                           self.lastName;
 ----
 
-[#operators]
+[#operators,req=true]
 == Operators
 
 Operators usually perform a function on two operands. Operators that require two operands are binary operators. For example, the `*` operator is a binary operator that multiplies the values of the right and left operands.
@@ -73,6 +74,7 @@ The following table summarizes the precedence of operators used in expressions.
 |1          |```=```
 |====================
 
+[req=true]
 == Navigation
 
 Navigation is used to traverse model relations to access the instance(s) linked to an instance or set of instances.
@@ -114,6 +116,7 @@ When navigating from a single instance, the result of the navigation depends on 
 
 When navigating from an instance collection, regardless of the cardinality of relation being navigated, the result is always a collection.
 
+[req=true]
 == Field selection
 
 Both derived and stored field values of an entity can be read in expressions. To read a field value use the `.` (dot) character. The field selection can be chained for navigation expression. The field selection can only be chained for navigation that returns a single instance.
@@ -127,6 +130,7 @@ derived String productName => self.product.name;
 
 In the example above, the expression returns the product's name.
 
+[req=true]
 === Query execution
 
 Static and instance queries can be used in expressions. To execute an instance query use the `.` (dot) character before the query name and append the arguments in parentheses. To execute a static query use its name as a navigation starting point and append the arguments in parentheses. If you do not pass arguments to a query append parentheses with no arguments between them.
@@ -142,6 +146,7 @@ derived Customer[] havingOrdersBetween0and10 => shop::ordersBetween(min = 0, max
 
 In the example above, the `ordersBetween` query is executed with two arguments.
 
+[req=true]
 == Built-in functions
 
 There are a number of built-in functions that are always available in expressions. To invoke a built-in function use the `!` character after a navigation, field or type selection.
@@ -165,6 +170,7 @@ derived Integer nameLength => self.fullName!size();
 
 The `self.orderItems!size()` evaluates to an integer, it returns the number of the ordered items in the order. The expression `self.fullName!size()` will return the number of characters in the customers's name field (assuming it is a String type).
 
+[req=true]
 === Static functions
 
 A special group of functions is __static functions__. Static functions are invoked on types rather than on instances or collections.
@@ -187,6 +193,7 @@ field Time tm = Time!of(hour = 23, minute = 59, second = 59);
 
 The above example sets the `tm` field to `&#x60;23:59:59&#x60;` as default value.
 
+[req=true]
 === Iterator functions
 
 Functions that handle individual elements in a collection use an iterator variable.
@@ -240,6 +247,7 @@ entity Customer {
 
 ====
 
+[req=true]
 == External variables
 
 Some expressions require dynamic values that are provided by the surrounding environment and cannot be "wired" to the model as a constant, e.g. current time or OS environment variables. Variables of this type are referred to as external variables.
@@ -300,6 +308,7 @@ Get next Order number: `Long!getVariable(category = "SEQUENCE", key = "Order")`
 |==================================================
 
 
+[req=true]
 == Undefined
 
 Field selectors, navigations and expressions can evaluate to undefined. Since undefined is not a possible value of any data type, it is not considered a __value__, but rather a marker (or placeholder) indicating the absence of value.
@@ -324,6 +333,7 @@ There is no literal for undefined in JSL, thus to check if a field, relation or 
 
 ////
 
+[req=true]
 === Create instance
 
 // next release
@@ -371,10 +381,12 @@ The example above creates a list of persons with two entities in the list.
 ////
 
 
+[req=true]
 == List of functions
 
 // TODO: use "given" expression in descriptions
 
+[req=true]
 === Any type functions
 
 Any type functions can be applied to any type or instance except collections.
@@ -414,7 +426,7 @@ Any type functions can be applied to any type or instance except collections.
 |See more details and the examples in chapter <<External variables>>.
 |======================================================================
 
-[#string_functions]
+[#string_functions,req=true]
 === String functions
 
 [options="header",grid="none",cols="1a"]
@@ -565,7 +577,7 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 |`"app"!rpad(size = 7, padstring = "le")` is `"applele"`
 |======================================================================
 
-[#numeric_functions]
+[#numeric_functions,req=true]
 === Numeric functions
 
 [options="header",grid="none",cols="1a"]
@@ -618,7 +630,7 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 |Example: `123456.789!asString()` is `"123456.789"`
 |======================================================================
 
-[#boolean_functions]
+[#boolean_functions,req=true]
 === Boolean functions
 
 [options="header",grid="none",cols="1a"]
@@ -628,7 +640,7 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 |Example: `true!asString()` is `"true"`
 |======================================================================
 
-[#date_functions]
+[#date_functions,req=true]
 === Date functions
 
 [options="header",grid="none",cols="1a"]
@@ -680,7 +692,7 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 |Example: `&#x60;2021-03-02&#x60;!asString()` is `"2021-03-02"`
 |======================================================================
 
-[#time_functions]
+[#time_functions,req=true]
 === Time functions
 
 [options="header",grid="none",cols="1a"]
@@ -718,7 +730,7 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 |Example: `&#x60;23:15:59&#x60;!asString()` is `"23:15:59"`
 |======================================================================
 
-[#timestamp_functions]
+[#timestamp_functions,req=true]
 === Timestamp functions
 
 [options="header",grid="none",cols="1a"]
@@ -786,7 +798,7 @@ Examples:
 |Example: `&#x60;2019-07-18T01:11:12Z&#x60;!asString()` is `"2019-07-18T01:11:12Z"`
 |======================================================================
 
-[#binary_functions]
+[#binary_functions,req=true]
 === Binary functions
 
 There are no binary functions.
@@ -814,7 +826,7 @@ There are no binary functions.
 |======================================================================
 ////
 
-[#enumeration_functions]
+[#enumeration_functions,req=true]
 === Enumeration functions
 
 [options="header",grid="none",cols="1a"]
@@ -824,6 +836,7 @@ There are no binary functions.
 |Example: `OrderStatus#OPEN!asString()` is `"OPEN"`
 |======================================================================
 
+[req=true]
 === Instance functions
 
 ////
@@ -841,7 +854,7 @@ Makes sense in JCL only.
 |`[purple]#**typeOf(entityType = **#<entityType>[purple]##**)**## : boolean`
 |Evaluates to `true` if the given instance conforms to the <entityType> but not any subtype of the <entityType>.  That is, an instance of <entityType> and not an instance of any subtype of <entityType>.
 |Example:
-|`self.customer!typeOf(entityType = shop::Customer)` is `true` if `self.customer` is a customer, but neither an enterprise nor a person. For the model, see the xref:01_into.adoc[Introduction] chapter.
+|`self.customer!typeOf(entityType = shop::Customer)` is `true` if `self.customer` is a customer, but neither an enterprise nor a person. For the model, see the xref:01_intro.adoc[Introduction] chapter.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -849,7 +862,7 @@ Makes sense in JCL only.
 |`[purple]#**kindOf(entityType = **#<entityType>[purple]##**)**## : boolean`
 |Evaluates to `true` if the given instance conforms to the <entityType>. That is, an instance of <entityType> or an instance of any subtype of <entityType>.
 |Example:
-|`self.customer!kindOf(entityType = shop::Customer)` is `true` if `self.customer` is either a customer, an enterprise, or a person. For the model, see the xref:01_into.adoc[Introduction] chapter.
+|`self.customer!kindOf(entityType = shop::Customer)` is `true` if `self.customer` is either a customer, an enterprise, or a person. For the model, see the xref:01_intro.adoc[Introduction] chapter.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -857,7 +870,7 @@ Makes sense in JCL only.
 |`[purple]#**container(entityType = **#<entityType>[purple]##**)**## : instance`
 |Returns the container of the instance if that matches the given <entityType>. Type matching works according to the `kindOf()` function.
 |Example:
-|`self!container(entityType = shop::Customer)` navigates from the Address to the Customer if the container is an instance of Customer or any subtype of Customer (Enterprise or Person). For the model, see the xref:01_into.adoc[Introduction] chapter.
+|`self!container(entityType = shop::Customer)` navigates from the Address to the Customer if the container is an instance of Customer or any subtype of Customer (Enterprise or Person). For the model, see the xref:01_intro.adoc[Introduction] chapter.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -865,7 +878,7 @@ Makes sense in JCL only.
 |`[purple]#**asType(entityType = **#<entityType>[purple]##**)**## : instance`
 |Returns the given instance as the <entityType> if the type of the given instance matches to <entityType>, otherwise evaluates as undefined. In other words, the function "casts" the instance. Type matching works according to the `kindOf()` function.
 |Example:
-|`self.customer!asType(entityType = shop::Enterprise)` navigates from Order to Customer and it returns an Enterprise instance. If the result of the navigation is a Person, it returns undefined. For the model, see the xref:01_into.adoc[Introduction] chapter.
+|`self.customer!asType(entityType = shop::Enterprise)` navigates from Order to Customer and it returns an Enterprise instance. If the result of the navigation is a Person, it returns undefined. For the model, see the xref:01_intro.adoc[Introduction] chapter.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -873,9 +886,10 @@ Makes sense in JCL only.
 |`[purple]#**memberOf(instances = **#<instances>[purple]##**)**## : boolean`
 |Indicates if the <instances> collection contains the given instance.
 |Example:
-|`self!memberOf(shop::Enterprise.orders.orderItems.product)` within a product, it checks whether it has ever been ordered by any enterprise. For the model, see the xref:01_into.adoc[Introduction] chapter.
+|`self!memberOf(shop::Enterprise.orders.orderItems.product)` within a product, it checks whether it has ever been ordered by any enterprise. For the model, see the xref:01_intro.adoc[Introduction] chapter.
 |======================================================================
 
+[req=true]
 === Collection functions
 
 ////
