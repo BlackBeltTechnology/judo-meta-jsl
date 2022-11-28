@@ -10,7 +10,7 @@ endif::[]
 :KW: [purple]##**
 :KWE: **##
 
-[judo-req="true"]
+[judo-req="true",judo-req-id="REQ-EXPR-001"]
 = Expression
 
 Constant values, entity members, operators, query executions and function calls can be combined into sequences known as expressions. Among other things, expressions are used to navigate and query a domain model.
@@ -38,7 +38,7 @@ derived String fullName => self.firstName +
                           self.lastName;
 ----
 
-[#operators,judo-req="true"]
+[#operators,judo-req="true",judo-req-id="REQ-EXPR-002"]
 == Operators
 
 Operators usually perform a function on two operands. Operators that require two operands are binary operators. For example, the `*` operator is a binary operator that multiplies the values of the right and left operands.
@@ -76,7 +76,7 @@ The following table summarizes the precedence of operators used in expressions.
 |1          |```=```
 |====================
 
-[judo-req="true"]
+[judo-req="true",judo-req-id="REQ-EXPR-003"]
 == Navigation
 
 Navigation is used to traverse model relations to access the instance(s) linked to an instance or set of instances.
@@ -118,7 +118,7 @@ When navigating from a single instance, the result of the navigation depends on 
 
 When navigating from an instance collection, regardless of the cardinality of relation being navigated, the result is always a collection.
 
-[judo-req="true"]
+[judo-req="true",judo-req-id="REQ-EXPR-004"]
 == Field selection
 
 Both derived and stored field values of an entity can be read in expressions. To read a field value use the `.` (dot) character. The field selection can be chained for navigation expression. The field selection can only be chained for navigation that returns a single instance.
@@ -132,7 +132,7 @@ derived String productName => self.product.name;
 
 In the example above, the expression returns the product's name.
 
-[judo-req="true"]
+[judo-req="true",judo-req-id="REQ-EXPR-005"]
 === Query execution
 
 Static and instance queries can be used in expressions. To execute an instance query use the `.` (dot) character before the query name and append the arguments in parentheses. To execute a static query use its name as a navigation starting point and append the arguments in parentheses. If you do not pass arguments to a query append parentheses with no arguments between them.
@@ -148,7 +148,7 @@ derived Customer[] havingOrdersBetween0and10 => shop::ordersBetween(min = 0, max
 
 In the example above, the `ordersBetween` query is executed with two arguments.
 
-[judo-req="true"]
+[judo-req="true",judo-req-id="REQ-EXPR-006"]
 == Built-in functions
 
 There are a number of built-in functions that are always available in expressions. To invoke a built-in function use the `!` character after a navigation, field or type selection.
@@ -172,7 +172,7 @@ derived Integer nameLength => self.fullName!size();
 
 The `self.orderItems!size()` evaluates to an integer, it returns the number of the ordered items in the order. The expression `self.fullName!size()` will return the number of characters in the customers's name field (assuming it is a String type).
 
-[judo-req="true"]
+[judo-req="true",judo-req-id="REQ-EXPR-007"]
 === Static functions
 
 A special group of functions is __static functions__. Static functions are invoked on types rather than on instances or collections.
@@ -195,7 +195,7 @@ field Time tm = Time!of(hour = 23, minute = 59, second = 59);
 
 The above example sets the `tm` field to `&#x60;23:59:59&#x60;` as default value.
 
-[judo-req="true"]
+[judo-req="true",judo-req-id="REQ-EXPR-008"]
 === Iterator functions
 
 Functions that handle individual elements in a collection use an iterator variable.
@@ -249,7 +249,7 @@ entity Customer {
 
 ====
 
-[judo-req="true"]
+[judo-req="true",judo-req-id="REQ-EXPR-009"]
 == External variables
 
 Some expressions require dynamic values that are provided by the surrounding environment and cannot be "wired" to the model as a constant, e.g. current time or OS environment variables. Variables of this type are referred to as external variables.
@@ -310,7 +310,7 @@ Get next Order number: `Long!getVariable(category = "SEQUENCE", key = "Order")`
 |==================================================
 
 
-[judo-req="true"]
+[judo-req="true",judo-req-id="REQ-EXPR-010"]
 == Undefined
 
 Field selectors, navigations and expressions can evaluate to undefined. Since undefined is not a possible value of any data type, it is not considered a __value__, but rather a marker (or placeholder) indicating the absence of value.
@@ -335,7 +335,7 @@ There is no literal for undefined in JSL, thus to check if a field, relation or 
 
 ////
 
-[judo-req="true"]
+[judo-req="true",judo-req-id="REQ-EXPR-000"]
 === Create instance
 
 // next release
@@ -383,12 +383,12 @@ The example above creates a list of persons with two entities in the list.
 ////
 
 
-[judo-req="true"]
+[judo-req="true",judo-req-id="REQ-EXPR-011"]
 == List of functions
 
 // TODO: use "given" expression in descriptions
 
-[judo-req="true"]
+[judo-req="true",judo-req-id="REQ-EXPR-012"]
 === Any type functions
 
 Any type functions can be applied to any type or instance except collections.
@@ -428,7 +428,7 @@ Any type functions can be applied to any type or instance except collections.
 |See more details and the examples in chapter <<External variables>>.
 |======================================================================
 
-[#string_functions,judo-req="true"]
+[#string_functions,judo-req="true",judo-req-id="REQ-EXPR-013"]
 === String functions
 
 [options="header",grid="none",cols="1a"]
@@ -579,7 +579,7 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 |`"app"!rpad(size = 7, padstring = "le")` is `"applele"`
 |======================================================================
 
-[#numeric_functions,judo-req="true"]
+[#numeric_functions,judo-req="true",judo-req-id="REQ-EXPR-014"]
 === Numeric functions
 
 [options="header",grid="none",cols="1a"]
@@ -632,7 +632,7 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 |Example: `123456.789!asString()` is `"123456.789"`
 |======================================================================
 
-[#boolean_functions,judo-req="true"]
+[#boolean_functions,judo-req="true",judo-req-id="REQ-EXPR-015"]
 === Boolean functions
 
 [options="header",grid="none",cols="1a"]
@@ -642,7 +642,7 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 |Example: `true!asString()` is `"true"`
 |======================================================================
 
-[#date_functions,judo-req="true"]
+[#date_functions,judo-req="true",judo-req-id="REQ-EXPR-016"]
 === Date functions
 
 [options="header",grid="none",cols="1a"]
@@ -694,7 +694,7 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 |Example: `&#x60;2021-03-02&#x60;!asString()` is `"2021-03-02"`
 |======================================================================
 
-[#time_functions,judo-req="true"]
+[#time_functions,judo-req="true",judo-req-id="REQ-EXPR-017"]
 === Time functions
 
 [options="header",grid="none",cols="1a"]
@@ -732,7 +732,7 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 |Example: `&#x60;23:15:59&#x60;!asString()` is `"23:15:59"`
 |======================================================================
 
-[#timestamp_functions,judo-req="true"]
+[#timestamp_functions,judo-req="true",judo-req-id="REQ-EXPR-018"]
 === Timestamp functions
 
 [options="header",grid="none",cols="1a"]
@@ -800,7 +800,7 @@ Examples:
 |Example: `&#x60;2019-07-18T01:11:12Z&#x60;!asString()` is `"2019-07-18T01:11:12Z"`
 |======================================================================
 
-[#binary_functions,judo-req="true"]
+[#binary_functions,judo-req="true",judo-req-id="REQ-EXPR-019"]
 === Binary functions
 
 There are no binary functions.
@@ -828,7 +828,7 @@ There are no binary functions.
 |======================================================================
 ////
 
-[#enumeration_functions,judo-req="true"]
+[#enumeration_functions,judo-req="true",judo-req-id="REQ-EXPR-020"]
 === Enumeration functions
 
 [options="header",grid="none",cols="1a"]
@@ -838,7 +838,7 @@ There are no binary functions.
 |Example: `OrderStatus#OPEN!asString()` is `"OPEN"`
 |======================================================================
 
-[judo-req="true"]
+[judo-req="true",judo-req-id="REQ-EXPR-021"]
 === Instance functions
 
 ////
@@ -891,7 +891,7 @@ Makes sense in JCL only.
 |`self!memberOf(shop::Enterprise.orders.orderItems.product)` within a product, it checks whether it has ever been ordered by any enterprise. For the model, see the xref:01_intro.adoc[Introduction] chapter.
 |======================================================================
 
-[judo-req="true"]
+[judo-req="true",judo-req-id="REQ-EXPR-022"]
 === Collection functions
 
 ////
