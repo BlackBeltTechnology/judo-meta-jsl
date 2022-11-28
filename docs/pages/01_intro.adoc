@@ -1,6 +1,8 @@
 ifndef::env-site,env-github[]
 include::../_attributes.adoc[]
 endif::[]
+// Metadata
+:judo-reqprefix: REQ-INTR
 // Settings
 :idprefix:
 :idseparator: -
@@ -26,7 +28,7 @@ TODO
 
 ////
 
-[req=true]
+[judo-req="true"]
 = Introduction
 
 JUDO Specification Language (JSL) is an implementation independent text-based modeling language. The overall goal of the language is to provide unambiguous and readable descriptions of different business domains and their incorporated business logic.
@@ -40,7 +42,7 @@ All concepts and rules described in this document are valid in JSL.
 See the JUDO Java documentation for APIs and programming concepts. 
 ====
 
-[req=true]
+[judo-req="true"]
 == Example model
 
 We use the model below as example data model in this guide.
