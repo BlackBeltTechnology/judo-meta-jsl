@@ -53,7 +53,7 @@
     </developers>
 
     <properties>
-        <revision>1.0.1</revision>
+        <revision>1.0.2</revision>
         <maven>3.8.3</maven>
         <project-shortname>judo-meta-jsl</project-shortname>
         <project-repositoryId>BlackBeltTechnology/judo-meta-psm-jsl
@@ -76,9 +76,6 @@
 		<logback-test-config>${maven.multiModuleProjectDirectory}/logback-test.xml</logback-test-config>
 
         <tycho-version>2.7.5</tycho-version>
-
-		<epsilon-runtime-version>1.5.0</epsilon-runtime-version>
-		<epsilon-runtime-eclipse-version>1.5.1</epsilon-runtime-eclipse-version>
 
         <emf-genmodel-generator-version>1.1.0</emf-genmodel-generator-version>
         <judo-genmodel-generator-version>1.1.1</judo-genmodel-generator-version>
@@ -531,28 +528,6 @@
                                 <pluginExecution>
                                     <pluginExecutionFilter>
                                         <groupId>
-                                            hu.blackbelt.epsilon
-                                        </groupId>
-                                        <artifactId>
-                                            epsilon-maven-plugin
-                                        </artifactId>
-                                        <versionRange>
-                                            [1.1.1,)
-                                        </versionRange>
-                                        <goals>
-                                            <goal>execute</goal>
-                                            <goal>
-                                                executeConfiguration
-                                            </goal>
-                                        </goals>
-                                    </pluginExecutionFilter>
-                                    <action>
-                                        <ignore />
-                                    </action>
-                                </pluginExecution>
-                                <pluginExecution>
-                                    <pluginExecutionFilter>
-                                        <groupId>
                                             org.apache.maven.plugins
                                         </groupId>
                                         <artifactId>
@@ -848,19 +823,6 @@
                 <groupId>hu.blackbelt.osgi.utils</groupId>
                 <artifactId>osgi-api</artifactId>
                 <version>${osgi-utils-version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>hu.blackbelt.epsilon</groupId>
-                <artifactId>epsilon-runtime-execution</artifactId>
-                <version>${epsilon-runtime-version}</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>hu.blackbelt.epsilon</groupId>
-                <artifactId>epsilon-runtime-osgi</artifactId>
-                <version>${epsilon-runtime-version}</version>
             </dependency>
 
             <dependency>

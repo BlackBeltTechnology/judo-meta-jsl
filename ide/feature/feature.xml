@@ -2,7 +2,7 @@
 <feature
       id="hu.blackbelt.judo.meta.jsl.ide.feature"
       label="Judo Jsl IDE Feature"
-      version="1.0.1"
+      version="1.0.2"
       provider-name="BlackBelt Technology">
 
    <description url="http://www.blackbelt.hu">

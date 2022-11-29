@@ -117,7 +117,7 @@ EntityQueryTargetType
 	;
 
 QueryDeclarationParameter
-	: referenceType = [PrimitiveDeclaration | LocalName] Named "=" default = Literal
+	: referenceType = [PrimitiveDeclaration | LocalName] Named ("=" default = Literal)?
 	;
 
 EntityRelationDeclaration
@@ -302,7 +302,7 @@ SpawnOperation returns Expression
 	;
 
 UnaryOperation returns Expression
-	: {UnaryOperation} operator=('not' | '-' | '+') operand=UnaryOperation
+	: {UnaryOperation} operator='not' operand=UnaryOperation
 	| FunctionedExpression
     ;
 
@@ -322,9 +322,9 @@ BooleanLiteral returns Expression
 	: {BooleanLiteral} ('false' | isTrue?='true')
 	;
 
-NumberLiteral returns Expression
-	: {IntegerLiteral} value=INTEGER
-	| {DecimalLiteral} value=DECIMAL
+NumberLiteral returns Expression hidden()
+	: {IntegerLiteral} (minus ?= "-" | "+")? value=INTEGER
+	| {DecimalLiteral} (minus ?= "-" | "+")? value=DECIMAL
 	;
 
 StringLiteral returns Expression

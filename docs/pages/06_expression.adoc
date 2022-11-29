@@ -40,7 +40,7 @@ derived String fullName => self.firstName +
 
 Operators usually perform a function on two operands. Operators that require two operands are binary operators. For example, the `*` operator is a binary operator that multiplies the values of the right and left operands.
 
-There are four exceptions that have different numbers of operands. The logical negation (`not`) has only one operand, the arithmetic minus (`-`) and plus (`+`) may have only one operand (e.g. `-3`, `+3`), the conditional (ternary) operator has three operands.
+There are two exceptions that have different numbers of operands. The logical negation (`not`) has only one operand, and the conditional (ternary) operator has three operands.
 
 An operator also returns a value. The value and its type depends on the operator and the type of its operands. For example, the arithmetic operators (perform basic arithmetic operations such as addition and subtraction) return numbers. The data type returned by the arithmetic operators depends on the type of its operands: if you add two integers, you get an integer back. An operation is said to evaluate to its result.
 
@@ -482,8 +482,8 @@ Any type functions can be applied to any type or instance except collections.
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**like(pattern = **#<pattern> &#x5B;[purple]##**, exact = **##<exact>][purple]##**)**## : boolean`
-|Returns `true` if the string matches a given <pattern>, `false` otherwise. The optional <exact> is a boolean parameter. If <exact> is true the pattern matching is case-sensitive. If <exact> is false or undefined the pattern matching is case-insensitive. If no <exact> argument is passed, the pattern matching is case-sensitive.
+|`[purple]#**like(pattern = **#<pattern>[purple]##**)**## : boolean`
+|Returns `true` if the string matches a given <pattern> case sensitively, `false` otherwise. The <pattern> can only be a constant string.
 
 There are two wildcards used in the <pattern>:
 
@@ -496,7 +496,22 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 If either of these two signs is not used in the <pattern>, then the function acts like the equals operator.
 |Examples:
 |`"apple"!like(pattern = "%pl_")` is `true`
-|`"apPLe"!like(pattern = "_pple", exact = false)` is `true`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**ilike(pattern = **#<pattern>[purple]##**)**## : boolean`
+|Returns `true` if the string matches a given <pattern> case insensitively, `false` otherwise. The <pattern> can only be a constant string.
+
+There are two wildcards used in the <pattern>:
+
+* percent sign (%)
+
+* underscore (_)
+
+The percent sign represents zero, one, or multiple numbers or characters. The underscore represents a single number or character. These symbols can be used in combinations.
+|Examples:
+|`"apple"!like(pattern = "%PL_")` is `true`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -562,8 +577,8 @@ If either of these two signs is not used in the <pattern>, then the function act
 |`7.89!round()` is `8`
 |`7.89!round(scale = 1)` is `7.9`
 |`2.50!round()` is `3`
-|`(-2.5)!round()` is `-3`
-|`(-7.89)!round()` is `-8`
+|`-2.5!round()` is `-3`
+|`-7.89!round()` is `-8`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -573,7 +588,7 @@ If either of these two signs is not used in the <pattern>, then the function act
 |Example:
 |`1!floor()` is `1`
 |`2.9!floor()` is `2`
-|`(-2.9)!floor()` is `-3`
+|`-2.9!floor()` is `-3`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -583,7 +598,7 @@ If either of these two signs is not used in the <pattern>, then the function act
 |Example:
 |`1!ceil()` is `1`
 |`2.9!ceil()` is `3`
-|`(-2.9)!ceil()` is `-2`
+|`-2.9!ceil()` is `-2`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -593,7 +608,7 @@ If either of these two signs is not used in the <pattern>, then the function act
 |Example:
 |`1!abs()` is `1`
 |`2.9!abs()` is `2.9`
-|`(-3)!abs()` is `3`
+|`-3!abs()` is `3`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -602,11 +617,6 @@ If either of these two signs is not used in the <pattern>, then the function act
 |Numeric value as string.
 |Example: `123456.789!asString()` is `"123456.789"`
 |======================================================================
-
-[NOTE]
-====
-Be careful when calling numeric functions on negative constant values! Since the precedence of the function call (`!`) is higher than the precedence of the minus operator (`-`), the functions are called first and only then is the arithmetic negation performed. For example, if you want to calculate the absolute value of `-3`, enclose the constant in parentheses: `(-3)!abs()`. Without parentheses, the expression `-3!abs()` returns `-3`.
-====
 
 [#boolean_functions]
 === Boolean functions
