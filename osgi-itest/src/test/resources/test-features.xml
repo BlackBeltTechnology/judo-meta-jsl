@@ -32,9 +32,6 @@
     <repository>mvn:hu.blackbelt.karaf.features/apache-httpclient-features/${karaf-features-version}/xml/features</repository>
     <repository>mvn:hu.blackbelt.karaf.features/apache-poi-features/${karaf-features-version}/xml/features</repository>
     <repository>mvn:hu.blackbelt.karaf.features/eclipse-emf-features/${karaf-features-version}/xml/features</repository>
-    <repository>mvn:hu.blackbelt.karaf.features/eclipse-epsilon-features/${karaf-features-version}/xml/features</repository>
-    <repository>mvn:hu.blackbelt.epsilon/features/${epsilon-runtime-version}/xml/features</repository>
-
     <repository>mvn:hu.blackbelt.karaf.features/tinybundles-features/${karaf-features-version}/xml/features</repository>
     <repository>mvn:hu.blackbelt.karaf.features/antlr-features/${karaf-features-version}/xml/features</repository>
     <repository>mvn:hu.blackbelt.karaf.features/eclipse-xtext-features/${karaf-features-version}/xml/features</repository>
@@ -45,7 +42,6 @@
         <feature prerequisite="true">scr</feature>
         <feature>osgi-utils</feature>
         <feature>tinybundles</feature>
-        <feature>epsilon-runtime</feature>
         <feature>cxf-jaxrs</feature>
         <feature>cxf-jackson</feature>
         <feature>cxf-rs-description-swagger2</feature>
