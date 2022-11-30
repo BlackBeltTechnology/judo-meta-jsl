@@ -35,13 +35,6 @@
 		    <artifactId>org.eclipse.xtext.testing</artifactId>
 		    <scope>test</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>hu.blackbelt.epsilon</groupId>
-			<artifactId>epsilon-runtime-execution</artifactId>
-			<scope>test</scope>
-		</dependency>
-
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
