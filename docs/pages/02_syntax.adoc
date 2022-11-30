@@ -1,6 +1,8 @@
 ifndef::env-site,env-github[]
 include::../_attributes.adoc[]
 endif::[]
+// Metadata
+:judo-reqprefix: REQ-SYNT
 // Settings
 :idprefix:
 :idseparator: -
@@ -12,6 +14,7 @@ endif::[]
 
 This section describes the common elements of JSL syntax.
 
+[judo-req="true",judo-req-id="REQ-SYNT-001"]
 == Conventions
 
 The following conventions are used in the syntax description: angle brackets (< and >) indicate variable parts, brackets ([ and ]) indicate optional parts. Vertical lines (|) indicate that you must choose one alternative. Dots (...) mean that the preceding element can be repeated.
@@ -25,12 +28,14 @@ For example, a simplified version of the well-known copy command looks like this
 [purple]#**cp**# &#x5B;[purple]##**-a**##|[purple]##**-l**##|[purple]##**-r**##]... &lt;source>... &lt;directory>
 ----
 
+[judo-req="true",judo-req-id="REQ-SYNT-002"]
 == Overall structure
 
 Domain models are defined by a sequence of JSL statements. Each domain model is in a text file. The extension of the model text files shall be "jsl". E.g. CRM.jsl file contains the model definition of the customer relationship management (CRM) model.
 
 Domain models may refer to each other. References between models allow to partition domain models into multiple (sub)domains.
 
+[judo-req="true",judo-req-id="REQ-SYNT-003"]
 == Statements
 
 JSL statements are composed from:
@@ -62,6 +67,7 @@ entity Person {
 ----
 
 
+[judo-req="true",judo-req-id="REQ-SYNT-004"]
 == Keywords
 
 Keywords are predefined, reserved words used in JSL that have special meanings in the language. JSL keywords are always lowercase.
@@ -89,6 +95,7 @@ This is the list of keywords in the JSL.
 |extends    |opposite    |
 |======================================================================
 
+[judo-req="true",judo-req-id="REQ-SYNT-005"]
 == Element names
 
 The names of JSL domain elements must conform to the following rules:
@@ -105,6 +112,7 @@ The names of JSL domain elements must conform to the following rules:
 Even though element names (e.g. entity names, field names, enumeration literals, etc.) are case-sensitive, it is not allowed to have two elements in the same scope (e.g. two fields within an entity) whose names differ only in upper and lower case.
 ====
 
+[judo-req="true",judo-req-id="REQ-SYNT-006"]
 == Comments
 
 Comments may be inserted by use of the `//` characters at any point in the line. When `//` characters are detected, the rest of the line is considered to be a comment and ignored.
