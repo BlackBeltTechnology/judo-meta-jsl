@@ -61,7 +61,7 @@ type string String(min-size = 0, max-size = 128);
 entity Person {
     field required String firstName = "";
     field required String lastName = "";;;;;
-    derived String fullName =
+    derived String fullName =>
         self.firstName + " " + self.lastName;
 };
 ----
