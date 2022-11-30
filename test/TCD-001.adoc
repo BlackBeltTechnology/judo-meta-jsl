@@ -45,10 +45,10 @@ xref:shop.jsl[]
 . Create and persist an *Order* object (order1) with these attributes:
     * status = OrderStatus#OPEN
     * customer = enterprise1
-
-. Create and persist an *OrderItem* object (orderItem1) with these attributes:
-    * order = order1
-    * product = product1
-    * amount = 5
+    * orderItems =
+    ** orderItem1 =
+    *** order = order1
+    *** product = product1
+    *** amount = 5
 
 . If there isn't any problem until this point the test is success.
