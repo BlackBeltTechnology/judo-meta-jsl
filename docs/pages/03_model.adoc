@@ -49,7 +49,7 @@ model shop;
 [judo-req="true",judo-req-id="REQ-MDL-003"]
 == Import
 
-To import an other model into your model, we need to use the `import` keyword which is used to access model and its types into the current model. Use import to access built-in and user-defined models into your model file. 
+To import another model into your model, we need to use the `import` keyword which is used to access model and its types into the current model. Use import to access built-in and user-defined models into your model file.
 
 The import statement is not transitive. Thus, if model B imports model A and model C imports model B, then elements of model A are not available in model C. To access elements of model A in model C, model C must also import model A. In other words, each model files must be explicitly imported to access its elements.
 
