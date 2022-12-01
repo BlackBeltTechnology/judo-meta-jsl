@@ -6,7 +6,7 @@ Checking that the IDE knows the jsl file extension as a JSL file.
 
 === Tested requirements
 
-REQ-SYNT-001
+REQ-SYNT-001, REQ-MDL-001
 
 === Used JSL model
 

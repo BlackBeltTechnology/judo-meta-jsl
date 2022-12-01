@@ -1,4 +1,4 @@
-model m1;
+model judo::mm::m1;
 
 entity Address {
     field required String street;

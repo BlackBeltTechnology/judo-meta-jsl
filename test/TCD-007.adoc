@@ -1,0 +1,17 @@
+= TCD-007
+
+== Purpose
+
+Verifying the model namespace definition rules and the import mechanism.
+
+=== Tested requirements
+
+REQ-MDL-002, REQ-MDL-003
+
+=== Used JSL model
+
+xref:resources/m2.jsl[m2.jsl]
+
+== Test scenario
+
+. TODO
