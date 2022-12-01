@@ -1,0 +1,23 @@
+= TCD-003
+
+== Purpose
+
+Verifying the statement definition rules in the IDE (Eclipse or idea).
+
+=== Tested requirements
+
+REQ-SYNT-002
+
+=== Used JSL model
+
+xref:resources/shop2.jsl[shop2.jsl]
+
+== Test scenario
+
+. Open the xref:resources/shop2.jsl[shop2.jsl] with the IDE.
+
+. The IDE is handling and showing the opened file as a JSL file (Syntax highlight is being OK.), and there isn't any error.
+
+. Close the file.
+
+. If there isn't any problem until this point the test is success.

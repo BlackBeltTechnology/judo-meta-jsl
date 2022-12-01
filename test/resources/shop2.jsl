@@ -1,0 +1,36 @@
+model shop2;
+
+type string String(min-size = 0, max-size = 128);
+type
+	string
+	OtherString
+	(
+		min-size = 1
+		, max-size = 128
+	)
+;
+;
+;
+
+entity Person {
+    field required String firstName = "";
+    field required String lastName = "";;; ; ;
+    derived String fullName =>
+        self.firstName + " " + self.lastName;
+}; ;
+;
+
+entity OtherPerson {
+    field required
+        String firstName = "";;;
+    field
+    required String
+        lastName
+        =
+        "";;;;;
+    derived
+    OtherString
+    fullName 	 =>
+    self.firstName + " " + self.lastName
+ 	;	;;
+}
