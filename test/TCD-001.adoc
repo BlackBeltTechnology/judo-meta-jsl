@@ -10,7 +10,7 @@ REQ-INTR-001
 
 === Used JSL model
 
-xref:resources/shop.jsl[]
+xref:resources/shop.jsl[shop.jsl]
 
 == Test scenario
 

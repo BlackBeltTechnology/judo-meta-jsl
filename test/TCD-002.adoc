@@ -10,20 +10,24 @@ REQ-SYNT-001
 
 === Used JSL model
 
-m1.jsl, m1.txt
+xref:resources/m1.jsl[m1.jsl], xref:resources/m1.txt[m1.txt]
 
 == Test scenario
 
 . Start the IDE (Eclipse or idea).
 
-. Open the m1.txt.
+. Open the xref:resources/m1.txt[m1.txt].
 
 . Verify that the IDE doesn't colour the text, because it is handle the file as a simple text file.
 
-. Open the m1.jsl.
+. Open the xref:resources/m1.jsl[m1.jsl].
 
 . Verify that the IDE colours the text, because it handles the file as a standard JSL file.
 
 . Goto the end of the file, and write in a new line the "ent" string, and press the CTRL + SPACE keys on the keyboard.
 
 . The editor complements the "ent" to "entity" and colours it as a keyword.
+
+. Close both file, and do not save them.
+
+. If there isn't any problem until this point the test is success.
