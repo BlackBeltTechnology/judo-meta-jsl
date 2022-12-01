@@ -21,18 +21,29 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 	@Inject extension IQualifiedNameConverter
 	@Inject extension JslDslModelExtension
 	@Inject JudoTypesProvider judoTypesProvider
+	@Inject JudoFunctionsProvider judoFunctionsProvider
 
     override IScope getScope(Resource resource, EReference reference, Predicate<IEObjectDescription> filter) {
 		// System.out.println("JslDslGlobalScopeProvider.getScope Res: " + resource + "Ref: " + reference);
     	// System.out.println("JslDslGlobalScopeProvider.scope=scope_" + reference.EContainingClass.name + "_" + reference.name + "(" + resource + " context, EReference ref) : " + reference.EReferenceType.name);
 		// System.out.println("\tRes: " + resource + "Ref: " + reference);
 		val model = resource.getContents().get(0).parentContainer(ModelDeclaration)
+		//System.out.println("Reference:" + reference)
 		
-				
+		// judoFunctionsProvider.test
+//		if (JsldslPackage::eINSTANCE.modelDeclaration_Imports == reference) {
+//			System.out.println("Model Imports")
+//		}
+		
 		if (JsldslPackage::eINSTANCE.modelImportDeclaration_Model == reference) {			
 			//System.out.println("JslDslGlobalScopeProvider.getScope ModelImportDeclaration - " + model.name);
 	        //return super.getScope(resource, reference, filter)
-			return judoTypesProvider.getModelDeclarationScope(super.getScope(resource, reference, filter));  
+			
+			//return judoFunctionsProvider.getModelDeclarationScope(judoTypesProvider.getModelDeclarationScope(super.getScope(resource, reference, filter)));
+			//var IScope functionsScope = judoFunctionsProvider.getModelDeclarationScope(super.getScope(resource, reference, filter)); 
+			
+			var IScope typeScope = judoTypesProvider.getScope(super.getScope(resource, reference, filter), reference, filter)
+			return judoTypesProvider.getModelDeclarationScope(typeScope);  
 		}
 				
 	    val overridedFilter = new Predicate<IEObjectDescription>() {
@@ -57,10 +68,12 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 	            	return filter.apply(input) && found					
 				}
             }
-        }
-        //super.getScope(resource, reference, overridedFilter)
-        		
-        return judoTypesProvider.getScope(super.getScope(resource, reference, overridedFilter), reference, overridedFilter);    
+        }        //super.getScope(resource, reference, overridedFilter)
+        //return judoFunctionsProvider.getScope(judoTypesProvider.getScope(super.getScope(resource, reference, overridedFilter), reference, overridedFilter), reference, overridedFilter);    
+
+		var IScope typeScope = judoTypesProvider.getScope(super.getScope(resource, reference, overridedFilter), reference, overridedFilter)
+		var IScope functionsScope = judoFunctionsProvider.getScope(typeScope)
+        return functionsScope
     }
 
 	def typeOnly(IScope parent, Class<?> type) {

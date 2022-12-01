@@ -53,12 +53,12 @@ public class TypeInfo {
     
     private enum BaseType {BOOLEAN, BINARY, STRING, NUMERIC, DATE, TIME, TIMESTAMP, ENUM, ENTITY}
 
-    private enum typeModifier {NONE, LITERAL, COLLECTION, DECLARATION}
+    private enum TypeModifier {NONE, LITERAL, COLLECTION, DECLARATION}
     
     // private boolean isLiteral = false;
     // private boolean isCollection = false;
     //private boolean isDeclaration = false;
-    private typeModifier modifier = typeModifier.NONE;
+    private TypeModifier modifier = TypeModifier.NONE;
 	private BaseType baseType;
 	private SingleType type;
 
@@ -88,7 +88,7 @@ public class TypeInfo {
 			throw new IllegalArgumentException("TypeInfo got illegal argument: " + baseType);
 		}
 		
-		this.modifier = typeModifier.LITERAL;
+		this.modifier = isLiteral ? TypeModifier.LITERAL : TypeModifier.NONE;
 		this.baseType = baseType;
 	}
 
@@ -96,11 +96,11 @@ public class TypeInfo {
 		this.baseType = getBaseType(typeDescription);
 
 		if (typeDescription.isLiteral()) {
-			this.modifier = typeModifier.LITERAL;
+			this.modifier = TypeModifier.LITERAL;
 		} else if (typeDescription.isDeclaration()) {
-			this.modifier = typeModifier.DECLARATION;
+			this.modifier = TypeModifier.DECLARATION;
 		} else if (typeDescription.isCollection()) {
-			this.modifier = typeModifier.COLLECTION;
+			this.modifier = TypeModifier.COLLECTION;
 		}
 	}
 	
@@ -130,7 +130,9 @@ public class TypeInfo {
 		return baseType;
 	}
 
-	private TypeInfo(SingleType type, boolean isCollection) {
+	private TypeInfo(SingleType type, boolean isCollection, boolean isDeclarartion) {
+		this.modifier = isDeclarartion ? TypeModifier.DECLARATION : this.modifier;
+
 		if (type instanceof DataTypeDeclaration) {
 			this.type = type;
 			this.baseType = getBaseType(((DataTypeDeclaration) type).getPrimitive());
@@ -148,7 +150,7 @@ public class TypeInfo {
 		} else if (type instanceof EntityDeclaration) {
 			this.type = type;
 			this.baseType = BaseType.ENTITY;
-			this.modifier = isCollection ? typeModifier.COLLECTION : typeModifier.NONE;
+			this.modifier = isCollection ? TypeModifier.COLLECTION : this.modifier;
 		}
 	}
 
@@ -197,17 +199,29 @@ public class TypeInfo {
 	}
 
 	public boolean isCollection() {
-		return this.modifier == typeModifier.COLLECTION;
+		return this.modifier == TypeModifier.COLLECTION;
 	}
 
 	public boolean isDeclaration() {
-		return this.modifier == typeModifier.COLLECTION;
+		return this.modifier == TypeModifier.DECLARATION;
 	}
 
 	public boolean isLiteral() {
-		return this.modifier == typeModifier.LITERAL;
+		return this.modifier == TypeModifier.LITERAL;
 	}
 
+	public boolean isBaseCompatible(TypeInfo other) {
+		if (this.isCollection() ^ other.isCollection()) {
+			return false;
+		}
+		
+		if (this.isDeclaration() ^ other.isDeclaration()) {
+			return false;
+		}
+
+		return this.baseType == other.baseType;
+	}
+	
 	public boolean isCompatible(TypeInfo other) {
 		if (this.isCollection() ^ other.isCollection()) {
 			return false;
@@ -268,8 +282,8 @@ public class TypeInfo {
 	}
 		
 	private static TypeInfo getTargetType(EnumLiteralReference enumReference) {
-		TypeInfo typeInfo = new TypeInfo(enumReference.getEnumDeclaration(), false);
-		typeInfo.modifier = typeModifier.LITERAL;
+		TypeInfo typeInfo = new TypeInfo(enumReference.getEnumDeclaration(), false, false);
+		typeInfo.modifier = TypeModifier.LITERAL;
 		return typeInfo;
 	}
 	
@@ -304,7 +318,7 @@ public class TypeInfo {
 		
 		if (feature instanceof MemberReference) {
 			TypeInfo typeInfo = getTargetType( ((MemberReference) feature).getMember() );
-			typeInfo.modifier = typeInfo.modifier == typeModifier.COLLECTION ? typeModifier.COLLECTION : baseTypeInfo.modifier;
+			typeInfo.modifier = typeInfo.modifier == TypeModifier.COLLECTION ? TypeModifier.COLLECTION : baseTypeInfo.modifier;
 			return typeInfo;
 		} else if (feature instanceof FunctionOrQueryCall) {
 			FunctionOrQueryCall functionOrQueryCall = (FunctionOrQueryCall)feature;
@@ -312,28 +326,44 @@ public class TypeInfo {
 			if (functionOrQueryCall.getDeclaration() instanceof EntityQueryDeclaration) {
 				EntityQueryDeclaration entityQueryDeclaration = (EntityQueryDeclaration)functionOrQueryCall.getDeclaration();
 				TypeInfo typeInfo = getTargetType(entityQueryDeclaration);
-				typeInfo.modifier = typeInfo.modifier == typeModifier.COLLECTION ? typeModifier.COLLECTION : baseTypeInfo.modifier;
+				typeInfo.type = baseTypeInfo.type;
+				typeInfo.modifier = typeInfo.modifier == TypeModifier.COLLECTION ? TypeModifier.COLLECTION : baseTypeInfo.modifier;
 				return typeInfo;
 			} else if (functionOrQueryCall.getDeclaration() instanceof FunctionDeclaration) {
 				FunctionDeclaration functionDeclaration = (FunctionDeclaration)functionOrQueryCall.getDeclaration();
-				baseTypeInfo.baseType = getBaseType( functionDeclaration.getReturnType() );
-				return baseTypeInfo;
+				TypeInfo functionBaseTypeInfo = getTargetType(functionDeclaration.getBaseType());
+				TypeInfo functionReturnTypeInfo = getTargetType(functionDeclaration.getReturnType());
+				if (functionReturnTypeInfo.isEntity()) {
+					functionReturnTypeInfo.type = baseTypeInfo.type;
+				}
+				if (!functionBaseTypeInfo.isCollection() && !functionBaseTypeInfo.isDeclaration()) {
+					functionReturnTypeInfo.modifier = baseTypeInfo.modifier;
+				}
+				
+				return functionReturnTypeInfo;
 			}
 			
 		} else if (feature instanceof LambdaCall) {
-			baseTypeInfo.baseType = getBaseType( ((LambdaCall) feature).getDeclaration().getReturnType() );
-			return baseTypeInfo;
+			TypeInfo typeInfo = getTargetType( ((LambdaCall) feature).getDeclaration().getReturnType() );
+			typeInfo.type = baseTypeInfo.type;
+			return typeInfo;
 		}
 		
 		throw new IllegalArgumentException("Could not determinate feature return type: " + feature);
 	}
 	
 	private static TypeInfo getTargetType(Navigation navigation) {
-		if (navigation.getFeature() != null) {
-			return getTargetType(navigation.getFeature());
-		} else {
-			return getTargetType(navigation.getBase());
-		}
+		return getTargetType(navigation.getFeature());
+//		try {
+//			return getTargetType(navigation.getFeature());
+//		} catch (IllegalArgumentException e ) {
+//			return getTargetType(navigation.getBase());
+//		}
+//		if (navigation.getFeature() != null) {
+//			return getTargetType(navigation.getFeature());
+//		} else {
+//			return getTargetType(navigation.getBase());
+//		}
 	}
 	
 	private static TypeInfo getTargetType(LambdaVariable lambdaVariable) {
@@ -343,8 +373,12 @@ public class TypeInfo {
 			lambdaCall = modelExtension.parentContainer(lambdaCall, LambdaCall.class);			
 		}
 		
-		TypeInfo typeInfo = getTargetType(lambdaCall);
+		Navigation navigation = (Navigation) lambdaCall.eContainer();
+		TypeInfo typeInfo = getTargetType(navigation.getBase());
+		typeInfo.modifier = TypeModifier.NONE;
 
+		// System.out.println(typeInfo);
+		
 		return typeInfo;
 	}
 	
@@ -353,16 +387,16 @@ public class TypeInfo {
 		NavigationBaseDeclaration navigationBaseReference = navigationBaseDeclarationReference.getReference();
 
 		if (navigationBaseReference instanceof EntityDeclaration) {
-			typeInfo = new TypeInfo((EntityDeclaration) navigationBaseReference, true);
+			typeInfo = new TypeInfo((EntityDeclaration) navigationBaseReference, false, true);
 		} else if (navigationBaseReference instanceof QueryDeclaration) {
 			QueryDeclaration queryDeclaration = (QueryDeclaration)navigationBaseReference;
-			typeInfo = new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isIsMany());
+			typeInfo = new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isIsMany(), false);
 		} else if (navigationBaseReference instanceof LambdaVariable) {
 			typeInfo = getTargetType((LambdaVariable) navigationBaseReference);
 		} else if (navigationBaseReference instanceof QueryDeclarationParameter) {
-			typeInfo = new TypeInfo( ((QueryDeclarationParameter) navigationBaseReference).getReferenceType(), false);
+			typeInfo = new TypeInfo( ((QueryDeclarationParameter) navigationBaseReference).getReferenceType(), false, false);
 		} else if (navigationBaseReference instanceof PrimitiveDeclaration) {
-			typeInfo = new TypeInfo((SingleType) navigationBaseReference, false);
+			typeInfo = new TypeInfo((SingleType) navigationBaseReference, false, true);
 		} else {
 			throw new IllegalArgumentException("Could not determinate type for navigation base reference.");
 		}
@@ -371,7 +405,7 @@ public class TypeInfo {
 	}
 	
 	private static TypeInfo getTargetType(SelfExpression selfExpression) {
-		TypeInfo typeInfo = new TypeInfo(modelExtension.parentContainer(selfExpression, EntityDeclaration.class), false);
+		TypeInfo typeInfo = new TypeInfo(modelExtension.parentContainer(selfExpression, EntityDeclaration.class), false, false);
 		return typeInfo;
 	}
 	
@@ -379,7 +413,7 @@ public class TypeInfo {
 		if (navigationTarget instanceof EntityMemberDeclaration) {
 			return getTargetType((EntityMemberDeclaration)navigationTarget);
 		} else if (navigationTarget instanceof EntityRelationOppositeInjected) {
-			return new TypeInfo((EntityDeclaration) navigationTarget.eContainer().eContainer(), ((EntityRelationOppositeInjected) navigationTarget).isIsMany());
+			return new TypeInfo((EntityDeclaration) navigationTarget.eContainer().eContainer(), ((EntityRelationOppositeInjected) navigationTarget).isIsMany(), false);
 		}
 
 		throw new IllegalArgumentException("Could not determinate type for navigation target:" + navigationTarget);
@@ -392,19 +426,19 @@ public class TypeInfo {
 	public static TypeInfo getTargetType(EntityMemberDeclaration entityMemberDeclaration) {
 		if (entityMemberDeclaration instanceof EntityFieldDeclaration) {
 			EntityFieldDeclaration entityFieldDeclaration = (EntityFieldDeclaration)entityMemberDeclaration;
-			return new TypeInfo(entityFieldDeclaration.getReferenceType(), entityFieldDeclaration.isIsMany());
+			return new TypeInfo(entityFieldDeclaration.getReferenceType(), entityFieldDeclaration.isIsMany(), false);
 		} else if (entityMemberDeclaration instanceof EntityIdentifierDeclaration) {
 			EntityIdentifierDeclaration entityIdentifierDeclaration = (EntityIdentifierDeclaration)entityMemberDeclaration;
-			return new TypeInfo(entityIdentifierDeclaration.getReferenceType(), false);
+			return new TypeInfo(entityIdentifierDeclaration.getReferenceType(), false, false);
 		} else if (entityMemberDeclaration instanceof EntityRelationDeclaration) {
 			EntityRelationDeclaration entityRelationDeclaration = (EntityRelationDeclaration)entityMemberDeclaration;
-			return new TypeInfo(entityRelationDeclaration.getReferenceType(), entityRelationDeclaration.isIsMany());
+			return new TypeInfo(entityRelationDeclaration.getReferenceType(), entityRelationDeclaration.isIsMany(), false);
 		} else if (entityMemberDeclaration instanceof EntityDerivedDeclaration) {
 			EntityDerivedDeclaration entityDerivedDeclaration = (EntityDerivedDeclaration)entityMemberDeclaration;
-			return new TypeInfo(entityDerivedDeclaration.getReferenceType(), entityDerivedDeclaration.isIsMany());
+			return new TypeInfo(entityDerivedDeclaration.getReferenceType(), entityDerivedDeclaration.isIsMany(), false);
 		} else if (entityMemberDeclaration instanceof EntityQueryDeclaration) {
 			EntityQueryDeclaration entityQueryDeclaration = (EntityQueryDeclaration)entityMemberDeclaration;
-			return new TypeInfo(entityQueryDeclaration.getReferenceType(), entityQueryDeclaration.isIsMany());
+			return new TypeInfo(entityQueryDeclaration.getReferenceType(), entityQueryDeclaration.isIsMany(), false);
 		}
 		
 		throw new IllegalArgumentException("Could not determinate type for entity member");
@@ -412,13 +446,13 @@ public class TypeInfo {
 
 	private static TypeInfo getTargetType(ParenthesizedExpression expression) {
 		TypeInfo typeInfo = getTargetType( expression.getExpression() );
-		typeInfo.modifier = typeInfo.modifier == typeModifier.LITERAL ? typeModifier.NONE : typeInfo.modifier;
+		typeInfo.modifier = typeInfo.modifier == TypeModifier.LITERAL ? TypeModifier.NONE : typeInfo.modifier;
 		return typeInfo;
 	}
 	
 	private static TypeInfo getTargetType(TernaryOperation expression) {
 		TypeInfo typeInfo = getTargetType( expression.getThenExpression() );
-		typeInfo.modifier = typeInfo.modifier == typeModifier.LITERAL ? typeModifier.NONE : typeInfo.modifier;
+		typeInfo.modifier = typeInfo.modifier == TypeModifier.LITERAL ? TypeModifier.NONE : typeInfo.modifier;
 		return typeInfo;
 	}
 

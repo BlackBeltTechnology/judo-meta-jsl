@@ -315,12 +315,12 @@ NavigationBaseDeclaration
 	;
 
 Feature
-	: '.' MemberReference
-	| ('.' | '!') Call
+	: MemberReference
+	| Call
 	;
 
 MemberReference
-    : member = [NavigationTarget | LocalName]
+    : '.' member = [NavigationTarget | LocalName]
     ;
 
 Call
@@ -329,7 +329,7 @@ Call
 	;
 
 FunctionOrQueryCall
-	: declaration = [FunctionOrQueryDeclaration | LocalName ] '(' (arguments += Argument (',' arguments += Argument)*)? ')'
+	: ('.' | '!') declaration = [FunctionOrQueryDeclaration | LocalName ] '(' (arguments += Argument (',' arguments += Argument)*)? ')'
 	;
 
 Argument
@@ -337,7 +337,7 @@ Argument
     ;
 
 LambdaCall
-	: declaration = [LambdaDeclaration | LocalName ] '(' variable = LambdaVariable '|' expression = Expression ')';
+	: ('.' | '!') declaration = [LambdaDeclaration | LocalName ] '(' variable = LambdaVariable => '|' expression = Expression ')';
 
 LambdaVariable
     : {LambdaVariable} Named    	
