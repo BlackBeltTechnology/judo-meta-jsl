@@ -1,6 +1,8 @@
 ifndef::env-site,env-github[]
 include::../_attributes.adoc[]
 endif::[]
+// Metadata
+:judo-reqprefix: REQ-INTR
 // Settings
 :idprefix:
 :idseparator: -
@@ -39,6 +41,7 @@ All concepts and rules described in this document are valid in JSL.
 See the JUDO Java documentation for APIs and programming concepts. 
 ====
 
+[judo-req="true",judo-req-id="REQ-INTR-001"]
 == Example model
 
 We use the model below as example data model in this guide.

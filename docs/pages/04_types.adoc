@@ -1,6 +1,8 @@
 ifndef::env-site,env-github[]
 include::../_attributes.adoc[]
 endif::[]
+// Metadata
+:judo-reqprefix: REQ-TYPE
 // Settings
 :idprefix:
 :idseparator: -
@@ -10,6 +12,7 @@ endif::[]
 
 = Types
 
+[judo-req="true",judo-req-id="REQ-TYPE-001"]
 == Primitives
 
 In order to support JSL as a rigorous modeling formalism, the primitive data types in the model must be specified.
@@ -80,6 +83,7 @@ entity Person {
 ----
 ====
 
+[judo-req="true",judo-req-id="REQ-TYPE-002"]
 == Enumeration
 
 An enumeration is a primitive data type whose values are called enumeration members. Enumeration members are listed as a pair of a text (the literal) and an integer (the ordinal). An enumeration member is represented with the qualified name of enumeration tagged with literal, for example `Titles#MR` or `example::Color#RED`.
@@ -151,8 +155,10 @@ Enumeration literals are not resolved yet by exposed services, they are represen
 ====
 ////
 
+[judo-req="true",judo-req-id="REQ-TYPE-003"]
 == Base types
-[#string]
+
+[#string,judo-req="true",judo-req-id="REQ-TYPE-004"]
 === String
 
 String represents a text. String literals are delimited by double quotes. For example `"apple"`.
@@ -165,8 +171,8 @@ Escape sequences are the followings:
 |====================
 |Escape sequence    |Character
 |\t                 |Horizontal tab
-|\n                 |Linefeed 
-|\f                 |Form feed 
+|\n                 |Linefeed
+|\f                 |Form feed
 |\r                 |Carriage return
 |\"                 |Double quote
 |\\                 |Backslash
@@ -195,8 +201,8 @@ The optional <regular expression> is a sequence of characters that specifies a p
 |`x`        |The character x
 |`\uhhhh`   |The character with hexadecimal value 0xhhhh
 |`\t`       |The tab character
-|`\n`       |The newline character 
-|`\f`       |The form-feed character 
+|`\n`       |The newline character
+|`\f`       |The form-feed character
 |`\r`       |The carriage-return character
 |`\\`       |The backslash character
 |====================
@@ -292,6 +298,7 @@ You can find a detailed explanation of the operators and their precedence in the
 
 Supported functions are listed in chapter xref:06_expression.adoc#string_functions[String functions].
 
+[judo-req="true",judo-req-id="REQ-TYPE-005"]
 === Numeric
 
 // TODO: operation precision shall be described (e.g. target type defines)
@@ -345,6 +352,7 @@ You can find a detailed explanation of the operators and their precedence in the
 
 Supported functions are listed in chapter xref:06_expression.adoc#numeric_functions[Numeric functions].
 
+[judo-req="true",judo-req-id="REQ-TYPE-006"]
 === Boolean
 
 Boolean represents a logical value: `true` or `false`.
@@ -417,6 +425,7 @@ Besides true and false, the result of logical expressions can also be undefined.
 Supported functions are listed in chapter xref:06_expression.adoc#boolean_functions[Boolean functions].
 
 
+[judo-req="true",judo-req-id="REQ-TYPE-007"]
 === Date
 
 Date is a calendar date with no time nor time zone information. Date is delimited by backtick, for example `pass:[`2020-02-18`]`.
@@ -463,6 +472,7 @@ Timestamp!of(date = `2021-02-28`)!plus(days = 7)!date()
 
 Supported functions are listed in chapter xref:06_expression.adoc#date_functions[Date functions].
 
+[judo-req="true",judo-req-id="REQ-TYPE-008"]
 === Time
 
 Time represents the time of day, independent of any particular day and with no time zone information.
@@ -533,6 +543,7 @@ Timestamp!of(date = `2021-02-28`, time = `18:59:00`)!plus(hours = 6)!time()
 
 Supported functions are listed in chapter xref:06_expression.adoc#time_functions[Time functions].
 
+[judo-req="true",judo-req-id="REQ-TYPE-009"]
 === Timestamp
 
 Timestamp is a value identifying when a certain event occurred or when a certain event will occur. The accuracy of the timestamp is in milliseconds, which is used for comparison.
@@ -605,6 +616,7 @@ Arithmetic operators are not available for the timestamp type. If you want to pe
 
 Supported functions are listed in chapter xref:06_expression.adoc#timestamp_functions[Timestamp functions].
 
+[judo-req="true",judo-req-id="REQ-TYPE-010"]
 === Binary
 
 The binary data type contains an unlimited number of bytes.

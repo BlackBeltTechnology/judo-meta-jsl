@@ -1,0 +1,27 @@
+= TCD-004
+
+== Purpose
+
+Verifying the statement definition rules.
+
+=== Tested requirements
+
+REQ-SYNT-002
+
+=== Used JSL model
+
+xref:resources/shop2.jsl[shop2.jsl]
+
+== Test scenario
+
+. Load the xref:resources/shop2.jsl[shop2.jsl] or generate the app library from the xref:resources/shop2.jsl[shop2.jsl]
+
+. Create and persist a *Person* object (person1) with these attributes:
+* firstName = "John"
+* lastName = "Smith"
+
+. Create and persist an *OtherPerson* object (otherPerson2) with these attributes:
+* firstName = "Bud"
+* lastName = "Spencer"
+
+. If there isn't any problem until this point the test is success.
