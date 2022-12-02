@@ -156,7 +156,7 @@ Enumeration literals are not resolved yet by exposed services, they are represen
 ====
 ////
 
-[judo-req="true",judo-req-id="REQ-TYPE-003"]
+[judo-req="false"]
 == Base types
 
 [#string,judo-req="true",judo-req-id="REQ-TYPE-004"]
