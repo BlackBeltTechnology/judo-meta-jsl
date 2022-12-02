@@ -1,0 +1,54 @@
+= TCD-001
+
+== Purpose
+
+Checking the JSL code which is in the xref:../docs/pages/01_intro.adoc[introduction page] of community documentation. This is a general happy path.
+
+=== Tested requirements
+
+REQ-INTR-001
+
+=== Used JSL model
+
+xref:resources/shop.jsl[shop.jsl]
+
+== Test scenario
+
+. Create and persist an *Address* object (address1) with these attributes:
+    * street = "Lorem ipsum street 54."
+    * city = "Los Angeles"
+    * country = ""
+
+. Create and persist a *User* object (user1) with these attributes:
+    * email = "aa@bb.cc.dd"
+
+. Create and persist a *Person* object (person1) with these attributes:
+    * firstName = "John"
+    * lastName = "Smith"
+    * email = "john@smith.com"
+    * address =
+    ** street = "Lorem ipsum street 99.",
+    ** city = "Somewhere",
+    ** country = "Neverland"
+
+. Create and persist an *Enterprise* (enterprise1) object with these attributes:
+    * name = "Big Enterprise Co."
+    * address =
+    ** street = "Lorem ipsum dolor set street 05.",
+    ** city = "Somewhere",
+    ** country = "Neverland"
+
+. Create and persist a *Product* object (product1) with these attributes:
+    * name = "Product_1"
+    * price = 123
+
+. Create and persist an *Order* object (order1) with these attributes:
+    * status = OrderStatus#OPEN
+    * customer = enterprise1
+    * orderItems =
+    ** orderItem1 =
+    *** order = order1
+    *** product = product1
+    *** amount = 5
+
+. If there isn't any problem until this point the test is success.
