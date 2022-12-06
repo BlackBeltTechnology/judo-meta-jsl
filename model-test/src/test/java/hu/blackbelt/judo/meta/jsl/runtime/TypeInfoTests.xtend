@@ -329,31 +329,32 @@ class TypeInfoTests {
 
 			
 			entity Test {
-				derived String first => "Test"!left(count = 1);
-				derived String last => "Test"!right(count = 1);
+				derived String left => "Test"!left(count = 1);
+				derived String right => "Test"!right(count = 1);
 				derived Integer position => "Test"!position(substring = "es");
 				derived String substring => "Test"!substring(count = 1, offset = 2);
 				derived String lower => "Test"!lower();
 				derived String upper => "Test"!upper();
-				derived String lowerCase => "Test"!lowerCase();
-				derived String upperCase => "Test"!upperCase();
+				derived String lowerCase => "Test"!lower();
+				derived String upperCase => "Test"!upper();
 				derived String capitalize => "Test"!capitalize();
 				derived Boolean matches => "Test"!matches(pattern = r".*es.*");
-				derived Boolean like => "Test"!like(pattern = "%es%", exact = false);
+				derived Boolean like => "Test"!like(pattern = "%es%");
+				derived Boolean ilike => "Test"!ilike(pattern = "%es%");
 				derived String replace => "Test"!replace(oldstring = "es", newstring = "ee");
 				derived String trim => "Test"!trim();
 				derived String ltrim => "Test"!ltrim();
 				derived String rtrim => "Test"!rtrim();
-				derived String lpad => "Test"!lpad(size = 10, padsring = "--");
-				derived String rpad => "Test"!rpad(size = 10, padsring = "--");
+				derived String lpad => "Test"!lpad(size = 10, padstring = "--");
+				derived String rpad => "Test"!rpad(size = 10, padstring = "--");
 				derived Integer size => "Test"!size();
 			}
 		'''.parse.fromModel
 	
 		val testEntity = m.entityByName("Test") 
 
-		val firstField = testEntity.memberByName("first") as EntityDerivedDeclaration
-		val lastField = testEntity.memberByName("last") as EntityDerivedDeclaration
+		val firstField = testEntity.memberByName("left") as EntityDerivedDeclaration
+		val lastField = testEntity.memberByName("right") as EntityDerivedDeclaration
 		val positionField = testEntity.memberByName("position") as EntityDerivedDeclaration
 		val substringField = testEntity.memberByName("substring") as EntityDerivedDeclaration
 		val lowerField = testEntity.memberByName("lower") as EntityDerivedDeclaration
@@ -365,6 +366,7 @@ class TypeInfoTests {
 		val capitalizeField = testEntity.memberByName("capitalize") as EntityDerivedDeclaration
 		val matchesField = testEntity.memberByName("matches") as EntityDerivedDeclaration
 		val likeField = testEntity.memberByName("like") as EntityDerivedDeclaration
+		val ilikeField = testEntity.memberByName("ilike") as EntityDerivedDeclaration
 		val replaceField = testEntity.memberByName("replace") as EntityDerivedDeclaration
 		val trimField = testEntity.memberByName("trim") as EntityDerivedDeclaration
 		val ltrimField = testEntity.memberByName("ltrim") as EntityDerivedDeclaration
@@ -648,12 +650,11 @@ class TypeInfoTests {
 			type boolean Boolean;
 
 			entity Test {
-				derived Integer numeric => 12!asString();
-				derived Date date => `2022-01-01`!asString();
-				derived Timestamp timestamp => `2022-01-01T12:00:00Z`!asString();
-				derived Time time => `12:00:00`!asString();
-				derived String string => "Test"!asString();
-				derived Boolean boolean => true!asString();
+				derived String numeric => 12!asString();
+				derived String date => `2022-01-01`!asString();
+				derived String timestamp => `2022-01-01T12:00:00Z`!asString();
+				derived String time => `12:00:00`!asString();
+				derived String boolean => true!asString();
 			}
 		'''.parse.fromModel
 	
@@ -662,14 +663,12 @@ class TypeInfoTests {
 		val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
 		val timestampField = testEntity.memberByName("timestamp") as EntityDerivedDeclaration
 		val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
-		val stringField = testEntity.memberByName("string") as EntityDerivedDeclaration
 		val booleanField = testEntity.memberByName("boolean") as EntityDerivedDeclaration
 
 		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(numericField.expression).getPrimitive);
 		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(dateField.expression).getPrimitive);
 		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(timestampField.expression).getPrimitive);
 		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(timeField.expression).getPrimitive);
-		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(stringField.expression).getPrimitive);
 		assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(booleanField.expression).getPrimitive);
 	}
 
@@ -740,6 +739,9 @@ class TypeInfoTests {
 			model TestModel;
 			
 			type timestamp Timestamp;
+			type date Date;
+			type time Time;
+			type numeric Integer(precision = 10, scale = 0);
 
 			entity Test {
 				derived Date date => `2022-01-01T12:00:00Z`!date();

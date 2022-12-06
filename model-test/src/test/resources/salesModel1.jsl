@@ -52,7 +52,7 @@ entity Lead {
 	relation required SalesPerson salesPerson opposite leads;
 	relation SC::Contract contract opposite-add lead;
 
-	constraint valueLessThan10 self.value > 10 onerror MyError(code = 10, msg = "Error message");
+//	constraint valueLessThan10 self.value > 10 onerror MyError(code = 10, msg = "Error message");
 }
 
 entity Customer {

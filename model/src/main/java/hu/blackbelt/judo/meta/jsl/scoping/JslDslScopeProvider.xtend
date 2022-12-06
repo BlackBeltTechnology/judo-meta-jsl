@@ -55,6 +55,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.SingleType
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import java.util.EventObject
 import hu.blackbelt.judo.meta.jsl.jsldsl.Call
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget
+import javax.swing.text.html.parser.Entity
+import org.eclipse.xtext.linking.impl.ImportedNamesAdapter
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -66,10 +69,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	@Inject IQualifiedNameProvider qualifiedNameProvider
 
     override getScope(EObject context, EReference ref) {
-//    	System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
-//    	"\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper 
-//    	    + ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
-//    	printParents(context)
+    	System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
+    	"\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper 
+    	    + ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
+    	printParents(context)
   
     	switch context {
 //    		ModelImportDeclaration case ref == JsldslPackage::eINSTANCE.modelImportDeclaration_Model: return context.scope_ModelImportDeclaration_model(ref)
@@ -78,13 +81,16 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 //			//EntityDerivedDeclaration case ref == JsldslPackage::eINSTANCE.queryCallExpression_QueryDeclarationType: return delegateGetScope(context, ref).ignoreType(FunctionDeclaration)
 //			EntityDerivedDeclaration case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumDeclaration: return delegateGetScope(context, ref).ignoreType(FunctionDeclaration)
 //            EntityFieldDeclaration case ref == JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType: return delegateGetScope(context, ref).ignoreType(FunctionDeclaration)
+//            EntityQueryDeclaration case ref == JsldslPackage::eINSTANCE.entityQueryDeclaration_ReferenceType: return delegateGetScope(context, ref).ignoreType(FunctionDeclaration)
 //			EntityIdentifierDeclaration case ref == JsldslPackage::eINSTANCE.entityIdentifierDeclaration_ReferenceType: return delegateGetScope(context, ref).ignoreType(FunctionDeclaration)
 //    		CreateError case ref == JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType: return context.scope_ThrowParameter_errorFieldType(ref)
 //    		ThrowParameter case ref == JsldslPackage::eINSTANCE.throwParameter_ErrorFieldType: return context.scope_ThrowParameter_errorFieldType(ref)
 //    		//QueryParameter case ref == JsldslPackage::eINSTANCE.queryParameter_Parameter: return context.scope_QueryParameter_parameter(ref)
 //    		//QueryParameter case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)
 //    		//QueryCallExpression case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)
+
     		EntityRelationOppositeReferenced case ref == JsldslPackage::eINSTANCE.entityRelationOppositeReferenced_OppositeType: return context.scope_EntityRelationOppositeReferenced_oppositeType(ref)
+
 //    		//Feature case ref == JsldslPackage::eINSTANCE.feature_NavigationTargetType: return context.scope_Feature_navigationTargetType(ref)
 //    		//Feature case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)    		
 //    		EnumLiteralReference case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumLiteral: return context.scope_EnumLiteralReference_enumLiteral(ref)
@@ -110,31 +116,57 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 //			MemberReference case ref == JsldslPackage::eINSTANCE.memberReference_Member: return context.scope_MemberReference_member(ref)
     	}
 
-		var IScope scope = this.scope_FilterByReferenceType(super.getScope(context, ref), ref);
+		var IScope scope = super.getScope(context, ref);
 		
-		if (context instanceof Navigation) {
-			scope = this.scope_FilterByContextType(scope, TypeInfo.getTargetType(context.base))
+		if (context instanceof Navigation || context instanceof MemberReference) {
+			val Navigation navigation = context instanceof Navigation ? context : context.eContainer as Navigation
+
+			if (TypeInfo.getTargetType(navigation.base).isEntity) {
+				scope = this.getEntityMembers(scope, TypeInfo.getTargetType(navigation.base).getEntity, ref)
+			}
+
+			scope = this.scope_FilterByReferenceType(scope, ref);
+			scope = this.scope_FilterByContextType(scope, TypeInfo.getTargetType(navigation.base))
 		}
 		
 		if (context instanceof FunctionOrQueryCall) {
 			var TypeInfo contextTypeInfo
+			val Navigation navigation = context.eContainer as Navigation
+
+			if (TypeInfo.getTargetType(navigation.base).isEntity) {
+				scope = this.getEntityMembers(scope, TypeInfo.getTargetType(navigation.base).getEntity, ref)
+			}
 			
-			if (context.eGet(JsldslPackage::eINSTANCE.functionOrQueryCall_Declaration, false) instanceof FunctionDeclaration) {
-				contextTypeInfo = TypeInfo.getTargetType((context.eContainer as Navigation))			
+			if (context.eGet(JsldslPackage::eINSTANCE.functionOrQueryCall_Declaration, false) instanceof FunctionDeclaration ||
+				context.eGet(JsldslPackage::eINSTANCE.functionOrQueryCall_Declaration, false) instanceof QueryDeclaration)
+			{
+				contextTypeInfo = TypeInfo.getTargetType(navigation)			
+				if (TypeInfo.getTargetType(navigation).isEntity) {
+					scope = this.getEntityMembers(scope, TypeInfo.getTargetType(navigation).getEntity, ref)
+				}
 			} else {
-				contextTypeInfo = TypeInfo.getTargetType((context.eContainer as Navigation).base)			
+				contextTypeInfo = TypeInfo.getTargetType(navigation.base)			
+				if (TypeInfo.getTargetType(navigation.base).isEntity) {
+					scope = this.getEntityMembers(scope, TypeInfo.getTargetType(navigation.base).getEntity, ref)
+				}
 			}
 
+			scope = this.scope_FilterByReferenceType(scope, ref);
 			scope = this.scope_FilterByContextType(scope, contextTypeInfo)
 		}
-	
-    	// return super.getScope(context, ref)
+
     	return scope
 	}
 
 //	def functionDeclarations() {
 //		functionsScope.ignoreType(LiteralFunctionParameter).ignoreType(LiteralFunctionParameters).ignoreType(LambdaFunctionParameters)
 //	}
+
+	def scope_print(IScope scope) {
+		for (obj : scope.allElements) {
+			System.out.println(obj)
+		}
+	}
 
 	def scope_FilterByReferenceType(IScope scope, EReference ref) {
 		return new FilteringScope(scope, [desc | {
@@ -149,11 +181,17 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			switch obj {
 				FunctionDeclaration case obj instanceof FunctionDeclaration: contextTypeInfo.isBaseCompatible(TypeInfo.getTargetType(obj.baseType)) ? return true : return false
 				LambdaDeclaration case obj instanceof LambdaDeclaration: contextTypeInfo.isEntity() && contextTypeInfo.isCollection() ? return true : return false
+				EntityMemberDeclaration case obj instanceof EntityMemberDeclaration: return contextTypeInfo.getEntity.allMembers.stream.anyMatch(m | EcoreUtil.getURI(obj).equals(EcoreUtil.getURI(m)))
+//				EntityMemberDeclaration case obj instanceof EntityMemberDeclaration: return contextTypeInfo.getEntity.allMembers.stream.anyMatch(m | obj.equals(m) )
 			}
 
 			true
 		}]);
 	}
+
+
+
+
 
 
 

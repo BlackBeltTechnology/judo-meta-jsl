@@ -132,12 +132,10 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 	
 	@Check
-	def checkArgument(Argument argument) {
-		val FunctionOrQueryCall functionOrQueryCall = argument.eContainer as FunctionOrQueryCall;
-		val TypeInfo exprTypeInfo = TypeInfo.getTargetType(argument.expression);
-		
-		if (functionOrQueryCall.declaration instanceof FunctionDeclaration) {
-			val FunctionDeclaration functionDeclaration = functionOrQueryCall.declaration as FunctionDeclaration;
+	def checkFunctionArgument(Argument argument) {
+		if (argument.eContainer instanceof FunctionOrQueryCall && (argument.eContainer as FunctionOrQueryCall).declaration instanceof FunctionDeclaration) {
+			val TypeInfo exprTypeInfo = TypeInfo.getTargetType(argument.expression);
+			val FunctionDeclaration functionDeclaration = (argument.eContainer as FunctionOrQueryCall).declaration as FunctionDeclaration;
 
 			if (functionDeclaration.parameters.filter[p | p.name.equals(argument.name)].size > 1) {
 				error("Duplicate function parameter:" + argument.name,

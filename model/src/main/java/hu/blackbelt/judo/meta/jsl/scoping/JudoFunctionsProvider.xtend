@@ -96,9 +96,9 @@ class JudoFunctionsProvider {
 		function timestamp getVariable(required string category, required string key) on declaration<timestamp>;
 		
 		function numeric size() on string;
-		function numeric left(required numeric count) on string;
-		function numeric right(required numeric count) on string;
-		function string position(required string substring) on string;
+		function string left(required numeric count) on string;
+		function string right(required numeric count) on string;
+		function numeric position(required string substring) on string;
 		function string substring(required numeric offset, required numeric count) on string;
 		function string lower() on string;
 		function string upper() on string;
@@ -128,6 +128,7 @@ class JudoFunctionsProvider {
 		function numeric dayOfYear() on date;
 		function string asString() on date;
 		
+		function time now() on declaration<time>;
 		function numeric hour() on time;
 		function numeric minute() on time;
 		function numeric second() on time;

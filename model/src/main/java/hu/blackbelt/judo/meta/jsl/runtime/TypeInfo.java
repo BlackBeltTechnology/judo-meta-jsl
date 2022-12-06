@@ -2,6 +2,7 @@ package hu.blackbelt.judo.meta.jsl.runtime;
 
 import java.util.Arrays;
 
+import hu.blackbelt.judo.meta.jsl.jsldsl.Argument;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration;
@@ -22,6 +23,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Expression;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryCall;
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.IntegerLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaCall;
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable;
@@ -32,6 +34,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference;
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ParenthesizedExpression;
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclarationParameter;
 import hu.blackbelt.judo.meta.jsl.jsldsl.RawStringLiteral;
@@ -326,16 +329,27 @@ public class TypeInfo {
 			if (functionOrQueryCall.getDeclaration() instanceof EntityQueryDeclaration) {
 				EntityQueryDeclaration entityQueryDeclaration = (EntityQueryDeclaration)functionOrQueryCall.getDeclaration();
 				TypeInfo typeInfo = getTargetType(entityQueryDeclaration);
-				typeInfo.type = baseTypeInfo.type;
 				typeInfo.modifier = typeInfo.modifier == TypeModifier.COLLECTION ? TypeModifier.COLLECTION : baseTypeInfo.modifier;
 				return typeInfo;
 			} else if (functionOrQueryCall.getDeclaration() instanceof FunctionDeclaration) {
 				FunctionDeclaration functionDeclaration = (FunctionDeclaration)functionOrQueryCall.getDeclaration();
 				TypeInfo functionBaseTypeInfo = getTargetType(functionDeclaration.getBaseType());
 				TypeInfo functionReturnTypeInfo = getTargetType(functionDeclaration.getReturnType());
+
 				if (functionReturnTypeInfo.isEntity()) {
 					functionReturnTypeInfo.type = baseTypeInfo.type;
 				}
+				
+				if (functionOrQueryCall.getArguments().size() > 0) {
+					Argument argument = functionOrQueryCall.getArguments().get(0);
+					TypeInfo argumentTypeInfo = TypeInfo.getTargetType(argument.getExpression());
+					
+					if (argumentTypeInfo.isEntity() && argumentTypeInfo.isDeclaration())
+					{
+						functionReturnTypeInfo.type =  argumentTypeInfo.getEntity();
+					}
+				}
+
 				if (!functionBaseTypeInfo.isCollection() && !functionBaseTypeInfo.isDeclaration()) {
 					functionReturnTypeInfo.modifier = baseTypeInfo.modifier;
 				}
@@ -381,6 +395,11 @@ public class TypeInfo {
 		
 		return typeInfo;
 	}
+		
+	private static TypeInfo getTargetType(QueryCall queryCall) {
+		QueryDeclaration queryDeclaration = queryCall.getDeclaration();
+		return new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isIsMany(), false);
+	}
 	
 	private static TypeInfo getTargetType(NavigationBaseDeclarationReference navigationBaseDeclarationReference) {
 		TypeInfo typeInfo;
@@ -388,9 +407,6 @@ public class TypeInfo {
 
 		if (navigationBaseReference instanceof EntityDeclaration) {
 			typeInfo = new TypeInfo((EntityDeclaration) navigationBaseReference, false, true);
-		} else if (navigationBaseReference instanceof QueryDeclaration) {
-			QueryDeclaration queryDeclaration = (QueryDeclaration)navigationBaseReference;
-			typeInfo = new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isIsMany(), false);
 		} else if (navigationBaseReference instanceof LambdaVariable) {
 			typeInfo = getTargetType((LambdaVariable) navigationBaseReference);
 		} else if (navigationBaseReference instanceof QueryDeclarationParameter) {
@@ -398,6 +414,8 @@ public class TypeInfo {
 		} else if (navigationBaseReference instanceof PrimitiveDeclaration) {
 			typeInfo = new TypeInfo((SingleType) navigationBaseReference, false, true);
 		} else {
+			System.out.println("navigationBaseReference:");
+			System.out.println(navigationBaseReference);
 			throw new IllegalArgumentException("Could not determinate type for navigation base reference.");
 		}
 
@@ -470,6 +488,8 @@ public class TypeInfo {
 			return getTargetType( (Navigation) expression);
 		} else if (expression instanceof SelfExpression) {
 			return getTargetType( (SelfExpression) expression);
+		} else if(expression instanceof QueryCall) {
+			return getTargetType( (QueryCall) expression);
 		} else if (expression instanceof NavigationBaseDeclarationReference) {
 			return getTargetType( (NavigationBaseDeclarationReference) expression);
 			

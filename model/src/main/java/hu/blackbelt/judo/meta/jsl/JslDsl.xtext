@@ -295,6 +295,7 @@ NavigationBase returns Expression
 	: SelfExpression
 	| ParenthesizedExpression
 	| NavigationBaseDeclarationReference
+	| QueryCall
 	| Literal
 	;
 
@@ -308,10 +309,13 @@ NavigationBaseDeclarationReference returns Expression
  
 NavigationBaseDeclaration
 	: EntityDeclaration
-	| QueryDeclaration
 	| LambdaVariable
 	| QueryDeclarationParameter
 	| PrimitiveDeclaration
+	;
+
+QueryCall
+	: declaration = [QueryDeclaration | LocalName ] '(' (arguments += Argument (',' arguments += Argument)*)? ')'
 	;
 
 Feature
