@@ -125,7 +125,6 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				scope = this.getEntityMembers(scope, TypeInfo.getTargetType(navigation.base).getEntity, ref)
 			}
 
-			scope = this.scope_FilterByReferenceType(scope, ref);
 			scope = this.scope_FilterByContextType(scope, TypeInfo.getTargetType(navigation.base))
 		}
 		
@@ -151,10 +150,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				}
 			}
 
-			scope = this.scope_FilterByReferenceType(scope, ref);
 			scope = this.scope_FilterByContextType(scope, contextTypeInfo)
 		}
 
+		scope = this.scope_FilterByReferenceType(scope, ref);
     	return scope
 	}
 
