@@ -12,6 +12,7 @@ import java.util.List
 import com.google.inject.Injector
 import org.eclipse.xtext.resource.XtextResourceSet
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
+import org.eclipse.emf.ecore.util.EcoreUtil
 
 @Singleton
 class JudoFunctionsProvider {

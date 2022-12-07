@@ -40,6 +40,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.support.JslDslModelResourceSupport
 import java.util.stream.Collectors
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaDeclaration
+import org.eclipse.emf.ecore.util.EcoreUtil
 
 @Singleton
 class JslDslModelExtension {
@@ -391,7 +392,9 @@ class JslDslModelExtension {
 
 
 	def JslDslModelResourceSupport fromModel(ModelDeclaration model) {
-		JslDslModelResourceSupport.jslDslModelResourceSupportBuilder().resourceSet(model.eResource.getResourceSet()).build();
+		val JslDslModelResourceSupport jslDslModelResourceSupport = JslDslModelResourceSupport.jslDslModelResourceSupportBuilder().resourceSet(model.eResource.getResourceSet()).build();
+		EcoreUtil.resolveAll(jslDslModelResourceSupport.resourceSet)
+		return jslDslModelResourceSupport
 	}
 
 	def Collection<EntityDeclaration> entities(JslDslModelResourceSupport it) {

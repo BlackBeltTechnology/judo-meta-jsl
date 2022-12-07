@@ -14,6 +14,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import static org.junit.Assert.assertTrue
+import org.eclipse.emf.ecore.util.EcoreUtil
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -350,7 +351,7 @@ class TypeInfoTests {
 				derived Integer size => "Test"!size();
 			}
 		'''.parse.fromModel
-	
+		
 		val testEntity = m.entityByName("Test") 
 
 		val firstField = testEntity.memberByName("left") as EntityDerivedDeclaration
@@ -956,9 +957,9 @@ class TypeInfoTests {
 			type numeric Integer(precision = 9, scale = 0);
 			type string String(min-size = 0, max-size = 128);
 			
-			query Lead[] staticLeadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) => Lead!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
+			query Lead[] staticLeadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) => Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
 			query Lead[] staticLeadsOverWithMin(Integer minLeadsOverMin = 5) => staticLeadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
-			query Integer staticLeadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) => Lead!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
+			query Integer staticLeadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) => Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
 			query Integer staticLeadsOverWithMinCount(Integer minLeadsOverMin = 5) => staticLeadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
 			query Lead[] staticLeadsBetweenAndSalesPersonLeads(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) =>
 				Lead!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween).salesPerson.leadsBetween(minLeadsBetween = minLeadsBetween, maxLeadsBetween = maxLeadsBetween);

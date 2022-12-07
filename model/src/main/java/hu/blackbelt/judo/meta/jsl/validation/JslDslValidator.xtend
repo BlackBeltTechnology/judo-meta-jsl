@@ -38,9 +38,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.UnaryOperation
 import java.util.Iterator
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Argument
-import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall
 
 /**
  * This class contains custom validation rules. 
@@ -133,9 +133,9 @@ class JslDslValidator extends AbstractJslDslValidator {
 	
 	@Check
 	def checkFunctionArgument(Argument argument) {
-		if (argument.eContainer instanceof FunctionOrQueryCall && (argument.eContainer as FunctionOrQueryCall).declaration instanceof FunctionDeclaration) {
+		if (argument.eContainer instanceof FunctionCall && (argument.eContainer as FunctionCall).declaration instanceof FunctionDeclaration) {
 			val TypeInfo exprTypeInfo = TypeInfo.getTargetType(argument.expression);
-			val FunctionDeclaration functionDeclaration = (argument.eContainer as FunctionOrQueryCall).declaration as FunctionDeclaration;
+			val FunctionDeclaration functionDeclaration = (argument.eContainer as FunctionCall).declaration as FunctionDeclaration;
 
 			if (functionDeclaration.parameters.filter[p | p.name.equals(argument.name)].size > 1) {
 				error("Duplicate function parameter:" + argument.name,
@@ -163,20 +163,20 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
-	def checkLiteralFunctionRequiredParameters(FunctionOrQueryCall functionOrQueryCall) {
-		if (functionOrQueryCall.declaration instanceof FunctionDeclaration) {
-			val FunctionDeclaration functionDeclaration = functionOrQueryCall.declaration as FunctionDeclaration;
+	def checkLiteralFunctionRequiredParameters(FunctionCall functionCall) {
+		if (functionCall.declaration instanceof FunctionDeclaration) {
+			val FunctionDeclaration functionDeclaration = functionCall.declaration as FunctionDeclaration;
 
 			val Iterator<FunctionParameterDeclaration> itr = functionDeclaration.parameters.filter[p | p.isRequired].iterator;
 
 			while (itr.hasNext) {
 				val FunctionParameterDeclaration declaration = itr.next;
 
-				if (!functionOrQueryCall.arguments.exists[a | a.name.equals(declaration.name)]) {
+				if (!functionCall.arguments.exists[a | a.name.equals(declaration.name)]) {
 					error("Missing required function parameter:" + declaration.name,
-		                JsldslPackage::eINSTANCE.functionOrQueryCall_Arguments,
+		                JsldslPackage::eINSTANCE.functionCall_Arguments,
 		                MISSING_REQUIRED_PARAMETER,
-		                JsldslPackage::eINSTANCE.functionOrQueryCall.name)
+		                JsldslPackage::eINSTANCE.functionCall.name)
 				}
 			}
 		}

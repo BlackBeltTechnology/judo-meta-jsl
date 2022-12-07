@@ -44,7 +44,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeReferenced
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference
 import java.util.NavigableMap
 import hu.blackbelt.judo.meta.jsl.runtime.TypeInfo
@@ -58,6 +57,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Call
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget
 import javax.swing.text.html.parser.Entity
 import org.eclipse.xtext.linking.impl.ImportedNamesAdapter
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
+import javax.swing.text.NavigationFilter.FilterBypass
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryCall
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall
+import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaCall
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -69,10 +73,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	@Inject IQualifiedNameProvider qualifiedNameProvider
 
     override getScope(EObject context, EReference ref) {
-    	System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
-    	"\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper 
-    	    + ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
-    	printParents(context)
+//    	System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
+//    	"\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper 
+//    	    + ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
+//    	printParents(context)
   
     	switch context {
 //    		ModelImportDeclaration case ref == JsldslPackage::eINSTANCE.modelImportDeclaration_Model: return context.scope_ModelImportDeclaration_model(ref)
@@ -89,7 +93,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 //    		//QueryParameter case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)
 //    		//QueryCallExpression case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)
 
-    		EntityRelationOppositeReferenced case ref == JsldslPackage::eINSTANCE.entityRelationOppositeReferenced_OppositeType: return context.scope_EntityRelationOppositeReferenced_oppositeType(ref)
+//    		EntityRelationOppositeReferenced case ref == JsldslPackage::eINSTANCE.entityRelationOppositeReferenced_OppositeType: return context.scope_EntityRelationOppositeReferenced_oppositeType(ref)
 
 //    		//Feature case ref == JsldslPackage::eINSTANCE.feature_NavigationTargetType: return context.scope_Feature_navigationTargetType(ref)
 //    		//Feature case ref == JsldslPackage::eINSTANCE.queryParameter_QueryParameterType: return context.scope_QueryParameter_queryParameterType(ref)    		
@@ -116,44 +120,23 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 //			MemberReference case ref == JsldslPackage::eINSTANCE.memberReference_Member: return context.scope_MemberReference_member(ref)
     	}
 
+		System.out.println("====================")
+		System.out.println("Context:" + context);
+		System.out.println("Reference:" + ref);
+		System.out.println("====================")
+
 		var IScope scope = super.getScope(context, ref);
-		
-		if (context instanceof Navigation || context instanceof MemberReference) {
-			val Navigation navigation = context instanceof Navigation ? context : context.eContainer as Navigation
-
-			if (TypeInfo.getTargetType(navigation.base).isEntity) {
-				scope = this.getEntityMembers(scope, TypeInfo.getTargetType(navigation.base).getEntity, ref)
-			}
-
-			scope = this.scope_FilterByContextType(scope, TypeInfo.getTargetType(navigation.base))
-		}
-		
-		if (context instanceof FunctionOrQueryCall) {
-			var TypeInfo contextTypeInfo
-			val Navigation navigation = context.eContainer as Navigation
-
-			if (TypeInfo.getTargetType(navigation.base).isEntity) {
-				scope = this.getEntityMembers(scope, TypeInfo.getTargetType(navigation.base).getEntity, ref)
-			}
-			
-			if (context.eGet(JsldslPackage::eINSTANCE.functionOrQueryCall_Declaration, false) instanceof FunctionDeclaration ||
-				context.eGet(JsldslPackage::eINSTANCE.functionOrQueryCall_Declaration, false) instanceof QueryDeclaration)
-			{
-				contextTypeInfo = TypeInfo.getTargetType(navigation)			
-				if (TypeInfo.getTargetType(navigation).isEntity) {
-					scope = this.getEntityMembers(scope, TypeInfo.getTargetType(navigation).getEntity, ref)
-				}
-			} else {
-				contextTypeInfo = TypeInfo.getTargetType(navigation.base)			
-				if (TypeInfo.getTargetType(navigation.base).isEntity) {
-					scope = this.getEntityMembers(scope, TypeInfo.getTargetType(navigation.base).getEntity, ref)
-				}
-			}
-
-			scope = this.scope_FilterByContextType(scope, contextTypeInfo)
-		}
-
 		scope = this.scope_FilterByReferenceType(scope, ref);
+
+		switch context {
+    		EntityRelationOppositeReferenced case ref == JsldslPackage::eINSTANCE.entityRelationOppositeReferenced_OppositeType: return context.scope_EntityRelationOppositeReferenced_oppositeType(ref)
+			MemberReference case context instanceof MemberReference: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			EntityQueryCall case context instanceof EntityQueryCall: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			FunctionCall case context instanceof FunctionCall: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			LambdaCall case context instanceof LambdaCall: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			Navigation case context instanceof Navigation: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+		}
+
     	return scope
 	}
 
@@ -167,6 +150,14 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		}
 	}
 
+	def scope_NavigationBase(IScope scope, EReference ref, TypeInfo navigationTypeInfo) {
+		var IScope navigationScope = this.scope_FilterByContextType(scope, navigationTypeInfo)
+		if (navigationTypeInfo.isEntity) {
+			navigationScope = this.getEntityMembers(navigationScope, navigationTypeInfo.getEntity, ref)
+		}
+		return navigationScope
+	}
+
 	def scope_FilterByReferenceType(IScope scope, EReference ref) {
 		return new FilteringScope(scope, [desc | {
 			return ref.EReferenceType.isInstance(desc.EObjectOrProxy) ? true : false;
@@ -176,11 +167,14 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	def scope_FilterByContextType(IScope scope, TypeInfo contextTypeInfo) {
 		return new FilteringScope(scope, [desc | {
 			val obj = desc.EObjectOrProxy
+			
+//			System.out.println(obj)
 
 			switch obj {
 				FunctionDeclaration case obj instanceof FunctionDeclaration: contextTypeInfo.isBaseCompatible(TypeInfo.getTargetType(obj.baseType)) ? return true : return false
 				LambdaDeclaration case obj instanceof LambdaDeclaration: contextTypeInfo.isEntity() && contextTypeInfo.isCollection() ? return true : return false
-				EntityMemberDeclaration case obj instanceof EntityMemberDeclaration: return contextTypeInfo.getEntity.allMembers.stream.anyMatch(m | EcoreUtil.getURI(obj).equals(EcoreUtil.getURI(m)))
+				EntityMemberDeclaration case obj instanceof EntityMemberDeclaration: return false
+//				EntityMemberDeclaration case obj instanceof EntityMemberDeclaration: return contextTypeInfo.getEntity.allMembers.stream.anyMatch(m | EcoreUtil.getURI(obj).equals(EcoreUtil.getURI(m)))
 //				EntityMemberDeclaration case obj instanceof EntityMemberDeclaration: return contextTypeInfo.getEntity.allMembers.stream.anyMatch(m | obj.equals(m) )
 			}
 
@@ -201,29 +195,29 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		super.getScope(context, ref)
 	}
 
-	def scope_FunctionOrQueryCall_declaration(FunctionOrQueryCall context, EReference ref) {
-		return new FilteringScope(super.getScope(context, ref), [desc | {
-			val obj = desc.EObjectOrProxy
-
-			if (obj instanceof FunctionDeclaration) {
-				val Navigation navigation = context.eContainer as Navigation
-				if (TypeInfo.getTargetType(navigation.base).isBaseCompatible(TypeInfo.getTargetType(obj.baseType))) {
-					return true
-				}
-			}
-
-			false
-		}]);
-	}
+//	def scope_FunctionOrQueryCall_declaration(FunctionOrQueryCall context, EReference ref) {
+//		return new FilteringScope(super.getScope(context, ref), [desc | {
+//			val obj = desc.EObjectOrProxy
+//
+//			if (obj instanceof FunctionDeclaration) {
+//				val Navigation navigation = context.eContainer as Navigation
+////				if (TypeInfo.getTargetType(navigation.base).isBaseCompatible(TypeInfo.getTargetType(obj.baseType))) {
+////					return true
+////				}
+//			}
+//
+//			false
+//		}]);
+//	}
 
 	def scope_FunctionOrQueryCall_declaration(Navigation context, EReference ref) {
 		return new FilteringScope(super.getScope(context, ref), [desc | {
 			val obj = desc.EObjectOrProxy
 
-			switch obj {
-				// FunctionDeclaration case obj instanceof FunctionDeclaration: TypeInfo.getTargetType(context.base).isCompatible(TypeInfo.getTargetType(obj.baseType)) ? return true : return false
-				FunctionDeclaration case obj instanceof FunctionDeclaration: TypeInfo.getTargetType(context.base).isBaseCompatible(TypeInfo.getTargetType(obj.baseType)) ? return true : return false
-			}
+//			switch obj {
+//				// FunctionDeclaration case obj instanceof FunctionDeclaration: TypeInfo.getTargetType(context.base).isCompatible(TypeInfo.getTargetType(obj.baseType)) ? return true : return false
+//				FunctionDeclaration case obj instanceof FunctionDeclaration: TypeInfo.getTargetType(context.base).isBaseCompatible(TypeInfo.getTargetType(obj.baseType)) ? return true : return false
+//			}
 
 			false
 		}]);
@@ -233,9 +227,9 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		return new FilteringScope(super.getScope(context, ref), [desc | {
 			val obj = desc.EObjectOrProxy
 
-			switch obj {
-				LambdaDeclaration case obj instanceof LambdaDeclaration: TypeInfo.getTargetType(context.base).isEntity() && TypeInfo.getTargetType(context).isCollection() ? return true : return false
-			}
+//			switch obj {
+//				LambdaDeclaration case obj instanceof LambdaDeclaration: TypeInfo.getTargetType(context.base).isEntity() && TypeInfo.getTargetType(context).isCollection() ? return true : return false
+//			}
 
 			false
 		}]);

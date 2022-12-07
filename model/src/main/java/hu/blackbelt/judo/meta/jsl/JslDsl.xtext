@@ -221,10 +221,6 @@ enum DataUnit
 Expression returns Expression:
     SwitchExpression;
 
-ParenthesizedExpression returns Expression
-	: {ParenthesizedExpression} '(' => expression = Expression ')'		
-	;
-
 SwitchExpression returns Expression
 	: ImpliesExpression (=> ({TernaryOperation.condition=current} '?')
 	  thenExpression=SwitchExpression ':'
@@ -288,22 +284,26 @@ FunctionableExpression returns Expression
 */
 
 Navigation returns Expression
-	: NavigationBase ({Navigation.base = current} feature = Feature)*
+	: {Navigation} base = NavigationBase (features += Feature)*
 	;
 
-NavigationBase returns Expression
-	: SelfExpression
-	| ParenthesizedExpression
+NavigationBase
+	: Self
+	| Parentheses
 	| NavigationBaseDeclarationReference
 	| QueryCall
 	| Literal
 	;
 
-SelfExpression returns Expression
-	: {SelfExpression} isSelf ?= 'self'		
+Self
+	: isSelf ?= 'self'		
+	;
+
+Parentheses
+	: '(' => expression = Expression ')'		
 	;
  
-NavigationBaseDeclarationReference returns Expression
+NavigationBaseDeclarationReference
 	: {NavigationBaseDeclarationReference} reference = [NavigationBaseDeclaration | LocalName]
  	;
  
@@ -328,12 +328,17 @@ MemberReference
     ;
 
 Call
-	: FunctionOrQueryCall
+	: EntityQueryCall
+	| FunctionCall
 	| LambdaCall
 	;
 
-FunctionOrQueryCall
-	: ('.' | '!') declaration = [FunctionOrQueryDeclaration | LocalName ] '(' (arguments += Argument (',' arguments += Argument)*)? ')'
+EntityQueryCall
+	: '.' declaration = [EntityQueryDeclaration | LocalName ] => '(' (arguments += Argument (',' arguments += Argument)*)? ')'
+	;
+
+FunctionCall
+	: '!' declaration = [FunctionDeclaration | LocalName ] '(' (arguments += Argument (',' arguments += Argument)*)? ')'
 	;
 
 Argument
@@ -341,16 +346,11 @@ Argument
     ;
 
 LambdaCall
-	: ('.' | '!') declaration = [LambdaDeclaration | LocalName ] '(' variable = LambdaVariable => '|' expression = Expression ')';
+	: '!' declaration = [LambdaDeclaration | LocalName ] '(' variable = LambdaVariable => '|' expression = Expression ')';
 
 LambdaVariable
     : {LambdaVariable} Named    	
     ;
-
-FunctionOrQueryDeclaration
-	: FunctionDeclaration
-	| EntityQueryDeclaration
-	;
 
 FunctionDeclaration
 	: 'function' returnType = TypeDescription Named '(' (parameters += FunctionParameterDeclaration (',' parameters += FunctionParameterDeclaration)*)? ')' 'on' baseType = TypeDescription ';'
@@ -387,7 +387,7 @@ NavigationTarget
     | EntityRelationOppositeInjected
     ;
 
-Literal returns Expression
+Literal
 	: BooleanLiteral
 	| NumberLiteral
 	| StringLiteral

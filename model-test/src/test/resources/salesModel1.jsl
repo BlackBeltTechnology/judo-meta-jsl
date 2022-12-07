@@ -35,7 +35,7 @@ entity abstract Person {
 		+ self.lastName ;
 }
 
-query SalesPerson[] allSalesPerson() => SalesPerson;
+query SalesPerson[] allSalesPerson() => SalesPerson!all();
 
 entity SalesPerson extends Person {
 	relation Lead[] leads opposite salesPerson;

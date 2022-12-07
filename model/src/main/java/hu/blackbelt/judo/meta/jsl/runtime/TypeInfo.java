@@ -2,6 +2,8 @@ package hu.blackbelt.judo.meta.jsl.runtime;
 
 import java.util.Arrays;
 
+import org.eclipse.emf.ecore.EObject;
+
 import hu.blackbelt.judo.meta.jsl.jsldsl.Argument;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral;
@@ -13,6 +15,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryCall;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected;
@@ -21,24 +24,26 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature;
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryCall;
-import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.IntegerLiteral;
+import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage;
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaCall;
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable;
+import hu.blackbelt.judo.meta.jsl.jsldsl.Literal;
 import hu.blackbelt.judo.meta.jsl.jsldsl.MemberReference;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation;
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBase;
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference;
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget;
-import hu.blackbelt.judo.meta.jsl.jsldsl.ParenthesizedExpression;
+import hu.blackbelt.judo.meta.jsl.jsldsl.Parentheses;
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclarationParameter;
 import hu.blackbelt.judo.meta.jsl.jsldsl.RawStringLiteral;
-import hu.blackbelt.judo.meta.jsl.jsldsl.SelfExpression;
+import hu.blackbelt.judo.meta.jsl.jsldsl.Self;
 import hu.blackbelt.judo.meta.jsl.jsldsl.SingleType;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral;
@@ -315,49 +320,74 @@ public class TypeInfo {
 	}
 	*/
 	
-	private static TypeInfo getTargetType(Feature feature) {		
+	private static boolean isResolvedReference(EObject object, int featureID) {
+		EObject featureObject = (EObject) object.eGet(object.eClass().getEStructuralFeature(featureID), false);
+		return !featureObject.eIsProxy();
+	}
+	
+	public static TypeInfo getTargetType(Feature feature) {
+		TypeInfo baseTypeInfo;
 		Navigation navigation = (Navigation) feature.eContainer();
-		TypeInfo baseTypeInfo = getTargetType( navigation.getBase() );
+
+		int index = navigation.getFeatures().indexOf(feature);
 		
+		if (index > 0) {
+			baseTypeInfo = getTargetType( navigation.getFeatures().get(index - 1) );
+		} else {
+			baseTypeInfo = getTargetType( navigation.getBase() );
+		}
+
+		baseTypeInfo.modifier = baseTypeInfo.modifier == TypeModifier.LITERAL ? TypeModifier.NONE : baseTypeInfo.modifier;
+			
 		if (feature instanceof MemberReference) {
+			// System.out.println("MemberReference:"+feature.eGet(feature.eClass().getEStructuralFeature(JsldslPackage.MEMBER_REFERENCE__MEMBER), false));
+			if (!isResolvedReference(feature, JsldslPackage.MEMBER_REFERENCE__MEMBER)) {
+				return baseTypeInfo;
+			}
 			TypeInfo typeInfo = getTargetType( ((MemberReference) feature).getMember() );
 			typeInfo.modifier = typeInfo.modifier == TypeModifier.COLLECTION ? TypeModifier.COLLECTION : baseTypeInfo.modifier;
 			return typeInfo;
-		} else if (feature instanceof FunctionOrQueryCall) {
-			FunctionOrQueryCall functionOrQueryCall = (FunctionOrQueryCall)feature;
-			
-			if (functionOrQueryCall.getDeclaration() instanceof EntityQueryDeclaration) {
-				EntityQueryDeclaration entityQueryDeclaration = (EntityQueryDeclaration)functionOrQueryCall.getDeclaration();
-				TypeInfo typeInfo = getTargetType(entityQueryDeclaration);
-				typeInfo.modifier = typeInfo.modifier == TypeModifier.COLLECTION ? TypeModifier.COLLECTION : baseTypeInfo.modifier;
-				return typeInfo;
-			} else if (functionOrQueryCall.getDeclaration() instanceof FunctionDeclaration) {
-				FunctionDeclaration functionDeclaration = (FunctionDeclaration)functionOrQueryCall.getDeclaration();
-				TypeInfo functionBaseTypeInfo = getTargetType(functionDeclaration.getBaseType());
-				TypeInfo functionReturnTypeInfo = getTargetType(functionDeclaration.getReturnType());
+		} else if (feature instanceof EntityQueryCall) {
+			if (!isResolvedReference(feature, JsldslPackage.ENTITY_QUERY_CALL__DECLARATION)) {
+				return baseTypeInfo;
+			}
+			TypeInfo typeInfo = getTargetType( ((EntityQueryCall)feature).getDeclaration() );
+			typeInfo.modifier = typeInfo.modifier == TypeModifier.COLLECTION ? TypeModifier.COLLECTION : baseTypeInfo.modifier;
+			return typeInfo;
+		
+		} else if (feature instanceof FunctionCall) {
+			if (!isResolvedReference(feature, JsldslPackage.FUNCTION_CALL__DECLARATION)) {
+				return baseTypeInfo;
+			}
+			FunctionCall functionCall = (FunctionCall)feature;
+			FunctionDeclaration functionDeclaration = functionCall.getDeclaration();
+			TypeInfo functionBaseTypeInfo = getTargetType(functionDeclaration.getBaseType());
+			TypeInfo functionReturnTypeInfo = getTargetType(functionDeclaration.getReturnType());
 
-				if (functionReturnTypeInfo.isEntity()) {
-					functionReturnTypeInfo.type = baseTypeInfo.type;
-				}
-				
-				if (functionOrQueryCall.getArguments().size() > 0) {
-					Argument argument = functionOrQueryCall.getArguments().get(0);
-					TypeInfo argumentTypeInfo = TypeInfo.getTargetType(argument.getExpression());
-					
-					if (argumentTypeInfo.isEntity() && argumentTypeInfo.isDeclaration())
-					{
-						functionReturnTypeInfo.type =  argumentTypeInfo.getEntity();
-					}
-				}
-
-				if (!functionBaseTypeInfo.isCollection() && !functionBaseTypeInfo.isDeclaration()) {
-					functionReturnTypeInfo.modifier = baseTypeInfo.modifier;
-				}
-				
-				return functionReturnTypeInfo;
+			if (functionReturnTypeInfo.isEntity()) {
+				functionReturnTypeInfo.type = baseTypeInfo.type;
 			}
 			
+			if (functionCall.getArguments().size() > 0) {
+				Argument argument = functionCall.getArguments().get(0);
+				TypeInfo argumentTypeInfo = TypeInfo.getTargetType(argument.getExpression());
+				
+				if (argumentTypeInfo.isEntity() && argumentTypeInfo.isDeclaration())
+				{
+					functionReturnTypeInfo.type =  argumentTypeInfo.getEntity();
+				}
+			}
+
+			if (!functionBaseTypeInfo.isCollection() && !functionBaseTypeInfo.isDeclaration()) {
+				functionReturnTypeInfo.modifier = baseTypeInfo.modifier;
+			}
+			
+			return functionReturnTypeInfo;
+			
 		} else if (feature instanceof LambdaCall) {
+			if (!isResolvedReference(feature, JsldslPackage.LAMBDA_CALL__DECLARATION)) {
+				return baseTypeInfo;
+			}
 			TypeInfo typeInfo = getTargetType( ((LambdaCall) feature).getDeclaration().getReturnType() );
 			typeInfo.type = baseTypeInfo.type;
 			return typeInfo;
@@ -367,17 +397,28 @@ public class TypeInfo {
 	}
 	
 	private static TypeInfo getTargetType(Navigation navigation) {
-		return getTargetType(navigation.getFeature());
-//		try {
-//			return getTargetType(navigation.getFeature());
-//		} catch (IllegalArgumentException e ) {
-//			return getTargetType(navigation.getBase());
-//		}
-//		if (navigation.getFeature() != null) {
-//			return getTargetType(navigation.getFeature());
-//		} else {
-//			return getTargetType(navigation.getBase());
-//		}
+		int size = navigation.getFeatures().size();
+		if (size > 0) {
+			return getTargetType(navigation.getFeatures().get(size - 1));
+		} else {
+			return getTargetType( navigation.getBase() );
+		}
+	}
+	
+	public static TypeInfo getTargetType(NavigationBase navigationBase) {
+		if (navigationBase instanceof Self) {
+			return getTargetType( (Self) navigationBase );
+		} else if (navigationBase instanceof Parentheses) {
+			return getTargetType( (Parentheses) navigationBase);
+		} else if (navigationBase instanceof NavigationBaseDeclarationReference) {
+			return getTargetType( (NavigationBaseDeclarationReference) navigationBase);
+		} else if (navigationBase instanceof QueryCall) {
+			return getTargetType( (QueryCall) navigationBase);
+		} else if (navigationBase instanceof Literal) {
+			return getTargetType( (Literal) navigationBase);
+		}
+
+		throw new IllegalArgumentException("Could not determinate type for navigationBase: " + navigationBase);
 	}
 	
 	private static TypeInfo getTargetType(LambdaVariable lambdaVariable) {
@@ -388,7 +429,16 @@ public class TypeInfo {
 		}
 		
 		Navigation navigation = (Navigation) lambdaCall.eContainer();
-		TypeInfo typeInfo = getTargetType(navigation.getBase());
+		int index = navigation.getFeatures().indexOf(lambdaCall);
+		
+		TypeInfo typeInfo;
+		
+		if (index > 0) {
+			typeInfo = getTargetType( navigation.getFeatures().get(index - 1) );
+		} else {
+			typeInfo = getTargetType( navigation.getBase() );
+		}
+
 		typeInfo.modifier = TypeModifier.NONE;
 
 		// System.out.println(typeInfo);
@@ -414,16 +464,14 @@ public class TypeInfo {
 		} else if (navigationBaseReference instanceof PrimitiveDeclaration) {
 			typeInfo = new TypeInfo((SingleType) navigationBaseReference, false, true);
 		} else {
-			System.out.println("navigationBaseReference:");
-			System.out.println(navigationBaseReference);
 			throw new IllegalArgumentException("Could not determinate type for navigation base reference.");
 		}
 
 		return typeInfo;
 	}
 	
-	private static TypeInfo getTargetType(SelfExpression selfExpression) {
-		TypeInfo typeInfo = new TypeInfo(modelExtension.parentContainer(selfExpression, EntityDeclaration.class), false, false);
+	private static TypeInfo getTargetType(Self self) {
+		TypeInfo typeInfo = new TypeInfo(modelExtension.parentContainer(self, EntityDeclaration.class), false, false);
 		return typeInfo;
 	}
 	
@@ -462,8 +510,8 @@ public class TypeInfo {
 		throw new IllegalArgumentException("Could not determinate type for entity member");
 	}
 
-	private static TypeInfo getTargetType(ParenthesizedExpression expression) {
-		TypeInfo typeInfo = getTargetType( expression.getExpression() );
+	private static TypeInfo getTargetType(Parentheses parentheses) {
+		TypeInfo typeInfo = getTargetType( parentheses.getExpression() );
 		typeInfo.modifier = typeInfo.modifier == TypeModifier.LITERAL ? TypeModifier.NONE : typeInfo.modifier;
 		return typeInfo;
 	}
@@ -474,45 +522,41 @@ public class TypeInfo {
 		return typeInfo;
 	}
 
+	public static TypeInfo getTargetType(Literal litreal) {
+	  	if (litreal instanceof IntegerLiteral) {
+			return new TypeInfo(BaseType.NUMERIC, true);
+		} else if (litreal instanceof DecimalLiteral) {
+			return new TypeInfo(BaseType.NUMERIC, true);
+		} else if (litreal instanceof BooleanLiteral) {
+			return new TypeInfo(BaseType.BOOLEAN, true);
+		} else if (litreal instanceof EscapedStringLiteral) {
+			return new TypeInfo(BaseType.STRING, true);
+		} else if (litreal instanceof RawStringLiteral) {
+			return new TypeInfo(BaseType.STRING, true);
+		} else if (litreal instanceof DateLiteral) {
+			return new TypeInfo(BaseType.DATE, true);
+		} else if (litreal instanceof TimeLiteral) {
+			return new TypeInfo(BaseType.TIME, true);
+		} else if (litreal instanceof TimeStampLiteral) {
+			return new TypeInfo(BaseType.TIMESTAMP, true);
+		} else if (litreal instanceof EnumLiteralReference) {
+			return getTargetType( (EnumLiteralReference) litreal);
+		}
+
+	  	throw new IllegalArgumentException("Could not determinate type for expression: " + litreal);
+	}
+	
 	public static TypeInfo getTargetType(Expression expression) {
-		if (expression instanceof ParenthesizedExpression) {
-			return getTargetType( (ParenthesizedExpression) expression );
-		} else if (expression instanceof TernaryOperation) {
+		if (expression instanceof TernaryOperation) {
 			return getTargetType( (TernaryOperation) expression );
 		} else if (expression instanceof BinaryOperation) {
 			return getTargetType( (BinaryOperation) expression);
 		} else if (expression instanceof UnaryOperation) {
 			return new TypeInfo(BaseType.BOOLEAN, false);
-	
 		} else if (expression instanceof Navigation) {
 			return getTargetType( (Navigation) expression);
-		} else if (expression instanceof SelfExpression) {
-			return getTargetType( (SelfExpression) expression);
-		} else if(expression instanceof QueryCall) {
-			return getTargetType( (QueryCall) expression);
-		} else if (expression instanceof NavigationBaseDeclarationReference) {
-			return getTargetType( (NavigationBaseDeclarationReference) expression);
-			
-		} else if (expression instanceof IntegerLiteral) {
-			return new TypeInfo(BaseType.NUMERIC, true);
-		} else if (expression instanceof DecimalLiteral) {
-			return new TypeInfo(BaseType.NUMERIC, true);
-		} else if (expression instanceof BooleanLiteral) {
-			return new TypeInfo(BaseType.BOOLEAN, true);
-		} else if (expression instanceof EscapedStringLiteral) {
-			return new TypeInfo(BaseType.STRING, true);
-		} else if (expression instanceof RawStringLiteral) {
-			return new TypeInfo(BaseType.STRING, true);
-		} else if (expression instanceof DateLiteral) {
-			return new TypeInfo(BaseType.DATE, true);
-		} else if (expression instanceof TimeLiteral) {
-			return new TypeInfo(BaseType.TIME, true);
-		} else if (expression instanceof TimeStampLiteral) {
-			return new TypeInfo(BaseType.TIMESTAMP, true);
-		} else if (expression instanceof EnumLiteralReference) {
-			return getTargetType( (EnumLiteralReference) expression);
-		}
-		
+		}		
+
 		throw new IllegalArgumentException("Could not determinate type for expression: " + expression);
 	}
 }

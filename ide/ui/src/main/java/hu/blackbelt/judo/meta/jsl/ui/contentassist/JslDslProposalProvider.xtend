@@ -13,6 +13,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
+import org.eclipse.xtext.Keyword
+import java.util.Set
+import com.google.common.collect.ImmutableSet
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
@@ -22,6 +25,17 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 	// TODO: https://stackoverflow.com/questions/47005235/customizing-content-proposal-in-xtext-for-web-editors
 	@Inject extension JslDslModelExtension
 	
+    public static Set<String> FILTERED_KEYWORDS = ImmutableSet.of("function", "lambda", ";", "(", ")", "+", "-", "*", "/");
+
+    override completeKeyword(Keyword keyword, ContentAssistContext contentAssistContext, ICompletionProposalAcceptor acceptor) {
+        if (FILTERED_KEYWORDS.contains(keyword.getValue())) {
+            // don't propose keyword
+            return;
+        }
+        super.completeKeyword(keyword, contentAssistContext, acceptor);
+    }
+
+
 	override completeEntityRelationOppositeReferenced_OppositeType(EObject model, Assignment assignment, 
 		ContentAssistContext context, ICompletionProposalAcceptor acceptor
 	) {
