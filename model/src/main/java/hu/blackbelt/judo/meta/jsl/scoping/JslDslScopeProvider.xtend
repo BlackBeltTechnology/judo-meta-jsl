@@ -62,6 +62,7 @@ import javax.swing.text.NavigationFilter.FilterBypass
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaCall
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionArgument
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -130,11 +131,13 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 		switch context {
     		EntityRelationOppositeReferenced case ref == JsldslPackage::eINSTANCE.entityRelationOppositeReferenced_OppositeType: return context.scope_EntityRelationOppositeReferenced_oppositeType(ref)
-			MemberReference case context instanceof MemberReference: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-			EntityQueryCall case context instanceof EntityQueryCall: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-			FunctionCall case context instanceof FunctionCall: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-			LambdaCall case context instanceof LambdaCall: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-			Navigation case context instanceof Navigation: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			MemberReference case ref == JsldslPackage::eINSTANCE.memberReference_Member: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			EntityQueryCall case ref == JsldslPackage::eINSTANCE.entityQueryCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			FunctionCall case ref == JsldslPackage::eINSTANCE.lambdaCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			FunctionCall case ref == JsldslPackage::eINSTANCE.functionCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			FunctionCall case ref == JsldslPackage::eINSTANCE.functionArgument_ArgDeclaration: return scope.scope_FunctionParameters(context.declaration, ref)
+			FunctionArgument case ref == JsldslPackage::eINSTANCE.functionArgument_ArgDeclaration: return scope.scope_FunctionParameters((context.eContainer as FunctionCall).declaration, ref)
+			Navigation: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 		}
 
     	return scope
@@ -148,6 +151,12 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		for (obj : scope.allElements) {
 			System.out.println(obj)
 		}
+	}
+
+	def scope_FunctionParameters(IScope scope, FunctionDeclaration functionDeclaration, EReference ref) {
+		val IScope localScope = scope.getLocalElementsScope(functionDeclaration, ref)
+		System.out.println(localScope)
+		return localScope
 	}
 
 	def scope_NavigationBase(IScope scope, EReference ref, TypeInfo navigationTypeInfo) {
@@ -171,9 +180,9 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 //			System.out.println(obj)
 
 			switch obj {
-				FunctionDeclaration case obj instanceof FunctionDeclaration: contextTypeInfo.isBaseCompatible(TypeInfo.getTargetType(obj.baseType)) ? return true : return false
-				LambdaDeclaration case obj instanceof LambdaDeclaration: contextTypeInfo.isEntity() && contextTypeInfo.isCollection() ? return true : return false
-				EntityMemberDeclaration case obj instanceof EntityMemberDeclaration: return false
+				FunctionDeclaration case obj.baseType !== null: contextTypeInfo.isBaseCompatible(TypeInfo.getTargetType(obj.baseType)) ? return true : return false
+				LambdaDeclaration: contextTypeInfo.isEntity() && contextTypeInfo.isCollection() ? return true : return false
+				EntityMemberDeclaration: return false
 //				EntityMemberDeclaration case obj instanceof EntityMemberDeclaration: return contextTypeInfo.getEntity.allMembers.stream.anyMatch(m | EcoreUtil.getURI(obj).equals(EcoreUtil.getURI(m)))
 //				EntityMemberDeclaration case obj instanceof EntityMemberDeclaration: return contextTypeInfo.getEntity.allMembers.stream.anyMatch(m | obj.equals(m) )
 			}
@@ -739,6 +748,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		}
 		val ISelectable allDescriptions = getAllDescriptions(context.eResource());
 		val QualifiedName name = context.fullyQualifiedName  //getQualifiedNameOfLocalElement(context);
+		System.out.println(name)
 		val boolean ignoreCase = false;
 		if (name !== null) {
 			val ImportNormalizer localNormalizer = doCreateImportNormalizer(name, true, ignoreCase); 

@@ -172,7 +172,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			while (itr.hasNext) {
 				val FunctionParameterDeclaration declaration = itr.next;
 
-				if (!functionCall.arguments.exists[a | a.name.equals(declaration.name)]) {
+				if (!functionCall.arguments.exists[a | a.argDeclaration.equals(declaration)]) {
 					error("Missing required function parameter:" + declaration.name,
 		                JsldslPackage::eINSTANCE.functionCall_Arguments,
 		                MISSING_REQUIRED_PARAMETER,

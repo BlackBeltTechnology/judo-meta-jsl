@@ -24,6 +24,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature;
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionArgument;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.IntegerLiteral;
@@ -129,6 +130,10 @@ public class TypeInfo {
 	}
 	
 	private static BaseType getBaseType(TypeDescription typeDescription) {
+		if (typeDescription == null) {
+			throw new IllegalArgumentException("TypeInfo got illegal argument: " + typeDescription);
+		}
+		
 		BaseType baseType = getBaseType(typeDescription.getType());
 		
 		if (typeDescription.isCollection() && baseType !=  BaseType.ENTITY) {
@@ -369,7 +374,7 @@ public class TypeInfo {
 			}
 			
 			if (functionCall.getArguments().size() > 0) {
-				Argument argument = functionCall.getArguments().get(0);
+				FunctionArgument argument = functionCall.getArguments().get(0);
 				TypeInfo argumentTypeInfo = TypeInfo.getTargetType(argument.getExpression());
 				
 				if (argumentTypeInfo.isEntity() && argumentTypeInfo.isDeclaration())

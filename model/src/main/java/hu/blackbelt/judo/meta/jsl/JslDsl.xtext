@@ -338,8 +338,12 @@ EntityQueryCall
 	;
 
 FunctionCall
-	: '!' declaration = [FunctionDeclaration | LocalName ] '(' (arguments += Argument (',' arguments += Argument)*)? ')'
+	: '!' declaration = [FunctionDeclaration | LocalName ] '(' (arguments += FunctionArgument (',' arguments += FunctionArgument)*)? ')'
 	;
+
+FunctionArgument
+    : argDeclaration = [FunctionParameterDeclaration | LocalName ] '=' expression = Expression
+    ;
 
 Argument
     : Named '=' expression = Expression
@@ -357,7 +361,7 @@ FunctionDeclaration
 	;
 
 FunctionParameterDeclaration
-	: (isRequired ?= 'required')? description = TypeDescription Named
+	: isRequired ?= 'required'? description = TypeDescription Named
 	;
 
 TypeDescription
