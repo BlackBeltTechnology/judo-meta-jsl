@@ -2,7 +2,7 @@
 
 == Purpose
 
-Verifying the primitive types and their working. This case is verifying the optional primitive fields without adding any values to them.
+Verifying the primitive types and their behaviour. This case is verifying the optional primitive fields without adding any values to them.
 
 [NOTE]
 This is a reverse engineered test case.
@@ -19,7 +19,7 @@ xref:resources/Primitives.jsl[Primitives.jsl]
 
 . Create and save MyEntityWithOptionalFields without adding any attribute value.
 
-. Read from the database the instance of MyEntityWithOptionalFields that saved in the previous step (entity1).
+. Re-read the instance of MyEntityWithOptionalFields that has been saved in the previous step (entity1).
 
 . Check the next attribute values of the entity1. None of them has any value.
     * integerAttr = empty;
@@ -33,4 +33,4 @@ xref:resources/Primitives.jsl[Primitives.jsl]
     * binaryAttr = empty;
     * enumAttr = empty;
 
-. If there isn't any problem until this point and none of attribute has any value the test is success.
+. If there isn't any problem until this point and none of attribute has any value the test is considered to be successful.

@@ -2,7 +2,7 @@
 
 == Purpose
 
-Verifying all JSL keyword and the keyword escaping working is correctly.
+Verifying all JSL keywords and keyword escaping.
 
 === Tested requirements
 

@@ -1,5 +1,5 @@
 = Test cases for judo-meta-jsl
 
-This folder contains all testcase definition, that can implement in all layers of the JUDO framework.
+This folder contains all testcase definitions, which can be implemented in all layers of the JUDO framework.
 
 TODO

@@ -2,7 +2,7 @@
 
 == Purpose
 
-Verifying the primitive types and their working. This case is verifying the optional primitive fields by adding values. This is a simple happy path.
+Verifying the primitive types and their behaviour. This case is verifying the optional primitive fields by adding values. This is a simple happy path.
 
 [NOTE]
 This is a reverse engineered test case.
@@ -29,7 +29,7 @@ xref:resources/Primitives.jsl[Primitives.jsl]
     * binaryAttr = File(xref:resources/test.txt[test.txt]);
     * enumAttr = MyEnum#Bombastic;
 
-. Read from the database the instance of MyEntityWithOptionalFields that saved in the previous step (entity1).
+. Re-read the instance of MyEntityWithOptionalFields that has been saved in the previous step (entity1).
 
 . Check the next attribute values of the entity1. The values of attributes:
     * integerAttr = 1;

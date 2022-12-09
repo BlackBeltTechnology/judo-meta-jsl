@@ -24,4 +24,4 @@ xref:resources/shop2.jsl[shop2.jsl]
 * firstName = "Bud"
 * lastName = "Spencer"
 
-. If there isn't any problem until this point the test is success.
+. If there isn't any problem until this point test is considered to be successful.

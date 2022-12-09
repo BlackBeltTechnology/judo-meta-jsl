@@ -2,7 +2,7 @@
 
 == Purpose
 
-Checking the JSL code which is in the xref:../docs/pages/01_intro.adoc[introduction page] of community documentation. This is a general happy path.
+Checking the JSL code which is in the xref:../docs/pages/01_intro.adoc[introduction page] of the community documentation. This is a general happy path.
 
 === Tested requirements
 

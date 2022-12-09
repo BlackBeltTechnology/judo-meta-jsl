@@ -16,8 +16,8 @@ xref:resources/shop2.jsl[shop2.jsl]
 
 . Open the xref:resources/shop2.jsl[shop2.jsl] with the IDE.
 
-. The IDE is handling and showing the opened file as a JSL file (Syntax highlight is being OK.), and there isn't any error.
+. The IDE is handling and showing the opened file as a JSL file (Syntax highlight is OK.), and there are no errors.
 
 . Close the file.
 
-. If there isn't any problem until this point the test is success.
+. If there isn't any problem until this point test is considered to be successful.
