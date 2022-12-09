@@ -1,6 +1,8 @@
 ifndef::env-site,env-github[]
 include::../_attributes.adoc[]
 endif::[]
+// Metadata
+:judo-reqprefix: REQ-ENT
 // Settings
 :idprefix:
 :idseparator: -
@@ -27,6 +29,9 @@ Entities in the domain model enable us to work with data in the form of domain-s
 
 Entities represent persistent data, independent of the underlying data storage mechanism. When modeling the business domain, the persistent data is defined in terms of entity types, their attributes and relations.
 ////
+
+[judo-req="true",judo-req-id="REQ-ENT-001"]
+== Entity definition
 
 To define an entity, use the `entity` keyword.
 
@@ -62,6 +67,7 @@ entity abstract Customer {
 ----
 
 
+[judo-req="true",judo-req-id="REQ-ENT-002"]
 == Primitive fields
 
 An entity instance can store primitive values in its fields.  A field can be interpreted as a container in a specific entity instance where data values can be stored (e.g. numbers or text values like "red" or "blue").
@@ -92,7 +98,6 @@ No field can be list and required at the same time.
 ====
 
 Detailed explanation of entity member declarations are provided in the later sections.
-
 
 === Primitive field
 
@@ -138,6 +143,7 @@ entity Person {
 
 The example above defines an entity named Person. This entity has four primitive fields. firstName and lastName are two required strings, midName is an optional string with no default value and title is an optional enumeration field with a default value.
 
+[judo-req="true",judo-req-id="REQ-ENT-003"]
 === Identifier
 
 Identifiers are regular primitive fields, but it is ensured that the value of the field for each entity instance is different (unique). Note that, the undefined value is considered different from any value. (Undefined is also considered to be different from undefined.)
@@ -178,6 +184,7 @@ The example above defines `email` as a required string and serves as an identifi
 An important feature of entity instances is that they are uniquely identifiable, i.e. each instance of an entity has a (universally) unique system generated identifier that never changes. This system generated identifier is not available in JSL and should not be confused with the identifier members discussed in this chapter.
 ====
 
+[judo-req="true",judo-req-id="REQ-ENT-004"]
 == Relations
 
 Before explaining relations between entities we need to understand references and collections.
@@ -200,6 +207,7 @@ Collections always keep their members sorted, which means that after sorting a c
 
 Collections cannot be undefined, but collections can be empty. A collection cannot contain undefined reference. Once an entity instance is deleted, references to it are deleted from all collections.
 
+[judo-req="true",judo-req-id="REQ-ENT-005"]
 === Unidirectional relation
 
 Relation is a reference defined within an entity. The entity instance containing the reference is the owner of the relation. The owner has access to the instance pointed to by the reference.
@@ -249,6 +257,7 @@ entity Order {
 
 The example above defines two unidirectional relations. `orders` is defined within Customer entity and can refer to a list of Order entity instances that belong to a particular customer. `customer` relation is defined within the Order entity and targets the customer who made the purchase. 
 
+[judo-req="true",judo-req-id="REQ-ENT-006"]
 === Bidirectional relation
 
 A bidirectional relation can be navigated in both directions.
@@ -321,6 +330,7 @@ entity Product {
 }
 ----
 
+[judo-req="true",judo-req-id="REQ-ENT-007"]
 === Composition
 
 A composition or composite field is a member whose type is an entity. A composition can be considered as a specific type of reference where the owner of the composition contains the referenced entity instance(s).
@@ -377,6 +387,7 @@ entity Customer {
 
 The example defines the Address entity with its primitive fields, and each Customer instance must have exactly one composite Address.
 
+[judo-req="true",judo-req-id="REQ-ENT-008"]
 == Derived members
 
 Derived members provide a flexible mechanism to read their value. The value of a derived member cannot be set, in other words derived members are read only. However, derived members can be read as if they are stored fields, but they have a special expression called getter expression. The getter expression is used to return the value of the derived member.
@@ -436,6 +447,7 @@ entity Customer extends User, Person {
 
 In the second example, the derived member `undeliveredOrders` returns all orders that have not yet been delivered but have been ordered by the customer.
 
+[judo-req="true",judo-req-id="REQ-ENT-009"]
 == Query
 
 A query is a request that retrieves a primitive or entities. Each query has a return type, a name and a query expression, which is used to calculate the return value.
@@ -450,6 +462,7 @@ There are two types of queries
 * _instance query_ and
 * _static query_
 
+[judo-req="true",judo-req-id="REQ-ENT-010"]
 === Instance query
 
 Instance queries are declared within an entity. The entity that contains the query can be referred to as `self` in the query expression.
@@ -497,6 +510,7 @@ entity Customer {
 
 The example above shows the query `ordersBetween`, which has two arguments (`min` and `max`). It returns the orders of a customer with a price between `min` and `max`. If no arguments are specified when executing `ordersBetween`, the query returns orders between 0 and 100. For more details about expressions, see the chapter xref:06_expression.adoc[Expression].
 
+[judo-req="true",judo-req-id="REQ-ENT-011"]
 === Static query
 
 Static queries are very similar to instance queries, but static queries are within the scope of the model, not the scope of the entity. Thus, static queries cannot use `self` variable.
@@ -522,6 +536,7 @@ The example above shows the static query `ordersBetween`, which has two argument
 Note the difference between the instance and the static query examples. The instance query uses the `self` variable as the starting point for navigation. It collects all the orders belonging to the given customer and then runs the filter condition. In the second example, the starting point of the static query is all the orders stored in the application. Then the static query also runs the filter condition to select the orders between the two price limits.
 ====
 
+[judo-req="true",judo-req-id="REQ-ENT-012"]
 == Inheritance
 
 Inheritance is a mechanism by which more specific entities incorporate structure of the more general entities (called parent entities).
