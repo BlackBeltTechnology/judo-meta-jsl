@@ -3,6 +3,7 @@ package hu.blackbelt.judo.meta.jsl.runtime;
 import java.util.Arrays;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral;
@@ -61,7 +62,7 @@ public class TypeInfo {
     
     private enum BaseType {BOOLEAN, BINARY, STRING, NUMERIC, DATE, TIME, TIMESTAMP, ENUM, ENTITY}
 
-    private enum TypeModifier {NONE, LITERAL, COLLECTION, DECLARATION}
+    private enum TypeModifier {NONE, CONSTANT, COLLECTION, DECLARATION}
     
     // private boolean isLiteral = false;
     // private boolean isCollection = false;
@@ -96,15 +97,15 @@ public class TypeInfo {
 			throw new IllegalArgumentException("TypeInfo got illegal argument: " + baseType);
 		}
 		
-		this.modifier = isLiteral ? TypeModifier.LITERAL : TypeModifier.NONE;
+		this.modifier = isLiteral ? TypeModifier.CONSTANT : TypeModifier.NONE;
 		this.baseType = baseType;
 	}
 
 	private TypeInfo(TypeDescription typeDescription) {
 		this.baseType = getBaseType(typeDescription);
 
-		if (typeDescription.isLiteral()) {
-			this.modifier = TypeModifier.LITERAL;
+		if (typeDescription.isConstant()) {
+			this.modifier = TypeModifier.CONSTANT;
 		} else if (typeDescription.isDeclaration()) {
 			this.modifier = TypeModifier.DECLARATION;
 		} else if (typeDescription.isCollection()) {
@@ -218,8 +219,8 @@ public class TypeInfo {
 		return this.modifier == TypeModifier.DECLARATION;
 	}
 
-	public boolean isLiteral() {
-		return this.modifier == TypeModifier.LITERAL;
+	public boolean isConstant() {
+		return this.modifier == TypeModifier.CONSTANT;
 	}
 
 	public boolean isBaseCompatible(TypeInfo other) {
@@ -244,12 +245,12 @@ public class TypeInfo {
 		}
 
 		if (this.baseType == BaseType.ENUM && other.baseType == BaseType.ENUM) {
-			return ((EnumDeclaration)this.type).equals(((EnumDeclaration)other.type));
+			return  EcoreUtil.equals(this.type, other.type);
 		}
 		
 		if (this.baseType == BaseType.ENTITY && other.baseType == BaseType.ENTITY)
 		{
-			return this.type.equals(other.type) || modelExtension.getSuperEntityTypes((EntityDeclaration)other.type).contains((EntityDeclaration)this.type);
+			return EcoreUtil.equals(this.type, other.type) || modelExtension.getSuperEntityTypes((EntityDeclaration)other.type).stream().anyMatch(e -> EcoreUtil.equals(e, this.type));
 		}
 
 		return this.baseType == other.baseType;
@@ -295,7 +296,7 @@ public class TypeInfo {
 		
 	private static TypeInfo getTargetType(EnumLiteralReference enumReference) {
 		TypeInfo typeInfo = new TypeInfo(enumReference.getEnumDeclaration(), false, false);
-		typeInfo.modifier = TypeModifier.LITERAL;
+		typeInfo.modifier = TypeModifier.CONSTANT;
 		return typeInfo;
 	}
 	
@@ -305,6 +306,7 @@ public class TypeInfo {
 		}
 		
 		TypeInfo typeInfo = getTargetType(binaryOperation.getLeftOperand());
+		typeInfo.modifier = typeInfo.modifier == TypeModifier.CONSTANT ? TypeModifier.NONE : typeInfo.modifier;
 		
 		return typeInfo;
 	}
@@ -341,7 +343,7 @@ public class TypeInfo {
 			baseTypeInfo = getTargetType( navigation.getBase() );
 		}
 
-		baseTypeInfo.modifier = baseTypeInfo.modifier == TypeModifier.LITERAL ? TypeModifier.NONE : baseTypeInfo.modifier;
+		baseTypeInfo.modifier = baseTypeInfo.modifier == TypeModifier.CONSTANT ? TypeModifier.NONE : baseTypeInfo.modifier;
 			
 		if (feature instanceof MemberReference) {
 			// System.out.println("MemberReference:"+feature.eGet(feature.eClass().getEStructuralFeature(JsldslPackage.MEMBER_REFERENCE__MEMBER), false));
@@ -428,7 +430,7 @@ public class TypeInfo {
 	private static TypeInfo getTargetType(LambdaVariable lambdaVariable) {
 		LambdaCall lambdaCall = modelExtension.parentContainer(lambdaVariable, LambdaCall.class);
 		
-		while (!lambdaCall.getVariable().getName().equals(lambdaVariable.getName())) {
+		while (!EcoreUtil.equals(lambdaCall.getVariable(), lambdaVariable)) {
 			lambdaCall = modelExtension.parentContainer(lambdaCall, LambdaCall.class);			
 		}
 		
@@ -465,6 +467,7 @@ public class TypeInfo {
 			typeInfo = getTargetType((LambdaVariable) navigationBaseReference);
 		} else if (navigationBaseReference instanceof QueryDeclarationParameter) {
 			typeInfo = new TypeInfo( ((QueryDeclarationParameter) navigationBaseReference).getReferenceType(), false, false);
+			typeInfo.modifier = TypeModifier.CONSTANT;
 		} else if (navigationBaseReference instanceof PrimitiveDeclaration) {
 			typeInfo = new TypeInfo((SingleType) navigationBaseReference, false, true);
 		} else {
@@ -516,13 +519,13 @@ public class TypeInfo {
 
 	private static TypeInfo getTargetType(Parentheses parentheses) {
 		TypeInfo typeInfo = getTargetType( parentheses.getExpression() );
-		typeInfo.modifier = typeInfo.modifier == TypeModifier.LITERAL ? TypeModifier.NONE : typeInfo.modifier;
+		typeInfo.modifier = typeInfo.modifier == TypeModifier.CONSTANT ? TypeModifier.NONE : typeInfo.modifier;
 		return typeInfo;
 	}
 	
 	private static TypeInfo getTargetType(TernaryOperation expression) {
 		TypeInfo typeInfo = getTargetType( expression.getThenExpression() );
-		typeInfo.modifier = typeInfo.modifier == TypeModifier.LITERAL ? TypeModifier.NONE : typeInfo.modifier;
+		typeInfo.modifier = typeInfo.modifier == TypeModifier.CONSTANT ? TypeModifier.NONE : typeInfo.modifier;
 		return typeInfo;
 	}
 

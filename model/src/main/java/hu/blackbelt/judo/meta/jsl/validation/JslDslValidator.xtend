@@ -41,6 +41,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionArgument
+import hu.blackbelt.judo.meta.jsl.jsldsl.Argument
+import org.eclipse.emf.ecore.util.EcoreUtil
 
 /**
  * This class contains custom validation rules. 
@@ -135,9 +137,17 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkFunctionArgument(FunctionArgument argument) {
 		if (argument.expression !== null && argument.declaration !== null) {
 			val TypeInfo exprTypeInfo = TypeInfo.getTargetType(argument.expression);
+			val TypeInfo declarationTypeInfo = TypeInfo.getTargetType(argument.declaration.description);
 
-			if (!TypeInfo.getTargetType(argument.declaration.description).isCompatible(exprTypeInfo)) {
+			if (!declarationTypeInfo.isCompatible(exprTypeInfo)) {
 				error("Type mismatch",
+	                JsldslPackage::eINSTANCE.functionArgument_Expression,
+	                DEFAULT_TYPE_MISMATCH,
+	                JsldslPackage::eINSTANCE.functionArgument.name)
+			}
+
+			if (declarationTypeInfo.constant && !exprTypeInfo.constant) {
+				error("Right value must be constant",
 	                JsldslPackage::eINSTANCE.functionArgument_Expression,
 	                DEFAULT_TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.functionArgument.name)
@@ -146,31 +156,27 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 		val FunctionCall functionCall = argument.eContainer as FunctionCall;
 
-		if (functionCall.arguments.filter[a | a.declaration.equals(argument.declaration)].size > 1) {
+		if (functionCall.arguments.filter[a | EcoreUtil.equals(a.declaration, argument.declaration)].size > 1) {
 			error("Duplicate function parameter:" + argument.declaration.name,
                 JsldslPackage::eINSTANCE.functionArgument_Declaration,
                 DUPLICATE_FUNCTION_PARAMETER,
                 JsldslPackage::eINSTANCE.functionArgument.name)
 		}
-		
 	}
 
 	@Check
 	def checkLiteralFunctionRequiredParameters(FunctionCall functionCall) {
-		if (functionCall.declaration instanceof FunctionDeclaration) {
-			val FunctionDeclaration functionDeclaration = functionCall.declaration as FunctionDeclaration;
+		val FunctionDeclaration functionDeclaration = functionCall.declaration;
+		val Iterator<FunctionParameterDeclaration> itr = functionDeclaration.parameters.filter[p | p.isRequired].iterator;
 
-			val Iterator<FunctionParameterDeclaration> itr = functionDeclaration.parameters.filter[p | p.isRequired].iterator;
+		while (itr.hasNext) {
+			val FunctionParameterDeclaration declaration = itr.next;
 
-			while (itr.hasNext) {
-				val FunctionParameterDeclaration declaration = itr.next;
-
-				if (!functionCall.arguments.exists[a | a.declaration.equals(declaration)]) {
-					error("Missing required function parameter:" + declaration.name,
-		                JsldslPackage::eINSTANCE.functionCall_Arguments,
-		                MISSING_REQUIRED_PARAMETER,
-		                JsldslPackage::eINSTANCE.functionCall.name)
-				}
+			if (!functionCall.arguments.exists[a | EcoreUtil.equals(a.declaration, declaration)]) {
+				error("Missing required function parameter:" + declaration.name,
+	                JsldslPackage::eINSTANCE.functionCall_Arguments,
+	                MISSING_REQUIRED_PARAMETER,
+	                JsldslPackage::eINSTANCE.functionCall.name)
 			}
 		}
 	}

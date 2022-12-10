@@ -89,12 +89,12 @@ class JudoFunctionsProvider {
 		function enum orElse(required enum value) on enum;
 		function entity orElse(required entity value) on entity;
 		
-		function boolean getVariable(required string category, required string key) on declaration<boolean>;
-		function numeric getVariable(required string category, required string key) on declaration<numeric>;
-		function string getVariable(required string category, required string key) on declaration<string>;
-		function date getVariable(required string category, required string key) on declaration<date>;
-		function time getVariable(required string category, required string key) on declaration<time>;
-		function timestamp getVariable(required string category, required string key) on declaration<timestamp>;
+		function boolean getVariable(required constant<string> category, required constant<string> key) on declaration<boolean>;
+		function numeric getVariable(required constant<string> category, required constant<string> key) on declaration<numeric>;
+		function string getVariable(required constant<string> category, required constant<string> key) on declaration<string>;
+		function date getVariable(required constant<string> category, required constant<string> key) on declaration<date>;
+		function time getVariable(required constant<string> category, required constant<string> key) on declaration<time>;
+		function timestamp getVariable(required constant<string> category, required constant<string> key) on declaration<timestamp>;
 		
 		function numeric size() on string;
 		function string left(required numeric count) on string;

@@ -368,7 +368,7 @@ TypeDescription
 	: {TypeDescription} type = Type
 	| collection ?= 'collection' '<' type = Type '>'
 	| declaration ?= 'declaration' '<' type = Type '>'
-	| literal ?= 'literal' '<' type = Type '>'
+	| constant ?= 'constant' '<' type = Type '>'
 	;
 
 Type
