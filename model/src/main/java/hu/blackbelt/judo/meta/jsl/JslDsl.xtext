@@ -342,7 +342,7 @@ FunctionCall
 	;
 
 FunctionArgument
-    : argDeclaration = [FunctionParameterDeclaration | LocalName ] '=' expression = Expression
+    : declaration = [FunctionParameterDeclaration | LocalName ] '=' expression = Expression
     ;
 
 Argument

@@ -135,8 +135,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			EntityQueryCall case ref == JsldslPackage::eINSTANCE.entityQueryCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 			FunctionCall case ref == JsldslPackage::eINSTANCE.lambdaCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 			FunctionCall case ref == JsldslPackage::eINSTANCE.functionCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-			FunctionCall case ref == JsldslPackage::eINSTANCE.functionArgument_ArgDeclaration: return scope.scope_FunctionParameters(context.declaration, ref)
-			FunctionArgument case ref == JsldslPackage::eINSTANCE.functionArgument_ArgDeclaration: return scope.scope_FunctionParameters((context.eContainer as FunctionCall).declaration, ref)
+			FunctionCall case ref == JsldslPackage::eINSTANCE.functionArgument_Declaration: return scope.scope_FunctionParameters(context.declaration, ref)
+			FunctionArgument case ref == JsldslPackage::eINSTANCE.functionArgument_Declaration: return scope.scope_FunctionParameters((context.eContainer as FunctionCall).declaration, ref)
 			Navigation: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 		}
 

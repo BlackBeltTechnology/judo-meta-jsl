@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import org.eclipse.emf.ecore.EObject;
 
-import hu.blackbelt.judo.meta.jsl.jsldsl.Argument;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration;

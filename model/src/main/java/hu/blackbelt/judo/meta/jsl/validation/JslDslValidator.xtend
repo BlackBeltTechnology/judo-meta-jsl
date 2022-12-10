@@ -37,10 +37,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnaryOperation
 import java.util.Iterator
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.Argument
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionArgument
 
 /**
  * This class contains custom validation rules. 
@@ -132,34 +132,27 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 	
 	@Check
-	def checkFunctionArgument(Argument argument) {
-		if (argument.eContainer instanceof FunctionCall && (argument.eContainer as FunctionCall).declaration instanceof FunctionDeclaration) {
+	def checkFunctionArgument(FunctionArgument argument) {
+		if (argument.expression !== null && argument.declaration !== null) {
 			val TypeInfo exprTypeInfo = TypeInfo.getTargetType(argument.expression);
-			val FunctionDeclaration functionDeclaration = (argument.eContainer as FunctionCall).declaration as FunctionDeclaration;
 
-			if (functionDeclaration.parameters.filter[p | p.name.equals(argument.name)].size > 1) {
-				error("Duplicate function parameter:" + argument.name,
-	                JsldslPackage::eINSTANCE.named_Name,
-	                DUPLICATE_FUNCTION_PARAMETER,
-	                JsldslPackage::eINSTANCE.argument.name)
-			}
-
-			val FunctionParameterDeclaration parameterDeclaration = functionDeclaration.parameters.findFirst[p | p.name.equals(argument.name)];
-			
-			if (parameterDeclaration === null) {
-				error("Invalid parameter " + argument.name,
-	                JsldslPackage::eINSTANCE.named_Name,
-	                INVALID_PARAMETER,
-	                JsldslPackage::eINSTANCE.argument.name)
-			}
-			
-			if (!TypeInfo.getTargetType(parameterDeclaration.description).isCompatible(exprTypeInfo)) {
+			if (!TypeInfo.getTargetType(argument.declaration.description).isCompatible(exprTypeInfo)) {
 				error("Type mismatch",
-	                JsldslPackage::eINSTANCE.argument_Expression,
+	                JsldslPackage::eINSTANCE.functionArgument_Expression,
 	                DEFAULT_TYPE_MISMATCH,
-	                JsldslPackage::eINSTANCE.argument.name)
+	                JsldslPackage::eINSTANCE.functionArgument.name)
 			}
 		}
+
+		val FunctionCall functionCall = argument.eContainer as FunctionCall;
+
+		if (functionCall.arguments.filter[a | a.declaration.equals(argument.declaration)].size > 1) {
+			error("Duplicate function parameter:" + argument.declaration.name,
+                JsldslPackage::eINSTANCE.functionArgument_Declaration,
+                DUPLICATE_FUNCTION_PARAMETER,
+                JsldslPackage::eINSTANCE.functionArgument.name)
+		}
+		
 	}
 
 	@Check
@@ -172,7 +165,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			while (itr.hasNext) {
 				val FunctionParameterDeclaration declaration = itr.next;
 
-				if (!functionCall.arguments.exists[a | a.argDeclaration.equals(declaration)]) {
+				if (!functionCall.arguments.exists[a | a.declaration.equals(declaration)]) {
 					error("Missing required function parameter:" + declaration.name,
 		                JsldslPackage::eINSTANCE.functionCall_Arguments,
 		                MISSING_REQUIRED_PARAMETER,
