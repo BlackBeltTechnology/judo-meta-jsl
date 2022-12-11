@@ -40,6 +40,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference;
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Parentheses;
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryArgument;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration;
@@ -221,6 +222,10 @@ public class TypeInfo {
 
 	public boolean isConstant() {
 		return this.modifier == TypeModifier.CONSTANT;
+	}
+
+	public boolean isOrderable() {
+		return !(this.isEntity() || this.isBinary());
 	}
 
 	public boolean isBaseCompatible(TypeInfo other) {
@@ -529,6 +534,12 @@ public class TypeInfo {
 		return typeInfo;
 	}
 
+	public static TypeInfo getTargetType(QueryParameterDeclaration queryParameterDeclaration) {
+		TypeInfo typeInfo = new TypeInfo(queryParameterDeclaration.getReferenceType() , false, false);
+		typeInfo.modifier = TypeModifier.CONSTANT;
+		return typeInfo;
+	}
+	
 	public static TypeInfo getTargetType(Literal litreal) {
 	  	if (litreal instanceof IntegerLiteral) {
 			return new TypeInfo(BaseType.NUMERIC, true);

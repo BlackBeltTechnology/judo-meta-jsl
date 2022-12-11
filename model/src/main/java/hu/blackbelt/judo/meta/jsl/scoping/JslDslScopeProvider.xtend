@@ -76,10 +76,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	@Inject IQualifiedNameProvider qualifiedNameProvider
 
     override getScope(EObject context, EReference ref) {
-    	System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
-    	"\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper 
-    	    + ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
-    	printParents(context)
+//    	System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
+//    	"\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper 
+//    	    + ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
+//    	printParents(context)
   
     	switch context {
 //    		ModelImportDeclaration case ref == JsldslPackage::eINSTANCE.modelImportDeclaration_Model: return context.scope_ModelImportDeclaration_model(ref)
@@ -123,10 +123,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 //			MemberReference case ref == JsldslPackage::eINSTANCE.memberReference_Member: return context.scope_MemberReference_member(ref)
     	}
 
-		System.out.println("====================")
-		System.out.println("Context:" + context);
-		System.out.println("Reference:" + ref);
-		System.out.println("====================")
+//		System.out.println("====================")
+//		System.out.println("Context:" + context);
+//		System.out.println("Reference:" + ref);
+//		System.out.println("====================")
 
 		var IScope scope = super.getScope(context, ref);
 		scope = this.scope_FilterByReferenceType(scope, ref);
@@ -135,19 +135,34 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     		EntityRelationOppositeReferenced case ref == JsldslPackage::eINSTANCE.entityRelationOppositeReferenced_OppositeType: return context.scope_EntityRelationOppositeReferenced_oppositeType(ref)
 			MemberReference case ref == JsldslPackage::eINSTANCE.memberReference_Member: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 
+			LambdaCall case ref == JsldslPackage::eINSTANCE.lambdaCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			LambdaCall case ref == JsldslPackage::eINSTANCE.functionCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			LambdaCall case ref == JsldslPackage::eINSTANCE.entityQueryCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			LambdaCall case ref == JsldslPackage::eINSTANCE.memberReference_Member: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+
 			FunctionCall case ref == JsldslPackage::eINSTANCE.lambdaCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 			FunctionCall case ref == JsldslPackage::eINSTANCE.functionCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			FunctionCall case ref == JsldslPackage::eINSTANCE.entityQueryCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			FunctionCall case ref == JsldslPackage::eINSTANCE.memberReference_Member: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 
 			EntityQueryCall case ref == JsldslPackage::eINSTANCE.functionCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 			EntityQueryCall case ref == JsldslPackage::eINSTANCE.lambdaCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 			EntityQueryCall case ref == JsldslPackage::eINSTANCE.entityQueryCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 			EntityQueryCall case ref == JsldslPackage::eINSTANCE.memberReference_Member: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 
+			QueryCall case ref == JsldslPackage::eINSTANCE.functionCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			QueryCall case ref == JsldslPackage::eINSTANCE.lambdaCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			QueryCall case ref == JsldslPackage::eINSTANCE.entityQueryCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			QueryCall case ref == JsldslPackage::eINSTANCE.memberReference_Member: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+
 			FunctionCall case ref == JsldslPackage::eINSTANCE.functionArgument_Declaration: return scope.scope_FunctionParameters(context.declaration, ref)
 			FunctionArgument case ref == JsldslPackage::eINSTANCE.functionArgument_Declaration: return scope.scope_FunctionParameters((context.eContainer as FunctionCall).declaration, ref)
 
 			EntityQueryCall case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_EntityQueryParameters(context.declaration, ref)
-			QueryArgument case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_EntityQueryParameters((context.eContainer as EntityQueryCall).declaration, ref)
+			QueryCall case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_QueryParameters(context.declaration, ref)
+
+			QueryArgument case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration && context.eContainer instanceof EntityQueryCall: return scope.scope_EntityQueryParameters((context.eContainer as EntityQueryCall).declaration, ref)
+			QueryArgument case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration && context.eContainer instanceof QueryCall: return scope.scope_QueryParameters((context.eContainer as QueryCall).declaration, ref)
 
 			Navigation: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 		}
@@ -163,6 +178,14 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		for (obj : scope.allElements) {
 			System.out.println(obj)
 		}
+	}
+
+	def scope_QueryParameters(IScope scope, QueryDeclaration queryDeclaration, EReference ref) {
+		val IScope localScope = new FilteringScope(scope, [desc | {
+			return EcoreUtil.equals(desc.EObjectOrProxy.eContainer, queryDeclaration)
+		}]);
+		
+		return localScope.getLocalElementsScope(queryDeclaration, ref)
 	}
 
 	def scope_EntityQueryParameters(IScope scope, EntityQueryDeclaration entityQueryDeclaration, EReference ref) {
@@ -779,7 +802,6 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		}
 		val ISelectable allDescriptions = getAllDescriptions(context.eResource());
 		val QualifiedName name = context.fullyQualifiedName  //getQualifiedNameOfLocalElement(context);
-		System.out.println(name)
 		val boolean ignoreCase = false;
 		if (name !== null) {
 			val ImportNormalizer localNormalizer = doCreateImportNormalizer(name, true, ignoreCase); 

@@ -42,6 +42,15 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionArgument
 import org.eclipse.emf.ecore.util.EcoreUtil
+import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaCall
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryArgument
+import hu.blackbelt.judo.meta.jsl.jsldsl.TypeDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.common.util.EList
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryCall
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -75,7 +84,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val UNSUPPORTED_DEFAULT_TYPE = ISSUE_CODE_PREFIX + "UnsupportedDefaultValueType"
 	public static val UNSUPPORTED_SELECTOR = ISSUE_CODE_PREFIX + "UnsupportedSelector"
 	public static val ENUM_MEMBER_MISSING = ISSUE_CODE_PREFIX + "EnumMemberMissing"
-	public static val DUPLICATE_FUNCTION_PARAMETER = ISSUE_CODE_PREFIX + "DuplicateFunctionParameter"
+	public static val DUPLICATE_PARAMETER = ISSUE_CODE_PREFIX + "DuplicateParameter"
 	public static val MISSING_REQUIRED_PARAMETER = ISSUE_CODE_PREFIX + "MissingRequiredParameter"
 	public static val INVALID_PARAMETER = ISSUE_CODE_PREFIX + "InvalidParameter"
 	public static val FUNCTION_PARAMETER_TYPE_MISMATCH = ISSUE_CODE_PREFIX + "FunctionParameterTypeMismatch"
@@ -131,7 +140,79 @@ class JslDslValidator extends AbstractJslDslValidator {
 				modelImport.model.name)
 		}
 	}
-	
+
+	@Check
+	def checkQueryArgument(QueryArgument argument) {
+		if (argument.expression !== null && argument.declaration !== null) {
+			val TypeInfo exprTypeInfo = TypeInfo.getTargetType(argument.expression);
+			val TypeInfo declarationTypeInfo = TypeInfo.getTargetType(argument.declaration);
+
+			if (!declarationTypeInfo.isCompatible(exprTypeInfo)) {
+				error("Type mismatch",
+	                JsldslPackage::eINSTANCE.queryArgument_Expression,
+	                DEFAULT_TYPE_MISMATCH,
+	                JsldslPackage::eINSTANCE.queryArgument.name)
+			}
+
+			if (declarationTypeInfo.constant && !exprTypeInfo.constant) {
+				error("Right value must be constant",
+	                JsldslPackage::eINSTANCE.queryArgument_Expression,
+	                DEFAULT_TYPE_MISMATCH,
+	                JsldslPackage::eINSTANCE.queryArgument.name)
+			}
+		}
+
+		val EObject container = argument.eContainer;
+		var EList<QueryArgument> arguments;
+		
+		if (container instanceof QueryCall) {
+			arguments = (container as QueryCall).arguments;
+		} else {
+			arguments = (container as EntityQueryCall).arguments;
+		}
+
+		if (arguments.filter[a | EcoreUtil.equals(a.declaration, argument.declaration)].size > 1) {
+			error("Duplicate query parameter:" + argument.declaration.name,
+                JsldslPackage::eINSTANCE.queryArgument_Declaration,
+                DUPLICATE_PARAMETER,
+                JsldslPackage::eINSTANCE.queryArgument.name)
+		}
+	}
+
+	@Check
+	def checkEntityQueryRequiredArguments(EntityQueryCall entityQueryCall) {
+		val EntityQueryDeclaration entityQueryDeclaration = entityQueryCall.declaration;
+		val Iterator<QueryParameterDeclaration> itr = entityQueryDeclaration.parameters.iterator;
+
+		while (itr.hasNext) {
+			val QueryParameterDeclaration declaration = itr.next;
+
+			if (!entityQueryCall.arguments.exists[a | EcoreUtil.equals(a.declaration, declaration)]) {
+				error("Missing required query parameter:" + declaration.name,
+	                JsldslPackage::eINSTANCE.entityQueryCall_Arguments,
+	                MISSING_REQUIRED_PARAMETER,
+	                JsldslPackage::eINSTANCE.entityQueryCall.name)
+			}
+		}
+	}
+
+	@Check
+	def checkQueryRequiredArguments(QueryCall queryCall) {
+		val QueryDeclaration queryDeclaration = queryCall.declaration;
+		val Iterator<QueryParameterDeclaration> itr = queryDeclaration.parameters.iterator;
+
+		while (itr.hasNext) {
+			val QueryParameterDeclaration declaration = itr.next;
+
+			if (!queryCall.arguments.exists[a | EcoreUtil.equals(a.declaration, declaration)]) {
+				error("Missing required query parameter:" + declaration.name,
+	                JsldslPackage::eINSTANCE.queryCall_Arguments,
+	                MISSING_REQUIRED_PARAMETER,
+	                JsldslPackage::eINSTANCE.queryCall.name)
+			}
+		}
+	}
+
 	@Check
 	def checkFunctionArgument(FunctionArgument argument) {
 		if (argument.expression !== null && argument.declaration !== null && argument.declaration.description !== null) {
@@ -158,13 +239,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 		if (functionCall.arguments.filter[a | EcoreUtil.equals(a.declaration, argument.declaration)].size > 1) {
 			error("Duplicate function parameter:" + argument.declaration.name,
                 JsldslPackage::eINSTANCE.functionArgument_Declaration,
-                DUPLICATE_FUNCTION_PARAMETER,
+                DUPLICATE_PARAMETER,
                 JsldslPackage::eINSTANCE.functionArgument.name)
 		}
 	}
 
 	@Check
-	def checkLiteralFunctionRequiredParameters(FunctionCall functionCall) {
+	def checkFunctionRequiredArguments(FunctionCall functionCall) {
 		val FunctionDeclaration functionDeclaration = functionCall.declaration;
 		val Iterator<FunctionParameterDeclaration> itr = functionDeclaration.parameters.filter[p | p.isRequired].iterator;
 
@@ -176,6 +257,29 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                JsldslPackage::eINSTANCE.functionCall_Arguments,
 	                MISSING_REQUIRED_PARAMETER,
 	                JsldslPackage::eINSTANCE.functionCall.name)
+			}
+		}
+	}
+
+	@Check
+	def checkLambdaExpression(LambdaCall lambdaCall) {		
+		if (lambdaCall.lambdaExpression !== null) {
+			val lambdaExpressionTypeInfo = TypeInfo.getTargetType(lambdaCall.lambdaExpression)
+			
+			if (lambdaCall.declaration.expressionType === null && !lambdaExpressionTypeInfo.orderable) {
+				error("Lambda expression must be orderable",
+	                JsldslPackage::eINSTANCE.lambdaCall_LambdaExpression,
+	                INVALID_PARAMETER,
+	                JsldslPackage::eINSTANCE.lambdaCall.name)
+			}
+			
+			if (lambdaCall.declaration.expressionType !== null) {
+				if (!TypeInfo.getTargetType(lambdaCall.declaration.expressionType).isCompatible(lambdaExpressionTypeInfo)) {
+					error("Lambda expression type mismatch",
+		                JsldslPackage::eINSTANCE.lambdaCall_LambdaExpression,
+		                DEFAULT_TYPE_MISMATCH,
+		                JsldslPackage::eINSTANCE.lambdaCall.name)
+				}
 			}
 		}
 	}
@@ -562,9 +666,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkEntityDerived(EntityDerivedDeclaration derived) {
 		try {
 			if (derived.expression !== null && !TypeInfo.getTargetType(derived).isCompatible(TypeInfo.getTargetType(derived.expression))) {
-				System.out.println("Derived:" + derived.name + " type:" + TypeInfo.getTargetType(derived));
-				System.out.println("Expression:" + TypeInfo.getTargetType(derived.expression));
-				
 				error("Type mismatch",
 	                JsldslPackage::eINSTANCE.entityDerivedDeclaration_Expression,
 	                DEFAULT_TYPE_MISMATCH,

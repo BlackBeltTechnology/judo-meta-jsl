@@ -157,15 +157,15 @@ class JudoFunctionsProvider {
 		lambda collection<entity> last();
 		lambda collection<entity> front();
 		lambda collection<entity> back();
-		lambda collection<entity> filter();
-		lambda boolean anyTrue();
-		lambda boolean allTrue();
-		lambda boolean anyFalse();
-		lambda boolean allFalse();
-		lambda numeric min();
-		lambda numeric max();
-		lambda numeric avg();
-		lambda numeric sum();
+		lambda collection<entity> filter(boolean);
+		lambda boolean anyTrue(boolean);
+		lambda boolean allTrue(boolean);
+		lambda boolean anyFalse(boolean);
+		lambda boolean allFalse(boolean);
+		lambda numeric min(numeric);
+		lambda numeric max(numeric);
+		lambda numeric avg(numeric);
+		lambda numeric sum(numeric);
 		
 		function entity any() on collection<entity>;
 		function numeric size() on collection<entity>;

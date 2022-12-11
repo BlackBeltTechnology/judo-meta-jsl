@@ -62,7 +62,7 @@ EntityDeclaration
 
 QueryDeclaration
 	: 'query' (referenceType = [SingleType | LocalName] Cardinality?) Named
-	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')?
+	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')
 	  "=>" expression = Expression
 	  ';'
 	;
@@ -106,7 +106,7 @@ EntityDerivedDeclaration
 
 EntityQueryDeclaration
 	: 'query' (referenceType = [SingleType | LocalName] Cardinality?) Named
-	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')?
+	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')
 	  "=>" expression = Expression ';'
 	;
  
@@ -350,7 +350,7 @@ QueryArgument
     ;
 
 LambdaCall
-	: '!' declaration = [LambdaDeclaration | LocalName ] '(' variable = LambdaVariable => '|' expression = Expression ')';
+	: '!' declaration = [LambdaDeclaration | LocalName ] '(' variable = LambdaVariable => '|' lambdaExpression = Expression ')';
 
 LambdaVariable
     : {LambdaVariable} Named    	
@@ -376,7 +376,7 @@ Type
 	;
 
 LambdaDeclaration 
-	: 'lambda' returnType = TypeDescription Named '(' ')' ';'
+	: 'lambda' returnType = TypeDescription Named '(' (expressionType = TypeDescription)? ')' ';'
 	;
  
 EnumLiteralReference returns Expression
