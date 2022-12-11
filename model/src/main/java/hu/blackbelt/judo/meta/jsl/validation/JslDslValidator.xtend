@@ -691,4 +691,18 @@ class JslDslValidator extends AbstractJslDslValidator {
 		
 	}
 
+	@Check
+	def checkQuery(QueryDeclaration query) {
+		try {
+			if (query.expression !== null && !TypeInfo.getTargetType(query).isCompatible(TypeInfo.getTargetType(query.expression))) {
+				error("Type mismatch",
+	                JsldslPackage::eINSTANCE.queryDeclaration_Expression,
+	                DEFAULT_TYPE_MISMATCH,
+	                JsldslPackage::eINSTANCE.queryDeclaration.name)
+			}
+		} catch (IllegalArgumentException illegalArgumentException) {
+            return
+		}
+		
+	}
 }

@@ -522,6 +522,10 @@ public class TypeInfo {
 		throw new IllegalArgumentException("Could not determinate type for entity member");
 	}
 
+	public static TypeInfo getTargetType(QueryDeclaration queryDeclaration) {
+		return new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isIsMany(), false);
+	}
+
 	private static TypeInfo getTargetType(Parentheses parentheses) {
 		TypeInfo typeInfo = getTargetType( parentheses.getExpression() );
 		typeInfo.modifier = typeInfo.modifier == TypeModifier.CONSTANT ? TypeModifier.NONE : typeInfo.modifier;

@@ -136,9 +136,13 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     		EntityRelationOppositeReferenced case ref == JsldslPackage::eINSTANCE.entityRelationOppositeReferenced_OppositeType: return context.scope_EntityRelationOppositeReferenced_oppositeType(ref)
 			MemberReference case ref == JsldslPackage::eINSTANCE.memberReference_Member: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 
-			EntityMemberDeclaration case ref == JsldslPackage::eINSTANCE.navigationBaseDeclarationReference_Reference: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-			EntityMemberDeclaration case ref == JsldslPackage::eINSTANCE.queryCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-			EntityMemberDeclaration case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumDeclaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			EntityMemberDeclaration case ref == JsldslPackage::eINSTANCE.navigationBaseDeclarationReference_Reference: return this.scope_FilterByContextType(scope, TypeInfo.getTargetType(context))
+			EntityMemberDeclaration case ref == JsldslPackage::eINSTANCE.queryCall_Declaration: return this.scope_FilterByContextType(scope, TypeInfo.getTargetType(context))
+			EntityMemberDeclaration case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumDeclaration: return this.scope_FilterByContextType(scope, TypeInfo.getTargetType(context))
+
+			QueryDeclaration case ref == JsldslPackage::eINSTANCE.navigationBaseDeclarationReference_Reference: return this.scope_FilterByContextType(scope, TypeInfo.getTargetType(context))
+			QueryDeclaration case ref == JsldslPackage::eINSTANCE.queryCall_Declaration: return this.scope_FilterByContextType(scope, TypeInfo.getTargetType(context))
+			QueryDeclaration case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumDeclaration: return this.scope_FilterByContextType(scope, TypeInfo.getTargetType(context))
 
 			Call case ref == JsldslPackage::eINSTANCE.lambdaCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 			Call case ref == JsldslPackage::eINSTANCE.functionCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
