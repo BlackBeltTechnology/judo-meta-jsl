@@ -638,7 +638,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Check
 	def checkEntityField(EntityFieldDeclaration field) {
 		try {
-			if (field.defaultExpression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.defaultExpression.expression))) {
+			if (field.defaultExpression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.defaultExpression))) {
 				error("Default value does not match field type",
 	                JsldslPackage::eINSTANCE.entityFieldDeclaration_DefaultExpression,
 	                DEFAULT_TYPE_MISMATCH)
@@ -651,7 +651,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Check
 	def checkEntityIdentifier(EntityIdentifierDeclaration field) {
 		try {
-			if (field.defaultExpression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.defaultExpression.expression))) {
+			if (field.defaultExpression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.defaultExpression))) {
 				error("Type mismatch",
 	                JsldslPackage::eINSTANCE.entityIdentifierDeclaration_DefaultExpression,
 	                DEFAULT_TYPE_MISMATCH,

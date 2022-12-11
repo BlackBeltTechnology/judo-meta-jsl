@@ -80,12 +80,12 @@ EntityMemberDeclaration
 
 EntityFieldDeclaration
 	: 'field' (isRequired ?= 'required'? referenceType = [SingleType | LocalName] Cardinality?) Named
-	  (defaultExpression = DefaultExpressionType)? ';'
+	  ('=' defaultExpression = Expression)? ';'
 	;
 
 EntityIdentifierDeclaration
 	: 'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] Named
-	  (defaultExpression = DefaultExpressionType)? ';'
+	  ('=' defaultExpression = Expression)? ';'
 	;
 
 DefaultExpressionType

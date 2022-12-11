@@ -65,6 +65,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionArgument
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryArgument
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -135,20 +136,14 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     		EntityRelationOppositeReferenced case ref == JsldslPackage::eINSTANCE.entityRelationOppositeReferenced_OppositeType: return context.scope_EntityRelationOppositeReferenced_oppositeType(ref)
 			MemberReference case ref == JsldslPackage::eINSTANCE.memberReference_Member: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 
-			LambdaCall case ref == JsldslPackage::eINSTANCE.lambdaCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-			LambdaCall case ref == JsldslPackage::eINSTANCE.functionCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-			LambdaCall case ref == JsldslPackage::eINSTANCE.entityQueryCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-			LambdaCall case ref == JsldslPackage::eINSTANCE.memberReference_Member: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			EntityMemberDeclaration case ref == JsldslPackage::eINSTANCE.navigationBaseDeclarationReference_Reference: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			EntityMemberDeclaration case ref == JsldslPackage::eINSTANCE.queryCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			EntityMemberDeclaration case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumDeclaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 
-			FunctionCall case ref == JsldslPackage::eINSTANCE.lambdaCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-			FunctionCall case ref == JsldslPackage::eINSTANCE.functionCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-			FunctionCall case ref == JsldslPackage::eINSTANCE.entityQueryCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-			FunctionCall case ref == JsldslPackage::eINSTANCE.memberReference_Member: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-
-			EntityQueryCall case ref == JsldslPackage::eINSTANCE.functionCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-			EntityQueryCall case ref == JsldslPackage::eINSTANCE.lambdaCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-			EntityQueryCall case ref == JsldslPackage::eINSTANCE.entityQueryCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-			EntityQueryCall case ref == JsldslPackage::eINSTANCE.memberReference_Member: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			Call case ref == JsldslPackage::eINSTANCE.lambdaCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			Call case ref == JsldslPackage::eINSTANCE.functionCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			Call case ref == JsldslPackage::eINSTANCE.entityQueryCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			Call case ref == JsldslPackage::eINSTANCE.memberReference_Member: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 
 			QueryCall case ref == JsldslPackage::eINSTANCE.functionCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 			QueryCall case ref == JsldslPackage::eINSTANCE.lambdaCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
@@ -160,7 +155,6 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 			EntityQueryCall case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_EntityQueryParameters(context.declaration, ref)
 			QueryCall case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_QueryParameters(context.declaration, ref)
-
 			QueryArgument case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration && context.eContainer instanceof EntityQueryCall: return scope.scope_EntityQueryParameters((context.eContainer as EntityQueryCall).declaration, ref)
 			QueryArgument case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration && context.eContainer instanceof QueryCall: return scope.scope_QueryParameters((context.eContainer as QueryCall).declaration, ref)
 
@@ -236,6 +230,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			switch obj {
 				FunctionDeclaration case obj.baseType !== null: contextTypeInfo.isBaseCompatible(TypeInfo.getTargetType(obj.baseType)) ? return true : return false
 				LambdaDeclaration: contextTypeInfo.isEntity() && contextTypeInfo.isCollection() ? return true : return false
+				QueryParameterDeclaration: return false
 				EntityMemberDeclaration: return false
 //				EntityMemberDeclaration case obj instanceof EntityMemberDeclaration: return contextTypeInfo.getEntity.allMembers.stream.anyMatch(m | EcoreUtil.getURI(obj).equals(EcoreUtil.getURI(m)))
 //				EntityMemberDeclaration: return contextTypeInfo.getEntity.allMembers.stream.anyMatch(m | EcoreUtil.equals(obj, m))
