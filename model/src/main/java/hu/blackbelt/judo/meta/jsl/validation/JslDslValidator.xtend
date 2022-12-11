@@ -41,7 +41,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionArgument
-import hu.blackbelt.judo.meta.jsl.jsldsl.Argument
 import org.eclipse.emf.ecore.util.EcoreUtil
 
 /**
@@ -135,7 +134,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	
 	@Check
 	def checkFunctionArgument(FunctionArgument argument) {
-		if (argument.expression !== null && argument.declaration !== null) {
+		if (argument.expression !== null && argument.declaration !== null && argument.declaration.description !== null) {
 			val TypeInfo exprTypeInfo = TypeInfo.getTargetType(argument.expression);
 			val TypeInfo declarationTypeInfo = TypeInfo.getTargetType(argument.declaration.description);
 

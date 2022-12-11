@@ -63,6 +63,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionArgument
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryArgument
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -74,10 +76,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	@Inject IQualifiedNameProvider qualifiedNameProvider
 
     override getScope(EObject context, EReference ref) {
-//    	System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
-//    	"\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper 
-//    	    + ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
-//    	printParents(context)
+    	System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
+    	"\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper 
+    	    + ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
+    	printParents(context)
   
     	switch context {
 //    		ModelImportDeclaration case ref == JsldslPackage::eINSTANCE.modelImportDeclaration_Model: return context.scope_ModelImportDeclaration_model(ref)
@@ -132,11 +134,21 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		switch context {
     		EntityRelationOppositeReferenced case ref == JsldslPackage::eINSTANCE.entityRelationOppositeReferenced_OppositeType: return context.scope_EntityRelationOppositeReferenced_oppositeType(ref)
 			MemberReference case ref == JsldslPackage::eINSTANCE.memberReference_Member: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
-			EntityQueryCall case ref == JsldslPackage::eINSTANCE.entityQueryCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+
 			FunctionCall case ref == JsldslPackage::eINSTANCE.lambdaCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 			FunctionCall case ref == JsldslPackage::eINSTANCE.functionCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+
+			EntityQueryCall case ref == JsldslPackage::eINSTANCE.functionCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			EntityQueryCall case ref == JsldslPackage::eINSTANCE.lambdaCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			EntityQueryCall case ref == JsldslPackage::eINSTANCE.entityQueryCall_Declaration: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+			EntityQueryCall case ref == JsldslPackage::eINSTANCE.memberReference_Member: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
+
 			FunctionCall case ref == JsldslPackage::eINSTANCE.functionArgument_Declaration: return scope.scope_FunctionParameters(context.declaration, ref)
 			FunctionArgument case ref == JsldslPackage::eINSTANCE.functionArgument_Declaration: return scope.scope_FunctionParameters((context.eContainer as FunctionCall).declaration, ref)
+
+			EntityQueryCall case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_EntityQueryParameters(context.declaration, ref)
+			QueryArgument case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_EntityQueryParameters((context.eContainer as EntityQueryCall).declaration, ref)
+
 			Navigation: return this.scope_NavigationBase(scope, ref, TypeInfo.getTargetType(context))
 		}
 
@@ -153,9 +165,16 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		}
 	}
 
+	def scope_EntityQueryParameters(IScope scope, EntityQueryDeclaration entityQueryDeclaration, EReference ref) {
+		val IScope localScope = new FilteringScope(scope, [desc | {
+			return EcoreUtil.equals(desc.EObjectOrProxy.eContainer, entityQueryDeclaration)
+		}]);
+		
+		return localScope.getLocalElementsScope(entityQueryDeclaration, ref)
+	}
+
 	def scope_FunctionParameters(IScope scope, FunctionDeclaration functionDeclaration, EReference ref) {
 		val IScope localScope = scope.getLocalElementsScope(functionDeclaration, ref)
-		System.out.println(localScope)
 		return localScope
 	}
 
@@ -163,6 +182,18 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		var IScope navigationScope = this.scope_FilterByContextType(scope, navigationTypeInfo)
 		if (navigationTypeInfo.isEntity) {
 			navigationScope = this.getEntityMembers(navigationScope, navigationTypeInfo.getEntity, ref)
+			
+			if (navigationTypeInfo.isCollection) {
+				navigationScope = new FilteringScope(navigationScope, [desc | {
+					val obj = desc.EObjectOrProxy
+
+					switch obj {
+						EntityMemberDeclaration: return TypeInfo.getTargetType(obj).isPrimitive ? false : true
+					}
+					
+					return true
+				}]);
+			}
 		}
 		return navigationScope
 	}
@@ -184,7 +215,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				LambdaDeclaration: contextTypeInfo.isEntity() && contextTypeInfo.isCollection() ? return true : return false
 				EntityMemberDeclaration: return false
 //				EntityMemberDeclaration case obj instanceof EntityMemberDeclaration: return contextTypeInfo.getEntity.allMembers.stream.anyMatch(m | EcoreUtil.getURI(obj).equals(EcoreUtil.getURI(m)))
-//				EntityMemberDeclaration case obj instanceof EntityMemberDeclaration: return contextTypeInfo.getEntity.allMembers.stream.anyMatch(m | obj.equals(m) )
+//				EntityMemberDeclaration: return contextTypeInfo.getEntity.allMembers.stream.anyMatch(m | EcoreUtil.equals(obj, m))
 			}
 
 			true

@@ -62,7 +62,7 @@ EntityDeclaration
 
 QueryDeclaration
 	: 'query' (referenceType = [SingleType | LocalName] Cardinality?) Named
-	  ('(' (parameters += QueryDeclarationParameter (',' parameters += QueryDeclarationParameter)*)? ')')
+	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')?
 	  "=>" expression = Expression
 	  ';'
 	;
@@ -106,11 +106,11 @@ EntityDerivedDeclaration
 
 EntityQueryDeclaration
 	: 'query' (referenceType = [SingleType | LocalName] Cardinality?) Named
-	  ('(' (parameters += QueryDeclarationParameter (',' parameters += QueryDeclarationParameter)*)? ')')
+	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')?
 	  "=>" expression = Expression ';'
 	;
  
-QueryDeclarationParameter
+QueryParameterDeclaration
 	: referenceType = [PrimitiveDeclaration | LocalName] Named ("=" default = Literal)?
 	;
 
@@ -310,12 +310,12 @@ NavigationBaseDeclarationReference
 NavigationBaseDeclaration
 	: EntityDeclaration
 	| LambdaVariable
-	| QueryDeclarationParameter
+	| QueryParameterDeclaration
 	| PrimitiveDeclaration
 	;
 
 QueryCall
-	: declaration = [QueryDeclaration | LocalName ] '(' (arguments += Argument (',' arguments += Argument)*)? ')'
+	: declaration = [QueryDeclaration | LocalName ] '(' (arguments += QueryArgument (',' arguments += QueryArgument)*)? ')'
 	;
 
 Feature
@@ -334,7 +334,7 @@ Call
 	;
 
 EntityQueryCall
-	: '.' declaration = [EntityQueryDeclaration | LocalName ] => '(' (arguments += Argument (',' arguments += Argument)*)? ')'
+	: '.' declaration = [EntityQueryDeclaration | LocalName ] => '(' (arguments += QueryArgument (',' arguments += QueryArgument)*)? ')'
 	;
 
 FunctionCall
@@ -345,8 +345,8 @@ FunctionArgument
     : declaration = [FunctionParameterDeclaration | LocalName ] '=' expression = Expression
     ;
 
-Argument
-    : Named '=' expression = Expression
+QueryArgument
+    : declaration = [QueryParameterDeclaration | LocalName ] '=' expression = Expression
     ;
 
 LambdaCall

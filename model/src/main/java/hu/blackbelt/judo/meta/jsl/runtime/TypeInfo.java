@@ -42,7 +42,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Parentheses;
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclarationParameter;
+import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.RawStringLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Self;
 import hu.blackbelt.judo.meta.jsl.jsldsl.SingleType;
@@ -465,8 +465,8 @@ public class TypeInfo {
 			typeInfo = new TypeInfo((EntityDeclaration) navigationBaseReference, false, true);
 		} else if (navigationBaseReference instanceof LambdaVariable) {
 			typeInfo = getTargetType((LambdaVariable) navigationBaseReference);
-		} else if (navigationBaseReference instanceof QueryDeclarationParameter) {
-			typeInfo = new TypeInfo( ((QueryDeclarationParameter) navigationBaseReference).getReferenceType(), false, false);
+		} else if (navigationBaseReference instanceof QueryParameterDeclaration) {
+			typeInfo = new TypeInfo( ((QueryParameterDeclaration) navigationBaseReference).getReferenceType(), false, false);
 			typeInfo.modifier = TypeModifier.CONSTANT;
 		} else if (navigationBaseReference instanceof PrimitiveDeclaration) {
 			typeInfo = new TypeInfo((SingleType) navigationBaseReference, false, true);
