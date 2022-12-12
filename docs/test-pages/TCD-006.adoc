@@ -14,4 +14,4 @@ xref:resources/entity_naming.jsl[entity_naming.jsl]
 
 == Test scenario
 
-. TODO
+. TODO: JNG-4297 Creating Judo test methodology
