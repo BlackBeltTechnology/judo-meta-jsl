@@ -1,0 +1,36 @@
+= TCD-008
+
+== Purpose
+
+Verifying the primitive types and their behaviour. This case is verifying the optional primitive fields without adding any values to them.
+
+[NOTE]
+This is a reverse engineered test case.
+
+=== Tested requirements
+
+REQ-TYPE-001
+
+=== Used JSL model
+
+xref:resources/Primitives.jsl[Primitives.jsl]
+
+== Test scenario
+
+. Create and save MyEntityWithOptionalFields without adding any attribute value.
+
+. Re-read the instance of MyEntityWithOptionalFields that has been saved in the previous step (entity1).
+
+. Check the next attribute values of the entity1. None of them has any value.
+    * integerAttr = empty;
+    * scaledAttr = empty;
+    * stringAttr = empty;
+    * regexAttr = empty;
+    * boolAttr = empty;
+    * dateAttr = empty;
+    * timestampAttr = empty;
+    * timeAttr = empty;
+    * binaryAttr = empty;
+    * enumAttr = empty;
+
+. If there isn't any problem until this point and none of attribute has any value the test is considered to be successful.

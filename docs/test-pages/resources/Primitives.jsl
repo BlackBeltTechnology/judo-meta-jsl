@@ -1,0 +1,112 @@
+model Primitives;
+
+import judo::types;
+
+type numeric Scaled(precision = 9, scale = 2);
+type string PhoneNumber(min-size = 0, max-size = 32, regex = "^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$");   // escape sequencing does not work in regexp!!!!
+type binary Binary(mime-types = ["text/plain"], max-file-size=1 GB);
+type string SmallString(min-size = 0, max-size = 128);
+
+enum MyEnum {
+    Atomic = 0;
+    Bombastic = 1;
+    Crazy = 2;
+}
+
+entity abstract AbstractEntityOptionalFields {
+    field Integer integerAttr;
+    field Scaled scaledAttr;
+    field SmallString stringAttr;
+    field PhoneNumber regexAttr;
+    field Boolean boolAttr;
+    field Date dateAttr;
+    field Timestamp timestampAttr;
+    field Time timeAttr;
+    field Binary binaryAttr;
+    field MyEnum enumAttr;
+}
+
+entity MyEntityWithOptionalFields extends AbstractEntityOptionalFields {
+}
+
+entity EntityRequiredFields {
+    field required Integer integerAttr;
+    field required Scaled scaledAttr;
+    field required String stringAttr;
+    field required PhoneNumber regexAttr;
+    field required Boolean boolAttr;
+    field required Date dateAttr;
+    field required Timestamp timestampAttr;
+    field required Time timeAttr;
+    field required Binary binaryAttr;
+    field required MyEnum enumAttr;
+}
+
+entity EntityWithIdentifiers {
+    identifier Integer integerAttr;
+    identifier Scaled scaledAttr;
+    identifier String stringAttr;
+    identifier PhoneNumber regexAttr;
+    identifier Boolean boolAttr;
+    identifier Date dateAttr;
+    identifier Timestamp timestampAttr;
+    identifier Binary binaryAttr;
+    identifier MyEnum enumAttr;
+}
+
+entity EntityWithIdentifiersContainer {
+    field EntityWithIdentifiers[] entiiesWithIdentifiers;
+}
+
+
+entity EntityWithPrimitiveDefaults {
+    field Integer integerAttr = 1;
+    field Scaled scaledAttr = 2.34;
+    field String stringAttr = "test";
+    field PhoneNumber regexAttr = "+36-1-123-123";
+    field Boolean boolAttr = true;
+    field Date dateAttr = `2022-07-11`;
+    field Timestamp timestampAttr = `2022-07-11T19:09:33Z`;
+    field Time timeAttr = `23:59:59`;
+    field Time shortTimeAttr = `23:59`;
+    field Binary binaryAttr; // There is no syntax for define default value for binary
+    field MyEnum enumAttr = MyEnum#Bombastic;
+}
+
+entity EntityRequiredWithPrimitiveDefaults {
+    field required Integer integerAttr = 1;
+    field required Scaled scaledAttr = 2.34;
+    field required String stringAttr = "test";
+    field required PhoneNumber regexAttr = "+36-1-123-123";
+    field required Boolean boolAttr = true;
+    field required Date dateAttr = `2022-07-11`;
+    field required Timestamp timestampAttr = `2022-07-11T19:09:33Z`;
+    field required Time timeAttr = `23:59:59`;
+    // field required Binary binaryAttr; // There is no syntax for define default value for binary
+    field required MyEnum enumAttr = MyEnum#Bombastic;
+}
+
+entity EntityWithPrimitiveDefaultExpressions {
+    field Integer integerAttr = 1.23!round();
+    field Scaled scaledAttr = 2.9!abs();
+    field String stringAttr = true!asString();
+    field PhoneNumber regexAttr = "+36-1-123-123";
+    field Boolean boolAttr = 2 > -1;
+    field Date dateAttr = Date!now();
+    field Timestamp timestampAttr = Timestamp!now();
+    field Time timeAttr = Time!of(hour = 23, minute = 59, second = 59);
+}
+
+entity ReferenceEntity {
+    field Integer intAtt = 3;
+}
+
+entity DefaultRequiredEntity {
+
+    //TODO JNG-4242
+    //TODO JNG-3721
+
+    identifier required Date createDate = Date!of(year = 2022, month = 11, day = 4);
+    field required Integer sumEntitiesIntegerValue = ReferenceEntity!sum(e | e.intAtt);
+
+}

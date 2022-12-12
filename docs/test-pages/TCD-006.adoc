@@ -1,0 +1,17 @@
+= TCD-006
+
+== Purpose
+
+Verifying the entity naming rules, and the simple and multiline comments in the JSL model.
+
+=== Tested requirements
+
+REQ-SYNT-004, REQ-SYNT-005
+
+=== Used JSL model
+
+xref:resources/entity_naming.jsl[entity_naming.jsl]
+
+== Test scenario
+
+. TODO: JNG-4297 Creating Judo test methodology

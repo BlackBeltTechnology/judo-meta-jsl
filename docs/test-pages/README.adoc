@@ -1,0 +1,5 @@
+= Test cases for judo-meta-jsl
+
+This folder contains all testcase definitions, which can be implemented in all layers of the JUDO framework.
+
+TODO: JNG-4297 Creating Judo test methodology
