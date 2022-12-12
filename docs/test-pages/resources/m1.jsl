@@ -1,7 +1,0 @@
-model judo::mm::m1;
-
-entity Address {
-    field required String street;
-    field required String city;
-    field String country;
-}
