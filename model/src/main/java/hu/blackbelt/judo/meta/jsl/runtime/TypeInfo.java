@@ -61,7 +61,7 @@ public class TypeInfo {
     // PrimitiveType is just for compatibility purpose
     public enum PrimitiveType {BOOLEAN, BINARY, STRING, NUMERIC, DATE, TIME, TIMESTAMP}
     
-    private enum BaseType {BOOLEAN, BINARY, STRING, NUMERIC, DATE, TIME, TIMESTAMP, ENUM, ENTITY}
+    private enum BaseType {UNDEFINED, BOOLEAN, BINARY, STRING, NUMERIC, DATE, TIME, TIMESTAMP, ENUM, ENTITY}
 
     private enum TypeModifier {NONE, CONSTANT, COLLECTION, DECLARATION}
     
@@ -476,7 +476,8 @@ public class TypeInfo {
 		} else if (navigationBaseReference instanceof PrimitiveDeclaration) {
 			typeInfo = new TypeInfo((SingleType) navigationBaseReference, false, true);
 		} else {
-			throw new IllegalArgumentException("Could not determinate type for navigation base reference.");
+			typeInfo = new TypeInfo(BaseType.UNDEFINED, false);
+			// throw new IllegalArgumentException("Could not determinate type for navigation base reference.");
 		}
 
 		return typeInfo;
@@ -524,6 +525,14 @@ public class TypeInfo {
 
 	public static TypeInfo getTargetType(QueryDeclaration queryDeclaration) {
 		return new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isIsMany(), false);
+	}
+
+	public static TypeInfo getTargetType(FunctionDeclaration functionDeclaration) {
+		return new TypeInfo(functionDeclaration.getReturnType());
+	}
+
+	public static TypeInfo getTargetType(FunctionArgument functionArgument) {
+		return new TypeInfo(functionArgument.getDeclaration().getDescription());
 	}
 
 	private static TypeInfo getTargetType(Parentheses parentheses) {

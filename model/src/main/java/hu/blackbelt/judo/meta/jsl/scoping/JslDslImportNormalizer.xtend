@@ -22,7 +22,7 @@ class JslDslImportNormalizer extends ImportNormalizer {
 			name = aliasNormalizer.deresolve(relativeName)
 		}
 		if (name === null) {
-			name = relativeName
+			return null
 		}
 		val resolved = super.resolve(name)		
 		
