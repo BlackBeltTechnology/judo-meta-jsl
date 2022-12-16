@@ -18,6 +18,10 @@ class JslDslImportNormalizer extends ImportNormalizer {
 	
 	override deresolve(QualifiedName fullyQualifiedName) {
 		if (aliasNormalizer !== null) {
+			if (fullyQualifiedName.equals(aliasNormalizer.importedNamespacePrefix)) {
+				return fullyQualifiedName
+			}
+
 			if (fullyQualifiedName.startsWith(importedNamespacePrefix)) {
 				return aliasNormalizer.importedNamespacePrefix.append(fullyQualifiedName.skipFirst(importedNamespacePrefix.segmentCount));
 			}
@@ -37,6 +41,10 @@ class JslDslImportNormalizer extends ImportNormalizer {
 			return null;
 
 		if (aliasNormalizer !== null) {
+			if (relativeName.equals(aliasNormalizer.importedNamespacePrefix)) {
+				return relativeName
+			}
+			
 			if (relativeName.startsWith(aliasNormalizer.importedNamespacePrefix)) {
 				return importedNamespacePrefix.append(relativeName.skipFirst(aliasNormalizer.importedNamespacePrefix.segmentCount))
 			}

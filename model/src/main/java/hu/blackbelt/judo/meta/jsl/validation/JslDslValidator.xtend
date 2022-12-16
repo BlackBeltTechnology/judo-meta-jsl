@@ -51,6 +51,13 @@ import org.eclipse.emf.common.util.EList
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
+import org.eclipse.xtext.nodemodel.ICompositeNode
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils
+import org.eclipse.xtend.typesystem.emf.EClassType
+import org.eclipse.emf.ecore.EClass
+import java.util.stream.Stream
+import java.util.ArrayList
+import org.eclipse.xtext.CrossReference
 
 /**
  * This class contains custom validation rules. 
@@ -88,6 +95,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val MISSING_REQUIRED_PARAMETER = ISSUE_CODE_PREFIX + "MissingRequiredParameter"
 	public static val INVALID_PARAMETER = ISSUE_CODE_PREFIX + "InvalidParameter"
 	public static val FUNCTION_PARAMETER_TYPE_MISMATCH = ISSUE_CODE_PREFIX + "FunctionParameterTypeMismatch"
+	public static val IMPORT_ALIAS_COLLISION = ISSUE_CODE_PREFIX + "ImportAliasCollison"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -118,6 +126,25 @@ class JslDslValidator extends AbstractJslDslValidator {
 				return
 			}
 		]
+	}
+    
+    @Check
+	def checkImportAlias(ModelImportDeclaration modelImport) {
+		if (modelImport.alias !== null) {
+			if ((modelImport.eContainer as ModelDeclaration).imports.filter[i | i.model.name.equals(modelImport.alias)].size > 0) {
+				error("Alias name collision '" + modelImport.alias + "'",
+					JsldslPackage::eINSTANCE.modelImportDeclaration_Alias,
+					IMPORT_ALIAS_COLLISION,
+					modelImport.alias)
+			}
+	
+			if ((modelImport.eContainer as ModelDeclaration).imports.filter[i | i.alias !== null && i.alias.equals(modelImport.alias)].size > 1) {
+				error("Alias name collision '" + modelImport.alias + "'",
+					JsldslPackage::eINSTANCE.modelImportDeclaration_Alias,
+					IMPORT_ALIAS_COLLISION,
+					modelImport.alias)
+			}
+		}
 	}
     
 	@Check
@@ -705,4 +732,71 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 		
 	}
+	
+//	def printNode(ICompositeNode compositeNode) {
+//		if (compositeNode.grammarElement instanceof CrossReference) {
+//			System.out.println(compositeNode.grammarElement + ":" + NodeModelUtils.getTokenText(compositeNode))
+//		}
+//
+//		for (child : compositeNode.children) {
+//			if (child instanceof ICompositeNode) {
+//				printNode(child)
+//			}
+//		}
+//	}
+//	
+//	@Check
+//	def checkReferences(EObject object) {
+//		val ModelDeclaration model = object.parentContainer(ModelDeclaration)
+//		
+//		var ArrayList<Declaration> declarations = new ArrayList<Declaration>();
+//		
+//		if (object.eCrossReferences.size > 0) {
+//			declarations.addAll(model.declarations)
+//			for (imp : model.imports) {
+//				declarations.addAll(imp.model.declarations)
+//			}
+//
+//			val ICompositeNode compositeNode = NodeModelUtils.getNode(object);
+//			System.out.println(NodeModelUtils.getTokenText(compositeNode))
+//			printNode(compositeNode)
+//			
+//			for (c : compositeNode.children) {
+//				if (c instanceof CrossReference) {
+//					System.out.println("   " + c + " -> " + NodeModelUtils.getTokenText(c))
+//				}
+//			}
+//		}
+
+//		for (referencedObject : object.eCrossReferences) {
+//			var Iterable<Declaration> sameNameObjects = declarations.filter[d | d.name.equals(referencedObject.name)]
+//			if (sameNameObjects.size > 1) {
+//				System.out.println("More than object with same name:" + referencedObject.name)
+//				val ICompositeNode node = NodeModelUtils.getNode(object);
+//				System.out.println("Referenced from:" + NodeModelUtils.getTokenText(node))
+//				for (snObject : sameNameObjects) {
+//					System.out.println("Object:" + snObject.fullyQualifiedName)
+//				}
+//				System.out.println
+//			}
+//		}
+		
+		//Bmodel.imports.flatMap[i | i.model.declarations].forEach[y | System.out.println(y)]
+		// object.eResource.resourceSet.resources.forEach[x | x.allContents.forEach[y | System.out.println(y)]]
+		
+//		for (referencedObject : object.eCrossReferences) {
+//			
+//			val ModelDeclaration referencedModel = referencedObject.parentContainer(ModelDeclaration)
+//			if (!EcoreUtil.equals(model, referencedModel)) {
+//				System.out.println("Reference: " + model.name + " -> " + referencedModel.name)
+//				System.out.println(object)
+//
+//				val ICompositeNode node = NodeModelUtils.getNode(object);
+//				node.
+//				if (node !== null) {
+//					System.out.println(NodeModelUtils.getTokenText(node))
+//				}
+//			}
+//		}
+//	}
 }
