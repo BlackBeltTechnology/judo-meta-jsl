@@ -19,7 +19,7 @@ class JslDslImportNormalizer extends ImportNormalizer {
 	override deresolve(QualifiedName fullyQualifiedName) {
 		if (aliasNormalizer !== null) {
 			if (fullyQualifiedName.startsWith(importedNamespacePrefix)) {
-				return fullyQualifiedName.skipFirst(importedNamespacePrefix.segmentCount);
+				return aliasNormalizer.importedNamespacePrefix.append(fullyQualifiedName.skipFirst(importedNamespacePrefix.segmentCount));
 			}
 			
 			if (fullyQualifiedName.startsWith(aliasNormalizer.importedNamespacePrefix)) {
