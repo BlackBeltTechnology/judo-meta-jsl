@@ -9,9 +9,15 @@ ModelDeclaration returns ModelDeclaration
 	  (declarations += Declaration)*
     ;
 
-JSLID : ID | 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'timestamp' | 'enum'
+JSLID : ID | 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'timestamp'
 	       | 'regex' | 'precision' | 'scale'
-	       | 'DESC' | 'ASC'
+	       | 'model' | 'import' | 'entity' | 'query' | 'field' | 'identifier' | 'derived' | 'relation' | 'type' | 'enum' | 'function' | 'lambda' | 'constraint' | 'error'
+	       | 'required' | 'as' | 'abstract' | 'extends' | 'opposite' | 'on' | 'onerror'
+	       | 'collection' | 'declaration' | 'constant'
+	       | 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' 
+	       | 'kB' | 'MB' | 'GB' | 'KiB' | 'MiB' | 'GiB'
+	       
+	       // 'self', 'true', 'false', 'not' are not included
 	;
 
 ModelImportDeclaration 

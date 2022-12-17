@@ -52,6 +52,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
 import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference
+import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -60,6 +61,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 	@Inject IResourceScopeCache cache = IResourceScopeCache.NullImpl.INSTANCE;
 	@Inject IQualifiedNameProvider qualifiedNameProvider
+
+	@Inject extension JslDslModelExtension
 
     override getScope(EObject context, EReference ref) {
 //    	System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
@@ -166,7 +169,12 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	}
 
 	def scope_EntityRelationOppositeReferenced_oppositeType(EntityRelationOpposite context, EReference ref) {
-		getEntityMembers(IScope.NULLSCOPE, (context.eContainer as EntityRelationDeclaration).referenceType, ref)
+		val entityRelationDeclaration = context.eContainer as EntityRelationDeclaration
+		if (context.eContainer !== null && entityRelationDeclaration.isResolvedReference(JsldslPackage.ENTITY_RELATION_DECLARATION__REFERENCE_TYPE)) {
+			getEntityMembers(IScope.NULLSCOPE, entityRelationDeclaration.referenceType, ref)
+		} else {
+			return IScope.NULLSCOPE
+		}
 	}
 
 	def getEntityRelationOppositeInjected(IScope parent, EntityDeclaration entity, EReference reference) {

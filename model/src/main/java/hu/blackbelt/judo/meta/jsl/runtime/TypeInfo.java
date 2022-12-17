@@ -56,6 +56,7 @@ import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension;
 
 public class TypeInfo {
     private static JslDslModelExtension modelExtension = new JslDslModelExtension();
+
 	
     // PrimitiveType is just for compatibility purpose
     public enum PrimitiveType {BOOLEAN, BINARY, STRING, NUMERIC, DATE, TIME, TIMESTAMP}
@@ -330,11 +331,6 @@ public class TypeInfo {
 	}
 	*/
 	
-	private static boolean isResolvedReference(EObject object, int featureID) {
-		EObject featureObject = (EObject) object.eGet(object.eClass().getEStructuralFeature(featureID), false);
-		return !featureObject.eIsProxy();
-	}
-	
 	public static TypeInfo getTargetType(Feature feature) {
 		TypeInfo baseTypeInfo;
 		Navigation navigation = (Navigation) feature.eContainer();
@@ -351,14 +347,14 @@ public class TypeInfo {
 			
 		if (feature instanceof MemberReference) {
 			// System.out.println("MemberReference:"+feature.eGet(feature.eClass().getEStructuralFeature(JsldslPackage.MEMBER_REFERENCE__MEMBER), false));
-			if (!isResolvedReference(feature, JsldslPackage.MEMBER_REFERENCE__MEMBER)) {
+			if (!modelExtension.isResolvedReference(feature, JsldslPackage.MEMBER_REFERENCE__MEMBER)) {
 				return baseTypeInfo;
 			}
 			TypeInfo typeInfo = getTargetType( ((MemberReference) feature).getMember() );
 			typeInfo.modifier = typeInfo.modifier == TypeModifier.COLLECTION ? TypeModifier.COLLECTION : baseTypeInfo.modifier;
 			return typeInfo;
 		} else if (feature instanceof EntityQueryCall) {
-			if (!isResolvedReference(feature, JsldslPackage.ENTITY_QUERY_CALL__DECLARATION)) {
+			if (!modelExtension.isResolvedReference(feature, JsldslPackage.ENTITY_QUERY_CALL__DECLARATION)) {
 				return baseTypeInfo;
 			}
 			TypeInfo typeInfo = getTargetType( ((EntityQueryCall)feature).getDeclaration() );
@@ -366,7 +362,7 @@ public class TypeInfo {
 			return typeInfo;
 		
 		} else if (feature instanceof FunctionCall) {
-			if (!isResolvedReference(feature, JsldslPackage.FUNCTION_CALL__DECLARATION)) {
+			if (!modelExtension.isResolvedReference(feature, JsldslPackage.FUNCTION_CALL__DECLARATION)) {
 				return baseTypeInfo;
 			}
 			FunctionCall functionCall = (FunctionCall)feature;
@@ -395,7 +391,7 @@ public class TypeInfo {
 			return functionReturnTypeInfo;
 			
 		} else if (feature instanceof LambdaCall) {
-			if (!isResolvedReference(feature, JsldslPackage.LAMBDA_CALL__DECLARATION)) {
+			if (!modelExtension.isResolvedReference(feature, JsldslPackage.LAMBDA_CALL__DECLARATION)) {
 				return baseTypeInfo;
 			}
 			TypeInfo typeInfo = getTargetType( ((LambdaCall) feature).getDeclaration().getReturnType() );

@@ -41,11 +41,18 @@ import java.util.stream.Collectors
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaDeclaration
 import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.emf.ecore.EClass
+import org.eclipse.emf.ecore.EStructuralFeature
 
 @Singleton
 class JslDslModelExtension {
 	
 	@Inject extension IQualifiedNameProvider	
+
+	def isResolvedReference(EObject it, int featureID) {
+		val EObject featureObject = it.eGet(it.eClass().getEStructuralFeature(featureID), false) as EObject;
+		return !featureObject.eIsProxy();
+	}
 
 	/*
 	def ModelDeclaration modelDeclaration(EObject obj) {
