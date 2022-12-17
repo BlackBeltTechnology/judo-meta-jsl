@@ -96,6 +96,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val INVALID_PARAMETER = ISSUE_CODE_PREFIX + "InvalidParameter"
 	public static val FUNCTION_PARAMETER_TYPE_MISMATCH = ISSUE_CODE_PREFIX + "FunctionParameterTypeMismatch"
 	public static val IMPORT_ALIAS_COLLISION = ISSUE_CODE_PREFIX + "ImportAliasCollison"
+	public static val HIDDEN_DECLARATION = ISSUE_CODE_PREFIX + "HiddenDeclaration"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -167,6 +168,18 @@ class JslDslValidator extends AbstractJslDslValidator {
 				modelImport.model.name)
 		}
 	}
+
+	@Check
+	def checkHiddenDeclaration(Declaration declaration) {
+		for (importDeclaration : (declaration.eContainer as ModelDeclaration).imports.filter[i | i.alias === null]) {
+			if (importDeclaration.model.declarations.exists[d | d.name.equals(declaration.name)]) {
+				warning("Declaration possibly hides other declaration in import '" + importDeclaration.model.name + "'",
+					null,
+					HIDDEN_DECLARATION,
+					declaration.name)				
+			}
+		}
+	} 
 
 	@Check
 	def checkQueryArgument(QueryArgument argument) {
