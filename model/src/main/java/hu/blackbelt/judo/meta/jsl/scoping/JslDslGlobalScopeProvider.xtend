@@ -14,7 +14,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.eclipse.xtext.resource.IResourceDescriptions
 import org.eclipse.xtext.scoping.impl.FilteringScope
-import org.eclipse.emf.ecore.EObject
 
 class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 
@@ -29,20 +28,8 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 //    	 System.out.println("JslDslGlobalScopeProvider.scope=scope_" + reference.EContainingClass.name + "_" + reference.name + "(" + resource + " context, EReference ref) : " + reference.EReferenceType.name);
 //		 System.out.println("\tRes: " + resource + "Ref: " + reference);
 		val model = resource.getContents().get(0).parentContainer(ModelDeclaration)
-		//System.out.println("Reference:" + reference)
-		
-		// judoFunctionsProvider.test
-//		if (JsldslPackage::eINSTANCE.modelDeclaration_Imports == reference) {
-//			System.out.println("Model Imports")
-//		}
 		
 		if (JsldslPackage::eINSTANCE.modelImportDeclaration_Model == reference) {			
-			//System.out.println("JslDslGlobalScopeProvider.getScope ModelImportDeclaration - " + model.name);
-	        //return super.getScope(resource, reference, filter)
-			
-			//return judoFunctionsProvider.getModelDeclarationScope(judoTypesProvider.getModelDeclarationScope(super.getScope(resource, reference, filter)));
-			//var IScope functionsScope = judoFunctionsProvider.getModelDeclarationScope(super.getScope(resource, reference, filter)); 
-
 			var IScope scope = judoFunctionsProvider.getModelDeclarationScope(super.getScope(resource, reference, filter))
 			return judoTypesProvider.getModelDeclarationScope(scope);  
 		}
@@ -69,8 +56,7 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 	            	return filter.apply(input) && found					
 				}
             }
-        }        //super.getScope(resource, reference, overridedFilter)
-        //return judoFunctionsProvider.getScope(judoTypesProvider.getScope(super.getScope(resource, reference, overridedFilter), reference, overridedFilter), reference, overridedFilter);    
+        }
 
 		var IScope typeScope = judoTypesProvider.getScope(super.getScope(resource, reference, overridedFilter), reference, overridedFilter)
 		var IScope functionsScope = judoFunctionsProvider.getScope(typeScope)

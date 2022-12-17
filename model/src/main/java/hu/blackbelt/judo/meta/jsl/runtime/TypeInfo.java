@@ -40,7 +40,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference;
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Parentheses;
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.QueryArgument;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration;

@@ -44,20 +44,12 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionArgument
 import org.eclipse.emf.ecore.util.EcoreUtil
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryArgument
-import hu.blackbelt.judo.meta.jsl.jsldsl.TypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.common.util.EList
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
-import org.eclipse.xtext.nodemodel.ICompositeNode
-import org.eclipse.xtext.nodemodel.util.NodeModelUtils
-import org.eclipse.xtend.typesystem.emf.EClassType
-import org.eclipse.emf.ecore.EClass
-import java.util.stream.Stream
-import java.util.ArrayList
-import org.eclipse.xtext.CrossReference
 
 /**
  * This class contains custom validation rules. 
@@ -745,71 +737,4 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 		
 	}
-	
-//	def printNode(ICompositeNode compositeNode) {
-//		if (compositeNode.grammarElement instanceof CrossReference) {
-//			System.out.println(compositeNode.grammarElement + ":" + NodeModelUtils.getTokenText(compositeNode))
-//		}
-//
-//		for (child : compositeNode.children) {
-//			if (child instanceof ICompositeNode) {
-//				printNode(child)
-//			}
-//		}
-//	}
-//	
-//	@Check
-//	def checkReferences(EObject object) {
-//		val ModelDeclaration model = object.parentContainer(ModelDeclaration)
-//		
-//		var ArrayList<Declaration> declarations = new ArrayList<Declaration>();
-//		
-//		if (object.eCrossReferences.size > 0) {
-//			declarations.addAll(model.declarations)
-//			for (imp : model.imports) {
-//				declarations.addAll(imp.model.declarations)
-//			}
-//
-//			val ICompositeNode compositeNode = NodeModelUtils.getNode(object);
-//			System.out.println(NodeModelUtils.getTokenText(compositeNode))
-//			printNode(compositeNode)
-//			
-//			for (c : compositeNode.children) {
-//				if (c instanceof CrossReference) {
-//					System.out.println("   " + c + " -> " + NodeModelUtils.getTokenText(c))
-//				}
-//			}
-//		}
-
-//		for (referencedObject : object.eCrossReferences) {
-//			var Iterable<Declaration> sameNameObjects = declarations.filter[d | d.name.equals(referencedObject.name)]
-//			if (sameNameObjects.size > 1) {
-//				System.out.println("More than object with same name:" + referencedObject.name)
-//				val ICompositeNode node = NodeModelUtils.getNode(object);
-//				System.out.println("Referenced from:" + NodeModelUtils.getTokenText(node))
-//				for (snObject : sameNameObjects) {
-//					System.out.println("Object:" + snObject.fullyQualifiedName)
-//				}
-//				System.out.println
-//			}
-//		}
-		
-		//Bmodel.imports.flatMap[i | i.model.declarations].forEach[y | System.out.println(y)]
-		// object.eResource.resourceSet.resources.forEach[x | x.allContents.forEach[y | System.out.println(y)]]
-		
-//		for (referencedObject : object.eCrossReferences) {
-//			
-//			val ModelDeclaration referencedModel = referencedObject.parentContainer(ModelDeclaration)
-//			if (!EcoreUtil.equals(model, referencedModel)) {
-//				System.out.println("Reference: " + model.name + " -> " + referencedModel.name)
-//				System.out.println(object)
-//
-//				val ICompositeNode node = NodeModelUtils.getNode(object);
-//				node.
-//				if (node !== null) {
-//					System.out.println(NodeModelUtils.getTokenText(node))
-//				}
-//			}
-//		}
-//	}
 }
