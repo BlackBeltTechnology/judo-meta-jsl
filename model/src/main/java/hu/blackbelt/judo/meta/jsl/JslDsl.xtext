@@ -55,13 +55,13 @@ fragment Cardinality
 EntityDeclaration
 	: {EntityDeclaration}
 	  'entity' isAbstract ?= 'abstract'? Named
-	  ('extends' extends += [EntityDeclaration | LocalName] (',' extends += [EntityDeclaration | LocalName])*)?
+	  ('extends' extends += [EntityDeclaration | ModelName] (',' extends += [EntityDeclaration | ModelName])*)?
 	  BLOCK_START (members += EntityMemberDeclaration)* BLOCK_END
 	;
 
 
 QueryDeclaration
-	: 'query' (referenceType = [SingleType | LocalName] Cardinality?) Named
+	: 'query' (referenceType = [SingleType | ModelName] Cardinality?) Named
 	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')
 	  "=>" expression = Expression
 	  ';'
@@ -79,12 +79,12 @@ EntityMemberDeclaration
 	;
 
 EntityFieldDeclaration
-	: 'field' (isRequired ?= 'required'? referenceType = [SingleType | LocalName] Cardinality?) Named
+	: 'field' (isRequired ?= 'required'? referenceType = [SingleType | ModelName] Cardinality?) Named
 	  ('=' defaultExpression = Expression)? ';'
 	;
 
 EntityIdentifierDeclaration
-	: 'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | LocalName] Named
+	: 'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | ModelName] Named
 	  ('=' defaultExpression = Expression)? ';'
 	;
 
@@ -100,22 +100,22 @@ SingleType
 
 
 EntityDerivedDeclaration
-	: 'derived' (referenceType = [SingleType | LocalName] Cardinality?) Named
+	: 'derived' (referenceType = [SingleType | ModelName] Cardinality?) Named
 	  "=>" expression = Expression ';'
 	;
 
 EntityQueryDeclaration
-	: 'query' (referenceType = [SingleType | LocalName] Cardinality?) Named
+	: 'query' (referenceType = [SingleType | ModelName] Cardinality?) Named
 	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')
 	  "=>" expression = Expression ';'
 	;
  
 QueryParameterDeclaration
-	: referenceType = [PrimitiveDeclaration | LocalName] Named ("=" default = Literal)?
+	: referenceType = [PrimitiveDeclaration | ModelName] Named ("=" default = Literal)?
 	;
 
 EntityRelationDeclaration
-	: 'relation' (isRequired ?= 'required'? referenceType = [EntityDeclaration | LocalName] Cardinality?) Named
+	: 'relation' (isRequired ?= 'required'? referenceType = [EntityDeclaration | ModelName] Cardinality?) Named
 	  opposite = EntityRelationOpposite? ';'
 	;
 
@@ -304,7 +304,7 @@ Parentheses
 	;
  
 NavigationBaseDeclarationReference
-	: {NavigationBaseDeclarationReference} reference = [NavigationBaseDeclaration | LocalName]
+	: {NavigationBaseDeclarationReference} reference = [NavigationBaseDeclaration | ModelName]
  	;
  
 NavigationBaseDeclaration
@@ -315,7 +315,7 @@ NavigationBaseDeclaration
 	;
 
 QueryCall
-	: declaration = [QueryDeclaration | LocalName ] '(' (arguments += QueryArgument (',' arguments += QueryArgument)*)? ')'
+	: declaration = [QueryDeclaration | ModelName ] '(' (arguments += QueryArgument (',' arguments += QueryArgument)*)? ')'
 	;
 
 Feature
@@ -442,17 +442,17 @@ TemporalLiteral returns Expression
  ****************************/
 
 ErrorDeclaration
-	: 'error' Named ('extends' extends = [ErrorDeclaration | LocalName])?
+	: 'error' Named ('extends' extends = [ErrorDeclaration | ModelName])?
 	  BLOCK_START (fields += ErrorField)* BLOCK_END
 	;
 
 ErrorField
-	: 'field' referenceType = [PrimitiveDeclaration | LocalName] Named
+	: 'field' referenceType = [PrimitiveDeclaration | ModelName] Named
 	  (defaultExpression = DefaultExpressionType)? ';'+
 	;
 
 CreateError
-	: errorDeclarationType=[ErrorDeclaration | LocalName] ('(' (parameters+=ThrowParameter (',' parameters+=ThrowParameter)*)? ')')?
+	: errorDeclarationType=[ErrorDeclaration | ModelName] ('(' (parameters+=ThrowParameter (',' parameters+=ThrowParameter)*)? ')')?
 	;
 
 ThrowParameter
@@ -629,7 +629,7 @@ QueryParameterName
     ;
 
 LocalName
-	: (JSLID '::')? JSLID
+	: JSLID
     ;
 
 ModelName
