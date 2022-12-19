@@ -94,11 +94,6 @@ EntityIdentifierDeclaration
 	  ('=' defaultExpression = Expression)? ';'
 	;
 
-DefaultExpressionType
-	: {DefaultExpressionType} '=' expression = 
-		( Expression )
-	;
-
 SingleType 
 	: PrimitiveDeclaration
 	| EntityDeclaration
@@ -454,7 +449,7 @@ ErrorDeclaration
 
 ErrorField
 	: 'field' referenceType = [PrimitiveDeclaration | ModelName] Named
-	  (defaultExpression = DefaultExpressionType)? ';'+
+	  (defaultExpression = Expression)? ';'+
 	;
 
 CreateError

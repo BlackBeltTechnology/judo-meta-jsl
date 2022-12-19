@@ -50,12 +50,18 @@ import org.eclipse.emf.common.util.EList
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
+import org.eclipse.xtext.EcoreUtil2
+import org.eclipse.xtext.resource.XtextResource
+import org.eclipse.xtext.resource.XtextResourceSet
 
 /**
  * This class contains custom validation rules. 
  * 
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
+ 
+/* TODO: self validation must be implemented */
+ 
 class JslDslValidator extends AbstractJslDslValidator {
 
 	protected static val ISSUE_CODE_PREFIX = "hu.blackbelt.judo.meta.jsl.jsldsl."
@@ -120,7 +126,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 		]
 	}
-    
+        
     @Check
 	def checkImportAlias(ModelImportDeclaration modelImport) {
 		if (modelImport.alias !== null) {
