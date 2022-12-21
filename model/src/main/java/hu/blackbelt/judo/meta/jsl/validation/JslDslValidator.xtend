@@ -209,7 +209,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			arguments = (container as EntityQueryCall).arguments;
 		}
 
-		if (arguments.filter[a | EcoreUtil.equals(a.declaration, argument.declaration)].size > 1) {
+		if (arguments.filter[a | a.declaration.isEqual(argument.declaration)].size > 1) {
 			error("Duplicate query parameter:" + argument.declaration.name,
                 JsldslPackage::eINSTANCE.queryArgument_Declaration,
                 DUPLICATE_PARAMETER,
@@ -225,7 +225,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		while (itr.hasNext) {
 			val QueryParameterDeclaration declaration = itr.next;
 
-			if (!entityQueryCall.arguments.exists[a | EcoreUtil.equals(a.declaration, declaration)]) {
+			if (declaration.getDefault() === null && !entityQueryCall.arguments.exists[a | a.declaration.isEqual(declaration)]) {
 				error("Missing required query parameter:" + declaration.name,
 	                JsldslPackage::eINSTANCE.entityQueryCall_Arguments,
 	                MISSING_REQUIRED_PARAMETER,
@@ -242,7 +242,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		while (itr.hasNext) {
 			val QueryParameterDeclaration declaration = itr.next;
 
-			if (!queryCall.arguments.exists[a | EcoreUtil.equals(a.declaration, declaration)]) {
+			if (declaration.getDefault() === null && !queryCall.arguments.exists[a | a.declaration.isEqual(declaration)]) {
 				error("Missing required query parameter:" + declaration.name,
 	                JsldslPackage::eINSTANCE.queryCall_Arguments,
 	                MISSING_REQUIRED_PARAMETER,
@@ -274,7 +274,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 		val FunctionCall functionCall = argument.eContainer as FunctionCall;
 
-		if (functionCall.arguments.filter[a | EcoreUtil.equals(a.declaration, argument.declaration)].size > 1) {
+		if (functionCall.arguments.filter[a | a.declaration.isEqual(argument.declaration)].size > 1) {
 			error("Duplicate function parameter:" + argument.declaration.name,
                 JsldslPackage::eINSTANCE.functionArgument_Declaration,
                 DUPLICATE_PARAMETER,
@@ -290,7 +290,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		while (itr.hasNext) {
 			val FunctionParameterDeclaration declaration = itr.next;
 
-			if (!functionCall.arguments.exists[a | EcoreUtil.equals(a.declaration, declaration)]) {
+			if (!functionCall.arguments.exists[a | a.declaration.isEqual(declaration)]) {
 				error("Missing required function parameter:" + declaration.name,
 	                JsldslPackage::eINSTANCE.functionCall_Arguments,
 	                MISSING_REQUIRED_PARAMETER,

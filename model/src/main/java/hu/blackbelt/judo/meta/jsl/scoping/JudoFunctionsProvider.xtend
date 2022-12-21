@@ -133,13 +133,15 @@ class JudoFunctionsProvider {
 		function numeric hour() on time;
 		function numeric minute() on time;
 		function numeric second() on time;
+		function time fromSeconds(required numeric seconds) on declaration<time>;
+		function numeric asSeconds() on time;
 		function time of(required numeric hour, required numeric minute, required numeric second) on declaration<time>;
 		function string asString() on time;
 		
 		function timestamp now() on declaration<timestamp>;
 		function date date() on timestamp;
 		function time time() on timestamp;
-		function timestamp of(required date date, required time time) on declaration<timestamp>;
+		function timestamp of(required date date, time time) on declaration<timestamp>;
 		function numeric asMilliseconds() on timestamp;
 		function timestamp fromMilliseconds(required numeric milliseconds) on declaration<timestamp>;
 		function timestamp plus(numeric milliseconds, numeric seconds, numeric minutes, numeric hours, numeric days, numeric months, numeric years) on timestamp;
@@ -152,6 +154,7 @@ class JudoFunctionsProvider {
 		function boolean memberOf(required collection<entity> instances) on entity;
 		
 		function collection<entity> all() on declaration<entity>;
+		function entity any() on declaration<entity>;
 		
 		lambda collection<entity> first();
 		lambda collection<entity> last();

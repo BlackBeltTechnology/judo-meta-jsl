@@ -380,7 +380,7 @@ LambdaDeclaration
 	: 'lambda' returnType = TypeDescription Named '(' (expressionType = TypeDescription)? ')' ';'
 	;
  
-EnumLiteralReference returns Expression
+EnumLiteralReference
     : {EnumLiteralReference} enumDeclaration = [EnumDeclaration | LocalName] '#' enumLiteral = [EnumLiteral | EnumLiteralName ]    	
     ;
 
@@ -400,11 +400,11 @@ Literal
 	| EnumLiteralReference
 	;
 
-BooleanLiteral returns Expression
+BooleanLiteral
 	: {BooleanLiteral} ('false' | isTrue?='true')
 	;
 
-NumberLiteral returns Expression
+NumberLiteral
 	: IntegerLiteral
 	| DecimalLiteral
 	;
@@ -417,12 +417,12 @@ DecimalLiteral hidden()
 	: (minus ?= "-" | "+")? value=Decimal
 	;
 
-StringLiteral returns Expression
+StringLiteral
 	: {EscapedStringLiteral} value=STRING
 	| {RawStringLiteral} value=RAW_STRING
 	;
 
-TemporalLiteral returns Expression
+TemporalLiteral
 	: {DateLiteral} value=DATE
 	| {TimeStampLiteral} value=TIMESTAMP
 	| {TimeLiteral} value=TIME
@@ -449,7 +449,7 @@ ErrorDeclaration
 
 ErrorField
 	: 'field' referenceType = [PrimitiveDeclaration | ModelName] Named
-	  (defaultExpression = Expression)? ';'+
+	  ('=' defaultExpression = Expression)? ';'+
 	;
 
 CreateError

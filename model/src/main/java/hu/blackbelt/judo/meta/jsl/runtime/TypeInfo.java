@@ -65,7 +65,8 @@ public class TypeInfo {
 
     private enum TypeModifier {NONE, CONSTANT, COLLECTION, DECLARATION}
     
-    // private boolean isLiteral = false;
+    private boolean isLiteral = false;
+
     // private boolean isCollection = false;
     //private boolean isDeclaration = false;
     private TypeModifier modifier = TypeModifier.NONE;
@@ -98,6 +99,7 @@ public class TypeInfo {
 			throw new IllegalArgumentException("TypeInfo got illegal argument: " + baseType);
 		}
 		
+		this.isLiteral = isLiteral;
 		this.modifier = isLiteral ? TypeModifier.CONSTANT : TypeModifier.NONE;
 		this.baseType = baseType;
 	}
@@ -224,6 +226,10 @@ public class TypeInfo {
 		return this.modifier == TypeModifier.CONSTANT;
 	}
 
+	public boolean isLiteral() {
+		return this.isConstant() && this.isLiteral;
+	}
+
 	public boolean isOrderable() {
 		return !(this.isEntity() || this.isBinary());
 	}
@@ -250,12 +256,12 @@ public class TypeInfo {
 		}
 
 		if (this.baseType == BaseType.ENUM && other.baseType == BaseType.ENUM) {
-			return  EcoreUtil.equals(this.type, other.type);
+			return modelExtension.isEqual(this.type, other.type);
 		}
 		
 		if (this.baseType == BaseType.ENTITY && other.baseType == BaseType.ENTITY)
 		{
-			return EcoreUtil.equals(this.type, other.type) || modelExtension.getSuperEntityTypes((EntityDeclaration)other.type).stream().anyMatch(e -> EcoreUtil.equals(e, this.type));
+			return modelExtension.isEqual(this.type, other.type) || modelExtension.getSuperEntityTypes((EntityDeclaration)other.type).stream().anyMatch(e -> modelExtension.isEqual(e, this.type));
 		}
 
 		return this.baseType == other.baseType;
@@ -302,6 +308,7 @@ public class TypeInfo {
 	private static TypeInfo getTargetType(EnumLiteralReference enumReference) {
 		TypeInfo typeInfo = new TypeInfo(enumReference.getEnumDeclaration(), false, false);
 		typeInfo.modifier = TypeModifier.CONSTANT;
+		typeInfo.isLiteral = true;
 		return typeInfo;
 	}
 	
@@ -372,21 +379,21 @@ public class TypeInfo {
 
 			if (functionReturnTypeInfo.isEntity()) {
 				functionReturnTypeInfo.type = baseTypeInfo.type;
-			}
-			
-			if (functionCall.getArguments().size() > 0) {
-				FunctionArgument argument = functionCall.getArguments().get(0);
-				TypeInfo argumentTypeInfo = TypeInfo.getTargetType(argument.getExpression());
-				
-				if (argumentTypeInfo.isEntity() && argumentTypeInfo.isDeclaration())
-				{
-					functionReturnTypeInfo.type =  argumentTypeInfo.getEntity();
+
+				if (functionCall.getArguments().size() > 0) {
+					FunctionArgument argument = functionCall.getArguments().get(0);
+					TypeInfo argumentTypeInfo = TypeInfo.getTargetType(argument.getExpression());
+					
+					if (argumentTypeInfo.isEntity())
+					{
+						functionReturnTypeInfo.type =  argumentTypeInfo.getEntity();
+					}
 				}
 			}
-
-			if (!functionBaseTypeInfo.isCollection() && !functionBaseTypeInfo.isDeclaration()) {
-				functionReturnTypeInfo.modifier = baseTypeInfo.modifier;
-			}
+			
+//			if (!functionBaseTypeInfo.isCollection() && !functionBaseTypeInfo.isDeclaration()) {
+//				functionReturnTypeInfo.modifier = baseTypeInfo.modifier;
+//			}
 			
 			return functionReturnTypeInfo;
 			
@@ -430,7 +437,7 @@ public class TypeInfo {
 	private static TypeInfo getTargetType(LambdaVariable lambdaVariable) {
 		LambdaCall lambdaCall = modelExtension.parentContainer(lambdaVariable, LambdaCall.class);
 		
-		while (!EcoreUtil.equals(lambdaCall.getVariable(), lambdaVariable)) {
+		while (!modelExtension.isEqual(lambdaCall.getVariable(), lambdaVariable)) {
 			lambdaCall = modelExtension.parentContainer(lambdaCall, LambdaCall.class);			
 		}
 		

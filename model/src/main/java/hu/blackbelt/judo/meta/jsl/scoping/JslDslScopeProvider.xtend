@@ -105,7 +105,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 	def scope_Containments(IScope scope, EObject context, EReference ref) {
 		return new FilteringScope(scope.getLocalElementsScope(context, ref), [desc | {
-			return EcoreUtil.equals(desc.EObjectOrProxy.eContainer, context)
+			return desc.EObjectOrProxy.eContainer.isEqual(context)
 		}]);
 	}
 
@@ -120,7 +120,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 				switch obj {
 					EntityMemberDeclaration: return (navigationTypeInfo.isCollection && TypeInfo.getTargetType(obj).isPrimitive) ? false : true
-					EntityRelationOppositeInjected: return !EcoreUtil.equals(navigationTypeInfo.getEntity, obj.eContainer.eContainer)
+					EntityRelationOppositeInjected: return !navigationTypeInfo.getEntity.isEqual(obj.eContainer.eContainer)
 					FunctionDeclaration: obj.baseType !== null && navigationTypeInfo.isBaseCompatible(TypeInfo.getTargetType(obj.baseType)) ? return true : return false
 					LambdaDeclaration: navigationTypeInfo.isEntity() && navigationTypeInfo.isCollection() ? return true : return false
 				}
@@ -160,8 +160,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				FunctionDeclaration: return true
 				LambdaDeclaration: return true
 				ErrorDeclaration: return true
-				LambdaVariable: return EcoreUtil2.getAllContainers(context).exists[c | EcoreUtil.equals(c, obj.eContainer)] || EcoreUtil.equals(context, obj.eContainer)
-				QueryParameterDeclaration: return EcoreUtil2.getAllContainers(context).exists[c | EcoreUtil.equals(c, obj.eContainer)]
+				LambdaVariable: return EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)] || context.isEqual(obj.eContainer)
+				QueryParameterDeclaration: return EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]
 			}
 
 			return false;
