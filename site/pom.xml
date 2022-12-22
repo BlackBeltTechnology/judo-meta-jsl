@@ -42,12 +42,6 @@
                                     <token>(repository-reference\ location\=\")(.*?)(judo-epp-common\/)(.*?)(\")</token>
                                     <value>repository-reference location="$2$3${judo-epp-common-version}"</value>
                                 </replacement>
-
-                                <!-- Epsilon Runtime -->
-                                <replacement>
-                                    <token>(repository-reference\ location\=\")(.*?)(epsilon-runtime-eclipse\/)(.*?)(\")</token>
-                                    <value>repository-reference location="$2$3${epsilon-runtime-eclipse-version}"</value>
-                                </replacement>
                             </replacements>
                             <regex>true</regex>
                         </configuration>

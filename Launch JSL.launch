@@ -34,7 +34,6 @@
     <stringAttribute key="pde.version" value="3.3"/>
     <stringAttribute key="product" value="org.eclipse.platform.ide"/>
     <setAttribute key="selected_features">
-        <setEntry value="hu.blackbelt.epsilon.runtime.feature:default"/>
         <setEntry value="hu.blackbelt.judo.meta.jsl.feature:default"/>
         <setEntry value="hu.blackbelt.judo.meta.jsl.ide.feature:default"/>
         <setEntry value="net.sourceforge.plantuml.ecore.feature:default"/>
