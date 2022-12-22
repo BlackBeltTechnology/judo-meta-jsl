@@ -76,11 +76,13 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
 									if (m instanceof EntityRelationDeclaration) {
 										if (m.opposite instanceof EntityRelationOppositeInjected) {
 											val fqOpposite = m.opposite.fullyQualifiedName
-											acceptor.accept(
-												EObjectDescription::create(
-													fqOpposite, m.opposite, m.opposite.indexInfo(m)
+											if (fqOpposite !== null) {
+												acceptor.accept(
+													EObjectDescription::create(
+														fqOpposite, m.opposite, m.opposite.indexInfo(m)
+													)
 												)
-											)											
+											}							
 										}
 									}								
 								}								
