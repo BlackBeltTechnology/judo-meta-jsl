@@ -158,7 +158,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
 
 	def entityQueryParameterFragment(EntityQueryDeclaration it)
-	'''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.name» =«param.^default.sourceCode»«ENDFOR»'''
+	'''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.name» =«param.^default»«ENDFOR»'''
 
 	def entityDerivedRepresentation(EntityDerivedDeclaration it)
 	'''~<i>«name»</i> : «referenceType.name»«IF isIsMany»[0..*]«ENDIF»'''
@@ -167,11 +167,11 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	'''~«name»«entityQueryParameterFragment» : «referenceType.name»[0..*]'''
 
 
-	def constraintParameterFragment(ConstraintDeclaration it)
-	'''«FOR param : error.parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.errorFieldType.name» =«param.expession.sourceCode»«ENDFOR»'''
-
-	def constraintRepresentation(ConstraintDeclaration it)
-	'''-«error.errorDeclarationType.name»«constraintParameterFragment»'''
+//	def constraintParameterFragment(ConstraintDeclaration it)
+//	'''«FOR param : error.parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.errorFieldType.name» =«param.expession.sourceCode»«ENDFOR»'''
+//
+//	def constraintRepresentation(ConstraintDeclaration it)
+//	'''-«error.errorDeclarationType.name»«constraintParameterFragment»'''
 
 
 	def entityRepresentation(EntityDeclaration it)
@@ -189,9 +189,9 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 			«FOR query : queries»
 				«query.entityQueryRepresentation»
 			«ENDFOR»
-			«FOR constraint : constraints»
-				«constraint.constraintRepresentation»
-			«ENDFOR»
+«««			«FOR constraint : constraints»
+«««				«constraint.constraintRepresentation»
+«««			«ENDFOR»
 		}
 	'''
 

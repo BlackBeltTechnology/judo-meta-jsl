@@ -25,7 +25,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
-import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultExpressionType
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Named
@@ -38,11 +37,31 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierMaxFileSize
 import java.math.BigInteger
 import hu.blackbelt.judo.meta.jsl.jsldsl.support.JslDslModelResourceSupport
 import java.util.stream.Collectors
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaDeclaration
+import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.emf.ecore.EClass
+import org.eclipse.emf.ecore.EStructuralFeature
+import hu.blackbelt.judo.meta.jsl.jsldsl.StringLiteral
 
 @Singleton
 class JslDslModelExtension {
 	
 	@Inject extension IQualifiedNameProvider	
+
+	def isEqual(EObject it, EObject other) {
+		if (it.equals(other))
+			return true;
+		if (EcoreUtil.getURI(it).equals(EcoreUtil.getURI(other)))
+			return true;
+
+		return false;
+	}
+
+	def isResolvedReference(EObject it, int featureID) {
+		val EObject featureObject = it.eGet(it.eClass().getEStructuralFeature(featureID), false) as EObject;
+		return !featureObject.eIsProxy();
+	}
 
 	/*
 	def ModelDeclaration modelDeclaration(EObject obj) {
@@ -191,7 +210,7 @@ class JslDslModelExtension {
 	}
 
 	def Collection<String> getDeclarationNames(ModelDeclaration model, Declaration exclude) {
-		model.declarations.filter[m | m !== exclude].map[m | m.name].filter[n | n.trim != ""].toSet
+		model.declarations.filter[m | m !== exclude && !(m instanceof FunctionDeclaration) && !(m instanceof LambdaDeclaration)].map[m | m.name].filter[n | n.trim != ""].toSet
 	}
 
 
@@ -336,28 +355,28 @@ class JslDslModelExtension {
 		return relations
 	}
 	
-	def Boolean isDefaultExpression(Expression it) {
-		if (it.eContainer instanceof DefaultExpressionType) {
-			return true
-		}
-		if (it.eContainer instanceof Expression) {
-			return (it.eContainer as Expression).isDefaultExpression
-		}
-		
-		return false
-	}
+//	def Boolean isDefaultExpression(Expression it) {
+//		if (it.eContainer instanceof DefaultExpressionType) {
+//			return true
+//		}
+//		if (it.eContainer instanceof Expression) {
+//			return (it.eContainer as Expression).isDefaultExpression
+//		}
+//		
+//		return false
+//	}
 	
 	
-	// maybe refactor later to accept param type to search for instead of fixed Default?
-	def EObject getDefaultExpression(EObject source) {
-		if (source === null || source instanceof ModelDeclaration) {
-			return null
-		}
-		if (source instanceof DefaultExpressionType) {
-			return source
-		}
-		return source.eContainer.defaultExpression
-	}
+//	// maybe refactor later to accept param type to search for instead of fixed Default?
+//	def EObject getDefaultExpression(EObject source) {
+//		if (source === null || source instanceof ModelDeclaration) {
+//			return null
+//		}
+//		if (source instanceof DefaultExpressionType) {
+//			return source
+//		}
+//		return source.eContainer.defaultExpression
+//	}
 	
     def Collection<EnumDeclaration> allEnumDeclarations(ModelDeclaration model) {
 		model.declarations.filter[d | d instanceof EnumDeclaration].map[e | e as EnumDeclaration].toList
@@ -367,7 +386,7 @@ class JslDslModelExtension {
 		model.declarations.filter[d | d instanceof QueryDeclaration].map[e | e as EnumDeclaration].toList
 	}
 	
-	def String getStringLiteralValue(Expression it) {
+	def String getStringLiteralValue(StringLiteral it) {
 		switch it {
 			RawStringLiteral: return it.value
 			EscapedStringLiteral: return it.value
@@ -389,7 +408,9 @@ class JslDslModelExtension {
 
 
 	def JslDslModelResourceSupport fromModel(ModelDeclaration model) {
-		JslDslModelResourceSupport.jslDslModelResourceSupportBuilder().resourceSet(model.eResource.getResourceSet()).build();
+		val JslDslModelResourceSupport jslDslModelResourceSupport = JslDslModelResourceSupport.jslDslModelResourceSupportBuilder().resourceSet(model.eResource.getResourceSet()).build();
+		EcoreUtil.resolveAll(jslDslModelResourceSupport.resourceSet)
+		return jslDslModelResourceSupport
 	}
 
 	def Collection<EntityDeclaration> entities(JslDslModelResourceSupport it) {

@@ -9,7 +9,6 @@ import org.eclipse.xtext.resource.IResourceDescription
 import org.eclipse.emf.ecore.EReference
 import com.google.common.base.Predicate
 import org.eclipse.xtext.util.StringInputStream
-import java.io.IOException
 import org.eclipse.xtext.scoping.impl.SimpleScope
 import java.util.List
 import com.google.inject.Injector
