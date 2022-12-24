@@ -37,8 +37,8 @@ entity abstract Person {
 
 entity SalesPerson extends Person {
 	relation Lead[] leads opposite salesPerson;
-	query Customer[] leadsOver(Integer limit = 100) => self.leads!filter(lead | lead.value > limit);
-	derived Customer[] leadsOver10 => self.leadsOver(limit = 10);
+	query Lead[] leadsOver(Integer limit = 100) => self.leads!filter(lead | lead.value > limit);
+	derived Lead[] leadsOver10 => self.leadsOver(limit = 10);
 }
 
 entity Lead {
@@ -46,7 +46,7 @@ entity Lead {
 
 	relation required SalesPerson salesPerson opposite leads;
 
-	constraint valueLessThan10 self.value > 10 onerror MyError(code = 10, msg = "Error message");
+	// constraint valueLessThan10 self.value > 10 onerror MyError(code = 10, msg = "Error message");
 }
 
 entity Customer {
