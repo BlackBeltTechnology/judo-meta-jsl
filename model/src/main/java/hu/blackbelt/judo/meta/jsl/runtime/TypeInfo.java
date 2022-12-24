@@ -2,9 +2,6 @@ package hu.blackbelt.judo.meta.jsl.runtime;
 
 import java.util.Arrays;
 
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.util.EcoreUtil;
-
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration;
@@ -67,8 +64,6 @@ public class TypeInfo {
     
     private boolean isLiteral = false;
 
-    // private boolean isCollection = false;
-    //private boolean isDeclaration = false;
     private TypeModifier modifier = TypeModifier.NONE;
 	private BaseType baseType;
 	private SingleType type;
@@ -77,9 +72,9 @@ public class TypeInfo {
 		String result = this.baseType.toString().toLowerCase();
 		
 		if (this.baseType == BaseType.ENUM) {
-			result += "(" + ((EnumDeclaration)this.type).getName() + ")";
+			result += "(" + ((EnumDeclaration) this.type).getName() + ")";
 		} else if (this.baseType == BaseType.ENTITY) {
-			result += "(" + ((EntityDeclaration)this.type).getName() + ")";
+			result += "(" + ((EntityDeclaration) this.type).getName() + ")";
 		}
 
 		if (this.modifier != null ) {
@@ -261,7 +256,9 @@ public class TypeInfo {
 		
 		if (this.baseType == BaseType.ENTITY && other.baseType == BaseType.ENTITY)
 		{
-			return modelExtension.isEqual(this.type, other.type) || modelExtension.getSuperEntityTypes((EntityDeclaration)other.type).stream().anyMatch(e -> modelExtension.isEqual(e, this.type));
+			return modelExtension.isEqual(this.type, other.type)
+					|| modelExtension.getSuperEntityTypes((EntityDeclaration)other.type).stream()
+						.anyMatch(e -> modelExtension.isEqual(e, this.type));
 		}
 
 		return this.baseType == other.baseType;
@@ -313,7 +310,7 @@ public class TypeInfo {
 	}
 	
 	private static TypeInfo getTargetType(BinaryOperation binaryOperation) {
-		if (Arrays.asList("!=","==",">=","<=",">","<").contains(binaryOperation.getOperator())) {
+		if (Arrays.asList("!=", "==", ">=", "<=", ">", "<").contains(binaryOperation.getOperator())) {
 			return new TypeInfo(BaseType.BOOLEAN, false); 
 		}
 		
@@ -322,21 +319,6 @@ public class TypeInfo {
 		
 		return typeInfo;
 	}
-
-	/*
-	private static TypeInfo getTargetType(LambdaVariable lambdaVariable) {
-		FunctionCall functionCall = modelExtension.parentContainer(lambdaVariable, FunctionCall.class);
-		
-		while (functionCall.getFunction() instanceof LiteralFunction || !((LambdaFunction)functionCall.getFunction()).getLambdaArgument().getName().equals(lambdaVariable.getName())) {
-			functionCall = modelExtension.parentContainer(functionCall, FunctionCall.class);			
-		}
-		
-		TypeInfo typeInfo = getTargetType(modelExtension.parentContainer(functionCall, FunctionedExpression.class));
-		typeInfo.isCollection = false;
-
-		return typeInfo;
-	}
-	*/
 	
 	public static TypeInfo getTargetType(Feature feature) {
 		TypeInfo baseTypeInfo;
@@ -374,7 +356,6 @@ public class TypeInfo {
 			}
 			FunctionCall functionCall = (FunctionCall)feature;
 			FunctionDeclaration functionDeclaration = functionCall.getDeclaration();
-			TypeInfo functionBaseTypeInfo = getTargetType(functionDeclaration.getBaseType());
 			TypeInfo functionReturnTypeInfo = getTargetType(functionDeclaration.getReturnType());
 
 			if (functionReturnTypeInfo.isEntity()) {
@@ -390,11 +371,7 @@ public class TypeInfo {
 					}
 				}
 			}
-			
-//			if (!functionBaseTypeInfo.isCollection() && !functionBaseTypeInfo.isDeclaration()) {
-//				functionReturnTypeInfo.modifier = baseTypeInfo.modifier;
-//			}
-			
+
 			return functionReturnTypeInfo;
 			
 		} else if (feature instanceof LambdaCall) {

@@ -12,7 +12,6 @@ import java.util.List
 import com.google.inject.Injector
 import org.eclipse.xtext.resource.XtextResourceSet
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
-import org.eclipse.emf.ecore.util.EcoreUtil
 
 @Singleton
 class JudoFunctionsProvider {
@@ -41,13 +40,6 @@ class JudoFunctionsProvider {
 
 	def IScope getScope(IScope parentScope) {
 		var judoFunctions = getDescriptions().filter[f | !(f.EObjectOrProxy instanceof ModelDeclaration)].toList
-		
-//		if (filter !== null) {
-//			judoFunctions = judoFunctions
-//				.filter[f | !(f.EObjectOrProxy instanceof ModelDeclaration)]
-//				.filter[f | filter.apply(f)].toList
-//		}
-		
 		return new SimpleScope(parentScope, judoFunctions, false);	
 	}
 

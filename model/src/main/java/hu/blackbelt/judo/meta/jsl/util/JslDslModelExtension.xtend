@@ -40,8 +40,6 @@ import java.util.stream.Collectors
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaDeclaration
 import org.eclipse.emf.ecore.util.EcoreUtil
-import org.eclipse.emf.ecore.EClass
-import org.eclipse.emf.ecore.EStructuralFeature
 import hu.blackbelt.judo.meta.jsl.jsldsl.StringLiteral
 
 @Singleton
@@ -354,29 +352,6 @@ class JslDslModelExtension {
 		}		
 		return relations
 	}
-	
-//	def Boolean isDefaultExpression(Expression it) {
-//		if (it.eContainer instanceof DefaultExpressionType) {
-//			return true
-//		}
-//		if (it.eContainer instanceof Expression) {
-//			return (it.eContainer as Expression).isDefaultExpression
-//		}
-//		
-//		return false
-//	}
-	
-	
-//	// maybe refactor later to accept param type to search for instead of fixed Default?
-//	def EObject getDefaultExpression(EObject source) {
-//		if (source === null || source instanceof ModelDeclaration) {
-//			return null
-//		}
-//		if (source instanceof DefaultExpressionType) {
-//			return source
-//		}
-//		return source.eContainer.defaultExpression
-//	}
 	
     def Collection<EnumDeclaration> allEnumDeclarations(ModelDeclaration model) {
 		model.declarations.filter[d | d instanceof EnumDeclaration].map[e | e as EnumDeclaration].toList

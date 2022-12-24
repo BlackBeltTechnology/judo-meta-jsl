@@ -41,7 +41,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionArgument
-import org.eclipse.emf.ecore.util.EcoreUtil
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryArgument
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall
@@ -50,9 +49,7 @@ import org.eclipse.emf.common.util.EList
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
-import org.eclipse.xtext.EcoreUtil2
-import org.eclipse.xtext.resource.XtextResource
-import org.eclipse.xtext.resource.XtextResourceSet
+
 
 /**
  * This class contains custom validation rules. 
@@ -85,14 +82,11 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val PRECISION_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "PrecisionIsTooLarge"
 	public static val SCALE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "ScaleIsLargerThanPrecision"
 	public static val USING_REQUIRED_WITH_IS_MANY = ISSUE_CODE_PREFIX + "UsingRequiredWithIsMany"
-	public static val DEFAULT_TYPE_MISMATCH = ISSUE_CODE_PREFIX + "DefaultValueTypeMismatch"
-	public static val UNSUPPORTED_DEFAULT_TYPE = ISSUE_CODE_PREFIX + "UnsupportedDefaultValueType"
-	public static val UNSUPPORTED_SELECTOR = ISSUE_CODE_PREFIX + "UnsupportedSelector"
+	public static val TYPE_MISMATCH = ISSUE_CODE_PREFIX + "TypeMismatch"
 	public static val ENUM_MEMBER_MISSING = ISSUE_CODE_PREFIX + "EnumMemberMissing"
 	public static val DUPLICATE_PARAMETER = ISSUE_CODE_PREFIX + "DuplicateParameter"
 	public static val MISSING_REQUIRED_PARAMETER = ISSUE_CODE_PREFIX + "MissingRequiredParameter"
-	public static val INVALID_PARAMETER = ISSUE_CODE_PREFIX + "InvalidParameter"
-	public static val FUNCTION_PARAMETER_TYPE_MISMATCH = ISSUE_CODE_PREFIX + "FunctionParameterTypeMismatch"
+	public static val INVALID_LAMBDA_EXPRESSION = ISSUE_CODE_PREFIX + "InvalidLambdaExpression"
 	public static val IMPORT_ALIAS_COLLISION = ISSUE_CODE_PREFIX + "ImportAliasCollison"
 	public static val HIDDEN_DECLARATION = ISSUE_CODE_PREFIX + "HiddenDeclaration"
 
@@ -130,14 +124,14 @@ class JslDslValidator extends AbstractJslDslValidator {
     @Check
 	def checkImportAlias(ModelImportDeclaration modelImport) {
 		if (modelImport.alias !== null) {
-			if ((modelImport.eContainer as ModelDeclaration).imports.filter[i | i.model.name.equals(modelImport.alias)].size > 0) {
+			if ((modelImport.eContainer as ModelDeclaration).imports.filter[i | i.model.name.toLowerCase.equals(modelImport.alias.toLowerCase)].size > 0) {
 				error("Alias name collision '" + modelImport.alias + "'",
 					JsldslPackage::eINSTANCE.modelImportDeclaration_Alias,
 					IMPORT_ALIAS_COLLISION,
 					modelImport.alias)
 			}
 	
-			if ((modelImport.eContainer as ModelDeclaration).imports.filter[i | i.alias !== null && i.alias.equals(modelImport.alias)].size > 1) {
+			if ((modelImport.eContainer as ModelDeclaration).imports.filter[i | i.alias !== null && i.alias.toLowerCase.equals(modelImport.alias.toLowerCase)].size > 1) {
 				error("Alias name collision '" + modelImport.alias + "'",
 					JsldslPackage::eINSTANCE.modelImportDeclaration_Alias,
 					IMPORT_ALIAS_COLLISION,
@@ -172,7 +166,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		for (importDeclaration : (declaration.eContainer as ModelDeclaration).imports.filter[i | i.alias === null]) {
 			if (importDeclaration.model.declarations.exists[d | d.name.equals(declaration.name)]) {
 				warning("Declaration possibly hides other declaration in import '" + importDeclaration.model.name + "'",
-					null,
+					JsldslPackage::eINSTANCE.named_Name,
 					HIDDEN_DECLARATION,
 					declaration.name)				
 			}
@@ -188,14 +182,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 			if (!declarationTypeInfo.isCompatible(exprTypeInfo)) {
 				error("Type mismatch",
 	                JsldslPackage::eINSTANCE.queryArgument_Expression,
-	                DEFAULT_TYPE_MISMATCH,
+	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.queryArgument.name)
 			}
 
 			if (declarationTypeInfo.constant && !exprTypeInfo.constant) {
 				error("Right value must be constant",
 	                JsldslPackage::eINSTANCE.queryArgument_Expression,
-	                DEFAULT_TYPE_MISMATCH,
+	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.queryArgument.name)
 			}
 		}
@@ -260,14 +254,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 			if (!declarationTypeInfo.isCompatible(exprTypeInfo)) {
 				error("Type mismatch",
 	                JsldslPackage::eINSTANCE.functionArgument_Expression,
-	                DEFAULT_TYPE_MISMATCH,
+	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.functionArgument.name)
 			}
 
 			if (declarationTypeInfo.constant && !exprTypeInfo.constant) {
 				error("Right value must be constant",
 	                JsldslPackage::eINSTANCE.functionArgument_Expression,
-	                DEFAULT_TYPE_MISMATCH,
+	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.functionArgument.name)
 			}
 		}
@@ -307,7 +301,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			if (lambdaCall.declaration.expressionType === null && !lambdaExpressionTypeInfo.orderable) {
 				error("Lambda expression must be orderable",
 	                JsldslPackage::eINSTANCE.lambdaCall_LambdaExpression,
-	                INVALID_PARAMETER,
+	                INVALID_LAMBDA_EXPRESSION,
 	                JsldslPackage::eINSTANCE.lambdaCall.name)
 			}
 			
@@ -315,7 +309,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 				if (!TypeInfo.getTargetType(lambdaCall.declaration.expressionType).isCompatible(lambdaExpressionTypeInfo)) {
 					error("Lambda expression type mismatch",
 		                JsldslPackage::eINSTANCE.lambdaCall_LambdaExpression,
-		                DEFAULT_TYPE_MISMATCH,
+		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.lambdaCall.name)
 				}
 			}
@@ -501,7 +495,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Check
 	def checkEnumLiteralMinimum(EnumDeclaration _enum) {
 		if (_enum.literals.size < 1) {
-			error("Enumeration must have at least one member",
+			error("Enumeration must have at least one member:"+_enum.name,
 				JsldslPackage::eINSTANCE.enumDeclaration_Literals,
 				ENUM_MEMBER_MISSING,
 				JsldslPackage::eINSTANCE.enumDeclaration.name)
@@ -563,12 +557,12 @@ class JslDslValidator extends AbstractJslDslValidator {
 			if (!conditionTypeInfo.isBoolean()) {
 				error("Ternary condition must be boolean type",
 	                JsldslPackage::eINSTANCE.ternaryOperation_Condition,
-	                DEFAULT_TYPE_MISMATCH)
+	                TYPE_MISMATCH)
 			}	
 			if (!elseTypeInfo.isCompatible(thenTypeInfo)) {
 				error("'else' branch must be compatible with 'then' branch",
 	                JsldslPackage::eINSTANCE.ternaryOperation_ThenExpression,
-	                DEFAULT_TYPE_MISMATCH)
+	                TYPE_MISMATCH)
 			}
 		} catch (IllegalArgumentException illegalArgumentException) {
             return
@@ -581,7 +575,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			if (!TypeInfo.getTargetType(it).isBoolean()) {
 				error("Operand must be binary type",
 	                JsldslPackage::eINSTANCE.unaryOperation_Operand,
-	                DEFAULT_TYPE_MISMATCH,
+	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.unaryOperation_Operator.name)
 			}
 		} catch (IllegalArgumentException illegalArgumentException) {
@@ -598,13 +592,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 			if (leftTypeInfo.binary) {
 				error("Left operand cannot be binary type",
 	                JsldslPackage::eINSTANCE.binaryOperation_LeftOperand,
-	                DEFAULT_TYPE_MISMATCH,
+	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 			}
 			if (rightTypeInfo.binary) {
 				error("Right operand cannot be binary type",
 	                JsldslPackage::eINSTANCE.binaryOperation_RightOperand,
-	                DEFAULT_TYPE_MISMATCH,
+	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 			}
 	
@@ -612,52 +606,52 @@ class JslDslValidator extends AbstractJslDslValidator {
 				if (leftTypeInfo.collection) {
 					error("Left operand cannot be collection",
 		                JsldslPackage::eINSTANCE.binaryOperation_LeftOperand,
-		                DEFAULT_TYPE_MISMATCH,
+		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 				}
 				if (rightTypeInfo.collection) {
 					error("Right operand cannot be collection",
 		                JsldslPackage::eINSTANCE.binaryOperation_RightOperand,
-		                DEFAULT_TYPE_MISMATCH,
+		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 				}
 			} else if ("+".equals(it.getOperator())) {
 				if (!leftTypeInfo.numeric && !leftTypeInfo.string) {
 					error("Left operand must be numeric or string type",
 		                JsldslPackage::eINSTANCE.binaryOperation_LeftOperand,
-		                DEFAULT_TYPE_MISMATCH,
+		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 				}
 				if (!rightTypeInfo.numeric && !rightTypeInfo.string) {
 					error("Right operand must be numeric or string type",
 		                JsldslPackage::eINSTANCE.binaryOperation_RightOperand,
-		                DEFAULT_TYPE_MISMATCH,
+		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 				}	
 			} else if (Arrays.asList("^", "-", "*", "/", "mod", "div").contains(it.getOperator())) {
 				if (!leftTypeInfo.numeric) {
 					error("Left operand must be numeric type",
 		                JsldslPackage::eINSTANCE.binaryOperation_LeftOperand,
-		                DEFAULT_TYPE_MISMATCH,
+		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 				}
 				if (!rightTypeInfo.numeric) {
 					error("Right operand must be numeric type",
 		                JsldslPackage::eINSTANCE.binaryOperation_RightOperand,
-		                DEFAULT_TYPE_MISMATCH,
+		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 				}	
 			} else if (Arrays.asList("implies","or","xor","and").contains(it.getOperator())) {
 				if (!leftTypeInfo.isBoolean()) {
 					error("Left operand must be boolean type",
 		                JsldslPackage::eINSTANCE.binaryOperation_LeftOperand,
-		                DEFAULT_TYPE_MISMATCH,
+		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 				}
 				if (!rightTypeInfo.isBoolean()) {
 					error("Right operand must be boolean type",
 		                JsldslPackage::eINSTANCE.binaryOperation_RightOperand,
-		                DEFAULT_TYPE_MISMATCH,
+		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 				}	
 			}
@@ -665,7 +659,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			if (!leftTypeInfo.isCompatible(rightTypeInfo)) {
 				error("Left and right operand type mismatch",
 	                JsldslPackage::eINSTANCE.binaryOperation_Operator,
-	                DEFAULT_TYPE_MISMATCH,
+	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 			}
 		} catch (IllegalArgumentException illegalArgumentException) {
@@ -679,7 +673,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			if (field.defaultExpression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.defaultExpression))) {
 				error("Default value does not match field type",
 	                JsldslPackage::eINSTANCE.entityFieldDeclaration_DefaultExpression,
-	                DEFAULT_TYPE_MISMATCH)
+	                TYPE_MISMATCH)
 			}
 		} catch (IllegalArgumentException illegalArgumentException) {
             return
@@ -692,7 +686,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			if (field.defaultExpression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.defaultExpression))) {
 				error("Type mismatch",
 	                JsldslPackage::eINSTANCE.entityIdentifierDeclaration_DefaultExpression,
-	                DEFAULT_TYPE_MISMATCH,
+	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
 			}
 		} catch (IllegalArgumentException illegalArgumentException) {
@@ -706,7 +700,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			if (derived.expression !== null && !TypeInfo.getTargetType(derived).isCompatible(TypeInfo.getTargetType(derived.expression))) {
 				error("Type mismatch",
 	                JsldslPackage::eINSTANCE.entityDerivedDeclaration_Expression,
-	                DEFAULT_TYPE_MISMATCH,
+	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
 			}
 		} catch (IllegalArgumentException illegalArgumentException) {
@@ -720,7 +714,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			if (query.expression !== null && !TypeInfo.getTargetType(query).isCompatible(TypeInfo.getTargetType(query.expression))) {
 				error("Type mismatch",
 	                JsldslPackage::eINSTANCE.entityQueryDeclaration_Expression,
-	                DEFAULT_TYPE_MISMATCH,
+	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
 			}
 		} catch (IllegalArgumentException illegalArgumentException) {
@@ -735,7 +729,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			if (query.expression !== null && !TypeInfo.getTargetType(query).isCompatible(TypeInfo.getTargetType(query.expression))) {
 				error("Type mismatch",
 	                JsldslPackage::eINSTANCE.queryDeclaration_Expression,
-	                DEFAULT_TYPE_MISMATCH,
+	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.queryDeclaration.name)
 			}
 		} catch (IllegalArgumentException illegalArgumentException) {
