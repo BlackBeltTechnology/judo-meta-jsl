@@ -1,6 +1,9 @@
 package hu.blackbelt.judo.meta.jsl.runtime;
 
 import java.util.Arrays;
+import java.util.Map;
+
+import com.google.common.collect.ImmutableMap;
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral;
@@ -52,8 +55,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.UnaryOperation;
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension;
 
 public class TypeInfo {
-    private static JslDslModelExtension modelExtension = new JslDslModelExtension();
+    private static final int ImmutableMap = 0;
 
+	private static JslDslModelExtension modelExtension = new JslDslModelExtension();
 	
     // PrimitiveType is just for compatibility purpose
     public enum PrimitiveType {BOOLEAN, BINARY, STRING, NUMERIC, DATE, TIME, TIMESTAMP}
@@ -111,20 +115,21 @@ public class TypeInfo {
 		}
 	}
 	
-	private static BaseType getBaseType(String type) {
-		switch (type) {
-			case "boolean":		return BaseType.BOOLEAN; 
-			case "binary":		return BaseType.BINARY;
-			case "string":		return BaseType.STRING;
-			case "numeric":		return BaseType.NUMERIC;
-			case "date":		return BaseType.DATE;
-			case "time":		return BaseType.TIME;
-			case "timestamp":	return BaseType.TIMESTAMP;
-			case "enum":		return BaseType.ENUM;
-			case "entity":		return BaseType.ENTITY;
-		}
+	private static final ImmutableMap<String, BaseType> baseTypeMap =
+       new ImmutableMap.Builder<String, BaseType>()
+           .put("boolean", BaseType.BOOLEAN)
+           .put("binary", BaseType.BINARY)
+           .put("string", BaseType.STRING)
+           .put("numeric", BaseType.NUMERIC)
+           .put("date", BaseType.DATE)
+           .put("time", BaseType.TIME)
+           .put("timestamp", BaseType.TIMESTAMP)
+           .put("enum", BaseType.ENUM)
+           .put("entity", BaseType.ENTITY)
+           .build();
 
-		throw new IllegalArgumentException("TypeInfo got illegal argument: " + type);
+	private static BaseType getBaseType(String type) {
+		return baseTypeMap.get(type);
 	}
 	
 	private static BaseType getBaseType(TypeDescription typeDescription) {
