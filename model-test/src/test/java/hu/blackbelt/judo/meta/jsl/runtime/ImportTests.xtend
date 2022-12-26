@@ -178,7 +178,7 @@ class ImportTests {
 		val b = 
 		'''
 			model B;
-			import A as a;
+			import A as x;
 		'''.parse(resourceSet)
 		
 		a.assertNoErrors
@@ -248,17 +248,93 @@ class ImportTests {
 		val b = 
 		'''
 			model B;
-			import A as a;
+			import A as x;
 			
 			entity abstract E {
-				field a::String f1;
+				field x::String f1;
 			}	
 		'''.parse(resourceSet)
 		
 		a.assertNoErrors
 		b.assertNoErrors
 	}
+
+	@Test 
+	def void testImportAliasCollison() {
+		val resourceSet = resourceSetProvider.get
+		val a = 
+		'''
+			model A;
+			type string String(min-size = 0, max-size = 128);			
+		'''.parse(resourceSet)
+
+		val b = 
+		'''
+			model B;
+			type string String(min-size = 0, max-size = 128);			
+		'''.parse(resourceSet)
 		
+		val c = 
+		'''
+			model C;
+			import A as x;
+			import B as X;
+		'''.parse(resourceSet)
+		
+		a.assertNoErrors
+		b.assertNoErrors		
+		c.assertError(JsldslPackage::eINSTANCE.modelImportDeclaration, JslDslValidator.IMPORT_ALIAS_COLLISION)
+	}
+
+	@Test 
+	def void testImportAliasCollsionWithModel() {
+		val resourceSet = resourceSetProvider.get
+		val a = 
+		'''
+			model A;
+			type string String(min-size = 0, max-size = 128);			
+		'''.parse(resourceSet)
+
+		val b = 
+		'''
+			model B;
+			type string String(min-size = 0, max-size = 128);			
+		'''.parse(resourceSet)
+		
+		val c = 
+		'''
+			model C;
+			import A as b;
+			import B;
+		'''.parse(resourceSet)
+		
+		a.assertNoErrors
+		b.assertNoErrors		
+		c.assertError(JsldslPackage::eINSTANCE.modelImportDeclaration, JslDslValidator.IMPORT_ALIAS_COLLISION)
+	}
+		
+	@Test 
+	def void testHiddenDeclaration() {
+		val resourceSet = resourceSetProvider.get
+		val a = 
+		'''
+			model A;
+			
+			entity A {}			
+		'''.parse(resourceSet)
+		
+		val b = 
+		'''
+			model B;
+			import A;
+
+			entity A {}
+		'''.parse(resourceSet)
+		
+		a.assertNoErrors
+		b.assertWarning(JsldslPackage::eINSTANCE.named, JslDslValidator.HIDDEN_DECLARATION)
+	}
+
 	def private void assertHierarchyCycle(ModelDeclaration modelDeclaration, String expectedClassName) {
 		modelDeclaration.assertError(
 			JsldslPackage::eINSTANCE.modelImportDeclaration,
