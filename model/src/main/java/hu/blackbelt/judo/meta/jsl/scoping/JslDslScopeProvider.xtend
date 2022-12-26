@@ -53,6 +53,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
+import java.util.ArrayList
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -113,7 +114,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		var IScope navigationScope
 		
 		if (navigationTypeInfo.isEntity) {
-			navigationScope = this.getEntityMembers(scope, navigationTypeInfo.getEntity, ref)
+			navigationScope = this.getEntityMembers(scope, navigationTypeInfo.getEntity, ref, new ArrayList<EntityDeclaration>())
 			
 			navigationScope = new FilteringScope(navigationScope, [desc | {
 				val obj = desc.EObjectOrProxy
@@ -171,7 +172,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 	def scope_EntityRelationOppositeReferenced_oppositeType(EntityRelationOpposite context, EReference ref) {
 		val entityRelationDeclaration = context.eContainer as EntityRelationDeclaration
 		if (context.eContainer !== null && entityRelationDeclaration.isResolvedReference(JsldslPackage.ENTITY_RELATION_DECLARATION__REFERENCE_TYPE)) {
-			getEntityMembers(IScope.NULLSCOPE, entityRelationDeclaration.referenceType, ref)
+			getEntityMembers(IScope.NULLSCOPE, entityRelationDeclaration.referenceType, ref, new ArrayList<EntityDeclaration>())
 		} else {
 			return IScope.NULLSCOPE
 		}
@@ -205,11 +206,14 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 		return result;
 	}
 
-	def IScope getEntityMembers(IScope parent, EntityDeclaration entity, EReference reference) {
+	def IScope getEntityMembers(IScope parent, EntityDeclaration entity, EReference reference, List<EntityDeclaration> visited) {
+		if (visited.contains(entity)) return IScope.NULLSCOPE;
+		visited.add(entity);
+		
 		val scope = new AtomicReference<IScope>(getLocalElementsScope(parent, entity, reference))
 		scope.set(getEntityRelationOppositeInjected(scope.get, entity, reference))		
 		entity.extends.forEach[e | {
-			scope.set(getEntityMembers(scope.get, e, reference))
+			scope.set(getEntityMembers(scope.get, e, reference, visited))
 		}]		
 		return scope.get
 	}
