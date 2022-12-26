@@ -89,6 +89,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val INVALID_LAMBDA_EXPRESSION = ISSUE_CODE_PREFIX + "InvalidLambdaExpression"
 	public static val IMPORT_ALIAS_COLLISION = ISSUE_CODE_PREFIX + "ImportAliasCollison"
 	public static val HIDDEN_DECLARATION = ISSUE_CODE_PREFIX + "HiddenDeclaration"
+	public static val INVALID_DECLARATION = ISSUE_CODE_PREFIX + "InvalidDeclaration"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -120,7 +121,29 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 		]
 	}
-        
+      
+	@Check
+	def checkInvalidFunctionDeclaration(FunctionDeclaration functionDeclaration) {
+		val ModelDeclaration modelDeclaration = functionDeclaration.eContainer as ModelDeclaration
+		if (!modelDeclaration.fullyQualifiedName.equals("judo::functions")) {
+			error("Invalid function declaration '" + functionDeclaration.name + "'",
+				JsldslPackage::eINSTANCE.named_Name,
+				INVALID_DECLARATION,
+				functionDeclaration.name)
+		}
+	}
+      
+	@Check
+	def checkInvalidLambdaDeclaration(LambdaDeclaration lambdaDeclaration) {
+		val ModelDeclaration modelDeclaration = lambdaDeclaration.eContainer as ModelDeclaration
+		if (!modelDeclaration.fullyQualifiedName.equals("judo::functions")) {
+			error("Invalid lambda declaration '" + lambdaDeclaration.name + "'",
+				JsldslPackage::eINSTANCE.named_Name,
+				INVALID_DECLARATION,
+				lambdaDeclaration.name)
+		}
+	}
+
     @Check
 	def checkImportAlias(ModelImportDeclaration modelImport) {
 		if (modelImport.alias !== null) {
