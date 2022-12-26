@@ -16,31 +16,42 @@ class JslDslImportNormalizer extends ImportNormalizer {
 		}
 	}
 	
-	override resolve(QualifiedName relativeName) {
-		var name = relativeName;
-		if (aliasNormalizer !== null) {
-			name = aliasNormalizer.deresolve(relativeName)
-		}
-		if (name === null) {
-			name = relativeName
-		}
-		val resolved = super.resolve(name)		
-		
-		// System.out.println("JslDslImportNormalizer.resolve: " + relativeName.toString("::") + " -> " + resolved.toString("::"));
-		resolved
-	}
-	
 	override deresolve(QualifiedName fullyQualifiedName) {
-		val name = super.deresolve(fullyQualifiedName);
-		var deresolved = name
-		if (aliasNormalizer !== null && name !== null) {
-			deresolved = aliasNormalizer.resolve(name)
+		if (aliasNormalizer !== null) {
+			if (fullyQualifiedName.equals(aliasNormalizer.importedNamespacePrefix)) {
+				return fullyQualifiedName
+			}
+
+			if (fullyQualifiedName.startsWith(importedNamespacePrefix)) {
+				return aliasNormalizer.importedNamespacePrefix.append(fullyQualifiedName.skipFirst(importedNamespacePrefix.segmentCount));
+			}
+			
+			if (fullyQualifiedName.startsWith(aliasNormalizer.importedNamespacePrefix)) {
+				return fullyQualifiedName.skipFirst(aliasNormalizer.importedNamespacePrefix.segmentCount);
+			}
+			
+			return null
 		}
-		if (deresolved === null) {
-			deresolved = fullyQualifiedName
-		}
-		// System.out.println("JslDslImportNormalizer.deresolve: " + fullyQualifiedName.toString("::") + " -> " + deresolved.toString("::"));
-		deresolved
+
+		return super.deresolve(fullyQualifiedName)
 	}
-	
+
+	override QualifiedName resolve(QualifiedName relativeName) {
+		if (relativeName.empty)
+			return null;
+
+		if (aliasNormalizer !== null) {
+			if (relativeName.equals(aliasNormalizer.importedNamespacePrefix)) {
+				return relativeName
+			}
+			
+			if (relativeName.startsWith(aliasNormalizer.importedNamespacePrefix)) {
+				return importedNamespacePrefix.append(relativeName.skipFirst(aliasNormalizer.importedNamespacePrefix.segmentCount))
+			}
+			
+			return null
+		}
+				
+		return super.resolve(relativeName)
+	}
 }

@@ -1,5 +1,6 @@
 package hu.blackbelt.judo.meta.jsl.runtime;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 
 /*-
@@ -25,6 +26,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import java.util.Arrays;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.text.StringEscapeUtils;
@@ -38,6 +40,7 @@ import org.eclipse.xtext.nodemodel.INode;
 
 @Singleton
 public class JslTerminalConverters extends DefaultTerminalConverters {
+	private Set<String> valuesToEscape = ImmutableSet.of("self", "true", "false", "not");
 	
 	private IValueConverter<String> idConverter;
 
@@ -60,7 +63,7 @@ public class JslTerminalConverters extends DefaultTerminalConverters {
   			
   			@Override
   			protected String toEscapedString(String value) {
-  				if (value != null && mustEscape(value))
+  				if (value != null && valuesToEscape.contains(value))
   					return "`" + value + "`";
   				return value;
   			}
