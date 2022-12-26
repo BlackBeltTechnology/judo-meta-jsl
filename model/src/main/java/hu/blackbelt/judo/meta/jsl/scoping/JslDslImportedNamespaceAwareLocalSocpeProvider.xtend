@@ -10,11 +10,16 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.eclipse.emf.ecore.EReference
 import java.util.ArrayList
 import org.eclipse.xtext.scoping.IScope
+import org.eclipse.xtext.naming.QualifiedName
 
 class JslDslImportedNamespaceAwareLocalSocpeProvider extends ImportedNamespaceAwareLocalScopeProvider {
 
 	@Inject extension IQualifiedNameConverter
 	@Inject extension JslDslIndex
+
+	override protected getImplicitImports(boolean ignoreCase) {
+		newArrayList(new ImportNormalizer(QualifiedName.create("judo","functions"), true, ignoreCase))
+	}
 
 	override protected List<ImportNormalizer> internalGetImportedNamespaceResolvers(EObject context, boolean ignoreCase) {
 		val resolvers = new ArrayList<ImportNormalizer>()

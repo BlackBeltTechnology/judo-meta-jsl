@@ -28,7 +28,7 @@ class PrimitiveDefaultValuesTests {
 				field Bool boolAttr = "hello";
 			}
 		'''.parse => [
-			m | m.assertError(JsldslPackage::eINSTANCE.defaultExpressionType, JslDslValidator.DEFAULT_TYPE_MISMATCH, "Default value type: 'EscapedStringLiteral' does not match member type: 'Bool'")
+			m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Default value does not match field type")
 		]
 	}
 	
@@ -43,7 +43,7 @@ class PrimitiveDefaultValuesTests {
 				field String stringAttr = 123;
 			}
 		'''.parse => [
-			m | m.assertError(JsldslPackage::eINSTANCE.defaultExpressionType, JslDslValidator.DEFAULT_TYPE_MISMATCH, "Default value type: 'IntegerLiteral' does not match member type: 'String'")
+			m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Default value does not match field type")
 		]
 	}
 	
@@ -58,7 +58,7 @@ class PrimitiveDefaultValuesTests {
 				field Integer intAttr = "hello";
 			}
 		'''.parse => [
-			m | m.assertError(JsldslPackage::eINSTANCE.defaultExpressionType, JslDslValidator.DEFAULT_TYPE_MISMATCH, "Default value type: 'EscapedStringLiteral' does not match member type: 'Integer'")
+			m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Default value does not match field type")
 		]
 	}
 	
@@ -73,7 +73,7 @@ class PrimitiveDefaultValuesTests {
 				field Decimal decimalAttr = "hello";
 			}
 		'''.parse => [
-			m | m.assertError(JsldslPackage::eINSTANCE.defaultExpressionType, JslDslValidator.DEFAULT_TYPE_MISMATCH, "Default value type: 'EscapedStringLiteral' does not match member type: 'Decimal'")
+			m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Default value does not match field type")
 		]
 	}
 	
@@ -88,7 +88,7 @@ class PrimitiveDefaultValuesTests {
 				field Date dateAttr = "hello";
 			}
 		'''.parse => [
-			m | m.assertError(JsldslPackage::eINSTANCE.defaultExpressionType, JslDslValidator.DEFAULT_TYPE_MISMATCH, "Default value type: 'EscapedStringLiteral' does not match member type: 'Date'")
+			m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Default value does not match field type")
 		]
 	}
 	
@@ -103,7 +103,7 @@ class PrimitiveDefaultValuesTests {
 				field Time timeAttr = "hello";
 			}
 		'''.parse => [
-			m | m.assertError(JsldslPackage::eINSTANCE.defaultExpressionType, JslDslValidator.DEFAULT_TYPE_MISMATCH, "Default value type: 'EscapedStringLiteral' does not match member type: 'Time'")
+			m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Default value does not match field type")
 		]
 	}
 	
@@ -118,7 +118,7 @@ class PrimitiveDefaultValuesTests {
 				field Timestamp timestampAttr = "hello";
 			}
 		'''.parse => [
-			m | m.assertError(JsldslPackage::eINSTANCE.defaultExpressionType, JslDslValidator.DEFAULT_TYPE_MISMATCH, "Default value type: 'EscapedStringLiteral' does not match member type: 'Timestamp'")
+			m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Default value does not match field type")
 		]
 	}
 

@@ -35,14 +35,14 @@ entity abstract Person {
 		+ self.lastName ;
 }
 
-query SalesPerson[] allSalesPerson() => SalesPerson;
+query SalesPerson[] allSalesPerson() => SalesPerson!all();
 
 entity SalesPerson extends Person {
 	relation Lead[] leads opposite salesPerson;
-	query Customer[] leadsOver(Integer limit = 100) => self.leads!filter(lead | lead.value > limit);
-	query Customer[] allLeads() => self.leads;
+	query Lead[] leadsOver(Integer limit = 100) => self.leads!filter(lead | lead.value > limit);
+	query Lead[] allLeads() => self.leads;
 
-	derived Customer[] leadsOver10 => self.leadsOver(limit = 10);
+	derived Lead[] leadsOver10 => self.leadsOver(limit = 10);
 	relation SC::Contract[] contracts opposite-add salesPerson;
 }
 
@@ -52,7 +52,7 @@ entity Lead {
 	relation required SalesPerson salesPerson opposite leads;
 	relation SC::Contract contract opposite-add lead;
 
-	constraint valueLessThan10 self.value > 10 onerror MyError(code = 10, msg = "Error message");
+//	constraint valueLessThan10 self.value > 10 onerror MyError(code = 10, msg = "Error message");
 }
 
 entity Customer {
