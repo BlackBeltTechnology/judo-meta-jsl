@@ -20,6 +20,22 @@ class EntityMemberDeclarationTests {
 	@Inject extension ValidationTestHelper
 	
 	@Test 
+	def void testSelfInDefaultNotAllowed() {
+		'''
+			model test;
+			
+			type boolean Boolean;
+			
+			entity A {
+				field Boolean a;
+				field Boolean b = self.a;
+			}
+		'''.parse => [
+			m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.SELF_NOT_ALLOWED)
+		]
+	}
+
+	@Test 
 	def void testDuplicateInheritedMembersInvalid() {
 		'''
 			model test;
