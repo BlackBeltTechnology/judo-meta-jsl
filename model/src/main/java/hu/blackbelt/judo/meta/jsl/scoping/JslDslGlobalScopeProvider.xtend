@@ -21,18 +21,17 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 	@Inject extension IQualifiedNameConverter
 	@Inject extension JslDslModelExtension
 	@Inject JudoTypesProvider judoTypesProvider
-
+	@Inject JudoFunctionsProvider judoFunctionsProvider
+	
     override IScope getScope(Resource resource, EReference reference, Predicate<IEObjectDescription> filter) {
-		// System.out.println("JslDslGlobalScopeProvider.getScope Res: " + resource + "Ref: " + reference);
-    	// System.out.println("JslDslGlobalScopeProvider.scope=scope_" + reference.EContainingClass.name + "_" + reference.name + "(" + resource + " context, EReference ref) : " + reference.EReferenceType.name);
-		// System.out.println("\tRes: " + resource + "Ref: " + reference);
+//		 System.out.println("JslDslGlobalScopeProvider.getScope Res: " + resource + "Ref: " + reference);
+//    	 System.out.println("JslDslGlobalScopeProvider.scope=scope_" + reference.EContainingClass.name + "_" + reference.name + "(" + resource + " context, EReference ref) : " + reference.EReferenceType.name);
+//		 System.out.println("\tRes: " + resource + "Ref: " + reference);
 		val model = resource.getContents().get(0).parentContainer(ModelDeclaration)
 		
-				
 		if (JsldslPackage::eINSTANCE.modelImportDeclaration_Model == reference) {			
-			//System.out.println("JslDslGlobalScopeProvider.getScope ModelImportDeclaration - " + model.name);
-	        //return super.getScope(resource, reference, filter)
-			return judoTypesProvider.getModelDeclarationScope(super.getScope(resource, reference, filter));  
+			var IScope scope = judoFunctionsProvider.getModelDeclarationScope(super.getScope(resource, reference, filter))
+			return judoTypesProvider.getModelDeclarationScope(scope);  
 		}
 				
 	    val overridedFilter = new Predicate<IEObjectDescription>() {
@@ -58,9 +57,10 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 				}
             }
         }
-        //super.getScope(resource, reference, overridedFilter)
-        		
-        return judoTypesProvider.getScope(super.getScope(resource, reference, overridedFilter), reference, overridedFilter);    
+
+		var IScope typeScope = judoTypesProvider.getScope(super.getScope(resource, reference, overridedFilter), reference, overridedFilter)
+		var IScope functionsScope = judoFunctionsProvider.getScope(typeScope)
+        return functionsScope
     }
 
 	def typeOnly(IScope parent, Class<?> type) {
