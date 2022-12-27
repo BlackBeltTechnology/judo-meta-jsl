@@ -49,7 +49,13 @@ import org.eclipse.emf.common.util.EList
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
-
+import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
+import org.eclipse.emf.ecore.util.EcoreUtil
+import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
+import hu.blackbelt.judo.meta.jsl.jsldsl.MemberReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
+import java.util.ArrayList
+import hu.blackbelt.judo.meta.jsl.jsldsl.impl.EntityDeclarationImpl
 
 /**
  * This class contains custom validation rules. 
@@ -90,6 +96,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val IMPORT_ALIAS_COLLISION = ISSUE_CODE_PREFIX + "ImportAliasCollison"
 	public static val HIDDEN_DECLARATION = ISSUE_CODE_PREFIX + "HiddenDeclaration"
 	public static val INVALID_DECLARATION = ISSUE_CODE_PREFIX + "InvalidDeclaration"
+	public static val EXPRESSION_CYCLE = ISSUE_CODE_PREFIX + "ExpressionCycle"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -121,7 +128,97 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 		]
 	}
-      
+    
+    def void findExpressionCycle(Expression expression, ArrayList<Expression> visited) {
+		if (visited.size > 0 && expression.equals(visited.get(0))) {
+    		throw new IllegalCallerException
+		}
+
+    	if (visited.contains(expression)) {
+    		return
+    	}
+
+		visited.add(expression)
+    	
+    	val Iterator<QueryCall> queryCallIterator = EcoreUtil.getAllContents(expression, true).filter(QueryCall)
+		while (queryCallIterator.hasNext) {
+			val QueryCall queryCall = queryCallIterator.next()
+			
+			if (queryCall.declaration !== null && queryCall.declaration.expression !== null) {
+				findExpressionCycle(queryCall.declaration.expression, visited)
+			}
+		}
+    	
+    	val Iterator<Feature> featureIterator = EcoreUtil.getAllContents(expression, true).filter(Feature)
+		while (featureIterator.hasNext) {
+			val EObject obj = featureIterator.next()
+
+			if (obj instanceof MemberReference && (obj as MemberReference).member instanceof EntityDerivedDeclaration) {
+				val EntityDerivedDeclaration derived = (obj as MemberReference).member as EntityDerivedDeclaration
+				if (derived.expression !== null) {
+					findExpressionCycle(derived.expression, visited)
+				}
+			} else if (obj instanceof EntityQueryCall) {
+				if (obj.declaration !== null && obj.declaration.expression !== null) {
+					findExpressionCycle(obj.declaration.expression, visited)
+				}
+			}
+		}
+		
+		visited.remove(expression)
+    }
+    
+    @Check
+    def checkCyclicDerivedExpression(EntityDerivedDeclaration derived) {
+    	if (derived.expression !== null) {
+    		try {
+    			findExpressionCycle(derived.expression, new ArrayList<Expression>())
+    		} catch (IllegalCallerException e) {
+				error(
+					"Cyclic expression",
+					JsldslPackage::eINSTANCE.entityDerivedDeclaration_Expression,
+					EXPRESSION_CYCLE,
+					derived.name
+				)
+				return
+    		}
+    	}
+    }
+    
+    @Check
+    def checkCyclicEntityQueryExpression(EntityQueryDeclaration query) {
+    	if (query.expression !== null) {
+    		try {
+    			findExpressionCycle(query.expression, new ArrayList<Expression>())
+    		} catch (IllegalCallerException e) {
+				error(
+					"Cyclic expression",
+					JsldslPackage::eINSTANCE.entityQueryDeclaration_Expression,
+					EXPRESSION_CYCLE,
+					query.name
+				)
+				return
+    		}
+    	}
+    }
+
+    @Check
+    def checkCyclicStaticQueryExpression(QueryDeclaration query) {
+    	if (query.expression !== null) {
+    		try {
+    			findExpressionCycle(query.expression, new ArrayList<Expression>())
+    		} catch (IllegalCallerException e) {
+				error(
+					"Cyclic expression",
+					JsldslPackage::eINSTANCE.queryDeclaration_Expression,
+					EXPRESSION_CYCLE,
+					query.name
+				)
+				return
+    		}
+    	}
+    }
+    
 	@Check
 	def checkInvalidFunctionDeclaration(FunctionDeclaration functionDeclaration) {
 		val ModelDeclaration modelDeclaration = functionDeclaration.eContainer as ModelDeclaration
