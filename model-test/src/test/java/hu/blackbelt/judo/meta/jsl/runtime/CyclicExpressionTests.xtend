@@ -34,6 +34,7 @@ class CyclicExpressionTests {
 		]
 	}
 
+
 	@Test 
 	def void testComplexCycle() {
 		'''
