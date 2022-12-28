@@ -49,13 +49,12 @@ import org.eclipse.emf.common.util.EList
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
 import org.eclipse.emf.ecore.util.EcoreUtil
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
 import hu.blackbelt.judo.meta.jsl.jsldsl.MemberReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
 import java.util.ArrayList
-import hu.blackbelt.judo.meta.jsl.jsldsl.impl.EntityDeclarationImpl
+import hu.blackbelt.judo.meta.jsl.jsldsl.Self
 
 /**
  * This class contains custom validation rules. 
@@ -97,6 +96,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val HIDDEN_DECLARATION = ISSUE_CODE_PREFIX + "HiddenDeclaration"
 	public static val INVALID_DECLARATION = ISSUE_CODE_PREFIX + "InvalidDeclaration"
 	public static val EXPRESSION_CYCLE = ISSUE_CODE_PREFIX + "ExpressionCycle"
+	public static val SELF_NOT_ALLOWED = ISSUE_CODE_PREFIX + "SelfNotAllowed"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -219,6 +219,23 @@ class JslDslValidator extends AbstractJslDslValidator {
     	}
     }
     
+    @Check
+    def checkSelfInDefaultExpression(EntityFieldDeclaration field) {
+    	if (field.defaultExpression !== null) {
+	    	val Iterator<Self> iter = EcoreUtil.getAllContents(field.defaultExpression, true).filter(Self)
+
+			if (iter.hasNext) {
+				error(
+					"Self is not allowed in default expression",
+					JsldslPackage::eINSTANCE.entityFieldDeclaration_DefaultExpression,
+					SELF_NOT_ALLOWED,
+					field.name
+				)
+				return
+			}
+    	}
+	}
+
 	@Check
 	def checkInvalidFunctionDeclaration(FunctionDeclaration functionDeclaration) {
 		val ModelDeclaration modelDeclaration = functionDeclaration.eContainer as ModelDeclaration
