@@ -668,6 +668,13 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
+|`[purple]#**now()**# : date`
+|Static function, returns the current date.
+|Example: `Date!now()` is `&#x60;2023-01-01&#x60;`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
 |`[purple]#**of(year = **#<year>[purple]##**, month = **## <month>[purple]##**, day = **## <day>[purple]##**)**## : date`
 |Static function, constructs a date value from the numeric parameters <year>, <month> and <day>. If any of the parameters is not integer, the result will be undefined. If <month> or <day> is less than 1, the result will be undefined. If <month> is greater than 12, or <day> is greater than the last day of the month, it gives an undefined result.
 |Example: `Date!of(year = 2011, month = 1, = day = 28)` is `&#x60;2011-01-28&#x60;`
@@ -720,6 +727,13 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
+|`[purple]#**now()**# : time`
+|Static function, returns the current time.
+|Example: `Time!now()` is `&#x60;13:45:00&#x60;`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
 |`[purple]#**of(hour = **#<hour>[purple]##**, minute = **## <minute>[purple]##**, second = **## <second>[purple]##**)**## : time`
 |Static function, constructs a time value from the numeric parameters <hour>, <minute> and <second>. If any of the parameters is not integer, the result will be undefined. If any parameter is less than 0, the result will be undefined. If <hour> is greater than 23, or <minute> or <second> is greater than 59, it gives an undefined result.
 |Example: `Time!of(hour = 13, minute = 45, second = 00)` is `&#x60;13:45:00&#x60;`
@@ -751,6 +765,13 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 |Example:
 |`&#x60;2019-07-18T01:11:12Z&#x60;!time()` is `&#x60;01:11:12&#x60;`
 |`&#x60;2019-07-18T01:11:12+02:00&#x60;!time()` is `&#x60;23:11:12&#x60;`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**now()**# : timestamp`
+|Static function, returns the current date and time.
+|Example: `Timestamp!now()` is `&#x60;2021-02-28T00:00:00Z&#x60;`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
