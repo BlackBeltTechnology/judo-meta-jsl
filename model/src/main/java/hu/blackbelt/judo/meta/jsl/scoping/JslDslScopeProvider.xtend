@@ -54,6 +54,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import java.util.ArrayList
+import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaCall
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -161,7 +162,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				FunctionDeclaration: return true
 				LambdaDeclaration: return true
 				ErrorDeclaration: return true
-				LambdaVariable: return EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)] || context.isEqual(obj.eContainer)
+//				LambdaVariable: return EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)] || context.isEqual(obj.eContainer)
+				LambdaVariable: return context.parentContainer(LambdaCall).isEqual(obj.eContainer)
 				QueryParameterDeclaration: return EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]
 			}
 
