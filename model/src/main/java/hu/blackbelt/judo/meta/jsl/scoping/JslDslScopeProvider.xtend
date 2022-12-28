@@ -162,7 +162,6 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				FunctionDeclaration: return true
 				LambdaDeclaration: return true
 				ErrorDeclaration: return true
-//				LambdaVariable: return EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)] || context.isEqual(obj.eContainer)
 				LambdaVariable: return context.parentContainer(LambdaCall).isEqual(obj.eContainer)
 				QueryParameterDeclaration: return EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]
 			}
