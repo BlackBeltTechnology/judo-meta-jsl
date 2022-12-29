@@ -55,6 +55,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.MemberReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
 import java.util.ArrayList
 import hu.blackbelt.judo.meta.jsl.jsldsl.Self
+import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference
 
 /**
  * This class contains custom validation rules. 
@@ -222,9 +224,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     @Check
     def checkSelfInDefaultExpression(EntityFieldDeclaration field) {
     	if (field.defaultExpression !== null) {
-	    	val Iterator<Self> iter = EcoreUtil.getAllContents(field.defaultExpression, true).filter(Self)
-
-			if (iter.hasNext) {
+			if (EcoreUtil.getAllContents(field.defaultExpression, true).filter(Self).size > 0) {
 				error(
 					"Self is not allowed in default expression",
 					JsldslPackage::eINSTANCE.entityFieldDeclaration_DefaultExpression,
@@ -323,8 +323,18 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                JsldslPackage::eINSTANCE.queryArgument.name)
 			}
 
-			if (declarationTypeInfo.constant && !exprTypeInfo.constant) {
-				error("Right value must be constant",
+			if (EcoreUtil.getAllContents(argument.expression, true).filter(Self).size > 0) {
+				error("Self is not allowed in query argument expression",
+	                JsldslPackage::eINSTANCE.queryArgument_Expression,
+	                TYPE_MISMATCH,
+	                JsldslPackage::eINSTANCE.queryArgument.name)
+			}
+
+			if (EcoreUtil.getAllContents(argument.expression, true).
+				filter(NavigationBaseDeclarationReference).
+				map[r | r.reference].filter(LambdaVariable).size > 0)
+			{
+				error("Lambda variable is not allowed in query argument expression",
 	                JsldslPackage::eINSTANCE.queryArgument_Expression,
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.queryArgument.name)
@@ -449,6 +459,16 @@ class JslDslValidator extends AbstractJslDslValidator {
 		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.lambdaCall.name)
 				}
+			}
+			
+			if (EcoreUtil.getAllContents(lambdaCall.lambdaExpression, true).filter(Self).size > 0) {
+				error(
+					"Self is not allowed in lambda expression",
+					JsldslPackage::eINSTANCE.lambdaCall_LambdaExpression,
+					SELF_NOT_ALLOWED,
+					JsldslPackage::eINSTANCE.lambdaCall.name
+				)
+				return
 			}
 		}
 	}
