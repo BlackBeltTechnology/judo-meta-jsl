@@ -46,19 +46,22 @@ class JslDslIndex {
 	
 	def getAllImports(ModelDeclaration context) {
 		var Map<String, String> imports = new LinkedHashMap;
-		for (String import : context.EObjectDescription.getUserData("imports").split(",")) {
-			if (import.contains("=")) {
-				val split = import.split("=")
-				if (split.size > 0) {
-					val ns = split.get(0);
-					var alias = null as String;
-					if (split.size > 1) {
-						alias = split.get(1)						
+		
+		if (context.EObjectDescription !== null) {		
+			for (String import : context.EObjectDescription.getUserData("imports").split(",")) {
+				if (import.contains("=")) {
+					val split = import.split("=")
+					if (split.size > 0) {
+						val ns = split.get(0);
+						var alias = null as String;
+						if (split.size > 1) {
+							alias = split.get(1)						
+						}
+						imports.put(ns, alias);
 					}
-					imports.put(ns, alias);
 				}
 			}
-		}	
+		}
 		return imports
 	}
 	

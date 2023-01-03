@@ -287,12 +287,11 @@ You can find a detailed explanation of the operators and their precedence in the
 [options="header",cols="1,1,6,5a"]
 |======================================================================
 |Operator |Result  |Meaning |Example
-|`==`       |Boolean |Case-sensitive comparison. |
+|`<`, `>`, `==`, `!=`, `\<=`, `>=`  |Boolean |Case-sensitive comparison. All uppercase letters are smaller than any lowercase letters.|
+* `"apple" < "pear"` is `true`
+* `"apple" < "Pear"` is `false`
 * `"apple" == "apple"` is `true`
 * `"Apple" == "apple"` is `false`
-|`<`, `>`  |Boolean |Case-insensitive ordering. |
-* `"apple" < "pear"` is `true`
-* `"Apple" > "plum"` is `false`
 |`+`       |String  |Concatenates two strings into a single string result. |
 * `"apple" + "tree"` is `"appletree"`
 |======================================================================

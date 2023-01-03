@@ -18,6 +18,22 @@ class EnumDeclarationTests {
 	@Inject extension ValidationTestHelper
 	
 	@Test
+	def void testEnumMemberMissing() {
+		'''
+			model test;
+			
+			enum Genre {
+			}
+			
+			entity Person {
+				field Genre favoredGenre;
+			}
+		'''.parse => [
+			m | m.assertError(JsldslPackage::eINSTANCE.enumDeclaration, JslDslValidator.ENUM_MEMBER_MISSING)
+		]
+	}
+
+	@Test
 	def void testEnumLiteralCaseInsensitiveNameCollision() {
 		'''
 			model test;
@@ -74,7 +90,7 @@ class EnumDeclarationTests {
 				field Genre favoredGenre = GenreOther#HOUSE;
 			}
 		'''.parse => [
-			m | m.assertError(JsldslPackage::eINSTANCE.defaultExpressionType, JslDslValidator.DEFAULT_TYPE_MISMATCH, "Default value type: 'GenreOther' does not match member type: 'Genre'")
+			m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Default value does not match field type")
 		]
 	}	
 }

@@ -48,7 +48,7 @@ class IdEscapingTests {
 			}
 
 			entity B {
-				derived `entity`[] e => `entity`;
+				derived `entity`[] e => `entity`!all();
 			}
 
 		'''.parse => [
