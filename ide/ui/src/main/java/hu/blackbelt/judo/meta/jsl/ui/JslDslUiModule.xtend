@@ -10,6 +10,7 @@ import hu.blackbelt.judo.meta.jsl.ui.syntaxcoloring.HighlightingConfiguration;
 import hu.blackbelt.judo.meta.jsl.ui.syntaxcoloring.TokenHighlightingConfiguration;
 import hu.blackbelt.judo.meta.jsl.ui.syntaxcoloring.JslDslSemanticHighlightCalculator
 import org.eclipse.xtext.ide.editor.syntaxcoloring.ISemanticHighlightingCalculator
+import com.google.inject.Binder
 
 /**
  * Use this class to register components to be used within the Eclipse IDE.
@@ -35,4 +36,14 @@ class JslDslUiModule extends AbstractJslDslUiModule {
 	def Class<? extends ISemanticHighlightingCalculator> bindSemanticHighlightingCalculator() {
 		return JslDslSemanticHighlightCalculator;
 	}
+	
+	/*
+	override configureHighlightingLexer(Binder binder) {		
+	}
+	
+
+	override configureHighlightingTokenDefProvider(Binder binder) {		
+	}
+	* 
+	*/	
 }

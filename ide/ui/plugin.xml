@@ -87,7 +87,7 @@
 			category="hu.blackbelt.judo.meta.jsl.JslDsl"
 			class="hu.blackbelt.judo.meta.jsl.ui.JslDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.syntaxcoloring.SyntaxColoringPreferencePage"
 			id="hu.blackbelt.judo.meta.jsl.JslDsl.coloring"
-			name="Syntax Coloring">
+			name=" Coloring">
 			<keywordReference id="hu.blackbelt.judo.meta.jsl.ui.keyword_JslDsl"/>
 		</page>
 		<page
@@ -379,5 +379,23 @@
 			type="text">
 		</fileTypes>
 	</extension>
+	<!--
+	<extension
+	      point="org.eclipse.tm4e.registry.grammars">
+	   <grammar
+	        scopeName="source.jsl"
+	        path="src/main/resources/syntaxes/jsl.tmLanguage" >
+	   </grammar>      	
+	   <scopeNameContentTypeBinding
+	         contentTypeId="hu.blackbelt.judo.meta.jsl.JslDsl.contenttype"
+	         scopeName="source.jsl">
+	   </scopeNameContentTypeBinding>
+	</extension>
+	<extension point="org.eclipse.tm4e.languageconfiguration.languageConfigurations">
+		<languageConfiguration 
+				contentTypeId="hu.blackbelt.judo.meta.jsl.JslDsl.contenttype" 
+				path="src/main/resources/syntax/jsl.language-configuration.json" />
+	</extension>
+	-->
 
 </plugin>
