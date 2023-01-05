@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.pde.ui.RuntimeWorkbench">
     <setAttribute key="additional_plugins">
-        <setEntry value="org.apache.xerces:2.12.1.v20210115-0812:default:true:default:default"/>
+        <setEntry value="org.apache.xerces:2.12.2.v20220131-0835:default:true:default:default"/>
         <setEntry value="org.apache.xml.resolver:1.2.0.v201005080400:default:true:default:default"/>
     </setAttribute>
     <booleanAttribute key="append.args" value="true"/>
@@ -51,6 +51,7 @@
         <setEntry value="org.eclipse.platform:default"/>
         <setEntry value="org.eclipse.rcp:default"/>
         <setEntry value="org.eclipse.sdk:default"/>
+        <setEntry value="org.eclipse.tm4e.feature:default"/>
         <setEntry value="org.eclipse.xtend.sdk:default"/>
         <setEntry value="org.eclipse.xtext.examples:default"/>
         <setEntry value="org.eclipse.xtext.redist:default"/>
