@@ -62,16 +62,11 @@
 		<dependency>
 			<groupId>hu.blackbelt.judo</groupId>
 			<artifactId>judo-requirement-report-annotation</artifactId>
-			<version>1.0.0.20230105_022024_241fcd45_feature_JNG_4297_Creating_Judo_test_methodology</version>
-			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>hu.blackbelt.judo</groupId>
 			<artifactId>judo-requirement-report-processor</artifactId>
-			<version>1.0.0.20230105_022024_241fcd45_feature_JNG_4297_Creating_Judo_test_methodology</version>
-			<optional>true</optional>
-			<scope>compile</scope>
 		</dependency>
 		
 	</dependencies>

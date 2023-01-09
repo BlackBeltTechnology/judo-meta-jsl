@@ -111,7 +111,7 @@
         <sonar.language>java</sonar.language>
         <sonar.java.source>${java.version}</sonar.java.source>
         <jacoco.version>0.8.8</jacoco.version>
-
+        <judo-requirement-report-version>1.0.0.20230109_180207_a567f86d_feature_JNG_4297_Creating_Judo_test_methodology</judo-requirement-report-version>
     </properties>
 
     <build>
@@ -836,7 +836,21 @@
                 <artifactId>logback-classic</artifactId>
                 <version>1.4.1</version>
             </dependency>
-			
+
+            <dependency>
+                <groupId>hu.blackbelt.judo</groupId>
+                <artifactId>judo-requirement-report-annotation</artifactId>
+                <version>${judo-requirement-report-version}</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>hu.blackbelt.judo</groupId>
+                <artifactId>judo-requirement-report-processor</artifactId>
+                <version>${judo-requirement-report-version}</version>
+                <optional>true</optional>
+                <scope>compile</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
