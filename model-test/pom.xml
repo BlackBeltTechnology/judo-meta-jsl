@@ -58,6 +58,16 @@
 			<artifactId>guice</artifactId>
 			<version>4.2.3</version><!--$NO-MVN-MAN-VER$-->
 		</dependency>
+
+		<dependency>
+			<groupId>hu.blackbelt.judo</groupId>
+			<artifactId>judo-requirement-report-annotation</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>hu.blackbelt.judo</groupId>
+			<artifactId>judo-requirement-report-processor</artifactId>
+		</dependency>
 		
 	</dependencies>
 </project>
