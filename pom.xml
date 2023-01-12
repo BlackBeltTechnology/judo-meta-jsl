@@ -77,12 +77,12 @@
 
         <tycho-version>2.7.5</tycho-version>
 
-        <emf-genmodel-generator-version>1.1.0</emf-genmodel-generator-version>
-        <judo-genmodel-generator-version>1.1.1</judo-genmodel-generator-version>
-        <judo-epp-common-version>4.23.1</judo-epp-common-version>
+        <emf-genmodel-generator-version>1.1.1.20230111_082001_20af99b0_feature_JNG_4204_Java17</emf-genmodel-generator-version>
+        <judo-genmodel-generator-version>1.1.2.20230111_083018_920c78cc_feature_JNG_4204_Java17</judo-genmodel-generator-version>
+        <judo-epp-common-version>4.26.0.20230110_101424_5c3a7fd3_feature_JNG_4204_Java17</judo-epp-common-version>
         <judo-misc-p2-version>1.0.0</judo-misc-p2-version>
 
-        <xtext-version>2.28.0</xtext-version>
+        <xtext-version>2.29.0</xtext-version>
         <emf-mwe2-launch-version>2.13.0</emf-mwe2-launch-version>
         <slf4j-version>1.7.36</slf4j-version>
 
@@ -114,6 +114,31 @@
         <judo-requirement-report-version>1.0.0.20230109_180207_a567f86d_feature_JNG_4297_Creating_Judo_test_methodology</judo-requirement-report-version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>judo-epp-commons</id>
+            <url>mvn:hu.blackbelt.judo.eclipse.epp:hu.blackbelt.judo.eclipse.epp.package.common.site:${judo-epp-common-version}:zip</url>
+            <layout>p2</layout>
+        </repository>
+
+        <repository>
+            <id>judo-misc-p2</id>
+            <url>mvn:hu.blackbelt.eclipse:judo-misc-p2:${judo-misc-p2-version}:zip:site</url>
+            <layout>p2</layout>
+        </repository>
+
+        <repository>
+            <id>emf-genmodel-generator</id>
+            <url>mvn:hu.blackbelt.eclipse:hu.blackbelt.eclipse.emf.genmodel.generator.site:${emf-genmodel-generator-version}:zip</url>
+            <layout>p2</layout>
+        </repository>
+
+        <repository>
+            <id>judo-genmodel-generator</id>
+            <url>mvn:hu.blackbelt.judo:hu.blackbelt.judo.eclipse.emf.genmodel.generator.site:${judo-genmodel-generator-version}:zip</url>
+            <layout>p2</layout>
+        </repository>
+    </repositories>
     <build>
         <plugins>
             <plugin>
@@ -133,42 +158,6 @@
                 <groupId>org.eclipse.tycho</groupId>
                 <artifactId>target-platform-configuration</artifactId>
                 <version>${tycho-version}</version>
-                <configuration>
-                    <target>
-                        <artifact>
-                            <groupId>hu.blackbelt.judo.meta</groupId>
-                            <artifactId>hu.blackbelt.judo.meta.jsl.targetdefinition</artifactId>
-                            <version>${project.version}</version>
-                        </artifact>
-                    </target>
-                    <environments>
-                        <environment>
-                            <os>linux</os>
-                            <ws>gtk</ws>
-                            <arch>x86_64</arch>
-                        </environment>
-                        <environment>
-                            <os>linux</os>
-                            <ws>gtk</ws>
-                            <arch>aarch64</arch>
-                        </environment>
-                        <environment>
-                            <os>win32</os>
-                            <ws>win32</ws>
-                            <arch>x86_64</arch>
-                        </environment>
-                        <environment>
-                            <os>macosx</os>
-                            <ws>cocoa</ws>
-                            <arch>x86_64</arch>
-                        </environment>
-                        <environment>
-                            <os>macosx</os>
-                            <ws>cocoa</ws>
-                            <arch>aarch64</arch>
-                        </environment>
-                    </environments>
-                </configuration>
             </plugin>
 
             <plugin>
@@ -919,7 +908,6 @@
                 </property>
             </activation>
             <modules>
-                <module>targetdefinition</module>
                 <module>docs</module>
                 <module>model</module>
                 <module>model-test</module>
@@ -1011,57 +999,6 @@
                 </repository>
             </distributionManagement>
         </profile>
-
-        <profile>
-            <id>release-p2-judong</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>wagon-maven-plugin</artifactId>
-                        <version>2.0.2</version>
-                        <executions>
-                            <execution>
-                                <id>upload-repository</id>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>upload</goal>
-                                </goals>
-                                <configuration>
-                                    <serverId>judong-nexus-distribution</serverId>
-                                    <fromDir>${basedir}/site/target/repository</fromDir>
-                                    <includes>*/**</includes>
-                                    <url>dav:https://nexus.judo.technology/repository/p2-judong/</url>
-                                    <toDir>${project-shortname}/${project.version}</toDir>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-		<profile>
-			<id>macos</id>
-			<activation>
-				<os>
-					<family>mac</family>
-				</os>
-			</activation>
-			<properties>
-				<!-- THE FOLLOWING LINE MUST NOT BE BROKEN BY AUTOFORMATTING -->
-				<platformSystemProperties>-XstartOnFirstThread</platformSystemProperties>
-			</properties>
-		</profile>
-		<profile>
-			<id>jdk9-or-newer</id>
-			<activation>
-				<jdk>[9,)</jdk>
-			</activation>
-			<properties>
-				<moduleProperties>--add-modules=ALL-SYSTEM</moduleProperties>
-			</properties>
-		</profile>
 
         <profile>
             <id>generate-github-asciidoc-diagrams</id>
