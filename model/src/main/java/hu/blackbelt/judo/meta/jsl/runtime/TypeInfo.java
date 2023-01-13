@@ -1,10 +1,10 @@
 package hu.blackbelt.judo.meta.jsl.runtime;
 
 import java.util.Arrays;
-import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 
+import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationParameterType;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration;
@@ -14,6 +14,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryCall;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration;
@@ -49,14 +50,14 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.SingleType;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeStampLiteral;
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TypeDescription;
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnaryOperation;
 
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension;
 
 public class TypeInfo {
-    private static final int ImmutableMap = 0;
-
 	private static JslDslModelExtension modelExtension = new JslDslModelExtension();
 	
     // PrimitiveType is just for compatibility purpose
@@ -114,7 +115,13 @@ public class TypeInfo {
 			this.modifier = TypeModifier.COLLECTION;
 		}
 	}
-	
+
+	private TypeInfo(AnnotationParameterType annotationParameterType) {
+		this.baseType = getBaseType(annotationParameterType);
+		this.isLiteral = true;
+		this.modifier = TypeModifier.CONSTANT;
+	}
+
 	private static final ImmutableMap<String, BaseType> baseTypeMap =
        new ImmutableMap.Builder<String, BaseType>()
            .put("boolean", BaseType.BOOLEAN)
@@ -146,6 +153,14 @@ public class TypeInfo {
 		return baseType;
 	}
 
+	private static BaseType getBaseType(AnnotationParameterType annotationParameterType) {
+		if (annotationParameterType == null) {
+			throw new IllegalArgumentException("TypeInfo got illegal argument: " + annotationParameterType);
+		}
+		
+		return getBaseType(annotationParameterType.getType());
+	}
+
 	private TypeInfo(SingleType type, boolean isCollection, boolean isDeclarartion) {
 		this.modifier = isDeclarartion ? TypeModifier.DECLARATION : this.modifier;
 
@@ -154,14 +169,14 @@ public class TypeInfo {
 			this.baseType = getBaseType(((DataTypeDeclaration) type).getPrimitive());
 			
 			if (isCollection) {
-				throw new IllegalArgumentException("DataTypeDeclaration is collection");
+				this.baseType = BaseType.UNDEFINED;
 			}
 		} else if (type instanceof EnumDeclaration) {
 			this.type = type;
 			this.baseType = BaseType.ENUM;
 
 			if (isCollection) {
-				throw new IllegalArgumentException("DataTypeDeclaration is collection");
+				this.baseType = BaseType.UNDEFINED;
 			}
 		} else if (type instanceof EntityDeclaration) {
 			this.type = type;
@@ -169,7 +184,7 @@ public class TypeInfo {
 			this.modifier = isCollection ? TypeModifier.COLLECTION : this.modifier;
 		}
 	}
-
+	
 	public boolean isEntity() {
 		return this.baseType == BaseType.ENTITY;
 	}
@@ -235,6 +250,10 @@ public class TypeInfo {
 	}
 
 	public boolean isBaseCompatible(TypeInfo other) {
+		if (this.baseType == BaseType.UNDEFINED || other.baseType == BaseType.UNDEFINED) {
+			return false;
+		}
+
 		if (this.isCollection() ^ other.isCollection()) {
 			return false;
 		}
@@ -247,6 +266,10 @@ public class TypeInfo {
 	}
 	
 	public boolean isCompatible(TypeInfo other) {
+		if (this.baseType == BaseType.UNDEFINED || other.baseType == BaseType.UNDEFINED) {
+			return false;
+		}
+		
 		if (this.isCollection() ^ other.isCollection()) {
 			return false;
 		}
@@ -401,6 +424,10 @@ public class TypeInfo {
 	}
 	
 	public static TypeInfo getTargetType(NavigationBase navigationBase) {
+		if (navigationBase == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+
 		if (navigationBase instanceof Self) {
 			return getTargetType( (Self) navigationBase );
 		} else if (navigationBase instanceof Parentheses) {
@@ -452,6 +479,8 @@ public class TypeInfo {
 
 		if (navigationBaseReference instanceof EntityDeclaration) {
 			typeInfo = new TypeInfo((EntityDeclaration) navigationBaseReference, false, true);
+		} else if (navigationBaseReference instanceof EntityMapDeclaration) {
+			typeInfo = new TypeInfo( ((EntityMapDeclaration) navigationBaseReference).getEntity(), false, false);
 		} else if (navigationBaseReference instanceof LambdaVariable) {
 			typeInfo = getTargetType((LambdaVariable) navigationBaseReference);
 		} else if (navigationBaseReference instanceof QueryParameterDeclaration) {
@@ -483,10 +512,43 @@ public class TypeInfo {
 	}
 	
 	public static TypeInfo getTargetType(TypeDescription typeDescription) {
+		if (typeDescription == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+
 		return new TypeInfo(typeDescription);
 	}
 	
+	public static TypeInfo getTargetType(AnnotationParameterType annotationParameterType) {
+		if (annotationParameterType == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+			
+		return new TypeInfo(annotationParameterType);
+	}
+
+	public static TypeInfo getTargetType(TransferFieldDeclaration transferFieldDeclaration) {
+		if (transferFieldDeclaration == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+
+		if (transferFieldDeclaration.getReferenceType() instanceof TransferDeclaration) {
+			TransferDeclaration transferDeclaration = (TransferDeclaration) transferFieldDeclaration.getReferenceType();
+			EntityDeclaration entityDeclaration = (EntityDeclaration) transferDeclaration.getMap().getEntity();
+			return new TypeInfo(entityDeclaration, transferFieldDeclaration.isIsMany(), false);
+		} else if (transferFieldDeclaration.getReferenceType() instanceof PrimitiveDeclaration) {
+			return new TypeInfo((PrimitiveDeclaration) transferFieldDeclaration.getReferenceType(), false, false);
+		}
+		
+		throw new IllegalArgumentException("Could not determinate type for transfer field");
+		
+	}
+	
 	public static TypeInfo getTargetType(EntityMemberDeclaration entityMemberDeclaration) {
+		if (entityMemberDeclaration == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+		
 		if (entityMemberDeclaration instanceof EntityFieldDeclaration) {
 			EntityFieldDeclaration entityFieldDeclaration = (EntityFieldDeclaration)entityMemberDeclaration;
 			return new TypeInfo(entityFieldDeclaration.getReferenceType(), entityFieldDeclaration.isIsMany(), false);
@@ -508,14 +570,26 @@ public class TypeInfo {
 	}
 
 	public static TypeInfo getTargetType(QueryDeclaration queryDeclaration) {
+		if (queryDeclaration == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+
 		return new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isIsMany(), false);
 	}
 
 	public static TypeInfo getTargetType(FunctionDeclaration functionDeclaration) {
+		if (functionDeclaration == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+
 		return new TypeInfo(functionDeclaration.getReturnType());
 	}
 
 	public static TypeInfo getTargetType(FunctionArgument functionArgument) {
+		if (functionArgument == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+
 		return new TypeInfo(functionArgument.getDeclaration().getDescription());
 	}
 
@@ -526,19 +600,31 @@ public class TypeInfo {
 	}
 	
 	private static TypeInfo getTargetType(TernaryOperation expression) {
+		if (expression == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+
 		TypeInfo typeInfo = getTargetType( expression.getThenExpression() );
 		typeInfo.modifier = typeInfo.modifier == TypeModifier.CONSTANT ? TypeModifier.NONE : typeInfo.modifier;
 		return typeInfo;
 	}
 
 	public static TypeInfo getTargetType(QueryParameterDeclaration queryParameterDeclaration) {
-		TypeInfo typeInfo = new TypeInfo(queryParameterDeclaration.getReferenceType() , false, false);
+		if (queryParameterDeclaration == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+
+		TypeInfo typeInfo = new TypeInfo(queryParameterDeclaration.getReferenceType(), false, false);
 		typeInfo.modifier = TypeModifier.CONSTANT;
 		return typeInfo;
 	}
 	
 	public static TypeInfo getTargetType(Literal litreal) {
-	  	if (litreal instanceof IntegerLiteral) {
+		if (litreal == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+
+		if (litreal instanceof IntegerLiteral) {
 			return new TypeInfo(BaseType.NUMERIC, true);
 		} else if (litreal instanceof DecimalLiteral) {
 			return new TypeInfo(BaseType.NUMERIC, true);
@@ -562,6 +648,10 @@ public class TypeInfo {
 	}
 	
 	public static TypeInfo getTargetType(Expression expression) {
+		if (expression == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+
 		if (expression instanceof TernaryOperation) {
 			return getTargetType( (TernaryOperation) expression );
 		} else if (expression instanceof BinaryOperation) {

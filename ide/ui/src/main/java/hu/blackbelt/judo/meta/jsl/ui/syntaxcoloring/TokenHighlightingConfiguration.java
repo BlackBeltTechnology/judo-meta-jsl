@@ -33,6 +33,7 @@ public class TokenHighlightingConfiguration extends
     @Override
     protected String calculateId(String tokenName, int tokenType) {
     	String[] operators = {
+    			"';'",
     			"'('",
     			"')'",
     			"'{'",

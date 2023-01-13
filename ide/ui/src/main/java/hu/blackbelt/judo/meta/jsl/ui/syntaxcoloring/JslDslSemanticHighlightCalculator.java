@@ -23,6 +23,7 @@ package hu.blackbelt.judo.meta.jsl.ui.syntaxcoloring;
 import java.util.Arrays;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.Keyword;
+import org.eclipse.xtext.ParserRule;
 import org.eclipse.xtext.RuleCall;
 import org.eclipse.xtext.TerminalRule;
 import org.eclipse.xtext.ide.editor.syntaxcoloring.IHighlightedPositionAcceptor;
@@ -30,6 +31,10 @@ import org.eclipse.xtext.ide.editor.syntaxcoloring.ISemanticHighlightingCalculat
 import org.eclipse.xtext.nodemodel.INode;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.util.CancelIndicator;
+
+import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
 
 public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingCalculator {
 
@@ -54,12 +59,8 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
     			"ModifierScale",
     			"ModifierMimeTypes",
     			"ModifierMaxFileSize"
-	    	};
+    	};
     	
-    	String[] QueryDeclaration = {
-    			"EntityQueryDeclaration"
-	    	};
-
     	if (resource == null) return;
 
 		for(INode node : resource.getParseResult().getRootNode().getAsTreeIterable()) {
@@ -81,53 +82,80 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 				
 				if (nodeGElem instanceof Keyword) {
 					Keyword keyword = (Keyword)nodeGElem;
-					
-					switch (keyword.getValue()) {
 
+					if (keyword.eContainer().eContainer() instanceof ParserRule) {
+						ParserRule parserRule = (ParserRule) keyword.eContainer().eContainer();
+						if (parserRule.getName().equals("JSLID")) continue;
+					}
+
+					switch (keyword.getValue()) {
 					
-					case "model":
-					case "import":
-					case "error":
+					case "@":
+						acceptor.addPosition(node.getOffset(), node.getParent().getLength(),
+								HighlightingConfiguration.ANNOTATION_ID);
+						continue;
+					
+					case "model": 
+						if (node.getSemanticElement() instanceof ModelDeclaration) {
+							acceptor.addPosition(node.getOffset(), node.getText().length(),
+								HighlightingConfiguration.KEYWORD_ID);
+						}
+						continue;
+
 					case "type":
+					case "import":
+					case "as":
+					case "error":
 					case "entity":
 					case "enum":
-					case "as":
 					case "abstract":
 					case "extends":
-						acceptor.addPosition(node.getOffset(), node.getText().length(),
-								HighlightingConfiguration.KEYWORD_ID);
-						continue;
-
-					case "query":
-						boolean highlighted=false;
-						if (node.getParent().getGrammarElement() instanceof RuleCall) {
-							RuleCall parent = (RuleCall)node.getParent().getGrammarElement();
-							if (Arrays.stream(QueryDeclaration).anyMatch(parent.getRule().getName()::equals)) {	
-								acceptor.addPosition(node.getOffset(), node.getText().length(),
-										HighlightingConfiguration.FEATURE_ID);
-								highlighted=true;
-							}
-						}
-						if(!highlighted) {
+					case "control":
+					case "export":
+					case "transfer":
+					case "annotation":
+					case "on":
+						if (node.getSemanticElement().eContainer() instanceof ModelDeclaration) {
 							acceptor.addPosition(node.getOffset(), node.getText().length(),
-									HighlightingConfiguration.KEYWORD_ID);
+								HighlightingConfiguration.KEYWORD_ID);
 						}
 						continue;
+					
+					case "boolean":
+					case "binary":
+					case "string":
+					case "numeric":
+					case "date":
+					case "time":
+					case "timestamp":
+
+					case "service":
+					case "operation":
+					case "static":
 					case "constraint":
 					case "field":
 					case "identifier":
 					case "derived":
 					case "relation":
-						acceptor.addPosition(node.getOffset(), node.getText().length(),
-								HighlightingConfiguration.FEATURE_ID);
-						continue;
-
 					case "onerror":
 					case "required":
 					case "opposite":
 					case "opposite-add":
-						acceptor.addPosition(node.getOffset(), node.getText().length(),
-								HighlightingConfiguration.FEATURE_ID);
+					case "void":
+						if (!(node.getSemanticElement().eContainer() instanceof AnnotationDeclaration)) {
+							acceptor.addPosition(node.getOffset(), node.getText().length(),
+									HighlightingConfiguration.FEATURE_ID);
+						}
+						continue;
+
+					case "query":
+						if (node.getSemanticElement().eContainer() instanceof ModelDeclaration) {
+							acceptor.addPosition(node.getOffset(), node.getText().length(),
+								HighlightingConfiguration.KEYWORD_ID);
+						} else if (node.getSemanticElement().eContainer() instanceof EntityDeclaration) {
+							acceptor.addPosition(node.getOffset(), node.getText().length(),
+									HighlightingConfiguration.FEATURE_ID);
+						}
 						continue;
 
 					case "regex":
@@ -136,29 +164,11 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 					case "min-size":
 					case "max-size":
 					case "mime-types":
-					case "max-file-size":					
+					case "max-file-size":
 						if (node.getParent().getGrammarElement() instanceof RuleCall) {
 							RuleCall parent = (RuleCall)node.getParent().getGrammarElement();
 
 							if (Arrays.stream(modifiers).anyMatch(parent.getRule().getName()::equals)) {	
-								acceptor.addPosition(node.getOffset(), node.getText().length(),
-										HighlightingConfiguration.FEATURE_ID);
-								continue;
-							}
-						}
-						break;
-						
-					case "boolean":
-					case "binary":
-					case "string":
-					case "numeric":
-					case "date":
-					case "time":
-					case "timestamp":
-						if (node.getParent().getGrammarElement() instanceof RuleCall) {
-							RuleCall parent = (RuleCall)node.getParent().getGrammarElement();
-							
-							if (Arrays.stream(primitiveDeclarations).anyMatch(parent.getRule().getName()::equals)) {	
 								acceptor.addPosition(node.getOffset(), node.getText().length(),
 										HighlightingConfiguration.FEATURE_ID);
 								continue;

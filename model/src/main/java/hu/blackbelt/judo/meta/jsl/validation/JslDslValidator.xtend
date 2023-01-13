@@ -57,6 +57,17 @@ import java.util.ArrayList
 import hu.blackbelt.judo.meta.jsl.jsldsl.Self
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationParameterDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationArgument
+import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationMark
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportServiceDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityOperationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityOperationReturnDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityOperationParameterDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -98,7 +109,10 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val HIDDEN_DECLARATION = ISSUE_CODE_PREFIX + "HiddenDeclaration"
 	public static val INVALID_DECLARATION = ISSUE_CODE_PREFIX + "InvalidDeclaration"
 	public static val EXPRESSION_CYCLE = ISSUE_CODE_PREFIX + "ExpressionCycle"
+	public static val ANNOTATION_CYCLE = ISSUE_CODE_PREFIX + "AnnotationCycle"
 	public static val SELF_NOT_ALLOWED = ISSUE_CODE_PREFIX + "SelfNotAllowed"
+	public static val INVALID_COLLECTION = ISSUE_CODE_PREFIX + "InvalidCollection"
+	public static val INVALID_ANNOTATION = ISSUE_CODE_PREFIX + "InvalidAnnotation"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -130,7 +144,48 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 		]
 	}
+
+    def void findAnnotationCycle(AnnotationDeclaration annotation, ArrayList<AnnotationDeclaration> visited) {
+		if (visited.size > 0 && annotation.equals(visited.get(0))) {
+    		throw new IllegalCallerException
+		}
+
+    	if (visited.contains(annotation)) {
+    		return
+    	}
+
+		visited.add(annotation)
+    	
+    	val Iterator<AnnotationMark> annotationMarkIterator = annotation.annotations.iterator
+		while (annotationMarkIterator.hasNext) {
+			val AnnotationMark annotationMark = annotationMarkIterator.next()
+			
+			if (annotationMark.declaration !== null) {
+				findAnnotationCycle(annotationMark.declaration, visited)
+			}
+		}
+		
+		visited.remove(annotation)
+    }
     
+    @Check
+    def checkCyclicAnnotation(AnnotationDeclaration annotation) {
+    	if (annotation.annotations !== null) {
+    		try {
+    			findAnnotationCycle(annotation, new ArrayList<AnnotationDeclaration>())
+    		} catch (IllegalCallerException e) {
+				error(
+					"Cyclic annotation definition",
+					JsldslPackage::eINSTANCE.annotationDeclaration_Annotations,
+					ANNOTATION_CYCLE,
+					annotation.name
+				)
+				return
+    		}
+    	}
+    }
+
+
     def void findExpressionCycle(Expression expression, ArrayList<Expression> visited) {
 		if (visited.size > 0 && expression.equals(visited.get(0))) {
     		throw new IllegalCallerException
@@ -474,6 +529,101 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
+	def checkAnnotationArgument(AnnotationArgument argument) {
+		if (argument.declaration !== null) {
+			val TypeInfo declarationTypeInfo = TypeInfo.getTargetType(argument.declaration.referenceType);
+
+			if (argument.literal !== null) {
+				val TypeInfo literalTypeInfo = TypeInfo.getTargetType(argument.literal);
+
+				if (!declarationTypeInfo.isCompatible(literalTypeInfo)) {
+					error("Type mismatch",
+		                JsldslPackage::eINSTANCE.annotationArgument_Literal,
+		                TYPE_MISMATCH,
+		                JsldslPackage::eINSTANCE.annotationArgument.name)
+				}
+			}
+			
+			if (argument.reference !== null) {
+				val TypeInfo referenceTypeInfo = TypeInfo.getTargetType(argument.reference.referenceType);
+
+				if (!declarationTypeInfo.isCompatible(referenceTypeInfo)) {
+					error("Type mismatch",
+		                JsldslPackage::eINSTANCE.annotationArgument_Reference,
+		                TYPE_MISMATCH,
+		                JsldslPackage::eINSTANCE.annotationArgument.name)
+				}
+			}
+		}
+
+		var EList<AnnotationArgument> arguments = (argument.eContainer as AnnotationMark).arguments;
+
+		if (arguments.filter[a | a.declaration.isEqual(argument.declaration)].size > 1) {
+			error("Duplicate annotation parameter:" + argument.declaration.name,
+                JsldslPackage::eINSTANCE.annotationArgument_Declaration,
+                DUPLICATE_PARAMETER,
+                JsldslPackage::eINSTANCE.annotationArgument.name)
+		}
+	}
+
+	@Check
+	def checkAnnotationRequiredArguments(AnnotationMark annotation) {
+		val AnnotationDeclaration annotationDeclaration = annotation.declaration;
+		val Iterator<AnnotationParameterDeclaration> itr = annotationDeclaration.parameters.iterator;
+
+		while (itr.hasNext) {
+			val AnnotationParameterDeclaration declaration = itr.next;
+
+			if (!annotation.arguments.exists[a | a.declaration.isEqual(declaration)]) {
+				error("Missing required annotation parameter:" + declaration.name,
+	                JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	                MISSING_REQUIRED_PARAMETER,
+	                JsldslPackage::eINSTANCE.annotationMark.name)
+			}
+		}
+	}
+
+	@Check
+	def checkAnnotationMark(AnnotationMark mark) {
+		if (mark.declaration.targets.size == 0) {
+			return
+		}
+		
+		var error = false;
+		
+		switch mark.eContainer {
+			ModelDeclaration:            error = !mark.declaration.targets.exists[t | t.model]
+
+			DataTypeDeclaration:         error = !mark.declaration.targets.exists[t | t.type]
+
+			EnumDeclaration:             error = !mark.declaration.targets.exists[t | t.enumeration]
+			EnumLiteral:                 error = !mark.declaration.targets.exists[t | t.enumLiteral]
+
+			EntityDeclaration:		     error = !mark.declaration.targets.exists[t | t.entity]
+			EntityFieldDeclaration:      error = !mark.declaration.targets.exists[t | t.entityField]
+			EntityRelationDeclaration:   error = !mark.declaration.targets.exists[t | t.entityRelation]
+			EntityIdentifierDeclaration: error = !mark.declaration.targets.exists[t | t.entityIdentifier]
+			EntityDerivedDeclaration:    error = !mark.declaration.targets.exists[t | t.entityDerived]
+			EntityQueryDeclaration:      error = !mark.declaration.targets.exists[t | t.entityQuery]
+			EntityOperationDeclaration:  error = !mark.declaration.targets.exists[t | t.entityOperation]
+
+			TransferDeclaration:         error = !mark.declaration.targets.exists[t | t.transfer]
+			TransferFieldDeclaration:    error = !mark.declaration.targets.exists[t | t.transferField]
+
+			ExportDeclaration:           error = !mark.declaration.targets.exists[t | t.export]
+			ExportServiceDeclaration:    error = !mark.declaration.targets.exists[t | t.exportService]
+
+			QueryDeclaration:            error = !mark.declaration.targets.exists[t | t.query]
+		}
+		
+		if (error) {
+			error("Annotation is not applicable",
+				JsldslPackage::eINSTANCE.annotationMark_Declaration,
+				INVALID_ANNOTATION)
+		}
+	}
+
+	@Check
 	def checkAssociation(EntityRelationDeclaration relation) {
 		// System.out.println("checkAssociationOpposite: " + relation + " opposite: " + relation?.opposite + " type: " + relation?.opposite?.oppositeType)
 		
@@ -560,6 +710,26 @@ class JslDslValidator extends AbstractJslDslValidator {
 				JsldslPackage::eINSTANCE.named_Name,
 				INHERITED_MEMBER_NAME_COLLISION,
 				entity.name)
+		}
+	}
+
+	@Check
+	def checkForDuplicateNameForQueryParameters(QueryParameterDeclaration parameter) {
+		if (parameter.eContainer.eContents.filter[c | c.name.toLowerCase.equals(parameter.name.toLowerCase)].size > 1) {
+			error("Duplicate declaration: '" + parameter.name + "'",
+				parameter.nameAttribute,
+				DUPLICATE_DECLARATION_NAME,
+				parameter.name)
+		}
+	}
+
+	@Check
+	def checkForDuplicateNameForAnnotationParameters(AnnotationParameterDeclaration parameter) {
+		if (parameter.eContainer.eContents.filter[c | c.name.toLowerCase.equals(parameter.name.toLowerCase)].size > 1) {
+			error("Duplicate declaration: '" + parameter.name + "'",
+				parameter.nameAttribute,
+				DUPLICATE_DECLARATION_NAME,
+				parameter.name)
 		}
 	}
 
@@ -825,12 +995,37 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
+	def checkTransferField(TransferFieldDeclaration field) {
+		try {
+			if (field.expression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.expression))) {
+				error("Default value does not match field type",
+	                JsldslPackage::eINSTANCE.transferFieldDeclaration_Expression,
+	                TYPE_MISMATCH)
+			}
+
+			if (field.isIsMany && !(field.referenceType instanceof TransferDeclaration)) {
+				error("Invalid collection of primitive type",
+	                JsldslPackage::eINSTANCE.transferFieldDeclaration_ReferenceType,
+	                INVALID_COLLECTION)
+			}
+		} catch (IllegalArgumentException illegalArgumentException) {
+            return
+		}
+	}
+
+	@Check
 	def checkEntityField(EntityFieldDeclaration field) {
 		try {
 			if (field.defaultExpression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.defaultExpression))) {
 				error("Default value does not match field type",
 	                JsldslPackage::eINSTANCE.entityFieldDeclaration_DefaultExpression,
 	                TYPE_MISMATCH)
+			}
+			
+			if (field.isIsMany && !(field.referenceType instanceof EntityDeclaration)) {
+				error("Invalid collection of primitive type",
+	                JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType,
+	                INVALID_COLLECTION)
 			}
 		} catch (IllegalArgumentException illegalArgumentException) {
             return
@@ -860,6 +1055,12 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
 			}
+
+			if (derived.isIsMany && !(derived.referenceType instanceof EntityDeclaration)) {
+				error("Invalid collection of primitive type",
+	                JsldslPackage::eINSTANCE.entityDerivedDeclaration_ReferenceType,
+	                INVALID_COLLECTION)
+			}
 		} catch (IllegalArgumentException illegalArgumentException) {
             return
 		}
@@ -873,6 +1074,12 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                JsldslPackage::eINSTANCE.entityQueryDeclaration_Expression,
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
+			}
+
+			if (query.isIsMany && !(query.referenceType instanceof EntityDeclaration)) {
+				error("Invalid collection of primitive type",
+	                JsldslPackage::eINSTANCE.entityQueryDeclaration_ReferenceType,
+	                INVALID_COLLECTION)
 			}
 		} catch (IllegalArgumentException illegalArgumentException) {
             return
@@ -889,9 +1096,40 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.queryDeclaration.name)
 			}
+
+			if (query.isIsMany && !(query.referenceType instanceof EntityDeclaration)) {
+				error("Invalid collection of primitive type",
+	                JsldslPackage::eINSTANCE.queryDeclaration_ReferenceType,
+	                INVALID_COLLECTION)
+			}
 		} catch (IllegalArgumentException illegalArgumentException) {
             return
 		}
-		
+	}
+
+	@Check
+	def checkEntityOperationReturn(EntityOperationReturnDeclaration ret) {
+		try {
+			if (ret.isIsMany && !(ret.referenceType instanceof EntityDeclaration)) {
+				error("Invalid collection of primitive type",
+	                JsldslPackage::eINSTANCE.entityOperationReturnDeclaration_ReferenceType,
+	                INVALID_COLLECTION)
+			}
+		} catch (IllegalArgumentException illegalArgumentException) {
+            return
+		}
+	}
+
+	@Check
+	def checkEntityOperationParameter(EntityOperationParameterDeclaration parameter) {
+		try {
+			if (parameter.isIsMany && !(parameter.referenceType instanceof EntityDeclaration)) {
+				error("Invalid collection of primitive type",
+	                JsldslPackage::eINSTANCE.entityOperationParameterDeclaration_ReferenceType,
+	                INVALID_COLLECTION)
+			}
+		} catch (IllegalArgumentException illegalArgumentException) {
+            return
+		}
 	}
 }
