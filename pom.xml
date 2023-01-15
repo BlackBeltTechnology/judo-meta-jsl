@@ -77,9 +77,9 @@
 
         <tycho-version>2.7.5</tycho-version>
 
-        <emf-genmodel-generator-version>1.1.1.20230111_082001_20af99b0_feature_JNG_4204_Java17</emf-genmodel-generator-version>
-        <judo-genmodel-generator-version>1.1.2.20230111_083018_920c78cc_feature_JNG_4204_Java17</judo-genmodel-generator-version>
-        <judo-epp-common-version>4.26.0.20230110_101424_5c3a7fd3_feature_JNG_4204_Java17</judo-epp-common-version>
+        <emf-genmodel-generator-version>1.1.1.20230113_003320_df69eef6_develop</emf-genmodel-generator-version>
+        <judo-genmodel-generator-version>1.1.2.20230115_190224_544971d2_develop</judo-genmodel-generator-version>
+        <judo-epp-common-version>4.26.0.20230112_142558_abc6093e_develop</judo-epp-common-version>
         <judo-misc-p2-version>1.0.0</judo-misc-p2-version>
 
         <xtext-version>2.29.0</xtext-version>
@@ -111,7 +111,7 @@
         <sonar.language>java</sonar.language>
         <sonar.java.source>${java.version}</sonar.java.source>
         <jacoco.version>0.8.8</jacoco.version>
-        <judo-requirement-report-version>1.0.0.20230109_180207_a567f86d_feature_JNG_4297_Creating_Judo_test_methodology</judo-requirement-report-version>
+        <judo-requirement-report-version>1.0.0.20230110_205404_5d3c243c_develop</judo-requirement-report-version>
     </properties>
 
     <repositories>
