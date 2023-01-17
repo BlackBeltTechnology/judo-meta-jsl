@@ -111,7 +111,7 @@
         <sonar.language>java</sonar.language>
         <sonar.java.source>${java.version}</sonar.java.source>
         <jacoco.version>0.8.8</jacoco.version>
-        <judo-requirement-report-version>1.0.0.20230110_205404_5d3c243c_develop</judo-requirement-report-version>
+        <judo-requirement-report-version>1.0.0.20230117_094835_78d7b9dc_develop</judo-requirement-report-version>
     </properties>
 
     <repositories>

@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel;
+import hu.blackbelt.judo.requirement.report.annotation.Requirement;
 
 public class JslDslParserTest {
 
@@ -81,6 +82,9 @@ public class JslDslParserTest {
     }
 
     @Test
+    @Requirement(reqs = {
+    		
+    })
     public void testLoadStream() throws UnsupportedEncodingException {
     	XtextResourceSet resourceSet = JslParser.loadJslFromStream(Arrays.asList(new JslStreamSource(new ByteArrayInputStream(TEST_MODEL.getBytes("UTF-8")), URI.createURI("urn:testLoadString"))));
     	assertTrue(resourceSet.getResources().size() == 1);
