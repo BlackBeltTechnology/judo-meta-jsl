@@ -10,6 +10,7 @@ import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -18,6 +19,9 @@ class FunctionDeclarationTests {
 	@Inject extension ValidationTestHelper
 	
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testInvalidFunctionDeclaration() {
 		'''
 			model FunctionModel;
@@ -29,6 +33,9 @@ class FunctionDeclarationTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testInvalidLambdaDeclaration() {
 		'''
 			model FunctionModel;

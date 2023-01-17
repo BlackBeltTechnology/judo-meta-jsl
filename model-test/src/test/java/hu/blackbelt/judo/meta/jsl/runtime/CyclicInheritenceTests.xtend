@@ -10,6 +10,7 @@ import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -18,7 +19,11 @@ class CyclicInheritenceTests {
 	@Inject extension ParseHelper<ModelDeclaration> 
 	@Inject extension ValidationTestHelper
 	
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-ENT-001",
+        "REQ-ENT-012"
+    ])
 	def void testInheritedSame() {
 		'''
 			model Test;
@@ -31,7 +36,11 @@ class CyclicInheritenceTests {
 		]
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-ENT-001",
+        "REQ-ENT-012"
+    ])
 	def void testInheritedDuplicateMemberNameValid() {
 		'''
 			model Inheritence;

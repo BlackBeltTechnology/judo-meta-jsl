@@ -10,6 +10,7 @@ import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -18,6 +19,9 @@ class EnumDeclarationTests {
 	@Inject extension ValidationTestHelper
 	
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testEnumMemberMissing() {
 		'''
 			model test;
@@ -34,6 +38,9 @@ class EnumDeclarationTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testEnumLiteralCaseInsensitiveNameCollision() {
 		'''
 			model test;
@@ -53,6 +60,9 @@ class EnumDeclarationTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testEnumLiteralOrdinalCollision() {
 		'''
 			model test;
@@ -72,6 +82,9 @@ class EnumDeclarationTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testEnumDefaultTypeMismatch() {
 		'''
 			model test;

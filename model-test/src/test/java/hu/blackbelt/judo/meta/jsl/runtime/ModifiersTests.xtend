@@ -11,6 +11,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
 import org.eclipse.emf.ecore.EClass
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -18,7 +19,10 @@ class ModifiersTests {
 	@Inject extension ParseHelper<ModelDeclaration> 
 	@Inject extension ValidationTestHelper
 	
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testMinSizeModifierTooLarge() {
 		'''
 			model test;
@@ -51,6 +55,9 @@ class ModifiersTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testMaxSizeModifierZero() {
 		'''
 			model test;
@@ -66,7 +73,10 @@ class ModifiersTests {
 		]
 	}
 	
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testMaxSizeModifierTooLarge() {
 		'''
 			model test;
@@ -91,6 +101,9 @@ class ModifiersTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testPrecisionModifierTooLow() {
 		'''
 			model test;
@@ -106,6 +119,9 @@ class ModifiersTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testPrecisionModifierTooLarge() {
 		'''
 			model test;
@@ -121,6 +137,9 @@ class ModifiersTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testScaleModifierTooLarge() {
 		'''
 			model test;
