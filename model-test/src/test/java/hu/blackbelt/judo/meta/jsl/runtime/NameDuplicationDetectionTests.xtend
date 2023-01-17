@@ -11,6 +11,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
 import org.eclipse.emf.ecore.EClass
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -19,7 +20,10 @@ class NameDuplicationDetectionTests {
 	@Inject extension ParseHelper<ModelDeclaration> 
 	@Inject extension ValidationTestHelper
 	
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testDuplicateMemberNameValid() {
 		'''
 			model Test;
@@ -40,7 +44,10 @@ class NameDuplicationDetectionTests {
 		]
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testInheritedDuplicateMemberNameValid() {
 		'''
 			model Inheritence;
@@ -59,7 +66,10 @@ class NameDuplicationDetectionTests {
 		]
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testDuplicateDeclarationName() {
 		'''
 			model DuplicatedEntityName;
@@ -76,7 +86,10 @@ class NameDuplicationDetectionTests {
 		]
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testDuplicateDeclarationWithCaseName() {
 		'''
 			model DuplicatedEntityName;
@@ -95,7 +108,10 @@ class NameDuplicationDetectionTests {
 		]
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testDuplicateDeclarationEntityWithErrorCollosion() {
 		'''
 			model DuplicatedEntityName;

@@ -10,6 +10,7 @@ import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -18,6 +19,9 @@ class ParameterTests {
 	@Inject extension ValidationTestHelper
 	
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testDuplicateParameter() {
 		'''
 			model ParametersModel;
@@ -34,6 +38,9 @@ class ParameterTests {
 
 
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testMissingRequiredParemeter() {
 		'''
 			model ParametersModel;
@@ -49,6 +56,9 @@ class ParameterTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testFunctionParemeterTypeMismatch() {
 		'''
 			model ParametersModel;
@@ -64,6 +74,9 @@ class ParameterTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testInvalidLambdaExpression() {
 		'''
 			model ParametersModel;
@@ -80,6 +93,9 @@ class ParameterTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testSelfNotAllowedInLambda() {
 		'''
 			model ParametersModel;

@@ -11,7 +11,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
 import org.eclipse.emf.ecore.EClass
-
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -19,7 +19,10 @@ class EntityMemberDeclarationTests {
 	@Inject extension ParseHelper<ModelDeclaration> 
 	@Inject extension ValidationTestHelper
 	
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testSelfInDefaultNotAllowed() {
 		'''
 			model test;
@@ -35,7 +38,10 @@ class EntityMemberDeclarationTests {
 		]
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testDuplicateInheritedMembersInvalid() {
 		'''
 			model test;
@@ -58,7 +64,10 @@ class EntityMemberDeclarationTests {
 		]
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testMemberNameTooLong() {
 		'''
 			model test;
@@ -74,7 +83,10 @@ class EntityMemberDeclarationTests {
 		]
 	}
 	
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testFieldIsManyRequired() {
 		'''
 			model test;
@@ -90,7 +102,10 @@ class EntityMemberDeclarationTests {
 		]
 	}
 	
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testRelationIsManyRequired() {
 		'''
 			model test;

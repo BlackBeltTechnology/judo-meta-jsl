@@ -10,6 +10,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.scoping.JslDslIndex
 import org.eclipse.emf.ecore.EObject
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -18,7 +19,10 @@ class IndexTests {
 	@Inject extension ParseHelper<ModelDeclaration> 
 	@Inject extension JslDslIndex
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testSimpleModelExport() {
 		'''
 			model A;
@@ -27,7 +31,10 @@ class IndexTests {
 		]
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testEntityExport() {
 		'''
 			model A;

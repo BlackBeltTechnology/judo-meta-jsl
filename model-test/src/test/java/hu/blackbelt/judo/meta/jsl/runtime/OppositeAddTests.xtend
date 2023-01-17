@@ -10,6 +10,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import com.google.inject.Provider
 import org.eclipse.emf.ecore.resource.ResourceSet
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -20,6 +21,9 @@ class OppositeAddTests {
 
 
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testSimpleOppositeAdd() {
 		
 		'''
@@ -43,6 +47,9 @@ class OppositeAddTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testSimpleWithMultipleCardinalityOppositeAdd() {
 		
 		'''
@@ -66,6 +73,9 @@ class OppositeAddTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testInheritedOppositeAdd() {
 		'''
 			model InheritedOppositeAdd;
@@ -94,7 +104,10 @@ class OppositeAddTests {
 
 
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testImportedModelNavigation() {
 		val resourceSet = resourceSetProvider.get
 		val a = 
@@ -128,7 +141,10 @@ class OppositeAddTests {
 	}
 
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testInheritedImportedModelNavigation() {
 		val resourceSet = resourceSetProvider.get
 		val a = 

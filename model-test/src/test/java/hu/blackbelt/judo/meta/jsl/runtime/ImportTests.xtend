@@ -12,6 +12,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import com.google.inject.Provider
 import org.eclipse.emf.ecore.resource.ResourceSet
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -21,7 +22,10 @@ class ImportTests {
 	@Inject extension ValidationTestHelper
 	@Inject Provider<ResourceSet> resourceSetProvider;
 	
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ]) 
 	def void testSimpleModelDefinition() {
 		'''
 			model A;
@@ -30,7 +34,10 @@ class ImportTests {
 		]
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testTwoModelDefinitionWithDifferentName() {
 		val resourceSet = resourceSetProvider.get
 		val a = '''model A;'''.parse(resourceSet)
@@ -42,7 +49,10 @@ class ImportTests {
 
 
 	/*
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testFailOfTwoModelDefinition() {
 		'''
 			model A;
@@ -54,7 +64,10 @@ class ImportTests {
 		]
 	} */
 				
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testSelfImportClassHierarchyCycle() {
 		'''
 			model A;
@@ -66,7 +79,10 @@ class ImportTests {
 	}
 
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testImportClassHierarchyCycle() {
 		val resourceSet = resourceSetProvider.get
 		val a = 
@@ -93,7 +109,10 @@ class ImportTests {
 		c.assertNoErrors
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testTwoModelDefinitionWithImportWithSimpleName() {
 		val resourceSet = resourceSetProvider.get
 		val a = '''model A;'''.parse(resourceSet)
@@ -108,7 +127,10 @@ class ImportTests {
 		b.assertNoErrors
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testTwoModelDefinitionWithIllegalImportName() {
 		val resourceSet = resourceSetProvider.get
 		val a = '''model A;'''.parse(resourceSet)
@@ -123,7 +145,10 @@ class ImportTests {
 		b.assertModelImportDeclarationLinkingError("A2")
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testTwoModelDefinitionWithEmptyImportName() {
 		val resourceSet = resourceSetProvider.get
 		val a = '''model A;'''.parse(resourceSet)
@@ -139,7 +164,10 @@ class ImportTests {
 	}
 
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testTwoModelDefinitionWithImportWithQualifiedName() {
 		val resourceSet = resourceSetProvider.get
 		val a = '''model ns::A;'''.parse(resourceSet)
@@ -155,6 +183,9 @@ class ImportTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testTwoModelDefinitionWithImportWithIllegalQualifiedName() {
 		val resourceSet = resourceSetProvider.get
 		val a = '''model ns::A;'''.parse(resourceSet)
@@ -170,7 +201,10 @@ class ImportTests {
 
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testTwoModelDefinitionWithImportWithAlias() {
 		val resourceSet = resourceSetProvider.get
 		val a = '''model A;'''.parse(resourceSet)
@@ -186,7 +220,10 @@ class ImportTests {
 	}
 
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testTwoModelDefinitionReferencingDatatypeWithoutAlias() {
 		val resourceSet = resourceSetProvider.get
 		val a = 
@@ -210,7 +247,10 @@ class ImportTests {
 	}
 
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testTwoModelDefinitionReferencingDatatypeWithFullyQualifiedName() {
 		val resourceSet = resourceSetProvider.get
 		val a = 
@@ -236,7 +276,10 @@ class ImportTests {
 		)
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testTwoModelDefinitionReferencingDatatypeWithAlias() {
 		val resourceSet = resourceSetProvider.get
 		val a = 
@@ -259,7 +302,10 @@ class ImportTests {
 		b.assertNoErrors
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testImportAliasCollison() {
 		val resourceSet = resourceSetProvider.get
 		val a = 
@@ -286,7 +332,10 @@ class ImportTests {
 		c.assertError(JsldslPackage::eINSTANCE.modelImportDeclaration, JslDslValidator.IMPORT_ALIAS_COLLISION)
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testImportAliasCollsionWithModel() {
 		val resourceSet = resourceSetProvider.get
 		val a = 
@@ -313,7 +362,10 @@ class ImportTests {
 		c.assertError(JsldslPackage::eINSTANCE.modelImportDeclaration, JslDslValidator.IMPORT_ALIAS_COLLISION)
 	}
 		
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testHiddenDeclaration() {
 		val resourceSet = resourceSetProvider.get
 		val a = 

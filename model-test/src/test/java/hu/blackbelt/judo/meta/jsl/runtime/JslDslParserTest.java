@@ -93,6 +93,9 @@ public class JslDslParserTest {
     }
 
     @Test
+    @Requirement(reqs = {
+    		
+    })
     public void testLoadString() {
     	XtextResourceSet resourceSet = JslParser.loadJslFromString(Arrays.asList(TEST_MODEL));
     	assertTrue(resourceSet.getResources().size() == 1);
@@ -101,6 +104,9 @@ public class JslDslParserTest {
     }
 
     @Test
+    @Requirement(reqs = {
+    		
+    })
     public void testGetModelDeclarationFromFiles() {
         Optional<ModelDeclaration> model = JslParser.getModelDeclarationFromFiles(
         		"SampleModel", 
@@ -110,6 +116,9 @@ public class JslDslParserTest {
     }
 
     @Test
+    @Requirement(reqs = {
+    		
+    })
     public void testGetModelDeclarationFromStreamSources() throws UnsupportedEncodingException {
     	Optional<ModelDeclaration> model = JslParser.getModelDeclarationFromStreamSources(
     			"SampleModel", 
@@ -119,6 +128,9 @@ public class JslDslParserTest {
     }
 
     @Test
+    @Requirement(reqs = {
+    		
+    })
     public void testGetModelDeclarationFromStrings() {
     	Optional<ModelDeclaration> model = JslParser.getModelDeclarationFromStrings(
     			"SampleModel2", 
@@ -128,6 +140,9 @@ public class JslDslParserTest {
     }
 
     @Test
+    @Requirement(reqs = {
+    		
+    })
     public void testGetModelFromFiles() {
     	JslDslModel model = JslParser.getModelFromFiles(
         		"SampleModel2", 
@@ -139,6 +154,9 @@ public class JslDslParserTest {
     }
 
     @Test
+    @Requirement(reqs = {
+    		
+    })
     public void testGetModelFromStreamSources() throws UnsupportedEncodingException {
     	JslDslModel model = JslParser.getModelFromStreamSources(
     			"SampleModel2", 
@@ -152,6 +170,9 @@ public class JslDslParserTest {
     }
 
     @Test
+    @Requirement(reqs = {
+    		
+    })
     public void testGetModelFromStrings() {
     	JslDslModel model = JslParser.getModelFromStrings(
     			"SampleModel2", 

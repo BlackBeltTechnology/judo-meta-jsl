@@ -10,6 +10,7 @@ import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -18,7 +19,10 @@ class CyclicExpressionTests {
 	@Inject extension ParseHelper<ModelDeclaration> 
 	@Inject extension ValidationTestHelper
 	
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testSelfDerived() {
 		'''
 			model Test;
@@ -35,7 +39,10 @@ class CyclicExpressionTests {
 	}
 
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testComplexCycle() {
 		'''
 			model test;

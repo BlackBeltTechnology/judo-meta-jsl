@@ -10,6 +10,7 @@ import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -18,6 +19,9 @@ class PrimitiveDefaultValuesTests {
 	@Inject extension ValidationTestHelper
 	
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testBoolDefaultTypeMismatch() {
 		'''
 			model PrimitiveDefaultsModel;
@@ -33,6 +37,9 @@ class PrimitiveDefaultValuesTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testStringLiteralDefaultTypeMismatch() {
 		'''
 			model PrimitiveDefaultsModel;
@@ -48,6 +55,9 @@ class PrimitiveDefaultValuesTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testIntegerDefaultTypeMismatch() {
 		'''
 			model PrimitiveDefaultsModel;
@@ -63,6 +73,9 @@ class PrimitiveDefaultValuesTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testDecimalDefaultTypeMismatch() {
 		'''
 			model PrimitiveDefaultsModel;
@@ -78,6 +91,9 @@ class PrimitiveDefaultValuesTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testDateDefaultTypeMismatch() {
 		'''
 			model PrimitiveDefaultsModel;
@@ -93,6 +109,9 @@ class PrimitiveDefaultValuesTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testTimeDefaultTypeMismatch() {
 		'''
 			model PrimitiveDefaultsModel;
@@ -108,6 +127,9 @@ class PrimitiveDefaultValuesTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
 	def void testTimestampDefaultTypeMismatch() {
 		'''
 			model PrimitiveDefaultsModel;
@@ -123,6 +145,9 @@ class PrimitiveDefaultValuesTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        
+    ])
     def void testPrimitivesPassingForFieldsAndIdentifiers() {
         '''
 			model PrimitiveDefaultsModel;

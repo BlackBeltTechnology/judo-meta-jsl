@@ -21,6 +21,8 @@ package hu.blackbelt.judo.meta.jsl.runtime;
  */
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel;
+import hu.blackbelt.judo.requirement.report.annotation.Requirement;
+
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.junit.jupiter.api.DisplayName;
@@ -42,6 +44,9 @@ public class JslDslModelLoaderTest {
 	
     @Test
     @DisplayName("Load Jsl Model")
+    @Requirement(reqs = {
+    		
+    })
     void loadJslModel() throws IOException, JslDslModel.JslDslValidationException {
         JslDslModel jslModel = loadJslDslModel(jslDslLoadArgumentsBuilder()
                 .uri(URI.createFileURI(new File("src/test/resources/test.jsl.xmi").getAbsolutePath()))
