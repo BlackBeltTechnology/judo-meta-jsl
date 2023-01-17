@@ -21,7 +21,9 @@ class AssociationTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-006"
     ])
 	def void testOppositeNameValid() {
 		'''
@@ -41,7 +43,9 @@ class AssociationTests {
 
     @Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-006"
     ])
 	def void testOppositeNameInvalid() {
 		'''
@@ -62,7 +66,9 @@ class AssociationTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-006"
     ])
 	def void testOppositeMissingBackReference() {
 		'''
@@ -89,7 +95,9 @@ class AssociationTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-006"
     ])
 	def void testOppositeNameIsAlreadyDefined() {
 		'''
