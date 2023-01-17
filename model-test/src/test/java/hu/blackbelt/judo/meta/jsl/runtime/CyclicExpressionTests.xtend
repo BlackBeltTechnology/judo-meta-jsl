@@ -21,7 +21,12 @@ class CyclicExpressionTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-008",
+        "REQ-TYPE-001",
+        "REQ-TYPE-006",
+        "REQ-EXPR-001",
+        "REQ-EXPR-004"
     ])
 	def void testSelfDerived() {
 		'''
@@ -41,7 +46,19 @@ class CyclicExpressionTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-008",
+        "REQ-TYPE-001",
+        "REQ-TYPE-006",
+        "REQ-EXPR-001",
+        "REQ-EXPR-004",
+        "REQ-EXPR-005",
+        "REQ-EXPR-006",
+        "REQ-EXPR-007",
+        "REQ-EXPR-022",
+        "REQ-ENT-009",
+        "REQ-ENT-010",
+        "REQ-ENT-011"
     ])
 	def void testComplexCycle() {
 		'''
