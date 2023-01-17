@@ -21,7 +21,12 @@ class EntityMemberDeclarationTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-TYPE-001",
+        "REQ-TYPE-006",
+        "REQ-EXPR-001",
+        "REQ-EXPR-004"
     ])
 	def void testSelfInDefaultNotAllowed() {
 		'''
@@ -40,7 +45,11 @@ class EntityMemberDeclarationTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-012",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004"
     ])
 	def void testDuplicateInheritedMembersInvalid() {
 		'''
@@ -66,7 +75,11 @@ class EntityMemberDeclarationTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-SYNT-004"
     ])
 	def void testMemberNameTooLong() {
 		'''
@@ -85,9 +98,14 @@ class EntityMemberDeclarationTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-007",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004"
     ])
 	def void testFieldIsManyRequired() {
+	    //TODO: JNG-4381
 		'''
 			model test;
 			
@@ -104,7 +122,11 @@ class EntityMemberDeclarationTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-007",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004"
     ])
 	def void testRelationIsManyRequired() {
 		'''
