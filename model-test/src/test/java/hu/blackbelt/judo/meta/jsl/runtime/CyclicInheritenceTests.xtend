@@ -21,7 +21,8 @@ class CyclicInheritenceTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-012"
     ])
 	def void testInheritedSame() {
 		'''
@@ -37,7 +38,8 @@ class CyclicInheritenceTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-012"
     ])
 	def void testInheritedDuplicateMemberNameValid() {
 		'''
