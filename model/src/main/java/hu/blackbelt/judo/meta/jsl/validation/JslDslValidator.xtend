@@ -68,6 +68,19 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityOperationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityOperationReturnDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityOperationParameterDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorGrantDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportDataServiceDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportMemberDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportServiceGuardDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportCreateServiceDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportMappedServiceDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportGetServiceDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportUpdateServiceDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportCreateElementServiceDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportInsertElementServiceDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportRemoveElementServiceDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -113,6 +126,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val SELF_NOT_ALLOWED = ISSUE_CODE_PREFIX + "SelfNotAllowed"
 	public static val INVALID_COLLECTION = ISSUE_CODE_PREFIX + "InvalidCollection"
 	public static val INVALID_ANNOTATION = ISSUE_CODE_PREFIX + "InvalidAnnotation"
+	public static val DUPLICATE_AUTOMAP = ISSUE_CODE_PREFIX + "DuplicateAutomap"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -453,7 +467,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			val TypeInfo exprTypeInfo = TypeInfo.getTargetType(argument.expression);
 			val TypeInfo declarationTypeInfo = TypeInfo.getTargetType(argument.declaration.description);
 
-			if (!declarationTypeInfo.isCompatible(exprTypeInfo)) {
+			if (!declarationTypeInfo.isBaseCompatible(exprTypeInfo)) {
 				error("Type mismatch",
 	                JsldslPackage::eINSTANCE.functionArgument_Expression,
 	                TYPE_MISMATCH,
@@ -612,6 +626,9 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 			ExportDeclaration:           error = !mark.declaration.targets.exists[t | t.export]
 			ExportServiceDeclaration:    error = !mark.declaration.targets.exists[t | t.exportService]
+
+			ActorDeclaration:            error = !mark.declaration.targets.exists[t | t.actor]
+			ActorGrantDeclaration:       error = !mark.declaration.targets.exists[t | t.actorGrant]
 
 			QueryDeclaration:            error = !mark.declaration.targets.exists[t | t.query]
 		}
@@ -1130,6 +1147,169 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 		} catch (IllegalArgumentException illegalArgumentException) {
             return
+		}
+	}
+
+	@Check
+	def checkForDuplicateNameForTransferMemberDeclaration(TransferMemberDeclaration member) {
+		val TransferDeclaration transfer = member.eContainer as TransferDeclaration
+		
+		if (member instanceof Named && transfer.members.filter[m | m instanceof Named && m.name.toLowerCase.equals(member.name.toLowerCase)].size > 1) {
+			error("Duplicate member declaration: '" + member.name + "'",
+				member.nameAttribute,
+				DUPLICATE_MEMBER_NAME,
+				member.name)
+		}
+	}
+
+	@Check
+	def checkForDuplicateNameForServiceMemberDeclaration(ExportMemberDeclaration member) {
+		val ExportDeclaration export = member.eContainer as ExportDeclaration
+		
+		if (member instanceof Named && export.members.filter[m | m instanceof Named && m.name.toLowerCase.equals(member.name.toLowerCase)].size > 1) {
+			error("Duplicate member declaration: '" + member.name + "'",
+				member.nameAttribute,
+				DUPLICATE_MEMBER_NAME,
+				member.name)
+		}
+	}
+
+	@Check
+	def checkDataService(ExportDataServiceDeclaration service) {
+		try {
+			if (service.expression !== null && !TypeInfo.getTargetType(service).isCompatible(TypeInfo.getTargetType(service.expression))) {
+				error("Type mismatch",
+	                JsldslPackage::eINSTANCE.exportDataServiceDeclaration_Expression,
+	                TYPE_MISMATCH,
+	                JsldslPackage::eINSTANCE.exportDataServiceDeclaration.name)
+			}
+		} catch (IllegalArgumentException illegalArgumentException) {
+            return
+		}
+	}
+
+	@Check
+	def checkServiceGuard(ExportServiceGuardDeclaration guard) {
+		if (!TypeInfo.getTargetType(guard.expression).isBoolean) {
+			error("Type mismatch. Guard expression must have boolean return value.",
+                JsldslPackage::eINSTANCE.exportServiceGuardDeclaration_Expression,
+                TYPE_MISMATCH,
+                JsldslPackage::eINSTANCE.exportServiceDeclaration.name)
+		}
+	}
+	
+	@Check
+	def checkTransferAutomap(TransferDeclaration transfer) {
+		if (transfer.automap && (transfer.map === null  || transfer.map.entity === null)) {
+			error("Automapping requires mapping to an entity.",
+                JsldslPackage::eINSTANCE.transferDeclaration_Automap,
+                INVALID_DECLARATION,
+                JsldslPackage::eINSTANCE.transferDeclaration.name)
+             
+            return
+		}
+		
+		if (transfer.automap) {
+			if (transfer.parentContainer(ModelDeclaration).fromModel.transfers.filter[t | t.automap && transfer.map.entity.isEqual(t.map?.entity)].size > 1){
+				error("Duplicate transfer automap.",
+	                JsldslPackage::eINSTANCE.transferDeclaration_Automap,
+	                DUPLICATE_AUTOMAP,
+	                JsldslPackage::eINSTANCE.transferDeclaration.name)
+			};
+			
+			val Iterator<EntityMemberDeclaration> containmentsIterator = transfer.map.entity.members.filter[m | m instanceof EntityFieldDeclaration && (m as EntityFieldDeclaration).referenceType instanceof EntityDeclaration].iterator
+
+			while (containmentsIterator.hasNext) {
+				val EntityFieldDeclaration containment = containmentsIterator.next() as EntityFieldDeclaration;
+				
+				if (!transfer.parentContainer(ModelDeclaration).fromModel.transfers.exists[t | t.automap && t.map?.entity.isEqual(containment.referenceType)]){
+					error("Missing automapping in mapped entity for field '" + containment.name + "'",
+		                JsldslPackage::eINSTANCE.transferDeclaration_Automap,
+		                INVALID_DECLARATION,
+		                JsldslPackage::eINSTANCE.transferDeclaration.name)
+				}
+			}
+		}		
+	}
+	
+	@Check
+	def checkExportMappedService(ExportMappedServiceDeclaration service) {
+		val ExportDeclaration export = service.eContainer as ExportDeclaration
+		
+		if (export.map === null || export.map.entity === null) {
+			error("Invalid declaration of service. Export must be mapped to an entity.",
+	            JsldslPackage::eINSTANCE.named_Name,
+	            INVALID_DECLARATION,
+	            JsldslPackage::eINSTANCE.named.name)
+		}
+ 	}
+
+	@Check
+	def checkExportGetService(ExportGetServiceDeclaration service) {
+		val ExportDeclaration export = service.eContainer as ExportDeclaration
+		
+		if (!service.referenceType?.map?.entity.isEqual(export.map?.entity)) {
+			error("Invalid declaration of get auto service. The return type must have the same mapping as the export.",
+	            JsldslPackage::eINSTANCE.exportGetServiceDeclaration_ReferenceType,
+	            INVALID_DECLARATION,
+	            JsldslPackage::eINSTANCE.exportGetServiceDeclaration.name)
+		}
+ 	}
+
+	@Check
+	def checkExportCreateService(ExportCreateServiceDeclaration service) {
+		val ExportDeclaration export = service.eContainer as ExportDeclaration
+		
+		if (!service.referenceType?.map?.entity.isEqual(export.map?.entity)) {
+			error("Invalid declaration of create auto service. The return type must have the same mapping as the export.",
+	            JsldslPackage::eINSTANCE.exportCreateServiceDeclaration_ReferenceType,
+	            INVALID_DECLARATION,
+	            JsldslPackage::eINSTANCE.exportCreateServiceDeclaration.name)
+		}
+ 	}
+
+	@Check
+	def checkExportUpdateService(ExportUpdateServiceDeclaration service) {
+		val ExportDeclaration export = service.eContainer as ExportDeclaration
+		
+		if (!service.parameterType?.map?.entity.isEqual(export.map?.entity)) {
+			error("Invalid declaration of update auto service. The parameter type must have the same mapping as the export.",
+	            JsldslPackage::eINSTANCE.exportUpdateServiceDeclaration_ParameterType,
+	            INVALID_DECLARATION,
+	            JsldslPackage::eINSTANCE.exportUpdateServiceDeclaration_ParameterType.name)
+		}
+ 	}
+
+	@Check
+	def checkExportCreateElementService(ExportCreateElementServiceDeclaration service) {
+		if (service.expression !== null && !TypeInfo.getTargetType(service).isCompatible(TypeInfo.getTargetType(service.expression))) {
+			error("Type mismatch",
+                JsldslPackage::eINSTANCE.exportCreateElementServiceDeclaration_Expression,
+                TYPE_MISMATCH,
+                JsldslPackage::eINSTANCE.exportCreateElementServiceDeclaration.name)
+		}
+	}
+
+	@Check
+	def checkExportInsertElementService(ExportInsertElementServiceDeclaration service) {
+		if (service.expression !== null && !TypeInfo.getTargetType(service.expression).isCompatible(TypeInfo.getTargetType(service))) {
+			error("Type mismatch",
+                JsldslPackage::eINSTANCE.exportInsertElementServiceDeclaration_Expression,
+                TYPE_MISMATCH,
+                JsldslPackage::eINSTANCE.exportInsertElementServiceDeclaration.name)
+		}
+	}
+
+	@Check
+	def checkExportRemoveElementService(ExportRemoveElementServiceDeclaration service) {
+		if (service.expression !== null &&
+				!TypeInfo.getTargetType(service.expression).isCompatible(TypeInfo.getTargetType(service)) &&
+				!TypeInfo.getTargetType(service).isCompatible(TypeInfo.getTargetType(service.expression)))
+		{
+			error("Type mismatch",
+                JsldslPackage::eINSTANCE.exportRemoveElementServiceDeclaration_Expression,
+                TYPE_MISMATCH,
+                JsldslPackage::eINSTANCE.exportRemoveElementServiceDeclaration.name)
 		}
 	}
 }

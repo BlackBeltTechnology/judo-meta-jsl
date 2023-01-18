@@ -23,6 +23,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportCreateElementServiceDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportDataServiceDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportInsertElementServiceDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportRemoveElementServiceDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionArgument;
@@ -541,7 +545,62 @@ public class TypeInfo {
 		}
 		
 		throw new IllegalArgumentException("Could not determinate type for transfer field");
+	}
+
+	public static TypeInfo getTargetType(ExportDataServiceDeclaration service) {
+		if (service == null || service.getReturn() == null || service.getReturn().getReferenceType() == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+
+		if (service.getReturn().getReferenceType() instanceof TransferDeclaration) {
+			TransferDeclaration transferDeclaration = (TransferDeclaration) service.getReturn().getReferenceType();
+			EntityDeclaration entityDeclaration = (EntityDeclaration) transferDeclaration.getMap().getEntity();
+			return new TypeInfo(entityDeclaration, service.isIsMany(), false);
+		}
 		
+		throw new IllegalArgumentException("Could not determinate type for transfer field");
+	}
+
+	public static TypeInfo getTargetType(ExportCreateElementServiceDeclaration service) {
+		if (service == null || service.getReferenceType() == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+
+		if (service.getReferenceType() instanceof TransferDeclaration) {
+			TransferDeclaration transferDeclaration = (TransferDeclaration) service.getReferenceType();
+			EntityDeclaration entityDeclaration = (EntityDeclaration) transferDeclaration.getMap().getEntity();
+			return new TypeInfo(entityDeclaration, true, false);
+		}
+		
+		throw new IllegalArgumentException("Could not determinate type for transfer field");
+	}
+
+	public static TypeInfo getTargetType(ExportInsertElementServiceDeclaration service) {
+		if (service == null || service.getParameterType() == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+
+		if (service.getParameterType() instanceof TransferDeclaration) {
+			TransferDeclaration transferDeclaration = (TransferDeclaration) service.getParameterType();
+			EntityDeclaration entityDeclaration = (EntityDeclaration) transferDeclaration.getMap().getEntity();
+			return new TypeInfo(entityDeclaration, true, false);
+		}
+		
+		throw new IllegalArgumentException("Could not determinate type for transfer field");
+	}
+	
+	public static TypeInfo getTargetType(ExportRemoveElementServiceDeclaration service) {
+		if (service == null || service.getParameterType() == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+
+		if (service.getParameterType() instanceof TransferDeclaration) {
+			TransferDeclaration transferDeclaration = (TransferDeclaration) service.getParameterType();
+			EntityDeclaration entityDeclaration = (EntityDeclaration) transferDeclaration.getMap().getEntity();
+			return new TypeInfo(entityDeclaration, true, false);
+		}
+		
+		throw new IllegalArgumentException("Could not determinate type for transfer field");
 	}
 	
 	public static TypeInfo getTargetType(EntityMemberDeclaration entityMemberDeclaration) {

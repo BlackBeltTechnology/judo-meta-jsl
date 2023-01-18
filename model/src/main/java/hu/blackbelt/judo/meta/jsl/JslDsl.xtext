@@ -13,11 +13,13 @@ ModelDeclaration returns ModelDeclaration
 
 JSLID : ID | 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'timestamp'
 	       | 'regex' | 'precision' | 'scale'
-	       | 'model' | 'import' | 'entity' | 'query' | 'field' | 'identifier' | 'derived' | 'relation' | 'type' | 'enum' | 'function' | 'lambda' | 'constraint' | 'error'
+	       | 'model' | 'import' | 'entity' | 'transfer' | 'export' | 'query' | 'type' | 'enum' | 'function' | 'lambda'
+	       | 'field' | 'identifier' | 'derived' | 'relation' | 'constraint' | 'error'
 	       | 'required' | 'as' | 'abstract' | 'extends' | 'opposite' | 'on' | 'onerror'
 	       | 'collection' | 'declaration' | 'constant'
 	       | 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' 
 	       | 'kB' | 'MB' | 'GB' | 'KiB' | 'MiB' | 'GiB'
+	       | 'get' | 'create' | 'update' | 'delete' | 'insert' | 'remove'
 	       
 	       // 'self', 'true', 'false', 'not' are not included
 	;
@@ -52,6 +54,7 @@ ClassDeclaration
 //	| ControlDeclaration
 	| ExportDeclaration
 	| TransferDeclaration
+	| ActorDeclaration
 	;
 
 /****************************
@@ -69,7 +72,7 @@ EntityDeclaration
 	  annotations += AnnotationMark*
 	  'entity' isAbstract ?= 'abstract'? Named
 	  ('extends' extends += [EntityDeclaration | ModelName] (',' extends += [EntityDeclaration | ModelName])*)?
-	  BLOCK_START (members += EntityMemberDeclaration)* BLOCK_END
+	  (';' | BLOCK_START (members += EntityMemberDeclaration)* BLOCK_END)
 	;
 
 
@@ -203,11 +206,11 @@ ExportDeclaration
 	  annotations += AnnotationMark*
 	  'export' Named
 	  ('(' map = EntityMapDeclaration? ')')?
-	  BLOCK_START (members += ExportMemberDeclaration)* BLOCK_END
+	  (';' | BLOCK_START (members += ExportMemberDeclaration)* BLOCK_END)
 	;
 
 EntityMapDeclaration
-	: entity = [EntityDeclaration | ModelName] Named?   // if no name defined, the 'self' shall be default name
+	: entity = [EntityDeclaration | ModelName] Named   // if no name defined, the 'self' shall be default name
 	;
 
 
@@ -217,10 +220,99 @@ ExportMemberDeclaration
 	;
 
 ExportServiceDeclaration
+	: ExportDataServiceDeclaration
+	| ExportActionServiceDeclaration
+	| ExportMappedServiceDeclaration
+	;
+
+ExportDataServiceDeclaration
 	: annotations += AnnotationMark*
-	  'service' static ?= 'static'? (void ?= 'void' | return = ExportServiceReturnDeclaration | alternateReturn = ExportServiceReturnAlternateDeclaration) Named
-	  ('(' parameter = ExportServiceParameterDeclaration? ')')
-	  (';' | BLOCK_START BLOCK_END )
+	  'service' static ?= 'static'? return = ExportServiceReturnDeclaration Cardinality? Named '=>' expression = Expression
+	  ';'
+	;
+
+//ExportActionServiceDeclaration
+//	: annotations += AnnotationMark*
+//	  ('service' static ?= 'static'? | get ?= 'get' | create ?= 'create' static ?= 'static'? | update ?= 'update' | delete ?= 'delete' | insert ?= 'insert' | remove ?= 'remove')
+//	  (void ?= 'void' | return = ExportServiceReturnDeclaration | alternateReturn = ExportServiceReturnAlternateDeclaration) Named
+//	  (=> '(' parameter = ExportServiceParameterDeclaration? ')')
+//	  (guards += ExportActionServiceGuardDeclaration*)
+//	  (('=>' expression = Expression)? autoservice ?= ';' | BLOCK_START BLOCK_END )
+//	;
+
+ExportActionServiceDeclaration
+	: annotations += AnnotationMark*
+	  'service' static ?= 'static'?
+	  (void ?= 'void' | return = ExportServiceReturnDeclaration | alternateReturn = ExportServiceReturnAlternateDeclaration) Named
+	  '(' parameter = ExportServiceParameterDeclaration? ')'
+	  (guards += ExportServiceGuardDeclaration*)
+	  (autoservice ?= ';' | BLOCK_START BLOCK_END )
+	;
+
+ExportMappedServiceDeclaration
+	: ExportGetServiceDeclaration
+	| ExportCreateServiceDeclaration
+	| ExportUpdateServiceDeclaration
+	| ExportDeleteServiceDeclaration
+	| ExportCreateElementServiceDeclaration
+	| ExportInsertElementServiceDeclaration
+	| ExportRemoveElementServiceDeclaration
+	;
+
+ExportGetServiceDeclaration
+	: annotations += AnnotationMark*
+	  'get' referenceType = [TransferDeclaration | ModelName] Named '('')'
+	  (guards += ExportServiceGuardDeclaration*)
+	  ';'
+	;
+
+ExportCreateServiceDeclaration
+	: annotations += AnnotationMark*
+	  'create' 'static' referenceType = [TransferDeclaration | ModelName] Named '('')'
+	  (guards += ExportServiceGuardDeclaration*)
+	  ';'
+	;
+
+ExportUpdateServiceDeclaration
+	: annotations += AnnotationMark*
+	  'update' 'void' Named '(' parameterType = [TransferDeclaration | ModelName] ')'
+	  (guards += ExportServiceGuardDeclaration*)
+	  ';'
+	;
+
+ExportDeleteServiceDeclaration
+	: annotations += AnnotationMark*
+	  'delete' 'void' Named '('')'
+	  (guards += ExportServiceGuardDeclaration*)
+	  ';'
+	;
+
+ExportCreateElementServiceDeclaration
+	: annotations += AnnotationMark*
+	  'create' referenceType = [TransferDeclaration | ModelName] Named '('')'
+	  '=>' expression = Expression
+	  (guards += ExportServiceGuardDeclaration*)
+	  ';'
+	;
+
+ExportInsertElementServiceDeclaration
+	: annotations += AnnotationMark*
+	  'insert' 'void' Named '('  parameterType = [TransferDeclaration | ModelName]  ')'
+	  '=>' expression = Expression
+	  (guards += ExportServiceGuardDeclaration*)
+	  ';'
+	;
+
+ExportRemoveElementServiceDeclaration
+	: annotations += AnnotationMark*
+	  'remove' 'void' Named '('  parameterType = [TransferDeclaration | ModelName]  ')'
+	  '=>' expression = Expression
+	  (guards += ExportServiceGuardDeclaration*)
+	  ';'
+	;
+
+ExportServiceGuardDeclaration
+	: 'guard' expression = Expression
 	;
 
 ExportServiceReturnAlternateDeclaration
@@ -232,7 +324,7 @@ ExportServiceReturnDeclaration
 	;
 
 ExportServiceParameterDeclaration
-	: referenceType = [Transferable | ModelName] Named
+	: referenceType = [Transferable | ModelName] Named?
 	;
 
 Transferable
@@ -248,7 +340,7 @@ TransferDeclaration
 	  annotations += AnnotationMark*
 	  'transfer' Named
 	  ('(' map = EntityMapDeclaration? ')')?
-	  BLOCK_START (members += TransferMemberDeclaration)* BLOCK_END
+	  (automap ?= ';' | BLOCK_START (members += TransferMemberDeclaration)* BLOCK_END)
 	;
 
 TransferMemberDeclaration
@@ -259,14 +351,39 @@ TransferMemberDeclaration
 TransferFieldDeclaration
 	: annotations += AnnotationMark*
 	  'field' (referenceType = [TransferFieldType | ModelName] Cardinality?) Named
-	  "=" expression = Expression ';'
+	  "=" expression = Expression
+	  ';'
 	;
 
 TransferFieldType
 	: PrimitiveDeclaration
 	| TransferDeclaration
 	;
-	
+
+/****************************
+ *	Actor
+ ****************************/
+
+ActorDeclaration
+	: {ActorDeclaration}
+	  annotations += AnnotationMark*
+	  'actor' Named
+	  ('(' map = EntityMapDeclaration? ')')?
+	  (('realm' realm = StringLiteral)? & ('identity' identity = Expression)? & (guards += ExportServiceGuardDeclaration*))
+	  (';' | BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END)
+	;
+
+ActorMemberDeclaration
+	: ActorGrantDeclaration
+	  ';'*
+	;
+
+ActorGrantDeclaration
+	: annotations += AnnotationMark*
+	  'grant' export = [ExportDeclaration | ModelName]
+	  ';'
+	;
+
 /****************************
  *	Datatype
  ****************************/
@@ -543,6 +660,8 @@ AnnotationTarget
 	| 'transfer' '::' transferField ?= 'field'
 	| export ?= 'export'
 	| 'export' '::' exportService ?= 'service'
+	| actor ?= 'actor'
+	| 'actor' '::' actorGrant ?= 'grant'
 	| query ?= 'query'
 	;
 
@@ -618,7 +737,7 @@ TemporalLiteral
 
 ErrorDeclaration
 	: 'error' Named ('extends' extends = [ErrorDeclaration | ModelName])?
-	  BLOCK_START (fields += ErrorField)* BLOCK_END
+	  (';' | BLOCK_START (fields += ErrorField)* BLOCK_END)
 	;
 
 ErrorField

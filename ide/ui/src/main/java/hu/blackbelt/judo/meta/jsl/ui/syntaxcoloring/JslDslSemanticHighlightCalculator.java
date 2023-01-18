@@ -32,8 +32,10 @@ import org.eclipse.xtext.nodemodel.INode;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.util.CancelIndicator;
 
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportServiceGuardDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
 
 public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingCalculator {
@@ -102,6 +104,9 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 						}
 						continue;
 
+					case "actor":
+					case "realm":
+					case "identity":
 					case "type":
 					case "import":
 					case "as":
@@ -129,6 +134,14 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 					case "time":
 					case "timestamp":
 
+					case "get":
+					case "create":
+					case "update":
+					case "delete":
+					case "insert":
+					case "remove":
+
+					case "grant":
 					case "service":
 					case "operation":
 					case "static":
@@ -147,7 +160,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 									HighlightingConfiguration.FEATURE_ID);
 						}
 						continue;
-
+						
 					case "query":
 						if (node.getSemanticElement().eContainer() instanceof ModelDeclaration) {
 							acceptor.addPosition(node.getOffset(), node.getText().length(),
@@ -158,6 +171,17 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 						}
 						continue;
 
+					case "guard":
+						if (node.getSemanticElement().eContainer() instanceof ActorDeclaration) {
+							acceptor.addPosition(node.getOffset(), node.getText().length(),
+								HighlightingConfiguration.KEYWORD_ID);
+						} else if (node.getSemanticElement() instanceof ExportServiceGuardDeclaration) {
+							acceptor.addPosition(node.getOffset(), node.getText().length(),
+									HighlightingConfiguration.FEATURE_ID);
+						}
+						continue;
+					
+						
 					case "regex":
 					case "precision":
 					case "scale":
