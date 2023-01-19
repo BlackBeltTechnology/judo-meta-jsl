@@ -261,52 +261,56 @@ ExportMappedServiceDeclaration
 
 ExportGetServiceDeclaration
 	: annotations += AnnotationMark*
-	  'get' referenceType = [TransferDeclaration | ModelName] Named '('')'
+	  'service' referenceType = [TransferDeclaration | ModelName] Named '('')'
+	  'get'
 	  (guards += ExportServiceGuardDeclaration*)
 	  ';'
 	;
 
 ExportCreateServiceDeclaration
 	: annotations += AnnotationMark*
-	  'create' 'static' referenceType = [TransferDeclaration | ModelName] Named '('')'
+	  'service' static ?= 'static'? referenceType = [TransferDeclaration | ModelName] Named '('')'
+	  'create'
 	  (guards += ExportServiceGuardDeclaration*)
 	  ';'
 	;
 
 ExportUpdateServiceDeclaration
 	: annotations += AnnotationMark*
-	  'update' 'void' Named '(' parameterType = [TransferDeclaration | ModelName] ')'
+	  'service' 'void' Named '(' parameterType = [TransferDeclaration | ModelName] ')'
+	  'update'
 	  (guards += ExportServiceGuardDeclaration*)
 	  ';'
 	;
 
 ExportDeleteServiceDeclaration
 	: annotations += AnnotationMark*
-	  'delete' 'void' Named '('')'
+	  'service' 'void' Named '('  parameterType = [TransferDeclaration | ModelName]?  ')'
+	  'delete'
 	  (guards += ExportServiceGuardDeclaration*)
 	  ';'
 	;
 
 ExportCreateElementServiceDeclaration
 	: annotations += AnnotationMark*
-	  'create' referenceType = [TransferDeclaration | ModelName] Named '('')'
-	  '=>' expression = Expression
+	  'service' referenceType = [TransferDeclaration | ModelName] Named '('')'
+	  'create' expression = Expression
 	  (guards += ExportServiceGuardDeclaration*)
 	  ';'
 	;
 
 ExportInsertElementServiceDeclaration
 	: annotations += AnnotationMark*
-	  'insert' 'void' Named '('  parameterType = [TransferDeclaration | ModelName]  ')'
-	  '=>' expression = Expression
+	  'service' 'void' Named '('  parameterType = [TransferDeclaration | ModelName]  ')'
+	  'insert' expression = Expression
 	  (guards += ExportServiceGuardDeclaration*)
 	  ';'
 	;
 
 ExportRemoveElementServiceDeclaration
 	: annotations += AnnotationMark*
-	  'remove' 'void' Named '('  parameterType = [TransferDeclaration | ModelName]  ')'
-	  '=>' expression = Expression
+	  'service' 'void' Named '('  parameterType = [TransferDeclaration | ModelName]  ')'
+	  'remove' expression = Expression
 	  (guards += ExportServiceGuardDeclaration*)
 	  ';'
 	;
