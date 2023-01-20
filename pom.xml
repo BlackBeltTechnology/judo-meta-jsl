@@ -77,8 +77,8 @@
 
         <tycho-version>2.7.5</tycho-version>
 
-        <emf-genmodel-generator-version>1.1.1.20230113_003320_df69eef6_develop</emf-genmodel-generator-version>
-        <judo-genmodel-generator-version>1.1.2.20230115_190224_544971d2_develop</judo-genmodel-generator-version>
+        <emf-genmodel-generator-version>1.1.1.20230120_152641_f8d06d79_develop</emf-genmodel-generator-version>
+        <judo-genmodel-generator-version>1.1.2.20230120_213943_e83cbc72_develop</judo-genmodel-generator-version>
         <judo-epp-common-version>4.26.0.20230112_142558_abc6093e_develop</judo-epp-common-version>
         <judo-misc-p2-version>1.0.0</judo-misc-p2-version>
 
@@ -111,7 +111,7 @@
         <sonar.language>java</sonar.language>
         <sonar.java.source>${java.version}</sonar.java.source>
         <jacoco.version>0.8.8</jacoco.version>
-        <judo-requirement-report-version>1.0.0.20230110_205404_5d3c243c_develop</judo-requirement-report-version>
+        <judo-requirement-report-version>1.0.0.20230117_094835_78d7b9dc_develop</judo-requirement-report-version>
     </properties>
 
     <repositories>
