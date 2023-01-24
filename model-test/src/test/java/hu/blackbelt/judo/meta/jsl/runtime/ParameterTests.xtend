@@ -20,7 +20,13 @@ class ParameterTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-EXPR-002",
+        "REQ-EXPR-013"
     ])
 	def void testDuplicateParameter() {
 		'''
@@ -39,7 +45,13 @@ class ParameterTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-EXPR-002",
+        "REQ-EXPR-013"
     ])
 	def void testMissingRequiredParemeter() {
 		'''
@@ -57,7 +69,13 @@ class ParameterTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-EXPR-002",
+        "REQ-EXPR-013"
     ])
 	def void testFunctionParemeterTypeMismatch() {
 		'''
@@ -75,7 +93,17 @@ class ParameterTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-010",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-007",
+        "REQ-EXPR-002",
+        "REQ-EXPR-008",
+        "REQ-EXPR-013",
+        "REQ-EXPR-022"
+        //TODO: JNG-4392
     ])
 	def void testInvalidLambdaExpression() {
 		'''
@@ -94,7 +122,16 @@ class ParameterTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-010",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-007",
+        "REQ-EXPR-002",
+        "REQ-EXPR-008",
+        "REQ-EXPR-013",
+        "REQ-EXPR-022"
     ])
 	def void testSelfNotAllowedInLambda() {
 		'''

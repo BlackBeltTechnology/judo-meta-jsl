@@ -24,7 +24,11 @@ class TypeInfoTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-006",
+        "REQ-ENT-001",
+        "REQ-ENT-002"
     ])
 	def void testPrimitiveField() {
 		val m = '''
@@ -47,7 +51,11 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-006",
+        "REQ-ENT-001",
+        "REQ-ENT-003"
     ])
 	def void testIdentifier() {
 		val m = '''
@@ -71,7 +79,11 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-006",
+        "REQ-ENT-001",
+        "REQ-ENT-007"
     ])
 	def void testSingleField() {
 		val m = '''
@@ -99,7 +111,9 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-007"
     ])
 	def void testCollectionField() {
 		val m = '''
@@ -125,7 +139,11 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-007",
+        "REQ-ENT-008",
+        "REQ-EXPR-003"
     ])
 	def void testSelfDerivedToSingleField() {
 		val m = '''
@@ -156,7 +174,11 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-007",
+        "REQ-ENT-008",
+        "REQ-EXPR-003"
     ])
 	def void testSelfDerivedToCollectionField() {
 		val m = '''
@@ -187,9 +209,14 @@ class TypeInfoTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-008",
+        "REQ-EXPR-003"
+        //TODO: JNG-4399
     ])
 	def void testStaticDerivedToSingleField() {
+	    //TODO: JNG-4399
 		val m = '''
 			model TestModel;
 			
@@ -214,9 +241,14 @@ class TypeInfoTests {
 	}
 
 
-		@Test
+	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-006",
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-005"
     ])
 	def void testSingleRelation() {
 		val m = '''
@@ -244,7 +276,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-005"
     ])
 	def void testCollectionRelation() {
 		val m = '''
@@ -271,7 +306,13 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-005",
+        "REQ-ENT-008",
+        "REQ-EXPR-001",
+        "REQ-EXPR-003"
     ])
 	def void testDerivedMultipleRelation() {
 		val m = '''
@@ -309,9 +350,21 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-008",
+        "REQ-EXPR-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-TYPE-005",
+        "REQ-TYPE-006",
+        "REQ-TYPE-007",
+        "REQ-TYPE-008",
+        "REQ-TYPE-009"
     ])
 	def void testLiterals() {
+	    //TODO: JNG-4400
 		val m = '''
 			model TestModel;
 			
@@ -351,7 +404,16 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-008",
+        "REQ-EXPR-001",
+        "REQ-EXPR-013",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-TYPE-005",
+        "REQ-TYPE-006"
     ])
 	def void testStringFunctionsLiteralBase() {
 		val m = '''

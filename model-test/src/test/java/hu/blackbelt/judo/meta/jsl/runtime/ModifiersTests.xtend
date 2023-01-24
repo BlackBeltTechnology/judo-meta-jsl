@@ -21,7 +21,11 @@ class ModifiersTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002"
     ])
 	def void testMinSizeModifierTooLarge() {
 		'''
@@ -56,7 +60,11 @@ class ModifiersTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002"
     ])
 	def void testMaxSizeModifierZero() {
 		'''
@@ -75,7 +83,11 @@ class ModifiersTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002"
     ])
 	def void testMaxSizeModifierTooLarge() {
 		'''
@@ -102,7 +114,11 @@ class ModifiersTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-ENT-001",
+        "REQ-ENT-002"
     ])
 	def void testPrecisionModifierTooLow() {
 		'''
@@ -120,7 +136,12 @@ class ModifiersTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-ENT-001",
+        "REQ-ENT-002"
+        //TODO: JNG-4396
     ])
 	def void testPrecisionModifierTooLarge() {
 		'''
@@ -138,7 +159,12 @@ class ModifiersTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-ENT-001",
+        "REQ-ENT-002"
+        //TODO: JNG-4397
     ])
 	def void testScaleModifierTooLarge() {
 		'''

@@ -22,7 +22,14 @@ class NameDuplicationDetectionTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-004",
+        "REQ-ENT-006"
     ])
 	def void testDuplicateMemberNameValid() {
 		'''
@@ -46,7 +53,13 @@ class NameDuplicationDetectionTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-012"
     ])
 	def void testInheritedDuplicateMemberNameValid() {
 		'''
@@ -68,7 +81,11 @@ class NameDuplicationDetectionTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001"
     ])
 	def void testDuplicateDeclarationName() {
 		'''
@@ -88,7 +105,11 @@ class NameDuplicationDetectionTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001"
     ])
 	def void testDuplicateDeclarationWithCaseName() {
 		'''
@@ -110,7 +131,12 @@ class NameDuplicationDetectionTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001"
+        //TODO: JNG-4398
     ])
 	def void testDuplicateDeclarationEntityWithErrorCollosion() {
 		'''

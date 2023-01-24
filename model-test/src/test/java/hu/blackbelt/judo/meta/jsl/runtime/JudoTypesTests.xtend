@@ -26,7 +26,12 @@ class JudoTypesTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-MDL-001",
+        "REQ-MDL-002",
+        "REQ-MDL-003",
+        "REQ-TYPE-001",
+        "REQ-ENT-001",
+        "REQ-ENT-002"
     ])
 	def void testJudoTypesImport() {
 		val resourceSet = resourceSetProvider.get

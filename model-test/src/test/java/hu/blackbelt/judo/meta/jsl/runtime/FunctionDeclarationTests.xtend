@@ -20,7 +20,8 @@ class FunctionDeclarationTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-001",
+        "REQ-SYNT-002"
     ])
 	def void testInvalidFunctionDeclaration() {
 		'''
@@ -34,7 +35,8 @@ class FunctionDeclarationTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-001",
+        "REQ-SYNT-002"
     ])
 	def void testInvalidLambdaDeclaration() {
 		'''

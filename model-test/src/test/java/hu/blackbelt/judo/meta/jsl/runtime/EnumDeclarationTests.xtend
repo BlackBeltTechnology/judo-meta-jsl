@@ -20,7 +20,9 @@ class EnumDeclarationTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-TYPE-002"
     ])
 	def void testEnumMemberMissing() {
 		'''
@@ -39,7 +41,9 @@ class EnumDeclarationTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-TYPE-002"
     ])
 	def void testEnumLiteralCaseInsensitiveNameCollision() {
 		'''
@@ -61,7 +65,9 @@ class EnumDeclarationTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-TYPE-002"
     ])
 	def void testEnumLiteralOrdinalCollision() {
 		'''
@@ -83,7 +89,9 @@ class EnumDeclarationTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-TYPE-002"
     ])
 	def void testEnumDefaultTypeMismatch() {
 		'''

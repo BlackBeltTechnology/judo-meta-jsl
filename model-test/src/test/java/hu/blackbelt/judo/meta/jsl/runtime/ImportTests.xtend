@@ -24,7 +24,9 @@ class ImportTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-MDL-001"
     ]) 
 	def void testSimpleModelDefinition() {
 		'''
@@ -36,7 +38,9 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-MDL-001"
     ])
 	def void testTwoModelDefinitionWithDifferentName() {
 		val resourceSet = resourceSetProvider.get
@@ -66,7 +70,11 @@ class ImportTests {
 				
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-MDL-001",
+        "REQ-MDL-003"
+        //TODO: JNG-4393
     ])
 	def void testSelfImportClassHierarchyCycle() {
 		'''
@@ -81,7 +89,11 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-MDL-001",
+        "REQ-MDL-003"
+        //TODO: JNG-4393
     ])
 	def void testImportClassHierarchyCycle() {
 		val resourceSet = resourceSetProvider.get
@@ -111,7 +123,10 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-MDL-001",
+        "REQ-MDL-003"
     ])
 	def void testTwoModelDefinitionWithImportWithSimpleName() {
 		val resourceSet = resourceSetProvider.get
@@ -129,7 +144,10 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-MDL-001",
+        "REQ-MDL-003"
     ])
 	def void testTwoModelDefinitionWithIllegalImportName() {
 		val resourceSet = resourceSetProvider.get
@@ -147,7 +165,11 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-002",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-MDL-001",
+        "REQ-MDL-003"
     ])
 	def void testTwoModelDefinitionWithEmptyImportName() {
 		val resourceSet = resourceSetProvider.get
@@ -166,7 +188,11 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-MDL-001",
+        "REQ-MDL-002",
+        "REQ-MDL-003"
     ])
 	def void testTwoModelDefinitionWithImportWithQualifiedName() {
 		val resourceSet = resourceSetProvider.get
@@ -184,7 +210,11 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-MDL-001",
+        "REQ-MDL-002",
+        "REQ-MDL-003"
     ])
 	def void testTwoModelDefinitionWithImportWithIllegalQualifiedName() {
 		val resourceSet = resourceSetProvider.get
@@ -203,7 +233,10 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-MDL-001",
+        "REQ-MDL-003"
     ])
 	def void testTwoModelDefinitionWithImportWithAlias() {
 		val resourceSet = resourceSetProvider.get
@@ -222,7 +255,15 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-MDL-001",
+        "REQ-MDL-003",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-012"
     ])
 	def void testTwoModelDefinitionReferencingDatatypeWithoutAlias() {
 		val resourceSet = resourceSetProvider.get
@@ -249,7 +290,15 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-MDL-001",
+        "REQ-MDL-003",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-012"
     ])
 	def void testTwoModelDefinitionReferencingDatatypeWithFullyQualifiedName() {
 		val resourceSet = resourceSetProvider.get
@@ -278,7 +327,15 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-MDL-001",
+        "REQ-MDL-003",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-012"
     ])
 	def void testTwoModelDefinitionReferencingDatatypeWithAlias() {
 		val resourceSet = resourceSetProvider.get
@@ -304,7 +361,13 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-MDL-003",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004"
     ])
 	def void testImportAliasCollison() {
 		val resourceSet = resourceSetProvider.get
@@ -334,7 +397,14 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-MDL-003",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004"
+        //TODO: JNG-4394
     ])
 	def void testImportAliasCollsionWithModel() {
 		val resourceSet = resourceSetProvider.get
@@ -361,10 +431,59 @@ class ImportTests {
 		b.assertNoErrors		
 		c.assertError(JsldslPackage::eINSTANCE.modelImportDeclaration, JslDslValidator.IMPORT_ALIAS_COLLISION)
 	}
+	
+	/*
+	 * This is an example for JNG-4394
+	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-MDL-003",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004"
+        //TODO: JNG-4394
+    ])
+	def void testImportAliasCollsionWithModel2() {
+        val resourceSet = resourceSetProvider.get
+        val a = 
+        '''
+            model A;
+            type string String(min-size = 0, max-size = 128);           
+        '''.parse(resourceSet)
+
+        val b = 
+        '''
+            model B;
+            type string String(min-size = 0, max-size = 20);           
+        '''.parse(resourceSet)
+        
+        val c = 
+        '''
+            model C;
+            import A as b;
+            import B as a;
+            
+            entity abstract E {
+                field a::String f1;
+                field b::String f2;
+            }
+        '''.parse(resourceSet)
+        
+        a.assertNoErrors
+        b.assertNoErrors
+        c.assertNoErrors        
+    }
+    */
 		
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-MDL-003"
     ])
 	def void testHiddenDeclaration() {
 		val resourceSet = resourceSetProvider.get

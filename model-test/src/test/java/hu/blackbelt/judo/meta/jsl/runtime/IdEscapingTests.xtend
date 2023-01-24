@@ -22,7 +22,14 @@ class IdEscapingTests {
 	
 	@Test
     @Requirement(reqs =#[
-        
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-008",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-SYNT-003",
+        "REQ-EXPR-001",
+        "REQ-EXPR-004"
     ])
 	def void testFieldNameReservedWord() {
 		'''
@@ -39,7 +46,19 @@ class IdEscapingTests {
 	}
 
 
-	@Test 
+	@Test
+	@Requirement(reqs =#[
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-008",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-SYNT-003",
+        "REQ-EXPR-001",
+        "REQ-EXPR-006",
+        "REQ-EXPR-007"
+        //TODO: JNG-4392
+    ])
 	def void testEntityNameReservedWord() {
 		'''
 			model Test;
@@ -58,7 +77,17 @@ class IdEscapingTests {
 		]
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-MDL-003",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-SYNT-003",
+        "REQ-EXPR-001",
+        "REQ-EXPR-004"
+    ])
 	def void testTwoModelDefinitionReferencingDatatypeWithoutAliasAndReservedKeywordAsName() {
 		val resourceSet = resourceSetProvider.get
 		val a = 
@@ -81,7 +110,17 @@ class IdEscapingTests {
 		b.assertNoErrors
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-MDL-003",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-SYNT-003",
+        "REQ-EXPR-001",
+        "REQ-EXPR-004"
+    ])
 	def void testTwoModelDefinitionReferencingDatatypeWithAliasAndReservedKeywordAsName() {
 		val resourceSet = resourceSetProvider.get
 		val a = 
