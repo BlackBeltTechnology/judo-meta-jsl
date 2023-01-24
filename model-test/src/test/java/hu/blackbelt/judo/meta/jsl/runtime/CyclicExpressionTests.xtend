@@ -10,6 +10,7 @@ import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -18,7 +19,15 @@ class CyclicExpressionTests {
 	@Inject extension ParseHelper<ModelDeclaration> 
 	@Inject extension ValidationTestHelper
 	
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-ENT-001",
+        "REQ-ENT-008",
+        "REQ-TYPE-001",
+        "REQ-TYPE-006",
+        "REQ-EXPR-001",
+        "REQ-EXPR-004"
+    ])
 	def void testSelfDerived() {
 		'''
 			model Test;
@@ -35,7 +44,22 @@ class CyclicExpressionTests {
 	}
 
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-ENT-001",
+        "REQ-ENT-008",
+        "REQ-TYPE-001",
+        "REQ-TYPE-006",
+        "REQ-EXPR-001",
+        "REQ-EXPR-004",
+        "REQ-EXPR-005",
+        "REQ-EXPR-006",
+        "REQ-EXPR-007",
+        "REQ-EXPR-022",
+        "REQ-ENT-009",
+        "REQ-ENT-010",
+        "REQ-ENT-011"
+    ])
 	def void testComplexCycle() {
 		'''
 			model test;

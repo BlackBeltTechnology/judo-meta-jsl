@@ -35,12 +35,16 @@ import org.slf4j.LoggerFactory;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel;
 import hu.blackbelt.judo.meta.jsl.jsldsl.support.JslDslModelResourceSupport;
+import hu.blackbelt.judo.requirement.report.annotation.Requirement;
 
 public class JslDslDefaultPlantumlDiagramTest {
 
     Logger log = LoggerFactory.getLogger(JslDslDefaultPlantumlDiagramTest.class);
 
     @Test
+    @Requirement(reqs = {
+    		
+    })
     public void testGetModelFromFiles() throws IOException {
     	JslDslModel model = JslParser.getModelFromFiles(
         		"SalesModel", 
