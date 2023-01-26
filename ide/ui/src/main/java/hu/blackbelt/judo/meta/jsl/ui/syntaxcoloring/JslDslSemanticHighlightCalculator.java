@@ -104,6 +104,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 						}
 						continue;
 
+					case "view":
 					case "actor":
 					case "realm":
 					case "identity":
@@ -115,16 +116,23 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 					case "enum":
 					case "abstract":
 					case "extends":
+					case "grants":
 					case "control":
 					case "export":
 					case "transfer":
 					case "annotation":
 					case "on":
+					case "automap":
 						if (node.getSemanticElement().eContainer() instanceof ModelDeclaration) {
 							acceptor.addPosition(node.getOffset(), node.getText().length(),
 								HighlightingConfiguration.KEYWORD_ID);
 						}
 						continue;
+					
+					case "widget":
+					case "group":
+					case "horizontal":
+					case "vertical":
 					
 					case "boolean":
 					case "binary":
@@ -141,7 +149,6 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 					case "insert":
 					case "remove":
 
-					case "grant":
 					case "service":
 					case "operation":
 					case "static":

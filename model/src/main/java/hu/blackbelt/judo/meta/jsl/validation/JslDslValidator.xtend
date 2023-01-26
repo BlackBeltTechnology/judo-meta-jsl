@@ -69,18 +69,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityOperationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityOperationReturnDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityOperationParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ActorGrantDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ExportDataServiceDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ExportMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ExportServiceGuardDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportCreateServiceDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportMappedServiceDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportGetServiceDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportUpdateServiceDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportCreateElementServiceDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportInsertElementServiceDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportRemoveElementServiceDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportActionServiceDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -126,6 +119,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val SELF_NOT_ALLOWED = ISSUE_CODE_PREFIX + "SelfNotAllowed"
 	public static val INVALID_COLLECTION = ISSUE_CODE_PREFIX + "InvalidCollection"
 	public static val INVALID_ANNOTATION = ISSUE_CODE_PREFIX + "InvalidAnnotation"
+	public static val INVALID_ANNOTATION_MARK = ISSUE_CODE_PREFIX + "InvalidAnnotationMark"
 	public static val DUPLICATE_AUTOMAP = ISSUE_CODE_PREFIX + "DuplicateAutomap"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
@@ -628,7 +622,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 			ExportServiceDeclaration:    error = !mark.declaration.targets.exists[t | t.exportService]
 
 			ActorDeclaration:            error = !mark.declaration.targets.exists[t | t.actor]
-			ActorGrantDeclaration:       error = !mark.declaration.targets.exists[t | t.actorGrant]
 
 			QueryDeclaration:            error = !mark.declaration.targets.exists[t | t.query]
 		}
@@ -1200,7 +1193,11 @@ class JslDslValidator extends AbstractJslDslValidator {
 	
 	@Check
 	def checkTransferAutomap(TransferDeclaration transfer) {
-		if (transfer.automap && (transfer.map === null  || transfer.map.entity === null)) {
+		if (!transfer.automap) {
+			return
+		}
+		
+		if (transfer.map === null  || transfer.map.entity === null) {
 			error("Automapping requires mapping to an entity.",
                 JsldslPackage::eINSTANCE.transferDeclaration_Automap,
                 INVALID_DECLARATION,
@@ -1209,107 +1206,231 @@ class JslDslValidator extends AbstractJslDslValidator {
             return
 		}
 		
-		if (transfer.automap) {
-			if (transfer.parentContainer(ModelDeclaration).fromModel.transfers.filter[t | t.automap && transfer.map.entity.isEqual(t.map?.entity)].size > 1){
-				error("Duplicate transfer automap.",
-	                JsldslPackage::eINSTANCE.transferDeclaration_Automap,
-	                DUPLICATE_AUTOMAP,
-	                JsldslPackage::eINSTANCE.transferDeclaration.name)
-			};
-			
-			val Iterator<EntityMemberDeclaration> containmentsIterator = transfer.map.entity.members.filter[m | m instanceof EntityFieldDeclaration && (m as EntityFieldDeclaration).referenceType instanceof EntityDeclaration].iterator
+		if (transfer.parentContainer(ModelDeclaration).fromModel.transfers.filter[t | t.automap && transfer.map.entity.isEqual(t.map?.entity)].size > 1){
+			error("Duplicate transfer automap.",
+                JsldslPackage::eINSTANCE.transferDeclaration_Automap,
+                DUPLICATE_AUTOMAP,
+                JsldslPackage::eINSTANCE.transferDeclaration.name)
+		};
+		
+		val Iterator<EntityMemberDeclaration> containmentsIterator = transfer.map.entity.members.filter[m | m instanceof EntityFieldDeclaration && (m as EntityFieldDeclaration).referenceType instanceof EntityDeclaration].iterator
 
-			while (containmentsIterator.hasNext) {
-				val EntityFieldDeclaration containment = containmentsIterator.next() as EntityFieldDeclaration;
-				
-				if (!transfer.parentContainer(ModelDeclaration).fromModel.transfers.exists[t | t.automap && t.map?.entity.isEqual(containment.referenceType)]){
-					error("Missing automapping in mapped entity for field '" + containment.name + "'",
-		                JsldslPackage::eINSTANCE.transferDeclaration_Automap,
-		                INVALID_DECLARATION,
-		                JsldslPackage::eINSTANCE.transferDeclaration.name)
-				}
+		while (containmentsIterator.hasNext) {
+			val EntityFieldDeclaration containment = containmentsIterator.next() as EntityFieldDeclaration;
+			
+			if (!transfer.parentContainer(ModelDeclaration).fromModel.transfers.exists[t | t.automap && t.map?.entity.isEqual(containment.referenceType)]){
+				error("Missing automapping in mapped entity for field '" + containment.name + "'",
+	                JsldslPackage::eINSTANCE.transferDeclaration_Automap,
+	                INVALID_DECLARATION,
+	                JsldslPackage::eINSTANCE.transferDeclaration.name)
 			}
-		}		
+		}
 	}
 	
 	@Check
-	def checkExportMappedService(ExportMappedServiceDeclaration service) {
+	def checkExportService(ExportServiceDeclaration service) {
 		val ExportDeclaration export = service.eContainer as ExportDeclaration
-		
-		if (export.map === null || export.map.entity === null) {
-			error("Invalid declaration of service. Export must be mapped to an entity.",
-	            JsldslPackage::eINSTANCE.named_Name,
-	            INVALID_DECLARATION,
-	            JsldslPackage::eINSTANCE.named.name)
+		var boolean isStatic = false;
+
+		switch (service) {
+			ExportDataServiceDeclaration: isStatic = service.isStatic
+			ExportActionServiceDeclaration: isStatic = service.isStatic
+		}
+
+		if (!isStatic) {
+			if (export.map === null || export.map.entity === null) {
+				error("Invalid declaration of service. Export must be mapped to an entity.",
+		            JsldslPackage::eINSTANCE.named_Name,
+		            INVALID_DECLARATION,
+		            JsldslPackage::eINSTANCE.named.name)
+			}
 		}
  	}
 
-	@Check
-	def checkExportGetService(ExportGetServiceDeclaration service) {
-		val ExportDeclaration export = service.eContainer as ExportDeclaration
-		
-		if (!service.referenceType?.map?.entity.isEqual(export.map?.entity)) {
-			error("Invalid declaration of get auto service. The return type must have the same mapping as the export.",
-	            JsldslPackage::eINSTANCE.exportGetServiceDeclaration_ReferenceType,
-	            INVALID_DECLARATION,
-	            JsldslPackage::eINSTANCE.exportGetServiceDeclaration.name)
-		}
- 	}
 
 	@Check
-	def checkExportCreateService(ExportCreateServiceDeclaration service) {
-		val ExportDeclaration export = service.eContainer as ExportDeclaration
-		
-		if (!service.referenceType?.map?.entity.isEqual(export.map?.entity)) {
-			error("Invalid declaration of create auto service. The return type must have the same mapping as the export.",
-	            JsldslPackage::eINSTANCE.exportCreateServiceDeclaration_ReferenceType,
-	            INVALID_DECLARATION,
-	            JsldslPackage::eINSTANCE.exportCreateServiceDeclaration.name)
+	def checkAnnotationCreate(AnnotationMark mark) {
+		if (!mark.declaration.name.equals("create")) {
+			return
 		}
- 	}
 
-	@Check
-	def checkExportUpdateService(ExportUpdateServiceDeclaration service) {
-		val ExportDeclaration export = service.eContainer as ExportDeclaration
-		
-		if (!service.parameterType?.map?.entity.isEqual(export.map?.entity)) {
-			error("Invalid declaration of update auto service. The parameter type must have the same mapping as the export.",
-	            JsldslPackage::eINSTANCE.exportUpdateServiceDeclaration_ParameterType,
-	            INVALID_DECLARATION,
-	            JsldslPackage::eINSTANCE.exportUpdateServiceDeclaration_ParameterType.name)
-		}
- 	}
+		if (mark.eContainer instanceof ExportActionServiceDeclaration) {
+			val ExportActionServiceDeclaration service = mark.eContainer as ExportActionServiceDeclaration
+			
+			if (service.^return === null) {
+				error("Invalid use of annotation: @" + mark.declaration.name + ". Service must have return type.",
+		            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+		            INVALID_ANNOTATION_MARK,
+		            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+			}
 
-	@Check
-	def checkExportCreateElementService(ExportCreateElementServiceDeclaration service) {
-		if (service.expression !== null && !TypeInfo.getTargetType(service).isCompatible(TypeInfo.getTargetType(service.expression))) {
-			error("Type mismatch",
-                JsldslPackage::eINSTANCE.exportCreateElementServiceDeclaration_Expression,
-                TYPE_MISMATCH,
-                JsldslPackage::eINSTANCE.exportCreateElementServiceDeclaration.name)
+			if (service.parameter !== null) {
+				error("Invalid use of annotation: @" + mark.declaration.name + ". Service must not have parameter.",
+		            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+		            INVALID_ANNOTATION_MARK,
+		            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+			}
+			
+			return
 		}
 	}
 
 	@Check
-	def checkExportInsertElementService(ExportInsertElementServiceDeclaration service) {
-		if (service.expression !== null && !TypeInfo.getTargetType(service.expression).isCompatible(TypeInfo.getTargetType(service))) {
-			error("Type mismatch",
-                JsldslPackage::eINSTANCE.exportInsertElementServiceDeclaration_Expression,
-                TYPE_MISMATCH,
-                JsldslPackage::eINSTANCE.exportInsertElementServiceDeclaration.name)
+	def checkAnnotationDelete(AnnotationMark mark) {
+		if (!mark.declaration.name.equals("delete")) {
+			return
+		}
+
+		if (!(mark.eContainer instanceof ExportActionServiceDeclaration)) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must be an action service.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+	            
+	        return
+		}
+		
+		val ExportActionServiceDeclaration service = mark.eContainer as ExportActionServiceDeclaration
+		
+		if (service.static) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must not be static.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+		}
+		
+		if (service.^return !== null) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must not have return type.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+		}
+
+		if (service.parameter !== null) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must not have parameter.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
 		}
 	}
 
 	@Check
-	def checkExportRemoveElementService(ExportRemoveElementServiceDeclaration service) {
-		if (service.expression !== null &&
-				!TypeInfo.getTargetType(service.expression).isCompatible(TypeInfo.getTargetType(service)) &&
-				!TypeInfo.getTargetType(service).isCompatible(TypeInfo.getTargetType(service.expression)))
-		{
-			error("Type mismatch",
-                JsldslPackage::eINSTANCE.exportRemoveElementServiceDeclaration_Expression,
-                TYPE_MISMATCH,
-                JsldslPackage::eINSTANCE.exportRemoveElementServiceDeclaration.name)
+	def checkAnnotationUpdate(AnnotationMark mark) {
+		if (!mark.declaration.name.equals("update")) {
+			return
+		}
+
+		if (!(mark.eContainer instanceof ExportActionServiceDeclaration)) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must be an action service.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+	            
+	        return
+		}
+
+		val ExportActionServiceDeclaration service = mark.eContainer as ExportActionServiceDeclaration
+		
+		if (service.static) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must not be static.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+		}
+
+		if (service.^return !== null) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must not have return type.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+		}
+
+		if (service.parameter === null) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must have parameter.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
 		}
 	}
+
+//	@Check
+//	def checkExportCreateService(ExportCreateServiceDeclaration service) {
+//		val ExportDeclaration export = service.eContainer as ExportDeclaration
+//		var EntityMapDeclaration map;
+//		
+//		switch service.referenceType {
+//			TransferDeclaration: map = (service.referenceType as TransferDeclaration)?.map
+//			ViewDeclaration: map = (service.referenceType as ViewDeclaration)?.map
+//		}
+//		
+//		if (!map?.entity.isEqual(export.map?.entity)) {
+//			error("Invalid declaration of create auto service. The return type must have the same mapping as the export.",
+//	            JsldslPackage::eINSTANCE.exportCreateServiceDeclaration_ReferenceType,
+//	            INVALID_DECLARATION,
+//	            JsldslPackage::eINSTANCE.exportCreateServiceDeclaration.name)
+//		}
+// 	}
+
+//	@Check
+//	def checkExportUpdateService(ExportUpdateServiceDeclaration service) {
+//		val ExportDeclaration export = service.eContainer as ExportDeclaration
+//		var EntityMapDeclaration map;
+//		
+//		switch service.parameterType {
+//			TransferDeclaration: map = (service.parameterType as TransferDeclaration)?.map
+//			ViewDeclaration: map = (service.parameterType as ViewDeclaration)?.map
+//		}
+//		
+//		if (!map?.entity.isEqual(export.map?.entity)) {
+//			error("Invalid declaration of update auto service. The parameter type must have the same mapping as the export.",
+//	            JsldslPackage::eINSTANCE.exportUpdateServiceDeclaration_ParameterType,
+//	            INVALID_DECLARATION,
+//	            JsldslPackage::eINSTANCE.exportUpdateServiceDeclaration_ParameterType.name)
+//		}
+// 	}
+
+//	@Check
+//	def checkForDuplicateNameForActorMemberDeclaration(ActorMemberDeclaration member) {
+//		val ActorDeclaration export = member.eContainer as ActorDeclaration
+//		
+//		if (member instanceof Named && export.members.filter[m | m instanceof Named && m.name.toLowerCase.equals(member.name.toLowerCase)].size > 1) {
+//			error("Duplicate member declaration: '" + member.name + "'",
+//				member.nameAttribute,
+//				DUPLICATE_MEMBER_NAME,
+//				member.name)
+//		}
+//	}
+
+//	@Check
+//	def checkExportCreateElementService(ExportCreateElementServiceDeclaration service) {
+//		if (service.expression !== null && !TypeInfo.getTargetType(service).isCompatible(TypeInfo.getTargetType(service.expression))) {
+//			error("Type mismatch",
+//                JsldslPackage::eINSTANCE.exportCreateElementServiceDeclaration_Expression,
+//                TYPE_MISMATCH,
+//                JsldslPackage::eINSTANCE.exportCreateElementServiceDeclaration.name)
+//		}
+//	}
+//
+//	@Check
+//	def checkExportInsertElementService(ExportInsertElementServiceDeclaration service) {
+//		if (service.expression !== null && !TypeInfo.getTargetType(service.expression).isCompatible(TypeInfo.getTargetType(service))) {
+//			error("Type mismatch",
+//                JsldslPackage::eINSTANCE.exportInsertElementServiceDeclaration_Expression,
+//                TYPE_MISMATCH,
+//                JsldslPackage::eINSTANCE.exportInsertElementServiceDeclaration.name)
+//		}
+//	}
+//
+//	@Check
+//	def checkExportRemoveElementService(ExportRemoveElementServiceDeclaration service) {
+//		if (service.expression !== null &&
+//				!TypeInfo.getTargetType(service.expression).isCompatible(TypeInfo.getTargetType(service)) &&
+//				!TypeInfo.getTargetType(service).isCompatible(TypeInfo.getTargetType(service.expression)))
+//		{
+//			error("Type mismatch",
+//                JsldslPackage::eINSTANCE.exportRemoveElementServiceDeclaration_Expression,
+//                TYPE_MISMATCH,
+//                JsldslPackage::eINSTANCE.exportRemoveElementServiceDeclaration.name)
+//		}
+//	}
 }

@@ -15,11 +15,12 @@ JSLID : ID | 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'ti
 	       | 'regex' | 'precision' | 'scale'
 	       | 'model' | 'import' | 'entity' | 'transfer' | 'export' | 'query' | 'type' | 'enum' | 'function' | 'lambda'
 	       | 'field' | 'identifier' | 'derived' | 'relation' | 'constraint' | 'error'
-	       | 'required' | 'as' | 'abstract' | 'extends' | 'opposite' | 'on' | 'onerror'
+	       | 'required' | 'as' | 'abstract' | 'extends' | 'grants' | 'opposite' | 'on' | 'onerror'
 	       | 'collection' | 'declaration' | 'constant'
 	       | 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' 
 	       | 'kB' | 'MB' | 'GB' | 'KiB' | 'MiB' | 'GiB'
 	       | 'get' | 'create' | 'update' | 'delete' | 'insert' | 'remove'
+	       | 'view' | 'horizontal' | 'vertical' | 'group' | 'widget'
 	       
 	       // 'self', 'true', 'false', 'not' are not included
 	;
@@ -54,6 +55,7 @@ ClassDeclaration
 //	| ControlDeclaration
 	| ExportDeclaration
 	| TransferDeclaration
+	| ViewDeclaration
 	| ActorDeclaration
 	;
 
@@ -151,7 +153,7 @@ EntityRelationOppositeReferenced
 
 EntityOperationDeclaration
 	: annotations += AnnotationMark*
-	  'operation' static ?= 'static'?  (void ?= 'void' | return = EntityOperationReturnDeclaration) Named
+	  'operation' static ?= 'static'? ('void'? | return = EntityOperationReturnDeclaration) Named
 	  ('(' (parameters += EntityOperationParameterDeclaration (',' parameters += EntityOperationParameterDeclaration)*)? ')')
 	  (';' | BLOCK_START BLOCK_END )
 	;
@@ -222,7 +224,6 @@ ExportMemberDeclaration
 ExportServiceDeclaration
 	: ExportDataServiceDeclaration
 	| ExportActionServiceDeclaration
-	| ExportMappedServiceDeclaration
 	;
 
 ExportDataServiceDeclaration
@@ -243,77 +244,68 @@ ExportDataServiceDeclaration
 ExportActionServiceDeclaration
 	: annotations += AnnotationMark*
 	  'service' static ?= 'static'?
-	  (void ?= 'void' | return = ExportServiceReturnDeclaration | alternateReturn = ExportServiceReturnAlternateDeclaration) Named
+	  ('void'? | return = ExportServiceReturnDeclaration | alternateReturn = ExportServiceReturnAlternateDeclaration) Named
 	  '(' parameter = ExportServiceParameterDeclaration? ')'
 	  (guards += ExportServiceGuardDeclaration*)
 	  (autoservice ?= ';' | BLOCK_START BLOCK_END )
 	;
 
-ExportMappedServiceDeclaration
-	: ExportGetServiceDeclaration
-	| ExportCreateServiceDeclaration
-	| ExportUpdateServiceDeclaration
-	| ExportDeleteServiceDeclaration
-	| ExportCreateElementServiceDeclaration
-	| ExportInsertElementServiceDeclaration
-	| ExportRemoveElementServiceDeclaration
-	;
 
-ExportGetServiceDeclaration
-	: annotations += AnnotationMark*
-	  'service' referenceType = [TransferDeclaration | ModelName] Named '('')'
-	  'get'
-	  (guards += ExportServiceGuardDeclaration*)
-	  ';'
-	;
+//ExportGetServiceDeclaration
+//	: annotations += AnnotationMark*
+//	  'service' referenceType = [Transferable | ModelName] Named '('')'
+//	  'get'
+//	  (guards += ExportServiceGuardDeclaration*)
+//	  ';'
+//	;
 
-ExportCreateServiceDeclaration
-	: annotations += AnnotationMark*
-	  'service' static ?= 'static'? referenceType = [TransferDeclaration | ModelName] Named '('')'
-	  'create'
-	  (guards += ExportServiceGuardDeclaration*)
-	  ';'
-	;
+//ExportCreateServiceDeclaration
+//	: annotations += AnnotationMark*
+//	  'service' static ?= 'static'? referenceType = [Transferable | ModelName] Named '('')'
+//	  'create' collection = Expression?
+//	  (guards += ExportServiceGuardDeclaration*)
+//	  ';'
+//	;
+//
+//ExportUpdateServiceDeclaration
+//	: annotations += AnnotationMark*
+//	  'service' 'void'? Named '(' parameter = ExportServiceParameterDeclaration ')'
+//	  'update'
+//	  (guards += ExportServiceGuardDeclaration*)
+//	  ';'
+//	;
+//
+//ExportDeleteServiceDeclaration
+//	: annotations += AnnotationMark*
+//	  'service' 'void'? Named '('')'
+//	  'delete'
+//	  (guards += ExportServiceGuardDeclaration*)
+//	  ';'
+//	;
 
-ExportUpdateServiceDeclaration
-	: annotations += AnnotationMark*
-	  'service' 'void' Named '(' parameterType = [TransferDeclaration | ModelName] ')'
-	  'update'
-	  (guards += ExportServiceGuardDeclaration*)
-	  ';'
-	;
+//ExportCreateElementServiceDeclaration
+//	: annotations += AnnotationMark*
+//	  'service' referenceType = [Transferable | ModelName] Named '('')'
+//	  'create' expression = Expression
+//	  (guards += ExportServiceGuardDeclaration*)
+//	  ';'
+//	;
+//
+//ExportUpdateElementServiceDeclaration
+//	: annotations += AnnotationMark*
+//	  'service' 'void'? Named '('  parameterType = [Transferable | ModelName]  ')'
+//	  'update' expression = Expression
+//	  (guards += ExportServiceGuardDeclaration*)
+//	  ';'
+//	;
 
-ExportDeleteServiceDeclaration
-	: annotations += AnnotationMark*
-	  'service' 'void' Named '('  parameterType = [TransferDeclaration | ModelName]?  ')'
-	  'delete'
-	  (guards += ExportServiceGuardDeclaration*)
-	  ';'
-	;
-
-ExportCreateElementServiceDeclaration
-	: annotations += AnnotationMark*
-	  'service' referenceType = [TransferDeclaration | ModelName] Named '('')'
-	  'create' expression = Expression
-	  (guards += ExportServiceGuardDeclaration*)
-	  ';'
-	;
-
-ExportInsertElementServiceDeclaration
-	: annotations += AnnotationMark*
-	  'service' 'void' Named '('  parameterType = [TransferDeclaration | ModelName]  ')'
-	  'insert' expression = Expression
-	  (guards += ExportServiceGuardDeclaration*)
-	  ';'
-	;
-
-ExportRemoveElementServiceDeclaration
-	: annotations += AnnotationMark*
-	  'service' 'void' Named '('  parameterType = [TransferDeclaration | ModelName]  ')'
-	  'remove' expression = Expression
-	  (guards += ExportServiceGuardDeclaration*)
-	  ';'
-	;
+//ExportRemoveElementServiceDeclaration
+//	: annotations += AnnotationMark*
+//	  'service' 'void'? Named '('  parameterType = [Transferable | ModelName]  ')'
+//	  'remove' expression = Expression
+//	  (guards += ExportServiceGuardDeclaration*)
+//	  ';'
+//	;
 
 ExportServiceGuardDeclaration
 	: 'guard' expression = Expression
@@ -333,6 +325,7 @@ ExportServiceParameterDeclaration
 
 Transferable
 	: TransferDeclaration
+	| ViewDeclaration
 	;
 
 /****************************
@@ -344,6 +337,7 @@ TransferDeclaration
 	  annotations += AnnotationMark*
 	  'transfer' Named
 	  ('(' map = EntityMapDeclaration? ')')?
+	  ('grants' grants += [ExportDeclaration | ModelName] (',' grants += [ExportDeclaration | ModelName])*)?
 	  (automap ?= ';' | BLOCK_START (members += TransferMemberDeclaration)* BLOCK_END)
 	;
 
@@ -359,10 +353,49 @@ TransferFieldDeclaration
 	  ';'
 	;
 
+//TransferGrantDeclaration
+//	: annotations += AnnotationMark*
+//	  'grant' export = [ExportDeclaration | ModelName]
+//	  ';'
+//	;
+
 TransferFieldType
 	: PrimitiveDeclaration
 	| TransferDeclaration
 	;
+
+/****************************
+ *	View
+ ****************************/
+
+ViewDeclaration
+	: {ViewDeclaration}
+	  annotations += AnnotationMark*
+	  'view' Named
+	  ('(' map = EntityMapDeclaration? ')')?
+	  (automap ?= ';' | BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END)
+	;
+
+ViewMemberDeclaration
+	: ViewWidgetDeclaration
+	| ViewGroupDeclaration
+	  ';'*
+	;
+
+ViewGroupDeclaration
+	: annotations += AnnotationMark*
+	  'group'? (horizontal = 'horizontal' | vertical = 'vertical') Named
+	  BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END
+	;
+
+ViewWidgetDeclaration
+	: annotations += AnnotationMark*
+	  'widget' (referenceType = [PrimitiveDeclaration | ModelName]) Named
+	  "=" expression = Expression
+	  ';'
+	;
+
+
 
 /****************************
  *	Actor
@@ -374,19 +407,20 @@ ActorDeclaration
 	  'actor' Named
 	  ('(' map = EntityMapDeclaration? ')')?
 	  (('realm' realm = StringLiteral)? & ('identity' identity = Expression)? & (guards += ExportServiceGuardDeclaration*))
-	  (';' | BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END)
-	;
-
-ActorMemberDeclaration
-	: ActorGrantDeclaration
-	  ';'*
-	;
-
-ActorGrantDeclaration
-	: annotations += AnnotationMark*
-	  'grant' export = [ExportDeclaration | ModelName]
+	  ('grants' grants += [ExportDeclaration | ModelName] (',' grants += [ExportDeclaration | ModelName])*)?
 	  ';'
 	;
+
+//ActorMemberDeclaration
+//	:
+//	  ';'*
+//	;
+
+//ActorGrantDeclaration
+//	: annotations += AnnotationMark*
+//	  'grant' export = [ExportDeclaration | ModelName]
+//	  ';'
+//	;
 
 /****************************
  *	Datatype
@@ -665,7 +699,6 @@ AnnotationTarget
 	| export ?= 'export'
 	| 'export' '::' exportService ?= 'service'
 	| actor ?= 'actor'
-	| 'actor' '::' actorGrant ?= 'grant'
 	| query ?= 'query'
 	;
 
