@@ -43,7 +43,37 @@ public class JslDslDefaultPlantumlDiagramTest {
 
     @Test
     @Requirement(reqs = {
-    		
+    		"REQ-MDL-001",
+    		"REQ-MDL-003",
+    		"REQ-TYPE-001",
+    		"REQ-TYPE-002",
+    		"REQ-TYPE-004",
+    		"REQ-TYPE-005",
+    		"REQ-TYPE-006",
+    		"REQ-TYPE-007",
+    		"REQ-TYPE-009",
+    		"REQ-TYPE-010",
+    		"REQ-ENT-001",
+    		"REQ-ENT-012",
+    		"REQ-ENT-002",
+    		"REQ-ENT-003",
+    		"REQ-ENT-004",
+    		"REQ-ENT-005",
+    		"REQ-ENT-006",
+    		"REQ-ENT-008",
+    		"REQ-ENT-009",
+    		"REQ-ENT-010",
+    		"REQ-ENT-011",
+    		"REQ-EXPR-001",
+    		"REQ-EXPR-002",
+    		"REQ-EXPR-003",
+    		"REQ-EXPR-004",
+    		"REQ-EXPR-005",
+    		"REQ-EXPR-006",
+    		"REQ-EXPR-007",
+    		"REQ-EXPR-008",
+    		"REQ-EXPR-022"
+    		//TODO: JNG-4398
     })
     public void testGetModelFromFiles() throws IOException {
     	JslDslModel model = JslParser.getModelFromFiles(

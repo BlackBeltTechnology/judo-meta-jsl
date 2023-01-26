@@ -60,6 +60,35 @@ public class JslDslParserTest {
 
 
     @Test
+    @Requirement(reqs = {
+    		"REQ-MDL-001",
+    		"REQ-TYPE-001",
+    		"REQ-TYPE-002",
+    		"REQ-TYPE-004",
+    		"REQ-TYPE-005",
+    		"REQ-TYPE-006",
+    		"REQ-TYPE-007",
+    		"REQ-TYPE-009",
+    		"REQ-TYPE-010",
+    		"REQ-ENT-001",
+    		"REQ-ENT-012",
+    		"REQ-ENT-002",
+    		"REQ-ENT-003",
+    		"REQ-ENT-004",
+    		"REQ-ENT-006",
+    		"REQ-ENT-008",
+    		"REQ-ENT-009",
+    		"REQ-ENT-010",
+    		"REQ-EXPR-001",
+    		"REQ-EXPR-002",
+    		"REQ-EXPR-003",
+    		"REQ-EXPR-004",
+    		"REQ-EXPR-005",
+    		"REQ-EXPR-006",
+    		"REQ-EXPR-008",
+    		"REQ-EXPR-022"
+    		//TODO: JNG-4398
+    })
     public void testLoadFile() {
     	XtextResourceSet resourceSet = JslParser.loadJslFromFile(Arrays.asList(new File( "src/test/resources/sample.jsl")));
     	assertTrue(resourceSet.getResources().size() == 1);
@@ -68,6 +97,12 @@ public class JslDslParserTest {
     }
 
     @Test
+    @Requirement(reqs = {
+    		"REQ-MDL-001",
+    		"REQ-ENT-001",
+    		"REQ-ENT-012",
+    		"REQ-ENT-002"
+    })
     public void testLoadInvalidFile() {
 
     	JslParseException exception = assertThrows(JslParseException.class, () -> {
@@ -83,7 +118,10 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
-    		
+    		"REQ-MDL-001",
+    		"REQ-TYPE-001",
+    		"REQ-TYPE-004",
+    		"REQ-TYPE-005"
     })
     public void testLoadStream() throws UnsupportedEncodingException {
     	XtextResourceSet resourceSet = JslParser.loadJslFromStream(Arrays.asList(new JslStreamSource(new ByteArrayInputStream(TEST_MODEL.getBytes("UTF-8")), URI.createURI("urn:testLoadString"))));
@@ -94,7 +132,10 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
-    		
+    		"REQ-MDL-001",
+    		"REQ-TYPE-001",
+    		"REQ-TYPE-004",
+    		"REQ-TYPE-005"
     })
     public void testLoadString() {
     	XtextResourceSet resourceSet = JslParser.loadJslFromString(Arrays.asList(TEST_MODEL));
@@ -105,7 +146,33 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
-    		
+    		"REQ-MDL-001",
+    		"REQ-TYPE-001",
+    		"REQ-TYPE-002",
+    		"REQ-TYPE-004",
+    		"REQ-TYPE-005",
+    		"REQ-TYPE-006",
+    		"REQ-TYPE-007",
+    		"REQ-TYPE-009",
+    		"REQ-TYPE-010",
+    		"REQ-ENT-001",
+    		"REQ-ENT-012",
+    		"REQ-ENT-002",
+    		"REQ-ENT-003",
+    		"REQ-ENT-004",
+    		"REQ-ENT-006",
+    		"REQ-ENT-008",
+    		"REQ-ENT-009",
+    		"REQ-ENT-010",
+    		"REQ-EXPR-001",
+    		"REQ-EXPR-002",
+    		"REQ-EXPR-003",
+    		"REQ-EXPR-004",
+    		"REQ-EXPR-005",
+    		"REQ-EXPR-006",
+    		"REQ-EXPR-008",
+    		"REQ-EXPR-022"
+    		//TODO: JNG-4398
     })
     public void testGetModelDeclarationFromFiles() {
         Optional<ModelDeclaration> model = JslParser.getModelDeclarationFromFiles(
@@ -117,7 +184,10 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
-    		
+    		"REQ-MDL-001",
+    		"REQ-TYPE-001",
+    		"REQ-TYPE-004",
+    		"REQ-TYPE-005"
     })
     public void testGetModelDeclarationFromStreamSources() throws UnsupportedEncodingException {
     	Optional<ModelDeclaration> model = JslParser.getModelDeclarationFromStreamSources(
@@ -129,7 +199,13 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
-    		
+    		"REQ-MDL-001",
+    		"REQ-MDL-003",
+    		"REQ-TYPE-001",
+    		"REQ-TYPE-004",
+    		"REQ-TYPE-005",
+    		"REQ-ENT-001",
+    		"REQ-ENT-002"
     })
     public void testGetModelDeclarationFromStrings() {
     	Optional<ModelDeclaration> model = JslParser.getModelDeclarationFromStrings(
@@ -141,7 +217,34 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
-    		
+    		"REQ-MDL-001",
+    		"REQ-TYPE-001",
+    		"REQ-TYPE-002",
+    		"REQ-TYPE-004",
+    		"REQ-TYPE-005",
+    		"REQ-TYPE-006",
+    		"REQ-TYPE-007",
+    		"REQ-TYPE-009",
+    		"REQ-TYPE-010",
+    		"REQ-ENT-001",
+    		"REQ-ENT-012",
+    		"REQ-ENT-002",
+    		"REQ-ENT-003",
+    		"REQ-ENT-004",
+    		"REQ-ENT-006",
+    		"REQ-ENT-008",
+    		"REQ-ENT-009",
+    		"REQ-ENT-010",
+    		"REQ-EXPR-001",
+    		"REQ-EXPR-002",
+    		"REQ-EXPR-003",
+    		"REQ-EXPR-004",
+    		"REQ-EXPR-005",
+    		"REQ-EXPR-006",
+    		"REQ-EXPR-008",
+    		"REQ-EXPR-022"
+    		//TODO: JNG-4398
+    		//TODO: JNG-4394 The sample2.jsl needs to be change if the tickedt is done.
     })
     public void testGetModelFromFiles() {
     	JslDslModel model = JslParser.getModelFromFiles(
@@ -155,7 +258,13 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
-    		
+    		"REQ-MDL-001",
+    		"REQ-MDL-003",
+    		"REQ-TYPE-001",
+    		"REQ-TYPE-004",
+    		"REQ-TYPE-005",
+    		"REQ-ENT-001",
+    		"REQ-ENT-002"
     })
     public void testGetModelFromStreamSources() throws UnsupportedEncodingException {
     	JslDslModel model = JslParser.getModelFromStreamSources(
@@ -171,7 +280,13 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
-    		
+    		"REQ-MDL-001",
+    		"REQ-MDL-003",
+    		"REQ-TYPE-001",
+    		"REQ-TYPE-004",
+    		"REQ-TYPE-005",
+    		"REQ-ENT-001",
+    		"REQ-ENT-002"
     })
     public void testGetModelFromStrings() {
     	JslDslModel model = JslParser.getModelFromStrings(
