@@ -12,6 +12,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import com.google.inject.Provider
 import org.eclipse.emf.ecore.resource.ResourceSet
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -23,7 +24,15 @@ class JudoTypesTests {
 	
 				
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-MDL-001",
+        "REQ-MDL-002",
+        "REQ-MDL-003",
+        "REQ-TYPE-001",
+        "REQ-ENT-001",
+        "REQ-ENT-002"
+    ])
 	def void testJudoTypesImport() {
 		val resourceSet = resourceSetProvider.get
 		val a = 
