@@ -11,6 +11,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
 import org.eclipse.emf.ecore.EClass
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -18,7 +19,14 @@ class ModifiersTests {
 	@Inject extension ParseHelper<ModelDeclaration> 
 	@Inject extension ValidationTestHelper
 	
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002"
+    ])
 	def void testMinSizeModifierTooLarge() {
 		'''
 			model test;
@@ -51,6 +59,13 @@ class ModifiersTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002"
+    ])
 	def void testMaxSizeModifierZero() {
 		'''
 			model test;
@@ -66,7 +81,14 @@ class ModifiersTests {
 		]
 	}
 	
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002"
+    ])
 	def void testMaxSizeModifierTooLarge() {
 		'''
 			model test;
@@ -91,6 +113,13 @@ class ModifiersTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-ENT-001",
+        "REQ-ENT-002"
+    ])
 	def void testPrecisionModifierTooLow() {
 		'''
 			model test;
@@ -106,6 +135,14 @@ class ModifiersTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-ENT-001",
+        "REQ-ENT-002"
+        //TODO: JNG-4396
+    ])
 	def void testPrecisionModifierTooLarge() {
 		'''
 			model test;
@@ -121,6 +158,14 @@ class ModifiersTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-ENT-001",
+        "REQ-ENT-002"
+        //TODO: JNG-4397
+    ])
 	def void testScaleModifierTooLarge() {
 		'''
 			model test;
