@@ -12,15 +12,15 @@ import com.google.inject.Provider
 import org.eclipse.emf.ecore.resource.ResourceSet
 import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
-@ExtendWith(InjectionExtension) 
+@ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
 class OppositeAddTests {
-	@Inject extension ParseHelper<ModelDeclaration> 
-	@Inject extension ValidationTestHelper
-	@Inject Provider<ResourceSet> resourceSetProvider;
+    @Inject extension ParseHelper<ModelDeclaration>
+    @Inject extension ValidationTestHelper
+    @Inject Provider<ResourceSet> resourceSetProvider;
 
 
-	@Test
+    @Test
     @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
@@ -34,29 +34,29 @@ class OppositeAddTests {
         "REQ-ENT-008",
         "REQ-EXPR-003"
     ])
-	def void testSimpleOppositeAdd() {
-		
-		'''
-			model SimpleOppositeAdd;
-			
-			entity Product {
-			}
-			
-			entity Discount {
-				relation Product[] products opposite-add discount;
-			}
-			
-			
-			entity CartItem {
-				relation required Product product;
-				derived Discount b => self.product.discount;
-			}
+    def void testSimpleOppositeAdd() {
+
+        '''
+            model SimpleOppositeAdd;
+
+            entity Product {
+            }
+
+            entity Discount {
+                relation Product[] products opposite-add discount;
+            }
+
+
+            entity CartItem {
+                relation required Product product;
+                derived Discount b => self.product.discount;
+            }
         '''.parse => [
             assertNoErrors
         ]
-	}
+    }
 
-	@Test
+    @Test
     @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
@@ -70,29 +70,29 @@ class OppositeAddTests {
         "REQ-ENT-008",
         "REQ-EXPR-003"
     ])
-	def void testSimpleWithMultipleCardinalityOppositeAdd() {
-		
-		'''
-			model SimpleWithMultipleCardinalityOppositeAdd;
-			
-			entity Product {
-			}
-			
-			entity Discount {
-				relation Product[] products opposite-add discounts[];
-			}
-			
-			
-			entity CartItem {
-				relation required Product product;
-				derived Discount[] b => self.product.discounts;
-			}
+    def void testSimpleWithMultipleCardinalityOppositeAdd() {
+
+        '''
+            model SimpleWithMultipleCardinalityOppositeAdd;
+
+            entity Product {
+            }
+
+            entity Discount {
+                relation Product[] products opposite-add discounts[];
+            }
+
+
+            entity CartItem {
+                relation required Product product;
+                derived Discount[] b => self.product.discounts;
+            }
         '''.parse => [
             assertNoErrors
         ]
-	}
-	
-	@Test
+    }
+
+    @Test
     @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
@@ -108,35 +108,35 @@ class OppositeAddTests {
         "REQ-ENT-012",
         "REQ-EXPR-003"
     ])
-	def void testInheritedOppositeAdd() {
-		'''
-			model InheritedOppositeAdd;
+    def void testInheritedOppositeAdd() {
+        '''
+            model InheritedOppositeAdd;
 
-			entity Product {
-			//	relation Discount diss;
-			}
-			
-			entity ChildProduct extends Product {
-			}
-			
-			
-			entity Discount {
-				relation Product[] products opposite-add discount;
-			}
-			
-			
-			entity CartItem {
-				relation required ChildProduct product;
-				derived Discount b => self.product.discount;
-			}
+            entity Product {
+            //    relation Discount diss;
+            }
+
+            entity ChildProduct extends Product {
+            }
+
+
+            entity Discount {
+                relation Product[] products opposite-add discount;
+            }
+
+
+            entity CartItem {
+                relation required ChildProduct product;
+                derived Discount b => self.product.discount;
+            }
         '''.parse => [
             assertNoErrors
         ]
-	}
+    }
 
 
 
-	@Test
+    @Test
     @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
@@ -151,40 +151,40 @@ class OppositeAddTests {
         "REQ-ENT-008",
         "REQ-EXPR-003"
     ])
-	def void testImportedModelNavigation() {
-		val resourceSet = resourceSetProvider.get
-		val a = 
-		'''
-			model ImportedModelNavigationProduct;
-			
-			entity Product {
-			}			
-		'''.parse(resourceSet)
-		
-		val b = 
-		'''
-			model ImportedModelNavigation;
-			import ImportedModelNavigationProduct as P;
+    def void testImportedModelNavigation() {
+        val resourceSet = resourceSetProvider.get
+        val a =
+        '''
+            model ImportedModelNavigationProduct;
 
-			entity Discount {
-				relation P::Product[] products opposite-add discount;
-			}
-			
-			
-			entity CartItem {
-				relation required P::Product product;
-				derived Discount b => self.product.discount;
-			}
+            entity Product {
+            }
+        '''.parse(resourceSet)
+
+        val b =
+        '''
+            model ImportedModelNavigation;
+            import ImportedModelNavigationProduct as P;
+
+            entity Discount {
+                relation P::Product[] products opposite-add discount;
+            }
 
 
-		'''.parse(resourceSet)
+            entity CartItem {
+                relation required P::Product product;
+                derived Discount b => self.product.discount;
+            }
 
-		a.assertNoErrors
-		b.assertNoErrors
-	}
+
+        '''.parse(resourceSet)
+
+        a.assertNoErrors
+        b.assertNoErrors
+    }
 
 
-	@Test
+    @Test
     @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
@@ -200,40 +200,40 @@ class OppositeAddTests {
         "REQ-ENT-012",
         "REQ-EXPR-003"
     ])
-	def void testInheritedImportedModelNavigation() {
-		val resourceSet = resourceSetProvider.get
-		val a = 
-		'''
-			model InheritedImportedModelNavigationProduct;
-			
-			entity Product {
-			}			
-		'''.parse(resourceSet)
-		
-		val b = 
-		'''
-			model InheritedImportedModelNavigation;
-			import InheritedImportedModelNavigationProduct as P;
+    def void testInheritedImportedModelNavigation() {
+        val resourceSet = resourceSetProvider.get
+        val a =
+        '''
+            model InheritedImportedModelNavigationProduct;
 
-			entity ChildProduct extends P::Product {
-			}
-			
+            entity Product {
+            }
+        '''.parse(resourceSet)
 
-			entity Discount {
-				relation ChildProduct products opposite-add discount;
-			}
-			
-			
-			entity CartItem {
-				relation required ChildProduct product;
-				derived Discount b => self.product.discount;
-			}
+        val b =
+        '''
+            model InheritedImportedModelNavigation;
+            import InheritedImportedModelNavigationProduct as P;
+
+            entity ChildProduct extends P::Product {
+            }
 
 
-		'''.parse(resourceSet)
+            entity Discount {
+                relation ChildProduct products opposite-add discount;
+            }
 
-		a.assertNoErrors
-		b.assertNoErrors
-	}
+
+            entity CartItem {
+                relation required ChildProduct product;
+                derived Discount b => self.product.discount;
+            }
+
+
+        '''.parse(resourceSet)
+
+        a.assertNoErrors
+        b.assertNoErrors
+    }
 
 }

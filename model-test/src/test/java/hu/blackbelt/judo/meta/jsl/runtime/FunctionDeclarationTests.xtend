@@ -12,43 +12,43 @@ import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
 import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
-@ExtendWith(InjectionExtension) 
+@ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
 class FunctionDeclarationTests {
-	@Inject extension ParseHelper<ModelDeclaration> 
-	@Inject extension ValidationTestHelper
-	
-	@Test
-    @Requirement(reqs =#[
-        "REQ-SYNT-001",
-        "REQ-SYNT-002",
-        "REQ-SYNT-003",
-        "REQ-SYNT-004"
-    ])
-	def void testInvalidFunctionDeclaration() {
-		'''
-			model FunctionModel;
-						
-			function number test() on number;
-		'''.parse => [
-			m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.INVALID_DECLARATION)
-		]
-	}
+    @Inject extension ParseHelper<ModelDeclaration>
+    @Inject extension ValidationTestHelper
 
-	@Test
+    @Test
     @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
         "REQ-SYNT-004"
     ])
-	def void testInvalidLambdaDeclaration() {
-		'''
-			model FunctionModel;
-						
-			lambda number test();
-		'''.parse => [
-			m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.INVALID_DECLARATION)
-		]
-	}
+    def void testInvalidFunctionDeclaration() {
+        '''
+            model FunctionModel;
+
+            function number test() on number;
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
+    @Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004"
+    ])
+    def void testInvalidLambdaDeclaration() {
+        '''
+            model FunctionModel;
+
+            lambda number test();
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
 }

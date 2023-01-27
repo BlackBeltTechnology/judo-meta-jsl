@@ -12,15 +12,15 @@ import com.google.inject.Provider
 import org.eclipse.emf.ecore.resource.ResourceSet
 import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
-@ExtendWith(InjectionExtension) 
+@ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
 class IdEscapingTests {
-	
-	@Inject extension ParseHelper<ModelDeclaration> 
-	@Inject extension ValidationTestHelper
-	@Inject Provider<ResourceSet> resourceSetProvider;
-	
-	@Test
+
+    @Inject extension ParseHelper<ModelDeclaration>
+    @Inject extension ValidationTestHelper
+    @Inject Provider<ResourceSet> resourceSetProvider;
+
+    @Test
     @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
@@ -34,23 +34,23 @@ class IdEscapingTests {
         "REQ-EXPR-001",
         "REQ-EXPR-004"
     ])
-	def void testFieldNameReservedWord() {
-		'''
-			model Test;
-			type string String(min-size = 0, max-size = 128);			
+    def void testFieldNameReservedWord() {
+        '''
+            model Test;
+            type string String(min-size = 0, max-size = 128);
 
-			entity A {
-				field String `entity`;
-				derived String d => self.`entity`;
-			}
-		'''.parse => [
-			assertNoErrors
-		]
-	}
+            entity A {
+                field String `entity`;
+                derived String d => self.`entity`;
+            }
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
 
 
-	@Test
-	@Requirement(reqs =#[
+    @Test
+    @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -65,25 +65,25 @@ class IdEscapingTests {
         "REQ-EXPR-007"
         //TODO: JNG-4392
     ])
-	def void testEntityNameReservedWord() {
-		'''
-			model Test;
-			type string String(min-size = 0, max-size = 128);			
+    def void testEntityNameReservedWord() {
+        '''
+            model Test;
+            type string String(min-size = 0, max-size = 128);
 
-			entity `entity` {
-				field String str;
-			}
+            entity `entity` {
+                field String str;
+            }
 
-			entity B {
-				derived `entity`[] e => `entity`!all();
-			}
+            entity B {
+                derived `entity`[] e => `entity`!all();
+            }
 
-		'''.parse => [
-			assertNoErrors
-		]
-	}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
 
-	@Test
+    @Test
     @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
@@ -97,29 +97,29 @@ class IdEscapingTests {
         "REQ-EXPR-001",
         "REQ-EXPR-004"
     ])
-	def void testTwoModelDefinitionReferencingDatatypeWithoutAliasAndReservedKeywordAsName() {
-		val resourceSet = resourceSetProvider.get
-		val a = 
-		'''
-			model `entity`;
-			type string String(min-size = 0, max-size = 128);			
-		'''.parse(resourceSet)
-		
-		val b = 
-		'''
-			model B;
-			import `entity`;
-			
-			entity abstract E {
-				field String f1;
-			}	
-		'''.parse(resourceSet)
-		
-		a.assertNoErrors
-		b.assertNoErrors
-	}
+    def void testTwoModelDefinitionReferencingDatatypeWithoutAliasAndReservedKeywordAsName() {
+        val resourceSet = resourceSetProvider.get
+        val a =
+        '''
+            model `entity`;
+            type string String(min-size = 0, max-size = 128);
+        '''.parse(resourceSet)
 
-	@Test
+        val b =
+        '''
+            model B;
+            import `entity`;
+
+            entity abstract E {
+                field String f1;
+            }
+        '''.parse(resourceSet)
+
+        a.assertNoErrors
+        b.assertNoErrors
+    }
+
+    @Test
     @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
@@ -133,26 +133,26 @@ class IdEscapingTests {
         "REQ-EXPR-001",
         "REQ-EXPR-004"
     ])
-	def void testTwoModelDefinitionReferencingDatatypeWithAliasAndReservedKeywordAsName() {
-		val resourceSet = resourceSetProvider.get
-		val a = 
-		'''
-			model `entity`;
-			type string String(min-size = 0, max-size = 128);			
-		'''.parse(resourceSet)
-		
-		val b = 
-		'''
-			model B;
-			import `entity` as a;
-			
-			entity abstract E {
-				field a::String f1;
-			}	
-		'''.parse(resourceSet)
-		
-		a.assertNoErrors
-		b.assertNoErrors
-	}
+    def void testTwoModelDefinitionReferencingDatatypeWithAliasAndReservedKeywordAsName() {
+        val resourceSet = resourceSetProvider.get
+        val a =
+        '''
+            model `entity`;
+            type string String(min-size = 0, max-size = 128);
+        '''.parse(resourceSet)
 
-}	
+        val b =
+        '''
+            model B;
+            import `entity` as a;
+
+            entity abstract E {
+                field a::String f1;
+            }
+        '''.parse(resourceSet)
+
+        a.assertNoErrors
+        b.assertNoErrors
+    }
+
+}

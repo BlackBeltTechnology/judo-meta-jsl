@@ -13,13 +13,13 @@ import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
 import org.eclipse.emf.ecore.EClass
 import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
-@ExtendWith(InjectionExtension) 
+@ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
 class EntityMemberDeclarationTests {
-	@Inject extension ParseHelper<ModelDeclaration> 
-	@Inject extension ValidationTestHelper
-	
-	@Test
+    @Inject extension ParseHelper<ModelDeclaration>
+    @Inject extension ValidationTestHelper
+
+    @Test
     @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
@@ -32,22 +32,22 @@ class EntityMemberDeclarationTests {
         "REQ-EXPR-001",
         "REQ-EXPR-004"
     ])
-	def void testSelfInDefaultNotAllowed() {
-		'''
-			model test;
-			
-			type boolean Boolean;
-			
-			entity A {
-				field Boolean a;
-				field Boolean b = self.a;
-			}
-		'''.parse => [
-			m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.SELF_NOT_ALLOWED)
-		]
-	}
+    def void testSelfInDefaultNotAllowed() {
+        '''
+            model test;
 
-	@Test
+            type boolean Boolean;
+
+            entity A {
+                field Boolean a;
+                field Boolean b = self.a;
+            }
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.SELF_NOT_ALLOWED)
+        ]
+    }
+
+    @Test
     @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
@@ -59,29 +59,29 @@ class EntityMemberDeclarationTests {
         "REQ-TYPE-001",
         "REQ-TYPE-004"
     ])
-	def void testDuplicateInheritedMembersInvalid() {
-		'''
-			model test;
-			
-			type string String(min-size = 0, max-size = 12);
-			
-			entity B1 {
-			    field String name;
-			}
-			
-			entity B2 {
-			    field String name;
-			}
-			
-			entity A extends B1,B2 {
-			}
+    def void testDuplicateInheritedMembersInvalid() {
+        '''
+            model test;
 
-		'''.parse => [
-			assertInheritedMemberNameCollisionError("Inherited member name collision for: 'test::B1.name', 'test::B2.name'", JsldslPackage::eINSTANCE.entityDeclaration)
-		]
-	}
+            type string String(min-size = 0, max-size = 12);
 
-	@Test
+            entity B1 {
+                field String name;
+            }
+
+            entity B2 {
+                field String name;
+            }
+
+            entity A extends B1,B2 {
+            }
+
+        '''.parse => [
+            assertInheritedMemberNameCollisionError("Inherited member name collision for: 'test::B1.name', 'test::B2.name'", JsldslPackage::eINSTANCE.entityDeclaration)
+        ]
+    }
+
+    @Test
     @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
@@ -93,22 +93,22 @@ class EntityMemberDeclarationTests {
         "REQ-TYPE-004",
         "REQ-SYNT-004"
     ])
-	def void testMemberNameTooLong() {
-		'''
-			model test;
-			
-			type string String(min-size = 0, max-size = 12);
-			
-			entity Person {
-				field String tgvkyzidsggsdxxrszoscrljgnnixjzkyztoxpdvvqbmlrpzaakkwcczsarbqrqjnphrlfkfcjgcmgbxdexakswitdmcfjyjblkmiknvdgtyxlunkolxzaneifhyizgureqemldvypsongytiwmfaqrnxuodiunflyduwzerdossywvzgkmvdbfvpumaqzdazqomqwoaqynrixrwirmtbqmihmwkjmdaulwnfoxcmzldaxyjnihbluepwdswz;
-			}
+    def void testMemberNameTooLong() {
+        '''
+            model test;
 
-		'''.parse => [
-			assertInheritedMemberNameLengthError("Member name: 'tgvkyzidsggsdxxrszoscrljgnnixjzkyztoxpdvvqbmlrpzaakkwcczsarbqrqjnphrlfkfcjgcmgbxdexakswitdmcfjyjblkmiknvdgtyxlunkolxzaneifhyizgureqemldvypsongytiwmfaqrnxuodiunflyduwzerdossywvzgkmvdbfvpumaqzdazqomqwoaqynrixrwirmtbqmihmwkjmdaulwnfoxcmzldaxyjnihbluepwdswz' is too long, must be at most 128 characters", JsldslPackage::eINSTANCE.entityMemberDeclaration)
-		]
-	}
-	
-	@Test
+            type string String(min-size = 0, max-size = 12);
+
+            entity Person {
+                field String tgvkyzidsggsdxxrszoscrljgnnixjzkyztoxpdvvqbmlrpzaakkwcczsarbqrqjnphrlfkfcjgcmgbxdexakswitdmcfjyjblkmiknvdgtyxlunkolxzaneifhyizgureqemldvypsongytiwmfaqrnxuodiunflyduwzerdossywvzgkmvdbfvpumaqzdazqomqwoaqynrixrwirmtbqmihmwkjmdaulwnfoxcmzldaxyjnihbluepwdswz;
+            }
+
+        '''.parse => [
+            assertInheritedMemberNameLengthError("Member name: 'tgvkyzidsggsdxxrszoscrljgnnixjzkyztoxpdvvqbmlrpzaakkwcczsarbqrqjnphrlfkfcjgcmgbxdexakswitdmcfjyjblkmiknvdgtyxlunkolxzaneifhyizgureqemldvypsongytiwmfaqrnxuodiunflyduwzerdossywvzgkmvdbfvpumaqzdazqomqwoaqynrixrwirmtbqmihmwkjmdaulwnfoxcmzldaxyjnihbluepwdswz' is too long, must be at most 128 characters", JsldslPackage::eINSTANCE.entityMemberDeclaration)
+        ]
+    }
+
+    @Test
     @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
@@ -120,23 +120,23 @@ class EntityMemberDeclarationTests {
         "REQ-TYPE-001",
         "REQ-TYPE-004"
     ])
-	def void testFieldIsManyRequired() {
-	    //TODO: JNG-4381
-		'''
-			model test;
-			
-			type string String(min-size = 0, max-size = 1000);
-			
-			entity B1 {
-			    field required String[] attr;
-			}
+    def void testFieldIsManyRequired() {
+        //TODO: JNG-4381
+        '''
+            model test;
 
-		'''.parse => [
-			m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.USING_REQUIRED_WITH_IS_MANY, "Collection typed field: 'attr' cannot have keyword: 'required'")
-		]
-	}
-	
-	@Test
+            type string String(min-size = 0, max-size = 1000);
+
+            entity B1 {
+                field required String[] attr;
+            }
+
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.USING_REQUIRED_WITH_IS_MANY, "Collection typed field: 'attr' cannot have keyword: 'required'")
+        ]
+    }
+
+    @Test
     @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
@@ -148,37 +148,37 @@ class EntityMemberDeclarationTests {
         "REQ-TYPE-001",
         "REQ-TYPE-004"
     ])
-	def void testRelationIsManyRequired() {
-		'''
-			model test;
-			
-			type string String(min-size = 0, max-size = 1000);
-			
-			entity B1 {
-			    relation required B2[] others;
-			}
+    def void testRelationIsManyRequired() {
+        '''
+            model test;
 
-			entity B2 {
-			    String name;
-			}
-		'''.parse => [
-			m | m.assertError(JsldslPackage::eINSTANCE.entityRelationDeclaration, JslDslValidator.USING_REQUIRED_WITH_IS_MANY, "Collection typed relation: 'others' cannot have keyword: 'required'")
-		]
-	}
+            type string String(min-size = 0, max-size = 1000);
 
-	def private void assertInheritedMemberNameCollisionError(ModelDeclaration modelDeclaration, String error, EClass target) {
-		modelDeclaration.assertError(
-			target, 
-			JslDslValidator.INHERITED_MEMBER_NAME_COLLISION, 
-			error
-		)
-	}
+            entity B1 {
+                relation required B2[] others;
+            }
 
-	def private void assertInheritedMemberNameLengthError(ModelDeclaration modelDeclaration, String error, EClass target) {
-		modelDeclaration.assertError(
-			target, 
-			JslDslValidator.MEMBER_NAME_TOO_LONG, 
-			error
-		)
-	}
+            entity B2 {
+                String name;
+            }
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.entityRelationDeclaration, JslDslValidator.USING_REQUIRED_WITH_IS_MANY, "Collection typed relation: 'others' cannot have keyword: 'required'")
+        ]
+    }
+
+    def private void assertInheritedMemberNameCollisionError(ModelDeclaration modelDeclaration, String error, EClass target) {
+        modelDeclaration.assertError(
+            target,
+            JslDslValidator.INHERITED_MEMBER_NAME_COLLISION,
+            error
+        )
+    }
+
+    def private void assertInheritedMemberNameLengthError(ModelDeclaration modelDeclaration, String error, EClass target) {
+        modelDeclaration.assertError(
+            target,
+            JslDslValidator.MEMBER_NAME_TOO_LONG,
+            error
+        )
+    }
 }

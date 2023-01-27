@@ -12,17 +12,17 @@ import com.google.inject.Provider
 import org.eclipse.emf.ecore.resource.ResourceSet
 import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
-@ExtendWith(InjectionExtension) 
+@ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
 class JudoTypesTests {
-	
-	@Inject extension ParseHelper<ModelDeclaration> 
-	@Inject extension ValidationTestHelper
-	@Inject Provider<ResourceSet> resourceSetProvider;
-	
-				
 
-	@Test
+    @Inject extension ParseHelper<ModelDeclaration>
+    @Inject extension ValidationTestHelper
+    @Inject Provider<ResourceSet> resourceSetProvider;
+
+
+
+    @Test
     @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
@@ -35,19 +35,19 @@ class JudoTypesTests {
         "REQ-ENT-001",
         "REQ-ENT-002"
     ])
-	def void testJudoTypesImport() {
-		val resourceSet = resourceSetProvider.get
-		val a = 
-		'''
-			model A;
-			
-			import judo::types;
-			
-			entity A {
-				field String str;
-			}	
-		'''.parse(resourceSet)
-		
-		a.assertNoErrors
-	}
-}	
+    def void testJudoTypesImport() {
+        val resourceSet = resourceSetProvider.get
+        val a =
+        '''
+            model A;
+
+            import judo::types;
+
+            entity A {
+                field String str;
+            }
+        '''.parse(resourceSet)
+
+        a.assertNoErrors
+    }
+}

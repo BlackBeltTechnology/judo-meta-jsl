@@ -12,14 +12,14 @@ import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
 import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
-@ExtendWith(InjectionExtension) 
+@ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
 class CyclicExpressionTests {
-	
-	@Inject extension ParseHelper<ModelDeclaration> 
-	@Inject extension ValidationTestHelper
-	
-	@Test
+
+    @Inject extension ParseHelper<ModelDeclaration>
+    @Inject extension ValidationTestHelper
+
+    @Test
     @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
@@ -32,23 +32,23 @@ class CyclicExpressionTests {
         "REQ-EXPR-001",
         "REQ-EXPR-004"
     ])
-	def void testSelfDerived() {
-		'''
-			model Test;
-			
-			type boolean Boolean;
-			
-			entity Test {
-				derived Boolean b => self.b;
-			}
-						
-		'''.parse => [
-			m | m.assertError(JsldslPackage::eINSTANCE.entityDerivedDeclaration, JslDslValidator.EXPRESSION_CYCLE)
-		]
-	}
+    def void testSelfDerived() {
+        '''
+            model Test;
+
+            type boolean Boolean;
+
+            entity Test {
+                derived Boolean b => self.b;
+            }
+
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.entityDerivedDeclaration, JslDslValidator.EXPRESSION_CYCLE)
+        ]
+    }
 
 
-	@Test
+    @Test
     @Requirement(reqs =#[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
@@ -68,22 +68,22 @@ class CyclicExpressionTests {
         "REQ-ENT-010",
         "REQ-ENT-011"
     ])
-	def void testComplexCycle() {
-		'''
-			model test;
-			
-			type boolean Boolean;
-			
-			query Boolean staticQuery() => A!any().c;
-			
-			entity A {
-				query Boolean q() => staticQuery();
-				derived Boolean a => self.q();
-				derived Boolean b => self.a;
-				derived Boolean c => self.b;
-			}						
-		'''.parse => [
-			m | m.assertError(JsldslPackage::eINSTANCE.entityDerivedDeclaration, JslDslValidator.EXPRESSION_CYCLE)
-		]
-	}
-}	
+    def void testComplexCycle() {
+        '''
+            model test;
+
+            type boolean Boolean;
+
+            query Boolean staticQuery() => A!any().c;
+
+            entity A {
+                query Boolean q() => staticQuery();
+                derived Boolean a => self.q();
+                derived Boolean b => self.a;
+                derived Boolean c => self.b;
+            }
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.entityDerivedDeclaration, JslDslValidator.EXPRESSION_CYCLE)
+        ]
+    }
+}
