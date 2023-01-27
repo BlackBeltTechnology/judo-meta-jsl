@@ -10,6 +10,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import com.google.inject.Provider
 import org.eclipse.emf.ecore.resource.ResourceSet
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -20,6 +21,19 @@ class OppositeAddTests {
 
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-005",
+        "REQ-ENT-006",
+        "REQ-ENT-008",
+        "REQ-EXPR-003"
+    ])
 	def void testSimpleOppositeAdd() {
 		
 		'''
@@ -43,6 +57,19 @@ class OppositeAddTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-005",
+        "REQ-ENT-006",
+        "REQ-ENT-008",
+        "REQ-EXPR-003"
+    ])
 	def void testSimpleWithMultipleCardinalityOppositeAdd() {
 		
 		'''
@@ -66,6 +93,21 @@ class OppositeAddTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-SYNT-005",
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-005",
+        "REQ-ENT-006",
+        "REQ-ENT-008",
+        "REQ-ENT-012",
+        "REQ-EXPR-003"
+    ])
 	def void testInheritedOppositeAdd() {
 		'''
 			model InheritedOppositeAdd;
@@ -94,7 +136,21 @@ class OppositeAddTests {
 
 
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-MDL-003",
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-005",
+        "REQ-ENT-006",
+        "REQ-ENT-008",
+        "REQ-EXPR-003"
+    ])
 	def void testImportedModelNavigation() {
 		val resourceSet = resourceSetProvider.get
 		val a = 
@@ -128,7 +184,22 @@ class OppositeAddTests {
 	}
 
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-MDL-003",
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-005",
+        "REQ-ENT-006",
+        "REQ-ENT-008",
+        "REQ-ENT-012",
+        "REQ-EXPR-003"
+    ])
 	def void testInheritedImportedModelNavigation() {
 		val resourceSet = resourceSetProvider.get
 		val a = 

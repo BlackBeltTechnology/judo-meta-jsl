@@ -10,6 +10,7 @@ import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -18,6 +19,19 @@ class ParameterTests {
 	@Inject extension ValidationTestHelper
 	
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-EXPR-002",
+        "REQ-EXPR-013"
+    ])
 	def void testDuplicateParameter() {
 		'''
 			model ParametersModel;
@@ -34,6 +48,19 @@ class ParameterTests {
 
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-EXPR-002",
+        "REQ-EXPR-013"
+    ])
 	def void testMissingRequiredParemeter() {
 		'''
 			model ParametersModel;
@@ -49,6 +76,19 @@ class ParameterTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-EXPR-002",
+        "REQ-EXPR-013"
+    ])
 	def void testFunctionParemeterTypeMismatch() {
 		'''
 			model ParametersModel;
@@ -64,6 +104,23 @@ class ParameterTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-010",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-007",
+        "REQ-EXPR-002",
+        "REQ-EXPR-008",
+        "REQ-EXPR-013",
+        "REQ-EXPR-022"
+        //TODO: JNG-4392
+    ])
 	def void testInvalidLambdaExpression() {
 		'''
 			model ParametersModel;
@@ -80,6 +137,22 @@ class ParameterTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-010",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-007",
+        "REQ-EXPR-002",
+        "REQ-EXPR-008",
+        "REQ-EXPR-013",
+        "REQ-EXPR-022"
+    ])
 	def void testSelfNotAllowedInLambda() {
 		'''
 			model ParametersModel;
