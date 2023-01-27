@@ -22,6 +22,10 @@ class OppositeAddTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-ENT-001",
         "REQ-ENT-004",
@@ -54,6 +58,10 @@ class OppositeAddTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-ENT-001",
         "REQ-ENT-004",
@@ -86,6 +94,10 @@ class OppositeAddTests {
 	
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-SYNT-005",
         "REQ-MDL-001",
         "REQ-ENT-001",
@@ -126,6 +138,10 @@ class OppositeAddTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-MDL-003",
         "REQ-ENT-001",
@@ -170,6 +186,10 @@ class OppositeAddTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-MDL-003",
         "REQ-ENT-001",

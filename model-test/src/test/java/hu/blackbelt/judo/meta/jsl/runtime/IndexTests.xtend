@@ -21,6 +21,10 @@ class IndexTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-MDL-002"
     ])
@@ -34,6 +38,10 @@ class IndexTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-MDL-002",
         "REQ-ENT-001"

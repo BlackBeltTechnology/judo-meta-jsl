@@ -61,6 +61,10 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
     		"REQ-MDL-001",
     		"REQ-TYPE-001",
     		"REQ-TYPE-002",
@@ -98,6 +102,10 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
     		"REQ-MDL-001",
     		"REQ-ENT-001",
     		"REQ-ENT-012",
@@ -118,6 +126,10 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
     		"REQ-MDL-001",
     		"REQ-TYPE-001",
     		"REQ-TYPE-004",
@@ -132,6 +144,10 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
     		"REQ-MDL-001",
     		"REQ-TYPE-001",
     		"REQ-TYPE-004",
@@ -146,6 +162,10 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
     		"REQ-MDL-001",
     		"REQ-TYPE-001",
     		"REQ-TYPE-002",
@@ -184,6 +204,10 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
     		"REQ-MDL-001",
     		"REQ-TYPE-001",
     		"REQ-TYPE-004",
@@ -199,6 +223,10 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
     		"REQ-MDL-001",
     		"REQ-MDL-003",
     		"REQ-TYPE-001",
@@ -217,6 +245,10 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
     		"REQ-MDL-001",
     		"REQ-TYPE-001",
     		"REQ-TYPE-002",
@@ -258,6 +290,10 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
     		"REQ-MDL-001",
     		"REQ-MDL-003",
     		"REQ-TYPE-001",
@@ -280,6 +316,10 @@ public class JslDslParserTest {
 
     @Test
     @Requirement(reqs = {
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
     		"REQ-MDL-001",
     		"REQ-MDL-003",
     		"REQ-TYPE-001",

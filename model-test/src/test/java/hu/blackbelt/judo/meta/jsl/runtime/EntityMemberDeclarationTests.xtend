@@ -21,6 +21,10 @@ class EntityMemberDeclarationTests {
 	
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-ENT-001",
         "REQ-ENT-002",
         "REQ-TYPE-001",
@@ -45,6 +49,10 @@ class EntityMemberDeclarationTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-ENT-001",
         "REQ-ENT-002",
         "REQ-ENT-012",
@@ -75,6 +83,10 @@ class EntityMemberDeclarationTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-ENT-001",
         "REQ-ENT-002",
         "REQ-TYPE-001",
@@ -98,6 +110,10 @@ class EntityMemberDeclarationTests {
 	
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-ENT-001",
         "REQ-ENT-002",
         "REQ-ENT-007",
@@ -122,6 +138,10 @@ class EntityMemberDeclarationTests {
 	
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-ENT-001",
         "REQ-ENT-002",
         "REQ-ENT-007",

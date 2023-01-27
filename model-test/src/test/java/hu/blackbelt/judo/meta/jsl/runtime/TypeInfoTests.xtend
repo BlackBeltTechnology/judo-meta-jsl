@@ -26,6 +26,10 @@ class TypeInfoTests {
 	
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-006",
@@ -55,6 +59,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-006",
@@ -85,6 +93,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-006",
@@ -119,6 +131,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-ENT-001",
         "REQ-ENT-007"
@@ -149,6 +165,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-ENT-001",
         "REQ-ENT-007",
@@ -186,6 +206,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-ENT-001",
         "REQ-ENT-007",
@@ -223,14 +247,19 @@ class TypeInfoTests {
 	
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-ENT-001",
         "REQ-ENT-008",
-        "REQ-EXPR-003"
-        //TODO: JNG-4399
+        "REQ-EXPR-002",
+        "REQ-EXPR-003",
+        "REQ-EXPR-007",
+        "REQ-EXPR-022"
     ])
 	def void testStaticDerivedToSingleField() {
-	    //TODO: JNG-4399
 		val p = '''
 			model TestModel;
 			
@@ -239,10 +268,10 @@ class TypeInfoTests {
 
 			
 			entity Test {
-				derived T1 t1sd => T1;
+				derived T1 t1sd => T1!all()!any();
 			}
 		'''.parse		
-		//TODO: p.assertNoErrors
+		p.assertNoErrors
 		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test")
@@ -259,6 +288,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-006",
@@ -294,6 +327,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-ENT-001",
         "REQ-ENT-004",
@@ -326,6 +363,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-ENT-001",
         "REQ-ENT-004",
@@ -372,6 +413,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-ENT-001",
         "REQ-ENT-002",
@@ -386,7 +431,6 @@ class TypeInfoTests {
         "REQ-TYPE-009"
     ])
 	def void testLiterals() {
-	    //TODO: JNG-4400
 		val p = '''
 			model TestModel;
 			
@@ -401,12 +445,12 @@ class TypeInfoTests {
 				derived Integer numeric => 12;
 				derived Date date => `2022-01-01`;
 				derived Timestamp timestamp => `2022-01-01T12:00:00Z`;
-				derived Time time => `12:00:00`";
-				derived String string => "Test"";
+				derived Time time => `12:00:00`;
+				derived String string => "Test";
 				derived Boolean boolean => true;
 			}
 		'''.parse		
-		//TODO: p.assertNoErrors
+		p.assertNoErrors
 		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
@@ -428,6 +472,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-ENT-001",
         "REQ-ENT-002",
@@ -524,9 +572,12 @@ class TypeInfoTests {
 
 	}
 	
-	
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-005",
@@ -584,6 +635,10 @@ class TypeInfoTests {
 	
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-007",
@@ -626,6 +681,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-005",
@@ -683,6 +742,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-005",
@@ -710,16 +773,15 @@ class TypeInfoTests {
 			type boolean Boolean;
 			
 			entity Test {
-				derived Integer numeric => 12!isUndefined();
-				derived Date date => `2022-01-01`!isUndefined();
-				derived Timestamp timestamp => `2022-01-01T12:00:00Z`!isUndefined();
-				derived Time time => `12:00:00`!isUndefined();
-				derived String string => "Test"!isUndefined();
+				derived Boolean numeric => 12!isUndefined();
+				derived Boolean date => `2022-01-01`!isUndefined();
+				derived Boolean timestamp => `2022-01-01T12:00:00Z`!isUndefined();
+				derived Boolean time => `12:00:00`!isUndefined();
+				derived Boolean string => "Test"!isUndefined();
 				derived Boolean boolean => true!isUndefined();
-
 			}
-		'''.parse		
-		//TODO: p.assertNoErrors
+		'''.parse
+		p.assertNoErrors
 		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
@@ -740,6 +802,10 @@ class TypeInfoTests {
 	
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-005",
@@ -789,6 +855,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-005",
@@ -798,8 +868,6 @@ class TypeInfoTests {
         "REQ-TYPE-004",
         "REQ-TYPE-006",
         "REQ-ENT-001",
-        "REQ-ENT-004",
-        "REQ-ENT-005",
         "REQ-ENT-008",
         "REQ-EXPR-001",
         "REQ-EXPR-002",
@@ -818,7 +886,6 @@ class TypeInfoTests {
 			type boolean Boolean;
 
 			entity Test {
-				relation T1[] t1s;
 				derived Integer numeric => 12!orElse(value = 11);
 				derived Date date => `2022-01-01`!orElse(value = `2022-01-01`);
 				derived Timestamp timestamp => `2022-01-01T12:00:00Z`!orElse(value = `2023-01-01T12:00:00Z`);
@@ -827,7 +894,7 @@ class TypeInfoTests {
 				derived Boolean boolean => true!orElse(value = false);
 			}
 		'''.parse		
-		//TODO: p.assertNoErrors
+		p.assertNoErrors
 		val m = p.fromModel
 		
 		val testEntity = m.entityByName("Test") 
@@ -848,6 +915,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-005",
@@ -865,13 +936,13 @@ class TypeInfoTests {
 			type numeric Decimal(precision = 9, scale = 2);
 			
 			entity Test {
-				derived Integer floor => 12!floor();
-				derived Integer ceil => 12!ceil();
-				derived Integer abs => 12!abs();
-				derived Integer round => 12!round(scale = 2);
+				derived Decimal floor => 12!floor();
+				derived Decimal ceil => 12!ceil();
+				derived Decimal abs => 12!abs();
+				derived Decimal round => 12!round(scale = 2);
 			}
 		'''.parse		
-		//TODO: p.assertNoErrors
+		p.assertNoErrors
 		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
@@ -889,6 +960,10 @@ class TypeInfoTests {
 	
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-005",
@@ -946,8 +1021,13 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
+        "REQ-TYPE-005",
         "REQ-TYPE-007",
         "REQ-ENT-001",
         "REQ-ENT-008",
@@ -962,6 +1042,7 @@ class TypeInfoTests {
 			model TestModel;
 			
 			type date Date;
+			type numeric Integer(precision = 9, scale = 0);
 
 			entity Test {
 				derived Integer year => `2022-01-01`!year();
@@ -972,7 +1053,7 @@ class TypeInfoTests {
 				derived Date date => Date!of(year = 2022, month = 1, day = 1);
 			}
 		'''.parse
-		//TODO: p.assertNoErrors
+		p.assertNoErrors
 		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
@@ -994,6 +1075,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-005",
@@ -1011,6 +1096,7 @@ class TypeInfoTests {
 			model TestModel;
 			
 			type time Time;
+			type numeric Integer(precision = 9, scale = 0);
 
 			entity Test {
 				derived Integer hour => `12:00:00`!hour();
@@ -1018,8 +1104,8 @@ class TypeInfoTests {
 				derived Integer second => `12:00:00`!second();
 				derived Time time => Time!of(hour = 12, minute = 2, second = 23);
 			}
-		'''.parse		
-		//TODO: p.assertNoErrors
+		'''.parse
+		p.assertNoErrors
 		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
@@ -1036,6 +1122,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-005",
@@ -1091,6 +1181,10 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-006",
@@ -1160,8 +1254,14 @@ class TypeInfoTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-TYPE-006",
         "REQ-TYPE-004",
         "REQ-ENT-001",
         "REQ-ENT-004",
@@ -1180,6 +1280,9 @@ class TypeInfoTests {
 			model TestModel;
 			
 			type string String(min-size = 0, max-size = 32);
+			type boolean Boolean;
+			type numeric Integer(precision = 10, scale = 0);
+			
 
 			entity T1 {
 				field String name;
@@ -1193,12 +1296,11 @@ class TypeInfoTests {
 				derived T1[] tail => self.t1s!last(t | t.name);
 				derived T1 any => self.t1s!any();
 				derived Integer size => self.t1s!size();
-				derived T1[] asCollection => self.t1!asCollection(entityType = T1);
 				derived Boolean contains => self.t1s!contains(instance = self.t1);
 
 			}
 		'''.parse		
-		//TODO: p.assertNoErrors
+		p.assertNoErrors
 		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
@@ -1208,7 +1310,6 @@ class TypeInfoTests {
 		val tailField = testEntity.memberByName("tail") as EntityDerivedDeclaration		
 		val anyField = testEntity.memberByName("any") as EntityDerivedDeclaration		
 		val sizeField = testEntity.memberByName("size") as EntityDerivedDeclaration		
-		val asCollectionField = testEntity.memberByName("asCollection") as EntityDerivedDeclaration		
 		val containsField = testEntity.memberByName("contains") as EntityDerivedDeclaration		
 		
 		val TypeInfo headTypeInfo = TypeInfo.getTargetType(headField.expression)
@@ -1225,16 +1326,15 @@ class TypeInfoTests {
 
 		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sizeField.expression).getPrimitive)
 
-		val TypeInfo asCollectionTypeInfo = TypeInfo.getTargetType(anyField.expression)
-		assertEquals(asCollectionField.referenceType, asCollectionTypeInfo.getEntity)
-		assertEquals(false, anyTypeInfo.isCollection)
-		
 		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(containsField.expression).getPrimitive)
-		
 	}
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-004",
@@ -1258,6 +1358,7 @@ class TypeInfoTests {
 			
 			type string String(min-size = 0, max-size = 32);
 			type numeric Decimal(precision = 9, scale = 2);
+			type boolean Boolean;
 			
 			entity T1 {
 				field String name;
@@ -1268,20 +1369,19 @@ class TypeInfoTests {
 				field T1[] t1s;
 				field T1 t1;
 
-				derived T1[] filter => self.t1s!filter(t | t.name = "Test");
-				derived Boolean anyTrue => self.t1s!anyTrue(t | t.name = "Test");
-				derived Boolean allTrue => self.t1s!allTrue(t | t.name = "Test");
-				derived Boolean anyFalse => self.t1s!anyFalse(t | t.name = "Test");
-				derived Boolean allFalse => self.t1s!allFalse(t | t.name = "Test");
+				derived T1[] filter => self.t1s!filter(t | t.name == "Test");
+				derived Boolean anyTrue => self.t1s!anyTrue(t | t.name == "Test");
+				derived Boolean allTrue => self.t1s!allTrue(t | t.name == "Test");
+				derived Boolean anyFalse => self.t1s!anyFalse(t | t.name == "Test");
+				derived Boolean allFalse => self.t1s!allFalse(t | t.name == "Test");
 
 				derived Decimal min => self.t1s!min(t | t.price);
 				derived Decimal max => self.t1s!max(t | t.price);
 				derived Decimal avg => self.t1s!avg(t | t.price);
 				derived Decimal sum => self.t1s!sum(t | t.price);
-
 			}
 		'''.parse		
-		//TODO: p.assertNoErrors
+		p.assertNoErrors
 		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test")
@@ -1309,11 +1409,14 @@ class TypeInfoTests {
 		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(maxField.expression).getPrimitive)
 		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(avgField.expression).getPrimitive)
 		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sumField.expression).getPrimitive)
-
 	}
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-004",
@@ -1348,11 +1451,11 @@ class TypeInfoTests {
 			query Integer staticLeadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) => Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
 			query Integer staticLeadsOverWithMinCount(Integer minLeadsOverMin = 5) => staticLeadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
 			query Lead[] staticLeadsBetweenAndSalesPersonLeads(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) =>
-				Lead!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween).salesPerson.leadsBetween(minLeadsBetween = minLeadsBetween, maxLeadsBetween = maxLeadsBetween);
+				Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween).salesPerson.leadsBetween(minLeadsBetween = minLeadsBetween, maxLeadsBetween = maxLeadsBetween);
 			
 			entity SalesPerson {
 			    relation Lead[] leads opposite salesPerson;
-			
+			    
 			    query Lead[] leadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) => self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
 			    query Lead[] leadsOverWithMin(Integer minLeadsOverMin = 5) => self.leadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
 			    query Lead[] leadsOverWithMinStatic(Integer minLeadsOverMin = 5) => staticLeadsBetween(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
@@ -1376,7 +1479,7 @@ class TypeInfoTests {
 			    relation required SalesPerson salesPerson opposite leads;
 			}
 		'''.parse		
-		//TODO: p.assertNoErrors
+		p.assertNoErrors
 		val m = p.fromModel
 	
 		val testEntity = m.entityByName("SalesPerson") 

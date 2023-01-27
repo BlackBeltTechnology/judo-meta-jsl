@@ -21,6 +21,10 @@ class AssociationTests {
 	
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-ENT-001",
         "REQ-ENT-004",
         "REQ-ENT-006"
@@ -43,6 +47,10 @@ class AssociationTests {
 
     @Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-ENT-001",
         "REQ-ENT-004",
         "REQ-ENT-006"
@@ -66,6 +74,10 @@ class AssociationTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-ENT-001",
         "REQ-ENT-004",
         "REQ-ENT-006"
@@ -95,6 +107,10 @@ class AssociationTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-ENT-001",
         "REQ-ENT-004",
         "REQ-ENT-006"

@@ -20,6 +20,10 @@ class ParameterTests {
 	
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-004",
@@ -45,6 +49,10 @@ class ParameterTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-004",
@@ -69,6 +77,10 @@ class ParameterTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-004",
@@ -93,6 +105,10 @@ class ParameterTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-010",
@@ -122,6 +138,10 @@ class ParameterTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-001",
         "REQ-TYPE-010",

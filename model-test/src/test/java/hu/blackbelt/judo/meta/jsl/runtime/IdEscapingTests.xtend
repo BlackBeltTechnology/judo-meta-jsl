@@ -22,12 +22,15 @@ class IdEscapingTests {
 	
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-ENT-001",
         "REQ-ENT-002",
         "REQ-ENT-008",
         "REQ-TYPE-001",
         "REQ-TYPE-004",
-        "REQ-SYNT-003",
         "REQ-EXPR-001",
         "REQ-EXPR-004"
     ])
@@ -48,12 +51,15 @@ class IdEscapingTests {
 
 	@Test
 	@Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-ENT-001",
         "REQ-ENT-002",
         "REQ-ENT-008",
         "REQ-TYPE-001",
         "REQ-TYPE-004",
-        "REQ-SYNT-003",
         "REQ-EXPR-001",
         "REQ-EXPR-006",
         "REQ-EXPR-007"
@@ -79,12 +85,15 @@ class IdEscapingTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-003",
         "REQ-ENT-001",
         "REQ-ENT-002",
         "REQ-TYPE-001",
         "REQ-TYPE-004",
-        "REQ-SYNT-003",
         "REQ-EXPR-001",
         "REQ-EXPR-004"
     ])
@@ -112,12 +121,15 @@ class IdEscapingTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-003",
         "REQ-ENT-001",
         "REQ-ENT-002",
         "REQ-TYPE-001",
         "REQ-TYPE-004",
-        "REQ-SYNT-003",
         "REQ-EXPR-001",
         "REQ-EXPR-004"
     ])

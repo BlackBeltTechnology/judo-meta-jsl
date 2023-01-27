@@ -24,8 +24,10 @@ class ImportTests {
 	
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001"
     ]) 
 	def void testSimpleModelDefinition() {
@@ -38,8 +40,10 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001"
     ])
 	def void testTwoModelDefinitionWithDifferentName() {
@@ -70,8 +74,10 @@ class ImportTests {
 				
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-MDL-003"
         //TODO: JNG-4393
@@ -89,8 +95,10 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-MDL-003"
         //TODO: JNG-4393
@@ -123,8 +131,10 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-MDL-003"
     ])
@@ -144,8 +154,10 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-MDL-003"
     ])
@@ -165,9 +177,10 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
-        "REQ-SYNT-002",
+        "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-MDL-003"
     ])
@@ -188,8 +201,10 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-MDL-002",
         "REQ-MDL-003"
@@ -210,8 +225,10 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-MDL-002",
         "REQ-MDL-003"
@@ -233,8 +250,10 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-MDL-003"
     ])
@@ -255,8 +274,10 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-MDL-003",
         "REQ-TYPE-001",
@@ -290,8 +311,10 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-MDL-003",
         "REQ-TYPE-001",
@@ -327,8 +350,10 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-MDL-003",
         "REQ-TYPE-001",
@@ -361,6 +386,7 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
         "REQ-SYNT-004",
@@ -397,6 +423,7 @@ class ImportTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
         "REQ-SYNT-004",
@@ -436,6 +463,7 @@ class ImportTests {
 	 * This is an example for JNG-4394
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
         "REQ-SYNT-004",
@@ -479,6 +507,7 @@ class ImportTests {
 		
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
         "REQ-SYNT-004",

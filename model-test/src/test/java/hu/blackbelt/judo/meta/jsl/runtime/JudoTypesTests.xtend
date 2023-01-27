@@ -3,8 +3,6 @@ package hu.blackbelt.judo.meta.jsl.runtime
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.extensions.InjectionExtension
 import org.junit.jupiter.api.^extension.ExtendWith
-import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
-import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import org.eclipse.xtext.testing.util.ParseHelper
 import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import com.google.inject.Inject
@@ -26,6 +24,10 @@ class JudoTypesTests {
 
 	@Test
     @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-MDL-002",
         "REQ-MDL-003",
