@@ -10,6 +10,7 @@ import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -18,6 +19,18 @@ class PrimitiveDefaultValuesTests {
 	@Inject extension ValidationTestHelper
 	
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-006",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-EXPR-001"
+    ])
 	def void testBoolDefaultTypeMismatch() {
 		'''
 			model PrimitiveDefaultsModel;
@@ -33,6 +46,18 @@ class PrimitiveDefaultValuesTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-EXPR-001"
+    ])
 	def void testStringLiteralDefaultTypeMismatch() {
 		'''
 			model PrimitiveDefaultsModel;
@@ -48,6 +73,18 @@ class PrimitiveDefaultValuesTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-EXPR-001"
+    ])
 	def void testIntegerDefaultTypeMismatch() {
 		'''
 			model PrimitiveDefaultsModel;
@@ -63,6 +100,18 @@ class PrimitiveDefaultValuesTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-EXPR-001"
+    ])
 	def void testDecimalDefaultTypeMismatch() {
 		'''
 			model PrimitiveDefaultsModel;
@@ -78,6 +127,18 @@ class PrimitiveDefaultValuesTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-007",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-EXPR-001"
+    ])
 	def void testDateDefaultTypeMismatch() {
 		'''
 			model PrimitiveDefaultsModel;
@@ -93,6 +154,18 @@ class PrimitiveDefaultValuesTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-008",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-EXPR-001"
+    ])
 	def void testTimeDefaultTypeMismatch() {
 		'''
 			model PrimitiveDefaultsModel;
@@ -108,6 +181,18 @@ class PrimitiveDefaultValuesTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-009",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-EXPR-001"
+    ])
 	def void testTimestampDefaultTypeMismatch() {
 		'''
 			model PrimitiveDefaultsModel;
@@ -123,6 +208,32 @@ class PrimitiveDefaultValuesTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-TYPE-005",
+        "REQ-TYPE-006",
+        "REQ-TYPE-007",
+        "REQ-TYPE-008",
+        "REQ-TYPE-009",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-003",
+        "REQ-EXPR-001",
+        "REQ-EXPR-002",
+        "REQ-EXPR-007",
+        "REQ-EXPR-014",
+        "REQ-EXPR-015",
+        "REQ-EXPR-016",
+        "REQ-EXPR-017",
+        "REQ-EXPR-018"
+        
+    ])
     def void testPrimitivesPassingForFieldsAndIdentifiers() {
         '''
 			model PrimitiveDefaultsModel;

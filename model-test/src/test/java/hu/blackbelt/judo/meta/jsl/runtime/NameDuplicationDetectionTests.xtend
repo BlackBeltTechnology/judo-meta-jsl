@@ -11,6 +11,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
 import org.eclipse.emf.ecore.EClass
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -19,7 +20,20 @@ class NameDuplicationDetectionTests {
 	@Inject extension ParseHelper<ModelDeclaration> 
 	@Inject extension ValidationTestHelper
 	
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-004",
+        "REQ-ENT-006"
+    ])
 	def void testDuplicateMemberNameValid() {
 		'''
 			model Test;
@@ -40,7 +54,19 @@ class NameDuplicationDetectionTests {
 		]
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-012"
+    ])
 	def void testInheritedDuplicateMemberNameValid() {
 		'''
 			model Inheritence;
@@ -59,7 +85,17 @@ class NameDuplicationDetectionTests {
 		]
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001"
+    ])
 	def void testDuplicateDeclarationName() {
 		'''
 			model DuplicatedEntityName;
@@ -76,7 +112,17 @@ class NameDuplicationDetectionTests {
 		]
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001"
+    ])
 	def void testDuplicateDeclarationWithCaseName() {
 		'''
 			model DuplicatedEntityName;
@@ -95,7 +141,18 @@ class NameDuplicationDetectionTests {
 		]
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-ENT-001"
+        //TODO: JNG-4398
+    ])
 	def void testDuplicateDeclarationEntityWithErrorCollosion() {
 		'''
 			model DuplicatedEntityName;
