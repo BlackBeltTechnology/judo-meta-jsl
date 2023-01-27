@@ -1250,7 +1250,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkAnnotationCreate(AnnotationMark mark) {
-		if (!mark.declaration.name.equals("create")) {
+		if (!mark.declaration.name.equals("Create")) {
 			return
 		}
 
@@ -1273,11 +1273,17 @@ class JslDslValidator extends AbstractJslDslValidator {
 			
 			return
 		}
+
+		if (mark.eContainer instanceof ExportDataServiceDeclaration) {
+			val ExportDataServiceDeclaration service = mark.eContainer as ExportDataServiceDeclaration
+			
+			// TODO: check if data service expression is a containment field
+		}
 	}
 
 	@Check
 	def checkAnnotationDelete(AnnotationMark mark) {
-		if (!mark.declaration.name.equals("delete")) {
+		if (!mark.declaration.name.equals("Delete")) {
 			return
 		}
 
@@ -1316,7 +1322,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkAnnotationUpdate(AnnotationMark mark) {
-		if (!mark.declaration.name.equals("update")) {
+		if (!mark.declaration.name.equals("Update")) {
 			return
 		}
 
@@ -1331,8 +1337,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 		val ExportActionServiceDeclaration service = mark.eContainer as ExportActionServiceDeclaration
 		
-		if (service.static) {
-			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must not be static.",
+		if (!service.static) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must be static.",
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
 	            INVALID_ANNOTATION_MARK,
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
@@ -1352,6 +1358,27 @@ class JslDslValidator extends AbstractJslDslValidator {
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
 		}
 	}
+
+	@Check
+	def checkAnnotationAppenRemove(AnnotationMark mark) {
+		if (!mark.declaration.name.equals("AppendRemove")) {
+			return
+		}
+
+		if (!(mark.eContainer instanceof ExportDataServiceDeclaration)) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must be a data service.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+	            
+	        return
+		}
+
+		val ExportDataServiceDeclaration service = mark.eContainer as ExportDataServiceDeclaration
+
+		// TODO: check if expression is a relation
+	}
+
 
 //	@Check
 //	def checkExportCreateService(ExportCreateServiceDeclaration service) {
