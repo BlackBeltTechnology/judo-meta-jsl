@@ -11,7 +11,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
 import org.eclipse.emf.ecore.EClass
-
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
@@ -19,7 +19,19 @@ class EntityMemberDeclarationTests {
 	@Inject extension ParseHelper<ModelDeclaration> 
 	@Inject extension ValidationTestHelper
 	
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-TYPE-001",
+        "REQ-TYPE-006",
+        "REQ-EXPR-001",
+        "REQ-EXPR-004"
+    ])
 	def void testSelfInDefaultNotAllowed() {
 		'''
 			model test;
@@ -35,7 +47,18 @@ class EntityMemberDeclarationTests {
 		]
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-012",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004"
+    ])
 	def void testDuplicateInheritedMembersInvalid() {
 		'''
 			model test;
@@ -58,7 +81,18 @@ class EntityMemberDeclarationTests {
 		]
 	}
 
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-SYNT-004"
+    ])
 	def void testMemberNameTooLong() {
 		'''
 			model test;
@@ -74,8 +108,20 @@ class EntityMemberDeclarationTests {
 		]
 	}
 	
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-007",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004"
+    ])
 	def void testFieldIsManyRequired() {
+	    //TODO: JNG-4381
 		'''
 			model test;
 			
@@ -90,7 +136,18 @@ class EntityMemberDeclarationTests {
 		]
 	}
 	
-	@Test 
+	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-007",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004"
+    ])
 	def void testRelationIsManyRequired() {
 		'''
 			model test;

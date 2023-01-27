@@ -4,6 +4,7 @@ import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.extensions.InjectionExtension
 import org.junit.jupiter.api.^extension.ExtendWith
 import org.eclipse.xtext.testing.util.ParseHelper
+import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
@@ -14,16 +15,29 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import static org.junit.Assert.assertTrue
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension) 
 @InjectWith(JslDslInjectorProvider)
 class TypeInfoTests {
 	@Inject extension ParseHelper<ModelDeclaration> 
 	@Inject extension JslDslModelExtension 	
+    @Inject extension ValidationTestHelper  
 	
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-006",
+        "REQ-ENT-001",
+        "REQ-ENT-002"
+    ])
 	def void testPrimitiveField() {
-		val m = '''
+		val p = '''
 			model PrimitiveDefaultsModel;
 			
 			type boolean Bool;
@@ -31,7 +45,9 @@ class TypeInfoTests {
 			entity Test {
 				field Bool boolAttr;
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test")
 		val boolAttr = testEntity.memberByName("boolAttr")
@@ -42,8 +58,19 @@ class TypeInfoTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-006",
+        "REQ-ENT-001",
+        "REQ-ENT-003"
+    ])
 	def void testIdentifier() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type boolean Bool;
@@ -51,7 +78,9 @@ class TypeInfoTests {
 			entity Test {
 				identifier Bool boolAttr;
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test")
 		val boolAttr = testEntity.memberByName("boolAttr")
@@ -63,8 +92,19 @@ class TypeInfoTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-006",
+        "REQ-ENT-001",
+        "REQ-ENT-007"
+    ])
 	def void testSingleField() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type boolean Bool;
@@ -76,7 +116,9 @@ class TypeInfoTests {
 			entity Test {
 				field T1 t1;
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 		
 		val testEntity = m.entityByName("Test")
 		val t1Field = testEntity.memberByName("t1")
@@ -88,8 +130,17 @@ class TypeInfoTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-007"
+    ])
 	def void testCollectionField() {
-		val m = '''
+		val p = '''
 			model TestModel;
 
 			entity T1 {
@@ -98,7 +149,9 @@ class TypeInfoTests {
 			entity Test {
 				field T1[] t1s;
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test")
 		val t1sField = testEntity.memberByName("t1s")
@@ -111,8 +164,19 @@ class TypeInfoTests {
 
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-007",
+        "REQ-ENT-008",
+        "REQ-EXPR-003"
+    ])
 	def void testSelfDerivedToSingleField() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			entity T1 {
@@ -123,7 +187,9 @@ class TypeInfoTests {
 				field T1 t1;
 				derived T1 t1d => self.t1;
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test")
 		val t1Field = testEntity.memberByName("t1")
@@ -139,8 +205,19 @@ class TypeInfoTests {
 
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-007",
+        "REQ-ENT-008",
+        "REQ-EXPR-003"
+    ])
 	def void testSelfDerivedToCollectionField() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			entity T1 {
@@ -151,7 +228,9 @@ class TypeInfoTests {
 				field T1[] t1s;
 				derived T1[] t1sd => self.t1s;
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test")
 		val t1sField = testEntity.memberByName("t1s")
@@ -167,8 +246,21 @@ class TypeInfoTests {
 	
 	
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-008",
+        "REQ-EXPR-002",
+        "REQ-EXPR-003",
+        "REQ-EXPR-007",
+        "REQ-EXPR-022"
+    ])
 	def void testStaticDerivedToSingleField() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			entity T1 {
@@ -176,9 +268,11 @@ class TypeInfoTests {
 
 			
 			entity Test {
-				derived T1 t1sd => T1;
+				derived T1 t1sd => T1!all()!any();
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test")
 		val t1sdField = testEntity.memberByName("t1sd")
@@ -192,9 +286,21 @@ class TypeInfoTests {
 	}
 
 
-		@Test
+	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-006",
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-005"
+    ])
 	def void testSingleRelation() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type boolean Bool;
@@ -206,7 +312,9 @@ class TypeInfoTests {
 			entity Test {
 				relation T1 t1;
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 		
 		val testEntity = m.entityByName("Test")
 		val t1Field = testEntity.memberByName("t1")
@@ -218,8 +326,18 @@ class TypeInfoTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-005"
+    ])
 	def void testCollectionRelation() {
-		val m = '''
+		val p = '''
 			model TestModel;
 
 			entity T1 {
@@ -228,7 +346,9 @@ class TypeInfoTests {
 			entity Test {
 				relation T1[] t1s;
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test")
 		val t1sField = testEntity.memberByName("t1s")
@@ -242,8 +362,21 @@ class TypeInfoTests {
 
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-005",
+        "REQ-ENT-008",
+        "REQ-EXPR-001",
+        "REQ-EXPR-003"
+    ])
 	def void testDerivedMultipleRelation() {
-		val m = '''
+		val p = '''
 			model TestModel;
 
 			entity T1 {
@@ -259,7 +392,9 @@ class TypeInfoTests {
 
 				derived T2[] t2sd => self.t1s.test.t2s;
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test")
 		val t2sField = testEntity.memberByName("t2s")
@@ -277,8 +412,26 @@ class TypeInfoTests {
 
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-008",
+        "REQ-EXPR-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-TYPE-005",
+        "REQ-TYPE-006",
+        "REQ-TYPE-007",
+        "REQ-TYPE-008",
+        "REQ-TYPE-009"
+    ])
 	def void testLiterals() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type numeric Integer(precision = 9, scale = 0);
@@ -292,11 +445,13 @@ class TypeInfoTests {
 				derived Integer numeric => 12;
 				derived Date date => `2022-01-01`;
 				derived Timestamp timestamp => `2022-01-01T12:00:00Z`;
-				derived Time time => `12:00:00`";
-				derived String string => "Test"";
+				derived Time time => `12:00:00`;
+				derived String string => "Test";
 				derived Boolean boolean => true;
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
 		val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
@@ -316,8 +471,25 @@ class TypeInfoTests {
 	
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-008",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-TYPE-005",
+        "REQ-TYPE-006",
+        "REQ-EXPR-001",
+        "REQ-EXPR-006",
+        "REQ-EXPR-013"
+    ])
 	def void testStringFunctionsLiteralBase() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type string String(min-size = 0, max-size = 32);
@@ -346,7 +518,9 @@ class TypeInfoTests {
 				derived String rpad => "Test"!rpad(size = 10, padstring = "--");
 				derived Integer size => "Test"!size();
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 		
 		val testEntity = m.entityByName("Test") 
 
@@ -398,10 +572,30 @@ class TypeInfoTests {
 
 	}
 	
-	
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-TYPE-007",
+        "REQ-TYPE-009",
+        "REQ-TYPE-008",
+        "REQ-TYPE-004",
+        "REQ-TYPE-006",
+        "REQ-ENT-001",
+        "REQ-ENT-008",
+        "REQ-EXPR-002",
+        "REQ-EXPR-006",
+        "REQ-EXPR-007",
+        "REQ-EXPR-009",
+        "REQ-EXPR-012"
+    ])
 	def void testGetVariableFunction() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type numeric Integer(precision = 9, scale = 0);
@@ -419,7 +613,9 @@ class TypeInfoTests {
 				derived String string => String!getVariable(category = "ENV", key = "STRING");
 				derived Boolean boolean => Boolean!getVariable(category = "ENV", key = "BOOLEAN");
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
 		val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
@@ -438,8 +634,26 @@ class TypeInfoTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-007",
+        "REQ-TYPE-009",
+        "REQ-TYPE-008",
+        "REQ-ENT-001",
+        "REQ-ENT-008",
+        "REQ-EXPR-002",
+        "REQ-EXPR-006",
+        "REQ-EXPR-016",
+        "REQ-EXPR-018",
+        "REQ-EXPR-017"
+    ])
 	def void testNowFunction() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type date Date;
@@ -451,7 +665,9 @@ class TypeInfoTests {
 				derived Timestamp timestamp => Timestamp!now();
 				derived Time time => Time!now();
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
 		val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
@@ -464,8 +680,29 @@ class TypeInfoTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-TYPE-007",
+        "REQ-TYPE-009",
+        "REQ-TYPE-008",
+        "REQ-TYPE-004",
+        "REQ-TYPE-006",
+        "REQ-ENT-001",
+        "REQ-ENT-008",
+        "REQ-EXPR-002",
+        "REQ-EXPR-006",
+        "REQ-EXPR-007",
+        "REQ-EXPR-009",
+        "REQ-EXPR-012"
+    ])
 	def void testDefinedFunction() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type numeric Integer(precision = 9, scale = 0);
@@ -483,7 +720,9 @@ class TypeInfoTests {
 				derived Boolean string => String!getVariable(category = "ENV", key = "STRING")!isDefined();
 				derived Boolean boolean => Boolean!getVariable(category = "ENV", key = "BOOLEAN")!isDefined();
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
 		val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
@@ -502,8 +741,28 @@ class TypeInfoTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-TYPE-007",
+        "REQ-TYPE-009",
+        "REQ-TYPE-008",
+        "REQ-TYPE-004",
+        "REQ-TYPE-006",
+        "REQ-ENT-001",
+        "REQ-ENT-008",
+        "REQ-EXPR-001",
+        "REQ-EXPR-002",
+        "REQ-EXPR-006",
+        "REQ-EXPR-012"
+    ])
 	def void testUndefinedFunction() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type numeric Integer(precision = 9, scale = 0);
@@ -514,15 +773,16 @@ class TypeInfoTests {
 			type boolean Boolean;
 			
 			entity Test {
-				derived Integer numeric => 12!isUndefined();
-				derived Date date => `2022-01-01`!isUndefined();
-				derived Timestamp timestamp => `2022-01-01T12:00:00Z`!isUndefined();
-				derived Time time => `12:00:00`!isUndefined();
-				derived String string => "Test"!isUndefined();
+				derived Boolean numeric => 12!isUndefined();
+				derived Boolean date => `2022-01-01`!isUndefined();
+				derived Boolean timestamp => `2022-01-01T12:00:00Z`!isUndefined();
+				derived Boolean time => `12:00:00`!isUndefined();
+				derived Boolean string => "Test"!isUndefined();
 				derived Boolean boolean => true!isUndefined();
-
 			}
-		'''.parse.fromModel
+		'''.parse
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
 		val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
@@ -541,8 +801,31 @@ class TypeInfoTests {
 	}
 	
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-TYPE-007",
+        "REQ-TYPE-009",
+        "REQ-TYPE-008",
+        "REQ-TYPE-004",
+        "REQ-TYPE-006",
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-005",
+        "REQ-ENT-008",
+        "REQ-EXPR-001",
+        "REQ-EXPR-002",
+        "REQ-EXPR-003",
+        "REQ-EXPR-006",
+        "REQ-EXPR-022"
+    ])
 	def void testCollectionSizeFunction() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type numeric Integer(precision = 9, scale = 0);
@@ -560,7 +843,9 @@ class TypeInfoTests {
 				derived Integer size => self.t1s!size();
 
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
 		val sizeField = testEntity.memberByName("size") as EntityDerivedDeclaration
@@ -569,8 +854,28 @@ class TypeInfoTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-TYPE-007",
+        "REQ-TYPE-009",
+        "REQ-TYPE-008",
+        "REQ-TYPE-004",
+        "REQ-TYPE-006",
+        "REQ-ENT-001",
+        "REQ-ENT-008",
+        "REQ-EXPR-001",
+        "REQ-EXPR-002",
+        "REQ-EXPR-006",
+        "REQ-EXPR-012"
+    ])
 	def void testOrElseFunction() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type numeric Integer(precision = 9, scale = 0);
@@ -581,7 +886,6 @@ class TypeInfoTests {
 			type boolean Boolean;
 
 			entity Test {
-				relation T1[] t1s;
 				derived Integer numeric => 12!orElse(value = 11);
 				derived Date date => `2022-01-01`!orElse(value = `2022-01-01`);
 				derived Timestamp timestamp => `2022-01-01T12:00:00Z`!orElse(value = `2023-01-01T12:00:00Z`);
@@ -589,8 +893,10 @@ class TypeInfoTests {
 				derived String string => "Test"!orElse(value = "Test2");
 				derived Boolean boolean => true!orElse(value = false);
 			}
-		'''.parse.fromModel
-	
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
+		
 		val testEntity = m.entityByName("Test") 
 		val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
 		val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
@@ -608,19 +914,36 @@ class TypeInfoTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-ENT-001",
+        "REQ-ENT-008",
+        "REQ-EXPR-001",
+        "REQ-EXPR-002",
+        "REQ-EXPR-006",
+        "REQ-EXPR-014"
+    ])
 	def void testNumericFunction() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type numeric Decimal(precision = 9, scale = 2);
 			
 			entity Test {
-				derived Integer floor => 12!floor();
-				derived Integer ceil => 12!ceil();
-				derived Integer abs => 12!abs();
-				derived Integer round => 12!round(scale = 2);
+				derived Decimal floor => 12!floor();
+				derived Decimal ceil => 12!ceil();
+				derived Decimal abs => 12!abs();
+				derived Decimal round => 12!round(scale = 2);
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
 		val floorField = testEntity.memberByName("floor") as EntityDerivedDeclaration
@@ -636,8 +959,32 @@ class TypeInfoTests {
 	
 	
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-TYPE-007",
+        "REQ-TYPE-009",
+        "REQ-TYPE-008",
+        "REQ-TYPE-004",
+        "REQ-TYPE-006",
+        "REQ-ENT-001",
+        "REQ-ENT-008",
+        "REQ-EXPR-001",
+        "REQ-EXPR-002",
+        "REQ-EXPR-006",
+        "REQ-EXPR-014",
+        "REQ-EXPR-016",
+        "REQ-EXPR-018",
+        "REQ-EXPR-017",
+        "REQ-EXPR-015"
+    ])
 	def void testAsStringFunction() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type numeric Integer(precision = 9, scale = 0);
@@ -654,7 +1001,9 @@ class TypeInfoTests {
 				derived String time => `12:00:00`!asString();
 				derived String boolean => true!asString();
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
 		val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
@@ -671,11 +1020,29 @@ class TypeInfoTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-TYPE-007",
+        "REQ-ENT-001",
+        "REQ-ENT-008",
+        "REQ-EXPR-001",
+        "REQ-EXPR-002",
+        "REQ-EXPR-006",
+        "REQ-EXPR-007",
+        "REQ-EXPR-016"
+    ])
 	def void testDateFunctions() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type date Date;
+			type numeric Integer(precision = 9, scale = 0);
 
 			entity Test {
 				derived Integer year => `2022-01-01`!year();
@@ -685,7 +1052,9 @@ class TypeInfoTests {
 				derived Integer dayOfYear => `2022-01-01`!dayOfYear();
 				derived Date date => Date!of(year = 2022, month = 1, day = 1);
 			}
-		'''.parse.fromModel
+		'''.parse
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
 		val yearField = testEntity.memberByName("year") as EntityDerivedDeclaration
@@ -705,11 +1074,29 @@ class TypeInfoTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-TYPE-008",
+        "REQ-ENT-001",
+        "REQ-ENT-008",
+        "REQ-EXPR-001",
+        "REQ-EXPR-002",
+        "REQ-EXPR-006",
+        "REQ-EXPR-007",
+        "REQ-EXPR-017"
+    ])
 	def void testTimeFunctions() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type time Time;
+			type numeric Integer(precision = 9, scale = 0);
 
 			entity Test {
 				derived Integer hour => `12:00:00`!hour();
@@ -717,7 +1104,9 @@ class TypeInfoTests {
 				derived Integer second => `12:00:00`!second();
 				derived Time time => Time!of(hour = 12, minute = 2, second = 23);
 			}
-		'''.parse.fromModel
+		'''.parse
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
 		val hourField = testEntity.memberByName("hour") as EntityDerivedDeclaration
@@ -732,8 +1121,27 @@ class TypeInfoTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-TYPE-007",
+        "REQ-TYPE-008",
+        "REQ-TYPE-009",
+        "REQ-ENT-001",
+        "REQ-ENT-008",
+        "REQ-EXPR-001",
+        "REQ-EXPR-002",
+        "REQ-EXPR-006",
+        "REQ-EXPR-007",
+        "REQ-EXPR-018"
+    ])
 	def void testTimestampFunctions() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type timestamp Timestamp;
@@ -750,7 +1158,9 @@ class TypeInfoTests {
 				derived Timestamp plus => `2022-01-01T12:00:00Z`!plus(years = 1, months = -1, days = 0, hours = 12, minutes = 11, seconds = 1, milliseconds = 12);
 
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
 		val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
@@ -770,8 +1180,28 @@ class TypeInfoTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-006",
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-007",
+        "REQ-ENT-008",
+        "REQ-ENT-012",
+        "REQ-EXPR-001",
+        "REQ-EXPR-002",
+        "REQ-EXPR-003",
+        "REQ-EXPR-006",
+        "REQ-EXPR-007",
+        "REQ-EXPR-021"
+    ])
 	def void testEntityInstanceFunctions() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type boolean Boolean;
@@ -794,7 +1224,9 @@ class TypeInfoTests {
 				derived Boolean memberOf => self.t2!memberOf(instances = self.t2s);
 
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
 		val t1Field = testEntity.memberByName("t1") as EntityFieldDeclaration		
@@ -821,11 +1253,36 @@ class TypeInfoTests {
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005",
+        "REQ-TYPE-006",
+        "REQ-TYPE-004",
+        "REQ-ENT-001",
+        "REQ-ENT-004",
+        "REQ-ENT-007",
+        "REQ-ENT-008",
+        "REQ-EXPR-001",
+        "REQ-EXPR-002",
+        "REQ-EXPR-003",
+        "REQ-EXPR-004",
+        "REQ-EXPR-006",
+        "REQ-EXPR-008",
+        "REQ-EXPR-022"
+    ])
 	def void testSelectorFunctions() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type string String(min-size = 0, max-size = 32);
+			type boolean Boolean;
+			type numeric Integer(precision = 10, scale = 0);
+			
 
 			entity T1 {
 				field String name;
@@ -839,11 +1296,12 @@ class TypeInfoTests {
 				derived T1[] tail => self.t1s!last(t | t.name);
 				derived T1 any => self.t1s!any();
 				derived Integer size => self.t1s!size();
-				derived T1[] asCollection => self.t1!asCollection(entityType = T1);
 				derived Boolean contains => self.t1s!contains(instance = self.t1);
 
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test") 
 		val t1sField = testEntity.memberByName("t1s") as EntityFieldDeclaration		
@@ -852,7 +1310,6 @@ class TypeInfoTests {
 		val tailField = testEntity.memberByName("tail") as EntityDerivedDeclaration		
 		val anyField = testEntity.memberByName("any") as EntityDerivedDeclaration		
 		val sizeField = testEntity.memberByName("size") as EntityDerivedDeclaration		
-		val asCollectionField = testEntity.memberByName("asCollection") as EntityDerivedDeclaration		
 		val containsField = testEntity.memberByName("contains") as EntityDerivedDeclaration		
 		
 		val TypeInfo headTypeInfo = TypeInfo.getTargetType(headField.expression)
@@ -869,21 +1326,39 @@ class TypeInfoTests {
 
 		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sizeField.expression).getPrimitive)
 
-		val TypeInfo asCollectionTypeInfo = TypeInfo.getTargetType(anyField.expression)
-		assertEquals(asCollectionField.referenceType, asCollectionTypeInfo.getEntity)
-		assertEquals(false, anyTypeInfo.isCollection)
-		
 		assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(containsField.expression).getPrimitive)
-		
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-TYPE-005",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-004",
+        "REQ-ENT-007",
+        "REQ-ENT-008",
+        "REQ-EXPR-001",
+        "REQ-EXPR-002",
+        "REQ-EXPR-003",
+        "REQ-EXPR-004",
+        "REQ-EXPR-006",
+        "REQ-EXPR-008",
+        "REQ-EXPR-022"
+    ])
 	def void testLambdaFunctions() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type string String(min-size = 0, max-size = 32);
 			type numeric Decimal(precision = 9, scale = 2);
+			type boolean Boolean;
 			
 			entity T1 {
 				field String name;
@@ -894,19 +1369,20 @@ class TypeInfoTests {
 				field T1[] t1s;
 				field T1 t1;
 
-				derived T1[] filter => self.t1s!filter(t | t.name = "Test");
-				derived Boolean anyTrue => self.t1s!anyTrue(t | t.name = "Test");
-				derived Boolean allTrue => self.t1s!allTrue(t | t.name = "Test");
-				derived Boolean anyFalse => self.t1s!anyFalse(t | t.name = "Test");
-				derived Boolean allFalse => self.t1s!allFalse(t | t.name = "Test");
+				derived T1[] filter => self.t1s!filter(t | t.name == "Test");
+				derived Boolean anyTrue => self.t1s!anyTrue(t | t.name == "Test");
+				derived Boolean allTrue => self.t1s!allTrue(t | t.name == "Test");
+				derived Boolean anyFalse => self.t1s!anyFalse(t | t.name == "Test");
+				derived Boolean allFalse => self.t1s!allFalse(t | t.name == "Test");
 
 				derived Decimal min => self.t1s!min(t | t.price);
 				derived Decimal max => self.t1s!max(t | t.price);
 				derived Decimal avg => self.t1s!avg(t | t.price);
 				derived Decimal sum => self.t1s!sum(t | t.price);
-
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("Test")
 
@@ -933,12 +1409,38 @@ class TypeInfoTests {
 		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(maxField.expression).getPrimitive)
 		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(avgField.expression).getPrimitive)
 		assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sumField.expression).getPrimitive)
-
 	}
 
 	@Test
+    @Requirement(reqs =#[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-004",
+        "REQ-TYPE-005",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-004",
+        "REQ-ENT-006",
+        "REQ-ENT-008",
+        "REQ-ENT-009",
+        "REQ-ENT-010",
+        "REQ-ENT-011",
+        "REQ-EXPR-001",
+        "REQ-EXPR-002",
+        "REQ-EXPR-003",
+        "REQ-EXPR-004",
+        "REQ-EXPR-005",
+        "REQ-EXPR-006",
+        "REQ-EXPR-007",
+        "REQ-EXPR-008",
+        "REQ-EXPR-022"
+    ])
 	def void testQueryFunctions() {
-		val m = '''
+		val p = '''
 			model TestModel;
 			
 			type numeric Integer(precision = 9, scale = 0);
@@ -949,11 +1451,11 @@ class TypeInfoTests {
 			query Integer staticLeadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) => Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
 			query Integer staticLeadsOverWithMinCount(Integer minLeadsOverMin = 5) => staticLeadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
 			query Lead[] staticLeadsBetweenAndSalesPersonLeads(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) =>
-				Lead!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween).salesPerson.leadsBetween(minLeadsBetween = minLeadsBetween, maxLeadsBetween = maxLeadsBetween);
+				Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween).salesPerson.leadsBetween(minLeadsBetween = minLeadsBetween, maxLeadsBetween = maxLeadsBetween);
 			
 			entity SalesPerson {
 			    relation Lead[] leads opposite salesPerson;
-			
+			    
 			    query Lead[] leadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) => self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
 			    query Lead[] leadsOverWithMin(Integer minLeadsOverMin = 5) => self.leadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
 			    query Lead[] leadsOverWithMinStatic(Integer minLeadsOverMin = 5) => staticLeadsBetween(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
@@ -976,7 +1478,9 @@ class TypeInfoTests {
 			    field Integer value = 100000;
 			    relation required SalesPerson salesPerson opposite leads;
 			}
-		'''.parse.fromModel
+		'''.parse		
+		p.assertNoErrors
+		val m = p.fromModel
 	
 		val testEntity = m.entityByName("SalesPerson") 
 		
