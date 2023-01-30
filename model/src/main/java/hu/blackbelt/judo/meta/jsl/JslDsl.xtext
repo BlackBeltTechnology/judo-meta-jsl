@@ -169,38 +169,6 @@ EntityOperationParameterDeclaration
 	: referenceType = [SingleType | ModelName] Cardinality? Named
 	;
 
-/****************************
- *	Control
- ****************************/
-//
-//ControlDeclaration
-//	: {ControlDeclaration}
-//	  annotations += AnnotationMark*
-//	  'control' Named
-//	  ('(' map = EntityMapDeclaration? ')')?
-//	  BLOCK_START (members += ControlMemberDeclaration)* BLOCK_END
-//	;
-//
-//ControlMemberDeclaration
-//	: ControlOperationDeclaration
-//	  ';'*
-//	;
-//
-//ControlOperationDeclaration
-//	: annotations += AnnotationMark*
-//	  'operation' static ?= 'static'?  (void ?= 'void' | return = ControlOperationReturnDeclaration) Named
-//	  ('(' (parameters += ControlOperationParameterDeclaration (',' parameters += ControlOperationParameterDeclaration)*)? ')')
-//	  (';' | BLOCK_START BLOCK_END )
-//	;
-//
-//ControlOperationReturnDeclaration
-//	: referenceType = [SingleType | ModelName] Cardinality?
-//	;
-//
-//ControlOperationParameterDeclaration
-//	: referenceType = [SingleType | ModelName] Cardinality? Named
-//	;
-
 
 /****************************
  *	Export
@@ -235,15 +203,6 @@ ExportDataServiceDeclaration
 	  ';'
 	;
 
-//ExportActionServiceDeclaration
-//	: annotations += AnnotationMark*
-//	  ('service' static ?= 'static'? | get ?= 'get' | create ?= 'create' static ?= 'static'? | update ?= 'update' | delete ?= 'delete' | insert ?= 'insert' | remove ?= 'remove')
-//	  (void ?= 'void' | return = ExportServiceReturnDeclaration | alternateReturn = ExportServiceReturnAlternateDeclaration) Named
-//	  (=> '(' parameter = ExportServiceParameterDeclaration? ')')
-//	  (guards += ExportActionServiceGuardDeclaration*)
-//	  (('=>' expression = Expression)? autoservice ?= ';' | BLOCK_START BLOCK_END )
-//	;
-
 ExportActionServiceDeclaration
 	: annotations += AnnotationMark*
 	  'service' static ?= 'static'?
@@ -252,63 +211,6 @@ ExportActionServiceDeclaration
 	  (guards += ExportServiceGuardDeclaration*)
 	  (autoservice ?= ';' | BLOCK_START BLOCK_END )
 	;
-
-
-//ExportGetServiceDeclaration
-//	: annotations += AnnotationMark*
-//	  'service' referenceType = [Transferable | ModelName] Named '('')'
-//	  'get'
-//	  (guards += ExportServiceGuardDeclaration*)
-//	  ';'
-//	;
-
-//ExportCreateServiceDeclaration
-//	: annotations += AnnotationMark*
-//	  'service' static ?= 'static'? referenceType = [Transferable | ModelName] Named '('')'
-//	  'create' collection = Expression?
-//	  (guards += ExportServiceGuardDeclaration*)
-//	  ';'
-//	;
-//
-//ExportUpdateServiceDeclaration
-//	: annotations += AnnotationMark*
-//	  'service' 'void'? Named '(' parameter = ExportServiceParameterDeclaration ')'
-//	  'update'
-//	  (guards += ExportServiceGuardDeclaration*)
-//	  ';'
-//	;
-//
-//ExportDeleteServiceDeclaration
-//	: annotations += AnnotationMark*
-//	  'service' 'void'? Named '('')'
-//	  'delete'
-//	  (guards += ExportServiceGuardDeclaration*)
-//	  ';'
-//	;
-
-//ExportCreateElementServiceDeclaration
-//	: annotations += AnnotationMark*
-//	  'service' referenceType = [Transferable | ModelName] Named '('')'
-//	  'create' expression = Expression
-//	  (guards += ExportServiceGuardDeclaration*)
-//	  ';'
-//	;
-//
-//ExportUpdateElementServiceDeclaration
-//	: annotations += AnnotationMark*
-//	  'service' 'void'? Named '('  parameterType = [Transferable | ModelName]  ')'
-//	  'update' expression = Expression
-//	  (guards += ExportServiceGuardDeclaration*)
-//	  ';'
-//	;
-
-//ExportRemoveElementServiceDeclaration
-//	: annotations += AnnotationMark*
-//	  'service' 'void'? Named '('  parameterType = [Transferable | ModelName]  ')'
-//	  'remove' expression = Expression
-//	  (guards += ExportServiceGuardDeclaration*)
-//	  ';'
-//	;
 
 ExportServiceGuardDeclaration
 	: 'guard' expression = Expression
@@ -356,12 +258,6 @@ TransferFieldDeclaration
 	  "=" expression = Expression
 	  ';'
 	;
-
-//TransferGrantDeclaration
-//	: annotations += AnnotationMark*
-//	  'grant' export = [ExportDeclaration | ModelName]
-//	  ';'
-//	;
 
 TransferFieldType
 	: PrimitiveDeclaration
@@ -513,17 +409,6 @@ ActorDeclaration
 	  ';'
 	;
 
-//ActorMemberDeclaration
-//	:
-//	  ';'*
-//	;
-
-//ActorGrantDeclaration
-//	: annotations += AnnotationMark*
-//	  'grant' export = [ExportDeclaration | ModelName]
-//	  ';'
-//	;
-
 /****************************
  *	Datatype
  ****************************/
@@ -541,15 +426,6 @@ DataTypeDeclaration
 		| primitive = 'timestamp' Named
       ) ';'
     ;
-
-//BooleanPrimitive returns DataTypeDeclaration: primitive = 'boolean' Named;
-//BinaryPrimitive returns DataTypeDeclaration : primitive = 'binary' Named;
-//StringPrimitive returns DataTypeDeclaration : primitive = 'string' Named;
-//NumericPrimitive returns DataTypeDeclaration : primitive = 'numeric' Named;
-//DatePrimitive returns DataTypeDeclaration : primitive = 'date' Named;
-//TimePrimitive returns DataTypeDeclaration : primitive = 'time' Named;
-//TimestampPrimitive returns DataTypeDeclaration : primitive = 'timestamp' Named;
-
 
 
 /****************************
