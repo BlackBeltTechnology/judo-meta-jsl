@@ -36,7 +36,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ExportServiceGuardDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.Literal;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewGroupDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewHorizontalModifier;
 
 public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingCalculator {
 
@@ -81,6 +84,12 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 						continue;
 					}
 				}
+
+				if (node.getSemanticElement() instanceof Literal) {
+					acceptor.addPosition(node.getOffset(), node.getText().length(),
+							HighlightingConfiguration.CONSTANT_ID);
+					continue;
+				}
 				
 				if (nodeGElem instanceof Keyword) {
 					Keyword keyword = (Keyword)nodeGElem;
@@ -89,7 +98,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 						ParserRule parserRule = (ParserRule) keyword.eContainer().eContainer();
 						if (parserRule.getName().equals("JSLID")) continue;
 					}
-
+					
 					switch (keyword.getValue()) {
 					
 					case "@":
@@ -105,6 +114,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 						continue;
 
 					case "view":
+					case "row":
 					case "actor":
 					case "realm":
 					case "identity":
@@ -129,10 +139,33 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 						}
 						continue;
 					
+					case "left":
+					case "right":
+					case "center":
+					case "top":
+					case "bottom":
+					case "stretch":
+						if (node.getSemanticElement().eContainer() instanceof ViewGroupDeclaration) {
+							acceptor.addPosition(node.getOffset(), node.getText().length(),
+									HighlightingConfiguration.CONSTANT_ID);
+						}
+						continue;
+					
 					case "widget":
 					case "group":
+					case "tab":
 					case "horizontal":
 					case "vertical":
+					case "frame":
+
+					case "table":
+					case "action":
+					case "column":
+					case "caption":
+					case "icon":
+					case "enabled":
+					case "width":
+					case "height":
 					
 					case "boolean":
 					case "binary":

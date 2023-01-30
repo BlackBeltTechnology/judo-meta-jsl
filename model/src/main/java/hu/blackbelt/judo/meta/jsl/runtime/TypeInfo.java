@@ -24,6 +24,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ExportDataServiceDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportServiceParameterDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionArgument;
@@ -527,7 +528,7 @@ public class TypeInfo {
 			
 		return new TypeInfo(annotationParameterType);
 	}
-
+	
 	public static TypeInfo getTargetType(TransferFieldDeclaration transferFieldDeclaration) {
 		if (transferFieldDeclaration == null) {
 			return new TypeInfo(BaseType.UNDEFINED, false);

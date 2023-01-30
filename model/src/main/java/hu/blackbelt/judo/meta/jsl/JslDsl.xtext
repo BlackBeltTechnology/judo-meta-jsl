@@ -20,7 +20,9 @@ JSLID : ID | 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'ti
 	       | 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' 
 	       | 'kB' | 'MB' | 'GB' | 'KiB' | 'MiB' | 'GiB'
 	       | 'get' | 'create' | 'update' | 'delete' | 'insert' | 'remove'
-	       | 'view' | 'horizontal' | 'vertical' | 'group' | 'widget'
+	       | 'view' | 'widget' | 'action' | 'table' | 'row' | 'column'
+	       | 'caption' | 'icon' | 'enabled' | 'hidden' | 'width' | 'height'
+	       | 'group' | 'tab' | 'horizontal' | 'vertical' | 'frame' | 'left' | 'right' | 'center' | 'top' | 'bottom' | 'stretch'
 	       
 	       // 'self', 'true', 'false', 'not' are not included
 	;
@@ -56,6 +58,7 @@ ClassDeclaration
 	| ExportDeclaration
 	| TransferDeclaration
 	| ViewDeclaration
+	| RowDeclaration
 	| ActorDeclaration
 	;
 
@@ -326,6 +329,7 @@ ExportServiceParameterDeclaration
 Transferable
 	: TransferDeclaration
 	| ViewDeclaration
+	| RowDeclaration
 	;
 
 /****************************
@@ -373,18 +377,30 @@ ViewDeclaration
 	  annotations += AnnotationMark*
 	  'view' Named
 	  ('(' map = EntityMapDeclaration? ')')?
+	  ('grants' grants += [ExportDeclaration | ModelName] (',' grants += [ExportDeclaration | ModelName])*)?
 	  (automap ?= ';' | BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END)
 	;
 
 ViewMemberDeclaration
 	: ViewWidgetDeclaration
+	| ViewTableDeclaration
 	| ViewGroupDeclaration
+	| ViewTabDeclaration
+	| ViewActionDeclaration
 	  ';'*
+	;
+
+ViewTabDeclaration
+	: annotations += AnnotationMark*
+	 'tab' Named
+	  (caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier? & frame = ViewFrameModifier?)
+	  BLOCK_START (members += ViewGroupDeclaration)* BLOCK_END
 	;
 
 ViewGroupDeclaration
 	: annotations += AnnotationMark*
-	  'group'? (horizontal = 'horizontal' | vertical = 'vertical') Named
+	  'group' Named
+	  (caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier? & horizontal = ViewHorizontalModifier? & vertical = ViewVerticalModifier? & frame = ViewFrameModifier?)
 	  BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END
 	;
 
@@ -392,10 +408,96 @@ ViewWidgetDeclaration
 	: annotations += AnnotationMark*
 	  'widget' (referenceType = [PrimitiveDeclaration | ModelName]) Named
 	  "=" expression = Expression
+	  (caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier? & height = ViewHeightModifier?)
 	  ';'
 	;
 
+ViewTableDeclaration
+	: annotations += AnnotationMark*
+	  'table' (referenceType = [RowDeclaration | ModelName]) '[]' Named
+	  "=" expression = Expression
+	  (caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier? & height = ViewHeightModifier?)
+	  ';'
+	;
 
+ViewActionDeclaration
+	: annotations += AnnotationMark*
+	  'action' Named
+	  ('service' service = ExportServiceCall & caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier?)
+	  ';'
+	;
+
+ViewCaptionModifier
+	: 'caption' expression = Expression
+	;
+
+ViewIconModifier
+	: 'icon' name = StringLiteral
+	;	
+
+ViewFrameModifier
+	: 'frame' expression = Expression
+	;	
+	
+ViewEnabledModifier
+	: 'enabled' expression = Expression
+	;
+
+ViewHiddenModifier
+	: 'hidden' expression = Expression
+	;
+
+ViewWidthModifier
+	: 'width' expression = Expression
+	;
+
+ViewHeightModifier
+	: 'height' expression = Expression
+	;
+
+ViewHorizontalModifier
+	: 'horizontal' (left ?= 'left' | right ?= 'right' | center ?= 'center')
+	;
+
+ViewVerticalModifier
+	: 'vertical' (top ?= 'top' | bottom ?= 'bottom' | center ?= 'center' | stretch = 'stretch')
+	;
+
+ExportServiceCall
+	: declaration = [ExportServiceDeclaration | ModelName] '(' argument = Expression? ')'
+	;
+
+/****************************
+ *	Row
+ ****************************/
+
+RowDeclaration
+	: {RowDeclaration}
+	  annotations += AnnotationMark*
+	  'row' Named
+	  ('(' map = EntityMapDeclaration? ')')?
+	  ('grants' grants += [ExportDeclaration | ModelName] (',' grants += [ExportDeclaration | ModelName])*)?
+	  (automap ?= ';' | BLOCK_START (members += RowMemberDeclaration)* BLOCK_END)
+	;
+
+RowMemberDeclaration
+	: RowColumnDeclaration
+	| RowActionDeclaration
+	  ';'*
+	;
+
+RowColumnDeclaration
+	: annotations += AnnotationMark*
+	  'column' (referenceType = [PrimitiveDeclaration | ModelName]) Named
+	  "=" expression = Expression
+	  ';'
+	;
+
+RowActionDeclaration
+	: annotations += AnnotationMark*
+	  'action' Named 'service' service = ExportServiceCall
+	  ';'
+	;
 
 /****************************
  *	Actor

@@ -74,6 +74,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ExportMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ExportServiceGuardDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ExportActionServiceDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewActionDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -121,6 +122,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val INVALID_ANNOTATION = ISSUE_CODE_PREFIX + "InvalidAnnotation"
 	public static val INVALID_ANNOTATION_MARK = ISSUE_CODE_PREFIX + "InvalidAnnotationMark"
 	public static val DUPLICATE_AUTOMAP = ISSUE_CODE_PREFIX + "DuplicateAutomap"
+	public static val INVALID_SERVICE_CALL = ISSUE_CODE_PREFIX + "InvalidServiceCall"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -1379,6 +1381,42 @@ class JslDslValidator extends AbstractJslDslValidator {
 		// TODO: check if expression is a relation
 	}
 
+
+	@Check
+	def checkViewAction(ViewActionDeclaration action) {
+		if (action.service.declaration instanceof ExportDataServiceDeclaration) {
+			if (action.service.argument !== null) {
+				error("Invalid service call. Service call should not have argument.",
+		            JsldslPackage::eINSTANCE.viewActionDeclaration_Service,
+		            INVALID_SERVICE_CALL,
+		            JsldslPackage::eINSTANCE.viewActionDeclaration_Service.name)
+			}
+		}
+		
+		if (action.service.declaration instanceof ExportActionServiceDeclaration) {
+			val ExportActionServiceDeclaration service = action.service.declaration as ExportActionServiceDeclaration
+			
+			if (service.parameter !== null && action.service.argument === null) {
+				error("Invalid service call. Service call must have argument.",
+		            JsldslPackage::eINSTANCE.viewActionDeclaration_Service,
+		            INVALID_SERVICE_CALL,
+		            JsldslPackage::eINSTANCE.viewActionDeclaration_Service.name)
+		            
+		        return
+			}
+
+			if (service.parameter === null && action.service.argument !== null) {
+				error("Invalid service call. Service call should not have argument.",
+		            JsldslPackage::eINSTANCE.viewActionDeclaration_Service,
+		            INVALID_SERVICE_CALL,
+		            JsldslPackage::eINSTANCE.viewActionDeclaration_Service.name)
+
+		        return
+			}
+			
+			// TODO: argument type shall be checked
+		}
+	}
 
 //	@Check
 //	def checkExportCreateService(ExportCreateServiceDeclaration service) {

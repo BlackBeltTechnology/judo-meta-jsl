@@ -60,6 +60,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationMark
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationArgument
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportServiceDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -170,10 +172,13 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				LambdaDeclaration: return true
 				ErrorDeclaration: return true
 				AnnotationDeclaration: return true
+
 				LambdaVariable: return context.parentContainer(LambdaCall).isEqual(obj.eContainer)
 				QueryParameterDeclaration: return EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]
 				EntityMapDeclaration: return EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]
 				AnnotationParameterDeclaration: return EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]
+
+				ExportServiceDeclaration: return context.parentContainer(ViewDeclaration).grants.exists[g | g.isEqual(obj.eContainer)]
 			}
 
 			return false;
