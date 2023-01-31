@@ -19,7 +19,7 @@ class FunctionDeclarationTests {
     @Inject extension ValidationTestHelper
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -36,7 +36,7 @@ class FunctionDeclarationTests {
     }
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",

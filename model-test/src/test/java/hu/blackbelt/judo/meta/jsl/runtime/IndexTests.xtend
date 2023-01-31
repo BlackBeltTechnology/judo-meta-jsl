@@ -20,7 +20,7 @@ class IndexTests {
     @Inject extension JslDslIndex
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -37,7 +37,7 @@ class IndexTests {
     }
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",

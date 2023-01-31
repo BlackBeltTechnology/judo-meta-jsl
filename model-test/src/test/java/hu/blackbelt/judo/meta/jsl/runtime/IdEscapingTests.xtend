@@ -21,7 +21,7 @@ class IdEscapingTests {
     @Inject Provider<ResourceSet> resourceSetProvider;
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -50,7 +50,7 @@ class IdEscapingTests {
 
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -84,7 +84,7 @@ class IdEscapingTests {
     }
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -120,7 +120,7 @@ class IdEscapingTests {
     }
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",

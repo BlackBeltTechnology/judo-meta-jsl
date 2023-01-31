@@ -23,7 +23,7 @@ class ImportTests {
     @Inject Provider<ResourceSet> resourceSetProvider;
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -39,7 +39,7 @@ class ImportTests {
     }
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -58,7 +58,7 @@ class ImportTests {
 
     /*
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
 
     ])
     def void testFailOfTwoModelDefinition() {
@@ -73,7 +73,7 @@ class ImportTests {
     } */
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -94,7 +94,7 @@ class ImportTests {
 
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -130,7 +130,7 @@ class ImportTests {
     }
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -153,7 +153,7 @@ class ImportTests {
     }
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -176,7 +176,7 @@ class ImportTests {
     }
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -200,7 +200,7 @@ class ImportTests {
 
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -224,7 +224,7 @@ class ImportTests {
     }
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -249,7 +249,7 @@ class ImportTests {
     }
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -273,7 +273,7 @@ class ImportTests {
 
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -310,7 +310,7 @@ class ImportTests {
 
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -349,7 +349,7 @@ class ImportTests {
     }
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -385,7 +385,7 @@ class ImportTests {
     }
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -422,7 +422,7 @@ class ImportTests {
     }
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -462,7 +462,7 @@ class ImportTests {
     /*
      * This is an example for JNG-4394
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -506,7 +506,7 @@ class ImportTests {
     */
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",

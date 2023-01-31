@@ -20,7 +20,7 @@ class CyclicExpressionTests {
     @Inject extension ValidationTestHelper
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -49,7 +49,7 @@ class CyclicExpressionTests {
 
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",

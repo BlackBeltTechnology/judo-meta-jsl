@@ -20,7 +20,7 @@ class CyclicInheritenceTests {
     @Inject extension ValidationTestHelper
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
@@ -41,7 +41,7 @@ class CyclicInheritenceTests {
     }
 
     @Test
-    @Requirement(reqs =#[
+    @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
         "REQ-SYNT-003",
