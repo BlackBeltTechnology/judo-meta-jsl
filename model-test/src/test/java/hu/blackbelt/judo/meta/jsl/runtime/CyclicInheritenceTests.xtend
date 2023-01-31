@@ -10,53 +10,70 @@ import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
-@ExtendWith(InjectionExtension) 
+@ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
 class CyclicInheritenceTests {
-	
-	@Inject extension ParseHelper<ModelDeclaration> 
-	@Inject extension ValidationTestHelper
-	
-	@Test 
-	def void testInheritedSame() {
-		'''
-			model Test;
 
-			entity A extends A {
-			}
-			
-		'''.parse => [
-			assertInheritenceCycleError("Cycle in inheritence of entity 'A'")
-		]
-	}
+    @Inject extension ParseHelper<ModelDeclaration>
+    @Inject extension ValidationTestHelper
 
-	@Test 
-	def void testInheritedDuplicateMemberNameValid() {
-		'''
-			model Inheritence;
-			
-			entity A extends C {
-			}
-			
-			entity B extends A {
-			}
+    @Test
+    @Requirement(reqs = #[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-ENT-001",
+        "REQ-ENT-012"
+    ])
+    def void testInheritedSame() {
+        '''
+            model Test;
 
-			entity C extends B {
-			}
+            entity A extends A {
+            }
 
-		'''.parse => [
-			assertInheritenceCycleError("Cycle in inheritence of entity 'A'")
-			assertInheritenceCycleError("Cycle in inheritence of entity 'B'")
-			assertInheritenceCycleError("Cycle in inheritence of entity 'C'")
-		]
-	}
+        '''.parse => [
+            assertInheritenceCycleError("Cycle in inheritence of entity 'A'")
+        ]
+    }
 
-	def private void assertInheritenceCycleError(ModelDeclaration modelDeclaration, String error) {
-		modelDeclaration.assertError(
-			JsldslPackage::eINSTANCE.entityDeclaration, 
-			JslDslValidator.INHERITENCE_CYCLE, 
-			error
-		)
-	}
-}	
+    @Test
+    @Requirement(reqs = #[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-ENT-001",
+        "REQ-ENT-012"
+    ])
+    def void testInheritedDuplicateMemberNameValid() {
+        '''
+            model Inheritence;
+
+            entity A extends C {
+            }
+
+            entity B extends A {
+            }
+
+            entity C extends B {
+            }
+
+        '''.parse => [
+            assertInheritenceCycleError("Cycle in inheritence of entity 'A'")
+            assertInheritenceCycleError("Cycle in inheritence of entity 'B'")
+            assertInheritenceCycleError("Cycle in inheritence of entity 'C'")
+        ]
+    }
+
+    def private void assertInheritenceCycleError(ModelDeclaration modelDeclaration, String error) {
+        modelDeclaration.assertError(
+            JsldslPackage::eINSTANCE.entityDeclaration,
+            JslDslValidator.INHERITENCE_CYCLE,
+            error
+        )
+    }
+}
