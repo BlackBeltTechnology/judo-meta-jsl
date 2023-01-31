@@ -1297,7 +1297,7 @@ class TypeInfoTests {
                 derived T1 any => self.t1s!any();
                 derived Integer size => self.t1s!size();
                 derived Boolean contains => self.t1s!contains(instance = self.t1);
-
+                derived T1[] asCollection => self.t1s!asCollection(entityType = T1);
             }
         '''.parse
         p.assertNoErrors
@@ -1311,6 +1311,7 @@ class TypeInfoTests {
         val anyField = testEntity.memberByName("any") as EntityDerivedDeclaration
         val sizeField = testEntity.memberByName("size") as EntityDerivedDeclaration
         val containsField = testEntity.memberByName("contains") as EntityDerivedDeclaration
+        val asCollectionField = testEntity.memberByName("asCollection") as EntityDerivedDeclaration
 
         val TypeInfo headTypeInfo = TypeInfo.getTargetType(headField.expression)
         assertEquals(t1sField.referenceType, headTypeInfo.getEntity)
@@ -1323,6 +1324,10 @@ class TypeInfoTests {
         val TypeInfo anyTypeInfo = TypeInfo.getTargetType(anyField.expression)
         assertEquals(anyField.referenceType, anyTypeInfo.getEntity)
         assertEquals(false, anyTypeInfo.isCollection)
+        
+        val TypeInfo asCollectionTypeInfo = TypeInfo.getTargetType(asCollectionField.expression)
+        assertEquals(asCollectionField.referenceType, asCollectionTypeInfo.getEntity)
+        assertEquals(true, asCollectionTypeInfo.isCollection)
 
         assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sizeField.expression).getPrimitive)
 
