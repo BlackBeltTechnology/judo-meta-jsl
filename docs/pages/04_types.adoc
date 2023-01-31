@@ -107,7 +107,8 @@ To define an enumeration, use the `enum` keyword.
 [subs="quotes"]
 ----
 [purple]#**enum**# &lt;name> [purple]#**{**#
-    &#x5B;&lt;literal> [purple]##**=**## &lt;ordinal> [purple]#**;**#] ...
+    &lt;literal> [purple]##**=**## &lt;ordinal> [purple]#**;**#
+    &#x5B;&lt;literal> [purple]##**=**## &lt;ordinal> [purple]#**;** ...#]
 [purple]#**}**#
 ----
 
