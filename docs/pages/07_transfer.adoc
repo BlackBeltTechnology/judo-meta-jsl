@@ -21,24 +21,33 @@ The main building blocks of the service model are transfer objects, services, ex
 
 A transfer object is a container for a set of data fields that is transferred between the service layer and any upper layers (e.g. user interface or external system).
 
-// Additionally, transfer objects may contain activities such as internal consistency checking, validation and services.
-
 [NOTE]
 ====
 The term "transfer object" is a short version of "transfer object type". The correct term would be "transfer object type". However, to distinguish between the type and the instance, the object is called "instance of a transfer object".
 ====
 
-To define an transfer object, use the `transfer` keyword.
+There are two categories of transfer objects:
+
+* unmapped and
+* mapped transfer objects.
+
+// Additionally, transfer objects may contain activities such as internal consistency checking, validation and services.
+
+=== Unmapped transfer object
+
+Unmapped transfer objects are simple non-persistent objects that carry data between our application and the outside world. The data fields of an unmapped transfer object can be set and read at any stage of its life cycle.
+
+To define an unmapped transfer object, use the `transfer` keyword.
 
 *Syntax:*
 
 ----
-transfer <name> (<entity> <alias>) [grants <export>, ...] [{
-    [member] ...
-}]
+transfer <name> {
+    [field] ...
+}
 ----
 
-where the <name> is the name of the transfer object, and the members are defined between `{` and `}`. Possible member definitions are provided in the next section.
+where the <name> is the name of the transfer object, and its data fields are defined between `{` and `}`. Possible field definitions are provided in the next section.
 
 *Example:*
 
@@ -47,7 +56,43 @@ transfer PersonTransfer {
 }
 ----
 
-The example above defines an empty transfer object named PersonTransfer. This transfer object has no fields or actions.
+The example above defines an empty transfer object named PersonTransfer. This transfer object has no fields.
+
+=== Mapped transfer object
+
+Data transformation between entities and transfer objects is a tedious and error-prone task. The mapped transfer objects are intended to facilitate this work. Mapped transfer objects also carry data between our application and the outside world, but they can be linked to a specific entity instance. The link between the mapped transfer object and the entity is represented by a specific field of the mapped transfer object, called mapping field.
+
+The mapping is a configuration approach that copies entity field values into the fields of the transfer object in a pre-defined way.
+
+To define a mapped transfer object, use the `transfer` keyword.
+
+*Syntax:*
+
+----
+transfer <name> (<entity> <mapping-field>) [{
+    [field] ...
+}]
+----
+
+where the <name> is the name of the transfer object, and the members are defined between `{` and `}`. The <entity> is the entity type to which the transfer object is linked and <mapping-field> is the name of the field that can be referenced. Possible field definitions are provided in the next section.
+
+For mapped transfer objects, the field block surrounded by `{` and `}` is optional. See auto-mapping.
+
+The example below shows a mapped transfer object.
+
+*Example:*
+
+----
+entity Person {
+}
+
+transfer PersonTransfer(Person person) {
+}
+----
+
+The transfer object `PersonTransfer` is mapped to the `Person` entity. A particular instance of the Person entity is accessible as `person` within the scope of the PersonTransfer transfer object. The `person` field is a field of type `Person`, which is the mapping field.
+
+The mapping field is a not required field. In some PersonTransfer instances, the mapping field may refer to a particular Person entity instance, and in others it may be undefined.
 
 === Field
 
@@ -83,11 +128,11 @@ The keyword `required` is not allowed in fields with collection type.
 transfer PersonTransfer {
     field required String firstName ;
     field required String lastName ;
-    field String midName = "" ;
+    field String midName ;
 }
 ----
 
-The example above defines a transfer object named PersonTransfer. This transfer object has three fields. firstName and lastName are two required strings, and midName is an optional string with an empty string by default.
+The example above defines a transfer object named PersonTransfer. This transfer object has three fields. firstName and lastName are two required strings, and midName is an optional string.
 
 *Example:*
 
@@ -108,64 +153,25 @@ The second example defines the AddressTransfer transfer object with its fields, 
 
 // read-only fields?
 
-=== Mapping and mapping field
-
-The entity layer and the service layer require to map between their different object models (e.g. between entities and transfer objects). Mapping between entities and transfer objects is a tedious and error-prone task. The mapped transfer objects are intended to facilitate this work. The mapping is a configuration approach that copies entity field values to an instance of a transfer object in a pre-defined way. A transfer object may designate an entity to be the source of the mapping. The transfer object that has a source entity assigned to the mapping is called mapped transfer object.
-
-The example below shows a mapped transfer object.
-
-*Example:*
-
-----
-transfer PersonTransfer(Person person) {
-}
-----
-
-The transfer object `PersonTransfer` is mapped to the `Person` entity. A particular instance of the Person entity is accessible as `person` within the scope of the PersonTransfer transfer object. We can consider the `person` as a field of type `Person`, it is called a mapping field. Although the mapping field can be considered a simple transfer object field, it can be referenced without the `self` prefix.
-
-The mapping field is not required. In some PersonTransfer instances, the mapping field may refer to a particular Person entity instance, and in others it may be undefined.
-
-Transfer objects that do not have mapping field are unmapped transfer objects.
-
-
 === Default value
 
-Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the transfer object is created, and the field is set according to the default value expression.
+Optionally, a <default> value can be specified as an expression for transfer object fields. The <default> value expression is evaluated when a new instance of the transfer object is created, and the field is set according to the default value expression.
 
 The default value expression must return the same type or same transfer object or same set of transfer objects as the field type.
 
 *Example:*
 
 ----
-entity Person {
+transfer PersonTransfer {
     field required String firstName ;
     field required String lastName ;
-}
-
-transfer PersonTransfer(Person person) {
-	field String fullName = person.firstName + " " + person.lastName ;
+    field String midName = "" ;
 }
 ----
 
-The example above defines two stored fields in Person entity. The name of the field in PersonTransfer is `fullName` and its default value is calculated by concatenating the `firstName` and `lastName` fields of Person mapped entity with a space in the middle. Note the `person` reference in the expression which refers to the mapping field.
+The example above complements the previous PersonTransfer example by adding a default value to the "midName" field. The default value of the `midName` is an empty string.
 
-////
-In the getter expressions of transfer objects the `self` keyword cannot be used.
-
-TBD: `self` can be used in getter of transfer objects and person mapping field shall be referenced as `self.person`. This solution allows to refer the transfer object's own fields in its getter expressions.
-
-transfer SalesPersonTransfer mapped SalesPerson as salesperson {
-	derived LeadTransfer[] leads = salesperson.leads
-}
-
-transfer LeadTransfer mapped Lead as lead {
-    derived CustomerTransfer customer = lead.customer
-}
-
-transfer CustomerTransfer mapped Customer as customer {
-}
-////
-
+The default value can be used for the mapping configuration in mapped transfer objects.
 
 *Example:*
 
@@ -186,10 +192,12 @@ transfer LeadTransfer(Lead lead) {
 }
 
 transfer SalesPersonTransfer(SalesPerson salesperson) {
-    field String name = salesperson.firstName + " " + salesPerson.lastName ;
+    field String fullName = salesperson.firstName + " " + salesPerson.lastName ;
     field LeadTransfer[] leads = salesperson.leads ;
 }
 ----
+
+The example above defines two stored fields in Person entity. The name of the field in PersonTransfer is `fullName` and its default value is calculated by concatenating the `firstName` and `lastName` fields of Person mapped entity with a space in the middle. Note the `person` reference in the expression which refers to the mapping field.
 
 The example above defines an additional field for `SalesPersonTransfer`. The field `leads` is defined within SalesPersonTransfer and can refer to a list of LeadTransfer transfer objects that belong to a particular salesperson.
 
@@ -232,9 +240,9 @@ transfer SalesPersonTransfer(SalesPerson salesPerson);
 Note that there can only be one auto-mapped transfer object for an entity.
 ====
 
-// Service and export description
 
-=== Service
+
+== Service
 
 Services are a key components of software applications, allowing external systems or users to interact with the application. Services could include creating, updating, or deleting data or providing real-time communication.
 
@@ -380,6 +388,15 @@ Defining an actor with no `grants` would let users to authenticate themselves an
 
 
 == Granting permissions
+
+*Syntax:*
+
+----
+transfer <name> (<entity> <alias>) [grants <export>, ...] [{
+    [member] ...
+}]
+----
+
 
 The primary access point for external users to the application is the actor. The actor object can grant permission to exports containing services. After granting the permission to an export, the user can call all the services in the export.
 
