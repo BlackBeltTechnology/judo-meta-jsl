@@ -10,7 +10,7 @@ endif::[]
 
 // TODO: schedule and init
 
-= Transfer
+= Service layer
 :page-toctitle:Transfer
 
 The service layer acts as a front-facing interface masking the underlying entity model. It can hide the complexity and the details of the entity model and provides a simpler interface to the clients of the application. Or it can provide different views for different purposes, allowing changes in functionality without changing the underlying, often rigid data model, which is often created from very different aspects. In addition, the service model also reduces the dependence between the entity model and the outside world.
