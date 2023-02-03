@@ -75,6 +75,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ExportServiceGuardDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ExportActionServiceDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewActionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.Transferable
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.RowDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -1281,7 +1284,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		val ExportDeclaration export = service.eContainer as ExportDeclaration
 		
 		if (export.map === null) {
-			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must not be static.",
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Export must be mapped.",
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
 	            INVALID_ANNOTATION_MARK,
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
@@ -1332,6 +1335,22 @@ class JslDslValidator extends AbstractJslDslValidator {
 	            INVALID_ANNOTATION_MARK,
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
 		}
+
+		val Transferable transferable = service.parameter.referenceType
+		var boolean isMapped = false;
+		
+		switch transferable {
+			TransferDeclaration: isMapped = transferable.map !== null 
+			ViewDeclaration: isMapped = transferable.map !== null 
+			RowDeclaration: isMapped = transferable.map !== null 
+		}
+
+		if (!isMapped) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Service parameter type must be a mapped.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+        }
 	}
 
 	@Check
