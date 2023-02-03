@@ -199,13 +199,13 @@ ExportServiceDeclaration
 
 ExportDataServiceDeclaration
 	: annotations += AnnotationMark*
-	  'service' static ?= 'static'? return = ExportServiceReturnDeclaration Cardinality? Named '=>' expression = Expression
+	  'service' return = ExportServiceReturnDeclaration Cardinality? Named '=>' expression = Expression
 	  ';'
 	;
 
 ExportActionServiceDeclaration
 	: annotations += AnnotationMark*
-	  'service' static ?= 'static'?
+	  'service'
 	  ('void'? | return = ExportServiceReturnDeclaration | alternateReturn = ExportServiceReturnAlternateDeclaration) Named
 	  '(' parameter = ExportServiceParameterDeclaration? ')'
 	  (guards += ExportServiceGuardDeclaration*)
@@ -254,8 +254,8 @@ TransferMemberDeclaration
 
 TransferFieldDeclaration
 	: annotations += AnnotationMark*
-	  'field' (referenceType = [TransferFieldType | ModelName] Cardinality?) Named
-	  "=" expression = Expression
+	  'field' (required ?= 'required'? referenceType = [TransferFieldType | ModelName] Cardinality?) Named
+	  ("=" expression = Expression)?
 	  ';'
 	;
 

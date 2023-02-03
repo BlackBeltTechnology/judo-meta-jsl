@@ -1230,27 +1230,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 	
 	@Check
-	def checkExportService(ExportServiceDeclaration service) {
-		val ExportDeclaration export = service.eContainer as ExportDeclaration
-		var boolean isStatic = false;
-
-		switch (service) {
-			ExportDataServiceDeclaration: isStatic = service.isStatic
-			ExportActionServiceDeclaration: isStatic = service.isStatic
-		}
-
-		if (!isStatic) {
-			if (export.map === null || export.map.entity === null) {
-				error("Invalid declaration of service. Export must be mapped to an entity.",
-		            JsldslPackage::eINSTANCE.named_Name,
-		            INVALID_DECLARATION,
-		            JsldslPackage::eINSTANCE.named.name)
-			}
-		}
- 	}
-
-
-	@Check
 	def checkAnnotationCreate(AnnotationMark mark) {
 		if (!mark.declaration.name.equals("Create")) {
 			return
@@ -1299,8 +1278,9 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 		
 		val ExportActionServiceDeclaration service = mark.eContainer as ExportActionServiceDeclaration
+		val ExportDeclaration export = service.eContainer as ExportDeclaration
 		
-		if (service.static) {
+		if (export.map === null) {
 			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must not be static.",
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
 	            INVALID_ANNOTATION_MARK,
@@ -1338,13 +1318,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 
 		val ExportActionServiceDeclaration service = mark.eContainer as ExportActionServiceDeclaration
-		
-		if (!service.static) {
-			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must be static.",
-	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
-	            INVALID_ANNOTATION_MARK,
-	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
-		}
 
 		if (service.^return !== null) {
 			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must not have return type.",
@@ -1362,7 +1335,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
-	def checkAnnotationAppenRemove(AnnotationMark mark) {
+	def checkAnnotationAppendRemove(AnnotationMark mark) {
 		if (!mark.declaration.name.equals("AppendRemove")) {
 			return
 		}

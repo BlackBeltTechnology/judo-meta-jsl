@@ -24,7 +24,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ExportDataServiceDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportServiceParameterDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionArgument;
@@ -77,7 +76,7 @@ public class TypeInfo {
 
 	public String toString() {
 		String result = this.baseType.toString().toLowerCase();
-		
+
 		if (this.baseType == BaseType.ENUM) {
 			result += "(" + ((EnumDeclaration) this.type).getName() + ")";
 		} else if (this.baseType == BaseType.ENTITY) {
