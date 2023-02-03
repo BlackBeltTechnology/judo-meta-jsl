@@ -30,65 +30,47 @@ import com.google.inject.Singleton;
 public class TokenHighlightingConfiguration extends
         DefaultAntlrTokenToAttributeIdMapper {
 
+	static String[] operators = {
+			"';'",
+			"'('",
+			"')'",
+			"'{'",
+			"'}'",
+			"'.'",
+			"','",
+			"'::'",
+			"'['",
+			"']'",
+			"'[]'",
+			"'='",
+			"'<'",
+			"'>'",
+			"'?'",
+			"':'",
+			"'!='",
+			"'=='",
+			"'>='",
+			"'<='",
+			"'=>'",
+			"'+'",
+			"'-'",
+			"'*'",
+			"'/'",
+			"'^'",
+			"'!'",
+			"'|'",
+			"'implies'",
+			"'or'",
+			"'xor'",
+			"'and'",
+			"'div'",
+			"'mod'",
+			"'not'"
+	};
+
     @Override
     protected String calculateId(String tokenName, int tokenType) {
-    	String[] operators = {
-    			"'('",
-    			"')'",
-    			"'{'",
-    			"'}'",
-    			"'.'",
-    			"','",
-    			"'::'",
-    			"'['",
-    			"']'",
-    			"'[]'",
-    			"'='",
-    			"'<'",
-    			"'>'",
-    			"'?'",
-    			"':'",
-    			"'!='",
-    			"'=='",
-    			"'>='",
-    			"'<='",
-    			"'=>'",
-    			"'+'",
-    			"'-'",
-    			"'*'",
-    			"'/'",
-    			"'^'",
-    			"'!'",
-    			"'|'",
-    			"'implies'",
-    			"'or'",
-    			"'xor'",
-    			"'and'",
-    			"'div'",
-    			"'mod'",
-    			"'not'"
-    	};
-
-    	String[] numConstants = {
-    			"RULE_INTEGER",
-    			"RULE_DECIMAL",
-    			"RULE_DIGIT",
-    			"'true'",
-    			"'false'"};
-
-    	String[] stringConstants = {
-    			"RULE_STRING",
-    			"RULE_RAW_STRING",
-    			"RULE_MIME_TYPE",
-    			"RULE_DATE",
-    			"RULE_TIMESTAMP",
-    			"RULE_TIME"};
-
-    	if (Arrays.stream(numConstants).anyMatch(tokenName::equals)) {
-            return HighlightingConfiguration.CONSTANT_ID;
-        } else if (Arrays.stream(stringConstants).anyMatch(tokenName::equals)) {
-            return HighlightingConfiguration.CONSTANT_ID;
-        } else if (Arrays.stream(operators).anyMatch(tokenName::equals)) {
+        if (Arrays.stream(operators).anyMatch(tokenName::equals)) {
             return HighlightingConfiguration.OPERATOR_ID;
         }
     	

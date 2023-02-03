@@ -27,13 +27,13 @@ class JslDslIndex {
 			return #[]
 		}
 		val index = rdp.getResourceDescriptions(context.eResource)
-		return index.getExportedObjectsByType(JsldslPackage.Literals.MODEL_DECLARATION)
+		return index.getExportedObjectsByType(JsldslPackage.eINSTANCE.modelDeclaration)
 	}
 
 	// Returns all ModelDeclaration	
 	def getAllModelDelcaration(Resource context) {
 		val index = rdp.getResourceDescriptions(context)
-		return index.getExportedObjectsByType(JsldslPackage.Literals.MODEL_DECLARATION)
+		return index.getExportedObjectsByType(JsldslPackage.eINSTANCE.modelDeclaration)
 	}
 
 	// Returns all ModelDeclaration's from the current resource
@@ -41,7 +41,7 @@ class JslDslIndex {
 		val resource = context.eResource
 		val index = rdp.getResourceDescriptions(resource)
 		val resourceDescription = index.getResourceDescription(resource.URI)
-		resourceDescription.getExportedObjectsByType(JsldslPackage.Literals.MODEL_DECLARATION)
+		resourceDescription.getExportedObjectsByType(JsldslPackage.eINSTANCE.modelDeclaration)
 	}
 	
 	def getAllImports(ModelDeclaration context) {
