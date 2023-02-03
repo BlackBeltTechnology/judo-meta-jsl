@@ -197,9 +197,9 @@ transfer SalesPersonTransfer(SalesPerson salesperson) {
 }
 ----
 
-The example above defines two stored fields in Person entity. The name of the field in PersonTransfer is `fullName` and its default value is calculated by concatenating the `firstName` and `lastName` fields of Person mapped entity with a space in the middle. Note the `person` reference in the expression which refers to the mapping field.
+In the example above the `fullName` field of SalesPersonTransfer has default value. The default value is calculated by concatenating the `firstName` and `lastName` fields of SalesPerson mapped entity with a space in the middle. Note the `salesperson` reference in the expression which refers to the mapping field.
 
-The example above defines an additional field for `SalesPersonTransfer`. The field `leads` is defined within SalesPersonTransfer and can refer to a list of LeadTransfer transfer objects that belong to a particular salesperson.
+The example above defines an additional field for `SalesPersonTransfer`. The field `leads` is defined within SalesPersonTransfer and contains a list of LeadTransfer transfer objects that belong to a particular salesperson. 
 
 === Auto-mapping
 
@@ -244,7 +244,61 @@ Note that there can only be one auto-mapped transfer object for an entity.
 
 == Service
 
-Services are a key components of software applications, allowing external systems or users to interact with the application. Services could include creating, updating, or deleting data or providing real-time communication.
+Services are key components of software applications, allowing external systems or users to interact with the application. The services include creating, updating or deleting data or other real-time communications.
+
+Before going into the details of the service declaration, it is necessary to understand the concept of export containing services.
+
+An export is a component that groups services together that are related in some way. Similar to transfer objects, we also distinguish two categories of exports:
+
+* unmapped and
+
+* mapped export.
+
+=== Unmapped export
+
+Unmapped exports are simple components that group only static services. See static services later.
+
+To define an unmapped export, use the `export` keyword.
+
+*Syntax:*
+
+----
+export <name> {
+    [service] ...
+}
+----
+
+where the <name> is the name of the export, and the services are defined between `{` and `}`. Possible service definitions are provided in the next section.
+
+*Example:*
+
+----
+export ManagerExport {
+    service static PersonTransfer create() {
+        // implement this body in Java
+    }
+}
+----
+
+The example above defines an export named `ManagerExport` with only one static service member.
+
+=== Mapped export
+
+Mapped exports also groups services, but they are linked to a specific entity instance. Mapped export can contain static and non-static services 
+
+Mapped transfer objects also carry data between our application and the outside world, but they can be linked to a specific entity instance. The link between the mapped transfer object and the entity is represented by a specific field of the mapped transfer object, called mapping field.
+
+
+*Example:*
+
+----
+export PersonExport(Person person) {
+    service void delete() {
+        // implement this body in Java
+    }
+}
+----
+
 
 The service has a name, an input parameter, a return value and a body. The service body is the piece of code (script) that is executed when the service is invoked.
 
@@ -268,10 +322,12 @@ The optional <type> is the output type of the service. If there is no <type> def
 
 * domain primitive
 * single transfer object
-* list of transfer objects
+* collection of transfer objects
 * union
 
 The optional <parameter> is specified after the service name, inside the parentheses. It consists of a type and a name. The type is the name of a transfer object, and the parameter name can be referenced within the body of the service.
+
+Both the return value and the parameter are required when calling the service if specified in the service declaration.
 
 The `throws` keyword is used to declare a list of errors that may occur during the execution of the service code. This optional error list contains the names of the errors that the service may throw and the caller must be prepared to handle them.
 
@@ -279,7 +335,7 @@ The `throws` keyword is used to declare a list of errors that may occur during t
 
 A union is a special return type to hold different type of transfer objects. Unions can be defined at the point of use, namely as the return type of services. A union must have at least two members, but only one member can exist at any given time.
 
-Unions cannot be organized into a list.
+Unions cannot be organized into a collection.
 
 *Example:*
 
@@ -300,65 +356,11 @@ The optional `static` keyword is used to create service that can be invoked with
 
 === Guard
 
-== Constraint
-
-A constraint represents some restriction related to a transfer object. A constraint is specified by a logical expression which must evaluate to a true or false. Constraint must be satisfied (i.e. evaluated to true) by a correct use of the system.
-
-One transfer object may contain multiple constraints that must be satisfied. The order in which the multiple constraints are evaluated is the same as the order in which the constraints in the jsl file are declared.
-
-Use the `constraint` keyword to specify a restriction on a transfer object. The syntax of constraint is the same as it is defined at entities.
-
-*Example:*
-
-----
-error NameIsTooShort {
-    field required String name
-}
-
-transfer Person {
-    field required String firstName
-    field required String lastName
-    field String midName = ""
-    
-    constraint self.firstName!length() + self.lastName!length() > 4 \
-    onerror NameIsTooShort(name = self.firstName + " " + self.lastName)
-}
-----
-
-Constraints defined in transfer objects are not evaluated automatically. To check a transfer object instance against its constraints, use the `validate` command. See commands later.
-
-== Export
-
-An export is a component that can be mapped to an entity and group services together that are related in some way.
-
-// An export can be thought as a transfer object that has no fields, only services.
-
-To define an export, use the `export` keyword.
-
-*Syntax:*
-
-----
-export <name> ([<entity> <alias>]) {
-    [member] ...
-}
-----
-
-where the <name> is the name of the export, and the members are defined between `{` and `}`. Possible member definitions are provided in the next section.
-
-*Example:*
-
-----
-export PersonExport(Person person) {
-    service void delete() {
-        // implement this body in Java
-    }
-}
-----
-
-The example above defines an export with only one service member.
 
 
 == Actor
+
+// guard for login and/or login service
 
 An actor represents a generic user of the system and can be used to represent humans or another system. The actors within the application can be considered the embodiment of external clients who can use the services granted to them. That is, an actor exposes services to the outside world. 
 
@@ -460,6 +462,33 @@ If delete is allowed external clients are allowed to delete an instances from th
 
 
 
+
+== Constraint
+
+A constraint represents some restriction related to a transfer object. A constraint is specified by a logical expression which must evaluate to a true or false. Constraint must be satisfied (i.e. evaluated to true) by a correct use of the system.
+
+One transfer object may contain multiple constraints that must be satisfied. The order in which the multiple constraints are evaluated is the same as the order in which the constraints in the jsl file are declared.
+
+Use the `constraint` keyword to specify a restriction on a transfer object. The syntax of constraint is the same as it is defined at entities.
+
+*Example:*
+
+----
+error NameIsTooShort {
+    field required String name
+}
+
+transfer Person {
+    field required String firstName
+    field required String lastName
+    field String midName = ""
+    
+    constraint self.firstName!length() + self.lastName!length() > 4 \
+    onerror NameIsTooShort(name = self.firstName + " " + self.lastName)
+}
+----
+
+Constraints defined in transfer objects are not evaluated automatically. To check a transfer object instance against its constraints, use the `validate` command. See commands later.
 
 
 
