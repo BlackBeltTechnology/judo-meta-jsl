@@ -114,7 +114,7 @@ field [required] <transfer>[[]] <name> [= <default>] ;
 
 where the <transfer> is the name of a transfer object.
 
-The <name> is the referrable name of the field.
+The <name> is the referable name of the field.
 
 The optional `[]` indicates that the field is a collection of transfer object instances rather than a single transfer object.
 
@@ -256,7 +256,7 @@ An export is a component that groups services together that are related in some 
 
 === Unmapped export
 
-Unmapped exports are simple components that group only static services. See static services later.
+Unmapped exports are simple components that are solely responsible for grouping services.
 
 To define an unmapped export, use the `export` keyword.
 
@@ -280,14 +280,21 @@ export ManagerExport {
 }
 ----
 
-The example above defines an export named `ManagerExport` with only one static service member.
+The example above defines an export named `ManagerExport` with only one service member.
 
 === Mapped export
 
-Mapped exports also groups services, but they are linked to a specific entity instance. Mapped export can contain static and non-static services 
+Mapped exports also groups services, but they are linked to a specific entity instance, similar to mapped transfer objects. The link between the mapped export and the entity is represented by a specific field, called mapping field.
 
-Mapped transfer objects also carry data between our application and the outside world, but they can be linked to a specific entity instance. The link between the mapped transfer object and the entity is represented by a specific field of the mapped transfer object, called mapping field.
+*Syntax:*
 
+----
+export <name> (<entity> <mapping-field>) {
+    [service] ...
+}
+----
+
+where the <name> is the name of the export, and the services are defined between `{` and `}`. The <entity> is the entity type to which the export is linked and <mapping-field> is the name of the field that can be referenced. Possible service definitions are provided in the next section.
 
 *Example:*
 
@@ -299,26 +306,35 @@ export PersonExport(Person person) {
 }
 ----
 
+The above example defines a mapped export named "PersonExport" with a single service member. Within the body of the service, the mapped field is available using the variable `person`. For example, the body of the deletion service can be
 
-The service has a name, an input parameter, a return value and a body. The service body is the piece of code (script) that is executed when the service is invoked.
+----
+delete person;
+----
 
-The service may return a computed value to its caller (its return value). This value is often referred to as output. In addition to the output, an action may also return different type of errors. The definition of errors is discussed in chapter Errors.
+The piece of code above deletes the entity referred to as `person`. More information about JSL scripts in later chapters.
 
-A service parameter is a variable used to configure a service. It is passed to the service in order to determine how the service will behave when it is invoked. Service parameters can be used to customize the behavior of the service for different situations.
+=== Action service
 
-Use the `service` keyword to specify a service.
+The action service is the piece of code (JSL script or Java implementation) that is executed when the service is invoked.
+
+The action service has a name, an optional input parameter and an optional return value. The return value is a computed value passed to the service caller. This value is often referred to as output. In addition to the output, an action may also return different type of errors. The definition of errors is discussed in chapter Errors.
+
+An action service parameter is a variable used to configure the service. It is passed to the action service in order to determine how the service will behave when it is invoked. Action service parameters can be used to customize the behavior of the service for different situations.
+
+Use the `service` keyword to specify an action service.
 
 *Syntax:*
 
 ----
-service [static] [<type>|void] <name> ([<parameter>]) [throws <error1> [, <error2>] ...] {
+service [<type>|void] <name> ([<parameter>]) [throws <error1> [, <error2>] ...] {
     <script>
 }
 ----
 
 where the <name> is the name of the service, and the <script> between `{` and `}` is the code to execute.
 
-The optional <type> is the output type of the service. If there is no <type> defined or the return type is `void`, the service cannot return any data. The <type> can be the following:
+The optional <type> is the output type of the service. If there is no <type> defined or the return type is `void`, the service cannot return any data. The <type> can be one of the followings:
 
 * domain primitive
 * single transfer object
@@ -331,9 +347,65 @@ Both the return value and the parameter are required when calling the service if
 
 The `throws` keyword is used to declare a list of errors that may occur during the execution of the service code. This optional error list contains the names of the errors that the service may throw and the caller must be prepared to handle them.
 
+The body of the service is optional. If no service body is specified (e.g. missing block with curly braces), the service must be implemented in Java.
+
+*Example:*
+
+----
+export PersonExport(Person person) {
+    service void delete() ;
+    service Lead[] addLead(Lead lead) ;
+}
+----
+
+The above example shows two services. The `delete` service has no return value or parameters and will be implemented in Java. The second service (`addLead`) has both a return value and a parameter. This must also be implemented in Java.
+
+=== Data service
+
+Data services are used to query the data model quickly and elegantly. The data service is an expression (see Expression) that will be evaluated when the service is invoked. Data services are very similar to queries (see Query), except that they have no input parameters and are used by external systems or users.
+
+A very important feature of data services is that their results can be filtered and paging is provided out of the box. Filtering can be performed on the values of the return value fields. The aim of the paging is, dividing the result into discrete pages with the help of the service.
+
+The data service has a name and a return value. The return value is a computed value passed to the service caller.
+
+Use the `service` keyword to specify a data service.
+
+*Syntax:*
+
+----
+service <primitive> <name> => <expression> ;
+----
+
+where <primitive> is the name of a domain model primitive that will be returned, and <name> is the referable name of the service, or
+
+*Syntax:*
+
+----
+service <transfer>[[]] <name> => <expression> ;
+----
+
+where the <transfer> is the name of a mapped transfer object that will be returned, and <name> is the referable name of the service. The optional [] indicates that the service returns a collection of <transfer> instances rather than a single transfer object.
+
+The <expression> calculates the return value of the service whenever it is requested. See Expression. If the export that groups the service is a mapped export, the mapping field is available within the expression.
+
+*Example:*
+
+----
+export PersonExport(Person person) {
+    service PersonTransfer getManager() => person.manager ;
+}
+----
+
+The example above returns a PersonTransfer object that is the manager of the person represented by the mapping field. The expression selects a Person entity, but the return value of the service is a PersonTransfer mapped transfer object. The mapping between the result of the expression and the return value of the service is done automatically.
+
+[NOTE]
+====
+A data service expression always works with entities and their relationships, but the return value of a data service is always a mapped transfer object. The mapping between the two is always done according to the mapping rules defined for the mapped transfer object (see default expression).
+====
+
 === Union
 
-A union is a special return type to hold different type of transfer objects. Unions can be defined at the point of use, namely as the return type of services. A union must have at least two members, but only one member can exist at any given time.
+A union is a special return type to hold different type of transfer objects. Unions can be defined at the point of use, namely as the return type of action services. A union must have at least two members, but only one member can exist at any given time.
 
 Unions cannot be organized into a collection.
 
@@ -349,9 +421,6 @@ In the example above, the `getEmployee` service may return a SalesPersonTransfer
 ////
 The optional `static` keyword is used to create service that can be invoked without an existing instance of the transfer object. Static methods cannot use any of the fields or derived fields of the transfer object in which they were defined. In other words, static actions use the transfer objects that contain them as an embedding namespace.
 ////
-
-
-=== Data service
 
 
 === Guard
