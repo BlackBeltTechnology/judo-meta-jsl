@@ -54,7 +54,6 @@ class JudoFunctionsProvider {
 		annotation Create on export::service;
 		annotation Delete on export::service;
 		annotation Update on export::service;
-		annotation AppendRemove on export::service;
 
 		function string asString() on boolean;
 		function string asString() on enum;

@@ -31,7 +31,7 @@ public class TokenHighlightingConfiguration extends
         DefaultAntlrTokenToAttributeIdMapper {
 
 	static String[] operators = {
-			"';'",
+			"RULE_SC",
 			"'('",
 			"')'",
 			"'{'",

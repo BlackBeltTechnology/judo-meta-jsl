@@ -72,7 +72,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ExportDataServiceDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ExportMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportServiceGuardDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ExportActionServiceDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Transferable
@@ -1186,11 +1185,12 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 	}
 
+
 	@Check
-	def checkServiceGuard(ExportServiceGuardDeclaration guard) {
-		if (!TypeInfo.getTargetType(guard.expression).isBoolean) {
+	def checkActionService(ExportActionServiceDeclaration service) {
+		if (service.guard !== null && !TypeInfo.getTargetType(service.guard).isBoolean) {
 			error("Type mismatch. Guard expression must have boolean return value.",
-                JsldslPackage::eINSTANCE.exportServiceGuardDeclaration_Expression,
+                JsldslPackage::eINSTANCE.exportActionServiceDeclaration_Guard,
                 TYPE_MISMATCH,
                 JsldslPackage::eINSTANCE.exportServiceDeclaration.name)
 		}
@@ -1352,27 +1352,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
         }
 	}
-
-	@Check
-	def checkAnnotationAppendRemove(AnnotationMark mark) {
-		if (!mark.declaration.name.equals("AppendRemove")) {
-			return
-		}
-
-		if (!(mark.eContainer instanceof ExportDataServiceDeclaration)) {
-			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must be a data service.",
-	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
-	            INVALID_ANNOTATION_MARK,
-	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
-	            
-	        return
-		}
-
-		val ExportDataServiceDeclaration service = mark.eContainer as ExportDataServiceDeclaration
-
-		// TODO: check if expression is a relation
-	}
-
 
 	@Check
 	def checkViewAction(ViewActionDeclaration action) {

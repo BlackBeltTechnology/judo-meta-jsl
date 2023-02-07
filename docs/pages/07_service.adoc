@@ -334,12 +334,14 @@ service [<type>|void] <name> ([<parameter>]) [throws <error1> [, <error2>] ...] 
 
 where the <name> is the name of the service, and the <script> between `{` and `}` is the code to execute.
 
-The optional <type> is the output type of the service. If there is no <type> defined or the return type is `void`, the service cannot return any data. The <type> can be one of the followings:
+The optional <type> is the output type of the service. If there is no <type> defined or the return type is `void`, the service cannot return any data. The <type> can be one of the following:
 
 * domain primitive
 * single transfer object
 * collection of transfer objects
 * union
+
+Unions are discussed in the Union chapter.
 
 The optional <parameter> is specified after the service name, inside the parentheses. It consists of a type and a name. The type is the name of a transfer object, and the parameter name can be referenced within the body of the service.
 
@@ -381,18 +383,26 @@ where <primitive> is the name of a domain model primitive that will be returned,
 *Syntax:*
 
 ----
-service <transfer>[[]] <name> => <expression> ;
+service <transfer>[[]] <name> => <expression> [options <options>];
 ----
 
 where the <transfer> is the name of a mapped transfer object that will be returned, and <name> is the referable name of the service. The optional [] indicates that the service returns a collection of <transfer> instances rather than a single transfer object.
 
 The <expression> calculates the return value of the service whenever it is requested. See Expression. If the export that groups the service is a mapped export, the mapping field is available within the expression.
 
+The <options> is an optional expression. If it is specified, the result of the <options> expression must be a list of <transfer> objects. This is the list objects from which the user can select objects and insert then into the list specified by <expression>. If <options> is not specified, the list defined by <expression> cannot be changed.
+
+[NOTE]
+====
+The <options> can only be specified for data services where the service <expression> specifies a direct relationship of the mapping field.
+====
+
+
 *Example:*
 
 ----
 export PersonExport(Person person) {
-    service PersonTransfer getManager() => person.manager ;
+    service PersonTransfer manager => person.manager ;
 }
 ----
 
@@ -415,7 +425,7 @@ Unions cannot be organized into a collection.
 service <SalesPersonTransfer|DeveloperTransfer> getEmployee();
 ----
 
-In the example above, the `getEmployee` service may return a SalesPersonTransfer or a DeveloperTransfer transfer object.
+In the example above, the `getEmployee` service may return a SalesPersonTransfer or a DeveloperTransfer transfer object. Within the body of the service, it can be decided whether a SalesPersonTransfer or DeveloperTransfer object is returned.
 
 
 ////
@@ -423,27 +433,25 @@ The optional `static` keyword is used to create service that can be invoked with
 ////
 
 
-=== Guard
+== AuthN and AuthZ
 
+AuthN (Authentication) is the process of verifying a user’s identity and AuthZ (Authorization) is the process of determining whether an authenticated user has access to a particular resource or service. Authorization is critical for ensuring that only authorized users have access to sensitive data and resources. The following chapters describe JUDO's authentication and authorization process.
 
+=== Actor
 
-== Actor
-
-// guard for login and/or login service
-
-An actor represents a generic user of the system and can be used to represent humans or another system. The actors within the application can be considered the embodiment of external clients who can use the services granted to them. That is, an actor exposes services to the outside world. 
+An actor represents a generic user of the system and can be used to represent humans or another system.
 
 To define an actor, use the `actor` keyword.
 
 *Syntax:*
 
 ----
-actor <name> ([<entity> <alias>]) [grants <export>, ...]
+actor <name> ([<entity> <alias>])
     [realm "<realm>"]
     [identity <identity>];
 ----
 
-where the <name> is the name of the actor. The <realm> is a security policy domain defined in Keycloak (see Keycloak documentation). Realms  contain a collection of users and can manage and authenticate them. The <identity> is an expression that selects an attribute of the mapped <entity>. The <identity> is used to unambigously identify the user and define the relationship with the user in the <realm>.
+where the <name> is the name of the actor. The <realm> is a security policy domain defined in Keycloak (see Keycloak documentation). Realms  contain a collection of users and can manage and authenticate them. The <identity> is an expression that selects an attribute of the mapped <entity>. The <identity> is used to unambiguously identify the user and define the relationship with the user in the <realm>.
 
 *Example:*
 
@@ -455,21 +463,26 @@ actor SalesPersonActor(SalesPerson salesPerson)
 
 The above example defines an actor named `SalesPersonActor`. The company's sales staff are managed in the "COMPANY" Keycloak realm. The salesperson's unique identifier is their email address.
 
+
+=== Granting permissions
+
+The actors within the application can be considered the embodiment of external clients who can use the services granted to them. That is, an actor exposes services to the outside world. 
+
 Defining an actor with no `grants` would let users to authenticate themselves and log into the application. However, they cannot access any resources (services and data) within our application.
 
+The actor object can grant permission to exports containing services. After granting permission to an export, the user can call all the services in the export.
 
-== Granting permissions
+To authorize actors to use services, use `grants` in the actor specification.
 
 *Syntax:*
 
 ----
-transfer <name> (<entity> <alias>) [grants <export>, ...] [{
-    [member] ...
-}]
+actor <name> ([<entity> <alias>]) [grants <export>, ...]
+    [realm "<realm>"]
+    [identity <identity>];
 ----
 
-
-The primary access point for external users to the application is the actor. The actor object can grant permission to exports containing services. After granting the permission to an export, the user can call all the services in the export.
+where the `grants` keyword is followed by a comma-separated list of exports.
 
 *Example:*
 
@@ -491,9 +504,25 @@ export ManagerExport {
 actor Manager grants ManagerExport;
 ----
 
-The example above allows the manager to create a new person. To grant permissions to external users, we first need to define transport objects, exports, and actors. The Manager actor in this application has no realm or identity, meaning this actor is an anonymous actor. Anonymous actors are publicly available, anyone who knows the URL of the Manager actor interface can invoke the granted create service.
+The example above allows the manager to create a new person. To grant permissions to external users, we first need to define entities, transport objects and exports. The Manager actor in this application has no realm or identity, meaning this actor is an anonymous actor. Anonymous actors are publicly available, anyone who knows the URL of the Manager actor interface can invoke the granted create service. This way, the Manager actor is given access to the ManagerExport's create service, with which the user can create a PersonTransfer.
 
-JUDO's security mechanism is based on a logical permission graph. Once the user has access to a transfer object, they can call the services granted by the transfer object. The example below shows how a transfer object can grant services. Users who received the PersonTransfer object can call the delete service.
+*Permission graph*
+
+// https://en.wikipedia.org/wiki/Graph-based_access_control
+
+JUDO's security mechanism is based on a logical permission graph, where the entry point for external users to the application is the actor. Calling the services granted to the actor the user can access transfer objects. Once the user has access to a transfer object, they can call the services granted by the transfer object (and can access further transfer objects).
+
+The primary benefit of this mechanism is that it provides a direct mapping between the user's permissions and the transfer objects and services they can access. This makes it easier to manage permissions and control access to the application.
+
+The example below shows how a transfer object can grant services. Users who received the PersonTransfer object can call the delete service.  This service can only be called by the users who have access to the PersonTransfer object.
+
+*Syntax:*
+
+----
+transfer <name> (<entity> <alias>) [grants <export>, ...] [{
+    [member] ...
+}]
+----
 
 *Example:*
 
@@ -511,26 +540,114 @@ export PersonExport(Person person) {
 
 The complete authorization mechanism can be defined by carefully provisioning services to actors and transfer objects. Always be aware of that if a transfer object has already been received by an external user, then they are authorized to call the services provided by the transfer object.
 
+=== Guard
 
-== CRUD annotations
+A guard is a boolean expression that must evaluate to true in order to continue the execution.
 
-As one could realize 
+Guards can be defined for
+
+* services,
+* exports and
+* actors.
+
+To add a guard to services use `guard` as follows:
+
+*Example:*
+
+----
+export PersonExport(Person person) {
+    service void delete() guard person.leads!size() == 0;
+}
+----
+
+The example above defines a guard, and the delete service is not executed if that person has a lead.
+
+// TODO: what is the error message?
+
+To add a guard to exports use `guard` as follows:
+
+*Example:*
+
+----
+export PersonExport(Person person) guard person.leads!size() == 0 {
+    service void delete() ;
+    service Lead[] addLead(Lead lead) ;
+}
+----
+
+The example above defines a guard for export, and the services are not executed if that person has a lead.
+
+To add a guard to actors use `guard` as follows:
+
+*Example:*
+
+----
+actor SalesPersonActor(SalesPerson salesPerson)
+    realm "COMPANY"
+    identity salesPerson.email
+    guard salesPerson.leads!size() > 0;
+----
+
+The example above defines a guard for export, and the salesperson can only log in if he has at least one lead.
+
+=== CRUD annotations
+
+Simple create, delete and update services are provided automatically. We can use `@Create`, `@Delete` and `@Update` annotations to specify these services.
+
+
+Use `@Create` annotation on an action service to define a new create service. The create service creates a new transfer object as defined by its return type. The new transfer object will not be persisted, but only transfer object is returned.
+
+*Example:*
+
+----
+@Create
+service InvoiceTransfer myCreate();
+----
+
+@Create annotation can be used only on services that
+
+* have a mapped transfer object return type
+* have no parameter
+* have no body
+
+
+Use `@Delete` annotation on an action service to define a new delete service. The delete service deletes the entity referenced by its export's mapping field.
+
+*Example:*
+
+----
+@Delete
+service void myDelete();
+----
+
+@Delete annotation can be used only on services that
+
+* have their embedding export is mapped
+* have no return type
+* have no parameter
+* have no body
+
+
+Use `@Update` annotation on an action service to define a new update service. The update service persists the mapped transfer object passed as its argument. If the mapped entity of the transfer object does not exist, it creates a new entity. If the mapped entity already existed, it updates the entity.
+
+*Example:*
+
+----
+@Update
+service update(InvoiceTransfer invoiceTransfer);
+----
+
+@Update annotation can be used only on services that
+
+* have a mapped transfer object parameter
+* have no return type
+* have no body
 
 
 
-CRUD properties can be found on CRUD tab of the properties window.
 
-Create is allowed
-If create is allowed external clients are allowed to create target transfer objects into the association.
-
-Update is allowed
-If update is allowed external clients are allowed to modify the attributes and associations of instances in the association.
-
-Delete is allowed
-If delete is allowed external clients are allowed to delete an instances from the association. Deleting a mapped transfer object also deletes the mapped entity
-
-
-
+////
+For later use
 
 == Constraint
 
@@ -558,7 +675,7 @@ transfer Person {
 ----
 
 Constraints defined in transfer objects are not evaluated automatically. To check a transfer object instance against its constraints, use the `validate` command. See commands later.
-
+////
 
 
 

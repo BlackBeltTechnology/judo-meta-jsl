@@ -6,7 +6,7 @@ generate jsldsl "http://www.blackbelt.hu/judo/meta/jsl/JslDsl"
 ModelDeclaration returns ModelDeclaration
     : {ModelDeclaration}
       annotations += AnnotationMark*
-      'model' name = ModelName ';'+
+      'model' name = ModelName SC+
       imports += ModelImportDeclaration*
 	  (declarations += Declaration)*
     ;
@@ -23,12 +23,14 @@ JSLID : ID | 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'ti
 	       | 'view' | 'widget' | 'action' | 'table' | 'row' | 'column'
 	       | 'caption' | 'icon' | 'enabled' | 'hidden' | 'width' | 'height'
 	       | 'group' | 'tab' | 'horizontal' | 'vertical' | 'frame' | 'left' | 'right' | 'center' | 'top' | 'bottom' | 'stretch'
+	       | 'service' | 'options' | 'guard'
+	       | 'actor'
 	       
 	       // 'self', 'true', 'false', 'not' are not included
 	;
 
 ModelImportDeclaration 
-    : 'import' model = [ModelDeclaration | ModelName] ('as' alias = JSLID)? ';'+
+    : 'import' model = [ModelDeclaration | ModelName] ('as' alias = JSLID)? SC+
 	;
 
 Declaration
@@ -38,7 +40,7 @@ Declaration
 	| FunctionDeclaration
 	| LambdaDeclaration
 	| AnnotationDeclaration)
-	  ';'*
+	  SC*
 	;
 
 
@@ -77,7 +79,7 @@ EntityDeclaration
 	  annotations += AnnotationMark*
 	  'entity' isAbstract ?= 'abstract'? Named
 	  ('extends' extends += [EntityDeclaration | ModelName] (',' extends += [EntityDeclaration | ModelName])*)?
-	  (';' | BLOCK_START (members += EntityMemberDeclaration)* BLOCK_END)
+	  (SC | BLOCK_START (members += EntityMemberDeclaration)* BLOCK_END)
 	;
 
 
@@ -85,7 +87,7 @@ QueryDeclaration
 	: 'query' (referenceType = [SingleType | ModelName] Cardinality?) Named
 	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')
 	  "=>" expression = Expression
-	  ';'
+	  SC
 	;
 
 EntityMemberDeclaration
@@ -97,19 +99,19 @@ EntityMemberDeclaration
 	| EntityOperationDeclaration
 //	| ConstraintDeclaration
 	)
-	  ';'*
+	  SC*
 	;
 
 EntityFieldDeclaration
 	: annotations += AnnotationMark*
 	  'field' (isRequired ?= 'required'? referenceType = [SingleType | ModelName] Cardinality?) Named
-	  ('=' defaultExpression = Expression)? ';'
+	  ('=' defaultExpression = Expression)? SC
 	;
 
 EntityIdentifierDeclaration
 	: annotations += AnnotationMark*
 	  'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | ModelName] Named
-	  ('=' defaultExpression = Expression)? ';'
+	  ('=' defaultExpression = Expression)? SC
 	;
 
 SingleType 
@@ -121,14 +123,14 @@ SingleType
 EntityDerivedDeclaration
 	: annotations += AnnotationMark*
 	  'derived' (referenceType = [SingleType | ModelName] Cardinality?) Named
-	  "=>" expression = Expression ';'
+	  "=>" expression = Expression SC
 	;
 
 EntityQueryDeclaration
 	: annotations += AnnotationMark*
 	  'query' (referenceType = [SingleType | ModelName] Cardinality?) Named
 	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')
-	  "=>" expression = Expression ';'
+	  "=>" expression = Expression SC
 	;
  
 QueryParameterDeclaration
@@ -138,7 +140,7 @@ QueryParameterDeclaration
 EntityRelationDeclaration
 	: annotations += AnnotationMark*
 	  'relation' (isRequired ?= 'required'? referenceType = [EntityDeclaration | ModelName] Cardinality?) Named
-	  opposite = EntityRelationOpposite? ';'
+	  opposite = EntityRelationOpposite? SC
 	;
 
 EntityRelationOpposite
@@ -158,7 +160,7 @@ EntityOperationDeclaration
 	: annotations += AnnotationMark*
 	  'operation' static ?= 'static'? ('void'? | return = EntityOperationReturnDeclaration) Named
 	  ('(' (parameters += EntityOperationParameterDeclaration (',' parameters += EntityOperationParameterDeclaration)*)? ')')
-	  (';' | BLOCK_START BLOCK_END )
+	  (SC | BLOCK_START BLOCK_END )
 	;
 
 EntityOperationReturnDeclaration
@@ -179,7 +181,8 @@ ExportDeclaration
 	  annotations += AnnotationMark*
 	  'export' Named
 	  ('(' map = EntityMapDeclaration? ')')?
-	  (';' | BLOCK_START (members += ExportMemberDeclaration)* BLOCK_END)
+	  ('guard' guard = Expression)?
+	  (SC | BLOCK_START (members += ExportMemberDeclaration)* BLOCK_END)
 	;
 
 EntityMapDeclaration
@@ -189,7 +192,7 @@ EntityMapDeclaration
 
 ExportMemberDeclaration
 	: ExportServiceDeclaration
-	  ';'*
+	  SC*
 	;
 
 ExportServiceDeclaration
@@ -200,7 +203,7 @@ ExportServiceDeclaration
 ExportDataServiceDeclaration
 	: annotations += AnnotationMark*
 	  'service' return = ExportServiceReturnDeclaration Cardinality? Named '=>' expression = Expression
-	  ';'
+	  (('guard' guard = Expression)? & ('options' options = Expression)?)SC
 	;
 
 ExportActionServiceDeclaration
@@ -208,12 +211,8 @@ ExportActionServiceDeclaration
 	  'service'
 	  ('void'? | return = ExportServiceReturnDeclaration | alternateReturn = ExportServiceReturnAlternateDeclaration) Named
 	  '(' parameter = ExportServiceParameterDeclaration? ')'
-	  (guards += ExportServiceGuardDeclaration*)
-	  (autoservice ?= ';' | BLOCK_START BLOCK_END )
-	;
-
-ExportServiceGuardDeclaration
-	: 'guard' expression = Expression
+	  ('guard' guard = Expression)?
+	  (autoservice ?= SC | BLOCK_START BLOCK_END )
 	;
 
 ExportServiceReturnAlternateDeclaration
@@ -244,19 +243,19 @@ TransferDeclaration
 	  'transfer' Named
 	  ('(' map = EntityMapDeclaration? ')')?
 	  ('grants' grants += [ExportDeclaration | ModelName] (',' grants += [ExportDeclaration | ModelName])*)?
-	  (automap ?= ';' | BLOCK_START (members += TransferMemberDeclaration)* BLOCK_END)
+	  (automap ?= SC | BLOCK_START (members += TransferMemberDeclaration)* BLOCK_END)
 	;
 
 TransferMemberDeclaration
 	: TransferFieldDeclaration
-	  ';'*
+	  SC*
 	;
 
 TransferFieldDeclaration
 	: annotations += AnnotationMark*
 	  'field' (required ?= 'required'? referenceType = [TransferFieldType | ModelName] Cardinality?) Named
 	  ("=" expression = Expression)?
-	  ';'
+	  SC
 	;
 
 TransferFieldType
@@ -274,7 +273,7 @@ ViewDeclaration
 	  'view' Named
 	  ('(' map = EntityMapDeclaration? ')')?
 	  ('grants' grants += [ExportDeclaration | ModelName] (',' grants += [ExportDeclaration | ModelName])*)?
-	  (automap ?= ';' | BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END)
+	  (automap ?= SC | BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END)
 	;
 
 ViewMemberDeclaration
@@ -283,7 +282,7 @@ ViewMemberDeclaration
 	| ViewGroupDeclaration
 	| ViewTabDeclaration
 	| ViewActionDeclaration
-	  ';'*
+	  SC*
 	;
 
 ViewTabDeclaration
@@ -305,7 +304,7 @@ ViewWidgetDeclaration
 	  'widget' (referenceType = [PrimitiveDeclaration | ModelName]) Named
 	  "=" expression = Expression
 	  (caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier? & height = ViewHeightModifier?)
-	  ';'
+	  SC
 	;
 
 ViewTableDeclaration
@@ -313,14 +312,14 @@ ViewTableDeclaration
 	  'table' (referenceType = [RowDeclaration | ModelName]) '[]' Named
 	  "=" expression = Expression
 	  (caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier? & height = ViewHeightModifier?)
-	  ';'
+	  SC
 	;
 
 ViewActionDeclaration
 	: annotations += AnnotationMark*
 	  'action' Named
 	  ('service' service = ExportServiceCall & caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier?)
-	  ';'
+	  SC
 	;
 
 ViewCaptionModifier
@@ -373,26 +372,26 @@ RowDeclaration
 	  'row' Named
 	  ('(' map = EntityMapDeclaration? ')')?
 	  ('grants' grants += [ExportDeclaration | ModelName] (',' grants += [ExportDeclaration | ModelName])*)?
-	  (automap ?= ';' | BLOCK_START (members += RowMemberDeclaration)* BLOCK_END)
+	  (automap ?= SC | BLOCK_START (members += RowMemberDeclaration)* BLOCK_END)
 	;
 
 RowMemberDeclaration
 	: RowColumnDeclaration
 	| RowActionDeclaration
-	  ';'*
+	  SC*
 	;
 
 RowColumnDeclaration
 	: annotations += AnnotationMark*
 	  'column' (referenceType = [PrimitiveDeclaration | ModelName]) Named
 	  "=" expression = Expression
-	  ';'
+	  SC
 	;
 
 RowActionDeclaration
 	: annotations += AnnotationMark*
 	  'action' Named 'service' service = ExportServiceCall
-	  ';'
+	  SC
 	;
 
 /****************************
@@ -404,9 +403,9 @@ ActorDeclaration
 	  annotations += AnnotationMark*
 	  'actor' Named
 	  ('(' map = EntityMapDeclaration? ')')?
-	  (('realm' realm = StringLiteral)? & ('identity' identity = Expression)? & (guards += ExportServiceGuardDeclaration*))
 	  ('grants' grants += [ExportDeclaration | ModelName] (',' grants += [ExportDeclaration | ModelName])*)?
-	  ';'
+	  (('realm' realm = StringLiteral)? & ('identity' identity = Expression)? & ('guard' guard = Expression)?)
+	  SC
 	;
 
 /****************************
@@ -424,7 +423,7 @@ DataTypeDeclaration
 		| primitive = 'date' Named
 		| primitive = 'time' Named
 		| primitive = 'timestamp' Named
-      ) ';'
+      ) SC
     ;
 
 
@@ -440,7 +439,7 @@ EnumDeclaration
 
 EnumLiteral
     : annotations += AnnotationMark*
-      Named '=' value = Integer ';'+
+      Named '=' value = Integer SC+
     ;
 
 
@@ -619,7 +618,7 @@ LambdaVariable
  ***************************/
 
 FunctionDeclaration
-	: 'function' returnType = TypeDescription Named '(' (parameters += FunctionParameterDeclaration (',' parameters += FunctionParameterDeclaration)*)? ')' 'on' baseType = TypeDescription ';'
+	: 'function' returnType = TypeDescription Named '(' (parameters += FunctionParameterDeclaration (',' parameters += FunctionParameterDeclaration)*)? ')' 'on' baseType = TypeDescription SC
 	;
 
 FunctionParameterDeclaration
@@ -638,7 +637,7 @@ Type
 	;
 
 LambdaDeclaration 
-	: 'lambda' returnType = TypeDescription Named '(' (expressionType = TypeDescription)? ')' ';'
+	: 'lambda' returnType = TypeDescription Named '(' (expressionType = TypeDescription)? ')' SC
 	;
 
 
@@ -649,7 +648,7 @@ LambdaDeclaration
 AnnotationDeclaration
 	: 'annotation' Named ('(' (parameters += AnnotationParameterDeclaration (',' parameters += AnnotationParameterDeclaration)*)? ')')?
 	  ('on' targets += AnnotationTarget (',' targets += AnnotationTarget)*)?
-	  (';' | BLOCK_START annotations += AnnotationMark* BLOCK_END )
+	  (SC | BLOCK_START annotations += AnnotationMark* BLOCK_END )
 	;
 
 AnnotationParameterDeclaration
@@ -742,7 +741,7 @@ TemporalLiteral
  // ************************************
  
  ConstraintDeclaration
-	: 'constraint' Named expression = Expression ('onerror' error = CreateError)? ';'
+	: 'constraint' Named expression = Expression ('onerror' error = CreateError)? SC
 	;
 
  
@@ -752,12 +751,12 @@ TemporalLiteral
 
 ErrorDeclaration
 	: 'error' Named ('extends' extends = [ErrorDeclaration | ModelName])?
-	  (';' | BLOCK_START (fields += ErrorField)* BLOCK_END)
+	  (SC | BLOCK_START (fields += ErrorField)* BLOCK_END)
 	;
 
 ErrorField
 	: 'field' referenceType = [PrimitiveDeclaration | ModelName] Named
-	  ('=' defaultExpression = Expression)? ';'+
+	  ('=' defaultExpression = Expression)? SC+
 	;
 
 CreateError
@@ -846,6 +845,10 @@ terminal ML_COMMENT
 
 terminal SL_COMMENT
 	: '//' !(NEWLINE)*
+	;
+
+terminal SC
+	: ';'
 	;
 
 terminal WS

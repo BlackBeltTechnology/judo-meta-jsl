@@ -35,11 +35,11 @@ import org.eclipse.xtext.util.CancelIndicator;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportServiceGuardDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportActionServiceDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ExportDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Literal;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewGroupDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.ViewHorizontalModifier;
 
 public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingCalculator {
 
@@ -83,6 +83,8 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 								HighlightingConfiguration.COMMENT_ID);
 						continue;
 					}
+
+					continue;
 				}
 
 				if (node.getSemanticElement() instanceof Literal) {
@@ -183,6 +185,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 					case "remove":
 
 					case "service":
+					case "options":
 					case "operation":
 					case "static":
 					case "constraint":
@@ -205,17 +208,17 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 						if (node.getSemanticElement().eContainer() instanceof ModelDeclaration) {
 							acceptor.addPosition(node.getOffset(), node.getText().length(),
 								HighlightingConfiguration.KEYWORD_ID);
-						} else if (node.getSemanticElement().eContainer() instanceof EntityDeclaration) {
+						} else {
 							acceptor.addPosition(node.getOffset(), node.getText().length(),
 									HighlightingConfiguration.FEATURE_ID);
 						}
 						continue;
 
 					case "guard":
-						if (node.getSemanticElement().eContainer() instanceof ActorDeclaration) {
+						if (node.getSemanticElement() instanceof ActorDeclaration || node.getSemanticElement() instanceof ExportDeclaration) {
 							acceptor.addPosition(node.getOffset(), node.getText().length(),
 								HighlightingConfiguration.KEYWORD_ID);
-						} else if (node.getSemanticElement() instanceof ExportServiceGuardDeclaration) {
+						} else {
 							acceptor.addPosition(node.getOffset(), node.getText().length(),
 									HighlightingConfiguration.FEATURE_ID);
 						}
