@@ -25,7 +25,7 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 	// TODO: https://stackoverflow.com/questions/47005235/customizing-content-proposal-in-xtext-for-web-editors
 	@Inject extension JslDslModelExtension
 	
-    public static Set<String> FILTERED_KEYWORDS = ImmutableSet.of("function", "lambda", ";", "(", ")", "+", "-", "*", "/");
+    public static Set<String> FILTERED_KEYWORDS = ImmutableSet.of("function", "lambda", ";", "(", ")", "+", "-", "*", "/", "@");
 
     override completeKeyword(Keyword keyword, ContentAssistContext contentAssistContext, ICompletionProposalAcceptor acceptor) {
         if (FILTERED_KEYWORDS.contains(keyword.getValue())) {
