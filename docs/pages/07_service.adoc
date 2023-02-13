@@ -880,11 +880,11 @@ TODO: special attention must be paid to errors and rollback!
 
 Inheritance is a mechanism by which more specific transfer objects incorporate structure of a more general transfer object (called parent transfer object).
 
-Transfer objects may inherit fields, derived fields, mapping field, actions and constraints from their parent transfer object. A transfer object and its parent transfer object are in IS-A relation, so a tranfer object can appear anywhere in the role of its parent transfer object.
+Transfer objects may inherit fields, derived fields, mapping field, actions and constraints from their parent transfer object. A transfer object and its parent transfer object are in IS-A relation, so a transfer object can appear anywhere in the role of its parent transfer object.
 
 Inherited members of a transfer object, which were defined in the parent behave as if they were defined in the transfer object itself.
 
-A transfer object may be the parent of any number of other transfer objects, but it can have only one parent at most. In other words, the multiple inheritance is not supported between tranfer objects.
+A transfer object may be the parent of any number of other transfer objects, but it can have only one parent at most. In other words, the multiple inheritance is not supported between transfer objects.
 
 A transfer object should not be inherited from itself, either directly or indirectly.
 
