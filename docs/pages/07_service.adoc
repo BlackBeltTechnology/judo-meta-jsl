@@ -47,7 +47,7 @@ transfer <name> {
 }
 ----
 
-where the <name> is the name of the transfer object, and its data fields are defined between `{` and `}`. Possible field definitions are provided in the next section.
+where the <name> is the name of the transfer object, and its data fields are defined between `{` and `}`. Possible field definitions are provided in the <<Field>> section.
 
 *Example:*
 
@@ -56,15 +56,15 @@ transfer PersonTransfer {
 }
 ----
 
-The example above defines an empty transfer object named PersonTransfer. This transfer object has no fields.
-
 === Mapped transfer object
 
-Data transformation between entities and transfer objects is a tedious and error-prone task. The mapped transfer objects are intended to facilitate this work. Mapped transfer objects also carry data between our application and the outside world, but they can be linked to a specific entity instance. The link between the mapped transfer object and the entity is represented by a specific field of the mapped transfer object, called mapping field.
+Data transformation between entities and transfer objects is a tedious and error-prone task. Mapped transfer objects are intended to facilitate this work and also carry data between our application and the outside world, but they can be linked to a specific entity instance. The link between the mapped transfer object instance and the entity instance is represented by a specific field of the mapped transfer object, called mapping field.
 
-The mapping is a configuration approach that copies entity field values into the fields of the transfer object in a pre-defined way.
+The name "mapping field" comes from its role. In practice, the mapping field is a field in the mapped transfer object. This is a reference to the entity instance to which the transfer object is linked. This reference can be read at any time like any other field of the transfer object. An important consequence of the above is that the name of the mapping field cannot be used as a field name in the mapped transfer object.
 
-To define a mapped transfer object, use the `transfer` keyword.
+The mapping is a configuration approach that copies entity field values into the fields of the transfer object in a pre-defined way. The default value can be used for the mapping configuration, see more in <<Default value>> chapter.
+
+To define a mapped transfer object, use the `transfer` keyword and specify an entity type as a parameter.
 
 *Syntax:*
 
@@ -74,9 +74,47 @@ transfer <name> (<entity> <mapping-field>) [{
 }]
 ----
 
-where the <name> is the name of the transfer object, and the members are defined between `{` and `}`. The <entity> is the entity type to which the transfer object is linked and <mapping-field> is the name of the field that can be referenced. Possible field definitions are provided in the next section.
+where the <name> is the name of the transfer object, and the member fields are defined between `{` and `}`. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance.
 
-For mapped transfer objects, the field block surrounded by `{` and `}` is optional. See auto-mapping.
+he example above defines an empty transfer object named PersonTransfer. This transfer object has no fields.
+
+=== Mapped transfer object
+
+Data transformation between entities and transfer objects is a tedious and error-prone task. Mapped transfer objects are intended to facilitate this work and also carry data between our application and the outside world, but they can be linked to a specific entity instance. The link between the mapped transfer object instance and the entity instance is represented by a specific field of the mapped transfer object, called mapping field.
+
+The name "mapping field" comes from its role. In practice, the mapping field is a field in the mapped transfer object. This is a reference to the entity instance to which the transfer object is linked. This reference can be read at any time like any other field of the transfer object.
+
+The mapping is a configuration approach that copies entity field values into the fields of the transfer object in a pre-defined way. The default value can be used for the mapping configuration, see more in <<Default value>> chapter.
+
+To define a mapped transfer object, use the `transfer` keyword and specify an entity type as a parameter.
+
+*Syntax:*
+
+----
+transfer <name> (<entity> <mapping-field>) [{
+    [field] ...
+}]
+----
+
+where the <name> is the name of the transfer object, and the member fields are defined between `{` and `}`. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance.
+
+
+[NOTE]
+====
+There is an alternative syntax to define a mapped transfer object. This alternative is a bit more expressive, although it may be too verbose.
+
+----
+transfer <name> maps <entity> as <mapping-field> [{
+    [field] ...
+}]
+----
+
+====
+
+
+
+
+For mapped transfer objects, the field block surrounded by `{` and `}` is optional. See <<Auto-mapping>>.
 
 The example below shows a mapped transfer object.
 
@@ -92,11 +130,11 @@ transfer PersonTransfer(Person person) {
 
 The transfer object `PersonTransfer` is mapped to the `Person` entity. A particular instance of the Person entity is accessible as `person` within the scope of the PersonTransfer transfer object. The `person` field is a field of type `Person`, which is the mapping field.
 
-The mapping field is a not required field. In some PersonTransfer instances, the mapping field may refer to a particular Person entity instance, and in others it may be undefined.
+The value of the mapping field can be undefined (e.g. the mapping field is not required). In some PersonTransfer instances, the mapping field may refer to a particular Person entity instance, and in others it may be undefined.
 
 === Field
 
-A transfer object may contain data descriptions called fields. A field has an associated domain type that can be either a primitive or other transfer object, in other words, the field is a typed element. Fields cannot store multiple primitive values (that is, lists, sets), but only a single primitive value. On the other hand, a field can contain a list of transfer object instances to store collection of values.
+A transfer object may contain data descriptions called fields. A field has an associated domain type that can be either a primitive or other transfer object, in other words, the field is a typed element. Fields cannot store multiple primitive values (that is, collection), but only a single primitive value. If you want to have a collection of primitives, use a wrapper transfer object with just one primitive field, and use a collection of wrappers to store a collection of primitive values.
 
 Use the `field` keyword to specify a field within a transfer object.
 
@@ -118,7 +156,9 @@ The <name> is the referable name of the field.
 
 The optional `[]` indicates that the field is a collection of transfer object instances rather than a single transfer object.
 
-The `required` keyword means that the value of the field cannot be undefined at the time the object is validated. It does not mean that the field cannot be UNDEFINED, it can. However, if the transfer object is validated it will report fields that are required and having the value of UNDEFINED. See the validate command.
+The `required` keyword means that the value of the field cannot be undefined at the time the object is validated. It does not mean that the field cannot be UNDEFINED, it can. However, if the transfer object is validated it will report fields that are required and having the value of UNDEFINED.
+
+// See the validate command.
 
 The keyword `required` is not allowed in fields with collection type.
 
@@ -156,8 +196,6 @@ The second example defines the AddressTransfer transfer object with its fields, 
 === Default value
 
 Optionally, a <default> value can be specified as an expression for transfer object fields. The <default> value expression is evaluated when a new instance of the transfer object is created, and the field is set according to the default value expression.
-
-The default value expression must return the same type or same transfer object or same set of transfer objects as the field type.
 
 *Example:*
 
@@ -199,7 +237,12 @@ transfer SalesPersonTransfer(SalesPerson salesperson) {
 
 In the example above the `fullName` field of SalesPersonTransfer has default value. The default value is calculated by concatenating the `firstName` and `lastName` fields of SalesPerson mapped entity with a space in the middle. Note the `salesperson` reference in the expression which refers to the mapping field.
 
-The example above defines an additional field for `SalesPersonTransfer`. The field `leads` is defined within SalesPersonTransfer and contains a list of LeadTransfer transfer objects that belong to a particular salesperson. 
+The example above defines an additional field for `SalesPersonTransfer`. The field `leads` is defined within SalesPersonTransfer and contains a list of LeadTransfer transfer objects that belong to a particular salesperson.
+
+[IMPORTANT]
+====
+An important note, that if the field type is transfer object (or a collection of transfer objects) the default expression on the left side of the assignment must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
+====
 
 === Auto-mapping
 
@@ -235,6 +278,17 @@ transfer LeadTransfer(Lead lead);
 transfer SalesPersonTransfer(SalesPerson salesPerson);
 ----
 
+The above declaration of `SalesPersonTransfer` equals to the following:
+
+----
+transfer SalesPersonTransfer(SalesPerson salesPerson) {
+    field String firstName = salesPerson.firstName;
+    field String lastName = salesPerson.lastName;
+    relation LeadTransfer[] leads = salesPerson.leads;
+}
+----
+
+
 [NOTE]
 ====
 Note that there can only be one auto-mapped transfer object for an entity.
@@ -268,13 +322,13 @@ export <name> {
 }
 ----
 
-where the <name> is the name of the export, and the services are defined between `{` and `}`. Possible service definitions are provided in the next section.
+where the <name> is the name of the export, and the services are defined between `{` and `}`. Possible service definitions are provided in the <<Action service>> and <<Data service>> sections.
 
 *Example:*
 
 ----
 export ManagerExport {
-    service static PersonTransfer create() {
+    service PersonTransfer create() {
         // implement this body in Java
     }
 }
@@ -284,7 +338,7 @@ The example above defines an export named `ManagerExport` with only one service 
 
 === Mapped export
 
-Mapped exports also groups services, but they are linked to a specific entity instance, similar to mapped transfer objects. The link between the mapped export and the entity is represented by a specific field, called mapping field.
+Mapped exports also groups services, but they are linked to a specific entity instance, similar to mapped transfer objects. The link between the mapped export and the entity instance is represented by a specific field, called mapping field.
 
 *Syntax:*
 
@@ -294,7 +348,24 @@ export <name> (<entity> <mapping-field>) {
 }
 ----
 
-where the <name> is the name of the export, and the services are defined between `{` and `}`. The <entity> is the entity type to which the export is linked and <mapping-field> is the name of the field that can be referenced. Possible service definitions are provided in the next section.
+where the <name> is the name of the export, and the services are defined between `{` and `}`. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance.
+
+Possible service definitions are provided in the next section.
+
+
+[NOTE]
+====
+There is an alternative syntax to define a mapped export. This alternative is a bit more expressive, although it may be too verbose.
+
+----
+export <name> maps <entity> as <mapping-field> [{
+    [service] ...
+}]
+----
+
+====
+
+
 
 *Example:*
 
@@ -306,19 +377,27 @@ export PersonExport(Person person) {
 }
 ----
 
-The above example defines a mapped export named "PersonExport" with a single service member. Within the body of the service, the mapped field is available using the variable `person`. For example, the body of the deletion service can be
+The above example defines a mapped export named "PersonExport" with a single service member. Within the body of the service, the mapped field is available using the variable `person`.
+
+////
+For example, the body of the deletion service can be
 
 ----
 delete person;
 ----
 
 The piece of code above deletes the entity referred to as `person`. More information about JSL scripts in later chapters.
+////
 
 === Action service
 
 The action service is the piece of code (JSL script or Java implementation) that is executed when the service is invoked.
 
-The action service has a name, an optional input parameter and an optional return value. The return value is a computed value passed to the service caller. This value is often referred to as output. In addition to the output, an action may also return different type of errors. The definition of errors is discussed in chapter Errors.
+The action service has a name, an optional input parameter and an optional return value. The return value is a computed value passed to the service caller. This value is often referred to as output.
+
+////
+In addition to the output, an action may also return different type of errors. The definition of errors is discussed in chapter Errors.
+////
 
 An action service parameter is a variable used to configure the service. It is passed to the action service in order to determine how the service will behave when it is invoked. Action service parameters can be used to customize the behavior of the service for different situations.
 
@@ -341,7 +420,7 @@ The optional <type> is the output type of the service. If there is no <type> def
 * collection of transfer objects
 * union
 
-Unions are discussed in the Union chapter.
+Unions are discussed in the <<Union>> chapter.
 
 The optional <parameter> is specified after the service name, inside the parentheses. It consists of a type and a name. The type is the name of a transfer object, and the parameter name can be referenced within the body of the service.
 
@@ -356,7 +435,7 @@ The body of the service is optional. If no service body is specified (e.g. missi
 ----
 export PersonExport(Person person) {
     service void delete() ;
-    service Lead[] addLead(Lead lead) ;
+    service LeadTransfer[] addLead(LeadTransfer lead) ;
 }
 ----
 
@@ -446,12 +525,31 @@ To define an actor, use the `actor` keyword.
 *Syntax:*
 
 ----
-actor <name> ([<entity> <alias>])
+actor <name> [(<entity> <mapping-field>)]
     [realm "<realm>"]
     [identity <identity>];
 ----
 
-where the <name> is the name of the actor. The <realm> is a security policy domain defined in Keycloak (see Keycloak documentation). Realms  contain a collection of users and can manage and authenticate them. The <identity> is an expression that selects an attribute of the mapped <entity>. The <identity> is used to unambiguously identify the user and define the relationship with the user in the <realm>.
+where the <name> is the name of the actor. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance. The linked entity instance is the persistent representation of the user in the application. If there is no linked entity, the user is not represented in the application. A typical case of not represented user is an anonymous user, who shall not be identified within the application.
+
+The <realm> is the name of the security policy domain attached to the actor. The realm is collection of users who can be authenticated to use the application. The realms and identity management used by JUDO are out of scope of the application. The default realm management application that can be used by JUDO application is Keycloack, but any OpenID3 compatible identity management application can be easily integrated.
+
+The <identity> is an expression that selects an identifier field of the mapped <entity>. The <identity> is used to unambiguously identify the user within the application (e.g. find only one instance of the mapped entity) to define the relationship with the user in the <realm>.
+
+// TODO: managed user missing
+
+[NOTE]
+====
+There is an alternative syntax to define an actor. This alternative is a bit more expressive, although it may be too verbose.
+
+----
+actor <name> maps <entity> as <mapping-field>
+    [realm "<realm>"]
+    [identity <identity>];
+----
+
+====
+
 
 *Example:*
 
@@ -461,7 +559,7 @@ actor SalesPersonActor(SalesPerson salesPerson)
     identity salesPerson.email ;
 ----
 
-The above example defines an actor named `SalesPersonActor`. The company's sales staff are managed in the "COMPANY" Keycloak realm. The salesperson's unique identifier is their email address.
+The above example defines an actor named `SalesPersonActor`. The company's sales staff are managed in the "COMPANY" realm. The salesperson's unique identifier is their email address.
 
 
 === Granting permissions
@@ -477,12 +575,14 @@ To authorize actors to use services, use `grants` in the actor specification.
 *Syntax:*
 
 ----
-actor <name> ([<entity> <alias>]) [grants <export>, ...]
+actor <name> ([<entity> <mapping-field>]) [grants <export>, ...]
     [realm "<realm>"]
     [identity <identity>];
 ----
 
 where the `grants` keyword is followed by a comma-separated list of exports.
+
+The actor can grant only unmapped exports or mapped exports that are linked to the same type (or subtype) of entity to which the actor is linked. 
 
 *Example:*
 
@@ -496,7 +596,7 @@ transfer PersonTransfer(Person person) {
 }
 
 export ManagerExport {
-    service static PersonTransfer create() {
+    service PersonTransfer create() {
         // implement this body in Java
     }
 }
@@ -575,7 +675,9 @@ export PersonExport(Person person) guard person.leads!size() == 0 {
 }
 ----
 
-The example above defines a guard for export, and the services are not executed if that person has a lead.
+The example above defines a guard for export, and the services are not executed and run-time error is thrown if that person has a lead.
+
+// TODO: add error definition to guards if error is intruduced
 
 To add a guard to actors use `guard` as follows:
 
@@ -588,28 +690,103 @@ actor SalesPersonActor(SalesPerson salesPerson)
     guard salesPerson.leads!size() > 0;
 ----
 
-The example above defines a guard for export, and the salesperson can only log in if he has at least one lead.
+The example above defines a guard for export, and the salesperson can only invoke the services granted by the actor if she has at least one lead.
 
 === CRUD annotations
 
-Simple create, delete and update services are provided automatically. We can use `@Create`, `@Delete` and `@Update` annotations to specify these services.
+Simple new, create, delete and update services are provided automatically. We can use `@New`, `@Create`, `@Delete` and `@Update` annotations respectively to specify these services.
 
 
-Use `@Create` annotation on an action service to define a new create service. The create service creates a new transfer object as defined by its return type. The new transfer object will not be persisted, but only transfer object is returned.
+==== @New
+
+Use `@New` annotation on an action service to define a service that creates a new transfer object. The service creates the new transfer object as defined by its return type. The new transfer object will not be persisted, only the transfer object is returned.
 
 *Example:*
 
 ----
-@Create
-service InvoiceTransfer myCreate();
+@New
+service InvoiceTransfer myNew();
 ----
 
-@Create annotation can be used only on services that
+@New annotation can be used only on services that
 
-* have a mapped transfer object return type
+* have return type
 * have no parameter
 * have no body
 
+
+==== @Create and @Mapped
+
+Use `@Create` annotation on an action service to define a create service. The create service persists the mapped transfer object passed as its argument. The transfer object's mapped entity must not exist. It persists the transfer object by creating a new entity.
+
+The `@Create` annotation persists only the fields of the transfer object that have the `@Mapped` annotation.
+
+*Example:*
+
+----
+entity Invoice {
+    field String customerName;
+    field String comment;
+}
+
+transfer InvoiceTransfer(Invoice invoice) {
+    @Mapped
+    field String customerName = invoice.customerName;
+    field String comment = invoice.comment;
+}
+
+export InvoiceExport {
+    @Create
+    service myCreate(InvoiceTransfer invoiceTransfer);
+}
+----
+
+The above example declares the myCreate service, which creates a new Invoice entity and sets only the entity's customerName field. The comment field is not persisted because the comment field of the transfer object is not marked with `@Mapped`.
+
+@Create annotation can be used only on services that
+
+* have a mapped transfer object parameter
+* have no return type
+* have no body
+
+
+==== @Update and @Mapped
+
+Use `@Update` annotation on an action service to define a new update service. The update service persists the mapped transfer object passed as its argument.  The transfer object's mapped entity must already exist.
+
+The `@Update` annotation persists only the fields of the transfer object that have the `@Mapped` annotation.
+
+*Example:*
+
+
+----
+entity Invoice {
+    field String customerName;
+    field String comment;
+}
+
+transfer InvoiceTransfer(Invoice invoice) {
+    @Mapped
+    field String customerName = invoice.customerName;
+    field String comment = invoice.comment;
+}
+
+export InvoiceExport {
+    @Update
+    service myUpdate(InvoiceTransfer invoiceTransfer);
+}
+----
+
+The above example declares the myUpdate service, which sets only the entity's customerName field. The comment field is not persisted because the comment field of the transfer object is not marked with `@Mapped`.
+
+@Update annotation can be used only on services that
+
+* have a mapped transfer object parameter
+* have no return type
+* have no body
+
+
+==== @Delete
 
 Use `@Delete` annotation on an action service to define a new delete service. The delete service deletes the entity referenced by its export's mapping field.
 
@@ -627,21 +804,6 @@ service void myDelete();
 * have no parameter
 * have no body
 
-
-Use `@Update` annotation on an action service to define a new update service. The update service persists the mapped transfer object passed as its argument. If the mapped entity of the transfer object does not exist, it creates a new entity. If the mapped entity already existed, it updates the entity.
-
-*Example:*
-
-----
-@Update
-service update(InvoiceTransfer invoiceTransfer);
-----
-
-@Update annotation can be used only on services that
-
-* have a mapped transfer object parameter
-* have no return type
-* have no body
 
 
 

@@ -180,13 +180,14 @@ ExportDeclaration
 	: {ExportDeclaration}
 	  annotations += AnnotationMark*
 	  'export' Named
-	  ('(' map = EntityMapDeclaration? ')')?
+	  map = EntityMapDeclaration?
 	  ('guard' guard = Expression)?
 	  (SC | BLOCK_START (members += ExportMemberDeclaration)* BLOCK_END)
 	;
 
 EntityMapDeclaration
-	: entity = [EntityDeclaration | ModelName] Named   // if no name defined, the 'self' shall be default name
+	: '(' entity = [EntityDeclaration | ModelName] Named ')'  // if no name defined, the 'self' shall be default name
+	| 'maps' entity = [EntityDeclaration | ModelName] 'as' Named
 	;
 
 
@@ -241,7 +242,7 @@ TransferDeclaration
 	: {TransferDeclaration}
 	  annotations += AnnotationMark*
 	  'transfer' Named
-	  ('(' map = EntityMapDeclaration? ')')?
+	  map = EntityMapDeclaration?
 	  ('grants' grants += [ExportDeclaration | ModelName] (',' grants += [ExportDeclaration | ModelName])*)?
 	  (automap ?= SC | BLOCK_START (members += TransferMemberDeclaration)* BLOCK_END)
 	;
@@ -271,7 +272,7 @@ ViewDeclaration
 	: {ViewDeclaration}
 	  annotations += AnnotationMark*
 	  'view' Named
-	  ('(' map = EntityMapDeclaration? ')')?
+	  map = EntityMapDeclaration?
 	  ('grants' grants += [ExportDeclaration | ModelName] (',' grants += [ExportDeclaration | ModelName])*)?
 	  (automap ?= SC | BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END)
 	;
@@ -370,7 +371,7 @@ RowDeclaration
 	: {RowDeclaration}
 	  annotations += AnnotationMark*
 	  'row' Named
-	  ('(' map = EntityMapDeclaration? ')')?
+	  map = EntityMapDeclaration?
 	  ('grants' grants += [ExportDeclaration | ModelName] (',' grants += [ExportDeclaration | ModelName])*)?
 	  (automap ?= SC | BLOCK_START (members += RowMemberDeclaration)* BLOCK_END)
 	;
@@ -402,7 +403,7 @@ ActorDeclaration
 	: {ActorDeclaration}
 	  annotations += AnnotationMark*
 	  'actor' Named
-	  ('(' map = EntityMapDeclaration? ')')?
+	  map = EntityMapDeclaration?
 	  ('grants' grants += [ExportDeclaration | ModelName] (',' grants += [ExportDeclaration | ModelName])*)?
 	  (('realm' realm = StringLiteral)? & ('identity' identity = Expression)? & ('guard' guard = Expression)?)
 	  SC

@@ -1233,8 +1233,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 	
 	@Check
-	def checkAnnotationCreate(AnnotationMark mark) {
-		if (!mark.declaration.name.equals("Create")) {
+	def checkAnnotationNew(AnnotationMark mark) {
+		if (!mark.declaration.name.equals("New")) {
 			return
 		}
 
@@ -1306,8 +1306,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
-	def checkAnnotationUpdate(AnnotationMark mark) {
-		if (!mark.declaration.name.equals("Update")) {
+	def checkAnnotationUpdateAndCreate(AnnotationMark mark) {
+		if (!mark.declaration.name.equals("Update") && !mark.declaration.name.equals("Create")) {
 			return
 		}
 
