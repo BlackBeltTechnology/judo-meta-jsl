@@ -13,9 +13,9 @@ ModelDeclaration returns ModelDeclaration
 
 JSLID : ID | 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'timestamp'
 	       | 'regex' | 'precision' | 'scale'
-	       | 'model' | 'import' | 'entity' | 'transfer' | 'export' | 'query' | 'type' | 'enum' | 'function' | 'lambda'
+	       | 'model' | 'import' | 'entity' | 'transfer' | 'query' | 'type' | 'enum' | 'function' | 'lambda'
 	       | 'field' | 'identifier' | 'derived' | 'relation' | 'constraint' | 'error'
-	       | 'required' | 'as' | 'abstract' | 'extends' | 'grants' | 'opposite' | 'on' | 'onerror'
+	       | 'required' | 'as' | 'abstract' | 'extends' | 'exports' | 'opposite' | 'on' | 'onerror'
 	       | 'collection' | 'declaration' | 'constant'
 	       | 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' 
 	       | 'kB' | 'MB' | 'GB' | 'KiB' | 'MiB' | 'GiB'
@@ -57,7 +57,7 @@ PrimitiveDeclaration
 ClassDeclaration
 	: EntityDeclaration
 //	| ControlDeclaration
-	| ExportDeclaration
+	| ServiceDeclaration
 	| TransferDeclaration
 	| ViewDeclaration
 	| RowDeclaration
@@ -173,16 +173,16 @@ EntityOperationParameterDeclaration
 
 
 /****************************
- *	Export
+ *	Service
  ****************************/
 
-ExportDeclaration
-	: {ExportDeclaration}
+ServiceDeclaration
+	: {ServiceDeclaration}
 	  annotations += AnnotationMark*
-	  'export' Named
+	  'service' Named
 	  map = EntityMapDeclaration?
 	  ('guard' guard = Expression)?
-	  (SC | BLOCK_START (members += ExportMemberDeclaration)* BLOCK_END)
+	  (SC | BLOCK_START (members += ServiceMemberDeclaration)* BLOCK_END)
 	;
 
 EntityMapDeclaration
@@ -191,40 +191,40 @@ EntityMapDeclaration
 	;
 
 
-ExportMemberDeclaration
-	: ExportServiceDeclaration
+ServiceMemberDeclaration
+	: ServiceOperationDeclaration
 	  SC*
 	;
 
-ExportServiceDeclaration
-	: ExportDataServiceDeclaration
-	| ExportActionServiceDeclaration
+ServiceOperationDeclaration
+	: ServiceDataDeclaration
+	| ServiceFunctionDeclaration
 	;
 
-ExportDataServiceDeclaration
+ServiceDataDeclaration
 	: annotations += AnnotationMark*
-	  'service' return = ExportServiceReturnDeclaration Cardinality? Named '=>' expression = Expression
+	  'function' return = ServiceReturnDeclaration Cardinality? Named '=>' expression = Expression
 	  (('guard' guard = Expression)? & ('options' options = Expression)?)SC
 	;
 
-ExportActionServiceDeclaration
+ServiceFunctionDeclaration
 	: annotations += AnnotationMark*
-	  'service'
-	  ('void'? | return = ExportServiceReturnDeclaration | alternateReturn = ExportServiceReturnAlternateDeclaration) Named
-	  '(' parameter = ExportServiceParameterDeclaration? ')'
+	  'function'
+	  ('void'? | return = ServiceReturnDeclaration | alternateReturn = ServiceReturnAlternateDeclaration) Named
+	  '(' parameter = ServiceFunctionParameterDeclaration? ')'
 	  ('guard' guard = Expression)?
-	  (autoservice ?= SC | BLOCK_START BLOCK_END )
+	  (automapping ?= SC | BLOCK_START BLOCK_END )
 	;
 
-ExportServiceReturnAlternateDeclaration
-	: '<' referenceTypes += ExportServiceReturnDeclaration ("|" referenceTypes += ExportServiceReturnDeclaration)+ '>'
+ServiceReturnAlternateDeclaration
+	: '<' referenceTypes += ServiceReturnDeclaration ("|" referenceTypes += ServiceReturnDeclaration)+ '>'
 	;
 
-ExportServiceReturnDeclaration
+ServiceReturnDeclaration
 	: referenceType = [Transferable | ModelName]
 	;
 
-ExportServiceParameterDeclaration
+ServiceFunctionParameterDeclaration
 	: referenceType = [Transferable | ModelName] Named?
 	;
 
@@ -243,7 +243,7 @@ TransferDeclaration
 	  annotations += AnnotationMark*
 	  'transfer' Named
 	  map = EntityMapDeclaration?
-	  ('grants' grants += [ExportDeclaration | ModelName] (',' grants += [ExportDeclaration | ModelName])*)?
+	  ('exports' exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
 	  (automap ?= SC | BLOCK_START (members += TransferMemberDeclaration)* BLOCK_END)
 	;
 
@@ -273,7 +273,7 @@ ViewDeclaration
 	  annotations += AnnotationMark*
 	  'view' Named
 	  map = EntityMapDeclaration?
-	  ('grants' grants += [ExportDeclaration | ModelName] (',' grants += [ExportDeclaration | ModelName])*)?
+	  ('exports' exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
 	  (automap ?= SC | BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END)
 	;
 
@@ -319,7 +319,7 @@ ViewTableDeclaration
 ViewActionDeclaration
 	: annotations += AnnotationMark*
 	  'action' Named
-	  ('service' service = ExportServiceCall & caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier?)
+	  ('function' function = ServiceFunctionCall & caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier?)
 	  SC
 	;
 
@@ -359,8 +359,8 @@ ViewVerticalModifier
 	: 'vertical' (top ?= 'top' | bottom ?= 'bottom' | center ?= 'center' | stretch = 'stretch')
 	;
 
-ExportServiceCall
-	: declaration = [ExportServiceDeclaration | ModelName] '(' argument = Expression? ')'
+ServiceFunctionCall
+	: declaration = [ServiceFunctionDeclaration | ModelName] '(' argument = Expression? ')'
 	;
 
 /****************************
@@ -372,7 +372,7 @@ RowDeclaration
 	  annotations += AnnotationMark*
 	  'row' Named
 	  map = EntityMapDeclaration?
-	  ('grants' grants += [ExportDeclaration | ModelName] (',' grants += [ExportDeclaration | ModelName])*)?
+	  ('exports' exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
 	  (automap ?= SC | BLOCK_START (members += RowMemberDeclaration)* BLOCK_END)
 	;
 
@@ -391,7 +391,7 @@ RowColumnDeclaration
 
 RowActionDeclaration
 	: annotations += AnnotationMark*
-	  'action' Named 'service' service = ExportServiceCall
+	  'action' Named 'function' function = ServiceFunctionCall
 	  SC
 	;
 
@@ -404,7 +404,7 @@ ActorDeclaration
 	  annotations += AnnotationMark*
 	  'actor' Named
 	  map = EntityMapDeclaration?
-	  ('grants' grants += [ExportDeclaration | ModelName] (',' grants += [ExportDeclaration | ModelName])*)?
+	  ('exports' exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
 	  (('realm' realm = StringLiteral)? & ('identity' identity = Expression)? & ('guard' guard = Expression)?)
 	  SC
 	;
@@ -674,8 +674,8 @@ AnnotationTarget
 	| 'entity' '::' entityOperation ?= 'operation'
 	| transfer ?= 'transfer'
 	| 'transfer' '::' transferField ?= 'field'
-	| export ?= 'export'
-	| 'export' '::' exportService ?= 'service'
+	| service ?= 'service'
+	| 'service' '::' serviceFunction ?= 'function'
 	| actor ?= 'actor'
 	| query ?= 'query'
 	;

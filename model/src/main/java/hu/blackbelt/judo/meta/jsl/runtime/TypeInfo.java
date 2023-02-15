@@ -23,7 +23,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral;
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportDataServiceDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionArgument;
@@ -47,6 +46,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.RawStringLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Self;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.SingleType;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral;
@@ -544,17 +544,17 @@ public class TypeInfo {
 		throw new IllegalArgumentException("Could not determinate type for transfer field");
 	}
 
-	public static TypeInfo getTargetType(ExportDataServiceDeclaration service) {
-		if (service == null || service.getReturn() == null || service.getReturn().getReferenceType() == null) {
+	public static TypeInfo getTargetType(ServiceDataDeclaration data) {
+		if (data == null || data.getReturn() == null || data.getReturn().getReferenceType() == null) {
 			return new TypeInfo(BaseType.UNDEFINED, false);
 		}
 
-		if (service.getReturn().getReferenceType() instanceof TransferDeclaration) {
-			TransferDeclaration transferDeclaration = (TransferDeclaration) service.getReturn().getReferenceType();
+		if (data.getReturn().getReferenceType() instanceof TransferDeclaration) {
+			TransferDeclaration transferDeclaration = (TransferDeclaration) data.getReturn().getReferenceType();
 			EntityDeclaration entityDeclaration = (EntityDeclaration) transferDeclaration.getMap().getEntity();
-			return new TypeInfo(entityDeclaration, service.isIsMany(), false);
-		} else if (service.getReturn().getReferenceType() instanceof ViewDeclaration) {
-			ViewDeclaration viewDeclaration = (ViewDeclaration) service.getReturn().getReferenceType();
+			return new TypeInfo(entityDeclaration, data.isIsMany(), false);
+		} else if (data.getReturn().getReferenceType() instanceof ViewDeclaration) {
+			ViewDeclaration viewDeclaration = (ViewDeclaration) data.getReturn().getReferenceType();
 			EntityDeclaration entityDeclaration = (EntityDeclaration) viewDeclaration.getMap().getEntity();
 			return new TypeInfo(entityDeclaration, true, false);
 		}

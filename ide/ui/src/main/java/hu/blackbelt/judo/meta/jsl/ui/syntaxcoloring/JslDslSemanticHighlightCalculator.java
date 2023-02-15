@@ -36,10 +36,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportActionServiceDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Literal;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewGroupDeclaration;
 
 public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingCalculator {
@@ -130,9 +129,8 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 					case "enum":
 					case "abstract":
 					case "extends":
-					case "grants":
-					case "control":
-					case "export":
+					case "exports":
+					case "service":
 					case "transfer":
 					case "annotation":
 					case "on":
@@ -186,7 +184,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 					case "insert":
 					case "remove":
 
-					case "service":
+					case "function":
 					case "options":
 					case "operation":
 					case "static":
@@ -217,7 +215,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 						continue;
 
 					case "guard":
-						if (node.getSemanticElement() instanceof ActorDeclaration || node.getSemanticElement() instanceof ExportDeclaration) {
+						if (node.getSemanticElement() instanceof ActorDeclaration || node.getSemanticElement() instanceof ServiceDeclaration) {
 							acceptor.addPosition(node.getOffset(), node.getText().length(),
 								HighlightingConfiguration.KEYWORD_ID);
 						} else {

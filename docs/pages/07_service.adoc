@@ -15,7 +15,7 @@ endif::[]
 
 The service layer acts as a front-facing interface masking the underlying entity model. It can hide the complexity and the details of the entity model and provides a simpler interface to the clients of the application. Or it can provide different views for different purposes, allowing changes in functionality without changing the underlying, often rigid data model, which is often created from very different aspects. In addition, the service model also reduces the dependence between the entity model and the outside world.
 
-The main building blocks of the service model are transfer objects, services, exports and actors. The following chapters describe these building blocks in detail.
+The main building blocks of the service model are transfer objects, services and actors. The following chapters describe these building blocks in detail.
 
 == Transfer object
 
@@ -56,33 +56,13 @@ transfer PersonTransfer {
 }
 ----
 
+The above example declares the transfer object `PersonTransfer` with no fields.
+
 === Mapped transfer object
 
 Data transformation between entities and transfer objects is a tedious and error-prone task. Mapped transfer objects are intended to facilitate this work and also carry data between our application and the outside world, but they can be linked to a specific entity instance. The link between the mapped transfer object instance and the entity instance is represented by a specific field of the mapped transfer object, called mapping field.
 
 The name "mapping field" comes from its role. In practice, the mapping field is a field in the mapped transfer object. This is a reference to the entity instance to which the transfer object is linked. This reference can be read at any time like any other field of the transfer object. An important consequence of the above is that the name of the mapping field cannot be used as a field name in the mapped transfer object.
-
-The mapping is a configuration approach that copies entity field values into the fields of the transfer object in a pre-defined way. The default value can be used for the mapping configuration, see more in <<Default value>> chapter.
-
-To define a mapped transfer object, use the `transfer` keyword and specify an entity type as a parameter.
-
-*Syntax:*
-
-----
-transfer <name> (<entity> <mapping-field>) [{
-    [field] ...
-}]
-----
-
-where the <name> is the name of the transfer object, and the member fields are defined between `{` and `}`. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance.
-
-he example above defines an empty transfer object named PersonTransfer. This transfer object has no fields.
-
-=== Mapped transfer object
-
-Data transformation between entities and transfer objects is a tedious and error-prone task. Mapped transfer objects are intended to facilitate this work and also carry data between our application and the outside world, but they can be linked to a specific entity instance. The link between the mapped transfer object instance and the entity instance is represented by a specific field of the mapped transfer object, called mapping field.
-
-The name "mapping field" comes from its role. In practice, the mapping field is a field in the mapped transfer object. This is a reference to the entity instance to which the transfer object is linked. This reference can be read at any time like any other field of the transfer object.
 
 The mapping is a configuration approach that copies entity field values into the fields of the transfer object in a pre-defined way. The default value can be used for the mapping configuration, see more in <<Default value>> chapter.
 
@@ -110,9 +90,6 @@ transfer <name> maps <entity> as <mapping-field> [{
 ----
 
 ====
-
-
-
 
 For mapped transfer objects, the field block surrounded by `{` and `}` is optional. See <<Auto-mapping>>.
 
@@ -300,66 +277,64 @@ Note that there can only be one auto-mapped transfer object for an entity.
 
 Services are key components of software applications, allowing external systems or users to interact with the application. The services include creating, updating or deleting data or other real-time communications.
 
-Before going into the details of the service declaration, it is necessary to understand the concept of export containing services.
-
-An export is a component that groups services together that are related in some way. Similar to transfer objects, we also distinguish two categories of exports:
+A service is a component that groups functions together that are related in some way. Similar to transfer objects, we also distinguish two categories of services:
 
 * unmapped and
 
-* mapped export.
+* mapped service.
 
-=== Unmapped export
+=== Unmapped service
 
-Unmapped exports are simple components that are solely responsible for grouping services.
+Unmapped services are simple components that are solely responsible for grouping functions.
 
-To define an unmapped export, use the `export` keyword.
+To define an unmapped service, use the `service` keyword.
 
 *Syntax:*
 
 ----
-export <name> {
-    [service] ...
+service <name> {
+    [function] ...
 }
 ----
 
-where the <name> is the name of the export, and the services are defined between `{` and `}`. Possible service definitions are provided in the <<Action service>> and <<Data service>> sections.
+where the <name> is the name of the service, and the functions are defined between `{` and `}`. Possible function definitions are provided in the <<Function>> and <<Data function>> sections.
 
 *Example:*
 
 ----
-export ManagerExport {
-    service PersonTransfer create() {
+service ManagerService {
+    function PersonTransfer create() {
         // implement this body in Java
     }
 }
 ----
 
-The example above defines an export named `ManagerExport` with only one service member.
+The example above defines a service named `ManagerService` with only one function member.
 
-=== Mapped export
+=== Mapped service
 
-Mapped exports also groups services, but they are linked to a specific entity instance, similar to mapped transfer objects. The link between the mapped export and the entity instance is represented by a specific field, called mapping field.
+Mapped services also groups functions, but they are linked to a specific entity instance, similar to mapped transfer objects. The link between the mapped service and the entity instance is represented by a specific field, called mapping field.
 
 *Syntax:*
 
 ----
-export <name> (<entity> <mapping-field>) {
-    [service] ...
+service <name> (<entity> <mapping-field>) {
+    [function] ...
 }
 ----
 
-where the <name> is the name of the export, and the services are defined between `{` and `}`. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance.
+where the <name> is the name of the service, and the functions are defined between `{` and `}`. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance.
 
-Possible service definitions are provided in the next section.
+Possible functions definitions are provided in the next section.
 
 
 [NOTE]
 ====
-There is an alternative syntax to define a mapped export. This alternative is a bit more expressive, although it may be too verbose.
+There is an alternative syntax to define a mapped service. This alternative is a bit more expressive, although it may be too verbose.
 
 ----
-export <name> maps <entity> as <mapping-field> [{
-    [service] ...
+service <name> maps <entity> as <mapping-field> [{
+    [function] ...
 }]
 ----
 
@@ -370,14 +345,14 @@ export <name> maps <entity> as <mapping-field> [{
 *Example:*
 
 ----
-export PersonExport(Person person) {
-    service void delete() {
+service PersonService(Person person) {
+    function void delete() {
         // implement this body in Java
     }
 }
 ----
 
-The above example defines a mapped export named "PersonExport" with a single service member. Within the body of the service, the mapped field is available using the variable `person`.
+The above example defines a mapped service named "PersonService" with a single function. Within the body of the function, the mapped field is available using the variable `person`.
 
 ////
 For example, the body of the deletion service can be
@@ -389,31 +364,31 @@ delete person;
 The piece of code above deletes the entity referred to as `person`. More information about JSL scripts in later chapters.
 ////
 
-=== Action service
+=== Function
 
-The action service is the piece of code (JSL script or Java implementation) that is executed when the service is invoked.
+The function is the piece of code (JSL script or Java implementation) that is executed when the function is invoked.
 
-The action service has a name, an optional input parameter and an optional return value. The return value is a computed value passed to the service caller. This value is often referred to as output.
+The function has a name, an optional input parameter and an optional return value. The return value is a computed value passed to the function caller. This value is often referred to as output.
 
 ////
 In addition to the output, an action may also return different type of errors. The definition of errors is discussed in chapter Errors.
 ////
 
-An action service parameter is a variable used to configure the service. It is passed to the action service in order to determine how the service will behave when it is invoked. Action service parameters can be used to customize the behavior of the service for different situations.
+The function parameter is a variable used to configure the function. It is passed to the function in order to determine how the function will behave when it is invoked. Function parameter can be used to customize the behavior of the function for different situations.
 
-Use the `service` keyword to specify an action service.
+Use the `function` keyword to specify a function.
 
 *Syntax:*
 
 ----
-service [<type>|void] <name> ([<parameter>]) [throws <error1> [, <error2>] ...] {
+function [<type>|void] <name> ([<parameter>]) [throws <error1> [, <error2>] ...] {
     <script>
 }
 ----
 
-where the <name> is the name of the service, and the <script> between `{` and `}` is the code to execute.
+where the <name> is the name of the function, and the <script> between `{` and `}` is the code to execute.
 
-The optional <type> is the output type of the service. If there is no <type> defined or the return type is `void`, the service cannot return any data. The <type> can be one of the following:
+The optional <type> is the output type of the function. If there is no <type> defined or the return type is `void`, the function cannot return any data. The <type> can be one of the following:
 
 * domain primitive
 * single transfer object
@@ -422,50 +397,50 @@ The optional <type> is the output type of the service. If there is no <type> def
 
 Unions are discussed in the <<Union>> chapter.
 
-The optional <parameter> is specified after the service name, inside the parentheses. It consists of a type and a name. The type is the name of a transfer object, and the parameter name can be referenced within the body of the service.
+The optional <parameter> is specified after the function name, inside the parentheses. It consists of a type and a name. The type is the name of a transfer object, and the parameter name can be referenced within the body of the function.
 
-Both the return value and the parameter are required when calling the service if specified in the service declaration.
+Both the return value and the parameter are required when calling the function if specified in the function declaration.
 
-The `throws` keyword is used to declare a list of errors that may occur during the execution of the service code. This optional error list contains the names of the errors that the service may throw and the caller must be prepared to handle them.
+The `throws` keyword is used to declare a list of errors that may occur during the execution of the function code. This optional error list contains the names of the errors that the function may throw and the caller must be prepared to handle them.
 
-The body of the service is optional. If no service body is specified (e.g. missing block with curly braces), the service must be implemented in Java.
+The body of the function is optional. If no function body is specified (e.g. missing block with curly braces), the function must be implemented in Java.
 
 *Example:*
 
 ----
-export PersonExport(Person person) {
-    service void delete() ;
-    service LeadTransfer[] addLead(LeadTransfer lead) ;
+service PersonService(Person person) {
+    function void delete() ;
+    function LeadTransfer[] addLead(LeadTransfer lead) ;
 }
 ----
 
-The above example shows two services. The `delete` service has no return value or parameters and will be implemented in Java. The second service (`addLead`) has both a return value and a parameter. This must also be implemented in Java.
+The above example shows two functions. The `delete` function has no return value or parameters and will be implemented in Java. The second function (`addLead`) has both a return value and a parameter. This must also be implemented in Java.
 
-=== Data service
+=== Data function
 
-Data services are used to query the data model quickly and elegantly. The data service is an expression (see Expression) that will be evaluated when the service is invoked. Data services are very similar to queries (see Query), except that they have no input parameters and are used by external systems or users.
+Data functions are used to query the data model quickly and elegantly. The data function is an expression (see Expression) that will be evaluated when the function is invoked. Data functions are very similar to queries (see Query), except that they have no input parameters and are used by external systems or users.
 
-A very important feature of data services is that their results can be filtered and paging is provided out of the box. Filtering can be performed on the values of the return value fields. The aim of the paging is, dividing the result into discrete pages with the help of the service.
+A very important feature of data functions is that their results can be filtered and paging is provided out of the box. Filtering can be performed on the values of the return value fields. The aim of the paging is, dividing the result into discrete pages with the help of the function.
 
-The data service has a name and a return value. The return value is a computed value passed to the service caller.
+The data function has a name and a return value. The return value is a computed value passed to the function caller.
 
-Use the `service` keyword to specify a data service.
-
-*Syntax:*
-
-----
-service <primitive> <name> => <expression> ;
-----
-
-where <primitive> is the name of a domain model primitive that will be returned, and <name> is the referable name of the service, or
+Use the `function` keyword to specify a data function.
 
 *Syntax:*
 
 ----
-service <transfer>[[]] <name> => <expression> [options <options>];
+function <primitive> <name> => <expression> ;
 ----
 
-where the <transfer> is the name of a mapped transfer object that will be returned, and <name> is the referable name of the service. The optional [] indicates that the service returns a collection of <transfer> instances rather than a single transfer object.
+where <primitive> is the name of a domain model primitive that will be returned, and <name> is the referable name of the function, or
+
+*Syntax:*
+
+----
+function <transfer>[[]] <name> => <expression> [options <options>];
+----
+
+where the <transfer> is the name of a mapped transfer object that will be returned, and <name> is the referable name of the function. The optional [] indicates that the function returns a collection of <transfer> instances rather than a single transfer object.
 
 The <expression> calculates the return value of the service whenever it is requested. See Expression. If the export that groups the service is a mapped export, the mapping field is available within the expression.
 
@@ -473,38 +448,38 @@ The <options> is an optional expression. If it is specified, the result of the <
 
 [NOTE]
 ====
-The <options> can only be specified for data services where the service <expression> specifies a direct relationship of the mapping field.
+The <options> can only be specified for data functions where the function <expression> specifies a direct relationship of the mapping field.
 ====
 
 
 *Example:*
 
 ----
-export PersonExport(Person person) {
-    service PersonTransfer manager => person.manager ;
+service PersonService(Person person) {
+    function PersonTransfer manager => person.manager ;
 }
 ----
 
-The example above returns a PersonTransfer object that is the manager of the person represented by the mapping field. The expression selects a Person entity, but the return value of the service is a PersonTransfer mapped transfer object. The mapping between the result of the expression and the return value of the service is done automatically.
+The example above returns a PersonTransfer object that is the manager of the person represented by the mapping field. The expression selects a Person entity, but the return value of the service is a PersonTransfer mapped transfer object. The mapping between the result of the expression and the return value of the function is done automatically.
 
 [NOTE]
 ====
-A data service expression always works with entities and their relationships, but the return value of a data service is always a mapped transfer object. The mapping between the two is always done according to the mapping rules defined for the mapped transfer object (see default expression).
+A data function expression always works with entities and their relationships, but the return value of a data function is always a mapped transfer object. The mapping between the two is always done according to the mapping rules defined for the mapped transfer object (see default expression).
 ====
 
 === Union
 
-A union is a special return type to hold different type of transfer objects. Unions can be defined at the point of use, namely as the return type of action services. A union must have at least two members, but only one member can exist at any given time.
+A union is a special return type to hold different type of transfer objects. Unions can be defined at the point of use, namely as the return type of functions. A union must have at least two members, but only one member can exist at any given time.
 
 Unions cannot be organized into a collection.
 
 *Example:*
 
 ----
-service <SalesPersonTransfer|DeveloperTransfer> getEmployee();
+function <SalesPersonTransfer|DeveloperTransfer> getEmployee();
 ----
 
-In the example above, the `getEmployee` service may return a SalesPersonTransfer or a DeveloperTransfer transfer object. Within the body of the service, it can be decided whether a SalesPersonTransfer or DeveloperTransfer object is returned.
+In the example above, the `getEmployee` function may return a SalesPersonTransfer or a DeveloperTransfer transfer object. Within the body of the function, it can be decided whether a SalesPersonTransfer or DeveloperTransfer object is returned.
 
 
 ////
@@ -532,7 +507,7 @@ actor <name> [(<entity> <mapping-field>)]
 
 where the <name> is the name of the actor. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance. The linked entity instance is the persistent representation of the user in the application. If there is no linked entity, the user is not represented in the application. A typical case of not represented user is an anonymous user, who shall not be identified within the application.
 
-The <realm> is the name of the security policy domain attached to the actor. The realm is collection of users who can be authenticated to use the application. The realms and identity management used by JUDO are out of scope of the application. The default realm management application that can be used by JUDO application is Keycloack, but any OpenID3 compatible identity management application can be easily integrated.
+The <realm> is the name of the security policy domain attached to the actor. The realm is collection of users who can be authenticated to use the application. The realms and identity management used by JUDO are out of scope of the application. The default realm management application that can be used by a JUDO application is Keycloack, but any OpenID3 compatible identity management application can be easily integrated.
 
 The <identity> is an expression that selects an identifier field of the mapped <entity>. The <identity> is used to unambiguously identify the user within the application (e.g. find only one instance of the mapped entity) to define the relationship with the user in the <realm>.
 
@@ -559,30 +534,30 @@ actor SalesPersonActor(SalesPerson salesPerson)
     identity salesPerson.email ;
 ----
 
-The above example defines an actor named `SalesPersonActor`. The company's sales staff are managed in the "COMPANY" realm. The salesperson's unique identifier is their email address.
+The above example defines an actor named `SalesPersonActor`. The company's sales staff are managed in the "COMPANY" realm. The salespersons' unique identifier is their email address.
 
 
 === Granting permissions
 
-The actors within the application can be considered the embodiment of external clients who can use the services granted to them. That is, an actor exposes services to the outside world. 
+The actors within the application can be considered the embodiment of external clients who can use the services exported to them. That is, an actor exposes services to the outside world. 
 
-Defining an actor with no `grants` would let users to authenticate themselves and log into the application. However, they cannot access any resources (services and data) within our application.
+Defining an actor with no `exports` would let users to authenticate themselves and log into the application. However, they cannot access any resources (services and data) within our application.
 
-The actor object can grant permission to exports containing services. After granting permission to an export, the user can call all the services in the export.
+The actor object can grant permission to services containing functions by exporting them. After exporting services, the user can call all the functions in the service.
 
-To authorize actors to use services, use `grants` in the actor specification.
+To authorize actors to use services, use `exports` in the actor specification.
 
 *Syntax:*
 
 ----
-actor <name> ([<entity> <mapping-field>]) [grants <export>, ...]
+actor <name> ([<entity> <mapping-field>]) [exports <service>, ...]
     [realm "<realm>"]
     [identity <identity>];
 ----
 
-where the `grants` keyword is followed by a comma-separated list of exports.
+where the `exports` keyword is followed by a comma-separated list of services.
 
-The actor can grant only unmapped exports or mapped exports that are linked to the same type (or subtype) of entity to which the actor is linked. 
+The actor can export only unmapped services or mapped services that are linked to the same type (or subtype) of entity to which the actor is linked. 
 
 *Example:*
 
@@ -595,31 +570,31 @@ transfer PersonTransfer(Person person) {
     field String email = salesPerson.email ;
 }
 
-export ManagerExport {
-    service PersonTransfer create() {
+service ManagerService {
+    function PersonTransfer create() {
         // implement this body in Java
     }
 }
 
-actor Manager grants ManagerExport;
+actor Manager exports ManagerService;
 ----
 
-The example above allows the manager to create a new person. To grant permissions to external users, we first need to define entities, transport objects and exports. The Manager actor in this application has no realm or identity, meaning this actor is an anonymous actor. Anonymous actors are publicly available, anyone who knows the URL of the Manager actor interface can invoke the granted create service. This way, the Manager actor is given access to the ManagerExport's create service, with which the user can create a PersonTransfer.
+The example above allows the manager to create a new person. To grant permissions to external users, we first need to define entities, transport objects and services. The Manager actor in this application has no realm or identity, meaning this actor is an anonymous actor. Anonymous actors are publicly available, anyone who knows the URL of the Manager actor interface can invoke the create function. This way, the Manager actor is given access to the ManagerExport's create function, with which the user can create a PersonTransfer.
 
 *Permission graph*
 
 // https://en.wikipedia.org/wiki/Graph-based_access_control
 
-JUDO's security mechanism is based on a logical permission graph, where the entry point for external users to the application is the actor. Calling the services granted to the actor the user can access transfer objects. Once the user has access to a transfer object, they can call the services granted by the transfer object (and can access further transfer objects).
+JUDO's security mechanism is based on a logical permission graph, where the entry point for external users to the application is the actor. Calling the functions exported by the actor, the user can access transfer objects. Once the user has access to a transfer object, they can call the services exported by the transfer object (and can access further transfer objects).
 
-The primary benefit of this mechanism is that it provides a direct mapping between the user's permissions and the transfer objects and services they can access. This makes it easier to manage permissions and control access to the application.
+The primary benefit of this mechanism is that it provides a direct mapping between the user's permissions and the transfer objects and functions they can access. This makes it easier to manage permissions and control access to the application.
 
-The example below shows how a transfer object can grant services. Users who received the PersonTransfer object can call the delete service.  This service can only be called by the users who have access to the PersonTransfer object.
+The example below shows how a transfer object can export services. Users who received the PersonTransfer object can call the delete function.  This function can only be called by the users who have access to the PersonTransfer object.
 
 *Syntax:*
 
 ----
-transfer <name> (<entity> <alias>) [grants <export>, ...] [{
+transfer <name> (<entity> <alias>) [exports <service>, ...] [{
     [member] ...
 }]
 ----
@@ -627,18 +602,18 @@ transfer <name> (<entity> <alias>) [grants <export>, ...] [{
 *Example:*
 
 ----
-transfer PersonTransfer(Person person) grants PersonExport {
+transfer PersonTransfer(Person person) exports PersonService {
     field String email = salesPerson.email ;
 }
 
-export PersonExport(Person person) {
-    service void delete() {
+service PersonService(Person person) {
+    function void delete() {
         // implement this body in Java
     }
 }
 ----
 
-The complete authorization mechanism can be defined by carefully provisioning services to actors and transfer objects. Always be aware of that if a transfer object has already been received by an external user, then they are authorized to call the services provided by the transfer object.
+The complete authorization mechanism can be defined by carefully provisioning services to actors and transfer objects. Always be aware of that if a transfer object has already been received by an external user, then they are authorized to call the functions provided by the transfer object.
 
 === Guard
 
@@ -646,36 +621,36 @@ A guard is a boolean expression that must evaluate to true in order to continue 
 
 Guards can be defined for
 
-* services,
-* exports and
+* functions,
+* services and
 * actors.
+
+To add a guard to functions use `guard` as follows:
+
+*Example:*
+
+----
+service PersonService(Person person) {
+    function void delete() guard person.leads!size() == 0;
+}
+----
+
+The example above defines a guard, and the delete function is not executed if that person has a lead.
+
+// TODO: what is the error message?
 
 To add a guard to services use `guard` as follows:
 
 *Example:*
 
 ----
-export PersonExport(Person person) {
-    service void delete() guard person.leads!size() == 0;
+service PersonService(Person person) guard person.leads!size() == 0 {
+    function void delete() ;
+    function Lead[] addLead(Lead lead) ;
 }
 ----
 
-The example above defines a guard, and the delete service is not executed if that person has a lead.
-
-// TODO: what is the error message?
-
-To add a guard to exports use `guard` as follows:
-
-*Example:*
-
-----
-export PersonExport(Person person) guard person.leads!size() == 0 {
-    service void delete() ;
-    service Lead[] addLead(Lead lead) ;
-}
-----
-
-The example above defines a guard for export, and the services are not executed and run-time error is thrown if that person has a lead.
+The example above defines a guard for service, and the functions are not executed and run-time error is thrown if that person has a lead.
 
 // TODO: add error definition to guards if error is intruduced
 
@@ -690,25 +665,25 @@ actor SalesPersonActor(SalesPerson salesPerson)
     guard salesPerson.leads!size() > 0;
 ----
 
-The example above defines a guard for export, and the salesperson can only invoke the services granted by the actor if she has at least one lead.
+The example above defines a guard for actor, and the salesperson can only invoke the functions if she has at least one lead.
 
 === CRUD annotations
 
-Simple new, create, delete and update services are provided automatically. We can use `@New`, `@Create`, `@Delete` and `@Update` annotations respectively to specify these services.
+Simple new, create, delete and update functions are provided automatically. We can use `@New`, `@Create`, `@Delete` and `@Update` annotations respectively to specify these functions.
 
 
 ==== @New
 
-Use `@New` annotation on an action service to define a service that creates a new transfer object. The service creates the new transfer object as defined by its return type. The new transfer object will not be persisted, only the transfer object is returned.
+Use `@New` annotation on a function to define a function that creates a new transfer object. The function creates the new transfer object as defined by its return type. The new transfer object will not be persisted, only the transfer object is returned.
 
 *Example:*
 
 ----
 @New
-service InvoiceTransfer myNew();
+function InvoiceTransfer myNew();
 ----
 
-@New annotation can be used only on services that
+@New annotation can be used only on functions that
 
 * have return type
 * have no parameter
@@ -717,7 +692,7 @@ service InvoiceTransfer myNew();
 
 ==== @Create and @Mapped
 
-Use `@Create` annotation on an action service to define a create service. The create service persists the mapped transfer object passed as its argument. The transfer object's mapped entity must not exist. It persists the transfer object by creating a new entity.
+Use `@Create` annotation on a function to define a create function. The create function persists the mapped transfer object passed as its argument. The transfer object's mapped entity must not exist. It persists the transfer object by creating a new entity.
 
 The `@Create` annotation persists only the fields of the transfer object that have the `@Mapped` annotation.
 
@@ -735,15 +710,15 @@ transfer InvoiceTransfer(Invoice invoice) {
     field String comment = invoice.comment;
 }
 
-export InvoiceExport {
+service InvoiceService {
     @Create
-    service myCreate(InvoiceTransfer invoiceTransfer);
+    function myCreate(InvoiceTransfer invoiceTransfer);
 }
 ----
 
-The above example declares the myCreate service, which creates a new Invoice entity and sets only the entity's customerName field. The comment field is not persisted because the comment field of the transfer object is not marked with `@Mapped`.
+The above example declares the myCreate function, which creates a new Invoice entity and sets only the entity's customerName field. The comment field is not persisted because the comment field of the transfer object is not marked with `@Mapped`.
 
-@Create annotation can be used only on services that
+@Create annotation can be used only on functions that
 
 * have a mapped transfer object parameter
 * have no return type
@@ -752,7 +727,7 @@ The above example declares the myCreate service, which creates a new Invoice ent
 
 ==== @Update and @Mapped
 
-Use `@Update` annotation on an action service to define a new update service. The update service persists the mapped transfer object passed as its argument.  The transfer object's mapped entity must already exist.
+Use `@Update` annotation on a function to define a new update function. The update function persists the mapped transfer object passed as its argument.  The transfer object's mapped entity must already exist.
 
 The `@Update` annotation persists only the fields of the transfer object that have the `@Mapped` annotation.
 
@@ -771,15 +746,15 @@ transfer InvoiceTransfer(Invoice invoice) {
     field String comment = invoice.comment;
 }
 
-export InvoiceExport {
+service InvoiceService {
     @Update
-    service myUpdate(InvoiceTransfer invoiceTransfer);
+    function myUpdate(InvoiceTransfer invoiceTransfer);
 }
 ----
 
-The above example declares the myUpdate service, which sets only the entity's customerName field. The comment field is not persisted because the comment field of the transfer object is not marked with `@Mapped`.
+The above example declares the myUpdate function, which sets only the entity's customerName field. The comment field is not persisted because the comment field of the transfer object is not marked with `@Mapped`.
 
-@Update annotation can be used only on services that
+@Update annotation can be used only on functions that
 
 * have a mapped transfer object parameter
 * have no return type
@@ -788,16 +763,16 @@ The above example declares the myUpdate service, which sets only the entity's cu
 
 ==== @Delete
 
-Use `@Delete` annotation on an action service to define a new delete service. The delete service deletes the entity referenced by its export's mapping field.
+Use `@Delete` annotation on a function to define a new delete function. The delete function deletes the entity referenced by its export's mapping field.
 
 *Example:*
 
 ----
 @Delete
-service void myDelete();
+function void myDelete();
 ----
 
-@Delete annotation can be used only on services that
+@Delete annotation can be used only on functions that
 
 * have their embedding export is mapped
 * have no return type

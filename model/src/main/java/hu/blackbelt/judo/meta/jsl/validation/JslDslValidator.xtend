@@ -62,21 +62,20 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationArgument
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationMark
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportServiceDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityOperationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityOperationReturnDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityOperationParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportDataServiceDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ExportActionServiceDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Transferable
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceFunctionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceMemberDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -124,7 +123,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val INVALID_ANNOTATION = ISSUE_CODE_PREFIX + "InvalidAnnotation"
 	public static val INVALID_ANNOTATION_MARK = ISSUE_CODE_PREFIX + "InvalidAnnotationMark"
 	public static val DUPLICATE_AUTOMAP = ISSUE_CODE_PREFIX + "DuplicateAutomap"
-	public static val INVALID_SERVICE_CALL = ISSUE_CODE_PREFIX + "InvalidServiceCall"
+	public static val INVALID_SERVICE_FUNCTION_CALL = ISSUE_CODE_PREFIX + "InvalidServiceFunctionCall"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -622,8 +621,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 			TransferDeclaration:         error = !mark.declaration.targets.exists[t | t.transfer]
 			TransferFieldDeclaration:    error = !mark.declaration.targets.exists[t | t.transferField]
 
-			ExportDeclaration:           error = !mark.declaration.targets.exists[t | t.export]
-			ExportServiceDeclaration:    error = !mark.declaration.targets.exists[t | t.exportService]
+			ServiceDeclaration:          error = !mark.declaration.targets.exists[t | t.service]
+			ServiceFunctionDeclaration:  error = !mark.declaration.targets.exists[t | t.serviceFunction]
 
 			ActorDeclaration:            error = !mark.declaration.targets.exists[t | t.actor]
 
@@ -1160,10 +1159,10 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
-	def checkForDuplicateNameForServiceMemberDeclaration(ExportMemberDeclaration member) {
-		val ExportDeclaration export = member.eContainer as ExportDeclaration
+	def checkForDuplicateNameForServiceMemberDeclaration(ServiceMemberDeclaration member) {
+		val ServiceDeclaration service = member.eContainer as ServiceDeclaration
 		
-		if (member instanceof Named && export.members.filter[m | m instanceof Named && m.name.toLowerCase.equals(member.name.toLowerCase)].size > 1) {
+		if (member instanceof Named && service.members.filter[m | m instanceof Named && m.name.toLowerCase.equals(member.name.toLowerCase)].size > 1) {
 			error("Duplicate member declaration: '" + member.name + "'",
 				member.nameAttribute,
 				DUPLICATE_MEMBER_NAME,
@@ -1172,13 +1171,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
-	def checkDataService(ExportDataServiceDeclaration service) {
+	def checkServiceData(ServiceDataDeclaration data) {
 		try {
-			if (service.expression !== null && !TypeInfo.getTargetType(service).isCompatible(TypeInfo.getTargetType(service.expression))) {
+			if (data.expression !== null && !TypeInfo.getTargetType(data).isCompatible(TypeInfo.getTargetType(data.expression))) {
 				error("Type mismatch",
-	                JsldslPackage::eINSTANCE.exportDataServiceDeclaration_Expression,
+	                JsldslPackage::eINSTANCE.serviceDataDeclaration_Expression,
 	                TYPE_MISMATCH,
-	                JsldslPackage::eINSTANCE.exportDataServiceDeclaration.name)
+	                JsldslPackage::eINSTANCE.serviceDataDeclaration.name)
 			}
 		} catch (IllegalArgumentException illegalArgumentException) {
             return
@@ -1187,12 +1186,12 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 
 	@Check
-	def checkActionService(ExportActionServiceDeclaration service) {
-		if (service.guard !== null && !TypeInfo.getTargetType(service.guard).isBoolean) {
+	def checkServiceFunction(ServiceFunctionDeclaration function) {
+		if (function.guard !== null && !TypeInfo.getTargetType(function.guard).isBoolean) {
 			error("Type mismatch. Guard expression must have boolean return value.",
-                JsldslPackage::eINSTANCE.exportActionServiceDeclaration_Guard,
+                JsldslPackage::eINSTANCE.serviceFunctionDeclaration_Guard,
                 TYPE_MISMATCH,
-                JsldslPackage::eINSTANCE.exportServiceDeclaration.name)
+                JsldslPackage::eINSTANCE.serviceFunctionDeclaration.name)
 		}
 	}
 	
@@ -1238,18 +1237,18 @@ class JslDslValidator extends AbstractJslDslValidator {
 			return
 		}
 
-		if (mark.eContainer instanceof ExportActionServiceDeclaration) {
-			val ExportActionServiceDeclaration service = mark.eContainer as ExportActionServiceDeclaration
+		if (mark.eContainer instanceof ServiceFunctionDeclaration) {
+			val ServiceFunctionDeclaration function = mark.eContainer as ServiceFunctionDeclaration
 			
-			if (service.^return === null) {
-				error("Invalid use of annotation: @" + mark.declaration.name + ". Service must have return type.",
+			if (function.^return === null) {
+				error("Invalid use of annotation: @" + mark.declaration.name + ". Function must have return type.",
 		            JsldslPackage::eINSTANCE.annotationMark_Declaration,
 		            INVALID_ANNOTATION_MARK,
 		            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
 			}
 
-			if (service.parameter !== null) {
-				error("Invalid use of annotation: @" + mark.declaration.name + ". Service must not have parameter.",
+			if (function.parameter !== null) {
+				error("Invalid use of annotation: @" + mark.declaration.name + ". Function must not have parameter.",
 		            JsldslPackage::eINSTANCE.annotationMark_Declaration,
 		            INVALID_ANNOTATION_MARK,
 		            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
@@ -1258,8 +1257,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 			return
 		}
 
-		if (mark.eContainer instanceof ExportDataServiceDeclaration) {
-			val ExportDataServiceDeclaration service = mark.eContainer as ExportDataServiceDeclaration
+		if (mark.eContainer instanceof ServiceDataDeclaration) {
+			val ServiceDataDeclaration function = mark.eContainer as ServiceDataDeclaration
 			
 			// TODO: check if data service expression is a containment field
 		}
@@ -1271,8 +1270,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 			return
 		}
 
-		if (!(mark.eContainer instanceof ExportActionServiceDeclaration)) {
-			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must be an action service.",
+		if (!(mark.eContainer instanceof ServiceFunctionDeclaration)) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Function must be an action function.",
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
 	            INVALID_ANNOTATION_MARK,
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
@@ -1280,25 +1279,25 @@ class JslDslValidator extends AbstractJslDslValidator {
 	        return
 		}
 		
-		val ExportActionServiceDeclaration service = mark.eContainer as ExportActionServiceDeclaration
-		val ExportDeclaration export = service.eContainer as ExportDeclaration
+		val ServiceFunctionDeclaration function = mark.eContainer as ServiceFunctionDeclaration
+		val ServiceDeclaration service = function.eContainer as ServiceDeclaration
 		
-		if (export.map === null) {
+		if (service.map === null) {
 			error("Invalid use of annotation: @" + mark.declaration.name + ". Export must be mapped.",
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
 	            INVALID_ANNOTATION_MARK,
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
 		}
 		
-		if (service.^return !== null) {
-			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must not have return type.",
+		if (function.^return !== null) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Function must not have return type.",
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
 	            INVALID_ANNOTATION_MARK,
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
 		}
 
-		if (service.parameter !== null) {
-			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must not have parameter.",
+		if (function.parameter !== null) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Function must not have parameter.",
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
 	            INVALID_ANNOTATION_MARK,
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
@@ -1311,8 +1310,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 			return
 		}
 
-		if (!(mark.eContainer instanceof ExportActionServiceDeclaration)) {
-			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must be an action service.",
+		if (!(mark.eContainer instanceof ServiceFunctionDeclaration)) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Function must be an action function.",
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
 	            INVALID_ANNOTATION_MARK,
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
@@ -1320,23 +1319,23 @@ class JslDslValidator extends AbstractJslDslValidator {
 	        return
 		}
 
-		val ExportActionServiceDeclaration service = mark.eContainer as ExportActionServiceDeclaration
+		val ServiceFunctionDeclaration function = mark.eContainer as ServiceFunctionDeclaration
 
-		if (service.^return !== null) {
-			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must not have return type.",
+		if (function.^return !== null) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Function must not have return type.",
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
 	            INVALID_ANNOTATION_MARK,
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
 		}
 
-		if (service.parameter === null) {
-			error("Invalid use of annotation: @" + mark.declaration.name + ". Service must have parameter.",
+		if (function.parameter === null) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Function must have parameter.",
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
 	            INVALID_ANNOTATION_MARK,
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
 		}
 
-		val Transferable transferable = service.parameter.referenceType
+		val Transferable transferable = function.parameter.referenceType
 		var boolean isMapped = false;
 		
 		switch transferable {
@@ -1346,7 +1345,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 
 		if (!isMapped) {
-			error("Invalid use of annotation: @" + mark.declaration.name + ". Service parameter type must be a mapped.",
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Function parameter type must be a mapped.",
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
 	            INVALID_ANNOTATION_MARK,
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
@@ -1355,32 +1354,32 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkViewAction(ViewActionDeclaration action) {
-		if (action.service.declaration instanceof ExportDataServiceDeclaration) {
-			if (action.service.argument !== null) {
+		if (action.function.declaration instanceof ServiceDataDeclaration) {
+			if (action.function.argument !== null) {
 				error("Invalid service call. Service call should not have argument.",
-		            JsldslPackage::eINSTANCE.viewActionDeclaration_Service,
-		            INVALID_SERVICE_CALL,
-		            JsldslPackage::eINSTANCE.viewActionDeclaration_Service.name)
+		            JsldslPackage::eINSTANCE.viewActionDeclaration_Function,
+		            INVALID_SERVICE_FUNCTION_CALL,
+		            JsldslPackage::eINSTANCE.viewActionDeclaration_Function.name)
 			}
 		}
 		
-		if (action.service.declaration instanceof ExportActionServiceDeclaration) {
-			val ExportActionServiceDeclaration service = action.service.declaration as ExportActionServiceDeclaration
+		if (action.function.declaration instanceof ServiceFunctionDeclaration) {
+			val ServiceFunctionDeclaration function = action.function.declaration as ServiceFunctionDeclaration
 			
-			if (service.parameter !== null && action.service.argument === null) {
-				error("Invalid service call. Service call must have argument.",
-		            JsldslPackage::eINSTANCE.viewActionDeclaration_Service,
-		            INVALID_SERVICE_CALL,
-		            JsldslPackage::eINSTANCE.viewActionDeclaration_Service.name)
+			if (function.parameter !== null && action.function.argument === null) {
+				error("Invalid function call. Function call must have argument.",
+		            JsldslPackage::eINSTANCE.viewActionDeclaration_Function,
+		            INVALID_SERVICE_FUNCTION_CALL,
+		            JsldslPackage::eINSTANCE.viewActionDeclaration_Function.name)
 		            
 		        return
 			}
 
-			if (service.parameter === null && action.service.argument !== null) {
-				error("Invalid service call. Service call should not have argument.",
-		            JsldslPackage::eINSTANCE.viewActionDeclaration_Service,
-		            INVALID_SERVICE_CALL,
-		            JsldslPackage::eINSTANCE.viewActionDeclaration_Service.name)
+			if (function.parameter === null && action.function.argument !== null) {
+				error("Invalid function call. Function call should not have argument.",
+		            JsldslPackage::eINSTANCE.viewActionDeclaration_Function,
+		            INVALID_SERVICE_FUNCTION_CALL,
+		            JsldslPackage::eINSTANCE.viewActionDeclaration_Function.name)
 
 		        return
 			}
