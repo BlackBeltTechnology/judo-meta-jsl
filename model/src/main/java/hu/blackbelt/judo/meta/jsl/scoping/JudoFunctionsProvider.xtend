@@ -51,6 +51,13 @@ class JudoFunctionsProvider {
 	def model() '''
 		model judo::functions;
 
+		annotation New on export::service;
+		annotation Create on export::service;
+		annotation Delete on export::service;
+		annotation Update on export::service;
+		
+		annotation Mapped on transfer::field, view::widget;
+
 		function string asString() on boolean;
 		function string asString() on enum;
 		
