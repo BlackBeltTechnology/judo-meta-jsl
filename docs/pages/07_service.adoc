@@ -801,7 +801,7 @@ The above example declares the myCreate function, which creates a new Invoice en
 * have no body
 
 
-=== @Update and @Mapped
+=== @Update
 
 Use `@Update` annotation on a function to define a new update function. The update function persists the mapped transfer object passed as its argument.  The transfer object's mapped entity must already exist.
 
