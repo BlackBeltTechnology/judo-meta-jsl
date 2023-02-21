@@ -64,7 +64,7 @@ Data transformation between entities and transfer objects is a tedious and error
 
 The name "mapping field" comes from its role. In practice, the mapping field is a field in the mapped transfer object. This is a reference to the entity instance to which the transfer object is linked. This reference can be read at any time like any other field of the transfer object. An important consequence of the above is that the name of the mapping field cannot be used as a field name in the mapped transfer object.
 
-The mapping is a configuration approach that copies entity field values into the fields of the transfer object in a pre-defined way. The default value can be used for the mapping configuration, see more in <<Default value>> chapter.
+The mapping is a configuration approach that copies entity field values into the fields of the transfer object in a pre-defined way, see more in <<Mapping configuration>> chapter.
 
 To define a mapped transfer object, use the `transfer` keyword and specify an entity type as a parameter.
 
@@ -88,7 +88,6 @@ transfer <name> maps <entity> as <mapping-field> [{
     [field] ...
 }]
 ----
-
 ====
 
 For mapped transfer objects, the field block surrounded by `{` and `}` is optional. See <<Auto-mapping>>.
@@ -102,6 +101,7 @@ entity Person {
 }
 
 transfer PersonTransfer(Person person) {
+    field String name = "John" maps person.name ;
 }
 ----
 
@@ -118,13 +118,13 @@ Use the `field` keyword to specify a field within a transfer object.
 *Syntax:*
 
 ----
-field [required] <primitive> <name> [= <default>] ;
+field [required] <primitive> <name> [= <default>];
 ----
 
 where <primitive> is the name of a domain model primitive, or
 
 ----
-field [required] <transfer>[[]] <name> [= <default>] ;
+field [required] <transfer>[[]] <name> [= <default>];
 ----
 
 where the <transfer> is the name of a transfer object.
@@ -133,7 +133,7 @@ The <name> is the referable name of the field.
 
 The optional `[]` indicates that the field is a collection of transfer object instances rather than a single transfer object.
 
-The `required` keyword means that the value of the field cannot be undefined at the time the object is validated. It does not mean that the field cannot be UNDEFINED, it can. However, if the transfer object is validated it will report fields that are required and having the value of UNDEFINED.
+The `required` keyword means that the value of the field cannot be undefined at the time the object is validated. When the transfer object is validated it will report fields that are required and having the value of UNDEFINED. The timing of validation is not discussed in this document. Validation can be called at any time from Java or script execution, or it can be called by the architecture (e.g. before the execution of a service).
 
 // See the validate command.
 
@@ -168,25 +168,83 @@ transfer PersonTransfer {
 
 The second example defines the AddressTransfer transfer object with its fields, and each PersonTransfer instance must have an AddressTransfer.
 
-// read-only fields?
-
-=== Default value
-
 Optionally, a <default> value can be specified as an expression for transfer object fields. The <default> value expression is evaluated when a new instance of the transfer object is created, and the field is set according to the default value expression.
 
 *Example:*
 
 ----
 transfer PersonTransfer {
-    field required String firstName ;
-    field required String lastName ;
+    field required String firstName = "John";
+    field required String lastName = "Doe";
     field String midName = "" ;
 }
 ----
 
-The example above complements the previous PersonTransfer example by adding a default value to the "midName" field. The default value of the `midName` is an empty string.
+The example above complements the previous PersonTransfer example by adding a default value to the `firstName`, `lastName` and `midName` fields.
 
-The default value can be used for the mapping configuration in mapped transfer objects.
+// read-only fields?
+
+=== Mapping configuration
+
+A mapping configuration is a declarative description of how the fields of a transfer object read and/or write specific fields of the entity mapped by the transfer object. Mapping configuration can only be used for mapped transfer objects.
+
+Use the `reads` or `maps` keywords in the field definitions to define the mapping configuration.
+
+*Syntax:*
+
+----
+field [required] <primitive> <name> [= <default>] [(reads|maps) <expression>];
+----
+
+where <primitive> is the name of a domain model primitive, or
+
+----
+field [required] <transfer>[[]] <name> [= <default>]  [(reads|maps) <expression>];
+----
+
+If the `reads` keyword is used, the value of the transfer field will be set to the value of the expression specified after `reads`. 
+
+*Example:*
+
+----
+entity SalesPerson {
+    field String firstName ;
+    field String lastName ;
+}
+
+transfer SalesPersonTransfer(SalesPerson salesperson) {
+    field String fullName reads salesperson.firstName + " " + salesPerson.lastName ;
+}
+----
+
+In the example above, transfer field value is set by concatenating the `firstName` and `lastName` fields of SalesPerson mapped entity with a space in the middle. Note the `salesperson` reference in the expression which refers to the mapping field.
+
+The `reads` expressions are used whenever a transfer object or a collection of transfer objects are requested in a function, see <<Data function>> section.
+
+In the second example, we use the `maps` keyword, which in addition to setting the value of the transfer field, writes the value of the transfer field to the entity field when the transfer object is saved.
+
+*Example:*
+
+----
+entity SalesPerson {
+    field String firstName ;
+    field String lastName ;
+}
+
+transfer SalesPersonTransfer(SalesPerson salesperson) {
+    field String firstName maps salesperson.firstName;
+    field String lastName maps salesPerson.lastName;
+}
+----
+
+In other words, `reads` creates a one-way connection between the entity and the transfer fields, where the value of the transfer field takes the value of the expression. And `maps' defines a two-way connection.
+
+[NOTE]
+====
+While `reads` can be followed by any expression, if the type of its return value is the same as the type of the transfer field, the expression behind `maps' can only designate one field of the mapped entity.
+====
+
+The following example shows a collection field that is mapped to one of the entity's relations. The example defines an additional field for `SalesPersonTransfer`. The field `leads` is defined within SalesPersonTransfer and contains a list of LeadTransfer transfer objects that belong to a particular salesperson.
 
 *Example:*
 
@@ -207,19 +265,17 @@ transfer LeadTransfer(Lead lead) {
 }
 
 transfer SalesPersonTransfer(SalesPerson salesperson) {
-    field String fullName = salesperson.firstName + " " + salesPerson.lastName ;
-    field LeadTransfer[] leads = salesperson.leads ;
+    field String fullName reads salesperson.firstName + " " + salesPerson.lastName ;
+    field LeadTransfer[] leads maps salesperson.leads ;
 }
 ----
 
-In the example above the `fullName` field of SalesPersonTransfer has default value. The default value is calculated by concatenating the `firstName` and `lastName` fields of SalesPerson mapped entity with a space in the middle. Note the `salesperson` reference in the expression which refers to the mapping field.
-
-The example above defines an additional field for `SalesPersonTransfer`. The field `leads` is defined within SalesPersonTransfer and contains a list of LeadTransfer transfer objects that belong to a particular salesperson.
-
 [IMPORTANT]
 ====
-An important note, that if the field type is transfer object (or a collection of transfer objects) the default expression on the left side of the assignment must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
+An important note, that if the transfer field's type is transfer object (or a collection of transfer objects) the expression after the `reads` or `maps` must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
 ====
+
+The `maps` expressions are used whenever a transfer object is persisted, see <<CRUD annotations>> chapter.
 
 === Auto-mapping
 
@@ -259,9 +315,9 @@ The above declaration of `SalesPersonTransfer` equals to the following:
 
 ----
 transfer SalesPersonTransfer(SalesPerson salesPerson) {
-    field String firstName = salesPerson.firstName;
-    field String lastName = salesPerson.lastName;
-    relation LeadTransfer[] leads = salesPerson.leads;
+    field String firstName maps salesPerson.firstName;
+    field String lastName maps salesPerson.lastName;
+    relation LeadTransfer[] leads maps salesPerson.leads;
 }
 ----
 
@@ -303,9 +359,7 @@ where the <name> is the name of the service, and the functions are defined betwe
 
 ----
 service ManagerService {
-    function PersonTransfer create() {
-        // implement this body in Java
-    }
+    function PersonTransfer create();
 }
 ----
 
@@ -346,9 +400,7 @@ service <name> maps <entity> as <mapping-field> [{
 
 ----
 service PersonService(Person person) {
-    function void delete() {
-        // implement this body in Java
-    }
+    function void delete();
 }
 ----
 
@@ -366,7 +418,7 @@ The piece of code above deletes the entity referred to as `person`. More informa
 
 === Function
 
-The function is the piece of code (JSL script or Java implementation) that is executed when the function is invoked.
+The function is the piece of code (currently Java implementation) that is executed when the function is invoked.
 
 The function has a name, an optional input parameter and an optional return value. The return value is a computed value passed to the function caller. This value is often referred to as output.
 
@@ -381,12 +433,10 @@ Use the `function` keyword to specify a function.
 *Syntax:*
 
 ----
-function [<type>|void] <name> ([<parameter>]) [throws <error1> [, <error2>] ...] {
-    <script>
-}
+function [<type>|void] <name> ([<parameter>]) [throws <error1> [, <error2>] ...]
 ----
 
-where the <name> is the name of the function, and the <script> between `{` and `}` is the code to execute.
+where the <name> is the name of the function.
 
 The optional <type> is the output type of the function. If there is no <type> defined or the return type is `void`, the function cannot return any data. The <type> can be one of the following:
 
@@ -403,7 +453,10 @@ Both the return value and the parameter are required when calling the function i
 
 The `throws` keyword is used to declare a list of errors that may occur during the execution of the function code. This optional error list contains the names of the errors that the function may throw and the caller must be prepared to handle them.
 
+The body of functions cannot currently be defined in JSL. If necessary, the functions must be implemented in Java.
+////
 The body of the function is optional. If no function body is specified (e.g. missing block with curly braces), the function must be implemented in Java.
+////
 
 *Example:*
 
@@ -418,9 +471,9 @@ The above example shows two functions. The `delete` function has no return value
 
 === Data function
 
-Data functions are used to query the data model quickly and elegantly. The data function is an expression (see Expression) that will be evaluated when the function is invoked. Data functions are very similar to queries (see Query), except that they have no input parameters and are used by external systems or users.
+Data functions are used to query the data model quickly and elegantly. The data function is an expression (see xref:06_expression.adoc[Expression]) that will be evaluated when the function is invoked. Data functions are very similar to queries (see xref:05_entity.adoc#Query[Query]), except that they have no input parameters and are used by external systems or users.
 
-A very important feature of data functions is that their results can be filtered and paging is provided out of the box. Filtering can be performed on the values of the return value fields. The aim of the paging is, dividing the result into discrete pages with the help of the function.
+A very important feature of data functions is that collection results can be filtered and paging is provided out of the box. Filtering can be performed on the values of the return value fields. The aim of the paging is, dividing the result into discrete pages with the help of the function.
 
 The data function has a name and a return value. The return value is a computed value passed to the function caller.
 
@@ -437,20 +490,12 @@ where <primitive> is the name of a domain model primitive that will be returned,
 *Syntax:*
 
 ----
-function <transfer>[[]] <name> => <expression> [options <options>];
+function <transfer>[[]] <name> => <expression>;
 ----
 
 where the <transfer> is the name of a mapped transfer object that will be returned, and <name> is the referable name of the function. The optional [] indicates that the function returns a collection of <transfer> instances rather than a single transfer object.
 
-The <expression> calculates the return value of the service whenever it is requested. See Expression. If the export that groups the service is a mapped export, the mapping field is available within the expression.
-
-The <options> is an optional expression. If it is specified, the result of the <options> expression must be a list of <transfer> objects. This is the list objects from which the user can select objects and insert then into the list specified by <expression>. If <options> is not specified, the list defined by <expression> cannot be changed.
-
-[NOTE]
-====
-The <options> can only be specified for data functions where the function <expression> specifies a direct relationship of the mapping field.
-====
-
+The <expression> calculates the return value of the service whenever it is requested. See xref:06_expression.adoc[Expression]. If the service that groups the function is a mapped service, the mapping field of the service is available within the expression.
 
 *Example:*
 
@@ -460,12 +505,32 @@ service PersonService(Person person) {
 }
 ----
 
-The example above returns a PersonTransfer object that is the manager of the person represented by the mapping field. The expression selects a Person entity, but the return value of the service is a PersonTransfer mapped transfer object. The mapping between the result of the expression and the return value of the function is done automatically.
+The example above returns a PersonTransfer object that is the manager of the person represented by the mapping field (`person`). The expression selects a Person entity, but the return value of the service is a PersonTransfer mapped transfer object. The mapping between the result of the expression and the return value of the function is done automatically.
 
 [NOTE]
 ====
-A data function expression always works with entities and their relationships, but the return value of a data function is always a mapped transfer object. The mapping between the two is always done according to the mapping rules defined for the mapped transfer object (see default expression).
+A data function expression always works with entities and their relationships, but the return value of a data function is always a mapped transfer object. The mapping between the two is always done according to the mapping rules defined for the mapped transfer object (see <<Mapping configuration>>).
 ====
+
+==== @Insert
+
+Use `@Insert` annotation on a data function to define an additional insert function in the service.
+
+*Syntax:*
+
+----
+@Insert
+function <transfer>[[]] <name> => <expression> choices <choices>;
+----
+
+The `@Insert` can only be specified for data functions where the function <expression> points to a relation of the mapped entity (see xref:06_entity.adoc[Relations]) and <choices> is specified. The insert function inserts a new member to the relation of the mapped entity. The possible new members of the relation are limited to the available <choices>. The <choices> is an expression of the same type as the collection returned by <expression>.
+
+==== @Remove
+
+Use `@Remove` annotation on a data function to define an additional remove function in the service.
+
+The `@Remove` can only be specified for data functions where the function <expression> points to a relation of the mapped entity, see xref:06_entity.adoc[Relations]. The remove function removes a member from the relation of the mapped entity.
+
 
 === Union
 
@@ -502,12 +567,15 @@ To define an actor, use the `actor` keyword.
 ----
 actor <name> [(<entity> <mapping-field>)]
     [realm "<realm>"]
+    [claim "<claim>"]
     [identity <identity>];
 ----
 
 where the <name> is the name of the actor. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance. The linked entity instance is the persistent representation of the user in the application. If there is no linked entity, the user is not represented in the application. A typical case of not represented user is an anonymous user, who shall not be identified within the application.
 
 The <realm> is the name of the security policy domain attached to the actor. The realm is collection of users who can be authenticated to use the application. The realms and identity management used by JUDO are out of scope of the application. The default realm management application that can be used by a JUDO application is Keycloack, but any OpenID3 compatible identity management application can be easily integrated.
+
+A claim is a name/value pair that contains information about the user. A collection of claims are sent by the realm management application to our application at the time when the user authenticates. The <claim> selects one of the claims, which will be used for user identification in the application.
 
 The <identity> is an expression that selects an identifier field of the mapped <entity>. The <identity> is used to unambiguously identify the user within the application (e.g. find only one instance of the mapped entity) to define the relationship with the user in the <realm>.
 
@@ -520,6 +588,7 @@ There is an alternative syntax to define an actor. This alternative is a bit mor
 ----
 actor <name> maps <entity> as <mapping-field>
     [realm "<realm>"]
+    [claim "<claim>"]
     [identity <identity>];
 ----
 
@@ -531,10 +600,11 @@ actor <name> maps <entity> as <mapping-field>
 ----
 actor SalesPersonActor(SalesPerson salesPerson)
     realm "COMPANY"
+    claim "email"
     identity salesPerson.email ;
 ----
 
-The above example defines an actor named `SalesPersonActor`. The company's sales staff are managed in the "COMPANY" realm. The salespersons' unique identifier is their email address.
+The above example defines an actor named `SalesPersonActor`. The company's sales staff are managed in the "COMPANY" realm. The salespersons' unique identifier is their email address. During authentication, the system selects the instance of the SalesPerson entities whose email field has the same value as the value of the "email" claim.
 
 
 === Granting permissions
@@ -552,6 +622,7 @@ To authorize actors to use services, use `exports` in the actor specification.
 ----
 actor <name> ([<entity> <mapping-field>]) [exports <service>, ...]
     [realm "<realm>"]
+    [claim "<claim>"]
     [identity <identity>];
 ----
 
@@ -567,13 +638,11 @@ entity Person {
 }
 
 transfer PersonTransfer(Person person) {
-    field String email = salesPerson.email ;
+    field String email = salesPerson.email;
 }
 
 service ManagerService {
-    function PersonTransfer create() {
-        // implement this body in Java
-    }
+    function PersonTransfer create();
 }
 
 actor Manager exports ManagerService;
@@ -607,9 +676,7 @@ transfer PersonTransfer(Person person) exports PersonService {
 }
 
 service PersonService(Person person) {
-    function void delete() {
-        // implement this body in Java
-    }
+    function void delete();
 }
 ----
 
@@ -617,7 +684,7 @@ The complete authorization mechanism can be defined by carefully provisioning se
 
 === Guard
 
-A guard is a boolean expression that must evaluate to true in order to continue the execution.
+A guard is a boolean expression that must evaluate to true in order to continue the execution. To put it more simply, a guard defines a precondition.
 
 Guards can be defined for
 
@@ -667,14 +734,14 @@ actor SalesPersonActor(SalesPerson salesPerson)
 
 The example above defines a guard for actor, and the salesperson can only invoke the functions if she has at least one lead.
 
-=== CRUD annotations
+== CRUD annotations
 
 Simple new, create, delete and update functions are provided automatically. We can use `@New`, `@Create`, `@Delete` and `@Update` annotations respectively to specify these functions.
 
 
-==== @New
+=== @New
 
-Use `@New` annotation on a function to define a function that creates a new transfer object. The function creates the new transfer object as defined by its return type. The new transfer object will not be persisted, only the transfer object is returned.
+Use `@New` annotation on a function to define a function that creates a new transfer object. The function creates the new transfer object as defined by its return type. The new transfer object will not be persisted, only the transfer object is returned. The fields of the newly created transfer object will be set according to the default values of the fields.
 
 *Example:*
 
@@ -690,11 +757,11 @@ function InvoiceTransfer myNew();
 * have no body
 
 
-==== @Create and @Mapped
+=== @Create
 
 Use `@Create` annotation on a function to define a create function. The create function persists the mapped transfer object passed as its argument. The transfer object's mapped entity must not exist. It persists the transfer object by creating a new entity.
 
-The `@Create` annotation persists only the fields of the transfer object that have the `@Mapped` annotation.
+The `@Create` annotation persists only the fields of the transfer object that have `maps` expression.
 
 *Example:*
 
@@ -705,9 +772,8 @@ entity Invoice {
 }
 
 transfer InvoiceTransfer(Invoice invoice) {
-    @Mapped
-    field String customerName = invoice.customerName;
-    field String comment = invoice.comment;
+    field String customerName maps invoice.customerName;
+    field String comment reads invoice.comment;
 }
 
 service InvoiceService {
@@ -716,7 +782,7 @@ service InvoiceService {
 }
 ----
 
-The above example declares the myCreate function, which creates a new Invoice entity and sets only the entity's customerName field. The comment field is not persisted because the comment field of the transfer object is not marked with `@Mapped`.
+The above example declares the myCreate function, which creates a new Invoice entity and sets only the entity's customerName field. The comment field is not persisted because the comment field of the transfer object has `reads` instead of `maps`.
 
 @Create annotation can be used only on functions that
 
@@ -725,11 +791,11 @@ The above example declares the myCreate function, which creates a new Invoice en
 * have no body
 
 
-==== @Update and @Mapped
+=== @Update and @Mapped
 
 Use `@Update` annotation on a function to define a new update function. The update function persists the mapped transfer object passed as its argument.  The transfer object's mapped entity must already exist.
 
-The `@Update` annotation persists only the fields of the transfer object that have the `@Mapped` annotation.
+The `@Update` annotation persists only the fields of the transfer object that have `maps` expression.
 
 *Example:*
 
@@ -741,9 +807,8 @@ entity Invoice {
 }
 
 transfer InvoiceTransfer(Invoice invoice) {
-    @Mapped
-    field String customerName = invoice.customerName;
-    field String comment = invoice.comment;
+    field String customerName maps invoice.customerName;
+    field String comment reads invoice.comment;
 }
 
 service InvoiceService {
@@ -752,7 +817,7 @@ service InvoiceService {
 }
 ----
 
-The above example declares the myUpdate function, which sets only the entity's customerName field. The comment field is not persisted because the comment field of the transfer object is not marked with `@Mapped`.
+The above example declares the myUpdate function, which sets only the entity's customerName field. The comment field is not persisted because the comment field of the transfer object has `reads` instead of `maps`.
 
 @Update annotation can be used only on functions that
 
@@ -761,9 +826,9 @@ The above example declares the myUpdate function, which sets only the entity's c
 * have no body
 
 
-==== @Delete
+=== @Delete
 
-Use `@Delete` annotation on a function to define a new delete function. The delete function deletes the entity referenced by its export's mapping field.
+Use `@Delete` annotation on a function to define a new delete function. The delete function deletes the entity referenced by its service's mapping field.
 
 *Example:*
 
