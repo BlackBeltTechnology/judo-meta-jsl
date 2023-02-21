@@ -64,7 +64,7 @@ Data transformation between entities and transfer objects is a tedious and error
 
 The name "mapping field" comes from its role. In practice, the mapping field is a field in the mapped transfer object. This is a reference to the entity instance to which the transfer object is linked. This reference can be read at any time like any other field of the transfer object. An important consequence of the above is that the name of the mapping field cannot be used as a field name in the mapped transfer object.
 
-The mapping is a configuration approach that copies entity field values into the fields of the transfer object in a pre-defined way, see more in <<Mapping configuration>> chapter.
+Mapping is a configuration approach that copies entity field values to transfer object fields and vice versa in a pre-defined way, see more in <<Mapping configuration>> chapter.
 
 To define a mapped transfer object, use the `transfer` keyword and specify an entity type as a parameter.
 
@@ -149,7 +149,7 @@ transfer PersonTransfer {
 }
 ----
 
-The example above defines a transfer object named PersonTransfer. This transfer object has three fields. firstName and lastName are two required strings, and midName is an optional string.
+The example above defines a transfer object named PersonTransfer. This transfer object has three fields. `firstName` and `lastName` are two required strings, and `midName` is an optional string.
 
 *Example:*
 
@@ -186,7 +186,7 @@ The example above complements the previous PersonTransfer example by adding a de
 
 === Mapping configuration
 
-A mapping configuration is a declarative description of how the fields of a transfer object read and/or write specific fields of the entity mapped by the transfer object. Mapping configuration can only be used for mapped transfer objects.
+Mapping configuration is a declarative description of how the fields of a transfer object read and/or write specific fields of the entity mapped by the transfer object. Mapping configuration can only be used for mapped transfer objects.
 
 Use the `reads` or `maps` keywords in the field definitions to define the mapping configuration.
 
@@ -213,7 +213,7 @@ entity SalesPerson {
 }
 
 transfer SalesPersonTransfer(SalesPerson salesperson) {
-    field String fullName reads salesperson.firstName + " " + salesPerson.lastName ;
+    field String fullName reads salesperson.firstName + " " + salesperson.lastName ;
 }
 ----
 
@@ -233,7 +233,7 @@ entity SalesPerson {
 
 transfer SalesPersonTransfer(SalesPerson salesperson) {
     field String firstName maps salesperson.firstName;
-    field String lastName maps salesPerson.lastName;
+    field String lastName maps salesperson.lastName;
 }
 ----
 
@@ -241,7 +241,7 @@ In other words, `reads` creates a one-way connection between the entity and the 
 
 [NOTE]
 ====
-While `reads` can be followed by any expression, if the type of its return value is the same as the type of the transfer field, the expression behind `maps' can only designate one field of the mapped entity.
+While `reads` can be followed by any expression, if the type of its return value is the same as the type of the transfer field, the expression behind `maps' can only points to one field of the mapped entity.
 ====
 
 The following example shows a collection field that is mapped to one of the entity's relations. The example defines an additional field for `SalesPersonTransfer`. The field `leads` is defined within SalesPersonTransfer and contains a list of LeadTransfer transfer objects that belong to a particular salesperson.
@@ -265,7 +265,7 @@ transfer LeadTransfer(Lead lead) {
 }
 
 transfer SalesPersonTransfer(SalesPerson salesperson) {
-    field String fullName reads salesperson.firstName + " " + salesPerson.lastName ;
+    field String fullName reads salesperson.firstName + " " + salesperson.lastName ;
     field LeadTransfer[] leads maps salesperson.leads ;
 }
 ----
@@ -523,14 +523,24 @@ Use `@Insert` annotation on a data function to define an additional insert funct
 function <transfer>[[]] <name> => <expression> choices <choices>;
 ----
 
-The `@Insert` can only be specified for data functions where the function <expression> points to a relation of the mapped entity (see xref:06_entity.adoc[Relations]) and <choices> is specified. The insert function inserts a new member to the relation of the mapped entity. The possible new members of the relation are limited to the available <choices>. The <choices> is an expression of the same type as the collection returned by <expression>.
+The `@Insert` can only be specified for data functions where the function <expression> points to a relation of the mapped entity (see xref:06_entity.adoc[Relations]) and <choices> is specified. Moreover, the function must return a collection.
+
+The insert function inserts a new member to the relation of the mapped entity. The possible new members of the relation are limited to the available <choices>. The <choices> is an expression of the same type as the collection returned by <expression>.
 
 ==== @Remove
 
 Use `@Remove` annotation on a data function to define an additional remove function in the service.
 
-The `@Remove` can only be specified for data functions where the function <expression> points to a relation of the mapped entity, see xref:06_entity.adoc[Relations]. The remove function removes a member from the relation of the mapped entity.
+*Syntax:*
 
+----
+@Remove
+function <transfer>[[]] <name> => <expression>;
+----
+
+The `@Remove` can only be specified for data functions where the function <expression> points to a relation of the mapped entity, see xref:06_entity.adoc[Relations].  Moreover, the function must return a collection.
+
+The remove function removes a member from the relation of the mapped entity.
 
 === Union
 
