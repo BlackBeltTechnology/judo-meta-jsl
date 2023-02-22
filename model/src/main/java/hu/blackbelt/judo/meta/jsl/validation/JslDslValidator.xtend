@@ -1010,9 +1010,21 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Check
 	def checkTransferField(TransferFieldDeclaration field) {
 		try {
-			if (field.expression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.expression))) {
+			if (field.^default !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.^default))) {
 				error("Default value does not match field type",
-	                JsldslPackage::eINSTANCE.transferFieldDeclaration_Expression,
+	                JsldslPackage::eINSTANCE.transferFieldDeclaration_Default,
+	                TYPE_MISMATCH)
+			}
+
+			if (field.maps !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.maps))) {
+				error("Mapping expression value does not match field type",
+	                JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
+	                TYPE_MISMATCH)
+			}
+
+			if (field.reads !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.reads))) {
+				error("Read expression value does not match field type",
+	                JsldslPackage::eINSTANCE.transferFieldDeclaration_Reads,
 	                TYPE_MISMATCH)
 			}
 
@@ -1350,6 +1362,31 @@ class JslDslValidator extends AbstractJslDslValidator {
 	            INVALID_ANNOTATION_MARK,
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
         }
+	}
+
+	@Check
+	def checkAnnotationInsertAndRemove(AnnotationMark mark) {
+		if (!mark.declaration.name.equals("Insert") && !mark.declaration.name.equals("Remove")) {
+			return
+		}
+
+		if (!(mark.eContainer instanceof ServiceDataDeclaration)) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Function must be a data function.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+	            
+	        return
+		}
+
+		val ServiceDataDeclaration data = mark.eContainer as ServiceDataDeclaration
+
+		if (!data.many) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Function must return a collection.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+		}
 	}
 
 	@Check

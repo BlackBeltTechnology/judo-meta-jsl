@@ -19,13 +19,13 @@ JSLID : ID | 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'ti
 	       | 'collection' | 'declaration' | 'constant'
 	       | 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' 
 	       | 'kB' | 'MB' | 'GB' | 'KiB' | 'MiB' | 'GiB'
-	       | 'get' | 'create' | 'update' | 'delete' | 'insert' | 'remove'
 	       | 'view' | 'widget' | 'action' | 'table' | 'row' | 'column'
 	       | 'caption' | 'icon' | 'enabled' | 'hidden' | 'width' | 'height'
 	       | 'group' | 'tab' | 'horizontal' | 'vertical' | 'frame' | 'left' | 'right' | 'center' | 'top' | 'bottom' | 'stretch'
-	       | 'service' | 'options' | 'guard'
-	       | 'actor'
+	       | 'service' | 'choices' | 'guard'
+	       | 'actor' | 'claim'
 	       
+	       // 'reads', 'maps' are not included
 	       // 'self', 'true', 'false', 'not' are not included
 	;
 
@@ -204,7 +204,7 @@ ServiceOperationDeclaration
 ServiceDataDeclaration
 	: annotations += AnnotationMark*
 	  'function' return = ServiceReturnDeclaration Cardinality? Named '=>' expression = Expression
-	  (('guard' guard = Expression)? & ('options' options = Expression)?)SC
+	  (('guard' guard = Expression)? & ('choices' choices = Expression)?)SC
 	;
 
 ServiceFunctionDeclaration
@@ -255,7 +255,7 @@ TransferMemberDeclaration
 TransferFieldDeclaration
 	: annotations += AnnotationMark*
 	  'field' (required ?= 'required'? referenceType = [TransferFieldType | ModelName] Cardinality?) Named
-	  ("=" expression = Expression)?
+	  ("=" default = Expression)? ('maps' maps = Expression | 'reads' reads = Expression)?
 	  SC
 	;
 
@@ -405,7 +405,7 @@ ActorDeclaration
 	  'actor' Named
 	  map = EntityMapDeclaration?
 	  ('exports' exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
-	  (('realm' realm = StringLiteral)? & ('identity' identity = Expression)? & ('guard' guard = Expression)?)
+	  (('realm' realm = StringLiteral)? & ('claim' claim = StringLiteral)? & ('identity' identity = Expression)? & ('guard' guard = Expression)?)
 	  SC
 	;
 

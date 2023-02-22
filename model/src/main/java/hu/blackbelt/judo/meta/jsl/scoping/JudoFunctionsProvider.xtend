@@ -55,9 +55,9 @@ class JudoFunctionsProvider {
 		annotation Create on service::function;
 		annotation Delete on service::function;
 		annotation Update on service::function;
+		annotation Insert on service::function;
+		annotation Remove on service::function;
 		
-		annotation Mapped on transfer::field, view::widget;
-
 		function string asString() on boolean;
 		function string asString() on enum;
 		

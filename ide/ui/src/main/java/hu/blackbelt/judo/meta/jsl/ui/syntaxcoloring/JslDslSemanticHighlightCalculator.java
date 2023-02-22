@@ -34,7 +34,6 @@ import org.eclipse.xtext.util.CancelIndicator;
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Literal;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
@@ -119,10 +118,10 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 					case "row":
 					case "actor":
 					case "realm":
+					case "claim":
 					case "identity":
 					case "type":
 					case "import":
-					case "maps":
 					case "as":
 					case "error":
 					case "entity":
@@ -177,15 +176,10 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 					case "time":
 					case "timestamp":
 
-					case "get":
-					case "create":
-					case "update":
-					case "delete":
-					case "insert":
-					case "remove":
+					case "reads":
 
 					case "function":
-					case "options":
+					case "choices":
 					case "operation":
 					case "static":
 					case "constraint":
@@ -205,6 +199,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 						continue;
 						
 					case "query":
+					case "maps":
 						if (node.getSemanticElement().eContainer() instanceof ModelDeclaration) {
 							acceptor.addPosition(node.getOffset(), node.getText().length(),
 								HighlightingConfiguration.KEYWORD_ID);
