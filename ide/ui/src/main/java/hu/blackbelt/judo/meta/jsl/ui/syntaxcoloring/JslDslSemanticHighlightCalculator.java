@@ -191,6 +191,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 					case "required":
 					case "opposite":
 					case "opposite-add":
+					case "constructor":
 					case "void":
 						if (!(node.getSemanticElement().eContainer() instanceof AnnotationDeclaration)) {
 							acceptor.addPosition(node.getOffset(), node.getText().length(),

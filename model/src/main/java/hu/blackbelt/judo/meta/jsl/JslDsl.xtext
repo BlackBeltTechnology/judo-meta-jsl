@@ -24,6 +24,7 @@ JSLID : ID | 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'ti
 	       | 'group' | 'tab' | 'horizontal' | 'vertical' | 'frame' | 'left' | 'right' | 'center' | 'top' | 'bottom' | 'stretch'
 	       | 'service' | 'choices' | 'guard'
 	       | 'actor' | 'claim'
+	       | 'constructor'
 	       
 	       // 'reads', 'maps' are not included
 	       // 'self', 'true', 'false', 'not' are not included
@@ -244,7 +245,7 @@ TransferDeclaration
 	  'transfer' Named
 	  map = EntityMapDeclaration?
 	  ('exports' exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
-	  (automap ?= SC | BLOCK_START (members += TransferMemberDeclaration)* BLOCK_END)
+	  (automap ?= SC | BLOCK_START (members += TransferMemberDeclaration)* constructor = TransferConstructorDeclaration? BLOCK_END)
 	;
 
 TransferMemberDeclaration
@@ -255,8 +256,23 @@ TransferMemberDeclaration
 TransferFieldDeclaration
 	: annotations += AnnotationMark*
 	  'field' (required ?= 'required'? referenceType = [TransferFieldType | ModelName] Cardinality?) Named
-	  ("=" default = Expression)? ('maps' maps = Expression | 'reads' reads = Expression)?
+	  ('maps' maps = Expression | 'reads' reads = Expression)?
 	  SC
+	;
+
+TransferConstructorDeclaration
+	: {TransferConstructorDeclaration}
+	  'constructor'
+	  BLOCK_START (defaults += TransferDefault)* BLOCK_END
+	  SC*
+	;
+
+TransferDefault
+	: field = TransferField '=' rightValue = Literal SC+
+	;
+
+TransferField
+	: 'self' '.' reference = [TransferFieldDeclaration | ModelName]
 	;
 
 TransferFieldType
