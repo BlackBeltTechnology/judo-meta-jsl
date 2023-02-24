@@ -9,6 +9,7 @@ import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.requirement.report.annotation.Requirement
+import org.junit.jupiter.api.Disabled
 
 @ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
@@ -125,8 +126,8 @@ class StaticQueryTests {
         ]
     }
     
-    // TODO: JNG-4566
-    // @Test
+    @Test
+    @Disabled("JNG-4566")
     @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
