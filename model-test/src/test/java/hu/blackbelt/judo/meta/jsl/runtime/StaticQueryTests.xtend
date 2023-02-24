@@ -10,10 +10,12 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.requirement.report.annotation.Requirement
 import org.junit.jupiter.api.Disabled
+import hu.blackbelt.judo.test.specification.TCS018
+import hu.blackbelt.judo.test.specification.TCS019
 
 @ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
-class StaticQueryTests {
+class StaticQueryTests implements TCS018, TCS019 {
     @Inject extension ParseHelper<ModelDeclaration>
     @Inject extension ValidationTestHelper
 
@@ -47,7 +49,7 @@ class StaticQueryTests {
         "REQ-EXPR-008",
         "REQ-EXPR-022"
     ])
-    def void tcs018() {
+    override void tcs018() {
         '''
             model modelTCS018;
             
@@ -160,7 +162,7 @@ class StaticQueryTests {
         "REQ-EXPR-014",
         "REQ-EXPR-022"
     ])
-    def void tcs019() {
+    override void tcs019() {
         '''
             model modelTCS019;
             
