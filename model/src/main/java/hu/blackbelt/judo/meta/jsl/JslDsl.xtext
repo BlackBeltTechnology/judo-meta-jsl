@@ -690,6 +690,7 @@ AnnotationTarget
 	| 'entity' '::' entityOperation ?= 'operation'
 	| transfer ?= 'transfer'
 	| 'transfer' '::' transferField ?= 'field'
+	| 'transfer' '::' transferConstructor ?= 'constructor'
 	| service ?= 'service'
 	| 'service' '::' serviceFunction ?= 'function'
 	| actor ?= 'actor'

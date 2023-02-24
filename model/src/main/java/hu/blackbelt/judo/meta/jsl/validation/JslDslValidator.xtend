@@ -76,6 +76,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDefault
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferConstructorDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -603,30 +605,31 @@ class JslDslValidator extends AbstractJslDslValidator {
 		var error = false;
 		
 		switch mark.eContainer {
-			ModelDeclaration:            error = !mark.declaration.targets.exists[t | t.model]
+			ModelDeclaration:               error = !mark.declaration.targets.exists[t | t.model]
 
-			DataTypeDeclaration:         error = !mark.declaration.targets.exists[t | t.type]
+			DataTypeDeclaration:            error = !mark.declaration.targets.exists[t | t.type]
 
-			EnumDeclaration:             error = !mark.declaration.targets.exists[t | t.enumeration]
-			EnumLiteral:                 error = !mark.declaration.targets.exists[t | t.enumLiteral]
+			EnumDeclaration:                error = !mark.declaration.targets.exists[t | t.enumeration]
+			EnumLiteral:                    error = !mark.declaration.targets.exists[t | t.enumLiteral]
 
-			EntityDeclaration:		     error = !mark.declaration.targets.exists[t | t.entity]
-			EntityFieldDeclaration:      error = !mark.declaration.targets.exists[t | t.entityField]
-			EntityRelationDeclaration:   error = !mark.declaration.targets.exists[t | t.entityRelation]
-			EntityIdentifierDeclaration: error = !mark.declaration.targets.exists[t | t.entityIdentifier]
-			EntityDerivedDeclaration:    error = !mark.declaration.targets.exists[t | t.entityDerived]
-			EntityQueryDeclaration:      error = !mark.declaration.targets.exists[t | t.entityQuery]
-			EntityOperationDeclaration:  error = !mark.declaration.targets.exists[t | t.entityOperation]
+			EntityDeclaration:		        error = !mark.declaration.targets.exists[t | t.entity]
+			EntityFieldDeclaration:         error = !mark.declaration.targets.exists[t | t.entityField]
+			EntityRelationDeclaration:      error = !mark.declaration.targets.exists[t | t.entityRelation]
+			EntityIdentifierDeclaration:    error = !mark.declaration.targets.exists[t | t.entityIdentifier]
+			EntityDerivedDeclaration:       error = !mark.declaration.targets.exists[t | t.entityDerived]
+			EntityQueryDeclaration:         error = !mark.declaration.targets.exists[t | t.entityQuery]
+			EntityOperationDeclaration:     error = !mark.declaration.targets.exists[t | t.entityOperation]
 
-			TransferDeclaration:         error = !mark.declaration.targets.exists[t | t.transfer]
-			TransferFieldDeclaration:    error = !mark.declaration.targets.exists[t | t.transferField]
+			TransferDeclaration:            error = !mark.declaration.targets.exists[t | t.transfer]
+			TransferFieldDeclaration:       error = !mark.declaration.targets.exists[t | t.transferField]
+			TransferConstructorDeclaration: error = !mark.declaration.targets.exists[t | t.transferConstructor]
 
-			ServiceDeclaration:          error = !mark.declaration.targets.exists[t | t.service]
-			ServiceFunctionDeclaration:  error = !mark.declaration.targets.exists[t | t.serviceFunction]
+			ServiceDeclaration:             error = !mark.declaration.targets.exists[t | t.service]
+			ServiceFunctionDeclaration:     error = !mark.declaration.targets.exists[t | t.serviceFunction]
 
-			ActorDeclaration:            error = !mark.declaration.targets.exists[t | t.actor]
+			ActorDeclaration:               error = !mark.declaration.targets.exists[t | t.actor]
 
-			QueryDeclaration:            error = !mark.declaration.targets.exists[t | t.query]
+			QueryDeclaration:               error = !mark.declaration.targets.exists[t | t.query]
 		}
 		
 		if (error) {
@@ -1008,14 +1011,21 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
+	def checkTransferDefault(TransferDefault transferDefault) {
+		if (transferDefault.field === null || transferDefault.rightValue === null) {
+			return
+		}
+		
+		if (!TypeInfo.getTargetType(transferDefault.field.reference).isCompatible(TypeInfo.getTargetType(transferDefault.rightValue))) {
+			error("Default value does not match field type",
+                JsldslPackage::eINSTANCE.transferDefault_RightValue,
+                TYPE_MISMATCH)
+		}
+	}
+
+	@Check
 	def checkTransferField(TransferFieldDeclaration field) {
 		try {
-			if (field.^default !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.^default))) {
-				error("Default value does not match field type",
-	                JsldslPackage::eINSTANCE.transferFieldDeclaration_Default,
-	                TYPE_MISMATCH)
-			}
-
 			if (field.maps !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.maps))) {
 				error("Mapping expression value does not match field type",
 	                JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
@@ -1244,8 +1254,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 	
 	@Check
-	def checkAnnotationNew(AnnotationMark mark) {
-		if (!mark.declaration.name.equals("New")) {
+	def checkAnnotationFactory(AnnotationMark mark) {
+		if (!mark.declaration.name.equals("Factory")) {
 			return
 		}
 

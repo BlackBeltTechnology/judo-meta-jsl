@@ -62,6 +62,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationArgument
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceOperationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferField
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -87,6 +89,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     		EntityRelationOppositeReferenced case ref == JsldslPackage::eINSTANCE.entityRelationOppositeReferenced_OppositeType: return context.scope_EntityRelationOppositeReferenced_oppositeType(ref)
 			MemberReference case ref == JsldslPackage::eINSTANCE.memberReference_Member: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
 			EnumLiteralReference case ref == JsldslPackage::eINSTANCE.enumLiteralReference_EnumLiteral: return scope.scope_Containments(context.enumDeclaration, ref)
+			TransferField case ref == JsldslPackage::eINSTANCE.transferField_Reference: return scope.scope_Containments(context.eContainer.eContainer.eContainer, ref)
 
 			Call case ref == JsldslPackage::eINSTANCE.lambdaCall_Declaration: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
 			Call case ref == JsldslPackage::eINSTANCE.functionCall_Declaration: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
@@ -172,6 +175,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				LambdaDeclaration: return true
 				ErrorDeclaration: return true
 				AnnotationDeclaration: return true
+				TransferFieldDeclaration: return true
 
 				LambdaVariable: return context.parentContainer(LambdaCall).isEqual(obj.eContainer)
 				QueryParameterDeclaration: return EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]

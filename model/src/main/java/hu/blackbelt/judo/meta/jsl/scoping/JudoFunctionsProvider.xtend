@@ -51,7 +51,7 @@ class JudoFunctionsProvider {
 	def model() '''
 		model judo::functions;
 
-		annotation New on service::function;
+		annotation Factory on service::function;
 		annotation Create on service::function;
 		annotation Delete on service::function;
 		annotation Update on service::function;
