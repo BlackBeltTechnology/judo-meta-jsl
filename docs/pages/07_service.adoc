@@ -1,0 +1,1211 @@
+ifndef::env-site,env-github[]
+include::../_attributes.adoc[]
+endif::[]
+// Settings
+:idprefix:
+:idseparator: -
+:icons: font
+:KW: [purple]##**
+:KWE: **##
+
+// TODO: schedule and init
+
+= Service layer
+:page-toctitle:Transfer
+
+The service layer acts as a front-facing interface masking the underlying entity model. It can hide the complexity and the details of the entity model and provides a simpler interface to the clients of the application. Or it can provide different views for different purposes, allowing changes in functionality without changing the underlying, often rigid data model, which is often created from very different aspects. In addition, the service model also reduces the dependence between the entity model and the outside world.
+
+The main building blocks of the service model are transfer objects, services and actors. The following chapters describe these building blocks in detail.
+
+== Transfer object
+
+A transfer object is a container for a set of data fields that is transferred between the service layer and any upper layers (e.g. user interface or external system).
+
+[NOTE]
+====
+The term "transfer object" is a short version of "transfer object type". The correct term would be "transfer object type". However, to distinguish between the type and the instance, the object is called "instance of a transfer object" or "transfer object instance".
+====
+
+There are two categories of transfer objects:
+
+* unmapped and
+* mapped transfer objects.
+
+// Additionally, transfer objects may contain activities such as internal consistency checking, validation and services.
+
+=== Unmapped transfer object
+
+Unmapped transfer objects are simple non-persistent objects that carry data between our application and the outside world. The data fields of an unmapped transfer object can be set and read at any stage of its life cycle.
+
+To define an unmapped transfer object, use the `transfer` keyword.
+
+*Syntax:*
+
+----
+transfer <name> {
+    [field] ...
+}
+----
+
+where the <name> is the name of the transfer object, and its data fields are defined between `{` and `}`. Possible field definitions are provided in the <<Field>> section.
+
+*Example:*
+
+----
+transfer PersonTransfer {
+}
+----
+
+The above example declares the transfer object `PersonTransfer` with no fields.
+
+=== Mapped transfer object
+
+Data transformation between entities and transfer objects is a tedious and error-prone task. Mapped transfer objects are intended to facilitate this work and also carry data between our application and the outside world, but they can be linked to a specific entity instance. The link between the mapped transfer object instance and the entity instance is represented by a specific field of the mapped transfer object, called mapping field.
+
+[IMPORTANT]
+====
+Understanding the concept of a *mapping field* is extremely important as you continue reading this document. The name "mapping field" comes from its role. In practice, the mapping field is a field in the mapped transfer object. This is a reference to the entity instance to which the transfer object is linked. This reference can be read at any time like any other field of the transfer object. An important consequence of the above is that the name of the mapping field cannot be used as a field name in the mapped transfer object.
+====
+
+Mapping is a configuration approach that copies entity field values to transfer object fields and vice versa in a pre-defined way, see more in <<Mapping configuration>> chapter.
+
+To define a mapped transfer object, use the `transfer` keyword and specify an entity type as a parameter.
+
+*Syntax:*
+
+----
+transfer <name> (<entity> <mapping-field>) [{
+    [field] ...
+}]
+----
+
+where the <name> is the name of the transfer object, and the member fields are defined between `{` and `}`. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance.
+
+
+[NOTE]
+====
+There is an alternative syntax to define a mapped transfer object. This alternative is a bit more expressive, although it may be too verbose.
+
+----
+transfer <name> maps <entity> as <mapping-field> [{
+    [field] ...
+}]
+----
+====
+
+For mapped transfer objects, the field block surrounded by `{` and `}` is optional. See <<Auto-mapping>>.
+
+The example below shows a mapped transfer object.
+
+*Example:*
+
+----
+entity Person {
+}
+
+transfer PersonTransfer(Person person) {
+    field String name maps person.name;
+}
+----
+
+The transfer object `PersonTransfer` is mapped to the `Person` entity. A particular instance of the Person entity is accessible as `person` within the scope of the PersonTransfer transfer object. The `person` field is a field of type `Person`, which is the mapping field.
+
+The value of the mapping field (`person` in the example above) can be undefined (e.g. the mapping field is not required). In some PersonTransfer instances, the mapping field may refer to a particular Person entity instance, and in others it may be undefined.
+
+=== Field
+
+A transfer object may contain data descriptions called fields. A field has an associated domain type that can be either a primitive or other transfer object, in other words, the field is a typed element. Fields cannot store multiple primitive values (that is, collection), but only a single primitive value. If you want to have a collection of primitives, use a wrapper transfer object with just one primitive field, and use a collection of wrappers to store a collection of primitive values.
+
+Use the `field` keyword to specify a field within a transfer object.
+
+*Syntax:*
+
+----
+field [required] <primitive> <name>;
+----
+
+where <primitive> is the name of a domain model primitive, or
+
+----
+field [required] <transfer>[[]] <name>;
+----
+
+where the <transfer> is the name of a transfer object.
+
+The <name> is the referable name of the field.
+
+The optional `[]` indicates that the field is a collection of transfer object instances rather than a single transfer object.
+
+The `required` keyword means that the value of the field cannot be undefined at the time the object is validated. When the transfer object is validated it will report fields that are required and having the value of UNDEFINED. The timing of validation is not discussed in this document. Validation can be called at any time from Java or script execution, or it can be called by the architecture (e.g. before the execution of a service).
+
+// See the validate command.
+
+The keyword `required` is not allowed in fields with collection type.
+
+*Example:*
+
+----
+transfer PersonTransfer {
+    field required String firstName;
+    field required String lastName;
+    field String midName;
+}
+----
+
+The example above defines a transfer object named PersonTransfer. This transfer object has three fields. `firstName` and `lastName` are two required strings, and `midName` is an optional string.
+
+*Example:*
+
+----
+transfer AddressTransfer {
+    field required String line1;
+    field String line2;
+    field String City;
+    field String ZipCode;
+}
+
+transfer PersonTransfer {
+    field required AddressTransfer address;
+}
+----
+
+The second example defines the AddressTransfer transfer object with its fields, and each PersonTransfer instance must have an AddressTransfer.
+
+// read-only fields?
+
+=== Constructor
+
+Optionally, a constructor can be specified for transfer objects. The constructor is automatically called when a new transfer object is created and can be used to set default values of the fields. Typically a new transfer object is created by factory functions, see <<Factory>>.
+
+*Syntax:*
+
+----
+constructor {
+    [<field> = <value>;] ...
+}
+----
+
+where <field> is a field of the transfer object having the constructor and <value> is a constant value.
+
+
+*Example:*
+
+----
+transfer PersonTransfer {
+    field required String firstName;
+    field required String lastName;
+    field String midName;
+    
+    constructor {
+        self.firstName = "John";
+        self.lastName = "Doe";
+        self.midName = "";
+    }
+}
+----
+
+The example above complements the previous PersonTransfer example by adding a default value to the `firstName`, `lastName` and `midName` fields.
+
+[NOTE]
+====
+The constructor is not called when a mapped transfer object is produced for existing entity. For example, when a data function looks up entities and returns their associated mapped transfer objects, the constructors for the mapped transfer objects are not called.
+====
+
+
+// TODO: deafult must be constant
+
+
+=== Mapping configuration
+
+Mapping configuration is a declarative description of how the fields of a transfer object read and/or write specific fields of the entity mapped by the transfer object. Mapping configuration can only be used for mapped transfer objects.
+
+Use the `reads` or `maps` keywords in the field definitions to define the mapping configuration.
+
+*Syntax:*
+
+----
+field [required] <primitive> <name> [(reads|maps) <expression>];
+----
+
+where <primitive> is the name of a domain model primitive, or
+
+----
+field [required] <transfer>[[]] <name> [(reads|maps) <expression>];
+----
+
+If the `reads` keyword is used, the value of the transfer field will be set to the value of the expression specified after `reads`. 
+
+*Example:*
+
+----
+entity SalesPerson {
+    field String firstName;
+    field String lastName;
+}
+
+transfer SalesPersonTransfer(SalesPerson salesperson) {
+    field String fullName reads salesperson.firstName + " " + salesperson.lastName;
+}
+----
+
+In the example above, transfer field value is set by concatenating the `firstName` and `lastName` fields of SalesPerson mapped entity with a space in the middle. Note the `salesperson` reference in the expression which refers to the mapping field.
+
+The `reads` expressions are used whenever a transfer object or a collection of transfer objects are requested in a function, see <<Data function>> section.
+
+If the `maps` keyword is used, in addition to setting the value of the transfer field, it writes the value of the transfer field to the entity field when the mapped entity instance is updated with the transfer object instance. See <<Update>> chapter.
+
+While `reads` can be followed by any expression, the expression behind `maps` can only points to one field of the mapped entity.
+
+*Example:*
+
+----
+entity SalesPerson {
+    field String firstName;
+    field String lastName;
+}
+
+transfer SalesPersonTransfer(SalesPerson salesperson) {
+    field String firstName maps salesperson.firstName;
+    field String lastName maps salesperson.lastName;
+}
+----
+
+In other words, `reads` creates a one-way connection between the entity and the transfer fields, where the value of the transfer field takes the value of the expression. And `maps` defines a two-way connection.
+
+Both read and map expressions must return a primitive compatible with the field type.
+
+The following example shows a collection field that is mapped to one of the entity's relations. The example defines an additional field for `SalesPersonTransfer`. The field `leads` is defined within SalesPersonTransfer and contains a list of LeadTransfer transfer objects that belong to a particular salesperson.
+
+*Example:*
+
+----
+entity SalesPerson {
+    field String firstName;
+    field String lastName;
+    
+	relation Lead[] leads;
+}
+
+entity Lead {
+    field Integer value;
+}
+
+transfer LeadTransfer(Lead lead) {
+    field Integer value = lead.value;
+}
+
+transfer SalesPersonTransfer(SalesPerson salesperson) {
+    field String fullName reads salesperson.firstName + " " + salesperson.lastName;
+    field LeadTransfer[] leads maps salesperson.leads;
+}
+----
+
+[IMPORTANT]
+====
+An important note, that if the transfer field's type is transfer object (or a collection of transfer objects) the expression after the `reads` or `maps` must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
+====
+
+=== Auto-mapping
+
+We often encounter the situation when entities need to be delivered to external clients without structural changes. A typical situation of this kind is master data management. To facilitate the creation of such transfer objects, automatic mapping is provided.
+
+If a mapped transfer object is defined without members, all entity fields are automatically mapped in the transfer object with the same names as the names defined in the entity.
+
+----
+entity SalesPerson {
+    field String firstName;
+    field String lastName;
+}
+
+transfer SalesPersonTransfer(SalesPerson salesPerson);
+----
+
+In the example above, there will be two fields in the transfer object, the `firstName` and the `lastName`.
+
+Auto-mapping also maps fields with transfer object type. A prerequisite for automatic mapping with a transfer object type is that the referenced transfer object must also already exist as an automatically mapped transfer object. The following example shows a transfer object with a list of transfer objects in one of its fields.
+
+----
+entity SalesPerson {
+    field String firstName;
+    field String lastName;
+	relation Lead[] leads;
+}
+
+entity Lead {
+    field Integer value;
+}
+
+transfer LeadTransfer(Lead lead);
+transfer SalesPersonTransfer(SalesPerson salesPerson);
+----
+
+The above declaration of `SalesPersonTransfer` equals to the following:
+
+----
+transfer SalesPersonTransfer(SalesPerson salesPerson) {
+    field String firstName maps salesPerson.firstName;
+    field String lastName maps salesPerson.lastName;
+    relation LeadTransfer[] leads maps salesPerson.leads;
+}
+----
+
+
+[NOTE]
+====
+Note that there can only be one auto-mapped transfer object for an entity.
+====
+
+
+
+== Service
+
+Services are key components of software applications, allowing external systems or users to interact with the application. The services include creating, updating or deleting data or other real-time communications.
+
+A service is a component that groups functions together that are related in some way. Similar to transfer objects, we also distinguish two categories of services:
+
+* unmapped and
+
+* mapped service.
+
+=== Unmapped service
+
+Unmapped services are simple components that are solely responsible for grouping functions.
+
+To define an unmapped service, use the `service` keyword.
+
+*Syntax:*
+
+----
+service <name> {
+    [function] ...
+}
+----
+
+where the <name> is the name of the service, and the functions are defined between `{` and `}`. Possible function definitions are provided in the <<Function>> and <<Data function>> sections.
+
+*Example:*
+
+----
+service ManagerService {
+    function PersonTransfer create();
+}
+----
+
+The example above defines a service named `ManagerService` with only one function member.
+
+=== Mapped service
+
+Mapped services also groups functions, but they are linked to a specific entity instance, similar to mapped transfer objects. The link between the mapped service and the entity instance is represented by a specific field, called mapping field.
+
+*Syntax:*
+
+----
+service <name> (<entity> <mapping-field>) {
+    [function] ...
+}
+----
+
+where the <name> is the name of the service, and the functions are defined between `{` and `}`. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance.
+
+Possible functions definitions are provided in the next section.
+
+
+[NOTE]
+====
+There is an alternative syntax to define a mapped service. This alternative is a bit more expressive, although it may be too verbose.
+
+----
+service <name> maps <entity> as <mapping-field> [{
+    [function] ...
+}]
+----
+
+====
+
+
+
+*Example:*
+
+----
+service PersonService(Person person) {
+    function void delete();
+}
+----
+
+The above example defines a mapped service named "PersonService" with a single function. Within the body of the function, the mapped field is available using the variable `person`.
+
+////
+For example, the body of the deletion service can be
+
+----
+delete person;
+----
+
+The piece of code above deletes the entity referred to as `person`. More information about JSL scripts in later chapters.
+////
+
+=== Function
+
+The function is the piece of code (currently Java implementation) that is executed when the function is invoked.
+
+The function has a name, an optional input parameter and an optional return value. The return value is a computed value passed to the function caller. This value is often referred to as output.
+
+////
+In addition to the output, an action may also return different type of errors. The definition of errors is discussed in chapter Errors.
+////
+
+The function parameter is a variable used to configure the function. It is passed to the function in order to determine how the function will behave when it is invoked. Function parameter can be used to customize the behavior of the function for different situations.
+
+Use the `function` keyword to specify a function.
+
+*Syntax:*
+
+----
+function [<type>|void] <name> ([<parameter>]) [throws <error1> [, <error2>] ...]
+----
+
+where the <name> is the name of the function.
+
+The optional <type> is the output type of the function. If there is no <type> defined or the return type is `void`, the function cannot return any data. The <type> can be one of the following:
+
+* domain primitive
+* single transfer object
+* collection of transfer objects
+* union
+
+Unions are discussed in the <<Union>> chapter.
+
+The optional <parameter> is specified after the function name, inside the parentheses. It consists of a type and a name. The type is the name of a transfer object, and the parameter name can be referenced within the body of the function.
+
+Both the return value and the parameter are required when calling the function if specified in the function declaration.
+
+The `throws` keyword is used to declare a list of errors that may occur during the execution of the function code. This optional error list contains the names of the errors that the function may throw and the caller must be prepared to handle them.
+
+The body of functions cannot currently be defined in JSL. Currently, the functions must be implemented in Java.
+////
+The body of the function is optional. If no function body is specified (e.g. missing block with curly braces), the function must be implemented in Java.
+////
+
+*Example:*
+
+----
+service PersonService(Person person) {
+    function void delete();
+    function LeadTransfer[] addLead(LeadTransfer lead);
+}
+----
+
+The above example shows two functions. The `delete` function has no return value or parameters and will be implemented in Java. The second function (`addLead`) has both a return value and a parameter. This must also be implemented in Java.
+
+=== Data function
+
+Data functions are used to query the data model quickly and elegantly. The data function is an expression (see xref:06_expression.adoc[Expression]) that will be evaluated when the function is invoked. Data functions are very similar to queries (see xref:05_entity.adoc#Query[Query]), except that they have no input parameters and are used by external systems or users.
+
+A very important feature of data functions is that collection results can be filtered and paging is provided out of the box. Filtering can be performed on the values of the return value fields. The aim of the paging is, dividing the result into discrete pages with the help of the function.
+
+The data function has a name and a return value. The return value is a computed value passed to the function caller.
+
+Use the `function` keyword to specify a data function.
+
+*Syntax:*
+
+----
+function <primitive> <name> => <expression>;
+----
+
+where <primitive> is the name of a domain model primitive that will be returned, and <name> is the referable name of the function, or
+
+*Syntax:*
+
+----
+function <transfer>[[]] <name> => <expression>;
+----
+
+where the <transfer> is the name of a mapped transfer object that will be returned, and <name> is the referable name of the function. The optional [] indicates that the function returns a collection of <transfer> instances rather than a single transfer object.
+
+The <expression> calculates the return value of the service whenever it is requested. See xref:06_expression.adoc[Expression]. If the service that groups the function is a mapped service, the mapping field of the service is available within the expression.
+
+*Example:*
+
+----
+service PersonService(Person person) {
+    function PersonTransfer manager => person.manager;
+}
+----
+
+The example above returns a PersonTransfer object that is the manager of the person represented by the mapping field (`person`). The expression selects a Person entity, but the return value of the service is a PersonTransfer mapped transfer object. The mapping between the result of the expression and the return value of the function is done automatically.
+
+[NOTE]
+====
+A data function expression always works with entities and their relationships, but the return value of a data function is always a mapped transfer object. The mapping between the two is always done according to the mapping rules defined for the mapped transfer object (see <<Mapping configuration>>).
+====
+
+==== @Insert
+
+Use `@Insert` annotation on a data function to define an additional insert function in the service. The additional function inserts a new member to the relation specified by the given data function.
+
+*Syntax:*
+
+----
+@Insert
+function <transfer>[[]] <name> => <expression> choices <choices>;
+----
+
+The `@Insert` can only be specified for data functions where the function <expression> points to a relation of the mapped entity (see xref:06_entity.adoc[Relations]) and <choices> is specified. Moreover, the function must return a collection.
+
+The insert function inserts a new member to the relation of the mapped entity. The possible new members of the relation are limited to the available <choices>. The <choices> is an expression of the same type as the collection returned by <expression>.
+
+==== @Remove
+
+Use `@Remove` annotation on a data function to define an additional remove function in the service. The additional function removes a member from the relation specified by the given data function.
+
+*Syntax:*
+
+----
+@Remove
+function <transfer>[[]] <name> => <expression>;
+----
+
+The `@Remove` can only be specified for data functions where the function <expression> points to a relation of the mapped entity, see xref:06_entity.adoc[Relations].  Moreover, the function must return a collection.
+
+The remove function removes a member from the relation of the mapped entity.
+
+=== Union
+
+A union is a special return type to hold different type of transfer objects. Unions can be defined at the point of use, namely as the return type of functions. A union must have at least two members, but only one member can exist at any given time.
+
+Unions cannot be organized into a collection.
+
+*Example:*
+
+----
+function <SalesPersonTransfer|DeveloperTransfer> getEmployee();
+----
+
+In the example above, the `getEmployee` function may return a SalesPersonTransfer or a DeveloperTransfer transfer object. Within the body of the function, it can be decided whether a SalesPersonTransfer or DeveloperTransfer object is returned.
+
+
+////
+The optional `static` keyword is used to create service that can be invoked without an existing instance of the transfer object. Static methods cannot use any of the fields or derived fields of the transfer object in which they were defined. In other words, static actions use the transfer objects that contain them as an embedding namespace.
+////
+
+
+== Actor
+
+Authentication is the process of verifying a user’s identity and authorization is the process of determining whether an authenticated user has access to a particular resource or service. Authorization is critical for ensuring that only authorized users have access to sensitive data and resources. The following chapters describe JUDO's authentication and authorization process.
+
+An actor represents a generic user of the system and can be used to represent humans or another system.
+
+To define an actor, use the `actor` keyword.
+
+*Syntax:*
+
+----
+actor <name> [(<entity> <mapping-field>)]
+    [realm "<realm>"]
+    [claim "<claim>"]
+    [identity <identity>];
+----
+
+where the <name> is the name of the actor. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance. The linked entity instance is the persistent representation of the user in the application. If there is no linked entity, the user is not represented in the application. A typical case of not represented user is an anonymous user, who shall not be identified within the application.
+
+The <realm> is the name of the security policy domain attached to the actor. The realm is collection of users who can be authenticated to use the application. The realms and identity management used by JUDO are out of scope of the application. The default realm management application that can be used by a JUDO application is Keycloack, but any OpenID3 compatible identity management application can be easily integrated.
+
+A claim is a name/value pair that contains information about the user. A collection of claims are sent by the realm management application to our application at the time when the user authenticates. The <claim> selects one of the claims, which will be used for user identification in the application.
+
+The <identity> is an expression that selects an identifier field of the mapped <entity>. The <identity> is used to unambiguously identify the user within the application (e.g. find only one instance of the mapped entity) to define the relationship with the user in the <realm>.
+
+// TODO: managed user missing
+
+[NOTE]
+====
+There is an alternative syntax to define an actor. This alternative is a bit more expressive, although it may be too verbose.
+
+----
+actor <name> maps <entity> as <mapping-field>
+    [realm "<realm>"]
+    [claim "<claim>"]
+    [identity <identity>];
+----
+
+====
+
+
+*Example:*
+
+----
+actor SalesPersonActor(SalesPerson salesPerson)
+    realm "COMPANY"
+    claim "email"
+    identity salesPerson.email;
+----
+
+The above example defines an actor named `SalesPersonActor`. The company's sales staff are managed in the "COMPANY" realm. The salespersons' unique identifier is their email address. During authentication, the system selects the instance of the SalesPerson entities whose email field has the same value as the value of the "email" claim.
+
+
+== Exporting services
+
+Exporting is the mechanism that makes the services and their included functions available to external users. Both actors and transfer objects can export services to external users. 
+
+=== Actor export
+
+The actors within the application can be considered the embodiment of external clients who can use the services exported to them. That is, an actor exposes services to the outside world. 
+
+Defining an actor with no `exports` would let users to authenticate themselves and log into the application. However, they cannot access any resources (services and data) within our application.
+
+The actor object can grant permission to services containing functions by exporting them. After exporting services, the user can call all the functions in the service.
+
+To authorize actors to use services, use `exports` in the actor specification.
+
+*Syntax:*
+
+----
+actor <name> ([<entity> <mapping-field>]) [exports <service>, ...]
+    [realm "<realm>"]
+    [claim "<claim>"]
+    [identity <identity>];
+----
+
+where the `exports` keyword is followed by a comma-separated list of services.
+
+The actor can export only unmapped services or mapped services that are linked to the same type (or subtype) of entity to which the actor is linked. 
+
+*Example:*
+
+----
+entity Person {
+    field String email;
+}
+
+transfer PersonTransfer(Person person) {
+    field String email = salesPerson.email;
+}
+
+service ManagerService {
+    function PersonTransfer create();
+}
+
+actor Manager exports ManagerService;
+----
+
+The example above allows the manager to create a new person. To grant permissions to external users, we first need to define entities, transfer objects and services. The Manager actor in this application has no realm or identity, meaning this actor is an anonymous actor. Anonymous actors are publicly available, anyone who knows the URL of the Manager actor interface can invoke the create function. This way, the Manager actor is given access to the ManagerExport's create function, with which the user can create a PersonTransfer.
+
+=== Transfer object export
+
+Besides the actors, the transfer objects can also grant access to service functions by exporting services. For example, if a transfer object represents a customer, its exported services might include the ability to edit the customer's information, place orders, and view order history.
+
+JUDO's security mechanism can be thought of as a logical permission graph that defines the access of external users to resources within the application. The nodes of the permission graph are the actors and instances of the transfer objects. The edges of the graph are the exported service functions.
+
+At the entry point of the permission graph is the actor, which represents the external user, who can access service functions exported by the actor.
+
+Calling the functions exported by the actor, the user receives transfer object instances returned by the functions. Once the user gets a new transfer object instance, they can call the service functions exported by that transfer object (and so on). The entry point to the permission graph is the actor, which represents the external user and allows traversing (by calling functions) to transfer object instances. From each transfer object instance the user can further traverse to other transfer object instances, creating a recursive hierarchy of permissions.
+
+JUDO's security mechanism also includes a number of built-in security features, such as encryption and secure communication protocols, to ensure the privacy and security of the data being exchanged between external users and the application.
+
+The complete authorization mechanism can be defined by carefully provisioning services to actors and transfer objects. Always be aware of that if a transfer object has already been received by an external user, then they are authorized to call the service functions exported by the transfer object.
+
+To export services, use `exports` keyword in the transfer object's specification.
+
+*Syntax:*
+
+----
+transfer <name> (<entity> <alias>) [exports <service>, ...] [{
+    [member] ...
+}]
+----
+
+The example below shows how a transfer object can export services. Users who received the PersonTransfer object can call the delete function.  This function can only be called by the users who have access to the PersonTransfer object.
+
+
+*Example:*
+
+----
+service PersonService(Person person) {
+    function void delete();
+}
+
+service ManagerService {
+    function PersonTransfer[] listPersons();
+}
+
+transfer PersonTransfer(Person person) exports PersonService {
+    field String email = salesPerson.email;
+}
+
+actor Manager exports ManagerService;
+
+----
+
+=== Guard
+
+A guard is a boolean expression that must evaluate to true in order to continue the execution. To put it more simply, a guard defines a precondition.
+
+Guards can be defined for
+
+* functions,
+* services and
+* actors.
+
+To add a guard to functions use `guard` as follows:
+
+*Example:*
+
+----
+service PersonService(Person person) {
+    function void delete() guard person.leads!size() == 0;
+}
+----
+
+The example above defines a guard, and the delete function is not executed if that person has a lead.
+
+// TODO: what is the error message?
+
+To add a guard to services use `guard` as follows:
+
+*Example:*
+
+----
+service PersonService(Person person) guard person.leads!size() == 0 {
+    function void delete();
+    function Lead[] addLead(Lead lead);
+}
+----
+
+The example above defines a guard for service, and the functions are not executed and run-time error is thrown if that person has a lead.
+
+// TODO: add error definition to guards if error is intruduced
+
+To add a guard to actors use `guard` as follows:
+
+*Example:*
+
+----
+actor SalesPersonActor(SalesPerson salesPerson)
+    realm "COMPANY"
+    identity salesPerson.email
+    guard salesPerson.leads!size() > 0;
+----
+
+The example above defines a guard for actor, and the salesperson can only invoke the functions if she has at least one lead.
+
+== CRUD annotations
+
+Simple new, create, delete and update functions are provided automatically. We can use `@Factory`, `@Create`, `@Delete` and `@Update` annotations respectively to specify these functions.
+
+
+=== Factory
+
+Use `@Factory` annotation on a function to define a function that creates a new transfer object. The function creates the new transfer object as defined by its return type. The new transfer object will not be persisted, only the transfer object is returned. The fields of the newly created transfer object will be set as they are specified in the constructor of the transfer object. See <<Constructor>> chapter.
+
+*Example:*
+
+----
+@Factory
+function InvoiceTransfer myNew();
+----
+
+@Factory annotation can be used only on functions that
+
+* have return type
+* have no parameter
+* have no body
+
+
+=== Create
+
+Use `@Create` annotation on a function to define a create function. The create function persists the mapped transfer object passed as its argument. The transfer object's mapped entity must not exist. It persists the transfer object by creating a new entity.
+
+The `@Create` annotation persists only the fields of the transfer object that have `maps` expression.
+
+*Example:*
+
+----
+entity Invoice {
+    field String customerName;
+    field String comment;
+}
+
+transfer InvoiceTransfer(Invoice invoice) {
+    field String customerName maps invoice.customerName;
+    field String comment reads invoice.comment;
+}
+
+service InvoiceService {
+    @Create
+    function myCreate(InvoiceTransfer invoiceTransfer);
+}
+----
+
+The above example declares the myCreate function, which creates a new Invoice entity and sets only the entity's customerName field. The comment field is not persisted because the comment field of the transfer object has `reads` instead of `maps`.
+
+@Create annotation can be used only on functions that
+
+* have a mapped transfer object parameter
+* have no return type
+* have no body
+
+
+=== Update
+
+Use `@Update` annotation on a function to define a new update function. The update function persists the mapped transfer object passed as its argument.  The transfer object's mapped entity must already exist.
+
+The `@Update` annotation persists only the fields of the transfer object that have `maps` expression.
+
+*Example:*
+
+
+----
+entity Invoice {
+    field String customerName;
+    field String comment;
+}
+
+transfer InvoiceTransfer(Invoice invoice) {
+    field String customerName maps invoice.customerName;
+    field String comment reads invoice.comment;
+}
+
+service InvoiceService {
+    @Update
+    function myUpdate(InvoiceTransfer invoiceTransfer);
+}
+----
+
+The above example declares the myUpdate function, which sets only the entity's customerName field. The comment field is not persisted because the comment field of the transfer object has `reads` instead of `maps`.
+
+@Update annotation can be used only on functions that
+
+* have a mapped transfer object parameter
+* have no return type
+* have no body
+
+
+=== Delete
+
+Use `@Delete` annotation on a function to define a new delete function. The delete function deletes the entity referenced by its service's mapping field.
+
+*Example:*
+
+----
+@Delete
+function void myDelete();
+----
+
+@Delete annotation can be used only on functions that
+
+* have their embedding export is mapped
+* have no return type
+* have no parameter
+* have no body
+
+
+
+
+
+////
+For later use
+
+== Constraint
+
+A constraint represents some restriction related to a transfer object. A constraint is specified by a logical expression which must evaluate to a true or false. Constraint must be satisfied (i.e. evaluated to true) by a correct use of the system.
+
+One transfer object may contain multiple constraints that must be satisfied. The order in which the multiple constraints are evaluated is the same as the order in which the constraints in the jsl file are declared.
+
+Use the `constraint` keyword to specify a restriction on a transfer object. The syntax of constraint is the same as it is defined at entities.
+
+*Example:*
+
+----
+error NameIsTooShort {
+    field required String name
+}
+
+transfer Person {
+    field required String firstName
+    field required String lastName
+    field String midName = ""
+    
+    constraint self.firstName!length() + self.lastName!length() > 4 \
+    onerror NameIsTooShort(name = self.firstName + " " + self.lastName)
+}
+----
+
+Constraints defined in transfer objects are not evaluated automatically. To check a transfer object instance against its constraints, use the `validate` command. See commands later.
+////
+
+
+
+
+
+
+
+////
+
+=== Life-cycle actions
+
+Understanding the concept and behavior of transfer objects is essential when creating, updating, saving, deleting, and working with them.
+
+The lifetime of transfer objects is the time that elapses between the creation and destruction of a particular instance. The events that occur during their lifetime are described by the life-cycle process. There are four important types of events in an object's life-cycle:
+
+* Construction
+* Loading
+* Saving
+* Destruction
+
+==== Construction
+
+The first event that can occur in the life-cycle of a transfer object is the construction.
+
+Once a new, uninitialized transfer object is created, the system calls its `construct` action. The construct action is a special action that is used to initialize the newly created instance. This action can be used to set initial values for fields. It is not allowed to return any data from a construct action, however it automatically returns the `self` variable.
+
+A new transfer object is created only when using the `new` command explicitly. If there is no construct action defined for a transfer object, the `new` command cannot be invoked for that transfer object type. See commands later.
+
+Use the `action` and `construct` keywords to specify a construct action within a transfer object.
+
+TBD: we may omit the action keyword.
+
+*Syntax:*
+
+----
+action construct [throws <error1> [, <error2>] ...] [{
+    <script>
+}]
+----
+
+The <script> and the enclosing curly brackets are optional. If they do not exist, the transfer object can be created using the `new` command, but the fields of the transfer object will be undefined.
+
+The `throws` keyword is used to declare a list of errors that may occur during the construct action. This optional error list contains the errors that the action may throw and the caller must be prepared to handle them. If the construct action throws an error, the object will not be created.
+
+TODO: special attention must be paid to errors and rollback!
+TODO: can the rollback be solved in a `transaction` section of script? 
+
+*Example:*
+
+----
+transfer PersonTransfer {
+    field required String firstName
+    field required String lastName
+
+    action construct {
+        self.firstName = "John"
+        self.lastName = "Doe"
+    }
+}
+----
+
+The example above adds a construct action to the PersonTransfer transfer object. It initializes the `firstName` and `lastName` fields after the object has been created.
+
+==== Destruct
+
+TODO: rewrite destruct: https://www.geeksforgeeks.org/destructors-c/
+https://docs.microsoft.com/en-us/cpp/cpp/destructors-cpp?view=msvc-170
+
+The last event that can occur in the life-cycle of a transfer object is the destruction. At the end of the destruction, the transfer object instance is deleted and will no longer be available. All references to the transfer object instance will be undefined.
+
+Before the transfer object instance is deleted, the system calls the `destruct` action. The destruct action is a special action that is used to delete mapped entity or invoke other destruct actions. It is not allowed to return any data from a destruct action.
+
+A transfer object instance is deleted when the `delete` command is invoked. The delete command does not delete automatically all of the transfer object's own fields. Fields with a transfer object type can be deleted by invoking the `delete` command in the destruct action.
+
+If there is no destruct action defined for a transfer object, the `delete` command cannot be invoked for that transfer object type.
+
+Use the `action` and `destruct` keywords to specify a destruct action within a transfer object.
+
+*Syntax:*
+
+----
+action destruct [throws <error1> [, <error2>] ...] {
+    <script>
+}
+----
+
+The <script> and the enclosing curly brackets are optional. If they do not exist, the transfer object can be deleted, but no action is taken other than deleting the instance.
+
+The `throws` keyword is used to declare a list of errors that may occur during the destruct action. This optional error list contains the errors that the action may throw and the caller must be prepared to handle them. If the destruct action throws an error, the object will not be deleted.
+
+TODO: due to the recursive manner of destruction, special attention must be paid to errors and rollback!
+
+*Example:*
+
+----
+transfer AddressTransfer mapped Address as address {
+    field required String line1
+    field String line2
+    field String City
+    field String ZipCode
+
+    action destruct {
+        delete address  // deletes the address entity
+    }
+}
+
+transfer PersonTransfer mapped Person as person {
+    field required String firstName
+    field required String lastName
+    field required AddressTransfer address
+
+    action destruct {
+        delete self.address  // deletes the address field
+        delete person        // deletes the person entity
+    }
+}
+----
+
+The example above adds a destruct action to the PersonTransfer transfer object. It deletes the mapped Person entity instance.
+
+==== Loading
+
+TODO: load reads only domain derived primitive fields, derived transfer objects shall be loaded explicitly
+
+Loading can occur any time in the life-cycle of a transfer object. Loading begins with the evaluation of the derived expressions, and the results of the evaluations are placed in the appropriate derived fields.
+
+Once the derived fields of the transfer object instance are set, the system calls the `load` action. The load action is a special action that is used to set the non-derived fields of the transfer object instance. It is not allowed to return any data from a load action, however it automatically returns the `self` variable. 
+
+Transfer object is loaded when you filter or explicitly use the `load` command. See commands later. If no load action is defined for a transfer object, the `load` command can be called, but it will only load the derived fields, if any.
+
+Use the `action` and `load` keywords to specify a load action within a transfer object.
+
+*Syntax:*
+
+----
+action load [throws <error1> [, <error2>] ...] [{
+    <script>
+}]
+----
+
+The <script> and the enclosing curly brackets are optional. If they do not exist, the transfer object can be loaded, but no action is taken other than loading the derived fields.
+
+The `throws` keyword is used to declare a list of errors that may occur during the load action. This optional error list contains the errors that the action may throw and the caller must be prepared to handle them. If the load action throws an error, the object will exist in an indeterminate state.
+
+*Example:*
+
+----
+transfer PersonTransfer mapped Person as person {
+    field String fullName
+
+    action load {
+        self.fullName = person.firstName + " " + person.lastName
+    }
+}
+----
+
+The example above adds a load action to the PersonTransfer transfer object. It sets the `fullName` field by concatenating the `firstName` and  `lastName` fields of the mapped entity.
+
+==== Save
+
+Saving can occur any time in the life-cycle of a transfer object.
+
+Transfer object is saved only when using the `save` command explicitly. Once the `save` command is invoked, the system calls the `save` action. The save action is a special action that is used to set the fields of the mapped entity according to the status of the transfer object. It is not allowed to return any data from a save action, however it automatically returns the `self` variable. 
+
+If there is no save action defined for a transfer object, the `save` command cannot be invoked for that transfer object type. See commands later.
+
+Use the `action` and `save` keywords to specify a save action within a transfer object.
+
+*Syntax:*
+
+----
+action save [throws <error1> [, <error2>] ...] [{
+    <script>
+}]
+----
+
+The <script> and the enclosing curly brackets are optional. If they do not exist, the transfer object can be saved, but no action is taken at all.
+
+The `throws` keyword is used to declare a list of errors that may occur during the save action. This optional error list contains the errors that the action may throw and the caller must be prepared to handle them. If the save action throws an error, the object will exist in an indeterminate state.
+
+*Example:*
+
+----
+transfer PersonTransfer mapped Person as person {
+    field String firstName
+    field String lastName
+
+    action save {
+        person.firstName = self.firstName
+        person.lastName = self.lastName
+    }
+}
+----
+
+The example above adds a save action to the PersonTransfer transfer object. It sets sets the `firsName` and `lastName` fields of the mapped entity field in accordance with the fields of the transfer object respectively.
+
+TODO: special attention must be paid to errors and rollback!
+
+
+
+=== Inheritance
+
+Inheritance is a mechanism by which more specific transfer objects incorporate structure of a more general transfer object (called parent transfer object).
+
+Transfer objects may inherit fields, derived fields, mapping field, actions and constraints from their parent transfer object. A transfer object and its parent transfer object are in IS-A relation, so a transfer object can appear anywhere in the role of its parent transfer object.
+
+Inherited members of a transfer object, which were defined in the parent behave as if they were defined in the transfer object itself.
+
+A transfer object may be the parent of any number of other transfer objects, but it can have only one parent at most. In other words, the multiple inheritance is not supported between transfer objects.
+
+A transfer object should not be inherited from itself, either directly or indirectly.
+
+A transfer object may override inherited actions, other inherited members (fields, derived fields and mapping field) cannot be overridden with the same name. It is also not allowed to override the mapping field in transfer objects that inherit a mapping field.
+
+*Example:*
+
+----
+transfer IdentifiableTransfer {
+    field required email
+}
+
+transfer PersonTransfer extends IdentifiableTransfer mapped Person as person {
+    derived String firstName = person.firstName
+    derived String lastName = person.lastName
+}
+
+transfer SalesPersonTransfer extends PersonTransfer {
+    derived PersonTransfer manager = person!asType(SalesPerson).manager
+}
+----
+
+In the above example the PersonTransfer inherits the required email field of the IdentifiableTransfer and defines two more derived fields.
+
+The SalesPersonTransfer inherits both email field and the derived fields and, in addition, defines a relation to its manager. Note that mapping is not enabled in SalesPersonTransfer. Thus, the `person` mapping field is casted (using `asType()`) to SalesPerson entity before its manager relation is accessed. 
+
+TBD: mapped entity can be narrowed in children.
+
+==== Override
+
+A transfer object may override inherited actions, including life-cycle actions. Overriding is a mechanism that enables a transfer object to provide different implementation for an action that is already defined in its parent transfer object.
+
+Use the `override` keyword to override a specific action within a transfer object.
+
+*Syntax:*
+
+----
+override <name> {
+    <script>
+}
+----
+
+where the <name> is the name of the action that will have the new <script> implementation.
+
+With the override mechanism the transfer object replaces the implementation of an action that has the same name in the parent transfer object. The <script> of the action that is executed will be determined by the transfer object instance that is used to invoke it. If an instance of a parent transfer object is used to invoke the method, then the <script> in the parent transfer object will be executed, but if an instance of the child transfer object is used to invoke the method, then the <script> in the child transfer object will be executed. In other words, it is the type of the transfer object instance being referred to (not the type of the field or variable) that determines which version of an overridden action will be executed.
+
+*Example:*
+
+----
+transfer PersonTransfer {
+    field required String firstName
+    field required String lastName
+
+    action String getLabel throws GenericError {
+        return self.firstName + " " + self.lastName
+    }
+}
+
+entity SalesPersonTransfer extends PersonTransfer {
+    override getLabel {
+        return self.firstName + " " + self.lastName + " (sales representative)"
+    }
+}
+----
+
+In the example above the `SalesPersonTransfer` overrides the implementation of the `getLabel` method defined in `PersonTransfer`. Note that neither the return value type nor the error list is redefined in the override.
+
+////
