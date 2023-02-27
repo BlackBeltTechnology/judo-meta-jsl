@@ -349,6 +349,10 @@ public class TypeInfo {
 		return typeInfo;
 	}
 	
+	public static TypeInfo getTargetType(SingleType type) {
+		return new TypeInfo(type, false, true);
+	}
+	
 	public static TypeInfo getTargetType(Feature feature) {
 		TypeInfo baseTypeInfo;
 		Navigation navigation = (Navigation) feature.eContainer();

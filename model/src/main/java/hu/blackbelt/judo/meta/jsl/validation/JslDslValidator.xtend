@@ -78,6 +78,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDefault
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferConstructorDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
 
 /**
  * This class contains custom validation rules. 
@@ -126,6 +128,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val INVALID_ANNOTATION_MARK = ISSUE_CODE_PREFIX + "InvalidAnnotationMark"
 	public static val DUPLICATE_AUTOMAP = ISSUE_CODE_PREFIX + "DuplicateAutomap"
 	public static val INVALID_SERVICE_FUNCTION_CALL = ISSUE_CODE_PREFIX + "InvalidServiceFunctionCall"
+	public static val INVALID_FIELD_MAPPING = ISSUE_CODE_PREFIX + "InvalidFieldMapping"
+	public static val INCOMPAIBLE_EXPORT = ISSUE_CODE_PREFIX + "IncompatibleExport"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -1016,10 +1020,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 			return
 		}
 		
-		if (!TypeInfo.getTargetType(transferDefault.field.reference).isCompatible(TypeInfo.getTargetType(transferDefault.rightValue))) {
-			error("Default value does not match field type",
-                JsldslPackage::eINSTANCE.transferDefault_RightValue,
-                TYPE_MISMATCH)
+		try {
+			if (!TypeInfo.getTargetType(transferDefault.field.reference).isCompatible(TypeInfo.getTargetType(transferDefault.rightValue))) {
+				error("Default value does not match field type",
+	                JsldslPackage::eINSTANCE.transferDefault_RightValue,
+	                TYPE_MISMATCH)
+			}
+		} catch (IllegalArgumentException illegalArgumentException) {
+            return
 		}
 	}
 
@@ -1254,6 +1262,117 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 	
 	@Check
+	def checkTransferExport(TransferDeclaration transfer) {
+		for (ServiceDeclaration service : transfer.exports) {
+			if (service.map !== null) {
+				if (transfer.map === null ||
+					!TypeInfo.getTargetType(transfer.map.entity).isCompatible(TypeInfo.getTargetType(service.map.entity)))
+				{
+					error("Incompatible export:" + service.name,
+			            JsldslPackage::eINSTANCE.named_Name,
+			            INCOMPAIBLE_EXPORT,
+			            JsldslPackage::eINSTANCE.named_Name.name)
+				}
+			}
+		}
+	}
+
+	@Check
+	def checkActorExport(ActorDeclaration actor) {
+		for (ServiceDeclaration service : actor.exports) {
+			if (service.map !== null) {
+				if (actor.map === null ||
+					!TypeInfo.getTargetType(actor.map.entity).isCompatible(TypeInfo.getTargetType(service.map.entity)))
+				{
+					error("Incompatible export:" + service.name,
+			            JsldslPackage::eINSTANCE.named_Name,
+			            INCOMPAIBLE_EXPORT,
+			            JsldslPackage::eINSTANCE.named_Name.name)
+				}
+			}
+		}
+	}
+	
+	
+	@Check
+	def checkTransferFieldMapping(TransferFieldDeclaration field) {
+		if (field.maps === null) {
+			return
+		}
+
+		if (!(field.maps instanceof Navigation)) {
+			error("Invalid field mapping.",
+                JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
+                INVALID_FIELD_MAPPING,
+                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
+                
+            return;
+		}
+
+		val Navigation navigation = field.maps as Navigation;
+
+		if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
+			error("Invalid field mapping.",
+                JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
+                INVALID_FIELD_MAPPING,
+                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
+                
+            return;
+		}
+		
+		val NavigationBaseDeclarationReference navigationBaseDeclarationReference = navigation.base as NavigationBaseDeclarationReference;
+		
+		if (!(navigationBaseDeclarationReference.reference instanceof EntityMapDeclaration)) {
+			error("Invalid field mapping.",
+                JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
+                INVALID_FIELD_MAPPING,
+                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
+                
+            return;
+		}
+		
+		if (navigation.features.size() != 1) {
+			error("Invalid field mapping.",
+                JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
+                INVALID_FIELD_MAPPING,
+                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
+                
+            return;
+		}
+
+		if (!(navigation.features.get(0) instanceof MemberReference)) {
+			error("Invalid field mapping.",
+                JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
+                INVALID_FIELD_MAPPING,
+                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
+                
+            return;
+		}
+
+		val MemberReference memberReference = navigation.features.get(0) as MemberReference;
+		
+		if (!(memberReference.member instanceof EntityFieldDeclaration)) {
+			error("Invalid field mapping.",
+                JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
+                INVALID_FIELD_MAPPING,
+                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
+                
+            return;
+		}
+
+		val EntityFieldDeclaration entityFieldDeclaration = memberReference.member as EntityFieldDeclaration;
+
+		if (!TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(entityFieldDeclaration))) {
+			error("Invalid field mapping.",
+                JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
+                INVALID_FIELD_MAPPING,
+                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
+                
+            return;
+		}
+	}
+	
+	@Check
 	def checkAnnotationFactory(AnnotationMark mark) {
 		if (!mark.declaration.name.equals("Factory")) {
 			return
@@ -1435,84 +1554,4 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 	}
 
-//	@Check
-//	def checkExportCreateService(ExportCreateServiceDeclaration service) {
-//		val ExportDeclaration export = service.eContainer as ExportDeclaration
-//		var EntityMapDeclaration map;
-//		
-//		switch service.referenceType {
-//			TransferDeclaration: map = (service.referenceType as TransferDeclaration)?.map
-//			ViewDeclaration: map = (service.referenceType as ViewDeclaration)?.map
-//		}
-//		
-//		if (!map?.entity.isEqual(export.map?.entity)) {
-//			error("Invalid declaration of create auto service. The return type must have the same mapping as the export.",
-//	            JsldslPackage::eINSTANCE.exportCreateServiceDeclaration_ReferenceType,
-//	            INVALID_DECLARATION,
-//	            JsldslPackage::eINSTANCE.exportCreateServiceDeclaration.name)
-//		}
-// 	}
-
-//	@Check
-//	def checkExportUpdateService(ExportUpdateServiceDeclaration service) {
-//		val ExportDeclaration export = service.eContainer as ExportDeclaration
-//		var EntityMapDeclaration map;
-//		
-//		switch service.parameterType {
-//			TransferDeclaration: map = (service.parameterType as TransferDeclaration)?.map
-//			ViewDeclaration: map = (service.parameterType as ViewDeclaration)?.map
-//		}
-//		
-//		if (!map?.entity.isEqual(export.map?.entity)) {
-//			error("Invalid declaration of update auto service. The parameter type must have the same mapping as the export.",
-//	            JsldslPackage::eINSTANCE.exportUpdateServiceDeclaration_ParameterType,
-//	            INVALID_DECLARATION,
-//	            JsldslPackage::eINSTANCE.exportUpdateServiceDeclaration_ParameterType.name)
-//		}
-// 	}
-
-//	@Check
-//	def checkForDuplicateNameForActorMemberDeclaration(ActorMemberDeclaration member) {
-//		val ActorDeclaration export = member.eContainer as ActorDeclaration
-//		
-//		if (member instanceof Named && export.members.filter[m | m instanceof Named && m.name.toLowerCase.equals(member.name.toLowerCase)].size > 1) {
-//			error("Duplicate member declaration: '" + member.name + "'",
-//				member.nameAttribute,
-//				DUPLICATE_MEMBER_NAME,
-//				member.name)
-//		}
-//	}
-
-//	@Check
-//	def checkExportCreateElementService(ExportCreateElementServiceDeclaration service) {
-//		if (service.expression !== null && !TypeInfo.getTargetType(service).isCompatible(TypeInfo.getTargetType(service.expression))) {
-//			error("Type mismatch",
-//                JsldslPackage::eINSTANCE.exportCreateElementServiceDeclaration_Expression,
-//                TYPE_MISMATCH,
-//                JsldslPackage::eINSTANCE.exportCreateElementServiceDeclaration.name)
-//		}
-//	}
-//
-//	@Check
-//	def checkExportInsertElementService(ExportInsertElementServiceDeclaration service) {
-//		if (service.expression !== null && !TypeInfo.getTargetType(service.expression).isCompatible(TypeInfo.getTargetType(service))) {
-//			error("Type mismatch",
-//                JsldslPackage::eINSTANCE.exportInsertElementServiceDeclaration_Expression,
-//                TYPE_MISMATCH,
-//                JsldslPackage::eINSTANCE.exportInsertElementServiceDeclaration.name)
-//		}
-//	}
-//
-//	@Check
-//	def checkExportRemoveElementService(ExportRemoveElementServiceDeclaration service) {
-//		if (service.expression !== null &&
-//				!TypeInfo.getTargetType(service.expression).isCompatible(TypeInfo.getTargetType(service)) &&
-//				!TypeInfo.getTargetType(service).isCompatible(TypeInfo.getTargetType(service.expression)))
-//		{
-//			error("Type mismatch",
-//                JsldslPackage::eINSTANCE.exportRemoveElementServiceDeclaration_Expression,
-//                TYPE_MISMATCH,
-//                JsldslPackage::eINSTANCE.exportRemoveElementServiceDeclaration.name)
-//		}
-//	}
 }
