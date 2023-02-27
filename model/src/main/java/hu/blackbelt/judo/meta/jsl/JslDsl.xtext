@@ -268,7 +268,7 @@ TransferConstructorDeclaration
 	;
 
 TransferDefault
-	: field = TransferField '=' rightValue = Literal SC+
+	: field = TransferField '=' rightValue = Expression SC+
 	;
 
 TransferField
@@ -568,7 +568,7 @@ NavigationBase
 	;
 
 Self
-	: isSelf ?= 'self'		
+	: isSelf ?= 'self'
 	;
 
 Parentheses

@@ -130,6 +130,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val INVALID_SERVICE_FUNCTION_CALL = ISSUE_CODE_PREFIX + "InvalidServiceFunctionCall"
 	public static val INVALID_FIELD_MAPPING = ISSUE_CODE_PREFIX + "InvalidFieldMapping"
 	public static val INCOMPAIBLE_EXPORT = ISSUE_CODE_PREFIX + "IncompatibleExport"
+	public static val INVALID_SELF_VARIABLE = ISSUE_CODE_PREFIX + "InvalidSelfVariable"
+	public static val NON_STATIC_EXPRESSION = ISSUE_CODE_PREFIX + "NonStaticExpression"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -1021,6 +1023,20 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 		
 		try {
+	    	if (transferDefault.rightValue !== null) {
+				if (EcoreUtil.getAllContents(transferDefault.rightValue, true).
+					filter[i | i instanceof NavigationBaseDeclarationReference && (i as NavigationBaseDeclarationReference).reference instanceof EntityMapDeclaration].
+					size > 0
+				) {
+					error(
+						"Expression must be static.",
+						JsldslPackage::eINSTANCE.transferDefault_RightValue,
+						NON_STATIC_EXPRESSION
+					)
+					return
+				}
+	    	}
+
 			if (!TypeInfo.getTargetType(transferDefault.field.reference).isCompatible(TypeInfo.getTargetType(transferDefault.rightValue))) {
 				error("Default value does not match field type",
 	                JsldslPackage::eINSTANCE.transferDefault_RightValue,
@@ -1554,4 +1570,15 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 	}
 
+	@Check
+	def checkSelf(Self myself) {
+		// myself is for Rob :-)
+
+		if (!TypeInfo.getTargetType(myself).isEntity()) {
+			error("Not allowed to use:'self'.",
+	            JsldslPackage::eINSTANCE.self_IsSelf,
+	            INVALID_SELF_VARIABLE,
+	            JsldslPackage::eINSTANCE.^self.name)
+		}
+	}
 }
