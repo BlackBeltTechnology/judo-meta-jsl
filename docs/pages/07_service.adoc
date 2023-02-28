@@ -181,11 +181,11 @@ Optionally, a constructor can be specified for transfer objects. The constructor
 
 ----
 constructor {
-    [<field> = <value>;] ...
+    [<field> = <expression>;] ...
 }
 ----
 
-where <field> is a field of the transfer object having the constructor and <value> is a constant value.
+where <field> is a field of the transfer object having the constructor and <expression> is the default value of the field. The expression cannot contain reference to the mapping field.
 
 
 *Example:*
@@ -291,7 +291,7 @@ entity Lead {
 }
 
 transfer LeadTransfer(Lead lead) {
-    field Integer value = lead.value;
+    field Integer value reads lead.value;
 }
 
 transfer SalesPersonTransfer(SalesPerson salesperson) {
@@ -613,7 +613,7 @@ The <realm> is the name of the security policy domain attached to the actor. The
 
 A claim is a name/value pair that contains information about the user. A collection of claims are sent by the realm management application to our application at the time when the user authenticates. The <claim> selects one of the claims, which will be used for user identification in the application.
 
-The <identity> is an expression that selects an identifier field of the mapped <entity>. The <identity> is used to unambiguously identify the user within the application (e.g. find only one instance of the mapped entity) to define the relationship with the user in the <realm>.
+The <identity> is an expression that selects an identifier field of the mapped <entity>. The type of the field pointed to by <identifier> must be string. The <identity> is used to unambiguously identify the user within the application (e.g. find only one instance of the mapped entity) to define the relationship with the user in the <realm>.
 
 // TODO: managed user missing
 
@@ -678,7 +678,7 @@ entity Person {
 }
 
 transfer PersonTransfer(Person person) {
-    field String email = salesPerson.email;
+    field String email reads salesPerson.email;
 }
 
 service ManagerService {
@@ -698,11 +698,11 @@ JUDO's security mechanism can be thought of as a logical permission graph that d
 
 At the entry point of the permission graph is the actor, which represents the external user, who can access service functions exported by the actor.
 
-Calling the functions exported by the actor, the user receives transfer object instances returned by the functions. Once the user gets a new transfer object instance, they can call the service functions exported by that transfer object (and so on). The entry point to the permission graph is the actor, which represents the external user and allows traversing (by calling functions) to transfer object instances. From each transfer object instance the user can further traverse to other transfer object instances, creating a recursive hierarchy of permissions.
+Calling the functions exported by the actor, the user receives transfer object instances returned by the functions. Once the user gets a new transfer object instance, they can call the service functions exported by that transfer object (and so on). The entry point to the permission graph is the actor, which represents the external user and allows traversing (by calling functions) to transfer object instances. From each transfer object instance the user can further traverse to other transfer object instances, creating a recursive hierarchy of permissions. As a result of the above, functions exported by transfer objects that cannot be traversed from any actor will not be available to external users.
 
 JUDO's security mechanism also includes a number of built-in security features, such as encryption and secure communication protocols, to ensure the privacy and security of the data being exchanged between external users and the application.
 
-The complete authorization mechanism can be defined by carefully provisioning services to actors and transfer objects. Always be aware of that if a transfer object has already been received by an external user, then they are authorized to call the service functions exported by the transfer object.
+The complete authorization mechanism can be defined by carefully provisioning services to actors and transfer objects. Always be aware of that if a transfer object instance has already been received by an external user, then they are authorized to call the service functions exported by the transfer object.
 
 To export services, use `exports` keyword in the transfer object's specification.
 
@@ -729,7 +729,7 @@ service ManagerService {
 }
 
 transfer PersonTransfer(Person person) exports PersonService {
-    field String email = salesPerson.email;
+    field String email reads salesPerson.email;
 }
 
 actor Manager exports ManagerService;
@@ -746,7 +746,7 @@ Guards can be defined for
 * services and
 * actors.
 
-To add a guard to functions use `guard` as follows:
+To add a guard to functions use `guard` as follows. The function guard is evaluated before the function execution. If the function guard evaluates to false, the function is not executed and an error message is thrown.
 
 *Example:*
 
@@ -760,7 +760,7 @@ The example above defines a guard, and the delete function is not executed if th
 
 // TODO: what is the error message?
 
-To add a guard to services use `guard` as follows:
+To add a guard to services use `guard` as follows. The service guard is a shortcut that assigns the same guard to each function. The service guard is evaluated before each function is executed in the service. If the service guard evaluates to false, the function is not executed and an error message is thrown. If the service guard evaluation is true, then the function guard, if any, is evaluated.
 
 *Example:*
 
@@ -771,11 +771,16 @@ service PersonService(Person person) guard person.leads!size() == 0 {
 }
 ----
 
-The example above defines a guard for service, and the functions are not executed and run-time error is thrown if that person has a lead.
+The example above defines a guard for service, and the functions are not executed and an error is thrown if that person has a lead.
 
 // TODO: add error definition to guards if error is intruduced
 
-To add a guard to actors use `guard` as follows:
+To add a guard to actors use `guard` as follows. The actor guard is evaluated before each function call to the application. If the actor guard evaluates to false, none of the application function can be executed and an error message is thrown.
+
+////
+Alternative actor guard execution:
+The actor guard is evaluated when the user is authenticated by the application. If the actor guard evaluates to false, the user cannot call any function of the application.
+////
 
 *Example:*
 
