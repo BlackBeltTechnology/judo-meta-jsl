@@ -211,7 +211,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 						continue;
 
 					case "guard":
-						if (node.getSemanticElement() instanceof ActorDeclaration || node.getSemanticElement() instanceof ServiceDeclaration) {
+						if (node.getSemanticElement().eContainer() instanceof ActorDeclaration || node.getSemanticElement().eContainer() instanceof ServiceDeclaration) {
 							acceptor.addPosition(node.getOffset(), node.getText().length(),
 								HighlightingConfiguration.KEYWORD_ID);
 						} else {

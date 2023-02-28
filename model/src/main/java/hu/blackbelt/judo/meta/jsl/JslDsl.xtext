@@ -177,12 +177,16 @@ EntityOperationParameterDeclaration
  *	Service
  ****************************/
 
+Guard
+	: 'guard' expression = Expression
+	;
+
 ServiceDeclaration
 	: {ServiceDeclaration}
 	  annotations += AnnotationMark*
 	  'service' Named
 	  map = EntityMapDeclaration?
-	  ('guard' guard = Expression)?
+	  guard = Guard?
 	  (SC | BLOCK_START (members += ServiceMemberDeclaration)* BLOCK_END)
 	;
 
@@ -205,7 +209,7 @@ ServiceOperationDeclaration
 ServiceDataDeclaration
 	: annotations += AnnotationMark*
 	  'function' return = ServiceReturnDeclaration Cardinality? Named '=>' expression = Expression
-	  (('guard' guard = Expression)? & ('choices' choices = Expression)?)SC
+	  (guard = Guard? & ('choices' choices = Expression)?)SC
 	;
 
 ServiceFunctionDeclaration
@@ -213,7 +217,7 @@ ServiceFunctionDeclaration
 	  'function'
 	  ('void'? | return = ServiceReturnDeclaration | alternateReturn = ServiceReturnAlternateDeclaration) Named
 	  '(' parameter = ServiceFunctionParameterDeclaration? ')'
-	  ('guard' guard = Expression)?
+  	  guard = Guard?
 	  (automapping ?= SC | BLOCK_START BLOCK_END )
 	;
 
@@ -421,7 +425,7 @@ ActorDeclaration
 	  'actor' Named
 	  map = EntityMapDeclaration?
 	  ('exports' exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
-	  (('realm' realm = StringLiteral)? & ('claim' claim = StringLiteral)? & ('identity' identity = Expression)? & ('guard' guard = Expression)?)
+	  (('realm' realm = StringLiteral)? & ('claim' claim = StringLiteral)? & ('identity' identity = Expression)? & guard = Guard?)
 	  SC
 	;
 

@@ -80,6 +80,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDefault
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferConstructorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.Guard
 
 /**
  * This class contains custom validation rules. 
@@ -129,6 +130,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val DUPLICATE_AUTOMAP = ISSUE_CODE_PREFIX + "DuplicateAutomap"
 	public static val INVALID_SERVICE_FUNCTION_CALL = ISSUE_CODE_PREFIX + "InvalidServiceFunctionCall"
 	public static val INVALID_FIELD_MAPPING = ISSUE_CODE_PREFIX + "InvalidFieldMapping"
+	public static val INVALID_IDENTITY_MAPPING = ISSUE_CODE_PREFIX + "InvalidFieldMapping"
 	public static val INCOMPAIBLE_EXPORT = ISSUE_CODE_PREFIX + "IncompatibleExport"
 	public static val INVALID_SELF_VARIABLE = ISSUE_CODE_PREFIX + "InvalidSelfVariable"
 	public static val NON_STATIC_EXPRESSION = ISSUE_CODE_PREFIX + "NonStaticExpression"
@@ -298,7 +300,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     @Check
     def checkSelfInDefaultExpression(EntityFieldDeclaration field) {
     	if (field.defaultExpression !== null) {
-			if (EcoreUtil.getAllContents(field.defaultExpression, true).filter(Self).size > 0) {
+			if (!this.isStaticExpression(field.defaultExpression)) {
 				error(
 					"Self is not allowed in default expression",
 					JsldslPackage::eINSTANCE.entityFieldDeclaration_DefaultExpression,
@@ -397,7 +399,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                JsldslPackage::eINSTANCE.queryArgument.name)
 			}
 
-			if (EcoreUtil.getAllContents(argument.expression, true).filter(Self).size > 0) {
+			if (!this.isStaticExpression(argument.expression)) {
 				error("Self is not allowed in query argument expression",
 	                JsldslPackage::eINSTANCE.queryArgument_Expression,
 	                TYPE_MISMATCH,
@@ -535,7 +537,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 				}
 			}
 			
-			if (EcoreUtil.getAllContents(lambdaCall.lambdaExpression, true).filter(Self).size > 0) {
+			if (!isStaticExpression(lambdaCall.lambdaExpression)) {
 				error(
 					"Self is not allowed in lambda expression",
 					JsldslPackage::eINSTANCE.lambdaCall_LambdaExpression,
@@ -897,6 +899,19 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
+	def checkRequiredOnTransferMemberDeclaration(TransferMemberDeclaration member) {
+		if (member instanceof TransferFieldDeclaration) {
+			val field = member
+			if (field.isIsMany && field.isRequired) {
+				error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'",
+                    JsldslPackage::eINSTANCE.transferFieldDeclaration_Required,
+                    USING_REQUIRED_WITH_IS_MANY,
+                    JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
+			}
+		}
+	}
+
+	@Check
 	def checkTenaryOperation(TernaryOperation it) {
 		try {
 			val TypeInfo conditionTypeInfo = TypeInfo.getTargetType(it.condition)
@@ -1016,6 +1031,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 	}
 
+	def boolean isStaticExpression(Expression expr) {
+		val boolean retValue = EcoreUtil.getAllContents(expr, true).
+			filter[i | i instanceof Self || (i instanceof NavigationBaseDeclarationReference && (i as NavigationBaseDeclarationReference).reference instanceof EntityMapDeclaration)].
+			size == 0;
+
+		return retValue;
+	}
+
 	@Check
 	def checkTransferDefault(TransferDefault transferDefault) {
 		if (transferDefault.field === null || transferDefault.rightValue === null) {
@@ -1024,10 +1047,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		
 		try {
 	    	if (transferDefault.rightValue !== null) {
-				if (EcoreUtil.getAllContents(transferDefault.rightValue, true).
-					filter[i | i instanceof NavigationBaseDeclarationReference && (i as NavigationBaseDeclarationReference).reference instanceof EntityMapDeclaration].
-					size > 0
-				) {
+	    		if (!this.isStaticExpression(transferDefault.rightValue)) {
 					error(
 						"Expression must be static.",
 						JsldslPackage::eINSTANCE.transferDefault_RightValue,
@@ -1196,6 +1216,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkForDuplicateNameForTransferMemberDeclaration(TransferMemberDeclaration member) {
 		val TransferDeclaration transfer = member.eContainer as TransferDeclaration
 		
+		if (transfer.map !== null && member.name.toLowerCase.equals(transfer.map.name.toLowerCase)) {
+			error("Member declaration name conflicts with mapping field name: '" + member.name + "'",
+				member.nameAttribute,
+				DUPLICATE_MEMBER_NAME,
+				member.name)
+		}
+		
 		if (member instanceof Named && transfer.members.filter[m | m instanceof Named && m.name.toLowerCase.equals(member.name.toLowerCase)].size > 1) {
 			error("Duplicate member declaration: '" + member.name + "'",
 				member.nameAttribute,
@@ -1205,8 +1232,61 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
+	def checkForDuplicateTransferFunctionDeclaration(TransferDeclaration transfer) {
+		for (ServiceDeclaration service : transfer.exports) {
+			for (ServiceMemberDeclaration member : service.members) {
+				var String tmp;
+				
+				switch (member) {
+					ServiceDataDeclaration: tmp = member.name
+					ServiceFunctionDeclaration: tmp = member.name
+				}
+				
+				val name = tmp;
+				
+				if (transfer.exports.flatMap[export | export.members].filter[m | m.name.toLowerCase.equals(name.toLowerCase)].size > 1) {
+					error("Duplicate service function declaration: '" + member.name + "'",
+						member.nameAttribute,
+						DUPLICATE_MEMBER_NAME,
+						member.name)
+				}
+			}
+		}
+	}
+
+	@Check
+	def checkForDuplicateActorFunctionDeclaration(ActorDeclaration actor) {
+		for (ServiceDeclaration service : actor.exports) {
+			for (ServiceMemberDeclaration member : service.members) {
+				var String tmp;
+				
+				switch (member) {
+					ServiceDataDeclaration: tmp = member.name
+					ServiceFunctionDeclaration: tmp = member.name
+				}
+				
+				val name = tmp;
+				
+				if (actor.exports.flatMap[export | export.members].filter[m | m.name.toLowerCase.equals(name.toLowerCase)].size > 1) {
+					error("Duplicate service function declaration: '" + member.name + "'",
+						member.nameAttribute,
+						DUPLICATE_MEMBER_NAME,
+						member.name)
+				}
+			}
+		}
+	}
+
+	@Check
 	def checkForDuplicateNameForServiceMemberDeclaration(ServiceMemberDeclaration member) {
 		val ServiceDeclaration service = member.eContainer as ServiceDeclaration
+
+		if (service.map !== null && member.name.toLowerCase.equals(service.map.name.toLowerCase)) {
+			error("Member declaration name conflicts with mapping field name: '" + member.name + "'",
+				member.nameAttribute,
+				DUPLICATE_MEMBER_NAME,
+				member.name)
+		}
 		
 		if (member instanceof Named && service.members.filter[m | m instanceof Named && m.name.toLowerCase.equals(member.name.toLowerCase)].size > 1) {
 			error("Duplicate member declaration: '" + member.name + "'",
@@ -1232,12 +1312,12 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 
 	@Check
-	def checkServiceFunction(ServiceFunctionDeclaration function) {
-		if (function.guard !== null && !TypeInfo.getTargetType(function.guard).isBoolean) {
+	def checkGuard(Guard guard) {
+		if (guard.expression !== null && !TypeInfo.getTargetType(guard.expression).isBoolean) {
 			error("Type mismatch. Guard expression must have boolean return value.",
-                JsldslPackage::eINSTANCE.serviceFunctionDeclaration_Guard,
+                JsldslPackage::eINSTANCE.guard_Expression,
                 TYPE_MISMATCH,
-                JsldslPackage::eINSTANCE.serviceFunctionDeclaration.name)
+                JsldslPackage::eINSTANCE.guard.name)
 		}
 	}
 	
@@ -1567,6 +1647,84 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 			
 			// TODO: argument type shall be checked
+		}
+	}
+
+	@Check
+	def checkActorIdentity(ActorDeclaration actor) {
+		if (actor.identity === null) {
+			return
+		}
+
+		if (!(actor.identity instanceof Navigation)) {
+			error("Invalid actor identity.",
+                JsldslPackage::eINSTANCE.actorDeclaration_Identity,
+                INVALID_IDENTITY_MAPPING,
+                JsldslPackage::eINSTANCE.actorDeclaration.name)
+                
+            return;
+		}
+
+		val Navigation navigation = actor.identity as Navigation;
+
+		if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
+			error("Invalid actor identity.",
+                JsldslPackage::eINSTANCE.actorDeclaration_Identity,
+                INVALID_IDENTITY_MAPPING,
+                JsldslPackage::eINSTANCE.actorDeclaration.name)
+                
+            return;
+		}
+		
+		val NavigationBaseDeclarationReference navigationBaseDeclarationReference = navigation.base as NavigationBaseDeclarationReference;
+		
+		if (!(navigationBaseDeclarationReference.reference instanceof EntityMapDeclaration)) {
+			error("Invalid actor identity.",
+                JsldslPackage::eINSTANCE.actorDeclaration_Identity,
+                INVALID_IDENTITY_MAPPING,
+                JsldslPackage::eINSTANCE.actorDeclaration.name)
+                
+            return;
+		}
+		
+		if (navigation.features.size() != 1) {
+			error("Invalid actor identity.",
+                JsldslPackage::eINSTANCE.actorDeclaration_Identity,
+                INVALID_IDENTITY_MAPPING,
+                JsldslPackage::eINSTANCE.actorDeclaration.name)
+                
+            return;
+		}
+
+		if (!(navigation.features.get(0) instanceof MemberReference)) {
+			error("Invalid actor identity.",
+                JsldslPackage::eINSTANCE.actorDeclaration_Identity,
+                INVALID_IDENTITY_MAPPING,
+                JsldslPackage::eINSTANCE.actorDeclaration.name)
+                
+            return;
+		}
+
+		val MemberReference memberReference = navigation.features.get(0) as MemberReference;
+		
+		if (!(memberReference.member instanceof EntityIdentifierDeclaration)) {
+			error("Invalid actor identity. Identity must be an identifier in the mapped entity.",
+                JsldslPackage::eINSTANCE.actorDeclaration_Identity,
+                INVALID_IDENTITY_MAPPING,
+                JsldslPackage::eINSTANCE.actorDeclaration.name)
+                
+            return;
+		}
+
+		val EntityIdentifierDeclaration entityIdentifierDeclaration = memberReference.member as EntityIdentifierDeclaration;
+
+		if (!TypeInfo.getTargetType(entityIdentifierDeclaration).isString) {
+			error("Invalid actor identity. Identifier must be a string.",
+                JsldslPackage::eINSTANCE.actorDeclaration_Identity,
+                INVALID_IDENTITY_MAPPING,
+                JsldslPackage::eINSTANCE.actorDeclaration.name)
+                
+            return;
 		}
 	}
 
