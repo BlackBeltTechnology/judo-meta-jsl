@@ -25,7 +25,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <compilerArgs>
-                        <arg>-AreportPath=${basedir}/target/classes/requirements-report.csv</arg>
+                        <arg>-AreportPath=${basedir}/target/classes</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>
