@@ -41,6 +41,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaDeclaration
 import org.eclipse.emf.ecore.util.EcoreUtil
 import hu.blackbelt.judo.meta.jsl.jsldsl.StringLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -48,6 +49,10 @@ class JslDslModelExtension {
 	@Inject extension IQualifiedNameProvider	
 
 	def isEqual(EObject it, EObject other) {
+		if (it === null || other === null) {
+			return false;
+		}
+		
 		if (it.equals(other))
 			return true;
 		if (EcoreUtil.getURI(it).equals(EcoreUtil.getURI(other)))
@@ -392,6 +397,9 @@ class JslDslModelExtension {
 		getStreamOf(EntityDeclaration).collect(Collectors.toList)		
 	}
 
+	def Collection<TransferDeclaration> transfers(JslDslModelResourceSupport it) {
+		getStreamOf(TransferDeclaration).collect(Collectors.toList)		
+	}
 	
 	def EntityDeclaration entityByName(JslDslModelResourceSupport it, String name) {
 		return getStreamOf(EntityDeclaration).filter[e | e.name.equals(name)].findFirst.orElseThrow[new IllegalArgumentException("EntityDeclaration not found: " + name)]
