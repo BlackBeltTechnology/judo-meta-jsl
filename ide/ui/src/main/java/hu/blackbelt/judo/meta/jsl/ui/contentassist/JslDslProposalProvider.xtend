@@ -16,6 +16,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import org.eclipse.xtext.Keyword
 import java.util.Set
 import com.google.common.collect.ImmutableSet
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
@@ -25,10 +26,19 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 	// TODO: https://stackoverflow.com/questions/47005235/customizing-content-proposal-in-xtext-for-web-editors
 	@Inject extension JslDslModelExtension
 	
-    public static Set<String> FILTERED_KEYWORDS = ImmutableSet.of("function", "lambda", ";", "(", ")", "+", "-", "*", "/");
+    public static Set<String> FILTERED_KEYWORDS = ImmutableSet.of("lambda", "function");
+
+    public static Set<String> FILTERED_TERMINALS = ImmutableSet.of(";", "(", ")", "+", "-", "*", "/", "@",
+    															  "!=", "<", "<=", ">", ">=", "==", "?", "^",
+    															  "and", "div", "implies", "mod", "or", "xor");
 
     override completeKeyword(Keyword keyword, ContentAssistContext contentAssistContext, ICompletionProposalAcceptor acceptor) {
-        if (FILTERED_KEYWORDS.contains(keyword.getValue())) {
+    	if (FILTERED_KEYWORDS.contains(keyword.getValue()) && contentAssistContext.currentModel instanceof ModelDeclaration) {
+            // don't propose keyword
+            return;
+    	}
+    	
+        if (FILTERED_TERMINALS.contains(keyword.getValue())) {
             // don't propose keyword
             return;
         }

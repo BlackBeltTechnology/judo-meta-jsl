@@ -40,6 +40,8 @@ public class HighlightingConfiguration implements IHighlightingConfiguration {
 
 	public static final String COMMENT_ID = "Comment";
 
+	public static final String ANNOTATION_ID = "Annotation";
+
 	@Override
 	public void configure(IHighlightingConfigurationAcceptor acceptor) {
 		acceptor.acceptDefaultHighlighting(DEFAULT_ID, "Default", defaultTextStyle());
@@ -48,6 +50,7 @@ public class HighlightingConfiguration implements IHighlightingConfiguration {
 		acceptor.acceptDefaultHighlighting(OPERATOR_ID, "Operator", operatorTextStyle());
 		acceptor.acceptDefaultHighlighting(CONSTANT_ID, "Constant", constantTextStyle());
 		acceptor.acceptDefaultHighlighting(COMMENT_ID, "Comment", commentTextStyle());
+		acceptor.acceptDefaultHighlighting(ANNOTATION_ID, "Annotation", annotationTextStyle());
 	}
 	
 	public TextStyle defaultTextStyle() {
@@ -83,8 +86,13 @@ public class HighlightingConfiguration implements IHighlightingConfiguration {
 
 	public TextStyle commentTextStyle() {
 		TextStyle textStyle = defaultTextStyle().copy();
-		textStyle.setColor(new RGB(158, 158, 158));
+		textStyle.setColor(new RGB(92, 158, 92));
 		return textStyle;
 	}
 	
+	public TextStyle annotationTextStyle() {
+		TextStyle textStyle = defaultTextStyle().copy();
+		textStyle.setColor(new RGB(100, 100, 100));
+		return textStyle;
+	}
 }
