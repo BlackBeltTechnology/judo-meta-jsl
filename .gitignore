@@ -6,6 +6,7 @@
 /**/.idea/
 /**/*.iml
 /**/lombok.config
+.vscode
 # original location
 !**/config/lombok.config
 /**/*.pyc
@@ -58,6 +59,3 @@ wercker.env
 **/.flattened-pom.xml
 **/.antlr-generator-3.2.0-patch.jar
 /**/*.plantuml
-
-
-

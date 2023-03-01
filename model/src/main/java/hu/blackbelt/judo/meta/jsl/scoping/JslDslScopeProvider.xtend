@@ -55,6 +55,16 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import java.util.ArrayList
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaCall
+import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationParameterDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationMark
+import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationArgument
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceOperationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferField
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -94,10 +104,12 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			FunctionCall case ref == JsldslPackage::eINSTANCE.functionArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
 			EntityQueryCall case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
 			QueryCall case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
+			AnnotationMark case ref == JsldslPackage::eINSTANCE.annotationArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
 
 			QueryArgument case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration && context.eContainer instanceof EntityQueryCall: return scope.scope_Containments((context.eContainer as EntityQueryCall).declaration, ref)
 			QueryArgument case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration && context.eContainer instanceof QueryCall: return scope.scope_Containments((context.eContainer as QueryCall).declaration, ref)
 			FunctionArgument case ref == JsldslPackage::eINSTANCE.functionArgument_Declaration: return scope.scope_Containments((context.eContainer as FunctionCall).declaration, ref)
+			AnnotationArgument case ref == JsldslPackage::eINSTANCE.annotationArgument_Declaration && context.eContainer instanceof AnnotationMark: return scope.scope_Containments((context.eContainer as AnnotationMark).declaration, ref)
 
 			Navigation: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
 		}
@@ -162,8 +174,15 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				FunctionDeclaration: return true
 				LambdaDeclaration: return true
 				ErrorDeclaration: return true
+				AnnotationDeclaration: return true
+				TransferFieldDeclaration: return true
+
 				LambdaVariable: return context.parentContainer(LambdaCall).isEqual(obj.eContainer)
 				QueryParameterDeclaration: return EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]
+				EntityMapDeclaration: return context.isEqual(obj.eContainer) || EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]
+				AnnotationParameterDeclaration: return EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]
+
+				ServiceOperationDeclaration: return context.parentContainer(ViewDeclaration).exports.exists[g | g.isEqual(obj.eContainer)]
 			}
 
 			return false;
