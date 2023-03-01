@@ -566,60 +566,6 @@ public class TypeInfo {
 		return new TypeInfo(BaseType.UNDEFINED, false);
 	}
 
-//	public static TypeInfo getTargetType(ExportCreateElementServiceDeclaration service) {
-//		if (service == null || service.getReferenceType() == null) {
-//			return new TypeInfo(BaseType.UNDEFINED, false);
-//		}
-//
-//		if (service.getReferenceType() instanceof TransferDeclaration) {
-//			TransferDeclaration transferDeclaration = (TransferDeclaration) service.getReferenceType();
-//			EntityDeclaration entityDeclaration = (EntityDeclaration) transferDeclaration.getMap().getEntity();
-//			return new TypeInfo(entityDeclaration, true, false);
-//		} else if (service.getReferenceType() instanceof ViewDeclaration) {
-//			ViewDeclaration viewDeclaration = (ViewDeclaration) service.getReferenceType();
-//			EntityDeclaration entityDeclaration = (EntityDeclaration) viewDeclaration.getMap().getEntity();
-//			return new TypeInfo(entityDeclaration, true, false);
-//		}
-//
-//		return new TypeInfo(BaseType.UNDEFINED, false);
-//	}
-//
-//	public static TypeInfo getTargetType(ExportInsertElementServiceDeclaration service) {
-//		if (service == null || service.getParameterType() == null) {
-//			return new TypeInfo(BaseType.UNDEFINED, false);
-//		}
-//
-//		if (service.getParameterType() instanceof TransferDeclaration) {
-//			TransferDeclaration transferDeclaration = (TransferDeclaration) service.getParameterType();
-//			EntityDeclaration entityDeclaration = (EntityDeclaration) transferDeclaration.getMap().getEntity();
-//			return new TypeInfo(entityDeclaration, true, false);
-//		} else if (service.getParameterType() instanceof ViewDeclaration) {
-//			ViewDeclaration viewDeclaration = (ViewDeclaration) service.getParameterType();
-//			EntityDeclaration entityDeclaration = (EntityDeclaration) viewDeclaration.getMap().getEntity();
-//			return new TypeInfo(entityDeclaration, true, false);
-//		}
-//
-//		
-//		return new TypeInfo(BaseType.UNDEFINED, false);
-//	}
-//	
-//	public static TypeInfo getTargetType(ExportRemoveElementServiceDeclaration service) {
-//		if (service == null || service.getParameterType() == null) {
-//			return new TypeInfo(BaseType.UNDEFINED, false);
-//		}
-//
-//		if (service.getParameterType() instanceof TransferDeclaration) {
-//			TransferDeclaration transferDeclaration = (TransferDeclaration) service.getParameterType();
-//			EntityDeclaration entityDeclaration = (EntityDeclaration) transferDeclaration.getMap().getEntity();
-//			return new TypeInfo(entityDeclaration, true, false);
-//		} else if (service.getParameterType() instanceof ViewDeclaration) {
-//			ViewDeclaration viewDeclaration = (ViewDeclaration) service.getParameterType();
-//			EntityDeclaration entityDeclaration = (EntityDeclaration) viewDeclaration.getMap().getEntity();
-//			return new TypeInfo(entityDeclaration, true, false);
-//		}
-//		
-//		return new TypeInfo(BaseType.UNDEFINED, false);
-//	}
 	
 	public static TypeInfo getTargetType(EntityMemberDeclaration entityMemberDeclaration) {
 		if (entityMemberDeclaration == null) {

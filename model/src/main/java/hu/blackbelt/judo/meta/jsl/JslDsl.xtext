@@ -57,11 +57,10 @@ PrimitiveDeclaration
 
 ClassDeclaration
 	: EntityDeclaration
-//	| ControlDeclaration
 	| ServiceDeclaration
 	| TransferDeclaration
-	| ViewDeclaration
-	| RowDeclaration
+//	| ViewDeclaration
+//	| RowDeclaration
 	| ActorDeclaration
 	;
 
@@ -97,7 +96,7 @@ EntityMemberDeclaration
 	| EntityRelationDeclaration
 	| EntityDerivedDeclaration
 	| EntityQueryDeclaration
-	| EntityOperationDeclaration
+//	| EntityOperationDeclaration
 //	| ConstraintDeclaration
 	)
 	  SC*
