@@ -192,6 +192,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          toTag: v${{ steps.version.outputs.version }}
           configurationJson: |
             {
               "template": "#{{CHANGELOG}}\n\n<details>\n<summary>Uncategorized</summary>\n\n#{{UNCATEGORIZED}}\n</details>",
@@ -218,11 +219,12 @@ jobs:
                 }
               ]
             }
+
       - name: 📖 Create release
-        if: |-
-          ${{ always() && 
-          (startsWith(github.head_ref, 'develop') || github.ref == 'refs/heads/develop') && 
-          job.status == 'success' }}
+#        if: |-
+#          ${{ always() &&
+#          (startsWith(github.head_ref, 'develop') || github.ref == 'refs/heads/develop') &&
+#          job.status == 'success' }}
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
