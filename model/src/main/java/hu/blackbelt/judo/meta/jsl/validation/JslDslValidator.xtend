@@ -1474,6 +1474,15 @@ class JslDslValidator extends AbstractJslDslValidator {
 			return
 		}
 
+		if (!(mark.eContainer instanceof ServiceFunctionDeclaration)) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Function must be an action function.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+	            
+	        return
+		}
+
 		if (mark.eContainer instanceof ServiceFunctionDeclaration) {
 			val ServiceFunctionDeclaration function = mark.eContainer as ServiceFunctionDeclaration
 			
@@ -1492,12 +1501,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 			
 			return
-		}
-
-		if (mark.eContainer instanceof ServiceDataDeclaration) {
-			val ServiceDataDeclaration function = mark.eContainer as ServiceDataDeclaration
-			
-			// TODO: check if data service expression is a containment field
 		}
 	}
 
