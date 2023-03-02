@@ -276,10 +276,6 @@ jobs:
           tag: v${{ steps.version.outputs.version }}
           generateReleaseNotes: false
           body: |-
-            **P2 Update Site:** 
-
-            https://nexus.judo.technology/repository/p2/judo-meta-jsl/${{ steps.version.outputs.version }}
-
             Download
             ========
 
@@ -289,7 +285,7 @@ jobs:
 
             The current version is accessible in
 
-            https://nexus.judo.technology/repository/p2/judo-meta-jsl/{{ steps.version.outputs.version }}
+            https://nexus.judo.technology/repository/p2/judo-meta-jsl/${{ steps.version.outputs.version }}
 
             The latest version (nightly build) can be accessed in the following URL:
             
