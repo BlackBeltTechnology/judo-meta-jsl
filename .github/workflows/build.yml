@@ -193,12 +193,38 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           toTag: v${{ steps.version.outputs.version }}
+          configurationJson: |
+            {
+              "template": "#{{CHANGELOG}}\n\n<details>\n<summary>Uncategorized</summary>\n\n#{{UNCATEGORIZED}}\n</details>",
+              "categories": [
+                {
+                  "title": "## 🚀 Features",
+                  "labels": ["feature", "enhancement"]
+                },
+                {
+                  "title": "## 🐛 Fixes",
+                  "labels": ["fix"]
+                },
+                {
+                  "title": "## 🧪 Tests",
+                  "labels": ["test"]
+                },
+                {                
+                  "title": "## 💬 Other",
+                  "labels": ["other"]
+                },
+                {
+                  "title": "## 📦 Dependencies",
+                  "labels": ["dependencies"]
+                }
+              ]
+            }
 
       - name: 📖 Create release
-        if: |-
-          ${{ always() && 
-          (startsWith(github.head_ref, 'develop') || github.ref == 'refs/heads/develop') && 
-          job.status == 'success' }}
+#        if: |-
+#          ${{ always() &&
+#          (startsWith(github.head_ref, 'develop') || github.ref == 'refs/heads/develop') &&
+#          job.status == 'success' }}
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
