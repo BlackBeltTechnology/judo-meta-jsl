@@ -133,15 +133,59 @@ jobs:
           -Dmaven.test.skip=true \
           deploy
 
-      - name: Release P2
+      # Phase 2 - Deploy to P2 - develop
+      - name: 🎁 Release P2 - version (parallel uoload)
         run: |-
-          ./mvnw -B -Dstyle.color=always \
-          -Dtycho.mode=maven \
-          -Prelease-dummy,release-p2-judong \
-          -DdeployOnly \
-          -DskipTests=true \
-          -DskipModules=true \
-          deploy
+          export BASE_URL=https://nexus.judo.technology/repository/p2-judong/judo-meta-jsl/${{ steps.version.outputs.version }}
+          curl -X DELETE --insecure \
+                                             --silent \
+                                             --output /dev/null \
+                                             --user "$USERNAME:$PASSWORD" \
+                                             $BASE_URL
+          export REPOSITORY_DIR=./site/target/repository
+          export USERNAME=${{ secrets.JUDONG_NEXUS_USERNAME }}
+          export PASSWORD=${{ secrets.JUDONG_NEXUS_PASSWORD }}
+          export NUM_OF_PROC=6
+          callUpload() {
+            curl --write-out ' %{url_effective} Bytes: %{size_upload} Response code: %{http_code}\n' \
+              --insecure \
+              --silent \
+              --output /dev/null \
+              --user "$USERNAME:$PASSWORD" \
+              --upload-file $REPOSITORY_DIR$1 $BASE_URL$1
+          }
+          export -f callUpload
+          REP_DIR_LEN=`echo -n "$REPOSITORY_DIR" | wc -c`; REP_DIR_LEN=$(($REP_DIR_LEN + 1))
+          find $REPOSITORY_DIR -type f -print0 | xargs -0 -I file echo "file" | cut -c$REP_DIR_LEN- | xargs -P $NUM_OF_PROC -I {} bash -c 'callUpload "$@"' _ {} 
+
+
+      # Phase 2 - Deploy to P2 - develop
+      - name: 🎁 Release P2 - develop (parallel uoload)
+#        if:           ${{ always() &&
+#          (startsWith(github.head_ref, 'develop') || github.ref == 'refs/heads/develop') &&
+#          job.status == 'success' }}
+        run: |-
+          export BASE_URL=https://nexus.judo.technology/repository/p2-judong/judo-meta-jsl/develop
+          curl -X DELETE --insecure \
+                                             --silent \
+                                             --output /dev/null \
+                                             --user "$USERNAME:$PASSWORD" \
+                                             $BASE_URL
+          export REPOSITORY_DIR=./site/target/repository
+          export USERNAME=${{ secrets.JUDONG_NEXUS_USERNAME }}
+          export PASSWORD=${{ secrets.JUDONG_NEXUS_PASSWORD }}
+          export NUM_OF_PROC=6
+          callUpload() {
+            curl --write-out ' %{url_effective} Bytes: %{size_upload} Response code: %{http_code}\n' \
+              --insecure \
+              --silent \
+              --output /dev/null \
+              --user "$USERNAME:$PASSWORD" \
+              --upload-file $REPOSITORY_DIR$1 $BASE_URL$1
+          }
+          export -f callUpload
+          REP_DIR_LEN=`echo -n "$REPOSITORY_DIR" | wc -c`; REP_DIR_LEN=$(($REP_DIR_LEN + 1))
+          find $REPOSITORY_DIR -type f -print0 | xargs -0 -I file echo "file" | cut -c$REP_DIR_LEN- | xargs -P $NUM_OF_PROC -I {} bash -c 'callUpload "$@"' _ {} 
 
 
 #      - name: 🔎 Sonar Metrics
@@ -193,12 +237,38 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           toTag: v${{ steps.version.outputs.version }}
+          configurationJson: |
+            {
+              "template": "#{{CHANGELOG}}\n\n<details>\n<summary>Uncategorized</summary>\n\n#{{UNCATEGORIZED}}\n</details>",
+              "categories": [
+                {
+                  "title": "## 🚀 Features",
+                  "labels": ["feature", "enhancement"]
+                },
+                {
+                  "title": "## 🐛 Fixes",
+                  "labels": ["fix"]
+                },
+                {
+                  "title": "## 🧪 Tests",
+                  "labels": ["test"]
+                },
+                {                
+                  "title": "## 💬 Other",
+                  "labels": ["other"]
+                },
+                {
+                  "title": "## 📦 Dependencies",
+                  "labels": ["dependencies"]
+                }
+              ]
+            }
 
       - name: 📖 Create release
-        if: |-
-          ${{ always() && 
-          (startsWith(github.head_ref, 'develop') || github.ref == 'refs/heads/develop') && 
-          job.status == 'success' }}
+#        if: |-
+#          ${{ always() &&
+#          (startsWith(github.head_ref, 'develop') || github.ref == 'refs/heads/develop') &&
+#          job.status == 'success' }}
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -206,11 +276,22 @@ jobs:
           tag: v${{ steps.version.outputs.version }}
           generateReleaseNotes: false
           body: |-
-            **P2 Update Site:** 
+            Download
+            ========
+
+            This download site can be used for JUDO development.
+            It contains installable packages in the following URL's. It can be added
+            in JUDO Architect, Install new software... menu.
+
+            The current version is accessible in
 
             https://nexus.judo.technology/repository/p2/judo-meta-jsl/${{ steps.version.outputs.version }}
 
-            ** Changelog **
+            The latest version (nightly build) can be accessed in the following URL:
+            
+            https://nexus.judo.technology/repository/p2/judo-meta-jsl/develop
+
+            **Changelog**
             
             ${{steps.create_changelog.outputs.changelog}}
           draft: false
