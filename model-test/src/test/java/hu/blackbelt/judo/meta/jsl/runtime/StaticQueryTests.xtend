@@ -2,14 +2,15 @@ package hu.blackbelt.judo.meta.jsl.runtime
 
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.extensions.InjectionExtension
-import org.junit.jupiter.api.^extension.ExtendWith
 import org.eclipse.xtext.testing.util.ParseHelper
 import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
+import org.junit.jupiter.api.^extension.ExtendWith
 import org.junit.jupiter.api.Test
-import hu.blackbelt.judo.requirement.report.annotation.Requirement
 import org.junit.jupiter.api.Disabled
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
+import hu.blackbelt.judo.requirement.report.annotation.TestCase
 
 @ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
