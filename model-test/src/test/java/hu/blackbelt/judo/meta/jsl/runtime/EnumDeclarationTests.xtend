@@ -11,6 +11,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
 import hu.blackbelt.judo.requirement.report.annotation.Requirement
+import hu.blackbelt.judo.requirement.report.annotation.TestCase
 
 @ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
@@ -18,6 +19,54 @@ class EnumDeclarationTests {
     @Inject extension ParseHelper<ModelDeclaration>
     @Inject extension ValidationTestHelper
 
+    /**
+     * Testing the naming of enum literals.
+     * @prerequisites Nothing
+     * 
+     * @type Static
+     * 
+     * @others
+     *  TODO Write here any other instructions or information, that is necessary or important to implement
+     *  the test case. This is an optional property.
+     * 
+     * @jslModel
+     *  TODO Write here a JSL model, that is used by the test case.
+     * 
+     * @scenario
+     *  . Parse (and/or build) the model.
+     * 
+     *  . The result of the model parsing (and/or building) is successful.
+     */
+    @Test
+    @TestCase("TC001")
+    @Requirement(reqs = #[
+         "REQ-SYNT-001",
+         "REQ-SYNT-002",
+         "REQ-SYNT-003",
+         "REQ-SYNT-004",
+         "REQ-MDL-001",
+         "REQ-TYPE-002",
+         "REQ-ENT-001",
+         "REQ-ENT-002"
+    ])
+    def void testNamingOfEnumLiterals() {
+        '''
+            model modelTC001;
+            
+            enum TestLiteral {
+                AAA   = 1;
+                bbb   = 2;
+                Abc09 = 3;
+            }
+            
+            entity E1 {
+                field TestLiteral f1;
+            }
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+    
     @Test
     @Requirement(reqs = #[
         "REQ-SYNT-001",
