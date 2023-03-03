@@ -21,17 +21,9 @@ class EnumDeclarationTests {
 
     /**
      * Testing the naming of enum literals.
+     * 
      * @prerequisites Nothing
-     * 
      * @type Static
-     * 
-     * @others
-     *  TODO Write here any other instructions or information, that is necessary or important to implement
-     *  the test case. This is an optional property.
-     * 
-     * @jslModel
-     *  TODO Write here a JSL model, that is used by the test case.
-     * 
      * @scenario
      *  . Parse (and/or build) the model.
      * 
@@ -64,6 +56,47 @@ class EnumDeclarationTests {
             }
         '''.parse => [
             assertNoErrors
+        ]
+    }
+    
+    /**
+     * Testing the naming of enum literals. Bad literal name.
+     * 
+     * @prerequisites Nothing
+     * @type Static
+     * @negativeRequirements REQ-SYNT-004
+     * @scenario
+     *  . Parse (and/or build) the model.
+     *  . The result of the model parsing (and/or building) is ended with an exception because the
+     *    _"11aaa"_ isn't a valid enum literal name.
+     */
+    @Test
+    @TestCase("TC002")
+    @Requirement(reqs = #[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-002",
+        "REQ-ENT-001",
+        "REQ-ENT-002"
+    ])
+    def void testNamingOfEnumLiteralsBadLiteralName() {
+        '''
+            model modelTC002;
+            
+            enum TestLiteral {
+                AAA   = 1;
+                bbb   = 2;
+                11aaa = 3;
+            }
+            
+            entity E1 {
+                field TestLiteral f1;
+            }
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.enumDeclaration, org.eclipse.xtext.diagnostics.Diagnostic.SYNTAX_DIAGNOSTIC, "mismatched input '11' expecting '}'")
         ]
     }
     
