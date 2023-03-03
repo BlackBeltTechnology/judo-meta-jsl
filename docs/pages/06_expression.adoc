@@ -560,9 +560,10 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**lpad(size = **#<size> &#x5B;[purple]##**, padstring = **##<padstring>][purple]##**)**## : string`
-|Fills up a string on the left to the specified <size> with <padstring>. If the length of <padstring> is less than the remaining length, the <padstring> is repeated until it is not filling up. If the length of <padstring> is longer than the remaining length, it will be truncated on the right. If <padstring> is not defined, one space character (`" "`) is used by default.
+|Fills up a string on the left to the specified <size> with <padstring>. If the specified <size> is less than the string's length, the string is truncated from the right to the specified <size>. If the length of <padstring> is less than the remaining length, the <padstring> is repeated until it is not filling up. If the length of <padstring> is longer than the remaining length, it will be truncated on the right. If <padstring> is not defined, one space character (`" "`) is used by default.
 |Examples:
 |`"apple"!lpad(size = 6) is `" apple"`
+|`"apple"!lpad(size = 2) is `"ap"`
 |`"ple"!lpad(size = 5, padstring = "ap")` is `"apple"`
 |`"ple"!lpad(size = 6, padstring = "ap")` is `"apaple"`
 |`"ple"!lpad(size = 7, padstring = "ap")` is `"apapple"`
@@ -571,9 +572,10 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**rpad(size = **#<size> &#x5B;[purple]##**, padstring = **##<padstring>][purple]##**)**## : string`
-|Fills up a string on the right to the specified <size> with <padstring>. If the length of <padstring> is less than the remaining length, the <padstring> is repeated until it is not filling up. If the length of <padstring> is longer than the remaining length, it will be truncated on the left. If <padstring> is not defined, one space character (`" "`) is used by default.
+|Fills up a string on the right to the specified <size> with <padstring>. If the specified <size> is less than the string's length, the string is truncated from the right to the specified <size>. If the length of <padstring> is less than the remaining length, the <padstring> is repeated until it is not filling up. If the length of <padstring> is longer than the remaining length, it will be truncated on the left. If <padstring> is not defined, one space character (`" "`) is used by default.
 |Examples:
 |`"apple"!rpad(size = 6)` is `"apple "`
+|`"apple"!rpad(size = 2) is `"ap"`
 |`"app"!rpad(size = 5, padstring = "le")` is `"apple"`
 |`"app"!rpad(size = 6, padstring = "le")` is `"applel"`
 |`"app"!rpad(size = 7, padstring = "le")` is `"applele"`
