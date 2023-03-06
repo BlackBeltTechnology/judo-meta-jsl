@@ -899,19 +899,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
-	def checkRequiredOnTransferMemberDeclaration(TransferMemberDeclaration member) {
-		if (member instanceof TransferFieldDeclaration) {
-			val field = member
-			if (field.isIsMany && field.isRequired) {
-				error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'",
-                    JsldslPackage::eINSTANCE.transferFieldDeclaration_Required,
-                    USING_REQUIRED_WITH_IS_MANY,
-                    JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
-			}
-		}
-	}
-
-	@Check
 	def checkTenaryOperation(TernaryOperation it) {
 		try {
 			val TypeInfo conditionTypeInfo = TypeInfo.getTargetType(it.condition)
@@ -1086,6 +1073,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 				error("Invalid collection of primitive type",
 	                JsldslPackage::eINSTANCE.transferFieldDeclaration_ReferenceType,
 	                INVALID_COLLECTION)
+			}
+
+			if (field.isIsMany && field.isRequired) {
+				error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'",
+                    JsldslPackage::eINSTANCE.transferFieldDeclaration_Required,
+                    USING_REQUIRED_WITH_IS_MANY,
+                    JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
 			}
 		} catch (IllegalArgumentException illegalArgumentException) {
             return
@@ -1389,11 +1383,65 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 	}
 	
-	
 	@Check
-	def checkTransferFieldMapping(TransferFieldDeclaration field) {
+	def checkTransferFieldReads(TransferFieldDeclaration field) {
+		if (field.reads === null) {
+			return
+		}
+		
+		val TransferDeclaration transfer = field.eContainer as TransferDeclaration
+
+		if (transfer.map === null || transfer.map.entity === null) {
+			error("Invalid field mapping. Reads keyword cannot be used in unmapped transfer object.",
+                JsldslPackage::eINSTANCE.transferFieldDeclaration_Reads,
+                INVALID_FIELD_MAPPING,
+                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
+                
+            return;
+		}		
+
+		if (field.referenceType !== null && field.referenceType instanceof TransferDeclaration) {
+			val TransferDeclaration referenceType = field.referenceType as TransferDeclaration
+			
+			if (referenceType.map === null || referenceType.map.entity === null) {
+				error("Invalid field mapping. Reads keyword cannot be used for unmapped field type.",
+	                JsldslPackage::eINSTANCE.transferFieldDeclaration_Reads,
+	                INVALID_FIELD_MAPPING,
+	                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
+	                
+	            return;
+			}
+		}
+	}
+
+	@Check
+	def checkTransferFieldMaps(TransferFieldDeclaration field) {
 		if (field.maps === null) {
 			return
+		}
+
+		val TransferDeclaration transfer = field.eContainer as TransferDeclaration
+
+		if (transfer.map === null || transfer.map.entity === null) {
+			error("Invalid field mapping. Maps keyword cannot be used in unmapped transfer object.",
+                JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
+                INVALID_FIELD_MAPPING,
+                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
+                
+            return;
+		}
+
+		if (field.referenceType !== null && field.referenceType instanceof TransferDeclaration) {
+			val TransferDeclaration referenceType = field.referenceType as TransferDeclaration
+			
+			if (referenceType.map === null || referenceType.map.entity === null) {
+				error("Invalid field mapping. Maps keyword cannot be used for unmapped field type.",
+	                JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
+	                INVALID_FIELD_MAPPING,
+	                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
+	                
+	            return;
+			}
 		}
 
 		if (!(field.maps instanceof Navigation)) {
