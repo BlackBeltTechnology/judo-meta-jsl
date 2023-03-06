@@ -351,4 +351,86 @@ class TransferTests {
             m | m.assertError(JsldslPackage::eINSTANCE.transferDeclaration, JslDslValidator.INCOMPAIBLE_EXPORT)
         ]
     }
+
+	@Test
+	def void testTransferUnmappedMaps() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E {}
+			
+			transfer T {
+				field Integer i maps E!all()!size();
+			};
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
+        ]
+    }
+
+	@Test
+	def void testTransferUnmappedReads() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E {}
+			
+			transfer T {
+				field Integer i reads E!all()!size();
+			};
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
+        ]
+    }
+
+	@Test
+	def void testTransferUnmappedReferenceMaps() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+
+			entity E1 {
+				relation E2 e2;
+			}
+			
+			entity E2 {}
+			
+			transfer T1 {}
+			
+			transfer T2 maps E1 as e {
+				field T1 t1 maps e.e2;
+			}
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
+        ]
+    }
+
+	@Test
+	def void testTransferUnmappedReferenceReads() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+
+			entity E1 {
+				relation E2 e2;
+			}
+			
+			entity E2 {}
+			
+			transfer T1 {}
+			
+			transfer T2 maps E1 as e {
+				field T1 t1 reads e.e2;
+			}
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
+        ]
+    }
 }
