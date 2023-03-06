@@ -184,7 +184,7 @@ class StaticQueryTests {
         "REQ-EXPR-022"
     ])
     def void testStaticQueriesWithExpressionDefaultValues() {
-        '''model modelTCS019;
+        '''model modelTC019;
            
            import judo::types;
            
