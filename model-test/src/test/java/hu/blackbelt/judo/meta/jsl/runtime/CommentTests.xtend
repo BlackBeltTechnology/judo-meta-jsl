@@ -13,6 +13,7 @@ import hu.blackbelt.judo.requirement.report.annotation.TestCase
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import static org.junit.Assert.assertTrue
 import static org.junit.Assert.assertEquals
+import static org.junit.Assert.assertFalse
 
 @ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
@@ -21,6 +22,148 @@ class CommentTests {
     @Inject extension ParseHelper<ModelDeclaration>
     @Inject extension ValidationTestHelper
     @Inject extension JslDslModelExtension
+    
+    /**
+     * Testing the multiline comment in the beginning of the model file with model keyword.
+     * 
+     * @prerequisites Nothing
+     * @type Static
+     * @scenario
+     *  . Parse (and/or build) the model.
+     *  
+     *  . The result of the model parsing (and/or building) is successful.
+     *  
+     *  . The "xxx" model is not available. The "m1" is the only one model that is available.
+     */
+    @Test
+    @TestCase("TC005")
+    @Requirement(reqs = #[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-SYNT-005",
+        "REQ-MDL-001"
+    ])
+    def void testMultilineComments() {
+        val p = '''/*
+        model xxx;
+        */
+        model modelTC005;
+        '''.parse
+        p.assertNoErrors
+        
+        val m1 = p.fromModel
+        
+        assertFalse(m1.streamOfJsldslModelDeclaration.anyMatch[e | "xxx".equals(e.name) ])
+        assertTrue(m1.streamOfJsldslModelDeclaration.allMatch[e |  "modelTC005".equals(e.name) ])
+          	  
+    }
+    
+    /**
+     * Testing the singleline and multiline comments where the commented section contains valid JSL statements.
+     * 
+     * @prerequisites Nothing
+     * @type Static
+     * @scenario
+     *  . Parse (and/or build) the model.
+     *  
+     *  . The result of the model parsing (and/or building) is successful.
+     *  
+     *  . The "xxx" model is not available. The "m1" is the only one model that is available.
+     */
+    @Test
+    @TestCase("TC006")
+    @Requirement(reqs = #[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-SYNT-005",
+        "REQ-MDL-001"
+    ])
+    def void testMultilineCommentWhereCommentStartsAndEndsInTheSameLine() {
+        val p = '''/* model xxx; */
+        model modelTC006;
+        '''.parse
+        p.assertNoErrors
+        
+        val m1 = p.fromModel
+        
+        assertFalse(m1.streamOfJsldslModelDeclaration.anyMatch[e | "xxx".equals(e.name) ])
+        assertTrue(m1.streamOfJsldslModelDeclaration.allMatch[e |  "modelTC006".equals(e.name) ])  	
+        
+    }
+    
+    /**
+     * Testing the singleline comment in the beginning of the model file with model keyword.
+     * 
+     * @prerequisites Nothing
+     * @type Static
+     * @scenario
+     *  . Parse (and/or build) the model.
+     *  
+     *  . The result of the model parsing (and/or building) is successful.
+     *  
+     *  . The "blabla" model is not available. The "m1" is the only one model that is available.
+     */
+    @Test
+    @TestCase("TC007")
+    @Requirement(reqs = #[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-SYNT-005",
+        "REQ-MDL-001"
+    ])
+    def void testSingleLineCommentWithoutSpaceBeforeCommentedCode() {
+        val p = '''//model blabla;
+        model modelTC007;
+        '''.parse
+        p.assertNoErrors
+        
+        val m1 = p.fromModel
+        
+        assertFalse(m1.streamOfJsldslModelDeclaration.anyMatch[e | "blabla".equals(e.name) ])
+        assertTrue(m1.streamOfJsldslModelDeclaration.allMatch[e |  "modelTC007".equals(e.name) ])  	
+        
+    }
+    
+    /**
+     * Testing the singleline comment in the beginning of the model file with model keyword.
+     * 
+     * @prerequisites Nothing
+     * @type Static
+     * @scenario
+     *  . Parse (and/or build) the model.
+     *  
+     *  . The result of the model parsing (and/or building) is successful.
+     *  
+     *  . The "blabla" model is not available. The "m1" is the only one model that is available.
+     */
+    @Test
+    @TestCase("TC008")
+    @Requirement(reqs = #[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-SYNT-005",
+        "REQ-MDL-001"
+    ])
+    def void testSingleLineCommentWithSpaceBeforeCommentedCode() {
+        val p = '''// model blabla;
+        model modelTC008;
+        '''.parse
+        p.assertNoErrors
+        
+        val m1 = p.fromModel
+        
+        assertFalse(m1.streamOfJsldslModelDeclaration.anyMatch[e | "blabla".equals(e.name) ])
+        assertTrue(m1.streamOfJsldslModelDeclaration.allMatch[e |  "modelTC008".equals(e.name) ])  	
+        
+    }
     
     /**
      * Testing the singleline and multiline comments where the commented section contains valid JSL statements.
@@ -84,12 +227,7 @@ class CommentTests {
         assertTrue(m1.streamOfJsldslDataTypeDeclaration.allMatch[e | "boolean".equals(e.primitive) && "Bool".equals(e.name)])
         
         val e4 = m1.entityByName("e4")
-        assertTrue(e4.allFields.stream.allMatch[e | "bb".equals(e.name) && "Bool".equals(e.referenceType.name)])
-        
-        
-        
-        
-        	
+        assertTrue(e4.allFields.stream.allMatch[e | "bb".equals(e.name) && "Bool".equals(e.referenceType.name)])    	
         
     }
 }
