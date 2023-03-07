@@ -264,7 +264,7 @@ class StaticQueryTests {
     }
     
     /**
-     * Testing the static queries.
+     * Testing the static queries without parameters.
      * 
      * @prerequisites Nothing
      * @type Static
@@ -275,7 +275,7 @@ class StaticQueryTests {
      */
     @Test
     @TestCase("TC014")
-    @Disabled("JNG-4566")
+    //@Disabled("JNG-4566")
     @Requirement(reqs = #[
         "REQ-SYNT-001",
         "REQ-SYNT-002",
@@ -303,8 +303,8 @@ class StaticQueryTests {
         "REQ-EXPR-008",
         "REQ-EXPR-022"
     ])
-    def void testStaticQueries() {
-        '''model modelTCS014;
+    def void testStaticQueriesWithoutParameters() {
+        '''model modelTC014;
         
 	        import judo::types;
 	        
