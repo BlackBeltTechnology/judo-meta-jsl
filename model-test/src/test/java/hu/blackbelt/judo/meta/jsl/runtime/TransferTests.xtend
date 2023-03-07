@@ -75,6 +75,58 @@ class TransferTests {
     }
 
 	@Test
+    def void testTransferFieldRelationOk() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E1 {
+				relation E2 e2;
+				relation E2[] e2list;
+			}
+
+			entity E2 {
+			}
+			
+			transfer T2(E2 e2);
+			
+			transfer T1(E1 e1) {
+				field T2 t2 reads e1.e2;
+				field T2[] t2list reads e1.e2list;
+			}
+			
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+	@Test
+    def void testTransferMapsReadsOppositeOk() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E1 {
+				relation E2 e2 opposite-add e1;
+			}
+			
+			entity E2 {
+			}
+			
+			transfer T1(E1 e1);
+			
+			transfer T2(E2 e2) {
+				field T1 t1r reads e2.e1;
+				field T1 t1m maps e2.e1 choices E1!all();
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+	@Test
     def void testTransferCollectionRequired() {
         '''
 			model Test;
@@ -449,6 +501,86 @@ class TransferTests {
 			}
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
+        ]
+    }
+
+	@Test
+	def void testTransferOppositeReadsTypeMismatch() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E0 {
+				relation E2 e2 opposite-add e0;
+			}
+			
+			entity E1 {
+			}
+			
+			entity E2 {
+			}
+			
+			transfer T0(E0 e0);
+			transfer T1(E1 e1);
+			
+			transfer T2(E2 e2) {
+				field T1 t1r reads e2.e0;
+			}
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
+        ]
+    }
+
+	@Test
+	def void testTransferOppositeMapsTypeMismatch() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E0 {
+				relation E2 e2 opposite-add e0;
+			}
+			
+			entity E1 {
+			}
+			
+			entity E2 {
+			}
+			
+			transfer T0(E0 e0);
+			transfer T1(E1 e1);
+			
+			transfer T2(E2 e2) {
+				field T1 t1r maps e2.e0;
+			}
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
+        ]
+    }
+
+	@Test
+	def void testTransferFieldChoice() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E1 {
+				relation E2 e2;
+			}
+			
+			entity E2 {
+			}
+			
+			transfer T1(E1 e1) {
+				field T2 t2 maps e1.e2 choices E2!any();
+			}
+			
+			transfer T2(E2 e2);
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
         ]
     }
 }

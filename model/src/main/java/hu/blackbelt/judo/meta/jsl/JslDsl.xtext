@@ -259,7 +259,7 @@ TransferMemberDeclaration
 TransferFieldDeclaration
 	: annotations += AnnotationMark*
 	  'field' (required ?= 'required'? referenceType = [TransferFieldType | ModelName] Cardinality?) Named
-	  ('maps' maps = Expression | 'reads' reads = Expression)?
+	  ('maps' maps = Expression ('choices' choices = Expression)? | 'reads' reads = Expression)?
 	  SC
 	;
 
