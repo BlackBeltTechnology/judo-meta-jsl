@@ -1299,6 +1299,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.serviceDataDeclaration.name)
 			}
+			
+			if (data.choices !== null && !TypeInfo.getTargetType(data).isCompatibleCollection(TypeInfo.getTargetType(data.choices))) {
+				error("Type mismatch. Choices must return compatible collection with field type.",
+	                JsldslPackage::eINSTANCE.serviceDataDeclaration_Choices,
+	                TYPE_MISMATCH,
+	                JsldslPackage::eINSTANCE.serviceDataDeclaration.name)
+			}
 		} catch (IllegalArgumentException illegalArgumentException) {
             return
 		}
@@ -1495,7 +1502,11 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 		val MemberReference memberReference = navigation.features.get(0) as MemberReference;
 		
-		if (!(memberReference.member instanceof EntityFieldDeclaration)) {
+		if (!(memberReference.member instanceof EntityFieldDeclaration) &&
+			!(memberReference.member instanceof EntityIdentifierDeclaration) &&
+			!(memberReference.member instanceof EntityRelationDeclaration) &&
+			!(memberReference.member instanceof EntityRelationOppositeInjected))
+		{
 			error("Invalid field mapping.",
                 JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
                 INVALID_FIELD_MAPPING,
@@ -1504,15 +1515,11 @@ class JslDslValidator extends AbstractJslDslValidator {
             return;
 		}
 
-		val EntityFieldDeclaration entityFieldDeclaration = memberReference.member as EntityFieldDeclaration;
-
-		if (!TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(entityFieldDeclaration))) {
-			error("Invalid field mapping.",
-                JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
-                INVALID_FIELD_MAPPING,
+		if (field.choices !== null && !TypeInfo.getTargetType(field).isCompatibleCollection(TypeInfo.getTargetType(field.choices))) {
+			error("Type mismatch. Choices must return compatible collection with field type.",
+                JsldslPackage::eINSTANCE.transferFieldDeclaration_Choices,
+                TYPE_MISMATCH,
                 JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
-                
-            return;
 		}
 	}
 	
