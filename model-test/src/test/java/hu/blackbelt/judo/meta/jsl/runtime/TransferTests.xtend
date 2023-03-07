@@ -127,6 +127,27 @@ class TransferTests {
     }
 
 	@Test
+    def void testTransferIdenitiferMapping() {
+        '''
+			model MappedTransferObjectTypeModel;
+			
+			type string String(min-size = 0, max-size = 250);
+			type numeric Integer(precision = 3, scale = 0);
+			
+			entity Entity {
+				identifier Integer identifier;
+			}
+			
+			transfer Mapped maps Entity as e {
+				field Integer mappedIdentifier maps e.identifier;
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+
+	@Test
     def void testTransferCollectionRequired() {
         '''
 			model Test;
