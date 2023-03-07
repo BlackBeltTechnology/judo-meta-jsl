@@ -24,14 +24,24 @@ class TransferTests {
 			
 			import judo::types;
 			
+			enum EN {
+				literal1 = 0;
+				literal2 = 1;
+			}
+			
 			entity E1 {
 				identifier String id;
 				field Integer f;
+				field EN en;
 			}
 
 			entity E2 {
 				identifier String id;
 				field Integer f;
+			}
+
+			entity E3 extends E2 {
+				field Integer f2;
 			}
 			
 			transfer T1 {
@@ -48,9 +58,17 @@ class TransferTests {
 				field String f;
 				field Integer f2 reads e1.f;
 				field Integer f3 maps e1.f;
+				field Integer f4 reads E1!all()!size();
+				field EN en maps e1.en;
+			}
+
+			transfer T3(E2 e2);
+
+			transfer T4(E3 e3) {
+				field Integer f reads e3.f;
+				field Integer f2 reads e3.f2;
 			}
 			
-			transfer T3(E2 e2);
         '''.parse => [
             assertNoErrors
         ]
