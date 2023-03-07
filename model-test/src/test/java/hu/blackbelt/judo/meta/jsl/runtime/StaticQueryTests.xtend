@@ -262,4 +262,226 @@ class StaticQueryTests {
             assertNoErrors
         ]
     }
+    
+      /**
+     * Testing the static queries.
+     * 
+     * @prerequisites Nothing
+     * @type Static
+     * @scenario
+     *  . Parse (and/or build) the model.
+     *
+     *  . The result of the model parsing (and/or building) is successful.
+     */
+    @Test
+    @TestCase("TC014")
+    @Disabled("JNG-4566")
+    @Requirement(reqs = #[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-SYNT-005",
+        "REQ-TYPE-001",
+        "REQ-TYPE-002",
+        "REQ-TYPE-004",
+        "REQ-TYPE-005",
+        "REQ-TYPE-006",
+        "REQ-TYPE-007",
+        "REQ-TYPE-008",
+        "REQ-TYPE-009",
+        "REQ-MDL-001",
+        "REQ-MDL-003",
+        "REQ-ENT-001",
+        "REQ-ENT-009",
+        "REQ-ENT-011",
+        "REQ-EXPR-002",
+        "REQ-EXPR-004",
+        "REQ-EXPR-005",
+        "REQ-EXPR-006",
+        "REQ-EXPR-007",
+        "REQ-EXPR-008",
+        "REQ-EXPR-022"
+    ])
+    def void testStaticQueries() {
+        '''model modelTCS014;
+        
+	        import judo::types;
+	        
+	        // my decimal
+	        type numeric Decimal(precision = 13, scale = 4);
+	        
+	        // my enum
+	        enum MyEnum {
+	            A01 = 1;
+	            A02 = 2;
+	            A03 = 3;
+	            A00 = 0;
+	        }
+	        
+	        // MyEntity
+	        entity MyEntity {
+	            field Boolean   fBool;
+	            field Date      fDate;
+	            field Time      fTime;
+	            field Timestamp fTimestamp;
+	            field Long      fLong;
+	            field String    fString;
+	            field Decimal   fDecimal;
+	            field MyEnum    fEnum;
+	        }
+	        
+	        // Entity for the results of queries
+	        entity Snapshot1 {
+	            field Boolean   fBool      = anyMyEntityFBool();
+	            field Date      fDate      = anyMyEntityFDate();
+	            field Time      fTime      = anyMyEntityFTime();
+	            field Timestamp fTimestamp = anyMyEntityFTimestamp();
+	            field Long      fLong      = anyMyEntityFLong();
+	            field String    fString    = anyMyEntityFString();
+	            field Decimal   fDecimal   = anyMyEntityFDecimal();
+	            field MyEnum    fEnum      = anyMyEntityFEnum();
+	        }
+	        
+	        // static queries
+	        query Boolean   anyMyEntityFBool()      => MyEntity!all()!any().fBool;
+	        query Date      anyMyEntityFDate()      => MyEntity!all()!any().fDate;
+	        query Time      anyMyEntityFTime()      => MyEntity!all()!any().fTime;
+	        query Timestamp anyMyEntityFTimestamp() => MyEntity!all()!any().fTimestamp;
+	        query Long      anyMyEntityFLong()      => MyEntity!all()!any().fLong;
+	        query String    anyMyEntityFString()    => MyEntity!all()!any().fString;
+	        query Decimal   anyMyEntityFDecimal()   => MyEntity!all()!any().fDecimal;
+	        query MyEnum    anyMyEntityFEnum()      => MyEntity!all()!any().fEnum;
+	        query MyEntity[] listOfMyEntities()     => MyEntity!all();
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+    
+     /**
+     * Testing the static queries with default values.
+     * 
+     * @prerequisites Nothing
+     * @type Static
+     * @scenario
+     *  . Parse (and/or build) the model.
+     *
+     *  . The result of the model parsing (and/or building) is successful.
+     */
+    @Test
+    @TestCase("TC016")
+    @Disabled("JNG-4566")
+    @Requirement(reqs = #[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-SYNT-005",
+        "REQ-TYPE-001",
+        "REQ-TYPE-002",
+        "REQ-TYPE-004",
+        "REQ-TYPE-005",
+        "REQ-TYPE-006",
+        "REQ-TYPE-007",
+        "REQ-TYPE-008",
+        "REQ-TYPE-009",
+        "REQ-MDL-001",
+        "REQ-MDL-003",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-004",
+        "REQ-ENT-005",
+        "REQ-ENT-009",
+        "REQ-ENT-011",
+        "REQ-EXPR-002",
+        "REQ-EXPR-004",
+        "REQ-EXPR-005",
+        "REQ-EXPR-006",
+        "REQ-EXPR-007",
+        "REQ-EXPR-008",
+        "REQ-EXPR-022"
+    ])
+    def void testStaticQueriesWithDefaultValues() {
+        '''model modelTC016;
+	        
+	        import judo::types;
+	        
+	        // my decimal
+	        type numeric Decimal(precision = 13, scale = 4);
+	        
+	        // my enum
+	        enum MyEnum {
+	            A01 = 1;
+	            A02 = 2;
+	            A03 = 3;
+	            A00 = 0;
+	        }
+	        
+	        // MyEntity
+	        entity MyEntity {
+	            field Timestamp fCreated = Timestamp!now();
+	            field Boolean   fBool;
+	            field Date      fDate;
+	            field Time      fTime;
+	            field Timestamp fTimestamp;
+	            field Long      fLong;
+	            field String    fString;
+	            field Decimal   fDecimal;
+	            field MyEnum    fEnum;
+	        }
+	        
+	        // Entity for the results of queries
+	        entity Snapshot1 {
+	            field Timestamp created = Timestamp!now();
+	            
+	            // fields
+	            field MyEntity fMyEntity001 = anyMyEntity001();
+	            field MyEntity fMyEntity002 = anyMyEntity002();
+	            field MyEntity fMyEntity003 = anyMyEntity003();
+	            field MyEntity fMyEntity004 = anyMyEntity001(p2 = false);
+	            field MyEntity fMyEntity005 = anyMyEntity002(p3 = "AAA", p1 = `2023-01-01`);
+	            field MyEntity fMyEntity006 = anyMyEntity003(p1 = -10, p3 = true, p2 = MyEnum#A02);
+	        
+	            // relations
+	            relation MyEntity[] defEntities => setOfMyEntities();
+	            relation MyEntity[] otherEntities => setOfMyEntities(p1 = MyEnum#A01)
+	        }
+	        
+	        // static queries
+	        query MyEntity anyMyEntity001(
+	            Timestamp p1 = Timestamp!now()!plus(days = -7),
+	            Boolean p2 = true,
+	            Long p3 = 13
+	        ) => MyEntity!all()
+	             !filter(e | p1 <= e.fCreated and p2 == e.fBool and p3 <= e.fLong)
+	             !any();
+	        
+	        query MyEntity anyMyEntity002(
+	            Date p1 = Timestamp!now()!date(),
+	            Time p2 = Timestamp!now()!time(),
+	            String p3 = "Lorem ipsum"
+	        ) => MyEntity!all()
+	             !filter(e | p1 == e.fDate and p2 <= e.Time and p3 != e.fString)
+	             !any();
+	        
+	        query MyEntity anyMyEntity003(
+	            Decimal p1 = 999999999.9999,
+	            MyEnum p2 = MyEnum#A00,
+	            Boolean p3 = false
+	        ) => MyEntity!all()
+	             !filter(e | p1 <= e.fDecimal and e.fEnum >= p2 or p3 == e.fBool)
+	             !any();
+	        
+	        query MyEntity[] setOfMyEntities(
+	            MyEnum p1 = MyEnum#A03
+	        ) => MyEntity!all()
+	             !filter(e | p1 == e.fEnum and e.fCreated <= Timestamp!now())
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+    
+
+}
+     
 }
