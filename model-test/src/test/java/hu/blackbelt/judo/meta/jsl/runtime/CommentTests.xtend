@@ -31,6 +31,12 @@ class CommentTests {
      *  . Parse (and/or build) the model.
      *
      *  . The result of the model parsing (and/or building) is successful.
+     *  
+     *  . The "m1" is the only one model that is available, and
+     *    
+     *  . the model has only one entity ("e4") and one type ("Bool") definitions.
+     *  
+     *  . Moreover, the "e4" entity type has only one field that name is "bb" and its type is "Bool".
      */
     @Test
     @TestCase("TC009")
