@@ -134,6 +134,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val INCOMPAIBLE_EXPORT = ISSUE_CODE_PREFIX + "IncompatibleExport"
 	public static val INVALID_SELF_VARIABLE = ISSUE_CODE_PREFIX + "InvalidSelfVariable"
 	public static val NON_STATIC_EXPRESSION = ISSUE_CODE_PREFIX + "NonStaticExpression"
+	public static val INVALID_CHOICES = ISSUE_CODE_PREFIX + "InvalidChoices"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -1510,6 +1511,18 @@ class JslDslValidator extends AbstractJslDslValidator {
 			error("Invalid field mapping.",
                 JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
                 INVALID_FIELD_MAPPING,
+                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
+                
+            return;
+		}
+
+		if (!(memberReference.member instanceof EntityRelationDeclaration) &&
+			!(memberReference.member instanceof EntityRelationOppositeInjected) &&
+			field.choices !== null)
+		{
+			error("Invalid use of choices. Choices can only be used for relation.",
+                JsldslPackage::eINSTANCE.transferFieldDeclaration_Choices,
+                INVALID_CHOICES,
                 JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
                 
             return;

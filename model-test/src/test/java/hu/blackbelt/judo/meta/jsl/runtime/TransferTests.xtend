@@ -604,4 +604,28 @@ class TransferTests {
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
         ]
     }
+
+	@Test
+	def void testTransferFieldCompositionChoice() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E1 {
+				field E2 e2;
+			}
+			
+			entity E2 {
+			}
+			
+			transfer T1(E1 e1) {
+				field T2 t2 maps e1.e2 choices E2!any();
+			}
+			
+			transfer T2(E2 e2);
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_CHOICES)
+        ]
+    }
 }
