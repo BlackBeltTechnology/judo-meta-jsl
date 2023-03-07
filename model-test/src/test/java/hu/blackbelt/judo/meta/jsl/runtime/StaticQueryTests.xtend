@@ -263,7 +263,7 @@ class StaticQueryTests {
         ]
     }
     
-      /**
+    /**
      * Testing the static queries.
      * 
      * @prerequisites Nothing
@@ -358,7 +358,7 @@ class StaticQueryTests {
         ]
     }
     
-     /**
+    /**
      * Testing the static queries with default values.
      * 
      * @prerequisites Nothing
@@ -480,8 +480,5 @@ class StaticQueryTests {
             assertNoErrors
         ]
     }
-    
-
-}
      
 }
