@@ -134,6 +134,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val INCOMPAIBLE_EXPORT = ISSUE_CODE_PREFIX + "IncompatibleExport"
 	public static val INVALID_SELF_VARIABLE = ISSUE_CODE_PREFIX + "InvalidSelfVariable"
 	public static val NON_STATIC_EXPRESSION = ISSUE_CODE_PREFIX + "NonStaticExpression"
+	public static val INVALID_CHOICES = ISSUE_CODE_PREFIX + "InvalidChoices"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -1299,6 +1300,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.serviceDataDeclaration.name)
 			}
+			
+			if (data.choices !== null && !TypeInfo.getTargetType(data).isCompatibleCollection(TypeInfo.getTargetType(data.choices))) {
+				error("Type mismatch. Choices must return compatible collection with field type.",
+	                JsldslPackage::eINSTANCE.serviceDataDeclaration_Choices,
+	                TYPE_MISMATCH,
+	                JsldslPackage::eINSTANCE.serviceDataDeclaration.name)
+			}
 		} catch (IllegalArgumentException illegalArgumentException) {
             return
 		}
@@ -1495,7 +1503,11 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 		val MemberReference memberReference = navigation.features.get(0) as MemberReference;
 		
-		if (!(memberReference.member instanceof EntityFieldDeclaration)) {
+		if (!(memberReference.member instanceof EntityFieldDeclaration) &&
+			!(memberReference.member instanceof EntityIdentifierDeclaration) &&
+			!(memberReference.member instanceof EntityRelationDeclaration) &&
+			!(memberReference.member instanceof EntityRelationOppositeInjected))
+		{
 			error("Invalid field mapping.",
                 JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
                 INVALID_FIELD_MAPPING,
@@ -1504,15 +1516,23 @@ class JslDslValidator extends AbstractJslDslValidator {
             return;
 		}
 
-		val EntityFieldDeclaration entityFieldDeclaration = memberReference.member as EntityFieldDeclaration;
-
-		if (!TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(entityFieldDeclaration))) {
-			error("Invalid field mapping.",
-                JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
-                INVALID_FIELD_MAPPING,
+		if (!(memberReference.member instanceof EntityRelationDeclaration) &&
+			!(memberReference.member instanceof EntityRelationOppositeInjected) &&
+			field.choices !== null)
+		{
+			error("Invalid use of choices. Choices can only be used for relation.",
+                JsldslPackage::eINSTANCE.transferFieldDeclaration_Choices,
+                INVALID_CHOICES,
                 JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
                 
             return;
+		}
+
+		if (field.choices !== null && !TypeInfo.getTargetType(field).isCompatibleCollection(TypeInfo.getTargetType(field.choices))) {
+			error("Type mismatch. Choices must return compatible collection with field type.",
+                JsldslPackage::eINSTANCE.transferFieldDeclaration_Choices,
+                TYPE_MISMATCH,
+                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
 		}
 	}
 	
