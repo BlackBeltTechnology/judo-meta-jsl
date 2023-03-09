@@ -1399,15 +1399,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 		
 		val TransferDeclaration transfer = field.eContainer as TransferDeclaration
 
-		if (transfer.map === null || transfer.map.entity === null) {
-			error("Invalid field mapping. Reads keyword cannot be used in unmapped transfer object.",
-                JsldslPackage::eINSTANCE.transferFieldDeclaration_Reads,
-                INVALID_FIELD_MAPPING,
-                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
-                
-            return;
-		}		
-
 		if (field.referenceType !== null && field.referenceType instanceof TransferDeclaration) {
 			val TransferDeclaration referenceType = field.referenceType as TransferDeclaration
 			

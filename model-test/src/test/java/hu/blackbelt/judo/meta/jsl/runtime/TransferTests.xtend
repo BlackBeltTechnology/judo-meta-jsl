@@ -75,6 +75,24 @@ class TransferTests {
     }
 
 	@Test
+	def void testTransferUnmappedReadsOk() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E {}
+			
+			transfer T {
+				field Integer i reads E!all()!size();
+			};
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+
+	@Test
     def void testTransferFieldRelationOk() {
         '''
 			model Test;
@@ -454,23 +472,6 @@ class TransferTests {
 			
 			transfer T {
 				field Integer i maps E!all()!size();
-			};
-        '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
-        ]
-    }
-
-	@Test
-	def void testTransferUnmappedReads() {
-        '''
-			model Test;
-			
-			import judo::types;
-			
-			entity E {}
-			
-			transfer T {
-				field Integer i reads E!all()!size();
 			};
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
