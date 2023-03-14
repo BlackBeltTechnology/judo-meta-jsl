@@ -94,7 +94,7 @@
         <karaf-version>4.4.1</karaf-version>
         <cxf-version>3.5.1</cxf-version>
 
-        <osgi-utils-version>1.1.1.20230309_124512_70d0e58d_develop</osgi-utils-version>
+        <osgi-utils-version>1.1.1.20230131_040731_bda34657_develop</osgi-utils-version>
         <karaf-features-version>2.0.1</karaf-features-version>
         <pax-exam-version>4.13.4</pax-exam-version>
 
@@ -111,7 +111,7 @@
         <sonar.language>java</sonar.language>
         <sonar.java.source>${java.version}</sonar.java.source>
         <jacoco.version>0.8.8</jacoco.version>
-        <judo-requirement-report-version>1.0.0.20230309_124649_40174e0b_develop</judo-requirement-report-version>
+        <judo-requirement-report-version>1.0.0.20230117_094835_78d7b9dc_develop</judo-requirement-report-version>
     </properties>
 
     <repositories>
