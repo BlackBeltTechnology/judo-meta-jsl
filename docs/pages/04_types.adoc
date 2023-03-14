@@ -87,11 +87,11 @@ entity Person {
 [judo-req="true",judo-req-id="REQ-TYPE-002"]
 == Enumeration
 
-An enumeration is a primitive data type whose values are called enumeration members. Enumeration members are listed as a pair of a text (the literal) and an integer (the ordinal). An enumeration member is represented with the qualified name of enumeration tagged with literal, for example `Titles#MR` or `example::Color#RED`.
+An enumeration is a primitive data type whose values are called enumeration members. Enumeration members are listed as a pair of a text (the literal) and a natural number (the ordinal). An enumeration member is represented with the qualified name of enumeration tagged with literal, for example `Titles#MR` or `example::Color#RED`.
 
 The literals of the enumeration members within an enumeration must be unique in case-insensitive manner. Enumeration literals are usually uppercase to improve readability.
 
-The ordinal parts of the enumeration members within an enumeration must be unique. Enumeration members can be ordered by their ordinal.
+The ordinal parts of the enumeration members within an enumeration must be unique. The ordinal must be equal to or greater than 0 and less than 10000. Enumeration members can be ordered by their ordinal.
 
 An enumeration must have at least one enumeration member.
 
@@ -316,8 +316,8 @@ To define numeric primitive, use the `type` keyword with `numeric`.
 ----
 
 where the <name> is the name of the domain model numeric,
-the <precision> is the maximum total number of decimal digits that will be stored, both to the left and to the right of the decimal point. The precision must be greater than 0.
-<scale> is the number of decimal digits that will be stored to the right of the decimal point (fraction). This number is subtracted from precision to determine the maximum number of digits to the left of the decimal point. Scale must be a value from 0 through precision.
+the <precision> is the maximum total number of decimal digits that will be stored, both to the left and to the right of the decimal point. The precision must be greater than 0 and less than 16.
+<scale> is the number of decimal digits that will be stored to the right of the decimal point (fraction). This number is subtracted from precision to determine the maximum number of digits to the left of the decimal point. Scale must be greater than 0 and less than precision.
 
 The number `3.14` has a precision of 3 and a scale of 2.
 
