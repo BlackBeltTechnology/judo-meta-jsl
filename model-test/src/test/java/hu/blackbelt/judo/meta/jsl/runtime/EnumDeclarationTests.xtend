@@ -132,9 +132,7 @@ class EnumDeclarationTests {
             enum TestLiteral {
                 Aaa01 = 1;
                 Bbb02 = 2;
-                Ccc03 = 99988899;
                 AA00  = 0;
-                ZZZ   = -3;
             }
             
             entity E1 {
@@ -145,6 +143,19 @@ class EnumDeclarationTests {
         ]
     }
     
+    @Test
+    def void testEnumOrdinalsMaximum() {
+        '''
+            model modelTC003;
+            
+            enum TestLiteral {
+                Aaa01 = 10000;
+            }
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.enumLiteral, JslDslValidator.ENUM_ORDINAL_IS_TOO_LARGE)
+        ]
+    }
+
     /**
      * Testing the operators of enum and enum functions.
      * 
@@ -181,7 +192,6 @@ class EnumDeclarationTests {
             enum TestLiteral {
                 Aaa01 = 1;
                 Bbb02 = 2;
-                Ccc03 = 99988899;
                 AA00  = 0;
             }
             
