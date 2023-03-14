@@ -293,6 +293,29 @@ public class TypeInfo {
 		return this.baseType == other.baseType;
 	}
 
+	public boolean isCompatibleCollection(TypeInfo other) {
+		if (this.baseType == BaseType.UNDEFINED || other.baseType == BaseType.UNDEFINED) {
+			return false;
+		}
+
+		if (!other.isCollection()) {
+			return false;
+		}
+		
+		if (this.isDeclaration() || other.isDeclaration()) {
+			return false;
+		}
+		
+		if (this.baseType == BaseType.ENTITY && other.baseType == BaseType.ENTITY)
+		{
+			return modelExtension.isEqual(this.type, other.type)
+					|| modelExtension.getSuperEntityTypes((EntityDeclaration)other.type).stream()
+						.anyMatch(e -> modelExtension.isEqual(e, this.type));
+		} else {
+			return false;
+		}
+	}
+
 	public PrimitiveType getPrimitive() {
 		if (isEntity()) {
 			throw new IllegalStateException("Type is entity");
@@ -545,7 +568,7 @@ public class TypeInfo {
 			return new TypeInfo((PrimitiveDeclaration) transferFieldDeclaration.getReferenceType(), false, false);
 		}
 		
-		throw new IllegalArgumentException("Could not determinate type for transfer field");
+		return new TypeInfo(BaseType.UNDEFINED, false);
 	}
 
 	public static TypeInfo getTargetType(ServiceDataDeclaration data) {
@@ -589,7 +612,7 @@ public class TypeInfo {
 			return new TypeInfo(entityQueryDeclaration.getReferenceType(), entityQueryDeclaration.isIsMany(), false);
 		}
 		
-		throw new IllegalArgumentException("Could not determinate type for entity member");
+		return new TypeInfo(BaseType.UNDEFINED, false);
 	}
 
 	public static TypeInfo getTargetType(QueryDeclaration queryDeclaration) {

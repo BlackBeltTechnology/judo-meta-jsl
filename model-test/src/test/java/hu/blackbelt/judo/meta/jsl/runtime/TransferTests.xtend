@@ -24,14 +24,24 @@ class TransferTests {
 			
 			import judo::types;
 			
+			enum EN {
+				literal1 = 0;
+				literal2 = 1;
+			}
+			
 			entity E1 {
 				identifier String id;
 				field Integer f;
+				field EN en;
 			}
 
 			entity E2 {
 				identifier String id;
 				field Integer f;
+			}
+
+			entity E3 extends E2 {
+				field Integer f2;
 			}
 			
 			transfer T1 {
@@ -48,13 +58,112 @@ class TransferTests {
 				field String f;
 				field Integer f2 reads e1.f;
 				field Integer f3 maps e1.f;
+				field Integer f4 reads E1!all()!size();
+				field EN en maps e1.en;
+			}
+
+			transfer T3(E2 e2);
+
+			transfer T4(E3 e3) {
+				field Integer f reads e3.f;
+				field Integer f2 reads e3.f2;
 			}
 			
-			transfer T3(E2 e2);
         '''.parse => [
             assertNoErrors
         ]
     }
+
+	@Test
+	def void testTransferUnmappedReadsOk() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E {}
+			
+			transfer T {
+				field Integer i reads E!all()!size();
+			};
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+
+	@Test
+    def void testTransferFieldRelationOk() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E1 {
+				relation E2 e2;
+				relation E2[] e2list;
+			}
+
+			entity E2 {
+			}
+			
+			transfer T2(E2 e2);
+			
+			transfer T1(E1 e1) {
+				field T2 t2 reads e1.e2;
+				field T2[] t2list reads e1.e2list;
+			}
+			
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+	@Test
+    def void testTransferMapsReadsOppositeOk() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E1 {
+				relation E2 e2 opposite-add e1;
+			}
+			
+			entity E2 {
+			}
+			
+			transfer T1(E1 e1);
+			
+			transfer T2(E2 e2) {
+				field T1 t1r reads e2.e1;
+				field T1 t1m maps e2.e1 choices E1!all();
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+	@Test
+    def void testTransferIdenitiferMapping() {
+        '''
+			model MappedTransferObjectTypeModel;
+			
+			type string String(min-size = 0, max-size = 250);
+			type numeric Integer(precision = 3, scale = 0);
+			
+			entity Entity {
+				identifier Integer identifier;
+			}
+			
+			transfer Mapped maps Entity as e {
+				field Integer mappedIdentifier maps e.identifier;
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
 
 	@Test
     def void testTransferCollectionRequired() {
@@ -349,6 +458,175 @@ class TransferTests {
 			transfer T(E1 e) exports S1, S2;
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferDeclaration, JslDslValidator.INCOMPAIBLE_EXPORT)
+        ]
+    }
+
+	@Test
+	def void testTransferUnmappedMaps() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E {}
+			
+			transfer T {
+				field Integer i maps E!all()!size();
+			};
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
+        ]
+    }
+
+	@Test
+	def void testTransferUnmappedReferenceMaps() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+
+			entity E1 {
+				relation E2 e2;
+			}
+			
+			entity E2 {}
+			
+			transfer T1 {}
+			
+			transfer T2 maps E1 as e {
+				field T1 t1 maps e.e2;
+			}
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
+        ]
+    }
+
+	@Test
+	def void testTransferUnmappedReferenceReads() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+
+			entity E1 {
+				relation E2 e2;
+			}
+			
+			entity E2 {}
+			
+			transfer T1 {}
+			
+			transfer T2 maps E1 as e {
+				field T1 t1 reads e.e2;
+			}
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
+        ]
+    }
+
+	@Test
+	def void testTransferOppositeReadsTypeMismatch() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E0 {
+				relation E2 e2 opposite-add e0;
+			}
+			
+			entity E1 {
+			}
+			
+			entity E2 {
+			}
+			
+			transfer T0(E0 e0);
+			transfer T1(E1 e1);
+			
+			transfer T2(E2 e2) {
+				field T1 t1r reads e2.e0;
+			}
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
+        ]
+    }
+
+	@Test
+	def void testTransferOppositeMapsTypeMismatch() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E0 {
+				relation E2 e2 opposite-add e0;
+			}
+			
+			entity E1 {
+			}
+			
+			entity E2 {
+			}
+			
+			transfer T0(E0 e0);
+			transfer T1(E1 e1);
+			
+			transfer T2(E2 e2) {
+				field T1 t1r maps e2.e0;
+			}
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
+        ]
+    }
+
+	@Test
+	def void testTransferFieldChoice() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E1 {
+				relation E2 e2;
+			}
+			
+			entity E2 {
+			}
+			
+			transfer T1(E1 e1) {
+				field T2 t2 maps e1.e2 choices E2!any();
+			}
+			
+			transfer T2(E2 e2);
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
+        ]
+    }
+
+	@Test
+	def void testTransferFieldCompositionChoice() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E1 {
+				field E2 e2;
+			}
+			
+			entity E2 {
+			}
+			
+			transfer T1(E1 e1) {
+				field T2 t2 maps e1.e2 choices E2!any();
+			}
+			
+			transfer T2(E2 e2);
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_CHOICES)
         ]
     }
 }
