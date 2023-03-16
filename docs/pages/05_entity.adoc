@@ -494,7 +494,9 @@ The <expression> calculates the return value of the query whenever it is request
 Note that queries do not use the assignment operator (=) but the arrow operator (\=>) to set the value.
 ====
 
-The optional comma separated list is the arguments of the <expression>. The arguments can be used in the <expression>. <primitive> is the type of argument which can be a domain model primitive only. <argument> is the name of the argument. Arguments can be declared with optional <default> values. The default values are used when the query is executed by one or more missing arguments.
+The optional comma separated list is the arguments of the <expression>. The arguments can be used in the <expression>. <primitive> is the type of argument which can be a domain model primitive only. <argument> is the name of the argument.
+
+Arguments can be declared with optional <default> values. The default values are used when the query is executed by one or more missing arguments. The default value is an expression, but `self` cannot be used in default expressions.
 
 *Example:*
 

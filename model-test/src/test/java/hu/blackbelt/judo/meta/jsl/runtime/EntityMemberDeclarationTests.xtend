@@ -181,4 +181,38 @@ class EntityMemberDeclarationTests {
             error
         )
     }
+    
+    @Test
+    def void testQueryParameterExpression() {
+        '''
+			model test;
+
+			import judo::types;
+
+			entity E {
+				field Integer e;
+				
+				query Integer q(Integer p = 10 + 10) => E!all()!size();
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+    @Test
+    def void testQueryParameterSelf() {
+        '''
+			model test;
+
+			import judo::types;
+
+			entity E {
+				field Integer e;
+				
+				query Integer q(Integer p = self.e) => E!all()!size();
+			}
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.queryParameterDeclaration, JslDslValidator.SELF_NOT_ALLOWED)
+        ]
+    }
 }
