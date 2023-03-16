@@ -81,6 +81,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferConstructorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Guard
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferField
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget
 
 /**
  * This class contains custom validation rules. 
@@ -135,6 +137,9 @@ class JslDslValidator extends AbstractJslDslValidator {
 	public static val INVALID_SELF_VARIABLE = ISSUE_CODE_PREFIX + "InvalidSelfVariable"
 	public static val NON_STATIC_EXPRESSION = ISSUE_CODE_PREFIX + "NonStaticExpression"
 	public static val INVALID_CHOICES = ISSUE_CODE_PREFIX + "InvalidChoices"
+	public static val ENUM_ORDINAL_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "EnumOrdinalIsTooLarge"
+	public static val JAVA_BEAN_NAMING_ISSUE = ISSUE_CODE_PREFIX + "JavaBeanNamingIssue"
+	public static val DUPLICATE_FIELD_MAPPING = ISSUE_CODE_PREFIX + "DuplicateFieldMapping"
 
 	public static val MEMBER_NAME_LENGTH_MAX = 128
 	public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -836,7 +841,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 				PRECISION_MODIFIER_IS_NEGATIVE,
 				JsldslPackage::eINSTANCE.modifierPrecision.name)
 		} else if (precision.value > PRECISION_MAX_VALUE) {
-			error("Precision must be less than/equal to " + PRECISION_MAX_VALUE,
+			error("Precision must be less than " + PRECISION_MAX_VALUE.add(new BigInteger("1")),
 				JsldslPackage::eINSTANCE.modifierPrecision_Value,
 				PRECISION_MODIFIER_IS_TOO_LARGE,
 				JsldslPackage::eINSTANCE.modifierPrecision.name)
@@ -868,7 +873,17 @@ class JslDslValidator extends AbstractJslDslValidator {
 				JsldslPackage::eINSTANCE.enumDeclaration.name)
 		}
 	}
-	 
+	
+	@Check
+	def checkEnumOridal(EnumLiteral literal) {
+		if (literal.value > new BigInteger("9999")) {
+			error("Enumeration ordinal is greater than the maximum allowed 9999.",
+				JsldslPackage::eINSTANCE.enumLiteral_Value,
+				ENUM_ORDINAL_IS_TOO_LARGE,
+				JsldslPackage::eINSTANCE.enumLiteral.name)
+		}
+	}
+	
 	@Check
 	def checkEnumLiteralCollision(EnumLiteral literal) {
 		val declaration = literal.eContainer as EnumDeclaration
@@ -1814,6 +1829,67 @@ class JslDslValidator extends AbstractJslDslValidator {
 	            JsldslPackage::eINSTANCE.self_IsSelf,
 	            INVALID_SELF_VARIABLE,
 	            JsldslPackage::eINSTANCE.^self.name)
+		}
+	}
+	
+	@Check
+	def checkJavaBeanName(Named named) {
+		// this rule is so ugly that it is deliberately undocumented
+		
+		if (named.name.length < 2) return;
+		
+		if (Character.isLowerCase(named.name.charAt(0)) && Character.isUpperCase(named.name.charAt(1))) {
+			error("The first character cannot be lowercase and the second character uppercase.",
+	            JsldslPackage::eINSTANCE.named_Name,
+	            JAVA_BEAN_NAMING_ISSUE,
+	            JsldslPackage::eINSTANCE.named.name)
+		}
+	}
+	
+	def NavigationTarget getMappedField(TransferFieldDeclaration field) {
+		if (field.maps === null) return null;
+
+		if (!(field.maps instanceof Navigation)) {
+            return null;
+		}
+
+		val Navigation navigation = field.maps as Navigation;
+
+		if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
+            return null;
+		}
+		
+		val NavigationBaseDeclarationReference navigationBaseDeclarationReference = navigation.base as NavigationBaseDeclarationReference;
+		
+		if (!(navigationBaseDeclarationReference.reference instanceof EntityMapDeclaration)) {
+            return null;
+		}
+		
+		if (navigation.features.size() != 1) {
+            return null;
+		}
+
+		if (!(navigation.features.get(0) instanceof MemberReference)) {
+            return null;
+		}
+
+		return (navigation.features.get(0) as MemberReference).member;
+	}
+	
+	@Check
+	def checkDuplicateFieldMapping(TransferFieldDeclaration field) {
+		if (field.maps === null) return;
+		
+		val TransferDeclaration transfer = field.eContainer as TransferDeclaration;
+		val NavigationTarget target = getMappedField(field);
+
+		if (target === null) return;
+		
+		if (transfer.members.filter[m | m instanceof TransferFieldDeclaration && target === getMappedField(m as TransferFieldDeclaration)].size > 1) {
+			warning("More than one transfer field map the same entity field.",
+	            JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
+	            DUPLICATE_FIELD_MAPPING,
+	            JsldslPackage::eINSTANCE.named.name)
 		}
 	}
 }
