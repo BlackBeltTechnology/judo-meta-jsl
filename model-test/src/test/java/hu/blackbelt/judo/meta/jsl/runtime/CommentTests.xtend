@@ -22,17 +22,17 @@ class CommentTests {
     @Inject extension ParseHelper<ModelDeclaration>
     @Inject extension ValidationTestHelper
     @Inject extension JslDslModelExtension
-    
+
     /**
      * Testing the multiline comment in the beginning of the model file with model keyword.
-     * 
+     *
      * @prerequisites Nothing
      * @type Static
      * @scenario
      *  . Parse (and/or build) the model.
-     *  
+     *
      *  . The result of the model parsing (and/or building) is successful.
-     *  
+     *
      *  . The "xxx" model is not available. The "m1" is the only one model that is available.
      */
     @Test
@@ -52,24 +52,24 @@ class CommentTests {
         model modelTC005;
         '''.parse
         p.assertNoErrors
-        
+
         val m1 = p.fromModel
-        
+
         assertFalse(m1.streamOfJsldslModelDeclaration.anyMatch[e | "xxx".equals(e.name) ])
         assertTrue(m1.streamOfJsldslModelDeclaration.allMatch[e |  "modelTC005".equals(e.name) ])
-          	  
+
     }
-    
+
     /**
      * Testing the singleline and multiline comments where the commented section contains valid JSL statements.
-     * 
+     *
      * @prerequisites Nothing
      * @type Static
      * @scenario
      *  . Parse (and/or build) the model.
-     *  
+     *
      *  . The result of the model parsing (and/or building) is successful.
-     *  
+     *
      *  . The "xxx" model is not available. The "m1" is the only one model that is available.
      */
     @Test
@@ -87,24 +87,24 @@ class CommentTests {
         model modelTC006;
         '''.parse
         p.assertNoErrors
-        
+
         val m1 = p.fromModel
-        
+
         assertFalse(m1.streamOfJsldslModelDeclaration.anyMatch[e | "xxx".equals(e.name) ])
-        assertTrue(m1.streamOfJsldslModelDeclaration.allMatch[e |  "modelTC006".equals(e.name) ])  	
-        
+        assertTrue(m1.streamOfJsldslModelDeclaration.allMatch[e |  "modelTC006".equals(e.name) ])
+
     }
-    
+
     /**
      * Testing the singleline comment in the beginning of the model file with model keyword.
-     * 
+     *
      * @prerequisites Nothing
      * @type Static
      * @scenario
      *  . Parse (and/or build) the model.
-     *  
+     *
      *  . The result of the model parsing (and/or building) is successful.
-     *  
+     *
      *  . The "blabla" model is not available. The "m1" is the only one model that is available.
      */
     @Test
@@ -122,24 +122,24 @@ class CommentTests {
         model modelTC007;
         '''.parse
         p.assertNoErrors
-        
+
         val m1 = p.fromModel
-        
+
         assertFalse(m1.streamOfJsldslModelDeclaration.anyMatch[e | "blabla".equals(e.name) ])
-        assertTrue(m1.streamOfJsldslModelDeclaration.allMatch[e |  "modelTC007".equals(e.name) ])  	
-        
+        assertTrue(m1.streamOfJsldslModelDeclaration.allMatch[e |  "modelTC007".equals(e.name) ])
+
     }
-    
+
     /**
      * Testing the singleline comment in the beginning of the model file with model keyword.
-     * 
+     *
      * @prerequisites Nothing
      * @type Static
      * @scenario
      *  . Parse (and/or build) the model.
-     *  
+     *
      *  . The result of the model parsing (and/or building) is successful.
-     *  
+     *
      *  . The "blabla" model is not available. The "m1" is the only one model that is available.
      */
     @Test
@@ -157,28 +157,28 @@ class CommentTests {
         model modelTC008;
         '''.parse
         p.assertNoErrors
-        
+
         val m1 = p.fromModel
-        
+
         assertFalse(m1.streamOfJsldslModelDeclaration.anyMatch[e | "blabla".equals(e.name) ])
-        assertTrue(m1.streamOfJsldslModelDeclaration.allMatch[e |  "modelTC008".equals(e.name) ])  	
-        
+        assertTrue(m1.streamOfJsldslModelDeclaration.allMatch[e |  "modelTC008".equals(e.name) ])
+
     }
-    
+
     /**
      * Testing the singleline and multiline comments where the commented section contains valid JSL statements.
-     * 
+     *
      * @prerequisites Nothing
      * @type Static
      * @scenario
      *  . Parse (and/or build) the model.
      *
      *  . The result of the model parsing (and/or building) is successful.
-     *  
+     *
      *  . The "m1" is the only one model that is available, and
-     *    
+     *
      *  . the model has only one entity ("e4") and one type ("Bool") definitions.
-     *  
+     *
      *  . Moreover, the "e4" entity type has only one field that name is "bb" and its type is "Bool".
      */
     @Test
@@ -201,33 +201,33 @@ class CommentTests {
           field Bool bb;
         }*/
         type boolean Bool;
-        
+
         /*
         entity e2 {
         field Bool bb;
         }
         */
-        
+
         //entity e3 {
         //  field Bool bb;
         //}
-        
-        
+
+
         entity e4 {
             field Bool bb;
             // field Bool cc;
         }
         '''.parse
         p.assertNoErrors
-        
+
         val m1 = p.fromModel
-        
+
         assertTrue(m1.streamOfJsldslModelDeclaration.allMatch[e |  "modelTC009".equals(e.name) ])
         assertTrue(m1.streamOfJsldslEntityDeclaration.allMatch[e | "e4".equals(e.name) ])
         assertTrue(m1.streamOfJsldslDataTypeDeclaration.allMatch[e | "boolean".equals(e.primitive) && "Bool".equals(e.name)])
-        
+
         val e4 = m1.entityByName("e4")
-        assertTrue(e4.allFields.stream.allMatch[e | "bb".equals(e.name) && "Bool".equals(e.referenceType.name)])    	
-        
+        assertTrue(e4.allFields.stream.allMatch[e | "bb".equals(e.name) && "Bool".equals(e.referenceType.name)])
+
     }
 }

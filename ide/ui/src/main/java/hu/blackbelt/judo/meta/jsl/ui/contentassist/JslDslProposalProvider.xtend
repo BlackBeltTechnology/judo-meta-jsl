@@ -23,21 +23,21 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
  * on how to customize the content assistant.
  */
 class JslDslProposalProvider extends AbstractJslDslProposalProvider {
-	// TODO: https://stackoverflow.com/questions/47005235/customizing-content-proposal-in-xtext-for-web-editors
-	@Inject extension JslDslModelExtension
-	
+    // TODO: https://stackoverflow.com/questions/47005235/customizing-content-proposal-in-xtext-for-web-editors
+    @Inject extension JslDslModelExtension
+
     public static Set<String> FILTERED_KEYWORDS = ImmutableSet.of("lambda", "function");
 
     public static Set<String> FILTERED_TERMINALS = ImmutableSet.of(";", "(", ")", "+", "-", "*", "/", "@",
-    															  "!=", "<", "<=", ">", ">=", "==", "?", "^",
-    															  "and", "div", "implies", "mod", "or", "xor");
+                                                                  "!=", "<", "<=", ">", ">=", "==", "?", "^",
+                                                                  "and", "div", "implies", "mod", "or", "xor");
 
     override completeKeyword(Keyword keyword, ContentAssistContext contentAssistContext, ICompletionProposalAcceptor acceptor) {
-    	if (FILTERED_KEYWORDS.contains(keyword.getValue()) && contentAssistContext.currentModel instanceof ModelDeclaration) {
+        if (FILTERED_KEYWORDS.contains(keyword.getValue()) && contentAssistContext.currentModel instanceof ModelDeclaration) {
             // don't propose keyword
             return;
-    	}
-    	
+        }
+
         if (FILTERED_TERMINALS.contains(keyword.getValue())) {
             // don't propose keyword
             return;
@@ -46,41 +46,41 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
     }
 
 
-	override completeEntityRelationOppositeReferenced_OppositeType(EObject model, Assignment assignment, 
-		ContentAssistContext context, ICompletionProposalAcceptor acceptor
-	) {
-		// System.out.println("model: " + model + " assignment: " + assignment + " context: " + context)
-		lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor,
-			[ ((model as EntityRelationOpposite).eContainer as EntityRelationDeclaration)
-				.isSelectableForRelation(EObjectOrProxy as EntityRelationDeclaration)
-			]
-		);
-	}
-	
-	override completeEntityDeclaration_Extends(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		// System.out.println(" - model: " + model + " assignment: " + assignment + " context: " + context)
-		lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor,
-			[ 
-				val entity = model as EntityDeclaration;
-				val proposedEntity = EObjectOrProxy as EntityDeclaration
-				// System.out.println(" --- Obj: " + EObjectOrProxy + " - " + superEntities.join(", "))
+    override completeEntityRelationOppositeReferenced_OppositeType(EObject model, Assignment assignment,
+        ContentAssistContext context, ICompletionProposalAcceptor acceptor
+    ) {
+        // System.out.println("model: " + model + " assignment: " + assignment + " context: " + context)
+        lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor,
+            [ ((model as EntityRelationOpposite).eContainer as EntityRelationDeclaration)
+                .isSelectableForRelation(EObjectOrProxy as EntityRelationDeclaration)
+            ]
+        );
+    }
 
-				proposedEntity !== entity && !proposedEntity.superEntityTypes.contains(entity)
-			]
-		);
-	}
+    override completeEntityDeclaration_Extends(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+        // System.out.println(" - model: " + model + " assignment: " + assignment + " context: " + context)
+        lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor,
+            [
+                val entity = model as EntityDeclaration;
+                val proposedEntity = EObjectOrProxy as EntityDeclaration
+                // System.out.println(" --- Obj: " + EObjectOrProxy + " - " + superEntities.join(", "))
+
+                proposedEntity !== entity && !proposedEntity.superEntityTypes.contains(entity)
+            ]
+        );
+    }
 
 /*
-	override completeCreateExpression_Type(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor, [
-			false
-		]);
-	}
+    override completeCreateExpression_Type(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+        lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor, [
+            false
+        ]);
+    }
 */
-/* 	override completeNavigationBase_EnumValue(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor, [			
-			true
-		]);
-	}
+/*     override completeNavigationBase_EnumValue(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+        lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor, [
+            true
+        ]);
+    }
 */
 }

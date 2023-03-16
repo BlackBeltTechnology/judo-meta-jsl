@@ -22,12 +22,12 @@ class EnumDeclarationTests {
 
     /**
      * Testing the naming of enum literals.
-     * 
+     *
      * @prerequisites Nothing
      * @type Static
      * @scenario
      *  . Parse (and/or build) the model.
-     * 
+     *
      *  . The result of the model parsing (and/or building) is successful.
      */
     @Test
@@ -45,13 +45,13 @@ class EnumDeclarationTests {
     def void testNamingOfEnumLiterals() {
         '''
             model modelTC001;
-            
+
             enum TestLiteral {
                 AAA   = 1;
                 bbb   = 2;
                 Abc09 = 3;
             }
-            
+
             entity E1 {
                 field TestLiteral f1;
             }
@@ -59,16 +59,16 @@ class EnumDeclarationTests {
             assertNoErrors
         ]
     }
-    
+
     /**
      * Testing the naming of enum literals. Bad literal name.
-     * 
+     *
      * @prerequisites Nothing
      * @type Static
      * @negativeRequirements REQ-SYNT-004
      * @scenario
      *  . Parse (and/or build) the model.
-     * 
+     *
      *  . The result of the model parsing (and/or building) is ended with an exception because the
      *    _"11aaa"_ isn't a valid enum literal name.
      */
@@ -87,13 +87,13 @@ class EnumDeclarationTests {
     def void testNamingOfEnumLiteralsBadLiteralName() {
         '''
             model modelTC002;
-            
+
             enum TestLiteral {
                 AAA   = 1;
                 bbb   = 2;
                 11aaa = 3;
             }
-            
+
             entity E1 {
                 field TestLiteral f1;
             }
@@ -101,15 +101,15 @@ class EnumDeclarationTests {
             m | m.assertError(JsldslPackage::eINSTANCE.enumDeclaration, org.eclipse.xtext.diagnostics.Diagnostic.SYNTAX_DIAGNOSTIC, "mismatched input '11' expecting '}'")
         ]
     }
-    
+
     /**
      * Testing the type of the enumeration's ordinal.
-     * 
+     *
      * @prerequisites Nothing
      * @type Static
      * @scenario
      *  . Parse (and/or build) the model.
-     * 
+     *
      *  . The result of the model parsing (and/or building) is successful.
      */
     @Test
@@ -122,13 +122,13 @@ class EnumDeclarationTests {
         "REQ-SYNT-004",
         "REQ-MDL-001",
         "REQ-TYPE-002",
-        "REQ-ENT-001", 
+        "REQ-ENT-001",
         "REQ-ENT-002"
     ])
     def void testEnumOrdinals() {
         '''
             model modelTC003;
-            
+
             enum TestLiteral {
                 Aaa01 = 1;
                 Bbb02 = 2;
@@ -136,7 +136,7 @@ class EnumDeclarationTests {
                 AA00  = 0;
                 ZZZ   = -3;
             }
-            
+
             entity E1 {
                 field TestLiteral f1 = TestLiteral#AA00;
             }
@@ -144,15 +144,15 @@ class EnumDeclarationTests {
             assertNoErrors
         ]
     }
-    
+
     /**
      * Testing the operators of enum and enum functions.
-     * 
+     *
      * @prerequisites Nothing
      * @type Static
      * @scenario
      *  . Parse (and/or build) the model.
-     * 
+     *
      *  . The result of the model parsing (and/or building) is successful.
      */
     @Test
@@ -166,25 +166,25 @@ class EnumDeclarationTests {
         "REQ-TYPE-002",
         "REQ-TYPE-004",
         "REQ-TYPE-006",
-        "REQ-ENT-001", 
-        "REQ-ENT-002", 
-        "REQ-ENT-008", 
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-008",
         "REQ-EXPR-020"
     ])
     def void testEnumOrdinalsAndOperatorsAndFunctions() {
         '''
             model modelTC020;
-            
+
             type boolean Bool;
             type string String(min-size=0, max-size=10);
-            
+
             enum TestLiteral {
                 Aaa01 = 1;
                 Bbb02 = 2;
                 Ccc03 = 99988899;
                 AA00  = 0;
             }
-            
+
             entity E1 {
                 field TestLiteral f1 = TestLiteral#AA00;
                 field TestLiteral f2 = TestLiteral#Aaa01;
@@ -200,7 +200,7 @@ class EnumDeclarationTests {
             assertNoErrors
         ]
     }
-    
+
     @Test
     @Requirement(reqs = #[
         "REQ-SYNT-001",

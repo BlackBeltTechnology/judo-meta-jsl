@@ -21,148 +21,148 @@ import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 @Singleton
 class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy {
 
-	@Inject extension IQualifiedNameProvider
+    @Inject extension IQualifiedNameProvider
 
-	override createEObjectDescriptions(EObject eObject, IAcceptor<IEObjectDescription> acceptor) {
+    override createEObjectDescriptions(EObject eObject, IAcceptor<IEObjectDescription> acceptor) {
 
-		if (eObject instanceof ModelDeclaration) {
-			val modelDeclaration = eObject
-			
-			if (modelDeclaration.fullyQualifiedName !== null) {
-				// System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ modelDeclaration + " fq: " + modelDeclaration.fullyQualifiedName.toString("::"));
-				acceptor.accept(
-					EObjectDescription::create(
-						modelDeclaration.fullyQualifiedName, modelDeclaration, modelDeclaration.indexInfo
-					)
-				)					
+        if (eObject instanceof ModelDeclaration) {
+            val modelDeclaration = eObject
 
-				modelDeclaration.declarations.forEach[
-					declaration |
-	
-					val fullyQualifiedName = declaration.fullyQualifiedName
-	
-					if (fullyQualifiedName !== null)
+            if (modelDeclaration.fullyQualifiedName !== null) {
+                // System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ modelDeclaration + " fq: " + modelDeclaration.fullyQualifiedName.toString("::"));
+                acceptor.accept(
+                    EObjectDescription::create(
+                        modelDeclaration.fullyQualifiedName, modelDeclaration, modelDeclaration.indexInfo
+                    )
+                )
 
-						acceptor.accept(
-							EObjectDescription::create(
-								fullyQualifiedName, declaration
-							)
-						)
+                modelDeclaration.declarations.forEach[
+                    declaration |
 
-						if (declaration instanceof QueryDeclaration) {
-							val fq = declaration.fullyQualifiedName
-							if (fq !== null) {
-								// System.out.println("Indexing: " + fq)
-								acceptor.accept(
-									EObjectDescription::create(
-										fq, declaration, declaration.indexInfo
-									)
-								)								
-							}								
-						}
-						
-						if (declaration instanceof EntityDeclaration) {
-							//val decl = EcoreUtil.resolve(declaration, modelDeclaration) as EntityDeclaration;
-							declaration.members.forEach[m | {
-								val fq = m.fullyQualifiedName
-								if (fq !== null) {
-									// System.out.println("Indexing: " + fq)
-									acceptor.accept(
-										EObjectDescription::create(
-											fq, m, m.indexInfo
-										)
-									)
-									
-									if (m instanceof EntityRelationDeclaration) {
-										if (m.opposite instanceof EntityRelationOppositeInjected) {
-											val fqOpposite = m.opposite.fullyQualifiedName
-											if (fqOpposite !== null) {
-												acceptor.accept(
-													EObjectDescription::create(
-														fqOpposite, m.opposite, m.opposite.indexInfo(m)
-													)
-												)
-											}							
-										}
-									}								
-								}								
-							}]
-						}
+                    val fullyQualifiedName = declaration.fullyQualifiedName
 
-				]				
-			}
-			true
-		} else {
-			// System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ eObject);			
-			false
-			//return super.createEObjectDescriptions(eObject, acceptor);
-    	}
+                    if (fullyQualifiedName !== null)
 
-	}
+                        acceptor.accept(
+                            EObjectDescription::create(
+                                fullyQualifiedName, declaration
+                            )
+                        )
 
-	def Map<String, String> indexInfo(EObject object) {
-		object.indexInfo(null)
-	}
-	
+                        if (declaration instanceof QueryDeclaration) {
+                            val fq = declaration.fullyQualifiedName
+                            if (fq !== null) {
+                                // System.out.println("Indexing: " + fq)
+                                acceptor.accept(
+                                    EObjectDescription::create(
+                                        fq, declaration, declaration.indexInfo
+                                    )
+                                )
+                            }
+                        }
 
-	def Map<String, String> indexInfo(EObject object, EObject object2) {
-		/*
-		 EntityMemberDeclaration
-	     : NL+ (EntityFieldDeclaration
-	     | EntityIdentifierDeclaration
-	     | EntityRelationDeclaration
-	     | EntityDerivedDeclaration
-	     | EntityQueryDeclaration
-	     | ConstraintDeclaration)
-	     ;		 
-		 */
- 		
-		val Map<String, String> userData = new HashMap<String, String>
-		 	
-		switch object {
-		 	ModelDeclaration: {
-			 	// System.out.println("(ModeltDeclaration) index:" + object.name)
+                        if (declaration instanceof EntityDeclaration) {
+                            //val decl = EcoreUtil.resolve(declaration, modelDeclaration) as EntityDeclaration;
+                            declaration.members.forEach[m | {
+                                val fq = m.fullyQualifiedName
+                                if (fq !== null) {
+                                    // System.out.println("Indexing: " + fq)
+                                    acceptor.accept(
+                                        EObjectDescription::create(
+                                            fq, m, m.indexInfo
+                                        )
+                                    )
 
-	 			if (object.name !== null) {
-	 				userData.put("fullyQualifiedName", object.name)
-	 			}
- 				// System.out.println("Indexing " + object.name)	 			
-	 			if (object.imports !== null) {
-	 				val importNames = new StringBuilder();
-	 				object.imports.forEach[
-	 					import |
-	 					val importNode = NodeModelUtils.findNodesForFeature(import, JsldslPackage::eINSTANCE.modelImportDeclaration_Model).head
-	 					if (importNode !== null) {
-							var importName = importNode.text.trim
-		 					if (importName.startsWith("`") && importName.endsWith("`")) {
-		 						importName = importName.substring(1, importName.length - 1);
-		 					}
+                                    if (m instanceof EntityRelationDeclaration) {
+                                        if (m.opposite instanceof EntityRelationOppositeInjected) {
+                                            val fqOpposite = m.opposite.fullyQualifiedName
+                                            if (fqOpposite !== null) {
+                                                acceptor.accept(
+                                                    EObjectDescription::create(
+                                                        fqOpposite, m.opposite, m.opposite.indexInfo(m)
+                                                    )
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }]
+                        }
 
-		 					if (importNames.toString.length > 0) {
-		 						importNames.append(",")
-		 					}
-		 					val aliasNode = NodeModelUtils.findNodesForFeature(import, JsldslPackage::eINSTANCE.modelImportDeclaration_Alias).head
-							var alias = "";
-		 					if (aliasNode !== null) {
-		 						alias = aliasNode.text.trim;
-		 					}
-		 					
-		 					importNames.append(importName + "=" + alias)	 						
+                ]
+            }
+            true
+        } else {
+            // System.out.println("JslResourceDescriptionStrategy.createEObjectDescriptions="+ eObject);
+            false
+            //return super.createEObjectDescriptions(eObject, acceptor);
+        }
 
-			 				// System.out.println("(ModelDeclaration) Import name:" + importName + " Alias: " + alias)
-	 					}
-	 				]
-	 				// System.out.println("\tImport: " + importNames)
-	 				userData.put("imports", importNames.toString)
-	 			}
- 			}		 	
+    }
 
-		 	EntityRelationDeclaration: {
-	 			if (object.opposite !== null && object.opposite instanceof EntityRelationOppositeInjected) {
-	 				userData.put("oppositeName", (object.opposite as EntityRelationOppositeInjected).name)
-	 			}
- 			}		 	
-		 }
-		return userData
-	}	
+    def Map<String, String> indexInfo(EObject object) {
+        object.indexInfo(null)
+    }
+
+
+    def Map<String, String> indexInfo(EObject object, EObject object2) {
+        /*
+         EntityMemberDeclaration
+         : NL+ (EntityFieldDeclaration
+         | EntityIdentifierDeclaration
+         | EntityRelationDeclaration
+         | EntityDerivedDeclaration
+         | EntityQueryDeclaration
+         | ConstraintDeclaration)
+         ;
+         */
+
+        val Map<String, String> userData = new HashMap<String, String>
+
+        switch object {
+             ModelDeclaration: {
+                 // System.out.println("(ModeltDeclaration) index:" + object.name)
+
+                 if (object.name !== null) {
+                     userData.put("fullyQualifiedName", object.name)
+                 }
+                 // System.out.println("Indexing " + object.name)
+                 if (object.imports !== null) {
+                     val importNames = new StringBuilder();
+                     object.imports.forEach[
+                         import |
+                         val importNode = NodeModelUtils.findNodesForFeature(import, JsldslPackage::eINSTANCE.modelImportDeclaration_Model).head
+                         if (importNode !== null) {
+                            var importName = importNode.text.trim
+                             if (importName.startsWith("`") && importName.endsWith("`")) {
+                                 importName = importName.substring(1, importName.length - 1);
+                             }
+
+                             if (importNames.toString.length > 0) {
+                                 importNames.append(",")
+                             }
+                             val aliasNode = NodeModelUtils.findNodesForFeature(import, JsldslPackage::eINSTANCE.modelImportDeclaration_Alias).head
+                            var alias = "";
+                             if (aliasNode !== null) {
+                                 alias = aliasNode.text.trim;
+                             }
+
+                             importNames.append(importName + "=" + alias)
+
+                             // System.out.println("(ModelDeclaration) Import name:" + importName + " Alias: " + alias)
+                         }
+                     ]
+                     // System.out.println("\tImport: " + importNames)
+                     userData.put("imports", importNames.toString)
+                 }
+             }
+
+             EntityRelationDeclaration: {
+                 if (object.opposite !== null && object.opposite instanceof EntityRelationOppositeInjected) {
+                     userData.put("oppositeName", (object.opposite as EntityRelationOppositeInjected).name)
+                 }
+             }
+         }
+        return userData
+    }
 }
