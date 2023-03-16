@@ -133,6 +133,7 @@ class EnumDeclarationTests {
                 Aaa01 = 1;
                 Bbb02 = 2;
                 AA00  = 0;
+                Ccc03 = 9999;
             }
             
             entity E1 {
@@ -193,6 +194,7 @@ class EnumDeclarationTests {
                 Aaa01 = 1;
                 Bbb02 = 2;
                 AA00  = 0;
+                Ccc03 = 9999;
             }
             
             entity E1 {
