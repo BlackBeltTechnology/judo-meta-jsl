@@ -181,4 +181,57 @@ class EntityMemberDeclarationTests {
             error
         )
     }
+    
+    @Test
+    def void testQueryParameterExpression() {
+        '''
+			model test;
+
+			import judo::types;
+
+			entity E {
+				field Integer e;
+				
+				query Integer q(Integer p = 10 + 10) => E!all()!size();
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+    @Test
+    def void testQueryParameterSelf() {
+        '''
+			model test;
+
+			import judo::types;
+
+			entity E {
+				field Integer e;
+				
+				query Integer q(Integer p = self.e) => E!all()!size();
+			}
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.queryParameterDeclaration, JslDslValidator.SELF_NOT_ALLOWED)
+        ]
+    }
+
+    @Test
+    def void testQueryParameterParameter() {
+        '''
+			model test;
+
+			import judo::types;
+
+			entity E {
+				field Integer e;
+				
+				query Integer q(Integer p = 10, Integer q = p) => E!all()!size();
+			}
+        '''.parse.assertError(
+            JsldslPackage::eINSTANCE.navigationBaseDeclarationReference,
+            "org.eclipse.xtext.diagnostics.Diagnostic.Linking",
+            "Couldn't resolve reference to NavigationBaseDeclaration 'p'."
+        )
+    }
 }
