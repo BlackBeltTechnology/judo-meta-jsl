@@ -313,6 +313,21 @@ class JslDslValidator extends AbstractJslDslValidator {
     	}
 	}
 
+    @Check
+    def checkSelfInQueryParameterDefaultExpression(QueryParameterDeclaration parameter) {
+    	if (parameter.^default !== null) {
+			if (!this.isStaticExpression(parameter.^default)) {
+				error(
+					"Self is not allowed in parameter default expression",
+					JsldslPackage::eINSTANCE.queryParameterDeclaration_Default,
+					SELF_NOT_ALLOWED,
+					parameter.name
+				)
+				return
+			}
+    	}
+	}
+
 	@Check
 	def checkInvalidFunctionDeclaration(FunctionDeclaration functionDeclaration) {
 		val ModelDeclaration modelDeclaration = functionDeclaration.eContainer as ModelDeclaration
