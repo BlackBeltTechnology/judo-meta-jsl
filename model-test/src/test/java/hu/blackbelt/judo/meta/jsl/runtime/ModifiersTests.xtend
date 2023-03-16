@@ -173,7 +173,7 @@ class ModifiersTests {
                 field Number1 number;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.modifierPrecision, JslDslValidator.PRECISION_MODIFIER_IS_TOO_LARGE, "Precision must be less than/equal to " + JslDslValidator.PRECISION_MAX_VALUE)
+            m | m.assertError(JsldslPackage::eINSTANCE.modifierPrecision, JslDslValidator.PRECISION_MODIFIER_IS_TOO_LARGE)
         ]
     }
 

@@ -104,3 +104,17 @@ entity Person {
 ----
 
 Notice the difference between the field declarations in the examples above.
+
+Imported model elements are always available by their fully qualified names. An important consequence of this is that the alias name in the import statement cannot be the same as any imported model name.
+
+*Example:*
+
+[source,jsl]
+----
+import judo::types as types;
+
+entity Person {
+    field types::String firstName;
+    field judo::types::String lastName;
+}
+----
