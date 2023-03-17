@@ -50,7 +50,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.SingleType;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral;
-import hu.blackbelt.judo.meta.jsl.jsldsl.TimeStampLiteral;
+import hu.blackbelt.judo.meta.jsl.jsldsl.TimestampLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TypeDescription;
@@ -684,7 +684,7 @@ public class TypeInfo {
 			return new TypeInfo(BaseType.DATE, true);
 		} else if (litreal instanceof TimeLiteral) {
 			return new TypeInfo(BaseType.TIME, true);
-		} else if (litreal instanceof TimeStampLiteral) {
+		} else if (litreal instanceof TimestampLiteral) {
 			return new TypeInfo(BaseType.TIMESTAMP, true);
 		} else if (litreal instanceof EnumLiteralReference) {
 			return getTargetType( (EnumLiteralReference) litreal);

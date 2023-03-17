@@ -752,7 +752,7 @@ StringLiteral
 
 TemporalLiteral
 	: {DateLiteral} value=DATE
-	| {TimeStampLiteral} value=TIMESTAMP
+	| {TimestampLiteral} value=TIMESTAMP
 	| {TimeLiteral} value=TIME
 	;
 
