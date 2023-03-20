@@ -134,7 +134,7 @@ EntityQueryDeclaration
 	;
  
 QueryParameterDeclaration
-	: referenceType = [PrimitiveDeclaration | ModelName] Named ("=" default = Literal)?
+	: referenceType = [PrimitiveDeclaration | ModelName] Named ("=" default = Expression)?
 	;
 
 EntityRelationDeclaration

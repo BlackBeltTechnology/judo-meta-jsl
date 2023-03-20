@@ -137,8 +137,6 @@ In the example above, the expression returns the product's name.
 
 Static and instance queries can be used in expressions. To execute an instance query use the `.` (dot) character before the query name and append the arguments in parentheses. To execute a static query use its name as a navigation starting point and append the arguments in parentheses. If you do not pass arguments to a query append parentheses with no arguments between them.
 
-Query arguments can be literals only (e.g. `121`, `"apple"`, `true` etc.).
-
 *Examples:*
 
 [source,jsl]
