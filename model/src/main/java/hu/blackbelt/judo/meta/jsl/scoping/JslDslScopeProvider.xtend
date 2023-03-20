@@ -178,7 +178,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 				TransferFieldDeclaration: return true
 
 				LambdaVariable: return context.parentContainer(LambdaCall).isEqual(obj.eContainer)
-				QueryParameterDeclaration: return EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]
+				QueryParameterDeclaration: return context.parentContainer(QueryParameterDeclaration) === null && (context.isEqual(obj.eContainer) || EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)])
 				EntityMapDeclaration: return context.isEqual(obj.eContainer) || EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]
 				AnnotationParameterDeclaration: return EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]
 
