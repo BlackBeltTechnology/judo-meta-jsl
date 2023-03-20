@@ -183,6 +183,10 @@ class EntityMemberDeclarationTests {
     }
     
     @Test
+    @Requirement(reqs = #[
+        "REQ-ENT-009",
+        "REQ-ENT-010"
+    ])
     def void testQueryParameterExpression() {
         '''
 			model test;
@@ -200,6 +204,10 @@ class EntityMemberDeclarationTests {
     }
 
     @Test
+    @Requirement(reqs = #[
+        "REQ-ENT-009",
+        "REQ-ENT-010"
+    ])
     def void testQueryParameterSelf() {
         '''
 			model test;
@@ -217,6 +225,10 @@ class EntityMemberDeclarationTests {
     }
 
     @Test
+    @Requirement(reqs = #[
+        "REQ-ENT-009",
+        "REQ-ENT-010"
+    ])
     def void testQueryParameterParameter() {
         '''
 			model test;
