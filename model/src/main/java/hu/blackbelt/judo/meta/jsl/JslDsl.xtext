@@ -833,7 +833,7 @@ terminal fragment NEWLINE
     ;
 
 terminal TIMESTAMP
-	: '`' DIGIT+ '-' DIGIT DIGIT '-' DIGIT DIGIT 'T' DIGIT DIGIT ':' DIGIT DIGIT (':' DIGIT DIGIT ('.' DIGIT+ )? )? ('Z' | ('+' | '-') DIGIT DIGIT ':' DIGIT DIGIT )'`'
+	: '`' DIGIT+ '-' DIGIT DIGIT '-' DIGIT DIGIT 'T' DIGIT DIGIT ':' DIGIT DIGIT (':' DIGIT DIGIT ('.' DIGIT+)?)? ('Z' | ('+' | '-') DIGIT DIGIT (':' DIGIT DIGIT)?)?'`'
 	;
 
 terminal TIME
