@@ -1698,11 +1698,66 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 		val ServiceDataDeclaration data = mark.eContainer as ServiceDataDeclaration
 
-		if (!data.many) {
-			error("Invalid use of annotation: @" + mark.declaration.name + ". Function must return a collection.",
+		if (!(data.expression instanceof Navigation)) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
 	            INVALID_ANNOTATION_MARK,
 	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+                
+            return;
+		}
+
+		val Navigation navigation = data.expression as Navigation;
+
+		if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+                
+            return;
+		}
+		
+		val NavigationBaseDeclarationReference navigationBaseDeclarationReference = navigation.base as NavigationBaseDeclarationReference;
+		
+		if (!(navigationBaseDeclarationReference.reference instanceof EntityMapDeclaration)) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+                
+            return;
+		}
+		
+		if (navigation.features.size() != 1) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+                
+            return;
+		}
+
+		if (!(navigation.features.get(0) instanceof MemberReference)) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+                
+            return;
+		}
+
+		val MemberReference memberReference = navigation.features.get(0) as MemberReference;
+		
+		if (!(memberReference.member instanceof EntityRelationDeclaration) &&
+			!(memberReference.member instanceof EntityRelationOppositeInjected))
+		{
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+                
+            return;
 		}
 	}
 
