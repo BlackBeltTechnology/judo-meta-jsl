@@ -10,6 +10,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
+import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
@@ -73,9 +74,6 @@ class AnnotationTests {
 			
 				@Update
 				function void f4(T t);
-				
-				@Insert @Remove
-				function T[] fd => E!all();
 			}
         '''.parse => [
             assertNoErrors
@@ -440,6 +438,95 @@ class AnnotationTests {
 			annotation A on service::function;
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.annotationMark, JslDslValidator.INVALID_ANNOTATION)
+        ]
+    }
+
+    @Test
+    @Requirement(reqs = #[
+        "REQ-SRV-010",
+        "REQ-SRV-011",
+        "REQ-SRV-012"
+    ])
+    def void testInsertAndRemoveAnnotation() {
+        '''
+			model test;
+
+			entity A {
+				relation B b;
+				relation B[] lst;
+			}
+			
+			entity B {
+			}
+			
+			transfer TB(B b) {
+			}
+			
+			service S(A a) {
+				@Insert @Remove
+				function TB b => a.b;
+
+				@Insert @Remove
+				function TB[] lst => a.lst;
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+    @Test
+    @Requirement(reqs = #[
+        "REQ-SRV-010",
+        "REQ-SRV-011"
+    ])
+    def void testInsertAnnotationOnComposition() {
+        '''
+			model test;
+
+			entity A {
+				field B[] lst;
+			}
+			
+			entity B {
+			}
+			
+			transfer TB(B b) {
+			}
+			
+			service S(A a) {
+				@Insert
+				function TB[] lst => a.lst;
+			}
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.annotationMark, JslDslValidator.INVALID_ANNOTATION_MARK)
+        ]
+    }
+
+    @Test
+    @Requirement(reqs = #[
+        "REQ-SRV-010",
+        "REQ-SRV-012"
+    ])
+    def void testRemoveAnnotationOnStatic() {
+        '''
+			model test;
+
+			entity A {
+				relation B[] lst;
+			}
+			
+			entity B {
+			}
+			
+			transfer TB(B b) {
+			}
+			
+			service S(A a) {
+				@Remove
+				function TB[] lst => A!any().lst;
+			}
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.annotationMark, JslDslValidator.INVALID_ANNOTATION_MARK)
         ]
     }
 
