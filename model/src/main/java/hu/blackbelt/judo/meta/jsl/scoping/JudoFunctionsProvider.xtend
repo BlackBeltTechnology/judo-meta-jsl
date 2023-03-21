@@ -132,9 +132,10 @@ class JudoFunctionsProvider {
 		function numeric hour() on time;
 		function numeric minute() on time;
 		function numeric second() on time;
-		function time fromSeconds(required numeric seconds) on declaration<time>;
-		function numeric asSeconds() on time;
-		function time of(required numeric hour, required numeric minute, required numeric second) on declaration<time>;
+		function numeric millisecond() on time;
+		function time fromMilliseconds(required numeric milliseconds) on declaration<time>;
+		function numeric asMilliseconds() on time;
+		function time of(required numeric hour, required numeric minute, numeric second, numeric millisecond) on declaration<time>;
 		function string asString() on time;
 		
 		function timestamp now() on declaration<timestamp>;
