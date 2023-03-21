@@ -33,6 +33,7 @@ There are two categories of transfer objects:
 
 // Additionally, transfer objects may contain activities such as internal consistency checking, validation and services.
 
+[judo-req="true",judo-req-id="REQ-SRV-001"]
 === Unmapped transfer object
 
 Unmapped transfer objects are simple non-persistent objects that carry data between our application and the outside world. The data fields of an unmapped transfer object can be set and read at any stage of its life cycle.
@@ -58,6 +59,7 @@ transfer PersonTransfer {
 
 The above example declares the transfer object `PersonTransfer` with no fields.
 
+[judo-req="true",judo-req-id="REQ-SRV-002"]
 === Mapped transfer object
 
 Data transformation between entities and transfer objects is a tedious and error-prone task. Mapped transfer objects are intended to facilitate this work and also carry data between our application and the outside world, but they can be linked to a specific entity instance. The link between the mapped transfer object instance and the entity instance is represented by a specific field of the mapped transfer object, called mapping field.
@@ -112,6 +114,7 @@ The transfer object `PersonTransfer` is mapped to the `Person` entity. A particu
 
 The value of the mapping field (`person` in the example above) can be undefined (e.g. the mapping field is not required). In some PersonTransfer instances, the mapping field may refer to a particular Person entity instance, and in others it may be undefined.
 
+[judo-req="true",judo-req-id="REQ-SRV-003"]
 === Field
 
 A transfer object may contain data descriptions called fields. A field has an associated domain type that can be either a primitive or other transfer object, in other words, the field is a typed element. Fields cannot store multiple primitive values (that is, collection), but only a single primitive value. If you want to have a collection of primitives, use a wrapper transfer object with just one primitive field, and use a collection of wrappers to store a collection of primitive values.
@@ -173,6 +176,7 @@ The second example defines the AddressTransfer transfer object with its fields, 
 
 // read-only fields?
 
+[judo-req="true",judo-req-id="REQ-SRV-004"]
 === Constructor
 
 Optionally, a constructor can be specified for transfer objects. The constructor is automatically called when a new transfer object is created and can be used to set default values of the fields. Typically a new transfer object is created by factory functions, see <<Factory>>.
@@ -215,6 +219,7 @@ The constructor is not called when a mapped transfer object is produced for exis
 // TODO: deafult must be constant
 
 
+[judo-req="true",judo-req-id="REQ-SRV-005"]
 === Mapping configuration
 
 Mapping configuration is a declarative description of how the fields of a transfer object read and/or write specific fields of the entity mapped by the transfer object. Mapping configuration can only be used for mapped transfer objects.
@@ -305,6 +310,7 @@ transfer SalesPersonTransfer(SalesPerson salesperson) {
 An important note, that if the transfer field's type is transfer object (or a collection of transfer objects) the expression after the `reads` or `maps` must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
 ====
 
+[judo-req="true",judo-req-id="REQ-SRV-006"]
 === Auto-mapping
 
 We often encounter the situation when entities need to be delivered to external clients without structural changes. A typical situation of this kind is master data management. To facilitate the creation of such transfer objects, automatic mapping is provided.
@@ -356,7 +362,6 @@ Note that there can only be one auto-mapped transfer object for an entity.
 ====
 
 
-
 == Service
 
 Services are key components of software applications, allowing external systems or users to interact with the application. The services include creating, updating or deleting data or other real-time communications.
@@ -367,6 +372,7 @@ A service is a component that groups functions together that are related in some
 
 * mapped service.
 
+[judo-req="true",judo-req-id="REQ-SRV-007"]
 === Unmapped service
 
 Unmapped services are simple components that are solely responsible for grouping functions.
@@ -393,6 +399,7 @@ service ManagerService {
 
 The example above defines a service named `ManagerService` with only one function member.
 
+[judo-req="true",judo-req-id="REQ-SRV-008"]
 === Mapped service
 
 Mapped services also groups functions, but they are linked to a specific entity instance, similar to mapped transfer objects. The link between the mapped service and the entity instance is represented by a specific field, called mapping field.
@@ -444,6 +451,8 @@ delete person;
 The piece of code above deletes the entity referred to as `person`. More information about JSL scripts in later chapters.
 ////
 
+
+[judo-req="true",judo-req-id="REQ-SRV-009"]
 === Function
 
 The function is the piece of code (currently Java implementation) that is executed when the function is invoked.
@@ -497,6 +506,7 @@ service PersonService(Person person) {
 
 The above example shows two functions. The `delete` function has no return value or parameters and will be implemented in Java. The second function (`addLead`) has both a return value and a parameter. This must also be implemented in Java.
 
+[judo-req="true",judo-req-id="REQ-SRV-010"]
 === Data function
 
 Data functions are used to query the data model quickly and elegantly. The data function is an expression (see xref:06_expression.adoc[Expression]) that will be evaluated when the function is invoked. Data functions are very similar to queries (see xref:05_entity.adoc#Query[Query]), except that they have no input parameters and are used by external systems or users.
@@ -540,6 +550,7 @@ The example above returns a PersonTransfer object that is the manager of the per
 A data function expression always works with entities and their relationships, but the return value of a data function is always a mapped transfer object. The mapping between the two is always done according to the mapping rules defined for the mapped transfer object (see <<Mapping configuration>>).
 ====
 
+[judo-req="true",judo-req-id="REQ-SRV-011"]
 ==== @Insert
 
 Use `@Insert` annotation on a data function to define an additional insert function in the service. The additional function inserts a new member to the relation specified by the given data function.
@@ -555,6 +566,7 @@ The `@Insert` can only be specified for data functions where the function <expre
 
 The insert function inserts a new member to the relation of the mapped entity. The possible new members of the relation are limited to the available <choices>. The <choices> is an expression of the same type as the collection returned by <expression>.
 
+[judo-req="true",judo-req-id="REQ-SRV-012"]
 ==== @Remove
 
 Use `@Remove` annotation on a data function to define an additional remove function in the service. The additional function removes a member from the relation specified by the given data function.
@@ -570,6 +582,7 @@ The `@Remove` can only be specified for data functions where the function <expre
 
 The remove function removes a member from the relation of the mapped entity.
 
+[judo-req="true",judo-req-id="REQ-SRV-013"]
 === Union
 
 A union is a special return type to hold different type of transfer objects. Unions can be defined at the point of use, namely as the return type of functions. A union must have at least two members, but only one member can exist at any given time.
@@ -590,6 +603,7 @@ The optional `static` keyword is used to create service that can be invoked with
 ////
 
 
+[judo-req="true",judo-req-id="REQ-SRV-014"]
 == Actor
 
 Authentication is the process of verifying a user’s identity and authorization is the process of determining whether an authenticated user has access to a particular resource or service. Authorization is critical for ensuring that only authorized users have access to sensitive data and resources. The following chapters describe JUDO's authentication and authorization process.
@@ -647,6 +661,7 @@ The above example defines an actor named `SalesPersonActor`. The company's sales
 
 Exporting is the mechanism that makes the services and their included functions available to external users. Both actors and transfer objects can export services to external users. 
 
+[judo-req="true",judo-req-id="REQ-SRV-015"]
 === Actor export
 
 The actors within the application can be considered the embodiment of external clients who can use the services exported to them. That is, an actor exposes services to the outside world. 
@@ -690,6 +705,7 @@ actor Manager exports ManagerService;
 
 The example above allows the manager to create a new person. To grant permissions to external users, we first need to define entities, transfer objects and services. The Manager actor in this application has no realm or identity, meaning this actor is an anonymous actor. Anonymous actors are publicly available, anyone who knows the URL of the Manager actor interface can invoke the create function. This way, the Manager actor is given access to the ManagerExport's create function, with which the user can create a PersonTransfer.
 
+[judo-req="true",judo-req-id="REQ-SRV-016"]
 === Transfer object export
 
 Besides the actors, the transfer objects can also grant access to service functions by exporting services. For example, if a transfer object represents a customer, its exported services might include the ability to edit the customer's information, place orders, and view order history.
@@ -736,6 +752,7 @@ actor Manager exports ManagerService;
 
 ----
 
+[judo-req="true",judo-req-id="REQ-SRV-017"]
 === Guard
 
 A guard is a boolean expression that must evaluate to true in order to continue the execution. To put it more simply, a guard defines a precondition.
@@ -798,6 +815,7 @@ The example above defines a guard for actor, and the salesperson can only invoke
 Simple new, create, delete and update functions are provided automatically. We can use `@Factory`, `@Create`, `@Delete` and `@Update` annotations respectively to specify these functions.
 
 
+[judo-req="true",judo-req-id="REQ-SRV-018"]
 === Factory
 
 Use `@Factory` annotation on a function to define a function that creates a new transfer object. The function creates the new transfer object as defined by its return type. The new transfer object will not be persisted, only the transfer object is returned. The fields of the newly created transfer object will be set as they are specified in the constructor of the transfer object. See <<Constructor>> chapter.
@@ -816,6 +834,7 @@ function InvoiceTransfer myNew();
 * have no body
 
 
+[judo-req="true",judo-req-id="REQ-SRV-019"]
 === Create
 
 Use `@Create` annotation on a function to define a create function. The create function persists the mapped transfer object passed as its argument. The transfer object's mapped entity must not exist. It persists the transfer object by creating a new entity.
@@ -850,6 +869,7 @@ The above example declares the myCreate function, which creates a new Invoice en
 * have no body
 
 
+[judo-req="true",judo-req-id="REQ-SRV-020"]
 === Update
 
 Use `@Update` annotation on a function to define a new update function. The update function persists the mapped transfer object passed as its argument.  The transfer object's mapped entity must already exist.
@@ -885,6 +905,7 @@ The above example declares the myUpdate function, which sets only the entity's c
 * have no body
 
 
+[judo-req="true",judo-req-id="REQ-SRV-021"]
 === Delete
 
 Use `@Delete` annotation on a function to define a new delete function. The delete function deletes the entity referenced by its service's mapping field.
