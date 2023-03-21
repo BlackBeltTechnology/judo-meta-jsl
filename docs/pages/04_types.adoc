@@ -139,7 +139,7 @@ The supported operators of enumeration are the following:
 |`<`, `>`, `==`, `!=`, `\<=`, `>=`|Boolean |Comparison. Enumeration members of two different enumerations are not comparable.|
 
 * `shop::OrderStatus#OPEN == shop::OrderStatus#PAID` is `false`
-* `shop::OrderStatus#OPEN != shop::OrderStatus#OPEN` is `true`
+* `shop::OrderStatus#OPEN != shop::OrderStatus#OPEN` is `false`
 * `shop::OrderStatus#OPEN == other::Color#RED` is not valid
 |======================================================================
 

@@ -891,7 +891,7 @@ Makes sense in JCL only.
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**container(entityType = **#<entityType>[purple]##**)**## : instance`
-|Returns the container of the instance if that matches the given <entityType>. Type matching works according to the `kindOf()` function.
+|Returns the container of the instance if that matches the given <entityType>. Container is the owner of the xref:05_entity.adoc[Composition]. Type matching works according to the `kindOf()` function.
 |Example:
 |`self!container(entityType = shop::Customer)` navigates from the Address to the Customer if the container is an instance of Customer or any subtype of Customer (Enterprise or Person). For the model, see the xref:01_intro.adoc[Introduction] chapter.
 |======================================================================
