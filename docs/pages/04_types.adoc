@@ -484,7 +484,7 @@ Time literals can be represented as literals using the following syntax.
 
 [subs="quotes"]
 ----
-[purple]##**\`**##&lt;hh>[purple]##**:**##&lt;mm>&#x5B;[purple]##**:**##&lt;ss>][purple]##**`**##
+[purple]##**\`**##&lt;hh>[purple]##**:**##&lt;mm>&#x5B;[purple]##**:**##&lt;ss>[.&lt;ff>]][purple]##**`**##
 ----
 
 where
@@ -492,9 +492,10 @@ where
 * <hh> refers to a zero-padded hour between 00 and 23,
 * <mm> refers to a zero-padded minute between 00 and 59,
 * <ss> refers to a zero-padded second between 00 and 59,
+* <ff> refers to fractional second (millisecond) between 000 and 999 (trailing zeros can be omitted: `12:23:56.100 = 12:23:56.1`),
 * the surrounding backticks are required.
 
-The valid values of time are between `pass:[`00:00:00`]` and `pass:[`23:59:59`]`.
+The valid values of time are between `pass:[`00:00:00.000`]` (or `pass:[`00:00`]`) and `pass:[`23:59:59.999`]`.
 
 The following examples are valid time literals.
 
@@ -502,8 +503,12 @@ The following examples are valid time literals.
 
 [source,jsl]
 ----
-`23:59:59`
 `23:59`
+`23:59:59`
+`23:59:59.789`
+`23:59:59.100`
+`23:59:59.1`
+`23:59:59.001`
 ----
 
 To define time primitive, use the `type` keyword with `time`.
@@ -551,11 +556,22 @@ Timestamp is a value identifying when a certain event occurred or when a certain
 
 Timestamp is surrounded by backticks ( ` ) and formatted using ISO-8601 standard, for example
 
+`pass:[`2020-02-18T10:11`]`
+
+`pass:[`2020-02-18T10:11:12`]`
+
 `pass:[`2020-02-18T10:11:12Z`]`
 
 `pass:[`2019-07-18T11:11:12+02:00`]`
 
 `pass:[`2019-07-18T11:11:12.003+02:00`]`
+
+`pass:[`2019-07-18T11:11:12.003+02`]`
+
+[WARNING]
+====
+Timestamps are stored without time zone information, therefore Timestamps created with backticks (`) that contain zone offsets are always converted to UTC.
+====
 
 To define timestamp primitive, use the `type` keyword with `timestamp`.
 
@@ -574,6 +590,8 @@ where the <name> is the name of the domain model timestamp.
 ----
 type timestamp Timestamp;
 ----
+
+////
 
 Some timestamp functions may expect time zone information as input. Use the following format to specify the time zone:
 
@@ -596,6 +614,8 @@ where
 ----
 `+02:00`
 ----
+
+////
 
 You can find a detailed explanation of the operators and their precedence in the xref:06_expression.adoc#operators[Operators] chapter. The supported operators of timestamp are the following:
 
