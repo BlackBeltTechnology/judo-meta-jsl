@@ -539,7 +539,7 @@ class ImportTests {
         modelDeclaration.assertError(
             JsldslPackage::eINSTANCE.modelImportDeclaration,
             JslDslValidator::HIERARCHY_CYCLE,
-            "cycle in hierarchy of model '" + expectedClassName + "'"
+            "Cycle in model import '" + expectedClassName + "'"
         )
     }
 
