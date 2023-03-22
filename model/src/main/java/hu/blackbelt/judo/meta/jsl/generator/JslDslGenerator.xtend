@@ -12,21 +12,21 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 
 /**
  * Generates code from your model files on save.
- * 
+ *
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
 class JslDslGenerator extends AbstractGenerator {
-	
-	@Inject
-	JsldslDefaultPlantUMLDiagramGenerator plantUmlGenerator
-	
-	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-			val uri = resource.getURI().toString()
-			val parts = uri.split("/")
-			val filename = parts.get(parts.length-1).replace(".jsl", ".plantuml")
-		
-			fsa.generateFile(filename, 
-				plantUmlGenerator.generate(resource.allContents.findFirst[m | m instanceof ModelDeclaration] as ModelDeclaration, null));
-					
-	}
+
+    @Inject
+    JsldslDefaultPlantUMLDiagramGenerator plantUmlGenerator
+
+    override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
+            val uri = resource.getURI().toString()
+            val parts = uri.split("/")
+            val filename = parts.get(parts.length-1).replace(".jsl", ".plantuml")
+
+            fsa.generateFile(filename,
+                plantUmlGenerator.generate(resource.allContents.findFirst[m | m instanceof ModelDeclaration] as ModelDeclaration, null));
+
+    }
 }

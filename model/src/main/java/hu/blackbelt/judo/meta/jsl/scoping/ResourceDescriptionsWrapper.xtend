@@ -10,56 +10,56 @@ import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.xtext.resource.IResourceDescription
 
 class ResourceDescriptionsWrapper extends ResourceSetBasedResourceDescriptions {
-	
-	var IResourceDescription provider;
-	var IResourceDescriptions descriptions;
-	var ResourceSet resourceSet;
 
-	new(ResourceSet fallbackResourceSet, IResourceDescriptions descriptionsParam, IResourceDescription providerParam) {    
-		descriptions = descriptionsParam
-		provider = providerParam
-		resourceSet = fallbackResourceSet
-	}	
-	
-	override getResourceSet() {
-		if (descriptions instanceof ResourceSetBasedResourceDescriptions) {
-			return (descriptions as ResourceSetBasedResourceDescriptions).getResourceSet()
-		} else {
-			return resourceSet;
-		}
-	}
-	
-	override getAllResourceDescriptions() {
-	    val resources = descriptions.allResourceDescriptions.toList
-	    resources.add(provider)
-	    resources
-	}
-	
-	override getResourceDescription(URI uri) {
-	    if( uri == provider.URI ) provider
-	    else descriptions.getResourceDescription(uri)
-	}
-	
-	override getExportedObjects() {
-	    val descriptions = descriptions.exportedObjects.toList
-	    descriptions.addAll(provider.exportedObjects)	
-	    descriptions
-	}
-	
-	override getExportedObjects(EClass type, QualifiedName name, boolean ignoreCase) {
-		descriptions.getExportedObjects(type, name, ignoreCase)
-	}
-	
-	override getExportedObjectsByObject(EObject object) {
-		descriptions.getExportedObjectsByObject(object)
-	}
-	
-	override getExportedObjectsByType(EClass type) {
-		descriptions.getExportedObjectsByType(type)
-	}
-	
-	override isEmpty() {
-		descriptions.isEmpty
-	}
-	
+    var IResourceDescription provider;
+    var IResourceDescriptions descriptions;
+    var ResourceSet resourceSet;
+
+    new(ResourceSet fallbackResourceSet, IResourceDescriptions descriptionsParam, IResourceDescription providerParam) {
+        descriptions = descriptionsParam
+        provider = providerParam
+        resourceSet = fallbackResourceSet
+    }
+
+    override getResourceSet() {
+        if (descriptions instanceof ResourceSetBasedResourceDescriptions) {
+            return (descriptions as ResourceSetBasedResourceDescriptions).getResourceSet()
+        } else {
+            return resourceSet;
+        }
+    }
+
+    override getAllResourceDescriptions() {
+        val resources = descriptions.allResourceDescriptions.toList
+        resources.add(provider)
+        resources
+    }
+
+    override getResourceDescription(URI uri) {
+        if( uri == provider.URI ) provider
+        else descriptions.getResourceDescription(uri)
+    }
+
+    override getExportedObjects() {
+        val descriptions = descriptions.exportedObjects.toList
+        descriptions.addAll(provider.exportedObjects)
+        descriptions
+    }
+
+    override getExportedObjects(EClass type, QualifiedName name, boolean ignoreCase) {
+        descriptions.getExportedObjects(type, name, ignoreCase)
+    }
+
+    override getExportedObjectsByObject(EObject object) {
+        descriptions.getExportedObjectsByObject(object)
+    }
+
+    override getExportedObjectsByType(EClass type) {
+        descriptions.getExportedObjectsByType(type)
+    }
+
+    override isEmpty() {
+        descriptions.isEmpty
+    }
+
 }

@@ -2,7 +2,7 @@ package hu.blackbelt.judo.jsl.server
 
 /**
  * It is debug prposes only to make logging easy.
- *  To use replace the main class of org.eclipse.xtext.ide.server.ServerLauncher to this class 
+ *  To use replace the main class of org.eclipse.xtext.ide.server.ServerLauncher to this class
  * in 'jsl-standalone' and 'jsl-standalone.bat'
  */
 
@@ -23,43 +23,43 @@ import org.eclipse.xtext.ide.server.ServerModule
 
 class ServerLauncher {
 
-	static boolean IS_DEBUG = true
+    static boolean IS_DEBUG = true
 
-	def static void main(String[] args) {
-		//IS_DEBUG = args.exists[it == 'debug']
-		val stdin = System.in
-		val stdout = System.out
-		redirectStandardStreams()
-		val launcher = Guice.createInjector(new ServerModule()).getInstance(ServerLauncher)
-		launcher.start(stdin, stdout)
-	}
+    def static void main(String[] args) {
+        //IS_DEBUG = args.exists[it == 'debug']
+        val stdin = System.in
+        val stdout = System.out
+        redirectStandardStreams()
+        val launcher = Guice.createInjector(new ServerModule()).getInstance(ServerLauncher)
+        launcher.start(stdin, stdout)
+    }
 
-	@Inject LanguageServerImpl languageServer
+    @Inject LanguageServerImpl languageServer
 
-	def void start(InputStream in, OutputStream out) {
-		System.err.println("Starting Xtext Language Server.")
-		val id = ServerLauncher.name + "-" + (new Timestamp(System.currentTimeMillis)).toString.replaceAll(" ","_")
-		val launcher = Launcher.createLauncher(languageServer, LanguageClient, in, out, true, new PrintWriter(new FileOutputStream("/tmp/call-"+id+".log"), true))
-		languageServer.connect(launcher.remoteProxy)
-		val future = launcher.startListening
-		System.err.println("started.")
-		while (!future.done) {
-			Thread.sleep(10_000l)
-		}
-	}
+    def void start(InputStream in, OutputStream out) {
+        System.err.println("Starting Xtext Language Server.")
+        val id = ServerLauncher.name + "-" + (new Timestamp(System.currentTimeMillis)).toString.replaceAll(" ","_")
+        val launcher = Launcher.createLauncher(languageServer, LanguageClient, in, out, true, new PrintWriter(new FileOutputStream("/tmp/call-"+id+".log"), true))
+        languageServer.connect(launcher.remoteProxy)
+        val future = launcher.startListening
+        System.err.println("started.")
+        while (!future.done) {
+            Thread.sleep(10_000l)
+        }
+    }
 
-	def static redirectStandardStreams() {
-		System.setIn(new ByteArrayInputStream(newByteArrayOfSize(0)))
-		val id = ServerLauncher.name + "-" + (new Timestamp(System.currentTimeMillis)).toString.replaceAll(" ","_")
-		if (IS_DEBUG) {
-			val stdFileOut = new FileOutputStream("/tmp/out-" + id + ".log")
-			System.setOut(new PrintStream(stdFileOut, true))
-			val stdFileErr = new FileOutputStream("/tmp/error-" + id + ".log")
-			System.setErr(new PrintStream(stdFileErr, true))
-		} else {
-			System.setOut(new PrintStream(new ByteArrayOutputStream()))
-			System.setErr(new PrintStream(new ByteArrayOutputStream()))
-		}
-	}
+    def static redirectStandardStreams() {
+        System.setIn(new ByteArrayInputStream(newByteArrayOfSize(0)))
+        val id = ServerLauncher.name + "-" + (new Timestamp(System.currentTimeMillis)).toString.replaceAll(" ","_")
+        if (IS_DEBUG) {
+            val stdFileOut = new FileOutputStream("/tmp/out-" + id + ".log")
+            System.setOut(new PrintStream(stdFileOut, true))
+            val stdFileErr = new FileOutputStream("/tmp/error-" + id + ".log")
+            System.setErr(new PrintStream(stdFileErr, true))
+        } else {
+            System.setOut(new PrintStream(new ByteArrayOutputStream()))
+            System.setErr(new PrintStream(new ByteArrayOutputStream()))
+        }
+    }
 
 }
