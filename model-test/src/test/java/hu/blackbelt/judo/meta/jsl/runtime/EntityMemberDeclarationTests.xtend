@@ -181,7 +181,7 @@ class EntityMemberDeclarationTests {
             error
         )
     }
-    
+
     @Test
     @Requirement(reqs = #[
         "REQ-ENT-009",
@@ -189,15 +189,15 @@ class EntityMemberDeclarationTests {
     ])
     def void testQueryParameterExpression() {
         '''
-			model test;
+            model test;
 
-			import judo::types;
+            import judo::types;
 
-			entity E {
-				field Integer e;
-				
-				query Integer q(Integer p = 10 + 10) => E!all()!size();
-			}
+            entity E {
+                field Integer e;
+
+                query Integer q(Integer p = 10 + 10) => E!all()!size();
+            }
         '''.parse => [
             assertNoErrors
         ]
@@ -210,15 +210,15 @@ class EntityMemberDeclarationTests {
     ])
     def void testQueryParameterSelf() {
         '''
-			model test;
+            model test;
 
-			import judo::types;
+            import judo::types;
 
-			entity E {
-				field Integer e;
-				
-				query Integer q(Integer p = self.e) => E!all()!size();
-			}
+            entity E {
+                field Integer e;
+
+                query Integer q(Integer p = self.e) => E!all()!size();
+            }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.queryParameterDeclaration, JslDslValidator.SELF_NOT_ALLOWED)
         ]
@@ -231,15 +231,15 @@ class EntityMemberDeclarationTests {
     ])
     def void testQueryParameterParameter() {
         '''
-			model test;
+            model test;
 
-			import judo::types;
+            import judo::types;
 
-			entity E {
-				field Integer e;
-				
-				query Integer q(Integer p = 10, Integer q = p) => E!all()!size();
-			}
+            entity E {
+                field Integer e;
+
+                query Integer q(Integer p = 10, Integer q = p) => E!all()!size();
+            }
         '''.parse.assertError(
             JsldslPackage::eINSTANCE.navigationBaseDeclarationReference,
             "org.eclipse.xtext.diagnostics.Diagnostic.Linking",

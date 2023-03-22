@@ -1324,7 +1324,7 @@ class TypeInfoTests {
         val TypeInfo anyTypeInfo = TypeInfo.getTargetType(anyField.expression)
         assertEquals(anyField.referenceType, anyTypeInfo.getEntity)
         assertEquals(false, anyTypeInfo.isCollection)
-        
+
         val TypeInfo asCollectionTypeInfo = TypeInfo.getTargetType(asCollectionField.expression)
         assertEquals(asCollectionField.referenceType, asCollectionTypeInfo.getEntity)
         assertEquals(true, asCollectionTypeInfo.isCollection)

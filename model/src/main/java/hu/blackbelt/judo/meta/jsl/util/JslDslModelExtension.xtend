@@ -45,217 +45,217 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
 
 @Singleton
 class JslDslModelExtension {
-	
-	@Inject extension IQualifiedNameProvider	
 
-	def isEqual(EObject it, EObject other) {
-		if (it === null || other === null) {
-			return false;
-		}
-		
-		if (it.equals(other))
-			return true;
-		if (EcoreUtil.getURI(it).equals(EcoreUtil.getURI(other)))
-			return true;
+    @Inject extension IQualifiedNameProvider
 
-		return false;
-	}
+    def isEqual(EObject it, EObject other) {
+        if (it === null || other === null) {
+            return false;
+        }
 
-	def isResolvedReference(EObject it, int featureID) {
-		val EObject featureObject = it.eGet(it.eClass().getEStructuralFeature(featureID), false) as EObject;
-		return !featureObject.eIsProxy();
-	}
+        if (it.equals(other))
+            return true;
+        if (EcoreUtil.getURI(it).equals(EcoreUtil.getURI(other)))
+            return true;
 
-	/*
-	def ModelDeclaration modelDeclaration(EObject obj) {
-		var current = obj
-		
-		while (current.eContainer !== null) {
-			current = current.eContainer
-		}
-		
-		if (current instanceof ModelDeclaration) {
-			current as ModelDeclaration
-		} else {
-			throw new IllegalAccessException("The root container is not ModelDeclaration: " + obj + "\n Root: " + current)
-		}		
-	} */
+        return false;
+    }
 
-	def Collection<EntityMemberDeclaration> allNamedEntityMemberDeclarations(ModelDeclaration model) {
-		val res = new ArrayList<EntityMemberDeclaration>();
+    def isResolvedReference(EObject it, int featureID) {
+        val EObject featureObject = it.eGet(it.eClass().getEStructuralFeature(featureID), false) as EObject;
+        return !featureObject.eIsProxy();
+    }
 
-		model.entityDeclarations.forEach[e | {
-			res.addAll(e.members.filter[m | m instanceof Named])
-		}]
-		return res
-	}
+    /*
+    def ModelDeclaration modelDeclaration(EObject obj) {
+        var current = obj
 
-	def getAllOppositeRelations(EntityRelationDeclaration relation) {
-		relation.getAllOppositeRelations(null)
-	}
+        while (current.eContainer !== null) {
+            current = current.eContainer
+        }
 
-	def getValidOppositeRelations(EntityRelationDeclaration relation) {
-		relation.getValidOppositeRelations(null)
-	}
+        if (current instanceof ModelDeclaration) {
+            current as ModelDeclaration
+        } else {
+            throw new IllegalAccessException("The root container is not ModelDeclaration: " + obj + "\n Root: " + current)
+        }
+    } */
 
-	def getValidOppositeRelations(EntityRelationDeclaration relation, Boolean single) {
-		relation.referenceType.getAllRelations(single).filter[r | relation.isSelectableForRelation(r)].toList
-	}
-	
-	def getAllOppositeRelations(EntityRelationDeclaration relation, Boolean single) {
-		relation.referenceType.getAllRelations(single)
-	}
+    def Collection<EntityMemberDeclaration> allNamedEntityMemberDeclarations(ModelDeclaration model) {
+        val res = new ArrayList<EntityMemberDeclaration>();
 
-	def Collection<EntityRelationDeclaration> getAllRelations(EntityDeclaration entity) {		
-		entity.getAllRelations(null)				
-	}
+        model.entityDeclarations.forEach[e | {
+            res.addAll(e.members.filter[m | m instanceof Named])
+        }]
+        return res
+    }
 
-	def Collection<EntityRelationDeclaration> getAllRelations(EntityDeclaration entity, Boolean single) {		
-		entity.getAllRelations(single, new LinkedList, new LinkedList)		
-	}
+    def getAllOppositeRelations(EntityRelationDeclaration relation) {
+        relation.getAllOppositeRelations(null)
+    }
 
-	private def Collection<EntityRelationDeclaration> getAllRelations(EntityDeclaration entity, Boolean single, Collection<EntityRelationDeclaration> collected, Collection<EntityDeclaration> visited) {		
-		if (entity !== null) {
-			visited.add(entity)
-			collected.addAll(
-				entity.relations
-					.filter[r | single === null || (single && !r.isMany) || (!single && r.isMany)]
-					.toList			
-			)
+    def getValidOppositeRelations(EntityRelationDeclaration relation) {
+        relation.getValidOppositeRelations(null)
+    }
 
-			for (e : entity.extends) {
-				e.getAllRelations(single, collected, visited)	
-			}
-		}
-		collected
-	}
+    def getValidOppositeRelations(EntityRelationDeclaration relation, Boolean single) {
+        relation.referenceType.getAllRelations(single).filter[r | relation.isSelectableForRelation(r)].toList
+    }
+
+    def getAllOppositeRelations(EntityRelationDeclaration relation, Boolean single) {
+        relation.referenceType.getAllRelations(single)
+    }
+
+    def Collection<EntityRelationDeclaration> getAllRelations(EntityDeclaration entity) {
+        entity.getAllRelations(null)
+    }
+
+    def Collection<EntityRelationDeclaration> getAllRelations(EntityDeclaration entity, Boolean single) {
+        entity.getAllRelations(single, new LinkedList, new LinkedList)
+    }
+
+    private def Collection<EntityRelationDeclaration> getAllRelations(EntityDeclaration entity, Boolean single, Collection<EntityRelationDeclaration> collected, Collection<EntityDeclaration> visited) {
+        if (entity !== null) {
+            visited.add(entity)
+            collected.addAll(
+                entity.relations
+                    .filter[r | single === null || (single && !r.isMany) || (!single && r.isMany)]
+                    .toList
+            )
+
+            for (e : entity.extends) {
+                e.getAllRelations(single, collected, visited)
+            }
+        }
+        collected
+    }
 
     def asEntityRelationOppositeReferenced(EntityRelationOpposite it) {
-    	if (it instanceof EntityRelationOppositeReferenced) {
-    		return it as EntityRelationOppositeReferenced
-    	}
-    	return null as EntityRelationOppositeReferenced
+        if (it instanceof EntityRelationOppositeReferenced) {
+            return it as EntityRelationOppositeReferenced
+        }
+        return null as EntityRelationOppositeReferenced
     }
 
     def oppositeType(EntityRelationOpposite it) {
-    	return asEntityRelationOppositeReferenced?.oppositeType
+        return asEntityRelationOppositeReferenced?.oppositeType
     }
 
-	def isSelectableForRelation(EntityRelationDeclaration currentRelation, EntityRelationDeclaration selectableRelation) {
-		if (currentRelation.opposite === null) {
-			return false
-		}
-		val opposite = currentRelation.opposite
-		val oppositeEntity = selectableRelation.eContainer as EntityDeclaration
-		
-		if (opposite.oppositeType === null) {
-			val oppositeEntityAllRelations = oppositeEntity.getAllRelations().toList
+    def isSelectableForRelation(EntityRelationDeclaration currentRelation, EntityRelationDeclaration selectableRelation) {
+        if (currentRelation.opposite === null) {
+            return false
+        }
+        val opposite = currentRelation.opposite
+        val oppositeEntity = selectableRelation.eContainer as EntityDeclaration
 
-			// System.out.println(" --- " + EObjectOrProxy + " --- Rel:  " + opposite.eContainer + " Sib: " + siblings.map[r | r + "=" + r.opposite?.oppositeType].join(", "))
-			if (oppositeEntityAllRelations.exists[r | r.opposite?.oppositeType === currentRelation]) {
-				if (selectableRelation.opposite?.oppositeType === currentRelation) {
-					return true
-				} else {
-					return false
-				}
-			} else if (selectableRelation.opposite === null) {
-				return true
-			}
-			return false
-		}
-		true		
-	}
+        if (opposite.oppositeType === null) {
+            val oppositeEntityAllRelations = oppositeEntity.getAllRelations().toList
 
-	def Collection<String> getMemberNames(EntityDeclaration entity) {
-		entity.getMemberNames(null)
-	}
+            // System.out.println(" --- " + EObjectOrProxy + " --- Rel:  " + opposite.eContainer + " Sib: " + siblings.map[r | r + "=" + r.opposite?.oppositeType].join(", "))
+            if (oppositeEntityAllRelations.exists[r | r.opposite?.oppositeType === currentRelation]) {
+                if (selectableRelation.opposite?.oppositeType === currentRelation) {
+                    return true
+                } else {
+                    return false
+                }
+            } else if (selectableRelation.opposite === null) {
+                return true
+            }
+            return false
+        }
+        true
+    }
 
-	def Collection<String> getMemberNames(EntityDeclaration entity, EntityMemberDeclaration exclude) {
-		var names = new ArrayList()
-		val allEntitiesInInheritenceChain = new HashSet
-		allEntitiesInInheritenceChain.add(entity)
-		allEntitiesInInheritenceChain.addAll(entity.superEntityTypes)		
-		for (e : allEntitiesInInheritenceChain) {
-			names.addAll(e.members.filter[m | m !== exclude].filter[m | m instanceof Named].map[m | m.name].filter[n | n.trim != ""].toList)
-		}
-		new HashSet(names)
-	}
+    def Collection<String> getMemberNames(EntityDeclaration entity) {
+        entity.getMemberNames(null)
+    }
 
- 	def boolean isMany(EObject object) {
- 		if (object === null) {
- 			return false;
- 		}
-		if (object instanceof Cardinality) {
-			object.isIsMany
-		} else {
-			throw new IllegalArgumentException("Object is not Cardinality: " + object)
-		}
-	}
+    def Collection<String> getMemberNames(EntityDeclaration entity, EntityMemberDeclaration exclude) {
+        var names = new ArrayList()
+        val allEntitiesInInheritenceChain = new HashSet
+        allEntitiesInInheritenceChain.add(entity)
+        allEntitiesInInheritenceChain.addAll(entity.superEntityTypes)
+        for (e : allEntitiesInInheritenceChain) {
+            names.addAll(e.members.filter[m | m !== exclude].filter[m | m instanceof Named].map[m | m.name].filter[n | n.trim != ""].toList)
+        }
+        new HashSet(names)
+    }
 
-	def String getName(EObject object) {
-		if (object === null) {
-			return null
-		}
-		if (object instanceof Named) {
-			return object.name
-		} else {
-			""
-			//throw new IllegalArgumentException("Object is not Named: " + object)
-		}
-	}
+     def boolean isMany(EObject object) {
+         if (object === null) {
+             return false;
+         }
+        if (object instanceof Cardinality) {
+            object.isIsMany
+        } else {
+            throw new IllegalArgumentException("Object is not Cardinality: " + object)
+        }
+    }
 
-	def EAttribute getNameAttribute(EObject object) {
-		if (object instanceof Named) {
-			JsldslPackage::eINSTANCE.named_Name
-		} else {
-			throw new IllegalArgumentException("Object is not Named: " + object)
-		}
-	}
+    def String getName(EObject object) {
+        if (object === null) {
+            return null
+        }
+        if (object instanceof Named) {
+            return object.name
+        } else {
+            ""
+            //throw new IllegalArgumentException("Object is not Named: " + object)
+        }
+    }
 
-	def Collection<String> getDeclarationNames(ModelDeclaration model, Declaration exclude) {
-		model.declarations.filter[m | m !== exclude && !(m instanceof FunctionDeclaration) && !(m instanceof LambdaDeclaration)].map[m | m.name].filter[n | n.trim != ""].toSet
-	}
+    def EAttribute getNameAttribute(EObject object) {
+        if (object instanceof Named) {
+            JsldslPackage::eINSTANCE.named_Name
+        } else {
+            throw new IllegalArgumentException("Object is not Named: " + object)
+        }
+    }
 
-
-	private def Collection<EntityMemberDeclaration> getAllMembers(EntityDeclaration entity, Collection<EntityMemberDeclaration> collected, Collection<EntityDeclaration> visited) {		
-		if (entity !== null && !visited.contains(entity)) {
-			visited.add(entity)
-			collected.addAll(
-				entity.members
-					.toList			
-			)
-
-			for (e : entity.extends) {
-				if (!collected.contains(e)) {
-					e.getAllMembers(collected, visited)					
-				}
-			}
-		}
-		collected
-	}
-
-	def Collection<EntityDeclaration> getSuperEntityTypes(EntityDeclaration entity) {
-		getSuperEntityTypes(entity, new LinkedList)
-	}
+    def Collection<String> getDeclarationNames(ModelDeclaration model, Declaration exclude) {
+        model.declarations.filter[m | m !== exclude && !(m instanceof FunctionDeclaration) && !(m instanceof LambdaDeclaration)].map[m | m.name].filter[n | n.trim != ""].toSet
+    }
 
 
-	def Collection<EntityDeclaration> getSuperEntityTypes(EntityDeclaration entity, Collection<EntityDeclaration> collected) {
-		for (superEntity : entity.extends) {
-			if (!collected.contains(superEntity)) {
-				collected.add(superEntity)
-				collected.addAll(superEntity.getSuperEntityTypes(collected))
-			}
-		}
-		collected
-	}
-	
-	def String getMemberFullyQualifiedName(EntityMemberDeclaration member) {
-		(member.eContainer as EntityDeclaration).fullyQualifiedName.toString("::") + "." + member.name
-	}
+    private def Collection<EntityMemberDeclaration> getAllMembers(EntityDeclaration entity, Collection<EntityMemberDeclaration> collected, Collection<EntityDeclaration> visited) {
+        if (entity !== null && !visited.contains(entity)) {
+            visited.add(entity)
+            collected.addAll(
+                entity.members
+                    .toList
+            )
 
-	def Collection<EntityMemberDeclaration> getAllMembers(EntityDeclaration entity) {
-		entity.getAllMembers(new LinkedList, new LinkedList)
-	}
+            for (e : entity.extends) {
+                if (!collected.contains(e)) {
+                    e.getAllMembers(collected, visited)
+                }
+            }
+        }
+        collected
+    }
+
+    def Collection<EntityDeclaration> getSuperEntityTypes(EntityDeclaration entity) {
+        getSuperEntityTypes(entity, new LinkedList)
+    }
+
+
+    def Collection<EntityDeclaration> getSuperEntityTypes(EntityDeclaration entity, Collection<EntityDeclaration> collected) {
+        for (superEntity : entity.extends) {
+            if (!collected.contains(superEntity)) {
+                collected.add(superEntity)
+                collected.addAll(superEntity.getSuperEntityTypes(collected))
+            }
+        }
+        collected
+    }
+
+    def String getMemberFullyQualifiedName(EntityMemberDeclaration member) {
+        (member.eContainer as EntityDeclaration).fullyQualifiedName.toString("::") + "." + member.name
+    }
+
+    def Collection<EntityMemberDeclaration> getAllMembers(EntityDeclaration entity) {
+        entity.getAllMembers(new LinkedList, new LinkedList)
+    }
 
 
     def <T> T parentContainer(EObject from, Class<T> type) {
@@ -273,145 +273,145 @@ class JslDslModelExtension {
         }
         return found;
     }
-	
-	def Collection<EntityRelationDeclaration> getRelations(EntityDeclaration it) {
-		members.filter[m | m instanceof EntityRelationDeclaration].map[d | d as EntityRelationDeclaration].toList
-	}
-	
-	def Collection<EntityDeclaration> entityDeclarations(ModelDeclaration it) {
-		declarations.filter[d | d instanceof EntityDeclaration].map[d | d as EntityDeclaration].toList
-	}
 
-	def Collection<QueryDeclaration> queryDeclarations(ModelDeclaration it) {
-		declarations.filter[d | d instanceof QueryDeclaration].map[d | d as QueryDeclaration].toList
-	}
+    def Collection<EntityRelationDeclaration> getRelations(EntityDeclaration it) {
+        members.filter[m | m instanceof EntityRelationDeclaration].map[d | d as EntityRelationDeclaration].toList
+    }
 
-	def Collection<DataTypeDeclaration> dataTypeDeclarations(ModelDeclaration it) {
-		declarations.filter[d | d instanceof DataTypeDeclaration].map[d | d as DataTypeDeclaration].toList
-	}
+    def Collection<EntityDeclaration> entityDeclarations(ModelDeclaration it) {
+        declarations.filter[d | d instanceof EntityDeclaration].map[d | d as EntityDeclaration].toList
+    }
 
-	def Collection<EnumDeclaration> enumDeclarations(ModelDeclaration it) {
-		declarations.filter[d | d instanceof EnumDeclaration].map[d | d as EnumDeclaration].toList
-	}
+    def Collection<QueryDeclaration> queryDeclarations(ModelDeclaration it) {
+        declarations.filter[d | d instanceof QueryDeclaration].map[d | d as QueryDeclaration].toList
+    }
 
-	def Collection<ErrorDeclaration> errorDeclarations(ModelDeclaration it) {
-		declarations.filter[d | d instanceof ErrorDeclaration].map[d | d as ErrorDeclaration].toList
-	}
+    def Collection<DataTypeDeclaration> dataTypeDeclarations(ModelDeclaration it) {
+        declarations.filter[d | d instanceof DataTypeDeclaration].map[d | d as DataTypeDeclaration].toList
+    }
 
-	def Collection<EntityFieldDeclaration> fields(EntityDeclaration it) {
-		members.filter[d | d instanceof EntityFieldDeclaration].map[d | d as EntityFieldDeclaration].toList
-	}
+    def Collection<EnumDeclaration> enumDeclarations(ModelDeclaration it) {
+        declarations.filter[d | d instanceof EnumDeclaration].map[d | d as EnumDeclaration].toList
+    }
 
-	def Collection<EntityDerivedDeclaration> derivedes(EntityDeclaration it) {
-		members.filter[d | d instanceof EntityDerivedDeclaration].map[d | d as EntityDerivedDeclaration].toList
-	}
+    def Collection<ErrorDeclaration> errorDeclarations(ModelDeclaration it) {
+        declarations.filter[d | d instanceof ErrorDeclaration].map[d | d as ErrorDeclaration].toList
+    }
 
-	def Collection<EntityQueryDeclaration> queries(EntityDeclaration it) {
-		members.filter[d | d instanceof EntityQueryDeclaration].map[d | d as EntityQueryDeclaration].toList
-	}
+    def Collection<EntityFieldDeclaration> fields(EntityDeclaration it) {
+        members.filter[d | d instanceof EntityFieldDeclaration].map[d | d as EntityFieldDeclaration].toList
+    }
 
-	def Collection<ConstraintDeclaration> constraints(EntityDeclaration it) {
-		members.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
-	}
+    def Collection<EntityDerivedDeclaration> derivedes(EntityDeclaration it) {
+        members.filter[d | d instanceof EntityDerivedDeclaration].map[d | d as EntityDerivedDeclaration].toList
+    }
 
-	def Collection<EntityIdentifierDeclaration> identifiers(EntityDeclaration it) {
-		members.filter[d | d instanceof EntityIdentifierDeclaration].map[d | d as EntityIdentifierDeclaration].toList
-	}
+    def Collection<EntityQueryDeclaration> queries(EntityDeclaration it) {
+        members.filter[d | d instanceof EntityQueryDeclaration].map[d | d as EntityQueryDeclaration].toList
+    }
 
-	def Collection<EntityFieldDeclaration> allFields(EntityDeclaration it) {
-		allMembers.filter[d | d instanceof EntityFieldDeclaration].map[d | d as EntityFieldDeclaration].toList
-	}
+    def Collection<ConstraintDeclaration> constraints(EntityDeclaration it) {
+        members.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
+    }
 
-	def Collection<EntityDerivedDeclaration> allDerivedes(EntityDeclaration it) {
-		allMembers.filter[d | d instanceof EntityDerivedDeclaration].map[d | d as EntityDerivedDeclaration].toList
-	}
+    def Collection<EntityIdentifierDeclaration> identifiers(EntityDeclaration it) {
+        members.filter[d | d instanceof EntityIdentifierDeclaration].map[d | d as EntityIdentifierDeclaration].toList
+    }
 
-	def Collection<EntityQueryDeclaration> allQueries(EntityDeclaration it) {
-		allMembers.filter[d | d instanceof EntityQueryDeclaration].map[d | d as EntityQueryDeclaration].toList
-	}
+    def Collection<EntityFieldDeclaration> allFields(EntityDeclaration it) {
+        allMembers.filter[d | d instanceof EntityFieldDeclaration].map[d | d as EntityFieldDeclaration].toList
+    }
 
-	def Collection<ConstraintDeclaration> allConstraints(EntityDeclaration it) {
-		allMembers.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
-	}
+    def Collection<EntityDerivedDeclaration> allDerivedes(EntityDeclaration it) {
+        allMembers.filter[d | d instanceof EntityDerivedDeclaration].map[d | d as EntityDerivedDeclaration].toList
+    }
 
-	def Collection<EntityIdentifierDeclaration> allIdentifiers(EntityDeclaration it) {
-		allMembers.filter[d | d instanceof EntityIdentifierDeclaration].map[d | d as EntityIdentifierDeclaration].toList
-	}
-	
-	
-	def String sourceCode(Expression it) {
-		return NodeModelUtils.findActualNodeFor(it)?.getText()
-	}
-  	
-	def Collection<EntityRelationDeclaration> getAllRelations(ModelDeclaration it, boolean singleInstanceOfBidirectional) {
-		val List<EntityRelationDeclaration> relations = new ArrayList()
-		
-		for (entity : entityDeclarations) {
-			for (relation : entity.relations) {
-				if (singleInstanceOfBidirectional && relation.opposite?.oppositeType !== null && !relations.contains(relation.opposite.oppositeType) ||
-					relation.opposite?.oppositeType === null
-				) {
-					relations.add(relation)
-				}
-			}
-		}		
-		return relations
-	}
-	
+    def Collection<EntityQueryDeclaration> allQueries(EntityDeclaration it) {
+        allMembers.filter[d | d instanceof EntityQueryDeclaration].map[d | d as EntityQueryDeclaration].toList
+    }
+
+    def Collection<ConstraintDeclaration> allConstraints(EntityDeclaration it) {
+        allMembers.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
+    }
+
+    def Collection<EntityIdentifierDeclaration> allIdentifiers(EntityDeclaration it) {
+        allMembers.filter[d | d instanceof EntityIdentifierDeclaration].map[d | d as EntityIdentifierDeclaration].toList
+    }
+
+
+    def String sourceCode(Expression it) {
+        return NodeModelUtils.findActualNodeFor(it)?.getText()
+    }
+
+    def Collection<EntityRelationDeclaration> getAllRelations(ModelDeclaration it, boolean singleInstanceOfBidirectional) {
+        val List<EntityRelationDeclaration> relations = new ArrayList()
+
+        for (entity : entityDeclarations) {
+            for (relation : entity.relations) {
+                if (singleInstanceOfBidirectional && relation.opposite?.oppositeType !== null && !relations.contains(relation.opposite.oppositeType) ||
+                    relation.opposite?.oppositeType === null
+                ) {
+                    relations.add(relation)
+                }
+            }
+        }
+        return relations
+    }
+
     def Collection<EnumDeclaration> allEnumDeclarations(ModelDeclaration model) {
-		model.declarations.filter[d | d instanceof EnumDeclaration].map[e | e as EnumDeclaration].toList
-	}
+        model.declarations.filter[d | d instanceof EnumDeclaration].map[e | e as EnumDeclaration].toList
+    }
 
     def Collection<EnumDeclaration> allQueryDeclarations(ModelDeclaration model) {
-		model.declarations.filter[d | d instanceof QueryDeclaration].map[e | e as EnumDeclaration].toList
-	}
-	
-	def String getStringLiteralValue(StringLiteral it) {
-		switch it {
-			RawStringLiteral: return it.value
-			EscapedStringLiteral: return it.value
-		}
-	}
+        model.declarations.filter[d | d instanceof QueryDeclaration].map[e | e as EnumDeclaration].toList
+    }
 
-	def BigInteger getMaxFileSizeValue(ModifierMaxFileSize it) {
-		switch it.unit.literal {
-			case "kB": return it.numeric.multiply(BigInteger.valueOf(1000))
-			case "MB": return it.numeric.multiply(BigInteger.valueOf(1000 * 1000))
-			case "GB": return it.numeric.multiply(BigInteger.valueOf(1000 * 1000 * 1000))
+    def String getStringLiteralValue(StringLiteral it) {
+        switch it {
+            RawStringLiteral: return it.value
+            EscapedStringLiteral: return it.value
+        }
+    }
 
-			case "KiB": return it.numeric.multiply(BigInteger.valueOf(1024))
-			case "MiB": return it.numeric.multiply(BigInteger.valueOf(1024 * 1024))
-			case "GiB": return it.numeric.multiply(BigInteger.valueOf(1024 * 1024 * 1024))
-		}
-		return it.numeric
-	}
+    def BigInteger getMaxFileSizeValue(ModifierMaxFileSize it) {
+        switch it.unit.literal {
+            case "kB": return it.numeric.multiply(BigInteger.valueOf(1000))
+            case "MB": return it.numeric.multiply(BigInteger.valueOf(1000 * 1000))
+            case "GB": return it.numeric.multiply(BigInteger.valueOf(1000 * 1000 * 1000))
+
+            case "KiB": return it.numeric.multiply(BigInteger.valueOf(1024))
+            case "MiB": return it.numeric.multiply(BigInteger.valueOf(1024 * 1024))
+            case "GiB": return it.numeric.multiply(BigInteger.valueOf(1024 * 1024 * 1024))
+        }
+        return it.numeric
+    }
 
 
-	def JslDslModelResourceSupport fromModel(ModelDeclaration model) {
-		val JslDslModelResourceSupport jslDslModelResourceSupport = JslDslModelResourceSupport.jslDslModelResourceSupportBuilder().resourceSet(model.eResource.getResourceSet()).build();
-		EcoreUtil.resolveAll(jslDslModelResourceSupport.resourceSet)
-		return jslDslModelResourceSupport
-	}
+    def JslDslModelResourceSupport fromModel(ModelDeclaration model) {
+        val JslDslModelResourceSupport jslDslModelResourceSupport = JslDslModelResourceSupport.jslDslModelResourceSupportBuilder().resourceSet(model.eResource.getResourceSet()).build();
+        EcoreUtil.resolveAll(jslDslModelResourceSupport.resourceSet)
+        return jslDslModelResourceSupport
+    }
 
-	def Collection<EntityDeclaration> entities(JslDslModelResourceSupport it) {
-		getStreamOf(EntityDeclaration).collect(Collectors.toList)		
-	}
+    def Collection<EntityDeclaration> entities(JslDslModelResourceSupport it) {
+        getStreamOf(EntityDeclaration).collect(Collectors.toList)
+    }
 
-	def Collection<TransferDeclaration> transfers(JslDslModelResourceSupport it) {
-		getStreamOf(TransferDeclaration).collect(Collectors.toList)		
-	}
-	
-	def EntityDeclaration entityByName(JslDslModelResourceSupport it, String name) {
-		return getStreamOf(EntityDeclaration).filter[e | e.name.equals(name)].findFirst.orElseThrow[new IllegalArgumentException("EntityDeclaration not found: " + name)]
-	}
+    def Collection<TransferDeclaration> transfers(JslDslModelResourceSupport it) {
+        getStreamOf(TransferDeclaration).collect(Collectors.toList)
+    }
 
-	
-	def QueryDeclaration queryByName(JslDslModelResourceSupport it, String name) {
-		return getStreamOf(QueryDeclaration).filter[e | e.name.equals(name)].findFirst.orElseThrow[new IllegalArgumentException("QueryDeclaration not found: " + name)]
-	}
+    def EntityDeclaration entityByName(JslDslModelResourceSupport it, String name) {
+        return getStreamOf(EntityDeclaration).filter[e | e.name.equals(name)].findFirst.orElseThrow[new IllegalArgumentException("EntityDeclaration not found: " + name)]
+    }
 
-	def EntityMemberDeclaration memberByName(EntityDeclaration it, String name) {
-		members.stream.filter[e | e.name.equals(name)].findFirst.orElseThrow[new IllegalArgumentException("EntityMemberDeclaration not found: " + name)]
-	}
+
+    def QueryDeclaration queryByName(JslDslModelResourceSupport it, String name) {
+        return getStreamOf(QueryDeclaration).filter[e | e.name.equals(name)].findFirst.orElseThrow[new IllegalArgumentException("QueryDeclaration not found: " + name)]
+    }
+
+    def EntityMemberDeclaration memberByName(EntityDeclaration it, String name) {
+        members.stream.filter[e | e.name.equals(name)].findFirst.orElseThrow[new IllegalArgumentException("EntityMemberDeclaration not found: " + name)]
+    }
 
 }
