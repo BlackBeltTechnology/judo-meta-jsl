@@ -262,7 +262,7 @@ class EnumDeclarationTests {
                 field Genre favoredGenre;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.enumLiteral, JslDslValidator.ENUM_LITERAL_NAME_COLLISION, "Enumeration Literal name collision for: 'test.Genre.POP', 'test.Genre.pop'")
+            m | m.assertError(JsldslPackage::eINSTANCE.enumLiteral, JslDslValidator.ENUM_LITERAL_NAME_COLLISION, "Duplicate literal name: 'POP'")
         ]
     }
 
@@ -290,7 +290,7 @@ class EnumDeclarationTests {
                 field Genre favoredGenre;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.enumLiteral, JslDslValidator.ENUM_LITERAL_ORDINAL_COLLISION, "Enumeration Literal ordinal collision for: 'test.Genre.POP': '1', 'test.Genre.METAL': '1'")
+            m | m.assertError(JsldslPackage::eINSTANCE.enumLiteral, JslDslValidator.ENUM_LITERAL_ORDINAL_COLLISION, "Duplicate ordinal: 1.")
         ]
     }
 
@@ -322,7 +322,7 @@ class EnumDeclarationTests {
                 field Genre favoredGenre = GenreOther#HOUSE;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Default value does not match field type")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type.")
         ]
     }
 }

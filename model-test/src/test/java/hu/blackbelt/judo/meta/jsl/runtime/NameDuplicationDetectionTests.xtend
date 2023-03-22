@@ -108,7 +108,7 @@ class NameDuplicationDetectionTests {
             entity A {
             }
         '''.parse => [
-            assertDuplicateDeclarationName("Duplicate declaration: 'A'", JsldslPackage::eINSTANCE.entityDeclaration)
+            assertDuplicateDeclarationName("Duplicate declaration name: 'A'", JsldslPackage::eINSTANCE.entityDeclaration)
         ]
     }
 
@@ -135,8 +135,8 @@ class NameDuplicationDetectionTests {
             entity a {
             }
         '''.parse => [
-            assertDuplicateDeclarationName("Duplicate declaration: 'A'", JsldslPackage::eINSTANCE.entityDeclaration)
-            assertDuplicateDeclarationName("Duplicate declaration: 'a'", JsldslPackage::eINSTANCE.entityDeclaration)
+            assertDuplicateDeclarationName("Duplicate declaration name: 'A'", JsldslPackage::eINSTANCE.entityDeclaration)
+            assertDuplicateDeclarationName("Duplicate declaration name: 'a'", JsldslPackage::eINSTANCE.entityDeclaration)
 
         ]
     }
@@ -165,8 +165,8 @@ class NameDuplicationDetectionTests {
             error a {
             }
         '''.parse => [
-            assertDuplicateDeclarationName("Duplicate declaration: 'A'", JsldslPackage::eINSTANCE.entityDeclaration)
-            assertDuplicateDeclarationName("Duplicate declaration: 'a'", JsldslPackage::eINSTANCE.errorDeclaration)
+            assertDuplicateDeclarationName("Duplicate declaration name: 'A'", JsldslPackage::eINSTANCE.entityDeclaration)
+            assertDuplicateDeclarationName("Duplicate declaration name: 'a'", JsldslPackage::eINSTANCE.errorDeclaration)
         ]
     }
 

@@ -104,7 +104,7 @@ class EntityMemberDeclarationTests {
             }
 
         '''.parse => [
-            assertInheritedMemberNameLengthError("Member name: 'tgvkyzidsggsdxxrszoscrljgnnixjzkyztoxpdvvqbmlrpzaakkwcczsarbqrqjnphrlfkfcjgcmgbxdexakswitdmcfjyjblkmiknvdgtyxlunkolxzaneifhyizgureqemldvypsongytiwmfaqrnxuodiunflyduwzerdossywvzgkmvdbfvpumaqzdazqomqwoaqynrixrwirmtbqmihmwkjmdaulwnfoxcmzldaxyjnihbluepwdswz' is too long, must be at most 128 characters", JsldslPackage::eINSTANCE.entityMemberDeclaration)
+            assertInheritedMemberNameLengthError("Member name: 'tgvkyzidsggsdxxrszoscrljgnnixjzkyztoxpdvvqbmlrpzaakkwcczsarbqrqjnphrlfkfcjgcmgbxdexakswitdmcfjyjblkmiknvdgtyxlunkolxzaneifhyizgureqemldvypsongytiwmfaqrnxuodiunflyduwzerdossywvzgkmvdbfvpumaqzdazqomqwoaqynrixrwirmtbqmihmwkjmdaulwnfoxcmzldaxyjnihbluepwdswz' is too long, it must be 128 characters at most.", JsldslPackage::eINSTANCE.entityMemberDeclaration)
         ]
     }
 
