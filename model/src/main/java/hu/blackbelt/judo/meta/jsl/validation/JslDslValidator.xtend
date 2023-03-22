@@ -81,7 +81,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferConstructorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Guard
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferField
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget
 
 /**
@@ -162,7 +161,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 					desc.EObjectOrProxy != modelDeclaration && 
 					desc.EObjectURI.trimFragment != modelDeclaration.eResource.URI) {
 				error(
-					"The model '" + modelDeclaration.name + "' is already defined",
+					"The model '" + modelDeclaration.name + "' is already defined.",
 					JsldslPackage::eINSTANCE.modelDeclaration_Name,
 					HIERARCHY_CYCLE,
 					modelDeclaration.name
@@ -308,7 +307,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     	if (field.defaultExpression !== null) {
 			if (!this.isStaticExpression(field.defaultExpression)) {
 				error(
-					"Self is not allowed in default expression",
+					"Self is not allowed in default expression.",
 					JsldslPackage::eINSTANCE.entityFieldDeclaration_DefaultExpression,
 					SELF_NOT_ALLOWED,
 					field.name
@@ -323,7 +322,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     	if (parameter.^default !== null) {
 			if (!this.isStaticExpression(parameter.^default)) {
 				error(
-					"Self is not allowed in parameter default expression",
+					"Self is not allowed in parameter default expression.",
 					JsldslPackage::eINSTANCE.queryParameterDeclaration_Default,
 					SELF_NOT_ALLOWED,
 					parameter.name
@@ -337,7 +336,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkInvalidFunctionDeclaration(FunctionDeclaration functionDeclaration) {
 		val ModelDeclaration modelDeclaration = functionDeclaration.eContainer as ModelDeclaration
 		if (!modelDeclaration.fullyQualifiedName.equals("judo::functions")) {
-			error("Invalid function declaration '" + functionDeclaration.name + "'",
+			error("Invalid function declaration '" + functionDeclaration.name + "'. Function declaration is currently only allowed in the judo::functions model.",
 				JsldslPackage::eINSTANCE.named_Name,
 				INVALID_DECLARATION,
 				functionDeclaration.name)
@@ -348,7 +347,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkInvalidLambdaDeclaration(LambdaDeclaration lambdaDeclaration) {
 		val ModelDeclaration modelDeclaration = lambdaDeclaration.eContainer as ModelDeclaration
 		if (!modelDeclaration.fullyQualifiedName.equals("judo::functions")) {
-			error("Invalid lambda declaration '" + lambdaDeclaration.name + "'",
+			error("Invalid lambda declaration '" + lambdaDeclaration.name + "'. Lambda declaration is currently only allowed in the judo::functions model.",
 				JsldslPackage::eINSTANCE.named_Name,
 				INVALID_DECLARATION,
 				lambdaDeclaration.name)
@@ -359,14 +358,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkImportAlias(ModelImportDeclaration modelImport) {
 		if (modelImport.alias !== null) {
 			if ((modelImport.eContainer as ModelDeclaration).imports.filter[i | i.model.name.toLowerCase.equals(modelImport.alias.toLowerCase)].size > 0) {
-				error("Alias name collision '" + modelImport.alias + "'",
+				error("Import alias name collision '" + modelImport.alias + "'",
 					JsldslPackage::eINSTANCE.modelImportDeclaration_Alias,
 					IMPORT_ALIAS_COLLISION,
 					modelImport.alias)
 			}
 	
 			if ((modelImport.eContainer as ModelDeclaration).imports.filter[i | i.alias !== null && i.alias.toLowerCase.equals(modelImport.alias.toLowerCase)].size > 1) {
-				error("Alias name collision '" + modelImport.alias + "'",
+				error("Import alias name collision '" + modelImport.alias + "'",
 					JsldslPackage::eINSTANCE.modelImportDeclaration_Alias,
 					IMPORT_ALIAS_COLLISION,
 					modelImport.alias)
@@ -387,8 +386,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 
 		if (modelImport.model.name.toQualifiedName.equals(modelImport.eContainer().fullyQualifiedName)) {
-			//System.out.println("==== ERROR: " + modelImport.importedNamespace)
-			error("Cycle in hierarchy of model '" + modelImport.model.name + "'",
+			error("Cycle in model import '" + modelImport.model.name + "'",
 				JsldslPackage::eINSTANCE.modelImportDeclaration_Model,
 				HIERARCHY_CYCLE,
 				modelImport.model.name)
@@ -414,16 +412,16 @@ class JslDslValidator extends AbstractJslDslValidator {
 			val TypeInfo declarationTypeInfo = TypeInfo.getTargetType(argument.declaration);
 
 			if (!declarationTypeInfo.isCompatible(exprTypeInfo)) {
-				error("Type mismatch",
+				error("Type mismatch. Incompatible query argument at '" + argument.declaration.name + "'.",
 	                JsldslPackage::eINSTANCE.queryArgument_Expression,
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.queryArgument.name)
 			}
 
 			if (!this.isStaticExpression(argument.expression)) {
-				error("Self is not allowed in query argument expression",
+				error("Self is not allowed in query argument expression at '" + argument.declaration.name + "'.",
 	                JsldslPackage::eINSTANCE.queryArgument_Expression,
-	                TYPE_MISMATCH,
+	                INVALID_SELF_VARIABLE,
 	                JsldslPackage::eINSTANCE.queryArgument.name)
 			}
 
@@ -431,9 +429,9 @@ class JslDslValidator extends AbstractJslDslValidator {
 				filter(NavigationBaseDeclarationReference).
 				map[r | r.reference].filter(LambdaVariable).size > 0)
 			{
-				error("Lambda variable is not allowed in query argument expression",
+				error("Lambda variable is not allowed in query argument expression at '" + argument.declaration.name + "'.",
 	                JsldslPackage::eINSTANCE.queryArgument_Expression,
-	                TYPE_MISMATCH,
+	                INVALID_LAMBDA_EXPRESSION,
 	                JsldslPackage::eINSTANCE.queryArgument.name)
 			}
 		}
@@ -496,14 +494,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 			val TypeInfo declarationTypeInfo = TypeInfo.getTargetType(argument.declaration.description);
 
 			if (!declarationTypeInfo.isBaseCompatible(exprTypeInfo)) {
-				error("Type mismatch",
+				error("Type mismatch. Incompatible function argument at '" + argument.declaration.name + "'.",
 	                JsldslPackage::eINSTANCE.functionArgument_Expression,
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.functionArgument.name)
 			}
 
 			if (declarationTypeInfo.constant && !exprTypeInfo.constant) {
-				error("Right value must be constant",
+				error("Function argument must be constant at '" + argument.declaration.name + "'.",
 	                JsldslPackage::eINSTANCE.functionArgument_Expression,
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.functionArgument.name)
@@ -543,7 +541,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			val lambdaExpressionTypeInfo = TypeInfo.getTargetType(lambdaCall.lambdaExpression)
 			
 			if (lambdaCall.declaration.expressionType === null && !lambdaExpressionTypeInfo.orderable) {
-				error("Lambda expression must be orderable",
+				error("Lambda expression must be orderable.",
 	                JsldslPackage::eINSTANCE.lambdaCall_LambdaExpression,
 	                INVALID_LAMBDA_EXPRESSION,
 	                JsldslPackage::eINSTANCE.lambdaCall.name)
@@ -551,7 +549,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			
 			if (lambdaCall.declaration.expressionType !== null) {
 				if (!TypeInfo.getTargetType(lambdaCall.declaration.expressionType).isCompatible(lambdaExpressionTypeInfo)) {
-					error("Lambda expression type mismatch",
+					error("Lambda expression type mismatch.",
 		                JsldslPackage::eINSTANCE.lambdaCall_LambdaExpression,
 		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.lambdaCall.name)
@@ -560,7 +558,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			
 			if (!isStaticExpression(lambdaCall.lambdaExpression)) {
 				error(
-					"Self is not allowed in lambda expression",
+					"Self is not allowed in lambda expression.",
 					JsldslPackage::eINSTANCE.lambdaCall_LambdaExpression,
 					SELF_NOT_ALLOWED,
 					JsldslPackage::eINSTANCE.lambdaCall.name
@@ -579,7 +577,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 				val TypeInfo literalTypeInfo = TypeInfo.getTargetType(argument.literal);
 
 				if (!declarationTypeInfo.isCompatible(literalTypeInfo)) {
-					error("Type mismatch",
+					error("Non-literal at annotation argument '" + argument.declaration.name + "'. Only literals are allowed in annotation argument.",
 		                JsldslPackage::eINSTANCE.annotationArgument_Literal,
 		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.annotationArgument.name)
@@ -590,7 +588,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 				val TypeInfo referenceTypeInfo = TypeInfo.getTargetType(argument.reference.referenceType);
 
 				if (!declarationTypeInfo.isCompatible(referenceTypeInfo)) {
-					error("Type mismatch",
+					error("Type mismatch at annotation argument '" + argument.declaration.name + "'",
 		                JsldslPackage::eINSTANCE.annotationArgument_Reference,
 		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.annotationArgument.name)
@@ -662,7 +660,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 		
 		if (error) {
-			error("Annotation is not applicable",
+			error("Annotation @" + mark.declaration.name +" is not applicable on " + String.join(" ", mark.eContainer.eClass.name.split("(?=\\p{Upper})")).toLowerCase + ".",
 				JsldslPackage::eINSTANCE.annotationMark_Declaration,
 				INVALID_ANNOTATION)
 		}
@@ -676,7 +674,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		if (relation.opposite?.oppositeType !== null) {
 			// System.out.println(" -- " + relation + " --- " + relation.opposite?.oppositeType?.opposite?.oppositeType)
 			if (relation !== relation.opposite?.oppositeType?.opposite?.oppositeType) {
-				error("The opposite relation's opposite relation does not match '" + relation.opposite.oppositeType.name + "'",
+				error("The relation's opposite does not match '" + relation.opposite.oppositeType.name + "'.",
 					JsldslPackage::eINSTANCE.entityRelationDeclaration_Opposite,
 					OPPOSITE_TYPE_MISMATH,
 					relation.name)
@@ -689,7 +687,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			val relationReferencedBack = selectableRelatations.filter[r | r.opposite !== null && r.opposite.oppositeType === relation].toList
 			// System.out.println(" -- " + relation + " --- Referenced back: " + relationReferencedBack.map[r | r.eContainer.fullyQualifiedName + "#" + r.name].join(", "))
 			if (!relationReferencedBack.empty) {
-				error("The relation does not reference to a relation, while  the following relations referencing this relation as opposite: " + 
+				error("The relation does not declare an opposite relation, but the following relations refer to this relation as opposite: " + 
 					relationReferencedBack.map[r | "'" + r.eContainer.fullyQualifiedName.toString("::") + "#" + r.name + "'"].join(", "),
 					JsldslPackage::eINSTANCE.entityRelationDeclaration_Opposite,
 					OPPOSITE_TYPE_MISMATH,
@@ -703,7 +701,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		// System.out.println(" -- " + relation + " --- Referenced back: " + relationReferencedBack.map[r | r.eContainer.fullyQualifiedName + "#" + r.name].join(", "))
 
 		if (entity.superEntityTypes.contains(entity)) {
-			error("Cycle in inheritence of entity '" + entity.name + "'",
+			error("Cycle in the inheritance tree of entity '" + entity.name + "'.",
 				JsldslPackage::eINSTANCE.named_Name,
 				INHERITENCE_CYCLE,
 				entity.name)			
@@ -723,7 +721,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Check
 	def checkEntityMemberDeclarationLength(EntityMemberDeclaration member) {
 		if (member instanceof Named && member.name.length > MEMBER_NAME_LENGTH_MAX) {
-			error("Member name: '" + member.name + "' is too long, must be at most " + MEMBER_NAME_LENGTH_MAX + " characters",
+			error("Member name: '" + member.name + "' is too long, it must be " + MEMBER_NAME_LENGTH_MAX + " characters at most.",
 				member.nameAttribute,
 				MEMBER_NAME_TOO_LONG,
 				member.name)
@@ -735,7 +733,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		if (opposite.name !== null && !opposite.name.blank) {
 			val relation = opposite.eContainer as EntityRelationDeclaration
 			if (relation.referenceType.getMemberNames.contains(opposite.name)) {
-				error("Duplicate name: '" + opposite.name + "'",
+				error("Duplicate member name at the opposite side of '" + relation.name + "':'" + opposite.name + "'",
 					opposite.nameAttribute,
 					DUPLICATE_MEMBER_NAME,
 					opposite.name)			
@@ -761,7 +759,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Check
 	def checkForDuplicateNameForQueryParameters(QueryParameterDeclaration parameter) {
 		if (parameter.eContainer.eContents.filter[c | c.name.toLowerCase.equals(parameter.name.toLowerCase)].size > 1) {
-			error("Duplicate declaration: '" + parameter.name + "'",
+			error("Duplicate declaration of parameter: '" + parameter.name + "'",
 				parameter.nameAttribute,
 				DUPLICATE_DECLARATION_NAME,
 				parameter.name)
@@ -771,7 +769,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Check
 	def checkForDuplicateNameForAnnotationParameters(AnnotationParameterDeclaration parameter) {
 		if (parameter.eContainer.eContents.filter[c | c.name.toLowerCase.equals(parameter.name.toLowerCase)].size > 1) {
-			error("Duplicate declaration: '" + parameter.name + "'",
+			error("Duplicate declaration of parameter: '" + parameter.name + "'",
 				parameter.nameAttribute,
 				DUPLICATE_DECLARATION_NAME,
 				parameter.name)
@@ -784,7 +782,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		if (declaration instanceof LambdaDeclaration) return;
 		
 		if ((declaration.eContainer as ModelDeclaration).getDeclarationNames(declaration).map[n | n.toLowerCase].contains(declaration.name.toLowerCase)) {
-			error("Duplicate declaration: '" + declaration.name + "'",
+			error("Duplicate declaration name: '" + declaration.name + "'",
 				declaration.nameAttribute,
 				DUPLICATE_DECLARATION_NAME,
 				declaration.name)
@@ -794,7 +792,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Check
 	def checkMimeType(MimeType mimeType) {
 		if (!Pattern.matches("^([a-zA-Z0-9]+([\\._+-][a-zA-Z0-9]+)*)/(\\*|([a-zA-Z0-9]+([\\._+-][a-zA-Z0-9]+)*))$", mimeType.value.stringLiteralValue)) { 
-			error("Invalid mime type",
+			error("Invalid mime type.",
 				JsldslPackage::eINSTANCE.mimeType_Value,
 				INVALID_MIMETYPE,
 				mimeType.value.stringLiteralValue
@@ -895,13 +893,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 			.filter[n, l | l.size > 1]
 			
 		if (collidingNames.size > 0 && collidingNames.keySet.contains(literal.name.toLowerCase)) {
-			error("Enumeration Literal name collision for: " + collidingNames.mapValues[l | l.map[v | "'" + v.fullyQualifiedName + "'"].join(", ")].values.join(", "),
+			error("Duplicate literal name: '" + literal.name + "'.",
 				JsldslPackage::eINSTANCE.named_Name,
 				ENUM_LITERAL_NAME_COLLISION,
 				literal.name)
 		}
 		if (collidingOrdinals.size > 0 && collidingOrdinals.keySet.contains(literal.value)) {
-			error("Enumeration Literal ordinal collision for: " + collidingOrdinals.mapValues[l | l.map[v | "'" + v.fullyQualifiedName + "': '" + v.value + "'"].join(", ")].values.join(", "),
+			error("Duplicate ordinal: " + literal.value + ".",
 				JsldslPackage::eINSTANCE.enumLiteral_Value,
 				ENUM_LITERAL_ORDINAL_COLLISION,
 				literal.name)
@@ -913,7 +911,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		if (member instanceof EntityFieldDeclaration) {
 			val field = member
 			if (field.isIsMany && field.isIsRequired) {
-				error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'",
+				error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'.",
                     JsldslPackage::eINSTANCE.entityFieldDeclaration_IsRequired,
                     USING_REQUIRED_WITH_IS_MANY,
                     JsldslPackage::eINSTANCE.entityFieldDeclaration.name)
@@ -921,7 +919,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		} else if (member instanceof EntityRelationDeclaration) {
 			val relation = member
 			if (relation.isIsMany && relation.isIsRequired) {
-				error("Collection typed relation: '" + relation.name + "' cannot have keyword: 'required'",
+				error("Collection typed relation: '" + relation.name + "' cannot have keyword: 'required'.",
                     JsldslPackage::eINSTANCE.entityRelationDeclaration_IsRequired,
                     USING_REQUIRED_WITH_IS_MANY,
                     JsldslPackage::eINSTANCE.entityRelationDeclaration.name)
@@ -937,12 +935,12 @@ class JslDslValidator extends AbstractJslDslValidator {
 			val TypeInfo elseTypeInfo = TypeInfo.getTargetType(it.elseExpression)
 	
 			if (!conditionTypeInfo.isBoolean()) {
-				error("Ternary condition must be boolean type",
+				error("Ternary condition must be boolean type.",
 	                JsldslPackage::eINSTANCE.ternaryOperation_Condition,
 	                TYPE_MISMATCH)
 			}	
 			if (!elseTypeInfo.isCompatible(thenTypeInfo)) {
-				error("'else' branch must be compatible with 'then' branch",
+				error("'else' branch must be compatible type with 'then' branch.",
 	                JsldslPackage::eINSTANCE.ternaryOperation_ThenExpression,
 	                TYPE_MISMATCH)
 			}
@@ -955,7 +953,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkUnaryOperation(UnaryOperation it) {
 		try {
 			if (!TypeInfo.getTargetType(it).isBoolean()) {
-				error("Operand must be binary type",
+				error("Operand of negation must be boolean type.",
 	                JsldslPackage::eINSTANCE.unaryOperation_Operand,
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.unaryOperation_Operator.name)
@@ -972,13 +970,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 			val TypeInfo rightTypeInfo = TypeInfo.getTargetType(it.rightOperand)
 	
 			if (leftTypeInfo.binary) {
-				error("Left operand cannot be binary type",
+				error("Left operand of '" + it.getOperator() + "' cannot be binary type.",
 	                JsldslPackage::eINSTANCE.binaryOperation_LeftOperand,
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 			}
 			if (rightTypeInfo.binary) {
-				error("Right operand cannot be binary type",
+				error("Right operand of '" + it.getOperator() + "' cannot be binary type.",
 	                JsldslPackage::eINSTANCE.binaryOperation_RightOperand,
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
@@ -986,52 +984,52 @@ class JslDslValidator extends AbstractJslDslValidator {
 	
 			if (Arrays.asList("!=","==",">=","<=",">","<").contains(it.getOperator())) {
 				if (leftTypeInfo.collection) {
-					error("Left operand cannot be collection",
+					error("Left operand of '" + it.getOperator() + "' cannot be collection.",
 		                JsldslPackage::eINSTANCE.binaryOperation_LeftOperand,
 		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 				}
 				if (rightTypeInfo.collection) {
-					error("Right operand cannot be collection",
+					error("Right operand of '" + it.getOperator() + "' cannot be collection.",
 		                JsldslPackage::eINSTANCE.binaryOperation_RightOperand,
 		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 				}
 			} else if ("+".equals(it.getOperator())) {
 				if (!leftTypeInfo.numeric && !leftTypeInfo.string) {
-					error("Left operand must be numeric or string type",
+					error("Left operand of '" + it.getOperator() + "' must be numeric or string type.",
 		                JsldslPackage::eINSTANCE.binaryOperation_LeftOperand,
 		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 				}
 				if (!rightTypeInfo.numeric && !rightTypeInfo.string) {
-					error("Right operand must be numeric or string type",
+					error("Right operand of '" + it.getOperator() + "' must be numeric or string type.",
 		                JsldslPackage::eINSTANCE.binaryOperation_RightOperand,
 		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 				}	
 			} else if (Arrays.asList("^", "-", "*", "/", "mod", "div").contains(it.getOperator())) {
 				if (!leftTypeInfo.numeric) {
-					error("Left operand must be numeric type",
+					error("Left operand of '" + it.getOperator() + "' must be numeric type",
 		                JsldslPackage::eINSTANCE.binaryOperation_LeftOperand,
 		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 				}
 				if (!rightTypeInfo.numeric) {
-					error("Right operand must be numeric type",
+					error("Right operand of '" + it.getOperator() + "' must be numeric type",
 		                JsldslPackage::eINSTANCE.binaryOperation_RightOperand,
 		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 				}	
 			} else if (Arrays.asList("implies","or","xor","and").contains(it.getOperator())) {
 				if (!leftTypeInfo.isBoolean()) {
-					error("Left operand must be boolean type",
+					error("Left operand of '" + it.getOperator() + "' must be boolean type.",
 		                JsldslPackage::eINSTANCE.binaryOperation_LeftOperand,
 		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
 				}
 				if (!rightTypeInfo.isBoolean()) {
-					error("Right operand must be boolean type",
+					error("Right operand of '" + it.getOperator() + "' must be boolean type.",
 		                JsldslPackage::eINSTANCE.binaryOperation_RightOperand,
 		                TYPE_MISMATCH,
 		                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
@@ -1039,7 +1037,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 			
 			if (!leftTypeInfo.isCompatible(rightTypeInfo)) {
-				error("Left and right operand type mismatch",
+				error("Left and right operand type mismatch at '" + it.getOperator() + "'.",
 	                JsldslPackage::eINSTANCE.binaryOperation_Operator,
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.binaryOperation_Operator.name)
@@ -1067,7 +1065,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	    	if (transferDefault.rightValue !== null) {
 	    		if (!this.isStaticExpression(transferDefault.rightValue)) {
 					error(
-						"Expression must be static.",
+						"Default value expression must be static, it cannot contain mapping field.",
 						JsldslPackage::eINSTANCE.transferDefault_RightValue,
 						NON_STATIC_EXPRESSION
 					)
@@ -1076,7 +1074,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	    	}
 
 			if (!TypeInfo.getTargetType(transferDefault.field.reference).isCompatible(TypeInfo.getTargetType(transferDefault.rightValue))) {
-				error("Default value does not match field type",
+				error("Type mismatch. Default value does not match field type.",
 	                JsldslPackage::eINSTANCE.transferDefault_RightValue,
 	                TYPE_MISMATCH)
 			}
@@ -1089,25 +1087,25 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkTransferField(TransferFieldDeclaration field) {
 		try {
 			if (field.maps !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.maps))) {
-				error("Mapping expression value does not match field type",
+				error("Type mismatch. Mapping expression value does not match field type.",
 	                JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
 	                TYPE_MISMATCH)
 			}
 
 			if (field.reads !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.reads))) {
-				error("Read expression value does not match field type",
+				error("Type mismatch. Read expression value does not match field type.",
 	                JsldslPackage::eINSTANCE.transferFieldDeclaration_Reads,
 	                TYPE_MISMATCH)
 			}
 
 			if (field.isIsMany && !(field.referenceType instanceof TransferDeclaration)) {
-				error("Invalid collection of primitive type",
+				error("Invalid collection of primitives.",
 	                JsldslPackage::eINSTANCE.transferFieldDeclaration_ReferenceType,
 	                INVALID_COLLECTION)
 			}
 
 			if (field.isIsMany && field.isRequired) {
-				error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'",
+				error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'.",
                     JsldslPackage::eINSTANCE.transferFieldDeclaration_Required,
                     USING_REQUIRED_WITH_IS_MANY,
                     JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
@@ -1121,13 +1119,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkEntityField(EntityFieldDeclaration field) {
 		try {
 			if (field.defaultExpression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.defaultExpression))) {
-				error("Default value does not match field type",
+				error("Type mismatch. Default value expression does not match field type.",
 	                JsldslPackage::eINSTANCE.entityFieldDeclaration_DefaultExpression,
 	                TYPE_MISMATCH)
 			}
 			
 			if (field.isIsMany && !(field.referenceType instanceof EntityDeclaration)) {
-				error("Invalid collection of primitive type",
+				error("Invalid collection of primitives.",
 	                JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType,
 	                INVALID_COLLECTION)
 			}
@@ -1140,7 +1138,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkEntityIdentifier(EntityIdentifierDeclaration field) {
 		try {
 			if (field.defaultExpression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.defaultExpression))) {
-				error("Type mismatch",
+				error("Type mismatch. Default value expression does not match identifier field type.",
 	                JsldslPackage::eINSTANCE.entityIdentifierDeclaration_DefaultExpression,
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
@@ -1154,14 +1152,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkEntityDerived(EntityDerivedDeclaration derived) {
 		try {
 			if (derived.expression !== null && !TypeInfo.getTargetType(derived).isCompatible(TypeInfo.getTargetType(derived.expression))) {
-				error("Type mismatch",
+				error("Type mismatch. Derived value expression does not match derived field type.",
 	                JsldslPackage::eINSTANCE.entityDerivedDeclaration_Expression,
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
 			}
 
 			if (derived.isIsMany && !(derived.referenceType instanceof EntityDeclaration)) {
-				error("Invalid collection of primitive type",
+				error("Invalid collection of primitives.",
 	                JsldslPackage::eINSTANCE.entityDerivedDeclaration_ReferenceType,
 	                INVALID_COLLECTION)
 			}
@@ -1174,14 +1172,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkEntityQuery(EntityQueryDeclaration query) {
 		try {
 			if (query.expression !== null && !TypeInfo.getTargetType(query).isCompatible(TypeInfo.getTargetType(query.expression))) {
-				error("Type mismatch",
+				error("Type mismatch. Query expression does not match query type.",
 	                JsldslPackage::eINSTANCE.entityQueryDeclaration_Expression,
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
 			}
 
 			if (query.isIsMany && !(query.referenceType instanceof EntityDeclaration)) {
-				error("Invalid collection of primitive type",
+				error("Invalid collection of primitives.",
 	                JsldslPackage::eINSTANCE.entityQueryDeclaration_ReferenceType,
 	                INVALID_COLLECTION)
 			}
@@ -1195,14 +1193,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkQuery(QueryDeclaration query) {
 		try {
 			if (query.expression !== null && !TypeInfo.getTargetType(query).isCompatible(TypeInfo.getTargetType(query.expression))) {
-				error("Type mismatch",
+				error("Type mismatch. Query expression does not match query type.",
 	                JsldslPackage::eINSTANCE.queryDeclaration_Expression,
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.queryDeclaration.name)
 			}
 
 			if (query.isIsMany && !(query.referenceType instanceof EntityDeclaration)) {
-				error("Invalid collection of primitive type",
+				error("Invalid collection of primitives.",
 	                JsldslPackage::eINSTANCE.queryDeclaration_ReferenceType,
 	                INVALID_COLLECTION)
 			}
@@ -1215,7 +1213,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkEntityOperationReturn(EntityOperationReturnDeclaration ret) {
 		try {
 			if (ret.isIsMany && !(ret.referenceType instanceof EntityDeclaration)) {
-				error("Invalid collection of primitive type",
+				error("Invalid collection of primitives.",
 	                JsldslPackage::eINSTANCE.entityOperationReturnDeclaration_ReferenceType,
 	                INVALID_COLLECTION)
 			}
@@ -1228,7 +1226,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkEntityOperationParameter(EntityOperationParameterDeclaration parameter) {
 		try {
 			if (parameter.isIsMany && !(parameter.referenceType instanceof EntityDeclaration)) {
-				error("Invalid collection of primitive type",
+				error("Invalid collection of primitives.",
 	                JsldslPackage::eINSTANCE.entityOperationParameterDeclaration_ReferenceType,
 	                INVALID_COLLECTION)
 			}
@@ -1242,14 +1240,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 		val TransferDeclaration transfer = member.eContainer as TransferDeclaration
 		
 		if (transfer.map !== null && member.name.toLowerCase.equals(transfer.map.name.toLowerCase)) {
-			error("Member declaration name conflicts with mapping field name: '" + member.name + "'",
+			error("Member declaration name conflicts with mapping field name: '" + member.name + "'.",
 				member.nameAttribute,
 				DUPLICATE_MEMBER_NAME,
 				member.name)
 		}
 		
 		if (member instanceof Named && transfer.members.filter[m | m instanceof Named && m.name.toLowerCase.equals(member.name.toLowerCase)].size > 1) {
-			error("Duplicate member declaration: '" + member.name + "'",
+			error("Duplicate member declaration: '" + member.name + "'.",
 				member.nameAttribute,
 				DUPLICATE_MEMBER_NAME,
 				member.name)
@@ -1270,7 +1268,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 				val name = tmp;
 				
 				if (transfer.exports.flatMap[export | export.members].filter[m | m.name.toLowerCase.equals(name.toLowerCase)].size > 1) {
-					error("Duplicate service function declaration: '" + member.name + "'",
+					error("Duplicate service function declaration: '" + member.name + "'.",
 						member.nameAttribute,
 						DUPLICATE_MEMBER_NAME,
 						member.name)
@@ -1293,7 +1291,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 				val name = tmp;
 				
 				if (actor.exports.flatMap[export | export.members].filter[m | m.name.toLowerCase.equals(name.toLowerCase)].size > 1) {
-					error("Duplicate service function declaration: '" + member.name + "'",
+					error("Duplicate exported service function: '" + member.name + "'.",
 						member.nameAttribute,
 						DUPLICATE_MEMBER_NAME,
 						member.name)
@@ -1307,14 +1305,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 		val ServiceDeclaration service = member.eContainer as ServiceDeclaration
 
 		if (service.map !== null && member.name.toLowerCase.equals(service.map.name.toLowerCase)) {
-			error("Member declaration name conflicts with mapping field name: '" + member.name + "'",
+			error("Member declaration name conflicts with mapping field name: '" + member.name + "'.",
 				member.nameAttribute,
 				DUPLICATE_MEMBER_NAME,
 				member.name)
 		}
 		
 		if (member instanceof Named && service.members.filter[m | m instanceof Named && m.name.toLowerCase.equals(member.name.toLowerCase)].size > 1) {
-			error("Duplicate member declaration: '" + member.name + "'",
+			error("Duplicate member declaration: '" + member.name + "'.",
 				member.nameAttribute,
 				DUPLICATE_MEMBER_NAME,
 				member.name)
@@ -1325,7 +1323,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkServiceData(ServiceDataDeclaration data) {
 		try {
 			if (data.expression !== null && !TypeInfo.getTargetType(data).isCompatible(TypeInfo.getTargetType(data.expression))) {
-				error("Type mismatch",
+				error("Type mismatch. Data service expression does not match data service return type.",
 	                JsldslPackage::eINSTANCE.serviceDataDeclaration_Expression,
 	                TYPE_MISMATCH,
 	                JsldslPackage::eINSTANCE.serviceDataDeclaration.name)
@@ -1346,7 +1344,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Check
 	def checkGuard(Guard guard) {
 		if (guard.expression !== null && !TypeInfo.getTargetType(guard.expression).isBoolean) {
-			error("Type mismatch. Guard expression must have boolean return value.",
+			error("Guard expression must have boolean return value.",
                 JsldslPackage::eINSTANCE.guard_Expression,
                 TYPE_MISMATCH,
                 JsldslPackage::eINSTANCE.guard.name)
@@ -1369,7 +1367,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 		
 		if (transfer.parentContainer(ModelDeclaration).fromModel.transfers.filter[t | t.automap && transfer.map.entity.isEqual(t.map?.entity)].size > 1){
-			error("Duplicate transfer automap.",
+			error("Duplicate transfer automap: more than one automapped transfer objects for the same entity type.",
                 JsldslPackage::eINSTANCE.transferDeclaration_Automap,
                 DUPLICATE_AUTOMAP,
                 JsldslPackage::eINSTANCE.transferDeclaration.name)
@@ -1396,7 +1394,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 				if (transfer.map === null ||
 					!TypeInfo.getTargetType(transfer.map.entity).isCompatible(TypeInfo.getTargetType(service.map.entity)))
 				{
-					error("Incompatible export:" + service.name,
+					error("Incompatible export:'" + service.name + "'. Service must be mapped to the same entity type as transfer object.",
 			            JsldslPackage::eINSTANCE.named_Name,
 			            INCOMPAIBLE_EXPORT,
 			            JsldslPackage::eINSTANCE.named_Name.name)
@@ -1412,7 +1410,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 				if (actor.map === null ||
 					!TypeInfo.getTargetType(actor.map.entity).isCompatible(TypeInfo.getTargetType(service.map.entity)))
 				{
-					error("Incompatible export:" + service.name,
+					error("Incompatible export:'" + service.name + "'. Service must be mapped to the same entity type as actor.",
 			            JsldslPackage::eINSTANCE.named_Name,
 			            INCOMPAIBLE_EXPORT,
 			            JsldslPackage::eINSTANCE.named_Name.name)
@@ -1474,7 +1472,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 
 		if (!(field.maps instanceof Navigation)) {
-			error("Invalid field mapping.",
+			error("Invalid field mapping. Field mapping must be a navigation.",
                 JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
                 INVALID_FIELD_MAPPING,
                 JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
@@ -1485,7 +1483,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		val Navigation navigation = field.maps as Navigation;
 
 		if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
-			error("Invalid field mapping.",
+			error("Invalid field mapping. Field mapping must be a navigation.",
                 JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
                 INVALID_FIELD_MAPPING,
                 JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
@@ -1496,7 +1494,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		val NavigationBaseDeclarationReference navigationBaseDeclarationReference = navigation.base as NavigationBaseDeclarationReference;
 		
 		if (!(navigationBaseDeclarationReference.reference instanceof EntityMapDeclaration)) {
-			error("Invalid field mapping.",
+			error("Invalid field mapping. Field mapping must be a navigation starting from the mapping field.",
                 JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
                 INVALID_FIELD_MAPPING,
                 JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
@@ -1505,7 +1503,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 		
 		if (navigation.features.size() != 1) {
-			error("Invalid field mapping.",
+			error("Invalid field mapping. Field mapping must select a member of the mapped entity.",
                 JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
                 INVALID_FIELD_MAPPING,
                 JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
@@ -1514,7 +1512,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 
 		if (!(navigation.features.get(0) instanceof MemberReference)) {
-			error("Invalid field mapping.",
+			error("Invalid field mapping. Field mapping must select a member of the mapped entity.",
                 JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
                 INVALID_FIELD_MAPPING,
                 JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
@@ -1529,7 +1527,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			!(memberReference.member instanceof EntityRelationDeclaration) &&
 			!(memberReference.member instanceof EntityRelationOppositeInjected))
 		{
-			error("Invalid field mapping.",
+			error("Invalid field mapping. Field mapping must select a member of the mapped entity.",
                 JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
                 INVALID_FIELD_MAPPING,
                 JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
@@ -1804,7 +1802,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 
 		if (!(actor.identity instanceof Navigation)) {
-			error("Invalid actor identity.",
+			error("Invalid actor identity. Identity must be mapped to an identifier of the mapped entity type.",
                 JsldslPackage::eINSTANCE.actorDeclaration_Identity,
                 INVALID_IDENTITY_MAPPING,
                 JsldslPackage::eINSTANCE.actorDeclaration.name)
@@ -1815,7 +1813,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		val Navigation navigation = actor.identity as Navigation;
 
 		if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
-			error("Invalid actor identity.",
+			error("Invalid actor identity. Identity must be mapped to an identifier of the mapped entity type.",
                 JsldslPackage::eINSTANCE.actorDeclaration_Identity,
                 INVALID_IDENTITY_MAPPING,
                 JsldslPackage::eINSTANCE.actorDeclaration.name)
@@ -1826,7 +1824,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		val NavigationBaseDeclarationReference navigationBaseDeclarationReference = navigation.base as NavigationBaseDeclarationReference;
 		
 		if (!(navigationBaseDeclarationReference.reference instanceof EntityMapDeclaration)) {
-			error("Invalid actor identity.",
+			error("Invalid actor identity. Identity must be mapped to an identifier of the mapped entity type.",
                 JsldslPackage::eINSTANCE.actorDeclaration_Identity,
                 INVALID_IDENTITY_MAPPING,
                 JsldslPackage::eINSTANCE.actorDeclaration.name)
@@ -1835,7 +1833,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 		
 		if (navigation.features.size() != 1) {
-			error("Invalid actor identity.",
+			error("Invalid actor identity. Identity must be mapped to an identifier of the mapped entity type.",
                 JsldslPackage::eINSTANCE.actorDeclaration_Identity,
                 INVALID_IDENTITY_MAPPING,
                 JsldslPackage::eINSTANCE.actorDeclaration.name)
@@ -1844,7 +1842,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 
 		if (!(navigation.features.get(0) instanceof MemberReference)) {
-			error("Invalid actor identity.",
+			error("Invalid actor identity. Identity must be mapped to an identifier of the mapped entity type.",
                 JsldslPackage::eINSTANCE.actorDeclaration_Identity,
                 INVALID_IDENTITY_MAPPING,
                 JsldslPackage::eINSTANCE.actorDeclaration.name)
@@ -1855,7 +1853,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		val MemberReference memberReference = navigation.features.get(0) as MemberReference;
 		
 		if (!(memberReference.member instanceof EntityIdentifierDeclaration)) {
-			error("Invalid actor identity. Identity must be an identifier in the mapped entity.",
+			error("Invalid actor identity. Identity must be mapped to an identifier of the mapped entity type.",
                 JsldslPackage::eINSTANCE.actorDeclaration_Identity,
                 INVALID_IDENTITY_MAPPING,
                 JsldslPackage::eINSTANCE.actorDeclaration.name)

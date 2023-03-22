@@ -36,7 +36,7 @@ class CyclicInheritenceTests {
             }
 
         '''.parse => [
-            assertInheritenceCycleError("Cycle in inheritence of entity 'A'")
+            assertInheritenceCycleError("Cycle in the inheritance tree of entity 'A'.")
         ]
     }
 
@@ -63,9 +63,9 @@ class CyclicInheritenceTests {
             }
 
         '''.parse => [
-            assertInheritenceCycleError("Cycle in inheritence of entity 'A'")
-            assertInheritenceCycleError("Cycle in inheritence of entity 'B'")
-            assertInheritenceCycleError("Cycle in inheritence of entity 'C'")
+            assertInheritenceCycleError("Cycle in the inheritance tree of entity 'A'.")
+            assertInheritenceCycleError("Cycle in the inheritance tree of entity 'B'.")
+            assertInheritenceCycleError("Cycle in the inheritance tree of entity 'C'.")
         ]
     }
 
