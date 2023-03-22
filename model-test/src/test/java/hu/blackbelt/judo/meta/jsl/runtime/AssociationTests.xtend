@@ -95,11 +95,11 @@ class AssociationTests {
 
         '''.parse => [
             assertOppositeMismatchError(
-                "The relation does not reference to a relation, while  the following relations referencing this relation as opposite: 'Test::B#a'"
+                "The relation does not declare an opposite relation, but the following relations refer to this relation as opposite: 'Test::B#a'"
             )
 
             assertOppositeMismatchError(
-                "The opposite relation's opposite relation does not match 'b'"
+                "The relation's opposite does not match 'b'."
             )
 
         ]
@@ -127,7 +127,7 @@ class AssociationTests {
             }
 
         '''.parse => [
-            assertDuplicateNameError("Duplicate name: 'b'")
+            assertDuplicateNameError("Duplicate member name at the opposite side of 'a':'b'")
         ]
     }
 
