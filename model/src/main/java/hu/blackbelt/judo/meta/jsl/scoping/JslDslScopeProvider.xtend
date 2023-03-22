@@ -145,10 +145,17 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
             navigationScope = new FilteringScope(scope, [desc | {
                 val obj = desc.EObjectOrProxy
 
-                switch obj {
-                    FunctionDeclaration: obj.baseType !== null && navigationTypeInfo.isBaseCompatible(TypeInfo.getTargetType(obj.baseType)) ? return true : return false
-                    LambdaDeclaration: navigationTypeInfo.isEntity() && navigationTypeInfo.isCollection() ? return true : return false
-                }
+				
+				return false
+			}]);
+		} else {
+			navigationScope = new FilteringScope(scope, [desc | {
+				val obj = desc.EObjectOrProxy
+	
+				switch obj {
+					FunctionDeclaration: obj.baseType !== null && navigationTypeInfo.isBaseCompatible(TypeInfo.getTargetType(obj.baseType)) ? return true : return false
+					LambdaDeclaration: navigationTypeInfo.isEntity() && navigationTypeInfo.isCollection() ? return true : return false
+				}
 
                 false
             }]);

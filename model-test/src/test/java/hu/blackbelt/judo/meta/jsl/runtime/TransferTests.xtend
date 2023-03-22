@@ -629,4 +629,24 @@ class TransferTests {
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_CHOICES)
         ]
     }
+    
+    @Test
+    def void testTransferFieldDuplicateMapping() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E {
+				field Integer f;
+			}
+			
+			transfer T(E e) {
+				field Integer f1 maps e.f;
+				field Integer f2 maps e.f;
+			}
+        '''.parse => [
+            m | m.assertWarning(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.DUPLICATE_FIELD_MAPPING)
+        ]
+    }
 }

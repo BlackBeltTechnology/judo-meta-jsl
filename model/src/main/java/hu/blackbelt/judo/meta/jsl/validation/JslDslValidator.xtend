@@ -81,6 +81,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferConstructorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Guard
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferField
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget
 
 /**
  * This class contains custom validation rules.
@@ -92,49 +94,52 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Guard
 
 class JslDslValidator extends AbstractJslDslValidator {
 
-    protected static val ISSUE_CODE_PREFIX = "hu.blackbelt.judo.meta.jsl.jsldsl."
-    public static val HIERARCHY_CYCLE = ISSUE_CODE_PREFIX + "HierarchyCycle"
-    public static val DUPLICATE_MODEL = ISSUE_CODE_PREFIX + "DuplicateModel"
-    public static val OPPOSITE_TYPE_MISMATH = ISSUE_CODE_PREFIX + "OppositeTypeMismatch"
-    public static val DUPLICATE_MEMBER_NAME = ISSUE_CODE_PREFIX + "DuplicateMemberName"
-    public static val MEMBER_NAME_TOO_LONG = ISSUE_CODE_PREFIX + "MemberNameTooLong"
-    public static val DUPLICATE_DECLARATION_NAME = ISSUE_CODE_PREFIX + "DuplicateDeclarationName"
-    public static val INHERITENCE_CYCLE = ISSUE_CODE_PREFIX + "InheritenceCycle"
-    public static val INHERITED_MEMBER_NAME_COLLISION = ISSUE_CODE_PREFIX + "InheritedMemberNameCollision"
-    public static val ENUM_LITERAL_NAME_COLLISION = ISSUE_CODE_PREFIX + "EnumLiteralNameCollision"
-    public static val ENUM_LITERAL_ORDINAL_COLLISION = ISSUE_CODE_PREFIX + "EnumLiteralOrdinalCollision"
-    public static val MAX_SIZE_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "MaxSizeIsNegative"
-    public static val MIN_SIZE_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "MinSizeIsNegative"
-    public static val INVALID_MIMETYPE = ISSUE_CODE_PREFIX + "MimetypeIsInvalid"
-    public static val PRECISION_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "PrecisionIsNegative"
-    public static val SCALE_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "ScaleIsNegative"
-    public static val MAX_SIZE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "MaxSizeIsTooLarge"
-    public static val MIN_SIZE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "MinSizeIsTooLarge"
-    public static val PRECISION_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "PrecisionIsTooLarge"
-    public static val SCALE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "ScaleIsLargerThanPrecision"
-    public static val USING_REQUIRED_WITH_IS_MANY = ISSUE_CODE_PREFIX + "UsingRequiredWithIsMany"
-    public static val TYPE_MISMATCH = ISSUE_CODE_PREFIX + "TypeMismatch"
-    public static val ENUM_MEMBER_MISSING = ISSUE_CODE_PREFIX + "EnumMemberMissing"
-    public static val DUPLICATE_PARAMETER = ISSUE_CODE_PREFIX + "DuplicateParameter"
-    public static val MISSING_REQUIRED_PARAMETER = ISSUE_CODE_PREFIX + "MissingRequiredParameter"
-    public static val INVALID_LAMBDA_EXPRESSION = ISSUE_CODE_PREFIX + "InvalidLambdaExpression"
-    public static val IMPORT_ALIAS_COLLISION = ISSUE_CODE_PREFIX + "ImportAliasCollison"
-    public static val HIDDEN_DECLARATION = ISSUE_CODE_PREFIX + "HiddenDeclaration"
-    public static val INVALID_DECLARATION = ISSUE_CODE_PREFIX + "InvalidDeclaration"
-    public static val EXPRESSION_CYCLE = ISSUE_CODE_PREFIX + "ExpressionCycle"
-    public static val ANNOTATION_CYCLE = ISSUE_CODE_PREFIX + "AnnotationCycle"
-    public static val SELF_NOT_ALLOWED = ISSUE_CODE_PREFIX + "SelfNotAllowed"
-    public static val INVALID_COLLECTION = ISSUE_CODE_PREFIX + "InvalidCollection"
-    public static val INVALID_ANNOTATION = ISSUE_CODE_PREFIX + "InvalidAnnotation"
-    public static val INVALID_ANNOTATION_MARK = ISSUE_CODE_PREFIX + "InvalidAnnotationMark"
-    public static val DUPLICATE_AUTOMAP = ISSUE_CODE_PREFIX + "DuplicateAutomap"
-    public static val INVALID_SERVICE_FUNCTION_CALL = ISSUE_CODE_PREFIX + "InvalidServiceFunctionCall"
-    public static val INVALID_FIELD_MAPPING = ISSUE_CODE_PREFIX + "InvalidFieldMapping"
-    public static val INVALID_IDENTITY_MAPPING = ISSUE_CODE_PREFIX + "InvalidFieldMapping"
-    public static val INCOMPAIBLE_EXPORT = ISSUE_CODE_PREFIX + "IncompatibleExport"
-    public static val INVALID_SELF_VARIABLE = ISSUE_CODE_PREFIX + "InvalidSelfVariable"
-    public static val NON_STATIC_EXPRESSION = ISSUE_CODE_PREFIX + "NonStaticExpression"
-    public static val INVALID_CHOICES = ISSUE_CODE_PREFIX + "InvalidChoices"
+	protected static val ISSUE_CODE_PREFIX = "hu.blackbelt.judo.meta.jsl.jsldsl."
+	public static val HIERARCHY_CYCLE = ISSUE_CODE_PREFIX + "HierarchyCycle"
+	public static val DUPLICATE_MODEL = ISSUE_CODE_PREFIX + "DuplicateModel"
+	public static val OPPOSITE_TYPE_MISMATH = ISSUE_CODE_PREFIX + "OppositeTypeMismatch"
+	public static val DUPLICATE_MEMBER_NAME = ISSUE_CODE_PREFIX + "DuplicateMemberName"
+	public static val MEMBER_NAME_TOO_LONG = ISSUE_CODE_PREFIX + "MemberNameTooLong"
+	public static val DUPLICATE_DECLARATION_NAME = ISSUE_CODE_PREFIX + "DuplicateDeclarationName"
+	public static val INHERITENCE_CYCLE = ISSUE_CODE_PREFIX + "InheritenceCycle"
+	public static val INHERITED_MEMBER_NAME_COLLISION = ISSUE_CODE_PREFIX + "InheritedMemberNameCollision"
+	public static val ENUM_LITERAL_NAME_COLLISION = ISSUE_CODE_PREFIX + "EnumLiteralNameCollision"
+	public static val ENUM_LITERAL_ORDINAL_COLLISION = ISSUE_CODE_PREFIX + "EnumLiteralOrdinalCollision"
+	public static val MAX_SIZE_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "MaxSizeIsNegative"
+	public static val MIN_SIZE_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "MinSizeIsNegative"
+	public static val INVALID_MIMETYPE = ISSUE_CODE_PREFIX + "MimetypeIsInvalid"
+	public static val PRECISION_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "PrecisionIsNegative"
+	public static val SCALE_MODIFIER_IS_NEGATIVE = ISSUE_CODE_PREFIX + "ScaleIsNegative"
+	public static val MAX_SIZE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "MaxSizeIsTooLarge"
+	public static val MIN_SIZE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "MinSizeIsTooLarge"
+	public static val PRECISION_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "PrecisionIsTooLarge"
+	public static val SCALE_MODIFIER_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "ScaleIsLargerThanPrecision"
+	public static val USING_REQUIRED_WITH_IS_MANY = ISSUE_CODE_PREFIX + "UsingRequiredWithIsMany"
+	public static val TYPE_MISMATCH = ISSUE_CODE_PREFIX + "TypeMismatch"
+	public static val ENUM_MEMBER_MISSING = ISSUE_CODE_PREFIX + "EnumMemberMissing"
+	public static val DUPLICATE_PARAMETER = ISSUE_CODE_PREFIX + "DuplicateParameter"
+	public static val MISSING_REQUIRED_PARAMETER = ISSUE_CODE_PREFIX + "MissingRequiredParameter"
+	public static val INVALID_LAMBDA_EXPRESSION = ISSUE_CODE_PREFIX + "InvalidLambdaExpression"
+	public static val IMPORT_ALIAS_COLLISION = ISSUE_CODE_PREFIX + "ImportAliasCollison"
+	public static val HIDDEN_DECLARATION = ISSUE_CODE_PREFIX + "HiddenDeclaration"
+	public static val INVALID_DECLARATION = ISSUE_CODE_PREFIX + "InvalidDeclaration"
+	public static val EXPRESSION_CYCLE = ISSUE_CODE_PREFIX + "ExpressionCycle"
+	public static val ANNOTATION_CYCLE = ISSUE_CODE_PREFIX + "AnnotationCycle"
+	public static val SELF_NOT_ALLOWED = ISSUE_CODE_PREFIX + "SelfNotAllowed"
+	public static val INVALID_COLLECTION = ISSUE_CODE_PREFIX + "InvalidCollection"
+	public static val INVALID_ANNOTATION = ISSUE_CODE_PREFIX + "InvalidAnnotation"
+	public static val INVALID_ANNOTATION_MARK = ISSUE_CODE_PREFIX + "InvalidAnnotationMark"
+	public static val DUPLICATE_AUTOMAP = ISSUE_CODE_PREFIX + "DuplicateAutomap"
+	public static val INVALID_SERVICE_FUNCTION_CALL = ISSUE_CODE_PREFIX + "InvalidServiceFunctionCall"
+	public static val INVALID_FIELD_MAPPING = ISSUE_CODE_PREFIX + "InvalidFieldMapping"
+	public static val INVALID_IDENTITY_MAPPING = ISSUE_CODE_PREFIX + "InvalidFieldMapping"
+	public static val INCOMPAIBLE_EXPORT = ISSUE_CODE_PREFIX + "IncompatibleExport"
+	public static val INVALID_SELF_VARIABLE = ISSUE_CODE_PREFIX + "InvalidSelfVariable"
+	public static val NON_STATIC_EXPRESSION = ISSUE_CODE_PREFIX + "NonStaticExpression"
+	public static val INVALID_CHOICES = ISSUE_CODE_PREFIX + "InvalidChoices"
+	public static val ENUM_ORDINAL_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "EnumOrdinalIsTooLarge"
+	public static val JAVA_BEAN_NAMING_ISSUE = ISSUE_CODE_PREFIX + "JavaBeanNamingIssue"
+	public static val DUPLICATE_FIELD_MAPPING = ISSUE_CODE_PREFIX + "DuplicateFieldMapping"
 
     public static val MEMBER_NAME_LENGTH_MAX = 128
     public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -300,20 +305,35 @@ class JslDslValidator extends AbstractJslDslValidator {
 
     @Check
     def checkSelfInDefaultExpression(EntityFieldDeclaration field) {
-        if (field.defaultExpression !== null) {
-            if (!this.isStaticExpression(field.defaultExpression)) {
-                error(
-                    "Self is not allowed in default expression",
-                    JsldslPackage::eINSTANCE.entityFieldDeclaration_DefaultExpression,
-                    SELF_NOT_ALLOWED,
-                    field.name
-                )
-                return
-            }
-        }
-    }
+    	if (field.defaultExpression !== null) {
+			if (!this.isStaticExpression(field.defaultExpression)) {
+				error(
+					"Self is not allowed in default expression",
+					JsldslPackage::eINSTANCE.entityFieldDeclaration_DefaultExpression,
+					SELF_NOT_ALLOWED,
+					field.name
+				)
+				return
+			}
+    	}
+	}
 
     @Check
+    def checkSelfInQueryParameterDefaultExpression(QueryParameterDeclaration parameter) {
+    	if (parameter.^default !== null) {
+			if (!this.isStaticExpression(parameter.^default)) {
+				error(
+					"Self is not allowed in parameter default expression",
+					JsldslPackage::eINSTANCE.queryParameterDeclaration_Default,
+					SELF_NOT_ALLOWED,
+					parameter.name
+				)
+				return
+			}
+    	}
+	}
+
+	@Check
     def checkInvalidFunctionDeclaration(FunctionDeclaration functionDeclaration) {
         val ModelDeclaration modelDeclaration = functionDeclaration.eContainer as ModelDeclaration
         if (!modelDeclaration.fullyQualifiedName.equals("judo::functions")) {
@@ -738,152 +758,251 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkForDuplicateNameForQueryParameters(QueryParameterDeclaration parameter) {
-        if (parameter.eContainer.eContents.filter[c | c.name.toLowerCase.equals(parameter.name.toLowerCase)].size > 1) {
-            error("Duplicate declaration: '" + parameter.name + "'",
-                parameter.nameAttribute,
-                DUPLICATE_DECLARATION_NAME,
-                parameter.name)
-        }
-    }
+	def checkAssociation(EntityRelationDeclaration relation) {
+		// System.out.println("checkAssociationOpposite: " + relation + " opposite: " + relation?.opposite + " type: " + relation?.opposite?.oppositeType)
+		
+		// Check the referenced opposite relation type reference back to this relation
+		if (relation.opposite?.oppositeType !== null) {
+			// System.out.println(" -- " + relation + " --- " + relation.opposite?.oppositeType?.opposite?.oppositeType)
+			if (relation !== relation.opposite?.oppositeType?.opposite?.oppositeType) {
+				error("The opposite relation's opposite relation does not match '" + relation.opposite.oppositeType.name + "'",
+					JsldslPackage::eINSTANCE.entityRelationDeclaration_Opposite,
+					OPPOSITE_TYPE_MISMATH,
+					relation.name)
+			}			
+		}
 
-    @Check
-    def checkForDuplicateNameForAnnotationParameters(AnnotationParameterDeclaration parameter) {
-        if (parameter.eContainer.eContents.filter[c | c.name.toLowerCase.equals(parameter.name.toLowerCase)].size > 1) {
-            error("Duplicate declaration: '" + parameter.name + "'",
-                parameter.nameAttribute,
-                DUPLICATE_DECLARATION_NAME,
-                parameter.name)
-        }
-    }
+		// Check this relation without oppoite type is referenced from another relation in the relation target type
+		if (relation.opposite === null) {
+			val selectableRelatations = relation.referenceType.getAllRelations(null)
+			val relationReferencedBack = selectableRelatations.filter[r | r.opposite !== null && r.opposite.oppositeType === relation].toList
+			// System.out.println(" -- " + relation + " --- Referenced back: " + relationReferencedBack.map[r | r.eContainer.fullyQualifiedName + "#" + r.name].join(", "))
+			if (!relationReferencedBack.empty) {
+				error("The relation does not reference to a relation, while  the following relations referencing this relation as opposite: " + 
+					relationReferencedBack.map[r | "'" + r.eContainer.fullyQualifiedName.toString("::") + "#" + r.name + "'"].join(", "),
+					JsldslPackage::eINSTANCE.entityRelationDeclaration_Opposite,
+					OPPOSITE_TYPE_MISMATH,
+					relation.name)
+			}			
+		}
+	}
 
-    @Check
-    def checkForDuplicateNameForDeclaration(Declaration declaration) {
-        if (declaration instanceof FunctionDeclaration) return;
-        if (declaration instanceof LambdaDeclaration) return;
+	@Check
+	def checkCycleInInheritence(EntityDeclaration entity) {
+		// System.out.println(" -- " + relation + " --- Referenced back: " + relationReferencedBack.map[r | r.eContainer.fullyQualifiedName + "#" + r.name].join(", "))
 
-        if ((declaration.eContainer as ModelDeclaration).getDeclarationNames(declaration).map[n | n.toLowerCase].contains(declaration.name.toLowerCase)) {
-            error("Duplicate declaration: '" + declaration.name + "'",
-                declaration.nameAttribute,
-                DUPLICATE_DECLARATION_NAME,
-                declaration.name)
-        }
-    }
+		if (entity.superEntityTypes.contains(entity)) {
+			error("Cycle in inheritence of entity '" + entity.name + "'",
+				JsldslPackage::eINSTANCE.named_Name,
+				INHERITENCE_CYCLE,
+				entity.name)			
+		}
+	}
 
-    @Check
-    def checkMimeType(MimeType mimeType) {
-        if (!Pattern.matches("^([a-zA-Z0-9]+([\\._+-][a-zA-Z0-9]+)*)/(\\*|([a-zA-Z0-9]+([\\._+-][a-zA-Z0-9]+)*))$", mimeType.value.stringLiteralValue)) {
-            error("Invalid mime type",
-                JsldslPackage::eINSTANCE.mimeType_Value,
-                INVALID_MIMETYPE,
-                mimeType.value.stringLiteralValue
-            )
-        }
-    }
+	@Check
+	def checkForDuplicateNameForEntityMemberDeclaration(EntityMemberDeclaration member) {
+		if (member instanceof Named && (member.eContainer as EntityDeclaration).getMemberNames(member).map[n | n.toLowerCase].contains(member.name.toLowerCase)) {
+			error("Duplicate member declaration: '" + member.name + "'",
+				member.nameAttribute,
+				DUPLICATE_MEMBER_NAME,
+				member.name)
+		}
+	}
 
-    @Check
-    def checkModifierMinSize(ModifierMinSize modifier) {
-        val maxValue = (modifier.eContainer as DataTypeDeclaration).maxSize.value
-        if (modifier.value < BigInteger.ZERO) {
-            error("min-size must be greater than or equal to 0",
-                JsldslPackage::eINSTANCE.modifierMinSize_Value,
-                MIN_SIZE_MODIFIER_IS_NEGATIVE,
-                JsldslPackage::eINSTANCE.modifierMinSize.name)
-        } else if (modifier.value > maxValue) {
-            error("min-size must be less than/equal to max-size",
-                JsldslPackage::eINSTANCE.modifierMinSize_Value,
-                MIN_SIZE_MODIFIER_IS_TOO_LARGE,
-                JsldslPackage::eINSTANCE.modifierMinSize.name)
-        }
-    }
+	@Check
+	def checkEntityMemberDeclarationLength(EntityMemberDeclaration member) {
+		if (member instanceof Named && member.name.length > MEMBER_NAME_LENGTH_MAX) {
+			error("Member name: '" + member.name + "' is too long, must be at most " + MEMBER_NAME_LENGTH_MAX + " characters",
+				member.nameAttribute,
+				MEMBER_NAME_TOO_LONG,
+				member.name)
+		}
+	}
 
-    @Check
-    def checkModifierMaxSize(ModifierMaxSize modifier) {
-        if (modifier.value <= BigInteger.ZERO) {
-            error("max-size must be greater than 0",
-                JsldslPackage::eINSTANCE.modifierMaxSize_Value,
-                MAX_SIZE_MODIFIER_IS_NEGATIVE,
-                JsldslPackage::eINSTANCE.modifierMaxSize.name)
-        } else if (modifier.value > MODIFIER_MAX_SIZE_MAX_VALUE) {
-            error("max-size must be less than/equal to " + MODIFIER_MAX_SIZE_MAX_VALUE,
-                JsldslPackage::eINSTANCE.modifierMaxSize_Value,
-                MAX_SIZE_MODIFIER_IS_TOO_LARGE,
-                JsldslPackage::eINSTANCE.modifierMaxSize.name)
-        }
-    }
+	@Check
+	def checkForDuplicateNameForAddedOpposite(EntityRelationOppositeInjected opposite) {
+		if (opposite.name !== null && !opposite.name.blank) {
+			val relation = opposite.eContainer as EntityRelationDeclaration
+			if (relation.referenceType.getMemberNames.contains(opposite.name)) {
+				error("Duplicate name: '" + opposite.name + "'",
+					opposite.nameAttribute,
+					DUPLICATE_MEMBER_NAME,
+					opposite.name)			
+			}			
+		}
+	}
 
-    @Check
-    def checkModifierPrecision(ModifierPrecision precision) {
-        if (precision.value <= BigInteger.ZERO) {
-            error("Precision must be greater than 0",
-                JsldslPackage::eINSTANCE.modifierPrecision_Value,
-                PRECISION_MODIFIER_IS_NEGATIVE,
-                JsldslPackage::eINSTANCE.modifierPrecision.name)
-        } else if (precision.value > PRECISION_MAX_VALUE) {
-            error("Precision must be less than/equal to " + PRECISION_MAX_VALUE,
-                JsldslPackage::eINSTANCE.modifierPrecision_Value,
-                PRECISION_MODIFIER_IS_TOO_LARGE,
-                JsldslPackage::eINSTANCE.modifierPrecision.name)
-        }
-    }
+	@Check
+	def checkForDuplicateInheritedFields(EntityDeclaration entity) {
+		val collidingMembers = entity.allMembers
+			.filter[m | m instanceof Named]
+			.groupBy[m | m.name]
+			.filter[n, l | l.size > 1]
+			
+		if (collidingMembers.size > 0) {
+			error("Inherited member name collision for: " + collidingMembers.mapValues[l | l.map[v | "'" + v.memberFullyQualifiedName + "'"].join(", ")].values.join(", "),
+				JsldslPackage::eINSTANCE.named_Name,
+				INHERITED_MEMBER_NAME_COLLISION,
+				entity.name)
+		}
+	}
 
-    @Check
-    def checkModifierScale(ModifierScale scale) {
-        val precisionValue = (scale.eContainer as DataTypeDeclaration).precision.value
-        if (scale.value < BigInteger.ZERO) {
-            error("Scale must be greater than/equal to 0",
-                JsldslPackage::eINSTANCE.modifierScale_Value,
-                SCALE_MODIFIER_IS_NEGATIVE,
-                JsldslPackage::eINSTANCE.modifierScale.name)
-        } else if (scale.value >= precisionValue) {
-            error("Scale must be less than the defined precision: " + precisionValue,
-                JsldslPackage::eINSTANCE.modifierScale_Value,
-                SCALE_MODIFIER_IS_TOO_LARGE,
-                JsldslPackage::eINSTANCE.modifierScale.name)
-        }
-    }
+	@Check
+	def checkForDuplicateNameForQueryParameters(QueryParameterDeclaration parameter) {
+		if (parameter.eContainer.eContents.filter[c | c.name.toLowerCase.equals(parameter.name.toLowerCase)].size > 1) {
+			error("Duplicate declaration: '" + parameter.name + "'",
+				parameter.nameAttribute,
+				DUPLICATE_DECLARATION_NAME,
+				parameter.name)
+		}
+	}
 
-    @Check
-    def checkEnumLiteralMinimum(EnumDeclaration _enum) {
-        if (_enum.literals.size < 1) {
-            error("Enumeration must have at least one member:"+_enum.name,
-                JsldslPackage::eINSTANCE.enumDeclaration_Literals,
-                ENUM_MEMBER_MISSING,
-                JsldslPackage::eINSTANCE.enumDeclaration.name)
-        }
-    }
+	@Check
+	def checkForDuplicateNameForAnnotationParameters(AnnotationParameterDeclaration parameter) {
+		if (parameter.eContainer.eContents.filter[c | c.name.toLowerCase.equals(parameter.name.toLowerCase)].size > 1) {
+			error("Duplicate declaration: '" + parameter.name + "'",
+				parameter.nameAttribute,
+				DUPLICATE_DECLARATION_NAME,
+				parameter.name)
+		}
+	}
 
-    @Check
-    def checkEnumLiteralCollision(EnumLiteral literal) {
-        val declaration = literal.eContainer as EnumDeclaration
-        val collidingNames = declaration.literals
-            .groupBy[m | m.name.toLowerCase]
-            .filter[n, l | l.size > 1]
-        val collidingOrdinals = declaration.literals
-            .groupBy[m | m.value]
-            .filter[n, l | l.size > 1]
+	@Check
+	def checkForDuplicateNameForDeclaration(Declaration declaration) {
+		if (declaration instanceof FunctionDeclaration) return;
+		if (declaration instanceof LambdaDeclaration) return;
+		
+		if ((declaration.eContainer as ModelDeclaration).getDeclarationNames(declaration).map[n | n.toLowerCase].contains(declaration.name.toLowerCase)) {
+			error("Duplicate declaration: '" + declaration.name + "'",
+				declaration.nameAttribute,
+				DUPLICATE_DECLARATION_NAME,
+				declaration.name)
+		}
+	}
 
-        if (collidingNames.size > 0 && collidingNames.keySet.contains(literal.name.toLowerCase)) {
-            error("Enumeration Literal name collision for: " + collidingNames.mapValues[l | l.map[v | "'" + v.fullyQualifiedName + "'"].join(", ")].values.join(", "),
-                JsldslPackage::eINSTANCE.named_Name,
-                ENUM_LITERAL_NAME_COLLISION,
-                literal.name)
-        }
-        if (collidingOrdinals.size > 0 && collidingOrdinals.keySet.contains(literal.value)) {
-            error("Enumeration Literal ordinal collision for: " + collidingOrdinals.mapValues[l | l.map[v | "'" + v.fullyQualifiedName + "': '" + v.value + "'"].join(", ")].values.join(", "),
-                JsldslPackage::eINSTANCE.enumLiteral_Value,
-                ENUM_LITERAL_ORDINAL_COLLISION,
-                literal.name)
-        }
-    }
+	@Check
+	def checkMimeType(MimeType mimeType) {
+		if (!Pattern.matches("^([a-zA-Z0-9]+([\\._+-][a-zA-Z0-9]+)*)/(\\*|([a-zA-Z0-9]+([\\._+-][a-zA-Z0-9]+)*))$", mimeType.value.stringLiteralValue)) { 
+			error("Invalid mime type",
+				JsldslPackage::eINSTANCE.mimeType_Value,
+				INVALID_MIMETYPE,
+				mimeType.value.stringLiteralValue
+			)
+		}
+	}	
 
-    @Check
-    def checkRequiredOnEntityMemberDeclaration(EntityMemberDeclaration member) {
-        if (member instanceof EntityFieldDeclaration) {
-            val field = member
-            if (field.isIsMany && field.isIsRequired) {
-                error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'",
+	@Check
+	def checkModifierMinSize(ModifierMinSize modifier) {
+		val maxValue = (modifier.eContainer as DataTypeDeclaration).maxSize.value
+		if (modifier.value < BigInteger.ZERO) {
+			error("min-size must be greater than or equal to 0",
+				JsldslPackage::eINSTANCE.modifierMinSize_Value,
+				MIN_SIZE_MODIFIER_IS_NEGATIVE,
+				JsldslPackage::eINSTANCE.modifierMinSize.name)
+		} else if (modifier.value > maxValue) {
+			error("min-size must be less than/equal to max-size",
+				JsldslPackage::eINSTANCE.modifierMinSize_Value,
+				MIN_SIZE_MODIFIER_IS_TOO_LARGE,
+				JsldslPackage::eINSTANCE.modifierMinSize.name)
+		}
+	}
+
+	@Check
+	def checkModifierMaxSize(ModifierMaxSize modifier) {
+		if (modifier.value <= BigInteger.ZERO) {
+			error("max-size must be greater than 0",
+				JsldslPackage::eINSTANCE.modifierMaxSize_Value,
+				MAX_SIZE_MODIFIER_IS_NEGATIVE,
+				JsldslPackage::eINSTANCE.modifierMaxSize.name)
+		} else if (modifier.value > MODIFIER_MAX_SIZE_MAX_VALUE) {
+			error("max-size must be less than/equal to " + MODIFIER_MAX_SIZE_MAX_VALUE,
+				JsldslPackage::eINSTANCE.modifierMaxSize_Value,
+				MAX_SIZE_MODIFIER_IS_TOO_LARGE,
+				JsldslPackage::eINSTANCE.modifierMaxSize.name)
+		}
+	}
+	
+	@Check
+	def checkModifierPrecision(ModifierPrecision precision) {
+		if (precision.value <= BigInteger.ZERO) {
+			error("Precision must be greater than 0",
+				JsldslPackage::eINSTANCE.modifierPrecision_Value,
+				PRECISION_MODIFIER_IS_NEGATIVE,
+				JsldslPackage::eINSTANCE.modifierPrecision.name)
+		} else if (precision.value > PRECISION_MAX_VALUE) {
+			error("Precision must be less than " + PRECISION_MAX_VALUE.add(new BigInteger("1")),
+				JsldslPackage::eINSTANCE.modifierPrecision_Value,
+				PRECISION_MODIFIER_IS_TOO_LARGE,
+				JsldslPackage::eINSTANCE.modifierPrecision.name)
+		}
+	}
+	
+	@Check
+	def checkModifierScale(ModifierScale scale) {
+		val precisionValue = (scale.eContainer as DataTypeDeclaration).precision.value
+		if (scale.value < BigInteger.ZERO) {
+			error("Scale must be greater than/equal to 0",
+				JsldslPackage::eINSTANCE.modifierScale_Value,
+				SCALE_MODIFIER_IS_NEGATIVE,
+				JsldslPackage::eINSTANCE.modifierScale.name)
+		} else if (scale.value >= precisionValue) {
+			error("Scale must be less than the defined precision: " + precisionValue,
+				JsldslPackage::eINSTANCE.modifierScale_Value,
+				SCALE_MODIFIER_IS_TOO_LARGE,
+				JsldslPackage::eINSTANCE.modifierScale.name)
+		}
+	}
+	
+	@Check
+	def checkEnumLiteralMinimum(EnumDeclaration _enum) {
+		if (_enum.literals.size < 1) {
+			error("Enumeration must have at least one member:"+_enum.name,
+				JsldslPackage::eINSTANCE.enumDeclaration_Literals,
+				ENUM_MEMBER_MISSING,
+				JsldslPackage::eINSTANCE.enumDeclaration.name)
+		}
+	}
+	
+	@Check
+	def checkEnumOridal(EnumLiteral literal) {
+		if (literal.value > new BigInteger("9999")) {
+			error("Enumeration ordinal is greater than the maximum allowed 9999.",
+				JsldslPackage::eINSTANCE.enumLiteral_Value,
+				ENUM_ORDINAL_IS_TOO_LARGE,
+				JsldslPackage::eINSTANCE.enumLiteral.name)
+		}
+	}
+	
+	@Check
+	def checkEnumLiteralCollision(EnumLiteral literal) {
+		val declaration = literal.eContainer as EnumDeclaration
+		val collidingNames = declaration.literals
+			.groupBy[m | m.name.toLowerCase]
+			.filter[n, l | l.size > 1]
+		val collidingOrdinals = declaration.literals
+			.groupBy[m | m.value]
+			.filter[n, l | l.size > 1]
+			
+		if (collidingNames.size > 0 && collidingNames.keySet.contains(literal.name.toLowerCase)) {
+			error("Enumeration Literal name collision for: " + collidingNames.mapValues[l | l.map[v | "'" + v.fullyQualifiedName + "'"].join(", ")].values.join(", "),
+				JsldslPackage::eINSTANCE.named_Name,
+				ENUM_LITERAL_NAME_COLLISION,
+				literal.name)
+		}
+		if (collidingOrdinals.size > 0 && collidingOrdinals.keySet.contains(literal.value)) {
+			error("Enumeration Literal ordinal collision for: " + collidingOrdinals.mapValues[l | l.map[v | "'" + v.fullyQualifiedName + "': '" + v.value + "'"].join(", ")].values.join(", "),
+				JsldslPackage::eINSTANCE.enumLiteral_Value,
+				ENUM_LITERAL_ORDINAL_COLLISION,
+				literal.name)
+		}
+	}
+	
+	@Check
+	def checkRequiredOnEntityMemberDeclaration(EntityMemberDeclaration member) {
+		if (member instanceof EntityFieldDeclaration) {
+			val field = member
+			if (field.isIsMany && field.isIsRequired) {
+				error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'",
                     JsldslPackage::eINSTANCE.entityFieldDeclaration_IsRequired,
                     USING_REQUIRED_WITH_IS_MANY,
                     JsldslPackage::eINSTANCE.entityFieldDeclaration.name)
@@ -1542,8 +1661,26 @@ class JslDslValidator extends AbstractJslDslValidator {
             return
         }
 
-        if (mark.eContainer instanceof ServiceFunctionDeclaration) {
-            val ServiceFunctionDeclaration function = mark.eContainer as ServiceFunctionDeclaration
+		}
+	}
+	
+	@Check
+	def checkAnnotationFactory(AnnotationMark mark) {
+		if (!mark.declaration.name.equals("Factory")) {
+			return
+		}
+
+		if (!(mark.eContainer instanceof ServiceFunctionDeclaration)) {
+			error("Invalid use of annotation: @" + mark.declaration.name + ". Function must be an action function.",
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration,
+	            INVALID_ANNOTATION_MARK,
+	            JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+	            
+	        return
+		}
+
+		if (mark.eContainer instanceof ServiceFunctionDeclaration) {
+			val ServiceFunctionDeclaration function = mark.eContainer as ServiceFunctionDeclaration
 
             if (function.^return === null) {
                 error("Invalid use of annotation: @" + mark.declaration.name + ". Function must have return type.",
@@ -1794,11 +1931,79 @@ class JslDslValidator extends AbstractJslDslValidator {
     def checkSelf(Self myself) {
         // myself is for Rob :-)
 
-        if (!TypeInfo.getTargetType(myself).isEntity()) {
-            error("Not allowed to use:'self'.",
-                JsldslPackage::eINSTANCE.self_IsSelf,
-                INVALID_SELF_VARIABLE,
-                JsldslPackage::eINSTANCE.^self.name)
-        }
-    }
+		}
+	}
+
+	@Check
+	def checkSelf(Self myself) {
+		// myself is for Rob :-)
+
+		if (!TypeInfo.getTargetType(myself).isEntity()) {
+			error("Not allowed to use:'self'.",
+	            JsldslPackage::eINSTANCE.self_IsSelf,
+	            INVALID_SELF_VARIABLE,
+	            JsldslPackage::eINSTANCE.^self.name)
+		}
+	}
+	
+	@Check
+	def checkJavaBeanName(Named named) {
+		// this rule is so ugly that it is deliberately undocumented
+		
+		if (named.name.length < 2) return;
+		
+		if (Character.isLowerCase(named.name.charAt(0)) && Character.isUpperCase(named.name.charAt(1))) {
+			error("The first character cannot be lowercase and the second character uppercase.",
+	            JsldslPackage::eINSTANCE.named_Name,
+	            JAVA_BEAN_NAMING_ISSUE,
+	            JsldslPackage::eINSTANCE.named.name)
+		}
+	}
+	
+	def NavigationTarget getMappedField(TransferFieldDeclaration field) {
+		if (field.maps === null) return null;
+
+		if (!(field.maps instanceof Navigation)) {
+            return null;
+		}
+
+		val Navigation navigation = field.maps as Navigation;
+
+		if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
+            return null;
+		}
+		
+		val NavigationBaseDeclarationReference navigationBaseDeclarationReference = navigation.base as NavigationBaseDeclarationReference;
+		
+		if (!(navigationBaseDeclarationReference.reference instanceof EntityMapDeclaration)) {
+            return null;
+		}
+		
+		if (navigation.features.size() != 1) {
+            return null;
+		}
+
+		if (!(navigation.features.get(0) instanceof MemberReference)) {
+            return null;
+		}
+
+		return (navigation.features.get(0) as MemberReference).member;
+	}
+	
+	@Check
+	def checkDuplicateFieldMapping(TransferFieldDeclaration field) {
+		if (field.maps === null) return;
+		
+		val TransferDeclaration transfer = field.eContainer as TransferDeclaration;
+		val NavigationTarget target = getMappedField(field);
+
+		if (target === null) return;
+		
+		if (transfer.members.filter[m | m instanceof TransferFieldDeclaration && target === getMappedField(m as TransferFieldDeclaration)].size > 1) {
+			warning("More than one transfer field map the same entity field.",
+	            JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
+	            DUPLICATE_FIELD_MAPPING,
+	            JsldslPackage::eINSTANCE.named.name)
+		}
+	}
 }

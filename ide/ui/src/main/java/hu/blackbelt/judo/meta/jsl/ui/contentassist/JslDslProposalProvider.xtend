@@ -17,6 +17,7 @@ import org.eclipse.xtext.Keyword
 import java.util.Set
 import com.google.common.collect.ImmutableSet
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
@@ -42,6 +43,15 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
             // don't propose keyword
             return;
         }
+        
+        if (keyword.getValue().equals("self") &&
+        	contentAssistContext.currentNode.semanticElement.parentContainer(Expression) !== null &&
+        	contentAssistContext.currentNode.semanticElement.parentContainer(EntityDeclaration) === null
+        ) {
+            // don't propose keyword
+        	return;
+        }
+        
         super.completeKeyword(keyword, contentAssistContext, acceptor);
     }
 

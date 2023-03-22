@@ -14,9 +14,9 @@ import org.eclipse.xtext.util.Modules2
  * Initialization support for running Xtext languages in web applications.
  */
 class JslDslWebSetup extends JslDslStandaloneSetup {
-
-    override Injector createInjector() {
-        return Guice.createInjector(Modules2.mixin(new JslDslRuntimeModule, new JslDslIdeModule, new JslDslWebModule))
-    }
-
+	
+	override Injector createInjector() {
+		return Guice.createInjector(Modules2.mixin(new JslDslRuntimeModule, new JslDslIdeModule, new JslDslWebModule))
+	}
+	
 }

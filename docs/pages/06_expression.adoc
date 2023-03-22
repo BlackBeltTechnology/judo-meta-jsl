@@ -85,7 +85,7 @@ In expressions, the `.` (dot) character is used to navigate from an instance or 
 
 The starting point of the navigation can be
 
-* a static collection of references using the syntax `shop::Order`, which means all instances of the Order entity, or
+* a static collection of references using the syntax `shop::Order!all()`, which means all instances of the Order entity, or
 * a static query execution using the syntax `shop::MyQuery()`, which means all entity instances returned by the query `shop::MyQuery`
 * the predefined variable called `self`. The `self` keyword refers to the current instance in an expression.
 
@@ -94,7 +94,7 @@ The starting point of the navigation can be
 [source,jsl]
 ----
 // a navigation starting from static collection
-derived Products[] orderedProducts => shop::Order.orderItems.product;
+derived Products[] orderedProducts => shop::Order!all().orderItems.product;
 
 // a navigation starting from self variable in Order entity
 derived Products[] orderedProducts => self.orderItems.product;
@@ -136,8 +136,6 @@ In the example above, the expression returns the product's name.
 === Query execution
 
 Static and instance queries can be used in expressions. To execute an instance query use the `.` (dot) character before the query name and append the arguments in parentheses. To execute a static query use its name as a navigation starting point and append the arguments in parentheses. If you do not pass arguments to a query append parentheses with no arguments between them.
-
-Query arguments can be literals only (e.g. `121`, `"apple"`, `true` etc.).
 
 *Examples:*
 
@@ -967,6 +965,14 @@ Makes sense in JCL only.
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
+|`[purple]#**all()**# : collection`
+|Returns all instances of an entity type.
+|Example:
+|`shop::Order!all()` returns all order instances that exist in the application.
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
 |`[purple]#**size()**# : numeric`
 |Returns the number of elements of a collection.
 |`self.orderItems!size()` returns the number of the items in the order.
@@ -989,7 +995,7 @@ Makes sense in JCL only.
 |`[purple]#**asCollection(entityType = **#<entityType>[purple]##**)**## : collection`
 |Filters the collection according to <entityType> and returns a collection of the parameter <entityType>. Members of the collection that are not of that <entityType> are not included in the result. Type matching works according to the kindOf() function.
 |Example:
-|`shop::Order.customer!asCollection(entityType = shop::Enterprise)` returns all enterprises that have at least one order.
+|`shop::Order!all().customer!asCollection(entityType = shop::Enterprise)` returns all enterprises that have at least one order.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -997,7 +1003,7 @@ Makes sense in JCL only.
 |`[purple]#**contains(instance = **#<instance>[purple]##**)**## : boolean`
 |Indicates if the given collection contains the given <instance>.
 |Example:
-|`shop::Enterprise.orders.orderItems.product!contains(shop::Product!filter(p \| p.name == "gadget").any())` checks whether there is an enterprise that has already ordered the product named "gadget".
+|`shop::Enterprise!all().orders.orderItems.product!contains(shop::Product!all()!filter(p \| p.name == "gadget").any())` checks whether there is an enterprise that has already ordered the product named "gadget".
 |======================================================================
 
 [options="header",grid="none",cols="1a"]

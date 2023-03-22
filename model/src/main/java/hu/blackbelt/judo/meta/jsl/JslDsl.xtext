@@ -134,7 +134,7 @@ EntityQueryDeclaration
 	;
  
 QueryParameterDeclaration
-	: referenceType = [PrimitiveDeclaration | ModelName] Named ("=" default = Literal)?
+	: referenceType = [PrimitiveDeclaration | ModelName] Named ("=" default = Expression)?
 	;
 
 EntityRelationDeclaration
@@ -459,16 +459,16 @@ EnumDeclaration
 
 EnumLiteral
     : annotations += AnnotationMark*
-      Named '=' value = Integer SC+
+      Named '=' value = Natural SC+
     ;
 
 
 ModifierMinSize
-	: 'min-size' '=' value = Integer
+	: 'min-size' '=' value = Natural
 	;
 
 ModifierMaxSize
-	: 'max-size' '=' value = Integer
+	: 'max-size' '=' value = Natural
 	;
 
 ModifierRegex
@@ -476,11 +476,11 @@ ModifierRegex
 	;
 
 ModifierPrecision
-	: 'precision' '=' value = Integer
+	: 'precision' '=' value = Natural
 	;
 
 ModifierScale
-	: 'scale' '=' value = Integer
+	: 'scale' '=' value = Natural
 	;
 
 ModifierMimeTypes
@@ -492,7 +492,7 @@ MimeType
 	;
 
 ModifierMaxFileSize
-	: 'max-file-size' '=' numeric = Integer (unit = DataUnit)?
+	: 'max-file-size' '=' numeric = Natural (unit = DataUnit)?
 	;
 	
 enum DataUnit
@@ -738,7 +738,7 @@ NumberLiteral
 	;
 
 IntegerLiteral hidden()
-	: (minus ?= "-" | "+")? value=Integer
+	: (minus ?= "-" | "+")? value=Natural
 	;
 
 DecimalLiteral hidden()
@@ -792,7 +792,7 @@ Decimal returns ecore::EBigDecimal
 	: NUMBER '.' NUMBER
 	;
 
-Integer returns ecore::EBigInteger
+Natural returns ecore::EBigInteger
 	: NUMBER
 	;
 
@@ -805,7 +805,7 @@ LocalName
     ;
 
 ModelName
-	: JSLID('::' JSLID)*
+	: JSLID ('::' JSLID)*
     ;
 
 /****************************
