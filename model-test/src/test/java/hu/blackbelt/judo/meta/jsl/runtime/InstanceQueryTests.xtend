@@ -14,9 +14,9 @@ import org.junit.jupiter.api.^extension.ExtendWith
 @ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
 class InstanceQueryTests {
-	@Inject extension ParseHelper<ModelDeclaration>
+    @Inject extension ParseHelper<ModelDeclaration>
     @Inject extension ValidationTestHelper
-	
+    
     
     /**
      * Testing the instance queries with constant default values.
@@ -173,7 +173,7 @@ class InstanceQueryTests {
     }
     
      /**
-     * Testing the instance queries with constant default values.
+     * Testing the instance queries have more parameters with constant default values
      * 
      * @prerequisites Nothing
      * 
@@ -257,55 +257,55 @@ class InstanceQueryTests {
                 relation MyEntity   firstEntity;
                 relation MyEntity[] otherEntities;
             
-		        query MyEntity queryWithMoreParam001(
-		            Timestamp p1 = `2019-07-18T11:11:12.003+02:00`,
-		            Boolean p2 = true,
-		            Long p3 = 13
-		        ) => self.otherEntities
-		             !filter(e | p1 <= e.fldCreated and p2 == e.fldBool and p3 <= e.fldLong)
-		             !any();
-		             
-		        query MyEntity queryWithMoreParam002(
-		            Date p1 = `2019-07-18`,
-		            Time p2 = `11:11:12`,
-		            String p3 = "Lorem ipsum"
-		        ) => self.otherEntities
-		             !filter(e | p1 == e.fldDate and p2 <= e.fldTime and p3 != e.fldString)
-		             !any();
-		        
-		        query MyEntity queryWithMoreParam003(
-		            Decimal p1 = 999999999.9999,
-		            MyEnum p2 = MyEnum#A00,
-		            Boolean p3 = false
-		        ) => self.otherEntities
-		             !filter(e | p1 <= e.fldDecimal and e.fldEnum >= p2 or p3 == e.fldBool)
-		             !any();
-		        
-		        query MyEntity[] setOfMyEntities(
-		            MyEnum p1 = MyEnum#A03
-		        ) => self.otherEntities
-		             !filter(e | p1 == e.fldEnum and e.fldCreated <= Timestamp!now());
-		             
-		        
-		        derived MyEntity derived001 => self.queryWithMoreParam001();
-		        derived MyEntity derived002 => self.queryWithMoreParam002();
-		        derived MyEntity derived003 => self.queryWithMoreParam003();
-		        derived MyEntity derived004 => self.queryWithMoreParam001(p2 = false);
-		        derived MyEntity derived005 => self.queryWithMoreParam002(p3 = "AAA", p1 = `2023-01-01`);
-		        derived MyEntity derived006 => self.queryWithMoreParam003(p1 = -10, p3 = true, p2 = MyEnum#A02);
-		        
-		        // relations
-		        //relation MyEntity[] defEntities => self.setOfMyEntities();
-		        //relation MyEntity[] otherEntities => self.setOfMyEntities(p1 = MyEnum#A01);
-	        
-	        }
+                query MyEntity queryWithMoreParam001(
+                    Timestamp p1 = `2019-07-18T11:11:12.003+02:00`,
+                    Boolean p2 = true,
+                    Long p3 = 13
+                ) => self.otherEntities
+                     !filter(e | p1 <= e.fldCreated and p2 == e.fldBool and p3 <= e.fldLong)
+                     !any();
+                     
+                query MyEntity queryWithMoreParam002(
+                    Date p1 = `2019-07-18`,
+                    Time p2 = `11:11:12`,
+                    String p3 = "Lorem ipsum"
+                ) => self.otherEntities
+                     !filter(e | p1 == e.fldDate and p2 <= e.fldTime and p3 != e.fldString)
+                     !any();
+                
+                query MyEntity queryWithMoreParam003(
+                    Decimal p1 = 999999999.9999,
+                    MyEnum p2 = MyEnum#A00,
+                    Boolean p3 = false
+                ) => self.otherEntities
+                     !filter(e | p1 <= e.fldDecimal and e.fldEnum >= p2 or p3 == e.fldBool)
+                     !any();
+                
+                query MyEntity[] setOfMyEntities(
+                    MyEnum p1 = MyEnum#A03
+                ) => self.otherEntities
+                     !filter(e | p1 == e.fldEnum and e.fldCreated <= Timestamp!now());
+                     
+                
+                derived MyEntity derived001 => self.queryWithMoreParam001();
+                derived MyEntity derived002 => self.queryWithMoreParam002();
+                derived MyEntity derived003 => self.queryWithMoreParam003();
+                derived MyEntity derived004 => self.queryWithMoreParam001(p2 = false);
+                derived MyEntity derived005 => self.queryWithMoreParam002(p3 = "AAA", p1 = `2023-01-01`);
+                derived MyEntity derived006 => self.queryWithMoreParam003(p1 = -10, p3 = true, p2 = MyEnum#A02);
+                
+                // relations
+                //relation MyEntity[] defEntities => self.setOfMyEntities();
+                //relation MyEntity[] otherEntities => self.setOfMyEntities(p1 = MyEnum#A01);
+            
+            }
         '''.parse => [
             assertNoErrors
         ]
     }
     
-        /**
-     * Testing the instance queries with constant default values.
+     /**
+     * Testing instance queries that return with primitive types
      * 
      * @prerequisites Nothing
      * 
@@ -389,8 +389,8 @@ class InstanceQueryTests {
                 relation MyEntity[] otherEntities;
                 
                 query Timestamp queryByTimestamp(
-                	Timestamp p1 = `2019-07-18T11:11:12.003+02:00`,
-                	Boolean p2 = true
+                    Timestamp p1 = `2019-07-18T11:11:12.003+02:00`,
+                    Boolean p2 = true
                 ) => self.otherEntities
                     !filter(e | e.fldCreated <= p1 and e.fldBool == p2)
                     !any()
@@ -409,14 +409,14 @@ class InstanceQueryTests {
                     .fldDate;
                 
                 query Time queryByTime(
-                	Time p1 = `11:11:12`,
-                	Date p2 = `2019-07-18`,
-                	MyEnum p3 = MyEnum#A03
+                    Time p1 = `11:11:12`,
+                    Date p2 = `2019-07-18`,
+                    MyEnum p3 = MyEnum#A03
                 ) => self.otherEntities
                     !filter(
-                    	e | e.fldTime == p1 and
-                    	e.fldDate == p2 and
-                    	e.fldEnum == p3
+                        e | e.fldTime == p1 and
+                        e.fldDate == p2 and
+                        e.fldEnum == p3
                     )
                     !any()
                     .fldTime;
@@ -428,16 +428,16 @@ class InstanceQueryTests {
                     .fldLong;
                 
                 query String queryByString(
-                	String p1 = "Lorem ipsum",
-                	Decimal p2 = 123.345,
-                	Long p3 = 998,
-                	MyEnum p4 = MyEnum#A01
-               	) => self.otherEntities
+                    String p1 = "Lorem ipsum",
+                    Decimal p2 = 123.345,
+                    Long p3 = 998,
+                    MyEnum p4 = MyEnum#A01
+                ) => self.otherEntities
                     !filter(
-                    	e | e.fldString == p1 and
-                     	e.fldDecimal == p2 and
-                    	e.fldLong == p3 and
-                    	e.fldEnum == p4
+                        e | e.fldString == p1 and
+                        e.fldDecimal == p2 and
+                        e.fldLong == p3 and
+                        e.fldEnum == p4
                     )
                     !any()
                     .fldString;
@@ -449,9 +449,9 @@ class InstanceQueryTests {
                     .fldDecimal;
                 
                 query MyEnum queryByMyEnum(
-                	MyEnum p1 = MyEnum#A00,
-                	Timestamp p2 = `2019-07-18T11:11:12.003+02:00`
-               	) => self.otherEntities
+                    MyEnum p1 = MyEnum#A00,
+                    Timestamp p2 = `2019-07-18T11:11:12.003+02:00`
+                ) => self.otherEntities
                     !filter(e | e.fldEnum == p1 and e.fldCreated <= p2)
                     !any()
                     .fldEnum;
@@ -466,19 +466,19 @@ class InstanceQueryTests {
                 derived Date derivedByDate2 => self.queryByDate(p1 = `2019-07-18`);
                 
                 derived Time derivedByTime1 => self.queryByTime();
-                derived Time derivedByTime2 => self.queryByTime(p1 = `11:11:12`);
+                derived Time derivedByTime3 => self.queryByTime(p3 = MyEnum#A00 ,p1 = `11:11:12`);
                 
                 derived Long derivedByLong1 => self.queryByLong();
                 derived Long derivedByLong2 => self.queryByLong(p1 = 9999);
                 
                 derived String derivedByString1 => self.queryByString();
-                derived String derivedByString2 => self.queryByString(p1 = "Lorem ipsum");
+                derived String derivedByString4 => self.queryByString(p1 = "Lorem ipsum", p2 = 345.678, p3 = 456, p4 = MyEnum#A03);
                 
                 derived Decimal derivedByDecimal1 => self.queryByDecimal();
                 derived Decimal derivedByDecimal2 => self.queryByDecimal(p1 = -1526.225);
                 
                 derived MyEnum derivedByEnum1 => self.queryByMyEnum();
-                derived MyEnum derivedByEnum2 => self.queryByMyEnum(p1 = MyEnum#A00); 
+                derived MyEnum derivedByEnum2 => self.queryByMyEnum(p1 = MyEnum#A00);
 
             }
         '''.parse => [
