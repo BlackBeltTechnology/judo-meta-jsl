@@ -742,12 +742,13 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**of(hour = **#<hour>[purple]##**, minute = **## <minute>[purple]##**[, second = **## <second>[purple]##**[, millisecond = **## <millisecond>[purple]##**]])**## : time`
+|`[purple]#**of(hour = **#<hour>[purple]##**, minute = **## <minute>[purple]##**[, second = **## <second>[purple]##**][, millisecond = **## <millisecond>[purple]##**])**## : time`
 |Static function, constructs a time value from the numeric parameters <hour>, <minute>, <second> and <millisecond>. If any of the parameters is not integer, the result will be undefined. If any parameter is less than 0, the result will be undefined. If <hour> is greater than 23, <minute> or <second> is greater than 59 or <millisecond> is greater than 999, it gives an undefined result.
 |Example::
 * `Time!of(hour = 13, minute = 45)` is `&#x60;13:45&#x60;`
 * `Time!of(hour = 13, minute = 45, second = 77)` is `&#x60;13:45:77&#x60;`
 * `Time!of(hour = 13, minute = 45, second = 77, millisecond = 444)` is `&#x60;13:45:77.444&#x60;`
+* `Time!of(hour = 13, minute = 45, millisecond = 444)` is `&#x60;13:45:00.444&#x60;`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
