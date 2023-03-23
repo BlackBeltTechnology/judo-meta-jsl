@@ -265,8 +265,35 @@ class PrimitiveDefaultValuesTests {
                 field String c = "123";
                 field String c2 = r"123";
                 field Date d = `2020-01-12`;
-                field Time e = `22:45:22`;
-                field Timestamp f = `2020-01-12T12:12:12.000Z`;
+                field Time timeHM = `11:11`;
+                field Time timeHM1 = Time!of(hour = 11, minute = 11);
+                field Time timeHMS = `11:11:11`;
+                field Time timeHMS1 = Time!of(hour = 11, minute = 11, second = 11);
+                field Time timeHMSF = `11:11:11.111`;
+                field Time timeHMSF1 = Time!of(hour = 11, minute = 11, second = 11, millisecond = 111);
+                field Time timeFromMillisecond = Time!fromMilliseconds(milliseconds = 999999);
+                field Integer timeAsMillisecond = `11:11:11.111`!asMilliseconds();
+                field Timestamp timestamp = `2023-03-21T11:11`;
+                field Timestamp timestamp1 = `2023-03-21T11:11Z`;
+                field Timestamp timestamp2 = `2023-03-21T11:11+05`;
+                field Timestamp timestamp3 = `2023-03-21T11:11-05`;
+                field Timestamp timestamp4 = `2023-03-21T11:11+05:05`;
+                field Timestamp timestamp5 = `2023-03-21T11:11-05:05`;
+                field Timestamp timestamp6 = `2023-03-21T11:11:11`;
+                field Timestamp timestamp7 = `2023-03-21T11:11:11Z`;
+                field Timestamp timestamp8 = `2023-03-21T11:11:11+05`;
+                field Timestamp timestamp9 = `2023-03-21T11:11:11-05`;
+                field Timestamp timestamp10 = `2023-03-21T11:11:11+05:05`;
+                field Timestamp timestamp11 = `2023-03-21T11:11:11-05:05`;
+                field Timestamp timestamp12 = `2023-03-21T11:11:11.111`;
+                field Timestamp timestamp13 = `2023-03-21T11:11:11.111Z`;
+                field Timestamp timestamp14 = `2023-03-21T11:11:11.111+05`;
+                field Timestamp timestamp15 = `2023-03-21T11:11:11.111-05`;
+                field Timestamp timestamp16 = `2023-03-21T11:11:11.111+05:05`;
+                field Timestamp timestamp17 = `2023-03-21T11:11:11.111-05:05`;
+                field Timestamp timestamp18 = Timestamp!of(date = `2023-03-21`, time = `11:11`);
+                field Timestamp timestamp19 = Timestamp!of(date = `2023-03-21`, time = `11:11:11`);
+                field Timestamp timestamp20 = Timestamp!of(date = `2023-03-21`, time = `11:11:11.111`);
             }
 
             error ErrorFields {
