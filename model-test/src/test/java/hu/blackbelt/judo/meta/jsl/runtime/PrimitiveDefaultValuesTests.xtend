@@ -271,6 +271,7 @@ class PrimitiveDefaultValuesTests {
                 field Time timeHMS1 = Time!of(hour = 11, minute = 11, second = 11);
                 field Time timeHMSF = `11:11:11.111`;
                 field Time timeHMSF1 = Time!of(hour = 11, minute = 11, second = 11, millisecond = 111);
+                field Time timeHMSF2 = Time!of(hour = 11, minute = 11, millisecond = 111);
                 field Time timeFromMillisecond = Time!fromMilliseconds(milliseconds = 999999);
                 field Integer timeAsMillisecond = `11:11:11.111`!asMilliseconds();
                 field Timestamp timestamp = `2023-03-21T11:11`;
@@ -291,9 +292,10 @@ class PrimitiveDefaultValuesTests {
                 field Timestamp timestamp15 = `2023-03-21T11:11:11.111-05`;
                 field Timestamp timestamp16 = `2023-03-21T11:11:11.111+05:05`;
                 field Timestamp timestamp17 = `2023-03-21T11:11:11.111-05:05`;
-                field Timestamp timestamp18 = Timestamp!of(date = `2023-03-21`, time = `11:11`);
-                field Timestamp timestamp19 = Timestamp!of(date = `2023-03-21`, time = `11:11:11`);
-                field Timestamp timestamp20 = Timestamp!of(date = `2023-03-21`, time = `11:11:11.111`);
+                field Timestamp timestamp18 = Timestamp!of(date = `2023-03-21`);
+                field Timestamp timestamp19 = Timestamp!of(date = `2023-03-21`, time = `11:11`);
+                field Timestamp timestamp20 = Timestamp!of(date = `2023-03-21`, time = `11:11:11`);
+                field Timestamp timestamp21 = Timestamp!of(date = `2023-03-21`, time = `11:11:11.111`);
             }
 
             error ErrorFields {
