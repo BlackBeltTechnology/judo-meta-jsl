@@ -9,7 +9,7 @@ package hu.blackbelt.judo.meta.jsl
  */
 class JslDslStandaloneSetup extends JslDslStandaloneSetupGenerated {
 
-	def static void doSetup() {
-		new JslDslStandaloneSetup().createInjectorAndDoEMFRegistration()
-	}
+    def static void doSetup() {
+        new JslDslStandaloneSetup().createInjectorAndDoEMFRegistration()
+    }
 }
