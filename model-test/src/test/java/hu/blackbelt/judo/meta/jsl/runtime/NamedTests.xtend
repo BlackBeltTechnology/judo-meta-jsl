@@ -16,12 +16,12 @@ import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
 class NamedTests {
     @Inject extension ParseHelper<ModelDeclaration>
     @Inject extension ValidationTestHelper
-    
-	@Test
+
+    @Test
     def void testNamingOfEnumLiterals() {
         '''
             model test;
-            
+
             entity xEntity {
                 field TestLiteral f1;
             }

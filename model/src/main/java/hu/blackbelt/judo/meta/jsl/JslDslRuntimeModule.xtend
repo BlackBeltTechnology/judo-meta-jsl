@@ -26,22 +26,22 @@ import hu.blackbelt.judo.meta.jsl.runtime.JslTerminalConverters
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
- 
+
 class JslDslRuntimeModule extends AbstractJslDslRuntimeModule {
-    
+
 //    override Class<? extends IValueConverterService> bindIValueConverterService() {
 //        return typeof(JslTerminalConverters)
 //    }
-    
+
     override configureIScopeProviderDelegate(Binder binder) {
-		binder.bind(IScopeProvider).annotatedWith(Names.named(AbstractDeclarativeScopeProvider.NAMED_DELEGATE)).to(JslDslImportedNamespaceAwareLocalSocpeProvider);
-		binder.bind(IQualifiedNameConverter).to(JslDslQualifiedNameConverter)
-		binder.bind(IOutputConfigurationProvider).to(JslDslOutputConfigurationProvider).in(Singleton);
-	}
-	
-	def Class<? extends IDefaultResourceDescriptionStrategy> bindIDefaultResourceDescriptionStrategy() {
-		JslResourceDescriptionStrategy;
-	}
+        binder.bind(IScopeProvider).annotatedWith(Names.named(AbstractDeclarativeScopeProvider.NAMED_DELEGATE)).to(JslDslImportedNamespaceAwareLocalSocpeProvider);
+        binder.bind(IQualifiedNameConverter).to(JslDslQualifiedNameConverter)
+        binder.bind(IOutputConfigurationProvider).to(JslDslOutputConfigurationProvider).in(Singleton);
+    }
+
+    def Class<? extends IDefaultResourceDescriptionStrategy> bindIDefaultResourceDescriptionStrategy() {
+        JslResourceDescriptionStrategy;
+    }
 
     override Class<? extends IQualifiedNameProvider> bindIQualifiedNameProvider() {
         JslDslQualifiedNameProvider;
@@ -51,20 +51,20 @@ class JslDslRuntimeModule extends AbstractJslDslRuntimeModule {
 //        JslDslQualifiedNameConverter;
 //    }
 
-	def Class<? extends ISyntaxErrorMessageProvider> bindISyntaxErrorMessageProvider() {
-		JslDslSyntaxErrorMessageProvider;
-  	}
-  	
-  	def Class<? extends ILinkingDiagnosticMessageProvider> bindILinkingDiagnosticMessageProvider() {
-  		JslDslLinkingDiagnosticMessageProvider 
-	}
-  	
+    def Class<? extends ISyntaxErrorMessageProvider> bindISyntaxErrorMessageProvider() {
+        JslDslSyntaxErrorMessageProvider;
+      }
+
+      def Class<? extends ILinkingDiagnosticMessageProvider> bindILinkingDiagnosticMessageProvider() {
+          JslDslLinkingDiagnosticMessageProvider
+    }
+
     override Class<? extends IGlobalScopeProvider> bindIGlobalScopeProvider() {
         JslDslGlobalScopeProvider
     }
-    
-	override Class<? extends IValueConverterService> bindIValueConverterService() {
-	  return JslTerminalConverters
-	}	
+
+    override Class<? extends IValueConverterService> bindIValueConverterService() {
+      return JslTerminalConverters
+    }
 }
 

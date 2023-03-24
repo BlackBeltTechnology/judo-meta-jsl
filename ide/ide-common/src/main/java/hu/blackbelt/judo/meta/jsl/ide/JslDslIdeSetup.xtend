@@ -13,8 +13,8 @@ import org.eclipse.xtext.util.Modules2
  */
 class JslDslIdeSetup extends JslDslStandaloneSetup {
 
-	override createInjector() {
-		Guice.createInjector(Modules2.mixin(new JslDslRuntimeModule, new JslDslIdeModule))
-	}
-	
+    override createInjector() {
+        Guice.createInjector(Modules2.mixin(new JslDslRuntimeModule, new JslDslIdeModule))
+    }
+
 }

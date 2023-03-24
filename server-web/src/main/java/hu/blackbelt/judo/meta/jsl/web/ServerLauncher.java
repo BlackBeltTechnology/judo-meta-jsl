@@ -12,13 +12,13 @@ package hu.blackbelt.judo.meta.jsl.web;
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
- * 
+ *
  * This Source Code may also be made available under the following Secondary
  * Licenses when the conditions for such availability set forth in the Eclipse
  * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
  * with the GNU Classpath Exception which is
  * available at https://www.gnu.org/software/classpath/license.html.
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
@@ -36,47 +36,47 @@ import java.net.InetSocketAddress;
  */
 @Slf4j
 public class ServerLauncher {
-	public static void main(String[] args) {
-		Server server = new Server(new InetSocketAddress("localhost", 8080));
-		WebAppContext ctx = new WebAppContext();
-		ctx.setResourceBase("WebRoot");
-		ctx.setWelcomeFiles(new String[] {"index.html"});
-		ctx.setContextPath("/");
-		ctx.setConfigurations(new Configuration[] {
-			new AnnotationConfiguration(),
-			new WebXmlConfiguration(),
-			new WebInfConfiguration(),
-			new MetaInfConfiguration()
-		});
-		ctx.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN,
-			".*/hu\\.blackbelt\\.judo\\.meta\\.jsl\\.web/.*,.*\\.jar");
-		ctx.setInitParameter("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
-		server.setHandler(ctx);
-		try {
-			server.start();
-			log.info("Server started " + server.getURI() + "...");
-			new Thread() {
+    public static void main(String[] args) {
+        Server server = new Server(new InetSocketAddress("localhost", 8080));
+        WebAppContext ctx = new WebAppContext();
+        ctx.setResourceBase("WebRoot");
+        ctx.setWelcomeFiles(new String[] {"index.html"});
+        ctx.setContextPath("/");
+        ctx.setConfigurations(new Configuration[] {
+            new AnnotationConfiguration(),
+            new WebXmlConfiguration(),
+            new WebInfConfiguration(),
+            new MetaInfConfiguration()
+        });
+        ctx.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN,
+            ".*/hu\\.blackbelt\\.judo\\.meta\\.jsl\\.web/.*,.*\\.jar");
+        ctx.setInitParameter("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
+        server.setHandler(ctx);
+        try {
+            server.start();
+            log.info("Server started " + server.getURI() + "...");
+            new Thread() {
 
-				public void run() {
-					try {
-						log.info("Press enter to stop the server...");
-						int key = System.in.read();
-						if (key != -1) {
-							server.stop();
-						} else {
-							log.warn(
-									"Console input is not available. In order to stop the server, you need to cancel process manually.");
-						}
-					} catch (Exception e) {
-						log.warn("Server stop failed", e);
-					}
-				}
+                public void run() {
+                    try {
+                        log.info("Press enter to stop the server...");
+                        int key = System.in.read();
+                        if (key != -1) {
+                            server.stop();
+                        } else {
+                            log.warn(
+                                    "Console input is not available. In order to stop the server, you need to cancel process manually.");
+                        }
+                    } catch (Exception e) {
+                        log.warn("Server stop failed", e);
+                    }
+                }
 
-			}.start();
-			server.join();
-		} catch (Exception exception) {
-			log.warn(exception.getMessage());
-			System.exit(1);
-		}
-	}
+            }.start();
+            server.join();
+        } catch (Exception exception) {
+            log.warn(exception.getMessage());
+            System.exit(1);
+        }
+    }
 }
