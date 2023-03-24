@@ -477,14 +477,15 @@ Any type functions can be applied to any type or instance except collections.
 |Returns the original string with all alphabetic characters in uppercase. Note that the actual locale of the database affects the behavior of this function. 
 |Example: `"ApPlE"!upper()` is `"APPLE"`
 |======================================================================
-
+////
+TODO: https://blackbelt.atlassian.net/browse/JNG-4087
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**capitalize()**# : string`
 |Returns a string with the first letter capitalized and all other characters lowercased. Note that the actual locale of the database affects the behavior of this function.
 |Example: `"apPlE"!capitalize()` is `"Apple"`
 |======================================================================
-
+////
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**matches(pattern = **#<pattern>[purple]##**)**## : boolean`
@@ -727,23 +728,51 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**now()**# : time`
-|Static function, returns the current time.
-|Example: `Time!now()` is `&#x60;13:45:00&#x60;`
+|`[purple]#**millisecond()**# : numeric`
+|Returns the millisecond part of time.
+|Example: `&#x60;23:15:59.789&#x60;!millisecond()` is `789`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**of(hour = **#<hour>[purple]##**, minute = **## <minute>[purple]##**, second = **## <second>[purple]##**)**## : time`
-|Static function, constructs a time value from the numeric parameters <hour>, <minute> and <second>. If any of the parameters is not integer, the result will be undefined. If any parameter is less than 0, the result will be undefined. If <hour> is greater than 23, or <minute> or <second> is greater than 59, it gives an undefined result.
-|Example: `Time!of(hour = 13, minute = 45, second = 00)` is `&#x60;13:45:00&#x60;`
+|`[purple]#**now()**# : time`
+|Static function, returns the current time.
+|Example: `Time!now()` is `&#x60;13:45&#x60;`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**of(hour = **#<hour>[purple]##**, minute = **## <minute>[purple]##**[, second = **## <second>[purple]##**][, millisecond = **## <millisecond>[purple]##**])**## : time`
+|Static function, constructs a time value from the numeric parameters <hour>, <minute>, <second> and <millisecond>. If any of the parameters is not integer, the result will be undefined. If any parameter is less than 0, the result will be undefined. If <hour> is greater than 23, <minute> or <second> is greater than 59 or <millisecond> is greater than 999, it gives an undefined result.
+|Example::
+* `Time!of(hour = 13, minute = 45)` is `&#x60;13:45&#x60;`
+* `Time!of(hour = 13, minute = 45, second = 77)` is `&#x60;13:45:77&#x60;`
+* `Time!of(hour = 13, minute = 45, second = 77, millisecond = 444)` is `&#x60;13:45:77.444&#x60;`
+* `Time!of(hour = 13, minute = 45, millisecond = 444)` is `&#x60;13:45:00.444&#x60;`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**asMilliseconds()**# : numeric`
+|Returns the time in milliseconds from 00:00, midnight.
+|Example: `&#x60;00:01&#x60;!asMilliseconds()` is `60000`
+|======================================================================
+
+[options="header",grid="none",cols="1a"]
+|======================================================================
+|`[purple]#**fromMilliseconds(milliseconds = **#<milliseconds>[purple]##**)**## : time`
+|Static function, creates a time and sets the value in <milliseconds> from 00:00, midnight. <milliseconds> must be an integer
+|Example: `Time!fromMilliseconds(milliseconds = 60000)` is `&#x60;00:01&#x60;`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**asString()**# : string`
 |Time value as string according to the ISO-8601 standard.
-|Example: `&#x60;23:15:59&#x60;!asString()` is `"23:15:59"`
+|Example::
+* `&#x60;23:15:00.000&#x60;!asString()` is `"23:15"`
+* `&#x60;23:15:59.000&#x60;!asString()` is `"23:15:59"`
+* `&#x60;23:15:59.789&#x60;!asString()` is `"23:15:59.789"`
 |======================================================================
 
 [#timestamp_functions,judo-req="true",judo-req-id="REQ-EXPR-018"]
@@ -752,18 +781,18 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**date()**# : date`
-|Returns the date part of the timestamp in UTC+0 timezone.
+|Returns the date part of the timestamp.
 |Example:
-|`&#x60;2019-07-18T01:11:12Z&#x60;!date()` is `&#x60;2019-07-18&#x60;`
+|`&#x60;2019-07-18T01:11:12&#x60;!date()` is `&#x60;2019-07-18&#x60;`
 |`&#x60;2019-07-18T01:11:12+02:00&#x60;!date()` is `&#x60;2019-07-17&#x60;`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**time()**# : time`
-|Returns the time part of the timestamp in UTC+0 timezone.
+|Returns the time part of the timestamp.
 |Example:
-|`&#x60;2019-07-18T01:11:12Z&#x60;!time()` is `&#x60;01:11:12&#x60;`
+|`&#x60;2019-07-18T01:11:12&#x60;!time()` is `&#x60;01:11:12&#x60;`
 |`&#x60;2019-07-18T01:11:12+02:00&#x60;!time()` is `&#x60;23:11:12&#x60;`
 |======================================================================
 
@@ -771,7 +800,7 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 |======================================================================
 |`[purple]#**now()**# : timestamp`
 |Static function, returns the current date and time.
-|Example: `Timestamp!now()` is `&#x60;2021-02-28T00:00:00Z&#x60;`
+|Example: `Timestamp!now()` is `&#x60;2021-02-28T00:00&#x60;`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -779,22 +808,22 @@ The percent sign represents zero, one, or multiple numbers or characters. The un
 |`[purple]#**of(date = **#<date> &#x5B;[purple]##**, time = **##<time>][purple]##**)**## : timestamp`
 |Static function, constructs a timestamp value from the parameters <date> and <time>, where <date> is a date primitive and <time> is a time primitive. The <time> parameter is optional, if <time> is omitted the time part of the timestamp will be set to `&#x60;00:00:00&#x60;`.
 |Example:
-|`Timestamp!of(date = &#x60;2021-02-28&#x60;, time = &#x60;10:30:01&#x60;)` is `&#x60;2021-02-28T10:30:01Z&#x60;`
-|`Timestamp!of(date = &#x60;2021-02-28&#x60;)` is `&#x60;2021-02-28T00:00:00Z&#x60;`
+|`Timestamp!of(date = &#x60;2021-02-28&#x60;, time = &#x60;10:30:01&#x60;)` is `&#x60;2021-02-28T10:30:01&#x60;`
+|`Timestamp!of(date = &#x60;2021-02-28&#x60;)` is `&#x60;2021-02-28T00:00&#x60;`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**asMilliseconds()**# : numeric`
-|Returns the timestamp in milliseconds from 1970-01-01T00:00:00Z.
+|Returns the timestamp in milliseconds from 1970-01-01T00:00.
 |Example: `&#x60;1970-01-01T00:01:00Z&#x60;!asMilliseconds()` is `60000`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**fromMilliseconds(milliseconds = **#<milliseconds>[purple]##**)**## : timestamp`
-|Static function, creates a timestamp and sets the value in <milliseconds> from 1970-01-01T00:00:00Z. <milliseconds> must be an integer
-|Example: `Timestamp!fromMilliseconds(milliseconds = 60000)` is `&#x60;1970-01-01T00:01:00Z&#x60;`
+|Static function, creates a timestamp and sets the value in <milliseconds> from 1970-01-01T00:00. <milliseconds> must be an integer
+|Example: `Timestamp!fromMilliseconds(milliseconds = 60000)` is `&#x60;1970-01-01T00:01:00&#x60;`
 |======================================================================
 
 
@@ -807,18 +836,18 @@ At least one parameter is required, but any parameter can be used in conjunction
 
 Examples:
 
-`&#x60;2019-07-18T01:11:12Z&#x60;!plus(days = 1)` is `"2019-07-19T01:11:12Z"`
+`&#x60;2019-07-18T01:11:12&#x60;!plus(days = 1)` is `"2019-07-19T01:11:12"`
 
-`&#x60;2019-07-18T01:11:12Z&#x60;!plus(days = 1, hours = 2)` is `"2019-07-19T03:11:12Z"`
+`&#x60;2019-07-18T01:11:12&#x60;!plus(days = 1, hours = 2)` is `"2019-07-19T03:11:12"`
 
-`&#x60;2019-07-18T01:11:12Z&#x60;!plus(days = 1, hours = -24)` is `"2019-07-18T01:11:12Z"`
+`&#x60;2019-07-18T01:11:12&#x60;!plus(days = 1, hours = -24)` is `"2019-07-18T01:11:12"`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**asString()**# : string`
 |Timestamp value as string according to the ISO-8601 standard.
-|Example: `&#x60;2019-07-18T01:11:12Z&#x60;!asString()` is `"2019-07-18T01:11:12Z"`
+|Example: `&#x60;2019-07-18T01:11:12Z&#x60;!asString()` is `"2019-07-18T01:11:12"`
 |======================================================================
 
 [#binary_functions,judo-req="true",judo-req-id="REQ-EXPR-019"]

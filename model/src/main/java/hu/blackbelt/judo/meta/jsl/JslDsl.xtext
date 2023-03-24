@@ -752,7 +752,7 @@ StringLiteral
 
 TemporalLiteral
 	: {DateLiteral} value=DATE
-	| {TimeStampLiteral} value=TIMESTAMP
+	| {TimestampLiteral} value=TIMESTAMP
 	| {TimeLiteral} value=TIME
 	;
 
@@ -833,7 +833,7 @@ terminal fragment NEWLINE
     ;
 
 terminal TIMESTAMP
-	: '`' DIGIT+ '-' DIGIT DIGIT '-' DIGIT DIGIT 'T' DIGIT DIGIT ':' DIGIT DIGIT (':' DIGIT DIGIT ('.' DIGIT+ )? )? ('Z' | ('+' | '-') DIGIT DIGIT ':' DIGIT DIGIT )'`'
+	: '`' DIGIT+ '-' DIGIT DIGIT '-' DIGIT DIGIT 'T' DIGIT DIGIT ':' DIGIT DIGIT (':' DIGIT DIGIT ('.' DIGIT+)?)? ('Z' | ('+' | '-') DIGIT DIGIT (':' DIGIT DIGIT)?)?'`'
 	;
 
 terminal TIME
