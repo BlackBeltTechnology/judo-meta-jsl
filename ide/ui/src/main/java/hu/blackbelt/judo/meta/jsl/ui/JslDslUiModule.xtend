@@ -16,23 +16,23 @@ import org.eclipse.xtext.ide.editor.syntaxcoloring.ISemanticHighlightingCalculat
  */
 
 class JslDslUiModule extends AbstractJslDslUiModule {
-	
-	new(AbstractUIPlugin plugin) {
-		super(plugin)
-	}
-	
-	/**
-	 * Bind a proper highlighting configuration
-	 */
-	def Class<? extends IHighlightingConfiguration> bindIHighlightingConfiguration() {
-		return HighlightingConfiguration;
-	}
 
-	def Class<? extends AbstractAntlrTokenToAttributeIdMapper> bindAbstractAntlrTokenToAttributeIdMapper() {
+    new(AbstractUIPlugin plugin) {
+        super(plugin)
+    }
+
+    /**
+     * Bind a proper highlighting configuration
+     */
+    def Class<? extends IHighlightingConfiguration> bindIHighlightingConfiguration() {
+        return HighlightingConfiguration;
+    }
+
+    def Class<? extends AbstractAntlrTokenToAttributeIdMapper> bindAbstractAntlrTokenToAttributeIdMapper() {
         return TokenHighlightingConfiguration;
     }
 
-	def Class<? extends ISemanticHighlightingCalculator> bindSemanticHighlightingCalculator() {
-		return JslDslSemanticHighlightCalculator;
-	}
+    def Class<? extends ISemanticHighlightingCalculator> bindSemanticHighlightingCalculator() {
+        return JslDslSemanticHighlightCalculator;
+    }
 }
