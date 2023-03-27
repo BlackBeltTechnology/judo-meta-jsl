@@ -71,6 +71,9 @@ Workflow {
             fragment = parser.antlr.XtextAntlrGeneratorFragment2 auto-inject {
                 options = { 
                     ignoreCase = false
+                    classSplitting = true
+                    fieldsPerClass = "20"
+                    methodsPerClass = "50"
                 }
             }
             fragment = validation.ValidatorFragment2 auto-inject {
@@ -125,6 +128,9 @@ Workflow {
             parserGenerator = {
                 options = {
                     ignoreCase = false
+                    classSplitting = true
+                    fieldsPerClass = "20"
+                    methodsPerClass = "50"
                 }
                 debugGrammar = true
             }
