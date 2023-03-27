@@ -42,6 +42,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaDeclaration
 import org.eclipse.emf.ecore.util.EcoreUtil
 import hu.blackbelt.judo.meta.jsl.jsldsl.StringLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -336,6 +337,14 @@ class JslDslModelExtension {
 
     def Collection<EntityIdentifierDeclaration> allIdentifiers(EntityDeclaration it) {
         allMembers.filter[d | d instanceof EntityIdentifierDeclaration].map[d | d as EntityIdentifierDeclaration].toList
+    }
+    
+    def Collection<TransferDeclaration> transferDeclarations(ModelDeclaration it) {
+        declarations.filter[d | d instanceof TransferDeclaration].map[d | d as TransferDeclaration].toList
+    }
+    
+    def Collection<TransferFieldDeclaration> fields(TransferDeclaration it) {
+        members.filter[d | d instanceof TransferFieldDeclaration].map[d | d as TransferFieldDeclaration].toList
     }
 
 

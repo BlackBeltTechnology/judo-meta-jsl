@@ -13,7 +13,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorField
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ConstraintDeclaration
 import java.util.Collection
 import java.util.HashSet
 import java.util.Set
@@ -21,6 +20,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeReferenced
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
 
 @Singleton
 class JsldslDefaultPlantUMLDiagramGenerator {
@@ -46,7 +47,13 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             ArrowColor #black
 
             FontSize 13
-            FontStyle bold
+
+            BackgroundColor<< AutoMapped >> white|#f9f4cb
+            HeaderBackgroundColor<< AutoMapped >> #f4f0c7/#f7f0b9
+            FontStyle<< AutoMapped >> italic
+
+            BackgroundColor<< Transfer >> white|#f9f4cb
+            HeaderBackgroundColor<< Transfer >> #f4f0c7/#f7f0b9
 
             BackgroundColor<< Abstract >> white|#cfe3e8
             HeaderBackgroundColor<< Abstract >> #cee2e6/#bed8df
@@ -194,12 +201,41 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 «««            «ENDFOR»
         }
     '''
+    
+    def transferStereotypeFragment(TransferDeclaration it)
+    '''«IF automap» << AutoMapped >> «ELSE» << Transfer >>«ENDIF»'''
+    
+    def transferFieldNameFragment(TransferFieldDeclaration it)
+    '''«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»'''
+    
+    def transferFieldCardinalityFragment(TransferFieldDeclaration it)
+    '''«IF isIsMany»[0..*]«ENDIF»'''
+    
+    def transferFieldRepresentation(TransferFieldDeclaration it)
+    '''«transferFieldNameFragment» : «referenceType.name»«transferFieldCardinalityFragment»«IF it.maps !== null» {maps} «ENDIF»«IF it.reads !== null» {reads} «ENDIF»
+	'''
+
+    def transferRepresentation(TransferDeclaration it)
+    '''
+        class «name?:"none"»«transferStereotypeFragment» {
+            «FOR field : it.fields»
+                «field.transferFieldRepresentation»
+            «ENDFOR»
+        }
+    '''
 
     def entityExtends(EntityDeclaration it)
     '''
         «FOR supertype : it.extends»
             «name» --|> «supertype.name»
         «ENDFOR»
+    '''
+    
+    def transferMaps(TransferDeclaration it)
+    '''
+        «IF it.map !== null»
+            «name» ...> "«it.map.name»" «it.map.entity.name»
+        «ENDIF»
     '''
 
     def entityRelationOppositeInjectedRepresentation(EntityRelationOppositeInjected it)
@@ -240,6 +276,16 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     together {
         «FOR error : errorDeclarations»
             «error.errorRepresentation»
+        «ENDFOR»
+    }
+    
+    together {
+    	«FOR transfer : transferDeclarations»
+            «transfer.transferRepresentation»
+        «ENDFOR»
+        
+        «FOR transfer : transferDeclarations»
+            «transfer.transferMaps»
         «ENDFOR»
     }
 
