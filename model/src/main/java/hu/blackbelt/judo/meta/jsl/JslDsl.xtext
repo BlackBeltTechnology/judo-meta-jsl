@@ -253,8 +253,6 @@ TransferDeclaration
 
 TransferMemberDeclaration
 	: TransferFieldDeclaration
-//    | ServiceDataDeclaration
-//	| ServiceFunctionDeclaration	
 	  SC*
 	;
 
