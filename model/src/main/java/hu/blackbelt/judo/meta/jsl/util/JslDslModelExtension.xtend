@@ -47,6 +47,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceFunctionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -365,6 +366,10 @@ class JslDslModelExtension {
     
     def Collection<ServiceFunctionDeclaration> functionDeclarationsForService(ServiceDeclaration it) {
         it.members.filter[m | m instanceof ServiceFunctionDeclaration].map[m | m as ServiceFunctionDeclaration].toList 
+    }
+    
+    def Collection<ActorDeclaration> actorDeclarations(ModelDeclaration it) {
+        it.declarations.filter[m | m instanceof ActorDeclaration].map[m | m as ActorDeclaration].toList 
     }
 
     def String sourceCode(Expression it) {

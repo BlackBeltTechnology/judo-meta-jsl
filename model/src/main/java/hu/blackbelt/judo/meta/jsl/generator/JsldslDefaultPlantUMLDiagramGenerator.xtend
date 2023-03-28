@@ -28,6 +28,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceReturnDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceReturnAlternateDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
 
 @Singleton
 class JsldslDefaultPlantUMLDiagramGenerator {
@@ -67,6 +68,13 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
             BackgroundColor<< Service >> white|#d4e5c9
             HeaderBackgroundColor<< Service >> #d1e0c5/#c9dcbb
+
+            BackgroundColor<< MappedActor >> white|#dddddd
+            HeaderBackgroundColor<< MappedActor >> #dddddd/#dddddd
+            FontStyle<< MappedActor >> italic
+
+            BackgroundColor<< Actor >> white|#dddddd
+            HeaderBackgroundColor<< Actor >> #dddddd/#dddddd
 
             BackgroundColor<< Abstract >> white|#cfe3e8
             HeaderBackgroundColor<< Abstract >> #cee2e6/#bed8df
@@ -275,6 +283,18 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             «ENDFOR»
         }
     '''
+    
+    def actorStereotypeFragment(ActorDeclaration it)
+    '''«IF map !== null» << MappedActor >> «ELSE» << Actor >>«ENDIF»'''
+    
+    def actorRepresentation(ActorDeclaration it)
+    '''
+        class «name?:"none"»«actorStereotypeFragment» {
+            «IF realm !== null»realm "«realm.value»"«ENDIF»
+            «IF claim !== null»claim "«claim.value»"«ENDIF»
+            «IF identity !== null»identity "«identity.sourceCode»"«ENDIF»
+        }
+    '''
 
     def entityExtends(EntityDeclaration it)
     '''
@@ -295,6 +315,20 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         «IF it.map !== null»
             «name» ...> "«it.map.name»" «it.map.entity.name»
         «ENDIF»
+    '''
+    
+    def actorMaps(ActorDeclaration it)
+    '''
+        «IF it.map !== null»
+            «name» ...> "«it.map.name»" «it.map.entity.name»
+        «ENDIF»
+    '''
+    
+    def actorExports(ActorDeclaration it)
+    '''
+		«FOR exp : it.exports»
+            «name» ...> «exp.name» : <<exports>>
+        «ENDFOR»
     '''
 
     def entityRelationOppositeInjectedRepresentation(EntityRelationOppositeInjected it)
@@ -352,11 +386,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         «FOR transfer : transferDeclarations»
             «transfer.transferMaps»
         «ENDFOR»
-        
-        
-    }
-    
-    together {
+
         «FOR service : serviceDeclarations»
             «service.serviceRepresentation»
         «ENDFOR»
@@ -364,7 +394,21 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         «FOR service : serviceDeclarations»
             «service.serviceMaps»
         «ENDFOR»
-        }
+    }
+    
+    together {
+     	«FOR actor : actorDeclarations»
+	        «actor.actorRepresentation»
+	    «ENDFOR»
+
+	    «FOR actor : actorDeclarations»
+	        «actor.actorMaps»
+	    «ENDFOR»
+
+	    «FOR actor : actorDeclarations»
+	        «actor.actorExports»
+	    «ENDFOR»
+    }
 
     together {
         «FOR entity : entityDeclarations»
