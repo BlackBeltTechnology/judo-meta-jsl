@@ -8,9 +8,11 @@ import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Disabled
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
 import hu.blackbelt.judo.requirement.report.annotation.Requirement
+import hu.blackbelt.judo.requirement.report.annotation.TestCase
 
 @ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
@@ -18,47 +20,28 @@ class NamedTests {
     @Inject extension ParseHelper<ModelDeclaration>
     @Inject extension ValidationTestHelper
 
-/**
-     * Testing the naming rules. In this case check that case when the element name starts
-     * a lower case character and follows it an upper case character.
-     *
-     * @prerequisites "Nothing"
-     *
-     * @type Behaviour
-     *
-     * @jslModel
-     *  model mModelTC021;
-     *
-     *  import judo::types;
-     *
-     *  type string sType(min-size = 0, max-size = 10);
-     *
-     *  enum xEnum {
-     *      xA0 = 0;
-     *      xB1 = 1;
-     *  }
-     *
-     *  entity aEnt1 {
-     *      field Boolean fBool = true;
-     *      field sType   sS99  = "abc";
-     *      field xEnum   zEnum = xEnum#xB1;
-     *  }
-     *
-     * @scenario
-     *  . Parse (and/or build) the model.
-     *
-     *  . The result of the model parsing (and/or building) is successful.
-     *
-     *  . Create an aEnt1 entity instance (ae1) with the default values.
-     *
-     *  . Check the values of the following fields of the new entity instance (ae1).
-     *      * fBool == true
-     *      * sS99 == "abc"
-     *      * zEnum == xEnum#xB1
-     *
-     *  . The test is passed if all modifications and checks are successful, and there were no exceptions.
-     */
+
     @Test
+    @Disabled("JNG-4678")
+    @TestCase("TC021")
+    @Requirement(reqs = #[
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
+            "REQ-MDL-001"
+    ])
+    def void testNamingOfModel() {
+        '''
+        model mModelTC021;
+
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
+        ]
+    }
+
+    @Test
+    @TestCase("TC021")
     @Requirement(reqs = #[
             "REQ-SYNT-001",
             "REQ-SYNT-002",
@@ -67,147 +50,82 @@ class NamedTests {
             "REQ-MDL-001",
             "REQ-MDL-003",
             "REQ-TYPE-001",
-            "REQ-TYPE-002",
-            "REQ-TYPE-004",
-            "REQ-TYPE-006",
-            "REQ-ENT-001",
-            "REQ-ENT-002",
-            "REQ-EXPR-001"
+            "REQ-TYPE-004"
     ])
-    def void testNamingOfTypeName() {
+    def void testNamingOfType() {
         '''
-         model mModelTC021;
+         model modelTC021;
 
          import judo::types;
 
          type string sType(min-size = 0, max-size = 10);
 
-         enum Enum {
-             a0 = 0;
-             b1 = 1;
-         }
-
-         entity Ent1 {
-             field Boolean bool = true;
-             field Stype   s99  = "abc";
-             field Enum   enum = Enum#b1;
-         }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
         ]
     }
 
     @Test
+    @TestCase("TC021")
     @Requirement(reqs = #[
             "REQ-SYNT-001",
             "REQ-SYNT-002",
             "REQ-SYNT-003",
             "REQ-SYNT-004",
             "REQ-MDL-001",
-            "REQ-MDL-003",
-            "REQ-TYPE-001",
-            "REQ-TYPE-002",
-            "REQ-TYPE-004",
-            "REQ-TYPE-006",
-            "REQ-ENT-001",
-            "REQ-ENT-002",
-            "REQ-EXPR-001"
+            "REQ-TYPE-002"
     ])
-    def void testNamingOfEnumTypeName() {
+    def void testNamingOfEnumType() {
         '''
-         model mModelTC021;
-
-         import judo::types;
-
-         type string SType(min-size = 0, max-size = 10);
+         model modelTC021;
 
          enum xEnum {
              a0 = 0;
              b1 = 1;
          }
-
-         entity Ent1 {
-             field Boolean bool = true;
-             field Stype   s99  = "abc";
-             field Enum   enum = xEnum#b1;
-         }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
         ]
     }
 
     @Test
+    @TestCase("TC021")
     @Requirement(reqs = #[
             "REQ-SYNT-001",
             "REQ-SYNT-002",
             "REQ-SYNT-003",
             "REQ-SYNT-004",
             "REQ-MDL-001",
-            "REQ-MDL-003",
-            "REQ-TYPE-001",
-            "REQ-TYPE-002",
-            "REQ-TYPE-004",
-            "REQ-TYPE-006",
-            "REQ-ENT-001",
-            "REQ-ENT-002",
-            "REQ-EXPR-001"
+            "REQ-TYPE-002"
     ])
-    def void testNamingOfEnumFieldName() {
+    def void testNamingOfEnumFiel() {
         '''
-         model mModelTC021;
-
-         import judo::types;
-
-         type string SType(min-size = 0, max-size = 10);
+         model modelTC021;
 
          enum Enum {
-             a0 = 0;
+             xA0 = 0;
              xB1 = 1;
          }
-
-         entity Ent1 {
-             field Boolean bool = true;
-             field Stype   s99  = "abc";
-             field Enum   enum = Enum#B1;
-         }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
         ]
     }
 
     @Test
+    @TestCase("TC021")
     @Requirement(reqs = #[
             "REQ-SYNT-001",
             "REQ-SYNT-002",
             "REQ-SYNT-003",
             "REQ-SYNT-004",
             "REQ-MDL-001",
-            "REQ-MDL-003",
-            "REQ-TYPE-001",
-            "REQ-TYPE-002",
-            "REQ-TYPE-004",
-            "REQ-TYPE-006",
-            "REQ-ENT-001",
-            "REQ-ENT-002",
-            "REQ-EXPR-001"
+            "REQ-ENT-001"
     ])
-    def void testNamingOfEntityTypeName() {
+    def void testNamingOfEntityType() {
         '''
-         model mModelTC021;
-
-         import judo::types;
-
-         type string SType(min-size = 0, max-size = 10);
-
-         enum Enum {
-             a0 = 0;
-             b1 = 1;
-         }
+         model modelTC021;
 
          entity xEnt1 {
-             field Boolean bool = true;
-             field Stype   s99  = "abc";
-             field Enum   enum = Enum#b1;
          }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
@@ -215,6 +133,32 @@ class NamedTests {
     }
 
     @Test
+    @TestCase("TC021")
+    @Requirement(reqs = #[
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
+            "REQ-MDL-001",
+            "REQ-ENT-001",
+            "REQ-ENT-012"
+    ])
+    def void testNamingOfEntityTypeWithExtendAndAbstract() {
+        '''
+         model modelTC021;
+
+         entity Ent {
+         }
+
+         entity abstract xEnt1 extends Ent {
+         }
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
+        ]
+    }
+
+    @Test
+    @TestCase("TC021")
     @Requirement(reqs = #[
             "REQ-SYNT-001",
             "REQ-SYNT-002",
@@ -224,19 +168,24 @@ class NamedTests {
             "REQ-MDL-003",
             "REQ-TYPE-001",
             "REQ-TYPE-002",
+            "REQ-TYPE-003",
             "REQ-TYPE-004",
+            "REQ-TYPE-005",
             "REQ-TYPE-006",
+            "REQ-TYPE-007",
+            "REQ-TYPE-008",
+            "REQ-TYPE-009",
             "REQ-ENT-001",
-            "REQ-ENT-002",
-            "REQ-EXPR-001"
+            "REQ-ENT-002"
     ])
-    def void testNamingOfEntityFieldName() {
+    def void testNamingOfEntityField() {
         '''
-         model mModelTC021;
+         model modelTC021;
 
          import judo::types;
 
          type string SType(min-size = 0, max-size = 10);
+         type numeric Integer(precision = 9, scale = 0);
 
          enum Enum {
              a0 = 0;
@@ -244,12 +193,202 @@ class NamedTests {
          }
 
          entity Ent1 {
-             field Boolean xBool = true;
-             field Stype   s99  = "abc";
-             field Enum   enum = Enum#b1;
+             field Boolean xBool;
+             field SType xString;
+             field Integer xNumeric;
+             field Enum xEnum;
+             field Date xDate;
+             field Timestamp xTimestamp;
+             field Time xTime;
          }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
         ]
     }
+
+    @Test
+    @TestCase("TC021")
+    @Requirement(reqs = #[
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
+            "REQ-MDL-001",
+            "REQ-MDL-003",
+            "REQ-TYPE-001",
+            "REQ-TYPE-002",
+            "REQ-TYPE-003",
+            "REQ-TYPE-004",
+            "REQ-TYPE-005",
+            "REQ-TYPE-006",
+            "REQ-TYPE-007",
+            "REQ-TYPE-008",
+            "REQ-TYPE-009",
+            "REQ-ENT-001",
+            "REQ-ENT-003"
+    ])
+    def void testNamingOfEntityIdentifier() {
+        '''
+         model modelTC021;
+
+         import judo::types;
+
+         type string SType(min-size = 0, max-size = 10);
+         type numeric Integer(precision = 9, scale = 0);
+
+         enum Enum {
+             a0 = 0;
+             b1 = 1;
+         }
+         entity Ent1 {
+             identifier Boolean xBool;
+             identifier SType xString;
+             identifier Integer xNumeric;
+             identifier Enum xEnum;
+             identifier Date xDate;
+             identifier Timestamp xTimestamp;
+             identifier Time xTime;
+         }
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
+        ]
+    }
+
+    @Test
+    @TestCase("TC021")
+    @Requirement(reqs = #[
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
+            "REQ-MDL-001",
+            "REQ-MDL-003",
+            "REQ-ENT-001",
+            "REQ-ENT-003",
+            "REQ-ENT-004",
+            "REQ-ENT-005",
+            "REQ-ENT-006"
+    ])
+    def void testNamingOfEntityRelation() {
+        '''
+         model modelTC021;
+
+         entity Ent1 {
+            relation Ent3 xEnt3;
+            relation Ent2 xEnt2 opposite xEnt1;
+            relation Ent4 xEnt4 opposite-add Ent4;
+
+         }
+         entity Ent2 {
+            relation Ent1 xEnt1 opposite xEnt2;
+         }
+         entity Ent3 {
+         }
+         entity Ent4 {
+         }
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
+        ]
+    }
+
+    @Test
+    @TestCase("TC021")
+    @Requirement(reqs = #[
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
+            "REQ-MDL-001",
+            "REQ-MDL-003",
+            "REQ-TYPE-001",
+            "REQ-TYPE-002",
+            "REQ-TYPE-003",
+            "REQ-TYPE-004",
+            "REQ-TYPE-005",
+            "REQ-TYPE-006",
+            "REQ-TYPE-007",
+            "REQ-TYPE-008",
+            "REQ-TYPE-009",
+            "REQ-ENT-001",
+            "REQ-ENT-008"
+    ])
+    def void testNamingOfDerived() {
+        '''
+         model modelTC021;
+
+         import judo::types;
+
+         type string SType(min-size = 0, max-size = 10);
+         type numeric Integer(precision = 9, scale = 0);
+
+         enum Enum {
+              a0 = 0;
+              b1 = 1;
+         }
+
+         entity Ent1 {
+             derived Boolean xBool => true;
+             derived SType xString => "Sting";
+             derived Integer xNumeric => 1;
+             derived Enum xEnum => Enum#a0;
+             derived Date xDate => `2023-11-09`;
+             derived Timestamp xTimestamp => `2020-02-18T10:11:12`;
+             derived Time xTime => `12:23:56.1`;
+         }
+         '''.parse => [
+             m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
+         ]
+    }
+
+        @Test
+        @TestCase("TC021")
+        @Requirement(reqs = #[
+                "REQ-SYNT-001",
+                "REQ-SYNT-002",
+                "REQ-SYNT-003",
+                "REQ-SYNT-004",
+                "REQ-MDL-001",
+                "REQ-MDL-003",
+                "REQ-TYPE-001",
+                "REQ-TYPE-002",
+                "REQ-TYPE-004",
+                "REQ-TYPE-005",
+                "REQ-TYPE-006",
+                "REQ-TYPE-007",
+                "REQ-TYPE-008",
+                "REQ-TYPE-009",
+                "REQ-ENT-001",
+                "REQ-ENT-009",
+                "REQ-ENT-011"
+        ])
+        def void testNamingOfQuery() {
+            '''
+             model modelTC021;
+
+             import judo::types;
+
+             type string SType(min-size = 0, max-size = 10);
+             type numeric Integer(precision = 9, scale = 0);
+
+             enum Enum {
+                  a0 = 0;
+                  b1 = 1;
+             }
+
+             entity Ent1 {
+                 query Boolean xBool() => true;
+                 query SType xString() => "Sting";
+                 query Integer xNumeric() => 1;
+                 query Enum xEnum() => Enum#a0;
+                 query Date xDate() => `2023-11-09`;
+                 query Timestamp xTimestamp() => `2020-02-18T10:11:12`;
+                 query Time xTime() => `12:23:56.1`;
+             }
+
+             query Ent1[] xAllEnt1() => Ent1!all();
+             '''.parse => [
+                 m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
+             ]
+        }
+
  }
