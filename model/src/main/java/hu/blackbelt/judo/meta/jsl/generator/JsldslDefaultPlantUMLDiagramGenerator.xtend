@@ -22,6 +22,12 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeReferenced
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceFunctionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceReturnDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceReturnAlternateDeclaration
 
 @Singleton
 class JsldslDefaultPlantUMLDiagramGenerator {
@@ -54,6 +60,13 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
             BackgroundColor<< Transfer >> white|#f9f4cb
             HeaderBackgroundColor<< Transfer >> #f4f0c7/#f7f0b9
+
+            BackgroundColor<< MappedService >> white|#d4e5c9
+            HeaderBackgroundColor<< MappedService >> #d1e0c5/#c9dcbb
+            FontStyle<< MappedService >> italic
+
+            BackgroundColor<< Service >> white|#d4e5c9
+            HeaderBackgroundColor<< Service >> #d1e0c5/#c9dcbb
 
             BackgroundColor<< Abstract >> white|#cfe3e8
             HeaderBackgroundColor<< Abstract >> #cee2e6/#bed8df
@@ -125,6 +138,11 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         hide «name» empty members
     '''
 
+	def annotationRepresentation(AnnotationDeclaration it)
+    '''
+        annotation @«name?:"none"»
+    '''
+
     def errorExtendsFragment(ErrorDeclaration it)
     '''«IF extends !== null» extends «extends.name»«ENDIF»'''
 
@@ -162,7 +180,6 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
     def entityIdentifierRepresentation(EntityIdentifierDeclaration it)
     '''+<u>«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»</u> : «referenceType.name»'''
-
 
     def entityQueryParameterFragment(EntityQueryDeclaration it)
     '''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.name» =«param.^default»«ENDFOR»'''
@@ -212,7 +229,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '''«IF isIsMany»[0..*]«ENDIF»'''
     
     def transferFieldRepresentation(TransferFieldDeclaration it)
-    '''«transferFieldNameFragment» : «referenceType.name»«transferFieldCardinalityFragment»«IF it.maps !== null» {maps} «ENDIF»«IF it.reads !== null» {reads} «ENDIF»
+    '''«transferFieldNameFragment» : «referenceType.name»«transferFieldCardinalityFragment»«IF it.maps !== null» <b>maps</b> «it.maps.sourceCode» «ENDIF»«IF it.reads !== null» <b>reads</b> «it.reads.sourceCode» «ENDIF»
 	'''
 
     def transferRepresentation(TransferDeclaration it)
@@ -220,6 +237,41 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         class «name?:"none"»«transferStereotypeFragment» {
             «FOR field : it.fields»
                 «field.transferFieldRepresentation»
+            «ENDFOR»
+        }
+    '''
+    
+    def serviceStereotypeFragment(ServiceDeclaration it)
+    '''«IF map !== null» << MappedService >> «ELSE» << Service >>«ENDIF»'''
+    
+    def dataFunctionNameFragment(ServiceDataDeclaration it)
+    '''«name»'''
+    
+    def dataFunctionCardinalityFragment(ServiceDataDeclaration it)
+    '''«IF isIsMany»[0..*]«ENDIF»'''
+    
+    def dataFunctionRepresentation(ServiceDataDeclaration it)
+    '''{method}«dataFunctionNameFragment» : «it.^return.referenceType.name»«dataFunctionCardinalityFragment» <b>=></b> «it.expression.sourceCode»
+	'''
+	
+	def functionNameFragment(ServiceFunctionDeclaration it)
+    '''«name»'''
+    
+    def functionUnionReturnConcatenated(ServiceReturnAlternateDeclaration it)
+    '''«it.referenceTypes.map[r | r.referenceType.name].join(' | ')»'''
+    
+    def functionRepresentation(ServiceFunctionDeclaration it)
+    '''{method}«functionNameFragment»(«IF it.parameter !== null»«it.parameter.referenceType.name» «it.parameter.name»«ENDIF») «IF it.^return instanceof ServiceReturnDeclaration»: «it.^return.referenceType.name»«ENDIF»«IF it.alternateReturn !== null»: «it.alternateReturn.functionUnionReturnConcatenated»«ENDIF»
+	'''
+    
+    def serviceRepresentation(ServiceDeclaration it)
+    '''
+        class «name?:"none"»«serviceStereotypeFragment» {
+            «FOR dataFunction : it.dataDeclarationsForService»
+                «dataFunction.dataFunctionRepresentation»
+            «ENDFOR»
+            «FOR function : it.functionDeclarationsForService»
+                «function.functionRepresentation»
             «ENDFOR»
         }
     '''
@@ -232,6 +284,13 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '''
     
     def transferMaps(TransferDeclaration it)
+    '''
+        «IF it.map !== null»
+            «name» ...> "«it.map.name»" «it.map.entity.name»«IF it.automap» : <<automapped>>«ENDIF»
+        «ENDIF»
+    '''
+    
+    def serviceMaps(ServiceDeclaration it)
     '''
         «IF it.map !== null»
             «name» ...> "«it.map.name»" «it.map.entity.name»
@@ -264,6 +323,12 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     package «name» {
 
     together {
+        «FOR annotation : annotationDeclarations»
+            «annotation.annotationRepresentation»
+        «ENDFOR»
+    }
+
+    together {
         «FOR type : dataTypeDeclarations»
             «type.dataTypeRepresentation»
         «ENDFOR»
@@ -287,7 +352,19 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         «FOR transfer : transferDeclarations»
             «transfer.transferMaps»
         «ENDFOR»
+        
+        
     }
+    
+    together {
+        «FOR service : serviceDeclarations»
+            «service.serviceRepresentation»
+        «ENDFOR»
+        
+        «FOR service : serviceDeclarations»
+            «service.serviceMaps»
+        «ENDFOR»
+        }
 
     together {
         «FOR entity : entityDeclarations»
