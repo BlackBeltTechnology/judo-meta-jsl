@@ -227,6 +227,9 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         }
     '''
     
+    def transferFieldModifierFragment(TransferFieldDeclaration it)
+    '''«IF it.maps !== null || it.reads !== null»~«ELSE»+«ENDIF»'''
+    
     def transferStereotypeFragment(TransferDeclaration it)
     '''«IF automap» << AutoMapped >> «ELSE» << Transfer >>«ENDIF»'''
     
@@ -237,7 +240,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '''«IF isIsMany»[0..*]«ENDIF»'''
     
     def transferFieldRepresentation(TransferFieldDeclaration it)
-    '''«transferFieldNameFragment» : «referenceType.name»«transferFieldCardinalityFragment»«IF it.maps !== null» <b>maps</b> «it.maps.sourceCode» «ENDIF»«IF it.reads !== null» <b>reads</b> «it.reads.sourceCode» «ENDIF»
+    '''«transferFieldModifierFragment»«transferFieldNameFragment» : «referenceType.name»«transferFieldCardinalityFragment»«IF it.maps !== null» <b>maps</b> «it.maps.sourceCode» «ENDIF»«IF it.reads !== null» <b>reads</b> «it.reads.sourceCode» «ENDIF»
 	'''
 
     def transferRepresentation(TransferDeclaration it)
@@ -258,8 +261,11 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     def dataFunctionCardinalityFragment(ServiceDataDeclaration it)
     '''«IF isIsMany»[0..*]«ENDIF»'''
     
+    def dataFunctionModifierFragment(ServiceDataDeclaration it)
+    '''«IF it.guard !== null»~«ELSE»+«ENDIF»'''
+    
     def dataFunctionRepresentation(ServiceDataDeclaration it)
-    '''{method}«dataFunctionNameFragment» : «it.^return.referenceType.name»«dataFunctionCardinalityFragment» <b>=></b> «it.expression.sourceCode»
+    '''{method}«dataFunctionModifierFragment»«dataFunctionNameFragment» : «it.^return.referenceType.name»«dataFunctionCardinalityFragment» <b>=></b> «it.expression.sourceCode»
 	'''
 	
 	def functionNameFragment(ServiceFunctionDeclaration it)
@@ -268,8 +274,11 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     def functionUnionReturnConcatenated(ServiceReturnAlternateDeclaration it)
     '''«it.referenceTypes.map[r | r.referenceType.name].join(' | ')»'''
     
+    def functionModifierFragment(ServiceFunctionDeclaration it)
+    '''«IF it.guard !== null»~«ELSE»+«ENDIF»'''
+    
     def functionRepresentation(ServiceFunctionDeclaration it)
-    '''{method}«functionNameFragment»(«IF it.parameter !== null»«it.parameter.referenceType.name» «it.parameter.name»«ENDIF») «IF it.^return instanceof ServiceReturnDeclaration»: «it.^return.referenceType.name»«ENDIF»«IF it.alternateReturn !== null»: «it.alternateReturn.functionUnionReturnConcatenated»«ENDIF»
+    '''{method}«functionModifierFragment»«functionNameFragment»(«IF it.parameter !== null»«it.parameter.referenceType.name» «it.parameter.name»«ENDIF») «IF it.^return instanceof ServiceReturnDeclaration»: «it.^return.referenceType.name»«ENDIF»«IF it.alternateReturn !== null»: «it.alternateReturn.functionUnionReturnConcatenated»«ENDIF»
 	'''
     
     def serviceRepresentation(ServiceDeclaration it)
@@ -394,6 +403,10 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         «FOR service : serviceDeclarations»
             «service.serviceMaps»
         «ENDFOR»
+        
+        «FOR service : externalServiceReferenceTypes»
+            class «getExternalNameOfServiceDeclaration(service)» <«service.parentContainer(ModelDeclaration)?.name»> << External >>
+        «ENDFOR»
     }
     
     together {
@@ -455,7 +468,31 @@ class JsldslDefaultPlantUMLDiagramGenerator {
                 }
             }
         }
+        for (service : it.serviceDeclarations) {
+        	if (service.map !== null && service.map.entity.parentContainer(ModelDeclaration)?.name !== it.name) {
+        		externalEntities.add(service.map.entity)
+        	}
+        }
+        for (actor : it.actorDeclarations) {
+    		if (actor.map !== null) {
+    			externalEntities.add(actor.map.entity)
+    		}
+    	}
         externalEntities
+    }
+    
+    def Collection<ServiceDeclaration> getExternalServiceReferenceTypes(ModelDeclaration it) {
+    	val Set<ServiceDeclaration> externalServices = new HashSet()
+    	
+    	for (actor : it.actorDeclarations) {
+    		for (service : actor.exports) {
+    			if (service.parentContainer(ModelDeclaration)?.name !== it.name) {
+	        		externalServices.add(service)
+	        	}
+    		}
+    	}
+    	
+    	externalServices
     }
 
     def String getExternalNameOfEntityDeclaration(ModelDeclaration it, EntityDeclaration entityDeclaration) {
@@ -469,6 +506,20 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             }
         } else {
             return entityDeclaration.name
+        }
+    }
+    
+    def String getExternalNameOfServiceDeclaration(ModelDeclaration it, ServiceDeclaration serviceDeclaration) {
+        if (it.name !== serviceDeclaration?.parentContainer(ModelDeclaration)?.name) {
+            val importList = imports.filter[i | i.model.name.equals(serviceDeclaration.parentContainer(ModelDeclaration).name)]
+                .map[i | i.alias !== null ? i.alias + "::" + serviceDeclaration.name : serviceDeclaration.name]
+            if (importList !== null && importList.size > 0) {
+                return importList.get(0)
+            } else {
+                return serviceDeclaration.name
+            }
+        } else {
+            return serviceDeclaration.name
         }
     }
 
