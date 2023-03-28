@@ -13,7 +13,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorField
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ConstraintDeclaration
 import java.util.Collection
 import java.util.HashSet
 import java.util.Set
@@ -21,6 +20,15 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeReferenced
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceFunctionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceReturnDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceReturnAlternateDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
 
 @Singleton
 class JsldslDefaultPlantUMLDiagramGenerator {
@@ -46,7 +54,27 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             ArrowColor #black
 
             FontSize 13
-            FontStyle bold
+
+            BackgroundColor<< AutoMapped >> white|#f9f4cb
+            HeaderBackgroundColor<< AutoMapped >> #f4f0c7/#f7f0b9
+            FontStyle<< AutoMapped >> italic
+
+            BackgroundColor<< Transfer >> white|#f9f4cb
+            HeaderBackgroundColor<< Transfer >> #f4f0c7/#f7f0b9
+
+            BackgroundColor<< MappedService >> white|#d4e5c9
+            HeaderBackgroundColor<< MappedService >> #d1e0c5/#c9dcbb
+            FontStyle<< MappedService >> italic
+
+            BackgroundColor<< Service >> white|#d4e5c9
+            HeaderBackgroundColor<< Service >> #d1e0c5/#c9dcbb
+
+            BackgroundColor<< MappedActor >> white|#dddddd
+            HeaderBackgroundColor<< MappedActor >> #dddddd/#dddddd
+            FontStyle<< MappedActor >> italic
+
+            BackgroundColor<< Actor >> white|#dddddd
+            HeaderBackgroundColor<< Actor >> #dddddd/#dddddd
 
             BackgroundColor<< Abstract >> white|#cfe3e8
             HeaderBackgroundColor<< Abstract >> #cee2e6/#bed8df
@@ -118,6 +146,11 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         hide «name» empty members
     '''
 
+	def annotationRepresentation(AnnotationDeclaration it)
+    '''
+        annotation @«name?:"none"»
+    '''
+
     def errorExtendsFragment(ErrorDeclaration it)
     '''«IF extends !== null» extends «extends.name»«ENDIF»'''
 
@@ -156,7 +189,6 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     def entityIdentifierRepresentation(EntityIdentifierDeclaration it)
     '''+<u>«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»</u> : «referenceType.name»'''
 
-
     def entityQueryParameterFragment(EntityQueryDeclaration it)
     '''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.name» =«param.^default»«ENDFOR»'''
 
@@ -194,11 +226,117 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 «««            «ENDFOR»
         }
     '''
+    
+    def transferFieldModifierFragment(TransferFieldDeclaration it)
+    '''«IF it.maps !== null || it.reads !== null»~«ELSE»+«ENDIF»'''
+    
+    def transferStereotypeFragment(TransferDeclaration it)
+    '''«IF automap» << AutoMapped >> «ELSE» << Transfer >>«ENDIF»'''
+    
+    def transferFieldNameFragment(TransferFieldDeclaration it)
+    '''«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»'''
+    
+    def transferFieldCardinalityFragment(TransferFieldDeclaration it)
+    '''«IF isIsMany»[0..*]«ENDIF»'''
+    
+    def transferFieldRepresentation(TransferFieldDeclaration it)
+    '''«transferFieldModifierFragment»«transferFieldNameFragment» : «referenceType.name»«transferFieldCardinalityFragment»«IF it.maps !== null» <b>maps</b> «it.maps.sourceCode» «ENDIF»«IF it.reads !== null» <b>reads</b> «it.reads.sourceCode» «ENDIF»
+	'''
+
+    def transferRepresentation(TransferDeclaration it)
+    '''
+        class «name?:"none"»«transferStereotypeFragment» {
+            «FOR field : it.fields»
+                «field.transferFieldRepresentation»
+            «ENDFOR»
+        }
+    '''
+    
+    def serviceStereotypeFragment(ServiceDeclaration it)
+    '''«IF map !== null» << MappedService >> «ELSE» << Service >>«ENDIF»'''
+    
+    def dataFunctionNameFragment(ServiceDataDeclaration it)
+    '''«name»'''
+    
+    def dataFunctionCardinalityFragment(ServiceDataDeclaration it)
+    '''«IF isIsMany»[0..*]«ENDIF»'''
+    
+    def dataFunctionModifierFragment(ServiceDataDeclaration it)
+    '''«IF it.guard !== null»~«ELSE»+«ENDIF»'''
+    
+    def dataFunctionRepresentation(ServiceDataDeclaration it)
+    '''{method}«dataFunctionModifierFragment»«dataFunctionNameFragment» : «it.^return.referenceType.name»«dataFunctionCardinalityFragment» <b>=></b> «it.expression.sourceCode»
+	'''
+	
+	def functionNameFragment(ServiceFunctionDeclaration it)
+    '''«name»'''
+    
+    def functionUnionReturnConcatenated(ServiceReturnAlternateDeclaration it)
+    '''«it.referenceTypes.map[r | r.referenceType.name].join(' | ')»'''
+    
+    def functionModifierFragment(ServiceFunctionDeclaration it)
+    '''«IF it.guard !== null»~«ELSE»+«ENDIF»'''
+    
+    def functionRepresentation(ServiceFunctionDeclaration it)
+    '''{method}«functionModifierFragment»«functionNameFragment»(«IF it.parameter !== null»«it.parameter.referenceType.name» «it.parameter.name»«ENDIF») «IF it.^return instanceof ServiceReturnDeclaration»: «it.^return.referenceType.name»«ENDIF»«IF it.alternateReturn !== null»: «it.alternateReturn.functionUnionReturnConcatenated»«ENDIF»
+	'''
+    
+    def serviceRepresentation(ServiceDeclaration it)
+    '''
+        class «name?:"none"»«serviceStereotypeFragment» {
+            «FOR dataFunction : it.dataDeclarationsForService»
+                «dataFunction.dataFunctionRepresentation»
+            «ENDFOR»
+            «FOR function : it.functionDeclarationsForService»
+                «function.functionRepresentation»
+            «ENDFOR»
+        }
+    '''
+    
+    def actorStereotypeFragment(ActorDeclaration it)
+    '''«IF map !== null» << MappedActor >> «ELSE» << Actor >>«ENDIF»'''
+    
+    def actorRepresentation(ActorDeclaration it)
+    '''
+        class «name?:"none"»«actorStereotypeFragment» {
+            «IF realm !== null»realm "«realm.value»"«ENDIF»
+            «IF claim !== null»claim "«claim.value»"«ENDIF»
+            «IF identity !== null»identity "«identity.sourceCode»"«ENDIF»
+        }
+    '''
 
     def entityExtends(EntityDeclaration it)
     '''
         «FOR supertype : it.extends»
             «name» --|> «supertype.name»
+        «ENDFOR»
+    '''
+    
+    def transferMaps(TransferDeclaration it)
+    '''
+        «IF it.map !== null»
+            «name» ...> "«it.map.name»" «it.map.entity.name»«IF it.automap» : <<automapped>>«ENDIF»
+        «ENDIF»
+    '''
+    
+    def serviceMaps(ServiceDeclaration it)
+    '''
+        «IF it.map !== null»
+            «name» ...> "«it.map.name»" «it.map.entity.name»
+        «ENDIF»
+    '''
+    
+    def actorMaps(ActorDeclaration it)
+    '''
+        «IF it.map !== null»
+            «name» ...> "«it.map.name»" «it.map.entity.name»
+        «ENDIF»
+    '''
+    
+    def actorExports(ActorDeclaration it)
+    '''
+		«FOR exp : it.exports»
+            «name» ...> «exp.name» : <<exports>>
         «ENDFOR»
     '''
 
@@ -228,6 +366,12 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     package «name» {
 
     together {
+        «FOR annotation : annotationDeclarations»
+            «annotation.annotationRepresentation»
+        «ENDFOR»
+    }
+
+    together {
         «FOR type : dataTypeDeclarations»
             «type.dataTypeRepresentation»
         «ENDFOR»
@@ -241,6 +385,42 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         «FOR error : errorDeclarations»
             «error.errorRepresentation»
         «ENDFOR»
+    }
+    
+    together {
+    	«FOR transfer : transferDeclarations»
+            «transfer.transferRepresentation»
+        «ENDFOR»
+        
+        «FOR transfer : transferDeclarations»
+            «transfer.transferMaps»
+        «ENDFOR»
+
+        «FOR service : serviceDeclarations»
+            «service.serviceRepresentation»
+        «ENDFOR»
+        
+        «FOR service : serviceDeclarations»
+            «service.serviceMaps»
+        «ENDFOR»
+        
+        «FOR service : externalServiceReferenceTypes»
+            class «getExternalNameOfServiceDeclaration(service)» <«service.parentContainer(ModelDeclaration)?.name»> << External >>
+        «ENDFOR»
+    }
+    
+    together {
+     	«FOR actor : actorDeclarations»
+	        «actor.actorRepresentation»
+	    «ENDFOR»
+
+	    «FOR actor : actorDeclarations»
+	        «actor.actorMaps»
+	    «ENDFOR»
+
+	    «FOR actor : actorDeclarations»
+	        «actor.actorExports»
+	    «ENDFOR»
     }
 
     together {
@@ -288,7 +468,31 @@ class JsldslDefaultPlantUMLDiagramGenerator {
                 }
             }
         }
+        for (service : it.serviceDeclarations) {
+        	if (service.map !== null && service.map.entity.parentContainer(ModelDeclaration)?.name !== it.name) {
+        		externalEntities.add(service.map.entity)
+        	}
+        }
+        for (actor : it.actorDeclarations) {
+    		if (actor.map !== null) {
+    			externalEntities.add(actor.map.entity)
+    		}
+    	}
         externalEntities
+    }
+    
+    def Collection<ServiceDeclaration> getExternalServiceReferenceTypes(ModelDeclaration it) {
+    	val Set<ServiceDeclaration> externalServices = new HashSet()
+    	
+    	for (actor : it.actorDeclarations) {
+    		for (service : actor.exports) {
+    			if (service.parentContainer(ModelDeclaration)?.name !== it.name) {
+	        		externalServices.add(service)
+	        	}
+    		}
+    	}
+    	
+    	externalServices
     }
 
     def String getExternalNameOfEntityDeclaration(ModelDeclaration it, EntityDeclaration entityDeclaration) {
@@ -302,6 +506,20 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             }
         } else {
             return entityDeclaration.name
+        }
+    }
+    
+    def String getExternalNameOfServiceDeclaration(ModelDeclaration it, ServiceDeclaration serviceDeclaration) {
+        if (it.name !== serviceDeclaration?.parentContainer(ModelDeclaration)?.name) {
+            val importList = imports.filter[i | i.model.name.equals(serviceDeclaration.parentContainer(ModelDeclaration).name)]
+                .map[i | i.alias !== null ? i.alias + "::" + serviceDeclaration.name : serviceDeclaration.name]
+            if (importList !== null && importList.size > 0) {
+                return importList.get(0)
+            } else {
+                return serviceDeclaration.name
+            }
+        } else {
+            return serviceDeclaration.name
         }
     }
 
