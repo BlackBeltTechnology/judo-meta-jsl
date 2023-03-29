@@ -36,7 +36,7 @@ class NamedTests {
         model mModelTC021;
 
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
+            assertFirstLowSecondUpperNamedError("mModelTC021")
         ]
     }
 
@@ -61,7 +61,7 @@ class NamedTests {
          type string sType(min-size = 0, max-size = 10);
 
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
+            assertFirstLowSecondUpperNamedError("sType")
         ]
     }
 
@@ -80,11 +80,11 @@ class NamedTests {
          model modelTC021;
 
          enum xEnum {
-             a0 = 0;
-             b1 = 1;
+             A = 0;
+             B = 1;
          }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
+            assertFirstLowSecondUpperNamedError("xEnum")
         ]
     }
 
@@ -98,16 +98,17 @@ class NamedTests {
             "REQ-MDL-001",
             "REQ-TYPE-002"
     ])
-    def void testNamingOfEnumFiel() {
+    def void testNamingOfEnumField() {
         '''
          model modelTC021;
 
          enum Enum {
-             xA0 = 0;
-             xB1 = 1;
+             xA = 0;
+             xB = 1;
          }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
+            assertFirstLowSecondUpperNamedError("xA")
+            assertFirstLowSecondUpperNamedError("xB")
         ]
     }
 
@@ -128,7 +129,7 @@ class NamedTests {
          entity xEnt1 {
          }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
+            assertFirstLowSecondUpperNamedError("xEnt1")
         ]
     }
 
@@ -153,7 +154,7 @@ class NamedTests {
          entity abstract xEnt1 extends Ent {
          }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
+            assertFirstLowSecondUpperNamedError("xEnt1")
         ]
     }
 
@@ -185,7 +186,6 @@ class NamedTests {
          import judo::types;
 
          type string SType(min-size = 0, max-size = 10);
-         type numeric Integer(precision = 9, scale = 0);
 
          enum Enum {
              a0 = 0;
@@ -202,7 +202,13 @@ class NamedTests {
              field Time xTime;
          }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
+            assertFirstLowSecondUpperNamedError("xBool")
+            assertFirstLowSecondUpperNamedError("xString")
+            assertFirstLowSecondUpperNamedError("xNumeric")
+            assertFirstLowSecondUpperNamedError("xEnum")
+            assertFirstLowSecondUpperNamedError("xDate")
+            assertFirstLowSecondUpperNamedError("xTimestamp")
+            assertFirstLowSecondUpperNamedError("xTime")
         ]
     }
 
@@ -234,7 +240,6 @@ class NamedTests {
          import judo::types;
 
          type string SType(min-size = 0, max-size = 10);
-         type numeric Integer(precision = 9, scale = 0);
 
          enum Enum {
              a0 = 0;
@@ -250,7 +255,13 @@ class NamedTests {
              identifier Time xTime;
          }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
+            assertFirstLowSecondUpperNamedError("xBool")
+            assertFirstLowSecondUpperNamedError("xString")
+            assertFirstLowSecondUpperNamedError("xNumeric")
+            assertFirstLowSecondUpperNamedError("xEnum")
+            assertFirstLowSecondUpperNamedError("xDate")
+            assertFirstLowSecondUpperNamedError("xTimestamp")
+            assertFirstLowSecondUpperNamedError("xTime")
         ]
     }
 
@@ -287,7 +298,10 @@ class NamedTests {
          entity Ent4 {
          }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
+            assertFirstLowSecondUpperNamedError("xEnt3")
+            assertFirstLowSecondUpperNamedError("xEnt2")
+            assertFirstLowSecondUpperNamedError("xEnt4")
+            assertFirstLowSecondUpperNamedError("xEnt1")
         ]
     }
 
@@ -319,7 +333,6 @@ class NamedTests {
          import judo::types;
 
          type string SType(min-size = 0, max-size = 10);
-         type numeric Integer(precision = 9, scale = 0);
 
          enum Enum {
               a0 = 0;
@@ -336,7 +349,13 @@ class NamedTests {
              derived Time xTime => `12:23:56.1`;
          }
          '''.parse => [
-             m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
+             assertFirstLowSecondUpperNamedError("xBool")
+             assertFirstLowSecondUpperNamedError("xString")
+             assertFirstLowSecondUpperNamedError("xNumeric")
+             assertFirstLowSecondUpperNamedError("xEnum")
+             assertFirstLowSecondUpperNamedError("xDate")
+             assertFirstLowSecondUpperNamedError("xTimestamp")
+             assertFirstLowSecondUpperNamedError("xTime")
          ]
     }
 
@@ -368,7 +387,6 @@ class NamedTests {
              import judo::types;
 
              type string SType(min-size = 0, max-size = 10);
-             type numeric Integer(precision = 9, scale = 0);
 
              enum Enum {
                   a0 = 0;
@@ -377,7 +395,7 @@ class NamedTests {
 
              entity Ent1 {
                  query Boolean xBool() => true;
-                 query SType xString() => "Sting";
+                 query SType xString() => "String";
                  query Integer xNumeric() => 1;
                  query Enum xEnum() => Enum#a0;
                  query Date xDate() => `2023-11-09`;
@@ -387,8 +405,23 @@ class NamedTests {
 
              query Ent1[] xAllEnt1() => Ent1!all();
              '''.parse => [
-                 m | m.assertError(JsldslPackage::eINSTANCE.named, JslDslValidator.JAVA_BEAN_NAMING_ISSUE)
+                  assertFirstLowSecondUpperNamedError("xBool")
+                  assertFirstLowSecondUpperNamedError("xString")
+                  assertFirstLowSecondUpperNamedError("xNumeric")
+                  assertFirstLowSecondUpperNamedError("xEnum")
+                  assertFirstLowSecondUpperNamedError("xDate")
+                  assertFirstLowSecondUpperNamedError("xTimestamp")
+                  assertFirstLowSecondUpperNamedError("xTime")
+                  assertFirstLowSecondUpperNamedError("xAllEnt1")
              ]
+        }
+
+        def private void assertFirstLowSecondUpperNamedError(ModelDeclaration modelDeclaration, String namedElement) {
+            modelDeclaration.assertError(
+                JsldslPackage::eINSTANCE.named,
+                JslDslValidator.JAVA_BEAN_NAMING_ISSUE,
+                "The first character cannot be lowercase and the second character uppercase '"+namedElement+"'."
+            )
         }
 
  }
