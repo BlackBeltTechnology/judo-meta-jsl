@@ -41,7 +41,7 @@ class PrimitiveDefaultValuesTests {
                 field Bool boolAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'boolAttr'.")
         ]
     }
 
@@ -68,7 +68,7 @@ class PrimitiveDefaultValuesTests {
                 field String stringAttr = 123;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'stringAttr'.")
         ]
     }
 
@@ -95,7 +95,7 @@ class PrimitiveDefaultValuesTests {
                 field Integer intAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'intAttr'.")
         ]
     }
 
@@ -122,7 +122,7 @@ class PrimitiveDefaultValuesTests {
                 field Decimal decimalAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'decimalAttr'.")
         ]
     }
 
@@ -149,7 +149,7 @@ class PrimitiveDefaultValuesTests {
                 field Date dateAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'dateAttr'.")
         ]
     }
 
@@ -176,7 +176,7 @@ class PrimitiveDefaultValuesTests {
                 field Time timeAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'timeAttr'.")
         ]
     }
 
@@ -203,7 +203,7 @@ class PrimitiveDefaultValuesTests {
                 field Timestamp timestampAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'timestampAttr'.")
         ]
     }
 

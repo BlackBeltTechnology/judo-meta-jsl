@@ -307,7 +307,7 @@ class TransferTests {
                 field Integer[] f;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_COLLECTION)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_COLLECTION,"Invalid collection of primitives at 'f'.")
         ]
     }
 

@@ -153,7 +153,9 @@ class EnumDeclarationTests {
                 Aaa01 = 10000;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.enumLiteral, JslDslValidator.ENUM_ORDINAL_IS_TOO_LARGE)
+            m | m.assertError(JsldslPackage::eINSTANCE.enumLiteral,
+             JslDslValidator.ENUM_ORDINAL_IS_TOO_LARGE,
+             "Enumeration ordinal is greater than the maximum allowed 9999 on 'Aaa01'.")
         ]
     }
 
@@ -234,7 +236,7 @@ class EnumDeclarationTests {
                 field Genre favoredGenre;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.enumDeclaration, JslDslValidator.ENUM_MEMBER_MISSING)
+            m | m.assertError(JsldslPackage::eINSTANCE.enumDeclaration, JslDslValidator.ENUM_MEMBER_MISSING,"Enumeration must have at least one member: Genre.")
         ]
     }
 
@@ -322,7 +324,7 @@ class EnumDeclarationTests {
                 field Genre favoredGenre = GenreOther#HOUSE;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'favoredGenre'.")
         ]
     }
 }

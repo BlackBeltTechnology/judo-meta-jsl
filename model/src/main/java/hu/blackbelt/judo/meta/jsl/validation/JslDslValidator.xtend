@@ -865,7 +865,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     @Check
     def checkEnumLiteralMinimum(EnumDeclaration _enum) {
         if (_enum.literals.size < 1) {
-            error("Enumeration must have at least one member:"+_enum.name,
+            error("Enumeration must have at least one member: " + _enum.name + ".",
                 JsldslPackage::eINSTANCE.enumDeclaration_Literals,
                 ENUM_MEMBER_MISSING,
                 JsldslPackage::eINSTANCE.enumDeclaration.name)
@@ -873,9 +873,9 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
 
     @Check
-    def checkEnumOridal(EnumLiteral literal) {
+    def checkEnumOrdinal(EnumLiteral literal) {
         if (literal.value > new BigInteger("9999")) {
-            error("Enumeration ordinal is greater than the maximum allowed 9999.",
+            error("Enumeration ordinal is greater than the maximum allowed 9999 on '" + literal.name + "'.",
                 JsldslPackage::eINSTANCE.enumLiteral_Value,
                 ENUM_ORDINAL_IS_TOO_LARGE,
                 JsldslPackage::eINSTANCE.enumLiteral.name)
@@ -1087,19 +1087,19 @@ class JslDslValidator extends AbstractJslDslValidator {
     def checkTransferField(TransferFieldDeclaration field) {
         try {
             if (field.maps !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.maps))) {
-                error("Type mismatch. Mapping expression value does not match field type.",
+                error("Type mismatch. Mapping expression value does not match field type at '" + field.name + "'.",
                     JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
                     TYPE_MISMATCH)
             }
 
             if (field.reads !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.reads))) {
-                error("Type mismatch. Read expression value does not match field type.",
+                error("Type mismatch. Read expression value does not match field type at '" + field.name + "'.",
                     JsldslPackage::eINSTANCE.transferFieldDeclaration_Reads,
                     TYPE_MISMATCH)
             }
 
             if (field.isIsMany && !(field.referenceType instanceof TransferDeclaration)) {
-                error("Invalid collection of primitives.",
+                error("Invalid collection of primitives at '" + field.name + "'.",
                     JsldslPackage::eINSTANCE.transferFieldDeclaration_ReferenceType,
                     INVALID_COLLECTION)
             }
@@ -1119,13 +1119,13 @@ class JslDslValidator extends AbstractJslDslValidator {
     def checkEntityField(EntityFieldDeclaration field) {
         try {
             if (field.defaultExpression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.defaultExpression))) {
-                error("Type mismatch. Default value expression does not match field type.",
+                error("Type mismatch. Default value expression does not match field type at '" + field.name + "'.",
                     JsldslPackage::eINSTANCE.entityFieldDeclaration_DefaultExpression,
                     TYPE_MISMATCH)
             }
 
             if (field.isIsMany && !(field.referenceType instanceof EntityDeclaration)) {
-                error("Invalid collection of primitives.",
+                error("Invalid collection of primitives at '" + field.name + "'.",
                     JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType,
                     INVALID_COLLECTION)
             }
@@ -1138,7 +1138,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     def checkEntityIdentifier(EntityIdentifierDeclaration field) {
         try {
             if (field.defaultExpression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.defaultExpression))) {
-                error("Type mismatch. Default value expression does not match identifier field type.",
+                error("Type mismatch. Default value expression does not match identifier field type at '" + field.name + "'.",
                     JsldslPackage::eINSTANCE.entityIdentifierDeclaration_DefaultExpression,
                     TYPE_MISMATCH,
                     JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
@@ -1152,14 +1152,14 @@ class JslDslValidator extends AbstractJslDslValidator {
     def checkEntityDerived(EntityDerivedDeclaration derived) {
         try {
             if (derived.expression !== null && !TypeInfo.getTargetType(derived).isCompatible(TypeInfo.getTargetType(derived.expression))) {
-                error("Type mismatch. Derived value expression does not match derived field type.",
+                error("Type mismatch. Derived value expression does not match derived field type at '" + derived.name + "'.",
                     JsldslPackage::eINSTANCE.entityDerivedDeclaration_Expression,
                     TYPE_MISMATCH,
                     JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
             }
 
             if (derived.isIsMany && !(derived.referenceType instanceof EntityDeclaration)) {
-                error("Invalid collection of primitives.",
+                error("Invalid collection of primitives at '" + derived.name + "'.",
                     JsldslPackage::eINSTANCE.entityDerivedDeclaration_ReferenceType,
                     INVALID_COLLECTION)
             }
@@ -1172,14 +1172,14 @@ class JslDslValidator extends AbstractJslDslValidator {
     def checkEntityQuery(EntityQueryDeclaration query) {
         try {
             if (query.expression !== null && !TypeInfo.getTargetType(query).isCompatible(TypeInfo.getTargetType(query.expression))) {
-                error("Type mismatch. Query expression does not match query type.",
+                error("Type mismatch. Query expression does not match query type at '" + query.name + "'.",
                     JsldslPackage::eINSTANCE.entityQueryDeclaration_Expression,
                     TYPE_MISMATCH,
                     JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
             }
 
             if (query.isIsMany && !(query.referenceType instanceof EntityDeclaration)) {
-                error("Invalid collection of primitives.",
+                error("Invalid collection of primitives at '" + query.name + "'.",
                     JsldslPackage::eINSTANCE.entityQueryDeclaration_ReferenceType,
                     INVALID_COLLECTION)
             }
@@ -1193,14 +1193,14 @@ class JslDslValidator extends AbstractJslDslValidator {
     def checkQuery(QueryDeclaration query) {
         try {
             if (query.expression !== null && !TypeInfo.getTargetType(query).isCompatible(TypeInfo.getTargetType(query.expression))) {
-                error("Type mismatch. Query expression does not match query type.",
+                error("Type mismatch. Query expression does not match query type at '" + query.name + "'.",
                     JsldslPackage::eINSTANCE.queryDeclaration_Expression,
                     TYPE_MISMATCH,
                     JsldslPackage::eINSTANCE.queryDeclaration.name)
             }
 
             if (query.isIsMany && !(query.referenceType instanceof EntityDeclaration)) {
-                error("Invalid collection of primitives.",
+                error("Invalid collection of primitives at '" + query.name + "'.",
                     JsldslPackage::eINSTANCE.queryDeclaration_ReferenceType,
                     INVALID_COLLECTION)
             }
@@ -1892,7 +1892,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         if (named.name.length < 2) return;
 
         if (Character.isLowerCase(named.name.charAt(0)) && Character.isUpperCase(named.name.charAt(1))) {
-            error("The first character cannot be lowercase and the second character uppercase.",
+            error("The first character cannot be lowercase and the second character uppercase in '" + named.name + "'.",
                 JsldslPackage::eINSTANCE.named_Name,
                 JAVA_BEAN_NAMING_ISSUE,
                 JsldslPackage::eINSTANCE.named.name)
