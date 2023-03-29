@@ -1892,7 +1892,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         if (named.name.length < 2) return;
 
         if (Character.isLowerCase(named.name.charAt(0)) && Character.isUpperCase(named.name.charAt(1))) {
-            error("The first character cannot be lowercase and the second character uppercase.",
+            error("The first character cannot be lowercase and the second character uppercase in '" + named.name + "'.",
                 JsldslPackage::eINSTANCE.named_Name,
                 JAVA_BEAN_NAMING_ISSUE,
                 JsldslPackage::eINSTANCE.named.name)
