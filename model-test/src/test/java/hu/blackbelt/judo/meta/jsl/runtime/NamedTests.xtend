@@ -420,7 +420,7 @@ class NamedTests {
             modelDeclaration.assertError(
                 JsldslPackage::eINSTANCE.named,
                 JslDslValidator.JAVA_BEAN_NAMING_ISSUE,
-                "The first character cannot be lowercase and the second character uppercase '"+namedElement+"'."
+                "The first character cannot be lowercase and the second character uppercase in '" + namedElement + "'."
             )
         }
 
