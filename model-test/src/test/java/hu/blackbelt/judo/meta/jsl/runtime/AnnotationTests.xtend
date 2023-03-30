@@ -92,7 +92,8 @@ class AnnotationTests {
                 @A
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.annotationDeclaration, JslDslValidator.ANNOTATION_CYCLE)
+            assertError(JsldslPackage::eINSTANCE.annotationDeclaration, JslDslValidator.ANNOTATION_CYCLE,"Cyclic annotation definition at 'A'.")
+            assertError(JsldslPackage::eINSTANCE.annotationDeclaration, JslDslValidator.ANNOTATION_CYCLE,"Cyclic annotation definition at 'B'.")
         ]
     }
 
@@ -371,7 +372,7 @@ class AnnotationTests {
 
             annotation A2(string s) on service::function;
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.annotationArgument, JslDslValidator.TYPE_MISMATCH)
+            m | m.assertError(JsldslPackage::eINSTANCE.annotationArgument, JslDslValidator.TYPE_MISMATCH,"Non-literal at annotation argument 's'. Only literals are allowed in annotation argument.")
         ]
     }
 
@@ -415,7 +416,7 @@ class AnnotationTests {
 
             annotation A2(string s) on service::function;
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.annotationMark, JslDslValidator.MISSING_REQUIRED_PARAMETER)
+            m | m.assertError(JsldslPackage::eINSTANCE.annotationMark, JslDslValidator.MISSING_REQUIRED_PARAMETER,"Missing required annotation parameter:s")
         ]
     }
 
