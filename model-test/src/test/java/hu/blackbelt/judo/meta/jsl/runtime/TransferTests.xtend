@@ -474,7 +474,7 @@ class TransferTests {
                 field Integer i maps E!all()!size();
             };
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING,"Invalid field mapping. Maps keyword cannot be used in unmapped transfer object at 'i''.")
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING,"Invalid field mapping. Maps keyword cannot be used in unmapped transfer object.")
         ]
     }
 
