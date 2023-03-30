@@ -42,9 +42,7 @@ class CyclicExpressionTests {
                 derived Boolean b => self.b;
             }
 
-        '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityDerivedDeclaration, JslDslValidator.EXPRESSION_CYCLE)
-        ]
+        '''.parse.assertError(JsldslPackage::eINSTANCE.entityDerivedDeclaration, JslDslValidator.EXPRESSION_CYCLE,"Cyclic expression at 'b'.")
     }
 
 
@@ -83,7 +81,11 @@ class CyclicExpressionTests {
                 derived Boolean c => self.b;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityDerivedDeclaration, JslDslValidator.EXPRESSION_CYCLE)
+            assertError(JsldslPackage::eINSTANCE.entityQueryDeclaration, JslDslValidator.EXPRESSION_CYCLE,"Cyclic expression at 'q'.")
+            assertError(JsldslPackage::eINSTANCE.entityDerivedDeclaration, JslDslValidator.EXPRESSION_CYCLE,"Cyclic expression at 'a'.")
+            assertError(JsldslPackage::eINSTANCE.entityDerivedDeclaration, JslDslValidator.EXPRESSION_CYCLE,"Cyclic expression at 'b'.")
+            assertError(JsldslPackage::eINSTANCE.entityDerivedDeclaration, JslDslValidator.EXPRESSION_CYCLE,"Cyclic expression at 'c'.")
+            assertError(JsldslPackage::eINSTANCE.queryDeclaration, JslDslValidator.EXPRESSION_CYCLE,"Cyclic expression at 'staticQuery'.")
         ]
     }
 }

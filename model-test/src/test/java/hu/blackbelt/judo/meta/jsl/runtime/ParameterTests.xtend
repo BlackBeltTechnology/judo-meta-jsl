@@ -99,7 +99,7 @@ class ParameterTests {
                 field String leftValue = "hello"!left(count = "");
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.functionArgument, JslDslValidator.TYPE_MISMATCH)
+            m | m.assertError(JsldslPackage::eINSTANCE.functionArgument, JslDslValidator.TYPE_MISMATCH,"Type mismatch. Incompatible function argument at 'count'.")
         ]
     }
 

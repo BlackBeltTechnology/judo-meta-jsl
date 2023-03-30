@@ -307,7 +307,7 @@ class TransferTests {
                 field Integer[] f;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_COLLECTION)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_COLLECTION,"Invalid collection of primitives at 'f'.")
         ]
     }
 
@@ -474,7 +474,7 @@ class TransferTests {
                 field Integer i maps E!all()!size();
             };
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING,"Invalid field mapping. Maps keyword cannot be used in unmapped transfer object.")
         ]
     }
 
