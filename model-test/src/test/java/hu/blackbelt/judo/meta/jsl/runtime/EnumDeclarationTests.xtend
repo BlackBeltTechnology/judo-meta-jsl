@@ -153,9 +153,7 @@ class EnumDeclarationTests {
                 Aaa01 = 10000;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.enumLiteral,
-             JslDslValidator.ENUM_ORDINAL_IS_TOO_LARGE,
-             "Enumeration ordinal is greater than the maximum allowed 9999 on 'Aaa01'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.enumLiteral,JslDslValidator.ENUM_ORDINAL_IS_TOO_LARGE,"Enumeration ordinal is greater than the maximum allowed 9999 at 'Aaa01'.")
         ]
     }
 

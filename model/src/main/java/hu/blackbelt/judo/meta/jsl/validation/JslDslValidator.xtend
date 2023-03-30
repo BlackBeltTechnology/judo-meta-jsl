@@ -201,7 +201,7 @@ class JslDslValidator extends AbstractJslDslValidator {
                 findAnnotationCycle(annotation, new ArrayList<AnnotationDeclaration>())
             } catch (IllegalCallerException e) {
                 error(
-                    "Cyclic annotation definition",
+                    "Cyclic annotation definition at '" + annotation.name + "'.",
                     JsldslPackage::eINSTANCE.annotationDeclaration_Annotations,
                     ANNOTATION_CYCLE,
                     annotation.name
@@ -258,7 +258,7 @@ class JslDslValidator extends AbstractJslDslValidator {
                 findExpressionCycle(derived.expression, new ArrayList<Expression>())
             } catch (IllegalCallerException e) {
                 error(
-                    "Cyclic expression",
+                    "Cyclic expression at '" + derived.name + "'.",
                     JsldslPackage::eINSTANCE.entityDerivedDeclaration_Expression,
                     EXPRESSION_CYCLE,
                     derived.name
@@ -275,7 +275,7 @@ class JslDslValidator extends AbstractJslDslValidator {
                 findExpressionCycle(query.expression, new ArrayList<Expression>())
             } catch (IllegalCallerException e) {
                 error(
-                    "Cyclic expression",
+                    "Cyclic expression at '" + query.name + "'.",
                     JsldslPackage::eINSTANCE.entityQueryDeclaration_Expression,
                     EXPRESSION_CYCLE,
                     query.name
@@ -292,7 +292,7 @@ class JslDslValidator extends AbstractJslDslValidator {
                 findExpressionCycle(query.expression, new ArrayList<Expression>())
             } catch (IllegalCallerException e) {
                 error(
-                    "Cyclic expression",
+                    "Cyclic expression at '" + query.name + "'.",
                     JsldslPackage::eINSTANCE.queryDeclaration_Expression,
                     EXPRESSION_CYCLE,
                     query.name
@@ -307,7 +307,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         if (field.defaultExpression !== null) {
             if (!this.isStaticExpression(field.defaultExpression)) {
                 error(
-                    "Self is not allowed in default expression.",
+                    "Self is not allowed in default expression at '" + field.name + "'.",
                     JsldslPackage::eINSTANCE.entityFieldDeclaration_DefaultExpression,
                     SELF_NOT_ALLOWED,
                     field.name
@@ -322,7 +322,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         if (parameter.^default !== null) {
             if (!this.isStaticExpression(parameter.^default)) {
                 error(
-                    "Self is not allowed in parameter default expression.",
+                    "Self is not allowed in parameter default expression at '" + parameter.name + "'.",
                     JsldslPackage::eINSTANCE.queryParameterDeclaration_Default,
                     SELF_NOT_ALLOWED,
                     parameter.name
@@ -875,7 +875,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     @Check
     def checkEnumOrdinal(EnumLiteral literal) {
         if (literal.value > new BigInteger("9999")) {
-            error("Enumeration ordinal is greater than the maximum allowed 9999 on '" + literal.name + "'.",
+            error("Enumeration ordinal is greater than the maximum allowed 9999 at '" + literal.name + "'.",
                 JsldslPackage::eINSTANCE.enumLiteral_Value,
                 ENUM_ORDINAL_IS_TOO_LARGE,
                 JsldslPackage::eINSTANCE.enumLiteral.name)
@@ -1226,7 +1226,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     def checkEntityOperationParameter(EntityOperationParameterDeclaration parameter) {
         try {
             if (parameter.isIsMany && !(parameter.referenceType instanceof EntityDeclaration)) {
-                error("Invalid collection of primitives.",
+                error("Invalid collection of primitives at '" + parameter.name + "''.",
                     JsldslPackage::eINSTANCE.entityOperationParameterDeclaration_ReferenceType,
                     INVALID_COLLECTION)
             }
@@ -1939,7 +1939,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         if (target === null) return;
 
         if (transfer.members.filter[m | m instanceof TransferFieldDeclaration && target === getMappedField(m as TransferFieldDeclaration)].size > 1) {
-            warning("More than one transfer field map the same entity field.",
+            warning("More than one transfer field map the same entity field at '" + field.name + "'.",
                 JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
                 DUPLICATE_FIELD_MAPPING,
                 JsldslPackage::eINSTANCE.named.name)

@@ -43,7 +43,7 @@ class EntityMemberDeclarationTests {
                 field Boolean b = self.a;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.SELF_NOT_ALLOWED)
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.SELF_NOT_ALLOWED,"Self is not allowed in default expression at 'b'.")
         ]
     }
 
@@ -220,7 +220,7 @@ class EntityMemberDeclarationTests {
                 query Integer q(Integer p = self.e) => E!all()!size();
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.queryParameterDeclaration, JslDslValidator.SELF_NOT_ALLOWED)
+            m | m.assertError(JsldslPackage::eINSTANCE.queryParameterDeclaration, JslDslValidator.SELF_NOT_ALLOWED,"Self is not allowed in parameter default expression at 'p'.")
         ]
     }
 
