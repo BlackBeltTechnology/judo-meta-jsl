@@ -372,7 +372,7 @@ class AnnotationTests {
 
             annotation A2(string s) on service::function;
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.annotationArgument, JslDslValidator.TYPE_MISMATCH,"Non-literal at annotation argument 's'. Only literals are allowed in annotation argument.")
+            m | m.assertError(JsldslPackage::eINSTANCE.annotationArgument, JslDslValidator.TYPE_MISMATCH,"Literal at annotation argument 's' is not compatible. (Expected: string constant, Got: numeric constant)")
         ]
     }
 

@@ -143,7 +143,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     public static val MEMBER_NAME_LENGTH_MAX = 128
     public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
     public static val PRECISION_MAX_VALUE = BigInteger.valueOf(15)
-
+    public static val ENUM_LITERAL_ORDINAL_MAX_VALUE = BigInteger.valueOf(9999)
 
     @Inject extension IQualifiedNameProvider
     @Inject extension IQualifiedNameConverter
@@ -577,7 +577,7 @@ class JslDslValidator extends AbstractJslDslValidator {
                 val TypeInfo literalTypeInfo = TypeInfo.getTargetType(argument.literal);
 
                 if (!declarationTypeInfo.isCompatible(literalTypeInfo)) {
-                    error("Non-literal at annotation argument '" + argument.declaration.name + "'. Only literals are allowed in annotation argument.",
+                    error("Literal at annotation argument '" + argument.declaration.name + "' is not compatible. (Expected: "+declarationTypeInfo+", Got: "+literalTypeInfo+")",
                         JsldslPackage::eINSTANCE.annotationArgument_Literal,
                         TYPE_MISMATCH,
                         JsldslPackage::eINSTANCE.annotationArgument.name)
@@ -874,8 +874,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 
     @Check
     def checkEnumOrdinal(EnumLiteral literal) {
-        if (literal.value > new BigInteger("9999")) {
-            error("Enumeration ordinal is greater than the maximum allowed 9999 at '" + literal.name + "'.",
+        if (literal.value > ENUM_LITERAL_ORDINAL_MAX_VALUE) {
+            error("Enumeration ordinal is greater than the maximum allowed " + ENUM_LITERAL_ORDINAL_MAX_VALUE + " at '" + literal.name + "'.",
                 JsldslPackage::eINSTANCE.enumLiteral_Value,
                 ENUM_ORDINAL_IS_TOO_LARGE,
                 JsldslPackage::eINSTANCE.enumLiteral.name)
