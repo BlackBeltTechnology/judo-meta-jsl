@@ -333,7 +333,7 @@ There is no literal for undefined in JSL, thus to check if a field, relation or 
 
 ////
 
-[judo-req="true",judo-req-id="REQ-EXPR-000"]
+[judo-req="false"]
 === Create instance
 
 // next release
@@ -381,7 +381,7 @@ The example above creates a list of persons with two entities in the list.
 ////
 
 
-[judo-req="true",judo-req-id="REQ-EXPR-011"]
+[judo-req="false"]
 == List of functions
 
 // TODO: use "given" expression in descriptions
@@ -850,7 +850,7 @@ Examples:
 |Example: `&#x60;2019-07-18T01:11:12Z&#x60;!asString()` is `"2019-07-18T01:11:12"`
 |======================================================================
 
-[#binary_functions,judo-req="true",judo-req-id="REQ-EXPR-019"]
+[#binary_functions,judo-req="false"]
 === Binary functions
 
 There are no binary functions.
