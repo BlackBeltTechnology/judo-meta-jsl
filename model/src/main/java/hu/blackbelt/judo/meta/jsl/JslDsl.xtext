@@ -6,32 +6,115 @@ generate jsldsl "http://www.blackbelt.hu/judo/meta/jsl/JslDsl"
 ModelDeclaration returns ModelDeclaration
     : {ModelDeclaration}
       annotations += AnnotationMark*
-      'model' name = ModelName SC+
+      KW_MODEL name = ModelName SC+
       imports += ModelImportDeclaration*
 	  (declarations += Declaration)*
     ;
 
-JSLID : ID | 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'timestamp'
-	       | 'regex' | 'precision' | 'scale'
-	       | 'model' | 'import' | 'entity' | 'transfer' | 'query' | 'type' | 'enum' | 'function' | 'lambda'
-	       | 'field' | 'identifier' | 'derived' | 'relation' | 'constraint' | 'error'
-	       | 'required' | 'as' | 'abstract' | 'extends' | 'exports' | 'opposite' | 'on' | 'onerror'
-	       | 'collection' | 'declaration' | 'constant'
-	       | 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' 
-	       | 'kB' | 'MB' | 'GB' | 'KiB' | 'MiB' | 'GiB'
-	       | 'view' | 'widget' | 'action' | 'table' | 'row' | 'column'
-	       | 'caption' | 'icon' | 'enabled' | 'hidden' | 'width' | 'height'
-	       | 'group' | 'tab' | 'horizontal' | 'vertical' | 'frame' | 'left' | 'right' | 'center' | 'top' | 'bottom' | 'stretch'
-	       | 'service' | 'choices' | 'guard'
-	       | 'actor' | 'claim'
-	       | 'constructor'
+KW_ABSTRACT:	'abstract';
+KW_ACTOR:		'actor';
+KW_ANNOTATION:	'annotation';
+KW_AS:			'as';
+KW_ENTITY:		'entity';
+KW_ENUM:		'enum';
+KW_ERROR:		'error';
+KW_EXPORTS:		'exports';
+KW_EXTENDS:		'extends';
+KW_IMPORT:		'import';
+KW_MAPS:		'maps';
+KW_MODEL:		'model';
+KW_ON:			'on';
+KW_QUERY:		'query';
+KW_ROW:			'row';
+KW_SERVICE:		'service';
+KW_TRANSFER:	'transfer';
+KW_TYPE:		'type';
+KW_VIEW:		'view';
+
+FEAT_ACTION:		'action';
+FEAT_COLUMN:		'column';
+FEAT_CONSTRAINT:	'constraint';
+FEAT_CONSTRUCTOR:	'constructor';
+FEAT_DERIVED:		'derived';
+FEAT_FIELD:			'field';
+FEAT_FUNCTION:		'function';
+FEAT_GROUP:			'group';
+FEAT_IDENTIFIER:	'identifier';
+FEAT_LINK:			'link';
+FEAT_MENU:			'menu';
+FEAT_QUERY:			'query';
+FEAT_RELATION:		'relation';
+FEAT_REQUIRED:		'required';
+FEAT_SUBMIT:		'submit';
+FEAT_TABLE:			'table';
+FEAT_TABS:			'tabs';
+
+CONST_BINARY:		'binary';
+CONST_BOOLEAN:		'boolean';
+CONST_BOTTOM:		'bottom';
+CONST_CENTER:		'center';
+CONST_DATE:			'date';
+CONST_FALSE:		'false';
+CONST_LEFT:			'left';
+CONST_NUMERIC:		'numeric';
+CONST_RIGHT:		'right';
+CONST_STRETCH:		'stretch';
+CONST_STRING:		'string';
+CONST_TIME:			'time';
+CONST_TIMESTAMP:	'timestamp';
+CONST_TOP:			'top';
+CONST_TRUE:			'true';
+CONST_VOID:			'void';
+
+ATTR_CHOICES:		'choices';
+ATTR_CLAIM:			'claim';
+ATTR_CREATE:		'create';
+ATTR_ENABLED:		'enabled';
+ATTR_ERROR:			'error';
+ATTR_FRAME:			'frame';
+ATTR_GUARD:			'guard';
+ATTR_HIDDEN:		'hidden';
+ATTR_HORIZONTAL:	'horizontal';
+ATTR_ICON:			'icon';
+ATTR_IDENTITY:		'identity';
+ATTR_LABEL:			'label';
+ATTR_REALM:			'realm';
+ATTR_ROWS:			'rows';
+ATTR_TAG:			'tag';
+ATTR_TARGET:		'target';
+ATTR_TEXT:			'text';
+ATTR_VERTICAL:		'vertical';
+ATTR_WIDTH:			'width';
+
+			// keywords
+JSLID : ID	| 'abstract' | 'actor' | 'annotation' | 'as' | 'entity' | 'enum' | 'error' | 'exports' | 'extends' | 'import'
+			| 'model' | 'on' | 'query' | 'row' | 'service' | 'transfer' | 'type' | 'view'
+
+			// features except 'query'
+			| 'action' | 'column' | 'constraint' | 'constructor' | 'derived' | 'field' | 'function' | 'group' | 'identifier'
+			| 'link' | 'menu' | 'relation' | 'required' | 'submit' | 'table' | 'tabs'
+
+			// constants
+			| 'binary' | 'boolean' | 'bottom' | 'center' | 'date' | 'left' | 'numeric' | 'right' | 'stretch'
+			| 'string' | 'time' | 'timestamp' | 'top'
+
+			// attributes except 'error'
+			| 'choices' | 'claim' | 'create' | 'enabled' | 'frame' | 'guard' | 'hidden' | 'horizontal' | 'icon'
+			| 'identity' | 'label' | 'realm' | 'rows' | 'tag' | 'target' | 'text' | 'vertical' | 'width'
+
+			// others
+			| 'regex' | 'precision' | 'scale' | 'lambda'
+			| 'collection' | 'declaration' | 'constant'
+			| 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' 
+			| 'kB' | 'MB' | 'GB' | 'KiB' | 'MiB' | 'GiB'
 	       
+	       // 'void' not included
 	       // 'reads', 'maps' are not included
 	       // 'self', 'true', 'false', 'not' are not included
 	;
 
 ModelImportDeclaration 
-    : 'import' model = [ModelDeclaration | ModelName] ('as' alias = JSLID)? SC+
+    : KW_IMPORT model = [ModelDeclaration | ModelName] (KW_AS alias = JSLID)? SC+
 	;
 
 Declaration
@@ -59,8 +142,8 @@ ClassDeclaration
 	: EntityDeclaration
 	| ServiceDeclaration
 	| TransferDeclaration
-//	| ViewDeclaration
-//	| RowDeclaration
+	| ViewDeclaration
+	| RowDeclaration
 	| ActorDeclaration
 	;
 
@@ -77,14 +160,14 @@ fragment Cardinality
 EntityDeclaration
 	: {EntityDeclaration}
 	  annotations += AnnotationMark*
-	  'entity' isAbstract ?= 'abstract'? Named
-	  ('extends' extends += [EntityDeclaration | ModelName] (',' extends += [EntityDeclaration | ModelName])*)?
+	  KW_ENTITY isAbstract ?= KW_ABSTRACT? Named
+	  (KW_EXTENDS extends += [EntityDeclaration | ModelName] (',' extends += [EntityDeclaration | ModelName])*)?
 	  (SC | BLOCK_START (members += EntityMemberDeclaration)* BLOCK_END)
 	;
 
 
 QueryDeclaration
-	: 'query' (referenceType = [SingleType | ModelName] Cardinality?) Named
+	: KW_QUERY (referenceType = [SingleType | ModelName] Cardinality?) Named
 	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')
 	  "=>" expression = Expression
 	  SC
@@ -104,13 +187,13 @@ EntityMemberDeclaration
 
 EntityFieldDeclaration
 	: annotations += AnnotationMark*
-	  'field' (isRequired ?= 'required'? referenceType = [SingleType | ModelName] Cardinality?) Named
+	  FEAT_FIELD (isRequired ?= FEAT_REQUIRED? referenceType = [SingleType | ModelName] Cardinality?) Named
 	  ('=' defaultExpression = Expression)? SC
 	;
 
 EntityIdentifierDeclaration
 	: annotations += AnnotationMark*
-	  'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | ModelName] Named
+	  FEAT_IDENTIFIER isRequired ?= FEAT_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
 	  ('=' defaultExpression = Expression)? SC
 	;
 
@@ -122,13 +205,13 @@ SingleType
 
 EntityDerivedDeclaration
 	: annotations += AnnotationMark*
-	  'derived' (referenceType = [SingleType | ModelName] Cardinality?) Named
+	  FEAT_DERIVED (referenceType = [SingleType | ModelName] Cardinality?) Named
 	  "=>" expression = Expression SC
 	;
 
 EntityQueryDeclaration
 	: annotations += AnnotationMark*
-	  'query' (referenceType = [SingleType | ModelName] Cardinality?) Named
+	  FEAT_QUERY (referenceType = [SingleType | ModelName] Cardinality?) Named
 	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')
 	  "=>" expression = Expression SC
 	;
@@ -139,7 +222,7 @@ QueryParameterDeclaration
 
 EntityRelationDeclaration
 	: annotations += AnnotationMark*
-	  'relation' (isRequired ?= 'required'? referenceType = [EntityDeclaration | ModelName] Cardinality?) Named
+	  FEAT_RELATION (isRequired ?= FEAT_REQUIRED? referenceType = [EntityDeclaration | ModelName] Cardinality?) Named
 	  opposite = EntityRelationOpposite? SC
 	;
 
@@ -158,7 +241,7 @@ EntityRelationOppositeReferenced
 
 EntityOperationDeclaration
 	: annotations += AnnotationMark*
-	  'operation' static ?= 'static'? ('void'? | return = EntityOperationReturnDeclaration) Named
+	  'operation' static ?= 'static'? (CONST_VOID? | return = EntityOperationReturnDeclaration) Named
 	  ('(' (parameters += EntityOperationParameterDeclaration (',' parameters += EntityOperationParameterDeclaration)*)? ')')
 	  (SC | BLOCK_START BLOCK_END )
 	;
@@ -176,22 +259,22 @@ EntityOperationParameterDeclaration
  *	Service
  ****************************/
 
-Guard
-	: 'guard' expression = Expression
+GuardModifier
+	: ATTR_GUARD ':' expression = Expression
 	;
 
 ServiceDeclaration
 	: {ServiceDeclaration}
 	  annotations += AnnotationMark*
-	  'service' Named
+	  KW_SERVICE Named
 	  map = EntityMapDeclaration?
-	  guard = Guard?
+	  guard = GuardModifier?
 	  (SC | BLOCK_START (members += ServiceMemberDeclaration)* BLOCK_END)
 	;
 
 EntityMapDeclaration
 	: '(' entity = [EntityDeclaration | ModelName] Named ')'  // if no name defined, the 'self' shall be default name
-	| 'maps' entity = [EntityDeclaration | ModelName] 'as' Named
+	| KW_MAPS entity = [EntityDeclaration | ModelName] KW_AS Named
 	;
 
 
@@ -207,16 +290,17 @@ ServiceOperationDeclaration
 
 ServiceDataDeclaration
 	: annotations += AnnotationMark*
-	  'function' return = ServiceReturnDeclaration Cardinality? Named '=>' expression = Expression
-	  (guard = Guard? & ('choices' choices = Expression)?)SC
+	  FEAT_FUNCTION return = ServiceReturnDeclaration Cardinality? Named '=>' expression = Expression
+	  (guard = GuardModifier? & choices = ChoiceModifier?)
+	  SC
 	;
 
 ServiceFunctionDeclaration
 	: annotations += AnnotationMark*
-	  'function'
-	  ('void'? | return = ServiceReturnDeclaration | alternateReturn = ServiceReturnAlternateDeclaration) Named
+	  FEAT_FUNCTION
+	  (CONST_VOID? | return = ServiceReturnDeclaration | alternateReturn = ServiceReturnAlternateDeclaration) Named
 	  '(' parameter = ServiceFunctionParameterDeclaration? ')'
-  	  guard = Guard?
+  	  guard = GuardModifier?
 	  (automapping ?= SC | BLOCK_START BLOCK_END )
 	;
 
@@ -245,9 +329,9 @@ Transferable
 TransferDeclaration
 	: {TransferDeclaration}
 	  annotations += AnnotationMark*
-	  'transfer' Named
+	  KW_TRANSFER Named
 	  map = EntityMapDeclaration?
-	  ('exports' exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
+	  (KW_EXPORTS exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
 	  (automap ?= SC | BLOCK_START (members += TransferMemberDeclaration)* constructor = TransferConstructorDeclaration? BLOCK_END)
 	;
 
@@ -258,14 +342,14 @@ TransferMemberDeclaration
 
 TransferFieldDeclaration
 	: annotations += AnnotationMark*
-	  'field' (required ?= 'required'? referenceType = [TransferFieldType | ModelName] Cardinality?) Named
+	  FEAT_FIELD (required ?= FEAT_REQUIRED? referenceType = [TransferFieldType | ModelName] Cardinality?) Named
 	  ('maps' maps = Expression ('choices' choices = Expression)? | 'reads' reads = Expression)?
 	  SC
 	;
 
 TransferConstructorDeclaration
 	: {TransferConstructorDeclaration}
-	  'constructor'
+	  FEAT_CONSTRUCTOR
 	  BLOCK_START (defaults += TransferDefault)* BLOCK_END
 	  SC*
 	;
@@ -290,92 +374,188 @@ TransferFieldType
 ViewDeclaration
 	: {ViewDeclaration}
 	  annotations += AnnotationMark*
-	  'view' Named
+	  KW_VIEW Named
 	  map = EntityMapDeclaration?
-	  ('exports' exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
-	  (automap ?= SC | BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END)
+//	  ('exports' exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
+	  (automap ?= SC | BLOCK_START (members += ViewMemberDeclaration)* (constructor = ViewConstructorDeclaration (members += ViewMemberDeclaration)*)? BLOCK_END)
 	;
 
 ViewMemberDeclaration
-	: ViewWidgetDeclaration
+	: (ViewFieldDeclaration
+	| ViewLinkDeclaration
 	| ViewTableDeclaration
 	| ViewGroupDeclaration
-	| ViewTabDeclaration
-	| ViewActionDeclaration
+	| ViewTabsDeclaration
+	| ViewSubmitDeclaration
+	| ViewActionDeclaration)
 	  SC*
 	;
 
-ViewTabDeclaration
-	: annotations += AnnotationMark*
-	 'tab' Named
-	  (caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier? & frame = ViewFrameModifier?)
+ViewConstructorDeclaration
+	: {ViewConstructorDeclaration}
+	  FEAT_CONSTRUCTOR
+	  BLOCK_START (defaults += ViewDefault)* BLOCK_END
+	  SC*
+	;
+
+ViewDefault
+	: field = ViewField '=' rightValue = Expression SC+
+	;
+
+ViewField
+	: 'self' '.' declaration = [ViewFieldDeclaration | ModelName]
+	;
+
+ViewTabsDeclaration
+	: {ViewTabDeclaration}
+	  annotations += AnnotationMark*
+	 FEAT_TABS
+	  ( tag = TagModifier
+	  & label = LabelModifier?
+	  & icon = IconModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?
+	  & width = WidthModifier?
+	  & frame = FrameModifier?)
 	  BLOCK_START (members += ViewGroupDeclaration)* BLOCK_END
 	;
 
 ViewGroupDeclaration
-	: annotations += AnnotationMark*
-	  'group' Named
-	  (caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier? & horizontal = ViewHorizontalModifier? & vertical = ViewVerticalModifier? & frame = ViewFrameModifier?)
+	: {ViewGroupDeclaration} 
+	  annotations += AnnotationMark*
+	  FEAT_GROUP
+	  ( tag = TagModifier
+	  & (horizontal = HorizontalModifier | vertical = VerticalModifier)?
+	  & label = LabelModifier?
+	  & icon = IconModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?
+	  & width = WidthModifier?
+	  & frame = FrameModifier?)
 	  BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END
 	;
 
-ViewWidgetDeclaration
+
+HorizontalModifier
+	: ATTR_HORIZONTAL ':' (left ?= CONST_LEFT | right ?= CONST_RIGHT | center ?= CONST_CENTER)
+	;
+
+VerticalModifier
+	: ATTR_VERTICAL ':' (top ?= CONST_TOP | bottom ?= CONST_BOTTOM | center ?= CONST_CENTER | stretch ?= CONST_STRETCH)
+	;
+
+ViewFieldDeclaration
 	: annotations += AnnotationMark*
-	  'widget' (referenceType = [PrimitiveDeclaration | ModelName]) Named
-	  "=" expression = Expression
-	  (caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier? & height = ViewHeightModifier?)
+	  FEAT_FIELD required ?= FEAT_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	  ( label = LabelModifier?
+	  & icon = IconModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?
+	  & width = WidthModifier?)
+	  SC
+	;
+
+ViewLinkDeclaration
+	: annotations += AnnotationMark*
+	  FEAT_LINK required ?= FEAT_REQUIRED? (referenceType = [ViewDeclaration | ModelName]) Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	  ( choices = ChoiceModifier?
+	  & create = CreateModifier?
+	  & target = TargetModifier?
+	  & label = LabelModifier?
+	  & icon = IconModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?
+	  & text = TextModifier?
+	  & width = WidthModifier?)
 	  SC
 	;
 
 ViewTableDeclaration
 	: annotations += AnnotationMark*
-	  'table' (referenceType = [RowDeclaration | ModelName]) '[]' Named
-	  "=" expression = Expression
-	  (caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier? & height = ViewHeightModifier?)
+	  FEAT_TABLE (referenceType = [RowDeclaration | ModelName]) '[]' Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	  ( choices = ChoiceModifier?
+	  & create = CreateModifier?
+	  & target = TargetModifier?
+	  & label = LabelModifier?
+	  & icon = IconModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?
+	  & width = WidthModifier?
+	  & rows = RowsModifier?)
+	  SC
+	;
+
+ViewSubmitDeclaration
+	: annotations += AnnotationMark*
+	  FEAT_SUBMIT (CONST_VOID? | return = ServiceReturnDeclaration | alternateReturn = ServiceReturnAlternateDeclaration) Named
+	  ( label = LabelModifier?
+	  & icon = IconModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?
+	  & width = WidthModifier?)
 	  SC
 	;
 
 ViewActionDeclaration
 	: annotations += AnnotationMark*
-	  'action' Named
-	  ('function' function = ServiceFunctionCall & caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier?)
+	  FEAT_ACTION
+	  (CONST_VOID? | return = ServiceReturnDeclaration | alternateReturn = ServiceReturnAlternateDeclaration) Named
+	  '(' parameter = ServiceFunctionParameterDeclaration? ')'
+	  ( label = LabelModifier?
+	  & icon = IconModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?
+	  & width = WidthModifier?
+	  & guard = GuardModifier?)
 	  SC
 	;
 
-ViewCaptionModifier
-	: 'caption' expression = Expression
+TagModifier
+	: ATTR_TAG ':' value = JSLID
 	;
 
-ViewIconModifier
-	: 'icon' name = StringLiteral
+LabelModifier
+	: ATTR_LABEL ':' expression = Expression
+	;
+
+IconModifier
+	:  ATTR_ICON ':' name = StringLiteral
 	;	
 
-ViewFrameModifier
-	: 'frame' expression = Expression
+FrameModifier
+	: ATTR_FRAME ':' expression = Expression
 	;	
 	
-ViewEnabledModifier
-	: 'enabled' expression = Expression
+EnabledModifier
+	: ATTR_ENABLED ':' expression = Expression
 	;
 
-ViewHiddenModifier
-	: 'hidden' expression = Expression
+HiddenModifier
+	: ATTR_HIDDEN ':' expression = Expression
 	;
 
-ViewWidthModifier
-	: 'width' expression = Expression
+WidthModifier
+	: ATTR_WIDTH ':' value = Natural
 	;
 
-ViewHeightModifier
-	: 'height' expression = Expression
+RowsModifier
+	: ATTR_ROWS ':' value = Natural
 	;
 
-ViewHorizontalModifier
-	: 'horizontal' (left ?= 'left' | right ?= 'right' | center ?= 'center')
+ChoiceModifier
+	: ATTR_CHOICES ':' expression = Expression
 	;
 
-ViewVerticalModifier
-	: 'vertical' (top ?= 'top' | bottom ?= 'bottom' | center ?= 'center' | stretch = 'stretch')
+TextModifier
+	: ATTR_TEXT ':' expression = Expression
+	;
+
+CreateModifier
+	: ATTR_CREATE ':' view = [ViewDeclaration | ModelName]
+	;
+
+TargetModifier
+	: ATTR_TARGET ':' view = [ViewDeclaration | ModelName] ('(' expression = Expression ')')?
 	;
 
 ServiceFunctionCall
@@ -389,30 +569,32 @@ ServiceFunctionCall
 RowDeclaration
 	: {RowDeclaration}
 	  annotations += AnnotationMark*
-	  'row' Named
+	  KW_ROW Named
 	  map = EntityMapDeclaration?
-	  ('exports' exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
+	  target = TargetModifier?
 	  (automap ?= SC | BLOCK_START (members += RowMemberDeclaration)* BLOCK_END)
 	;
 
 RowMemberDeclaration
 	: RowColumnDeclaration
-	| RowActionDeclaration
+//	| RowActionDeclaration
 	  SC*
 	;
 
 RowColumnDeclaration
 	: annotations += AnnotationMark*
-	  'column' (referenceType = [PrimitiveDeclaration | ModelName]) Named
-	  "=" expression = Expression
+	  FEAT_COLUMN (referenceType = [PrimitiveDeclaration | ModelName]) Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	  ( label = LabelModifier?
+	  & icon = IconModifier?
+	  & width = WidthModifier?)
 	  SC
 	;
 
-RowActionDeclaration
-	: annotations += AnnotationMark*
-	  'action' Named 'function' function = ServiceFunctionCall
-	  SC
-	;
+//RowActionDeclaration
+//	: annotations += AnnotationMark*
+//	  'action' Named 'function' function = ServiceFunctionCall
+//	  SC
+//	;
 
 /****************************
  *	Actor
@@ -421,10 +603,53 @@ RowActionDeclaration
 ActorDeclaration
 	: {ActorDeclaration}
 	  annotations += AnnotationMark*
-	  'actor' Named
+	  KW_ACTOR Named
 	  map = EntityMapDeclaration?
-	  ('exports' exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
-	  (('realm' realm = StringLiteral)? & ('claim' claim = StringLiteral)? & ('identity' identity = Expression)? & guard = Guard?)
+	  ( realm = RealmModifier?
+	  & claim = ClaimModifier?
+	  & identity = IdentityModifier?
+	  & guard = GuardModifier?)
+	  BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END
+	;
+
+RealmModifier
+	: ATTR_REALM ':' value = StringLiteral
+	;
+
+ClaimModifier
+	: ATTR_CLAIM ':' value = StringLiteral
+	;
+
+IdentityModifier
+	: ATTR_IDENTITY ':' expression = Expression
+	;
+
+ActorMemberDeclaration
+	: ActorMenuDeclaration
+	| ActorGroupDeclaration
+	;
+
+ActorGroupDeclaration
+	: {ViewGroupDeclaration} 
+	  annotations += AnnotationMark*
+	  FEAT_GROUP
+	  ( tag = TagModifier
+	  & label = LabelModifier?
+	  & icon = IconModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?)
+	  BLOCK_START (members += ActorMenuDeclaration)* BLOCK_END
+	;
+
+ActorMenuDeclaration
+	: annotations += AnnotationMark*
+	  FEAT_MENU
+	  ( tag = TagModifier
+	  & label = LabelModifier?
+	  & icon = IconModifier?
+	  & target = TargetModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?)
 	  SC
 	;
 
@@ -434,15 +659,15 @@ ActorDeclaration
 
 DataTypeDeclaration
     : annotations += AnnotationMark*
-      'type'
+      KW_TYPE
       (
-		  primitive = 'boolean' Named
-		| primitive = 'binary' Named '(' mimeTypes = ModifierMimeTypes ',' maxFileSize = ModifierMaxFileSize ')'
-		| primitive = 'string' Named '(' minSize = ModifierMinSize ',' maxSize = ModifierMaxSize (',' regex = ModifierRegex)? ')'
-		| primitive = 'numeric' Named '(' precision = ModifierPrecision ',' scale = ModifierScale ')'
-		| primitive = 'date' Named
-		| primitive = 'time' Named
-		| primitive = 'timestamp' Named
+		  primitive = CONST_BOOLEAN Named
+		| primitive = CONST_BINARY Named '(' mimeTypes = ModifierMimeTypes ',' maxFileSize = ModifierMaxFileSize ')'
+		| primitive = CONST_STRING Named '(' minSize = ModifierMinSize ',' maxSize = ModifierMaxSize (',' regex = ModifierRegex)? ')'
+		| primitive = CONST_NUMERIC Named '(' precision = ModifierPrecision ',' scale = ModifierScale ')'
+		| primitive = CONST_DATE Named
+		| primitive = CONST_TIME Named
+		| primitive = CONST_TIMESTAMP Named
       ) SC
     ;
 
@@ -453,7 +678,7 @@ DataTypeDeclaration
 
 EnumDeclaration
     : annotations += AnnotationMark*
-      'enum' Named
+      KW_ENUM Named
       BLOCK_START (literals += EnumLiteral)* BLOCK_END
     ;
 
@@ -666,8 +891,8 @@ LambdaDeclaration
  ***************************/
 
 AnnotationDeclaration
-	: 'annotation' Named ('(' (parameters += AnnotationParameterDeclaration (',' parameters += AnnotationParameterDeclaration)*)? ')')?
-	  ('on' targets += AnnotationTarget (',' targets += AnnotationTarget)*)?
+	: KW_ANNOTATION Named ('(' (parameters += AnnotationParameterDeclaration (',' parameters += AnnotationParameterDeclaration)*)? ')')?
+	  (KW_ON targets += AnnotationTarget (',' targets += AnnotationTarget)*)?
 	  (SC | BLOCK_START annotations += AnnotationMark* BLOCK_END )
 	;
 
@@ -676,7 +901,7 @@ AnnotationParameterDeclaration
 	;
 
 AnnotationParameterType
-	: type = ('boolean'	| 'string' | 'numeric')
+	: type = (CONST_BOOLEAN	| CONST_STRING | CONST_NUMERIC)
 	;
 
 AnnotationTarget
@@ -729,7 +954,7 @@ Literal
 	;
 
 BooleanLiteral
-	: {BooleanLiteral} ('false' | isTrue?='true')
+	: {BooleanLiteral} (CONST_FALSE | isTrue?=CONST_TRUE)
 	;
 
 NumberLiteral
@@ -761,22 +986,25 @@ TemporalLiteral
  // For later use
  // ************************************
  
- ConstraintDeclaration
-	: 'constraint' Named expression = Expression ('onerror' error = CreateError)? SC
+ConstraintDeclaration
+	: FEAT_CONSTRAINT Named expression = Expression (error = ErrorModifier?) SC
 	;
 
+ErrorModifier
+	: ATTR_ERROR ':' value = CreateError
+	;
  
 /****************************
  *	Error
  ****************************/
 
 ErrorDeclaration
-	: 'error' Named ('extends' extends = [ErrorDeclaration | ModelName])?
+	: KW_ERROR Named (KW_EXTENDS extends = [ErrorDeclaration | ModelName])?
 	  (SC | BLOCK_START (fields += ErrorField)* BLOCK_END)
 	;
 
 ErrorField
-	: 'field' referenceType = [PrimitiveDeclaration | ModelName] Named
+	: FEAT_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named
 	  ('=' defaultExpression = Expression)? SC+
 	;
 

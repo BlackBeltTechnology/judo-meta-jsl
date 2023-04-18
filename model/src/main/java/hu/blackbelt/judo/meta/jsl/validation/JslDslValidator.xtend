@@ -68,7 +68,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityOperationReturnDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityOperationParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ViewActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Transferable
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowDeclaration
@@ -80,7 +79,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDefault
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferConstructorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.Guard
+import hu.blackbelt.judo.meta.jsl.jsldsl.GuardModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget
 
 /**
@@ -1277,28 +1276,28 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkForDuplicateActorFunctionDeclaration(ActorDeclaration actor) {
-        for (ServiceDeclaration service : actor.exports) {
-            for (ServiceMemberDeclaration member : service.members) {
-                var String tmp;
-
-                switch (member) {
-                    ServiceDataDeclaration: tmp = member.name
-                    ServiceFunctionDeclaration: tmp = member.name
-                }
-
-                val name = tmp;
-
-                if (actor.exports.flatMap[export | export.members].filter[m | m.name.toLowerCase.equals(name.toLowerCase)].size > 1) {
-                    error("Duplicate exported service function: '" + member.name + "'.",
-                        member.nameAttribute,
-                        DUPLICATE_MEMBER_NAME,
-                        member.name)
-                }
-            }
-        }
-    }
+//    @Check
+//    def checkForDuplicateActorFunctionDeclaration(ActorDeclaration actor) {
+//        for (ServiceDeclaration service : actor.exports) {
+//            for (ServiceMemberDeclaration member : service.members) {
+//                var String tmp;
+//
+//                switch (member) {
+//                    ServiceDataDeclaration: tmp = member.name
+//                    ServiceFunctionDeclaration: tmp = member.name
+//                }
+//
+//                val name = tmp;
+//
+//                if (actor.exports.flatMap[export | export.members].filter[m | m.name.toLowerCase.equals(name.toLowerCase)].size > 1) {
+//                    error("Duplicate exported service function: '" + member.name + "'.",
+//                        member.nameAttribute,
+//                        DUPLICATE_MEMBER_NAME,
+//                        member.name)
+//                }
+//            }
+//        }
+//    }
 
     @Check
     def checkForDuplicateNameForServiceMemberDeclaration(ServiceMemberDeclaration member) {
@@ -1329,7 +1328,7 @@ class JslDslValidator extends AbstractJslDslValidator {
                     JsldslPackage::eINSTANCE.serviceDataDeclaration.name)
             }
 
-            if (data.choices !== null && !TypeInfo.getTargetType(data).isCompatibleCollection(TypeInfo.getTargetType(data.choices))) {
+            if (data.choices !== null && !TypeInfo.getTargetType(data).isCompatibleCollection(TypeInfo.getTargetType(data.choices.expression))) {
                 error("Type mismatch. Choices must return compatible collection with field type.",
                     JsldslPackage::eINSTANCE.serviceDataDeclaration_Choices,
                     TYPE_MISMATCH,
@@ -1342,12 +1341,12 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 
     @Check
-    def checkGuard(Guard guard) {
+    def checkGuard(GuardModifier guard) {
         if (guard.expression !== null && !TypeInfo.getTargetType(guard.expression).isBoolean) {
             error("Guard expression must have boolean return value.",
-                JsldslPackage::eINSTANCE.guard_Expression,
+                JsldslPackage::eINSTANCE.guardModifier_Expression,
                 TYPE_MISMATCH,
-                JsldslPackage::eINSTANCE.guard.name)
+                JsldslPackage::eINSTANCE.guardModifier.name)
         }
     }
 
@@ -1403,21 +1402,21 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkActorExport(ActorDeclaration actor) {
-        for (ServiceDeclaration service : actor.exports) {
-            if (service.map !== null) {
-                if (actor.map === null ||
-                    !TypeInfo.getTargetType(actor.map.entity).isCompatible(TypeInfo.getTargetType(service.map.entity)))
-                {
-                    error("Incompatible export:'" + service.name + "'. Service must be mapped to the same entity type as actor.",
-                        JsldslPackage::eINSTANCE.named_Name,
-                        INCOMPAIBLE_EXPORT,
-                        JsldslPackage::eINSTANCE.named_Name.name)
-                }
-            }
-        }
-    }
+//    @Check
+//    def checkActorExport(ActorDeclaration actor) {
+//        for (ServiceDeclaration service : actor.exports) {
+//            if (service.map !== null) {
+//                if (actor.map === null ||
+//                    !TypeInfo.getTargetType(actor.map.entity).isCompatible(TypeInfo.getTargetType(service.map.entity)))
+//                {
+//                    error("Incompatible export:'" + service.name + "'. Service must be mapped to the same entity type as actor.",
+//                        JsldslPackage::eINSTANCE.named_Name,
+//                        INCOMPAIBLE_EXPORT,
+//                        JsldslPackage::eINSTANCE.named_Name.name)
+//                }
+//            }
+//        }
+//    }
 
     @Check
     def checkTransferFieldReads(TransferFieldDeclaration field) {
@@ -1759,41 +1758,41 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkViewAction(ViewActionDeclaration action) {
-        if (action.function.declaration instanceof ServiceDataDeclaration) {
-            if (action.function.argument !== null) {
-                error("Invalid service call. Service call should not have argument.",
-                    JsldslPackage::eINSTANCE.viewActionDeclaration_Function,
-                    INVALID_SERVICE_FUNCTION_CALL,
-                    JsldslPackage::eINSTANCE.viewActionDeclaration_Function.name)
-            }
-        }
-
-        if (action.function.declaration instanceof ServiceFunctionDeclaration) {
-            val ServiceFunctionDeclaration function = action.function.declaration as ServiceFunctionDeclaration
-
-            if (function.parameter !== null && action.function.argument === null) {
-                error("Invalid function call. Function call must have argument.",
-                    JsldslPackage::eINSTANCE.viewActionDeclaration_Function,
-                    INVALID_SERVICE_FUNCTION_CALL,
-                    JsldslPackage::eINSTANCE.viewActionDeclaration_Function.name)
-
-                return
-            }
-
-            if (function.parameter === null && action.function.argument !== null) {
-                error("Invalid function call. Function call should not have argument.",
-                    JsldslPackage::eINSTANCE.viewActionDeclaration_Function,
-                    INVALID_SERVICE_FUNCTION_CALL,
-                    JsldslPackage::eINSTANCE.viewActionDeclaration_Function.name)
-
-                return
-            }
-
-            // TODO: argument type shall be checked
-        }
-    }
+//    @Check
+//    def checkViewAction(ViewActionDeclaration action) {
+//        if (action.function.declaration instanceof ServiceDataDeclaration) {
+//            if (action.function.argument !== null) {
+//                error("Invalid service call. Service call should not have argument.",
+//                    JsldslPackage::eINSTANCE.viewActionDeclaration_Function,
+//                    INVALID_SERVICE_FUNCTION_CALL,
+//                    JsldslPackage::eINSTANCE.viewActionDeclaration_Function.name)
+//            }
+//        }
+//
+//        if (action.function.declaration instanceof ServiceFunctionDeclaration) {
+//            val ServiceFunctionDeclaration function = action.function.declaration as ServiceFunctionDeclaration
+//
+//            if (function.parameter !== null && action.function.argument === null) {
+//                error("Invalid function call. Function call must have argument.",
+//                    JsldslPackage::eINSTANCE.viewActionDeclaration_Function,
+//                    INVALID_SERVICE_FUNCTION_CALL,
+//                    JsldslPackage::eINSTANCE.viewActionDeclaration_Function.name)
+//
+//                return
+//            }
+//
+//            if (function.parameter === null && action.function.argument !== null) {
+//                error("Invalid function call. Function call should not have argument.",
+//                    JsldslPackage::eINSTANCE.viewActionDeclaration_Function,
+//                    INVALID_SERVICE_FUNCTION_CALL,
+//                    JsldslPackage::eINSTANCE.viewActionDeclaration_Function.name)
+//
+//                return
+//            }
+//
+//            // TODO: argument type shall be checked
+//        }
+//    }
 
     @Check
     def checkActorIdentity(ActorDeclaration actor) {

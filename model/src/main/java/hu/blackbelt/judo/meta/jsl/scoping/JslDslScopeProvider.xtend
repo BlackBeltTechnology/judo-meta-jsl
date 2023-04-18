@@ -65,6 +65,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceOperationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferField
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewField
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -111,10 +113,18 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
             FunctionArgument case ref == JsldslPackage::eINSTANCE.functionArgument_Declaration: return scope.scope_Containments((context.eContainer as FunctionCall).declaration, ref)
             AnnotationArgument case ref == JsldslPackage::eINSTANCE.annotationArgument_Declaration && context.eContainer instanceof AnnotationMark: return scope.scope_Containments((context.eContainer as AnnotationMark).declaration, ref)
 
+			ViewField case ref == JsldslPackage::eINSTANCE.viewField_Declaration: return scope.scope_ViewContainments(context.eContainer.eContainer.eContainer, ref)
+
             Navigation: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
         }
 
         return scope
+    }
+
+	def scope_ViewContainments(IScope scope, EObject context, EReference ref) {
+        return new FilteringScope(scope.getLocalElementsScope(context, ref), [desc | {
+            return EcoreUtil2.getAllContainers(desc.EObjectOrProxy).exists[c | c.isEqual(context)]
+        }]);
     }
 
     def scope_Containments(IScope scope, EObject context, EReference ref) {
@@ -176,13 +186,14 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
                 ErrorDeclaration: return true
                 AnnotationDeclaration: return true
                 TransferFieldDeclaration: return true
+                ViewFieldDeclaration: return true
 
                 LambdaVariable: return context.parentContainer(LambdaCall).isEqual(obj.eContainer)
                 QueryParameterDeclaration: return context.parentContainer(QueryParameterDeclaration) === null && (context.isEqual(obj.eContainer) || EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)])
                 EntityMapDeclaration: return context.isEqual(obj.eContainer) || EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]
                 AnnotationParameterDeclaration: return EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]
 
-                ServiceOperationDeclaration: return context.parentContainer(ViewDeclaration).exports.exists[g | g.isEqual(obj.eContainer)]
+                // ServiceOperationDeclaration: return context.parentContainer(ViewDeclaration).exports.exists[g | g.isEqual(obj.eContainer)]
             }
 
             return false;

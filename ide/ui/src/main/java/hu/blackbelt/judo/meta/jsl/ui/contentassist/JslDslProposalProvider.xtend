@@ -30,7 +30,7 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
     public static Set<String> FILTERED_KEYWORDS = ImmutableSet.of("lambda", "function");
 
     public static Set<String> FILTERED_TERMINALS = ImmutableSet.of(";", "(", ")", "+", "-", "*", "/", "@",
-                                                                  "!=", "<", "<=", ">", ">=", "==", "?", "^",
+                                                                  "!=", "<", ">", ">=", "==", "?", "^",
                                                                   "and", "div", "implies", "mod", "or", "xor");
 
     override completeKeyword(Keyword keyword, ContentAssistContext contentAssistContext, ICompletionProposalAcceptor acceptor) {

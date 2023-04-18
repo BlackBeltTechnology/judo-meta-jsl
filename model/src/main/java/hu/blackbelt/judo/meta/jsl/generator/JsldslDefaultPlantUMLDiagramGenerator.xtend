@@ -299,9 +299,9 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     def actorRepresentation(ActorDeclaration it)
     '''
         class «name?:"none"»«actorStereotypeFragment» {
-            «IF realm !== null»realm "«realm.value»"«ENDIF»
-            «IF claim !== null»claim "«claim.value»"«ENDIF»
-            «IF identity !== null»identity "«identity.sourceCode»"«ENDIF»
+            «IF realm !== null»realm "«realm.value.value»"«ENDIF»
+            «IF claim !== null»claim "«claim.value.value»"«ENDIF»
+            «IF identity !== null»identity "«identity.expression»"«ENDIF»
         }
     '''
 
@@ -333,13 +333,6 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         «ENDIF»
     '''
     
-    def actorExports(ActorDeclaration it)
-    '''
-		«FOR exp : it.exports»
-            «name» ...> «exp.name» : <<exports>>
-        «ENDFOR»
-    '''
-
     def entityRelationOppositeInjectedRepresentation(EntityRelationOppositeInjected it)
     '''"«name»\n«IF many»[0..*] «ELSE»[0..1]«ENDIF»" -- '''
 
@@ -404,9 +397,9 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             «service.serviceMaps»
         «ENDFOR»
         
-        «FOR service : externalServiceReferenceTypes»
-            class «getExternalNameOfServiceDeclaration(service)» <«service.parentContainer(ModelDeclaration)?.name»> << External >>
-        «ENDFOR»
+«««        «FOR service : externalServiceReferenceTypes»
+«««            class «getExternalNameOfServiceDeclaration(service)» <«service.parentContainer(ModelDeclaration)?.name»> << External >>
+«««        «ENDFOR»
     }
     
     together {
@@ -416,10 +409,6 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
 	    «FOR actor : actorDeclarations»
 	        «actor.actorMaps»
-	    «ENDFOR»
-
-	    «FOR actor : actorDeclarations»
-	        «actor.actorExports»
 	    «ENDFOR»
     }
 
@@ -481,19 +470,19 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         externalEntities
     }
     
-    def Collection<ServiceDeclaration> getExternalServiceReferenceTypes(ModelDeclaration it) {
-    	val Set<ServiceDeclaration> externalServices = new HashSet()
-    	
-    	for (actor : it.actorDeclarations) {
-    		for (service : actor.exports) {
-    			if (service.parentContainer(ModelDeclaration)?.name !== it.name) {
-	        		externalServices.add(service)
-	        	}
-    		}
-    	}
-    	
-    	externalServices
-    }
+//    def Collection<ServiceDeclaration> getExternalServiceReferenceTypes(ModelDeclaration it) {
+//    	val Set<ServiceDeclaration> externalServices = new HashSet()
+//    	
+//    	for (actor : it.actorDeclarations) {
+//    		for (service : actor.exports) {
+//    			if (service.parentContainer(ModelDeclaration)?.name !== it.name) {
+//	        		externalServices.add(service)
+//	        	}
+//    		}
+//    	}
+//    	
+//    	externalServices
+//    }
 
     def String getExternalNameOfEntityDeclaration(ModelDeclaration it, EntityDeclaration entityDeclaration) {
         if (it.name !== entityDeclaration?.parentContainer(ModelDeclaration)?.name) {

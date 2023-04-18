@@ -9,7 +9,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.DateLiteral;
-import hu.blackbelt.judo.meta.jsl.jsldsl.DecimalLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration;
@@ -28,7 +27,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Feature;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionArgument;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.IntegerLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage;
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaCall;
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable;
@@ -39,6 +37,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBase;
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference;
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget;
+import hu.blackbelt.judo.meta.jsl.jsldsl.NumberLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Parentheses;
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall;
@@ -670,9 +669,7 @@ public class TypeInfo {
 			return new TypeInfo(BaseType.UNDEFINED, false);
 		}
 
-		if (litreal instanceof IntegerLiteral) {
-			return new TypeInfo(BaseType.NUMERIC, true);
-		} else if (litreal instanceof DecimalLiteral) {
+		if (litreal instanceof NumberLiteral) {
 			return new TypeInfo(BaseType.NUMERIC, true);
 		} else if (litreal instanceof BooleanLiteral) {
 			return new TypeInfo(BaseType.BOOLEAN, true);
