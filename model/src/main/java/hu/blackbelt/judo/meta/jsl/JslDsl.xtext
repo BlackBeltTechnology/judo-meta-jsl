@@ -630,8 +630,7 @@ ActorMemberDeclaration
 	;
 
 ActorGroupDeclaration
-	: {ViewGroupDeclaration} 
-	  annotations += AnnotationMark*
+	: annotations += AnnotationMark*
 	  FEAT_GROUP
 	  ( tag = TagModifier
 	  & label = LabelModifier?
@@ -922,7 +921,20 @@ AnnotationTarget
 	| service ?= 'service'
 	| 'service' '::' serviceFunction ?= 'function'
 	| actor ?= 'actor'
+	| 'actor' '::' actorMenu ?= 'menu'
+	| 'actor' '::' actorGroup ?= 'group'
 	| query ?= 'query'
+	| view ?= 'view'
+	| 'view' '::' viewAction ?= 'action'
+	| 'view' '::' viewConstructor ?= 'constructor'
+	| 'view' '::' viewField ?= 'field'
+	| 'view' '::' viewGroup ?= 'group'
+	| 'view' '::' viewLink ?= 'link'
+	| 'view' '::' viewSubmit ?= 'submit'
+	| 'view' '::' viewTable ?= 'table'
+	| 'view' '::' viewTabs ?= 'tabs'
+	| row ?= 'row'
+	| 'row' '::' rowColumn ?= 'column'
 	;
 
 AnnotationMark

@@ -81,6 +81,17 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.GuardModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewActionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewConstructorDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewGroupDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewSubmitDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTableDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTabsDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.RowColumnDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorGroupDeclaration
 
 /**
  * This class contains custom validation rules.
@@ -638,7 +649,7 @@ class JslDslValidator extends AbstractJslDslValidator {
             EnumDeclaration:                error = !mark.declaration.targets.exists[t | t.enumeration]
             EnumLiteral:                    error = !mark.declaration.targets.exists[t | t.enumLiteral]
 
-            EntityDeclaration:                error = !mark.declaration.targets.exists[t | t.entity]
+            EntityDeclaration:              error = !mark.declaration.targets.exists[t | t.entity]
             EntityFieldDeclaration:         error = !mark.declaration.targets.exists[t | t.entityField]
             EntityRelationDeclaration:      error = !mark.declaration.targets.exists[t | t.entityRelation]
             EntityIdentifierDeclaration:    error = !mark.declaration.targets.exists[t | t.entityIdentifier]
@@ -654,8 +665,23 @@ class JslDslValidator extends AbstractJslDslValidator {
             ServiceFunctionDeclaration:     error = !mark.declaration.targets.exists[t | t.serviceFunction]
 
             ActorDeclaration:               error = !mark.declaration.targets.exists[t | t.actor]
+            ActorMenuDeclaration:           error = !mark.declaration.targets.exists[t | t.actorMenu]
+            ActorGroupDeclaration:          error = !mark.declaration.targets.exists[t | t.actorGroup]
 
             QueryDeclaration:               error = !mark.declaration.targets.exists[t | t.query]
+
+            ViewDeclaration:                error = !mark.declaration.targets.exists[t | t.view]
+            ViewActionDeclaration:          error = !mark.declaration.targets.exists[t | t.viewAction]
+            ViewConstructorDeclaration:     error = !mark.declaration.targets.exists[t | t.viewConstructor]
+            ViewFieldDeclaration:           error = !mark.declaration.targets.exists[t | t.viewField]
+            ViewGroupDeclaration:           error = !mark.declaration.targets.exists[t | t.viewGroup]
+            ViewLinkDeclaration:            error = !mark.declaration.targets.exists[t | t.viewLink]
+            ViewSubmitDeclaration:          error = !mark.declaration.targets.exists[t | t.viewSubmit]
+            ViewTableDeclaration:           error = !mark.declaration.targets.exists[t | t.viewTable]
+            ViewTabsDeclaration:            error = !mark.declaration.targets.exists[t | t.viewTabs]
+
+            RowDeclaration:                 error = !mark.declaration.targets.exists[t | t.row]
+            RowColumnDeclaration:           error = !mark.declaration.targets.exists[t | t.rowColumn]
         }
 
         if (error) {

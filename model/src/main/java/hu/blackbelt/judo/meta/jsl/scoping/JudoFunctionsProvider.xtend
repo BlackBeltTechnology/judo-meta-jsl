@@ -58,6 +58,10 @@ class JudoFunctionsProvider {
 		annotation Insert on service::function;
 		annotation Remove on service::function;
 		
+		annotation Lazy on view::table, view::link;
+		annotation Eager on view::table, view::link;
+		annotation Modal on view::table, view::link, row, actor::menu;
+		
 		function string asString() on boolean;
 		function string asString() on enum;
 		

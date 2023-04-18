@@ -18,6 +18,9 @@ import java.util.Set
 import com.google.common.collect.ImmutableSet
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
+import org.eclipse.xtext.RuleCall
+import org.eclipse.xtext.AbstractRule
+import org.eclipse.jface.text.contentassist.ICompletionProposal
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
@@ -29,7 +32,7 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 
     public static Set<String> FILTERED_KEYWORDS = ImmutableSet.of("lambda", "function");
 
-    public static Set<String> FILTERED_TERMINALS = ImmutableSet.of(";", "(", ")", "+", "-", "*", "/", "@",
+    public static Set<String> FILTERED_TERMINALS = ImmutableSet.of("{", "}", ";", "(", ")", "+", "-", "*", "/", "@",
                                                                   "!=", "<", ">", ">=", "==", "?", "^",
                                                                   "and", "div", "implies", "mod", "or", "xor");
 
@@ -54,6 +57,19 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 
         super.completeKeyword(keyword, contentAssistContext, acceptor);
     }
+
+	override completeRuleCall(RuleCall ruleCall, ContentAssistContext contentAssistContext,
+			ICompletionProposalAcceptor acceptor) {
+
+		var AbstractRule calledRule = ruleCall.getRule();
+		
+		if (calledRule.alternatives instanceof Keyword) {
+			var Keyword keyword = calledRule.alternatives as Keyword;
+			completeKeyword(keyword, contentAssistContext, acceptor)
+		}
+				
+		super.completeRuleCall(ruleCall, contentAssistContext, acceptor)
+	}
 
 
     override completeEntityRelationOppositeReferenced_OppositeType(EObject model, Assignment assignment,
