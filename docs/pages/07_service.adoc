@@ -42,9 +42,10 @@ To define an unmapped transfer object, use the `transfer` keyword.
 
 *Syntax:*
 
+[subs="quotes"]
 ----
-transfer <name> {
-    [field] ...
+[purple]#**transfer**# &lt;name> {
+    &#x5B;[purple]##**field**##] ...
 }
 ----
 
@@ -52,6 +53,7 @@ where the <name> is the name of the transfer object, and its data fields are def
 
 *Example:*
 
+[source,jsl]
 ----
 transfer PersonTransfer {
 }
@@ -75,9 +77,10 @@ To define a mapped transfer object, use the `transfer` keyword and specify an en
 
 *Syntax:*
 
+[subs="quotes"]
 ----
-transfer <name> (<entity> <mapping-field>) [{
-    [field] ...
+[purple]#**transfer**# &lt;name> (&lt;entity> &lt;mapping-field>) &#x5B;{
+    &#x5B;[purple]##**field**##] ...
 }]
 ----
 
@@ -88,9 +91,10 @@ where the <name> is the name of the transfer object, and the member fields are d
 ====
 There is an alternative syntax to define a mapped transfer object. This alternative is a bit more expressive, although it may be too verbose.
 
+[subs="quotes"]
 ----
-transfer <name> maps <entity> as <mapping-field> [{
-    [field] ...
+[purple]#**transfer**# &lt;name> [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> &#x5B;{
+    &#x5B;[purple]##**field**##] ...
 }]
 ----
 ====
@@ -101,6 +105,7 @@ The example below shows a mapped transfer object.
 
 *Example:*
 
+[source,jsl]
 ----
 entity Person {
     field String name;
@@ -124,14 +129,16 @@ Use the `field` keyword to specify a field within a transfer object.
 
 *Syntax:*
 
+[subs="quotes"]
 ----
-field [required] <primitive> <name>;
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name>[purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive, or
 
+[subs="quotes"]
 ----
-field [required] <transfer>[[]] <name>;
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name>[purple]#**;**#
 ----
 
 where the <transfer> is the name of a transfer object.
@@ -148,6 +155,7 @@ The keyword `required` is not allowed in fields with collection type.
 
 *Example:*
 
+[source,jsl]
 ----
 transfer PersonTransfer {
     field required String firstName;
@@ -160,6 +168,7 @@ The example above defines a transfer object named PersonTransfer. This transfer 
 
 *Example:*
 
+[source,jsl]
 ----
 transfer AddressTransfer {
     field required String line1;
@@ -184,9 +193,10 @@ Optionally, a constructor can be specified for transfer objects. The constructor
 
 *Syntax:*
 
+[subs="quotes"]
 ----
-constructor {
-    [<field> = <expression>;] ...
+[purple]#**constructor**# {
+    &#x5B;&lt;field> = &lt;expression>[purple]#**;**#] ...
 }
 ----
 
@@ -195,6 +205,7 @@ where <field> is a field of the transfer object having the constructor and <expr
 
 *Example:*
 
+[source,jsl]
 ----
 transfer PersonTransfer {
     field required String firstName;
@@ -229,20 +240,23 @@ Use the `reads` or `maps` keywords in the field definitions to define the mappin
 
 *Syntax:*
 
+[subs="quotes"]
 ----
-field [required] <primitive> <name> [(reads|maps) <expression>];
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;([purple]##**reads**##|[purple]##**maps**##) &lt;expression>];
 ----
 
 where <primitive> is the name of a domain model primitive, or
 
+[subs="quotes"]
 ----
-field [required] <transfer>[[]] <name> [(reads|maps) <expression>];
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;([purple]##**reads**##|[purple]##**maps**##) &lt;expression>];
 ----
 
 If the `reads` keyword is used, the value of the transfer field will be set to the value of the expression specified after `reads`. 
 
 *Example:*
 
+[source,jsl]
 ----
 entity SalesPerson {
     field String firstName;
@@ -264,6 +278,7 @@ While `reads` can be followed by any expression, the expression behind `maps` ca
 
 *Example:*
 
+[source,jsl]
 ----
 entity SalesPerson {
     field String firstName;
@@ -284,6 +299,7 @@ The following example shows a collection field that is mapped to one of the enti
 
 *Example:*
 
+[source,jsl]
 ----
 entity SalesPerson {
     field String firstName;
@@ -318,6 +334,7 @@ We often encounter the situation when entities need to be delivered to external 
 
 If a mapped transfer object is defined without members, all entity fields are automatically mapped in the transfer object with the same names as the names defined in the entity.
 
+[source,jsl]
 ----
 entity SalesPerson {
     field String firstName;
@@ -331,6 +348,7 @@ In the example above, there will be two fields in the transfer object, the `firs
 
 Auto-mapping also maps fields with transfer object type. A prerequisite for automatic mapping with a transfer object type is that the referenced transfer object must also already exist as an automatically mapped transfer object. The following example shows a transfer object with a list of transfer objects in one of its fields.
 
+[source,jsl]
 ----
 entity SalesPerson {
     field String firstName;
@@ -348,6 +366,7 @@ transfer SalesPersonTransfer(SalesPerson salesPerson);
 
 The above declaration of `SalesPersonTransfer` equals to the following:
 
+[source,jsl]
 ----
 transfer SalesPersonTransfer(SalesPerson salesPerson) {
     field String firstName maps salesPerson.firstName;
@@ -382,9 +401,10 @@ To define an unmapped service, use the `service` keyword.
 
 *Syntax:*
 
+[subs="quotes"]
 ----
-service <name> {
-    [function] ...
+[purple]#**service**# &lt;name> {
+    &#x5B;[purple]##**function**##] ...
 }
 ----
 
@@ -392,6 +412,8 @@ where the <name> is the name of the service, and the functions are defined betwe
 
 *Example:*
 
+[subs="quotes"]
+[source,jsl]
 ----
 service ManagerService {
     function PersonTransfer create();
@@ -407,10 +429,11 @@ Mapped services also groups functions, but they are linked to a specific entity 
 
 *Syntax:*
 
+[subs="quotes"]
 ----
-service <name> (<entity> <mapping-field>) {
-    [function] ...
-}
+[purple]#**service**# &lt;name> (&lt;entity> &lt;mapping-field>) &#x5B;{
+    &#x5B;[purple]##**function**##] ...
+}]
 ----
 
 where the <name> is the name of the service, and the functions are defined between `{` and `}`. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance.
@@ -422,9 +445,10 @@ Possible functions definitions are provided in the next section.
 ====
 There is an alternative syntax to define a mapped service. This alternative is a bit more expressive, although it may be too verbose.
 
+[subs="quotes"]
 ----
-service <name> maps <entity> as <mapping-field> [{
-    [function] ...
+[purple]#**service**# &lt;name> [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> &#x5B;{
+    &#x5B;[purple]##**function**##] ...
 }]
 ----
 
@@ -434,6 +458,7 @@ service <name> maps <entity> as <mapping-field> [{
 
 *Example:*
 
+[source,jsl]
 ----
 service PersonService(Person person) {
     function void delete();
@@ -470,8 +495,9 @@ Use the `function` keyword to specify a function.
 
 *Syntax:*
 
+[subs="quotes"]
 ----
-function [<type>|void] <name> ([<parameter>]) [throws <error1> [, <error2>] ...]
+[purple]#**function**# &#x5B;&lt;type>|[purple]#**void**#] &lt;name> (&#x5B;&lt;parameter>]) &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...]
 ----
 
 where the <name> is the name of the function.
@@ -498,6 +524,7 @@ The body of the function is optional. If no function body is specified (e.g. mis
 
 *Example:*
 
+[source,jsl]
 ----
 service PersonService(Person person) {
     function void delete();
@@ -520,16 +547,18 @@ Use the `function` keyword to specify a data function.
 
 *Syntax:*
 
+[subs="quotes"]
 ----
-function <primitive> <name> => <expression>;
+[purple]#**function**# &lt;primitive> &lt;name> [purple]#**=>**# &lt;expression>[purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive that will be returned, and <name> is the referable name of the function, or
 
 *Syntax:*
 
+[subs="quotes"]
 ----
-function <transfer>[[]] <name> => <expression>;
+[purple]#**function**# &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> [purple]#**=>**# &lt;expression>[purple]#**;**#
 ----
 
 where the <transfer> is the name of a mapped transfer object that will be returned, and <name> is the referable name of the function. The optional [] indicates that the function returns a collection of <transfer> instances rather than a single transfer object.
@@ -538,6 +567,7 @@ The <expression> calculates the return value of the service whenever it is reque
 
 *Example:*
 
+[source,jsl]
 ----
 service PersonService(Person person) {
     function PersonTransfer manager => person.manager;
@@ -558,12 +588,13 @@ Use `@Insert` annotation on a data function to define an additional insert funct
 
 *Syntax:*
 
+[subs="quotes"]
 ----
-@Insert
-function <transfer>[[]] <name> => <expression> choices <choices>;
+[purple]#**@Insert**#
+[purple]#**function**# &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> [purple]#**=>**# &lt;expression> [purple]#**choices**# &lt;choices>[purple]#**;**#
 ----
 
-The `@Insert` can only be specified for data functions where the function <expression> points to a relation of the mapped entity (see xref:06_entity.adoc[Relations]) and <choices> is specified. Moreover, the function must return a collection.
+The `@Insert` can only be specified for data functions where the function <expression> points to a relation of the mapped entity (see xref:05_entity.adoc[Relations]) and <choices> is specified. Moreover, the function must return a collection.
 
 The insert function inserts a new member to the relation of the mapped entity. The possible new members of the relation are limited to the available <choices>. The <choices> is an expression of the same type as the collection returned by <expression>.
 
@@ -574,9 +605,10 @@ Use `@Remove` annotation on a data function to define an additional remove funct
 
 *Syntax:*
 
+[subs="quotes"]
 ----
-@Remove
-function <transfer>[[]] <name> => <expression>;
+[purple]#**@Remove**#
+[purple]#**function**# &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> [purple]#**=>**# &lt;expression>[purple]#**;**#
 ----
 
 The `@Remove` can only be specified for data functions where the function <expression> points to a relation of the mapped entity, see xref:06_entity.adoc[Relations].  Moreover, the function must return a collection.
@@ -592,6 +624,7 @@ Unions cannot be organized into a collection.
 
 *Example:*
 
+[source,jsl]
 ----
 function <SalesPersonTransfer|DeveloperTransfer> getEmployee();
 ----
@@ -615,11 +648,12 @@ To define an actor, use the `actor` keyword.
 
 *Syntax:*
 
+[subs="quotes"]
 ----
-actor <name> [(<entity> <mapping-field>)]
-    [realm "<realm>"]
-    [claim "<claim>"]
-    [identity <identity>];
+[purple]#**actor**# &lt;name> [(&lt;entity> &lt;mapping-field>)]
+    &#x5B;[purple]##**realm**## "&lt;realm>"]
+    &#x5B;[purple]##**claim**## "&lt;claim>"]
+    &#x5B;[purple]##**identity**## &lt;identity>][purple]#**;**#
 ----
 
 where the <name> is the name of the actor. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance. The linked entity instance is the persistent representation of the user in the application. If there is no linked entity, the user is not represented in the application. A typical case of not represented user is an anonymous user, who shall not be identified within the application.
@@ -636,11 +670,12 @@ The <identity> is an expression that selects an identifier field of the mapped <
 ====
 There is an alternative syntax to define an actor. This alternative is a bit more expressive, although it may be too verbose.
 
+[subs="quotes"]
 ----
-actor <name> maps <entity> as <mapping-field>
-    [realm "<realm>"]
-    [claim "<claim>"]
-    [identity <identity>];
+[purple]#**actor**# &lt;name> [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field>
+    &#x5B;[purple]##**realm**## "&lt;realm>"]
+    &#x5B;[purple]##**claim**## "&lt;claim>"]
+    &#x5B;[purple]##**identity**## &lt;identity>][purple]#**;**#
 ----
 
 ====
@@ -648,6 +683,7 @@ actor <name> maps <entity> as <mapping-field>
 
 *Example:*
 
+[source,jsl]
 ----
 actor SalesPersonActor(SalesPerson salesPerson)
     realm "COMPANY"
@@ -675,11 +711,12 @@ To authorize actors to use services, use `exports` in the actor specification.
 
 *Syntax:*
 
+[subs="quotes"]
 ----
-actor <name> ([<entity> <mapping-field>]) [exports <service>, ...]
-    [realm "<realm>"]
-    [claim "<claim>"]
-    [identity <identity>];
+[purple]#**actor**# &lt;name> [(&lt;entity> &lt;mapping-field>)] &#x5B;[purple]##**exports**## &lt;service>, ...]
+    &#x5B;[purple]##**realm**## "&lt;realm>"]
+    &#x5B;[purple]##**claim**## "&lt;claim>"]
+    &#x5B;[purple]##**identity**## &lt;identity>][purple]#**;**#
 ----
 
 where the `exports` keyword is followed by a comma-separated list of services.
@@ -688,6 +725,7 @@ The actor can export only unmapped services or mapped services that are linked t
 
 *Example:*
 
+[source,jsl]
 ----
 entity Person {
     field String email;
@@ -725,9 +763,10 @@ To export services, use `exports` keyword in the transfer object's specification
 
 *Syntax:*
 
+[subs="quotes"]
 ----
-transfer <name> (<entity> <alias>) [exports <service>, ...] [{
-    [member] ...
+[purple]#**transfer**# &lt;name> (&lt;entity> &lt;alias>) &#x5B;[purple]##**exports**## &lt;service>, ...] &#x5B;{
+    &#x5B;member] ...
 }]
 ----
 
@@ -736,6 +775,7 @@ The example below shows how a transfer object can export services. Users who rec
 
 *Example:*
 
+[source,jsl]
 ----
 service PersonService(Person person) {
     function void delete();
@@ -768,6 +808,7 @@ To add a guard to functions use `guard` as follows. The function guard is evalua
 
 *Example:*
 
+[source,jsl]
 ----
 service PersonService(Person person) {
     function void delete() guard person.leads!size() == 0;
@@ -782,6 +823,7 @@ To add a guard to services use `guard` as follows. The service guard is a shortc
 
 *Example:*
 
+[source,jsl]
 ----
 service PersonService(Person person) guard person.leads!size() == 0 {
     function void delete();
@@ -802,6 +844,7 @@ The actor guard is evaluated when the user is authenticated by the application. 
 
 *Example:*
 
+[source,jsl]
 ----
 actor SalesPersonActor(SalesPerson salesPerson)
     realm "COMPANY"
@@ -823,6 +866,7 @@ Use `@Factory` annotation on a function to define a function that creates a new 
 
 *Example:*
 
+[source,jsl]
 ----
 @Factory
 function InvoiceTransfer myNew();
@@ -844,6 +888,7 @@ The `@Create` annotation persists only the fields of the transfer object that ha
 
 *Example:*
 
+[source,jsl]
 ----
 entity Invoice {
     field String customerName;
@@ -879,7 +924,7 @@ The `@Update` annotation persists only the fields of the transfer object that ha
 
 *Example:*
 
-
+[source,jsl]
 ----
 entity Invoice {
     field String customerName;
@@ -913,6 +958,7 @@ Use `@Delete` annotation on a function to define a new delete function. The dele
 
 *Example:*
 
+[source,jsl]
 ----
 @Delete
 function void myDelete();
@@ -942,6 +988,7 @@ Use the `constraint` keyword to specify a restriction on a transfer object. The 
 
 *Example:*
 
+[source,jsl]
 ----
 error NameIsTooShort {
     field required String name
@@ -1008,6 +1055,7 @@ TODO: can the rollback be solved in a `transaction` section of script?
 
 *Example:*
 
+[source,jsl]
 ----
 transfer PersonTransfer {
     field required String firstName
@@ -1053,6 +1101,7 @@ TODO: due to the recursive manner of destruction, special attention must be paid
 
 *Example:*
 
+[source,jsl]
 ----
 transfer AddressTransfer mapped Address as address {
     field required String line1
@@ -1105,6 +1154,7 @@ The `throws` keyword is used to declare a list of errors that may occur during t
 
 *Example:*
 
+[source,jsl]
 ----
 transfer PersonTransfer mapped Person as person {
     field String fullName
@@ -1141,6 +1191,7 @@ The `throws` keyword is used to declare a list of errors that may occur during t
 
 *Example:*
 
+[source,jsl]
 ----
 transfer PersonTransfer mapped Person as person {
     field String firstName
@@ -1175,6 +1226,7 @@ A transfer object may override inherited actions, other inherited members (field
 
 *Example:*
 
+[source,jsl]
 ----
 transfer IdentifiableTransfer {
     field required email
@@ -1216,6 +1268,7 @@ With the override mechanism the transfer object replaces the implementation of a
 
 *Example:*
 
+[source,jsl]
 ----
 transfer PersonTransfer {
     field required String firstName
