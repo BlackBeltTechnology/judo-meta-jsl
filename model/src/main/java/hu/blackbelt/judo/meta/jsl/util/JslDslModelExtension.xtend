@@ -43,8 +43,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.StringLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
+//import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration
+//import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
 
@@ -355,17 +355,17 @@ class JslDslModelExtension {
         members.filter[d | d instanceof TransferFieldDeclaration].map[d | d as TransferFieldDeclaration].toList
     }
 
-	def Collection<ServiceDeclaration> serviceDeclarations(ModelDeclaration it) {
-        declarations.filter[d | d instanceof ServiceDeclaration].map[d | d as ServiceDeclaration].toList
-    }
-    
-    def Collection<ServiceDataDeclaration> dataDeclarationsForService(ServiceDeclaration it) {
-        it.members.filter[m | m instanceof ServiceDataDeclaration].map[m | m as ServiceDataDeclaration].toList 
-    }
-    
-    def Collection<ServiceFunctionDeclaration> functionDeclarationsForService(ServiceDeclaration it) {
-        it.members.filter[m | m instanceof ServiceFunctionDeclaration].map[m | m as ServiceFunctionDeclaration].toList 
-    }
+//	def Collection<ServiceDeclaration> serviceDeclarations(ModelDeclaration it) {
+//        declarations.filter[d | d instanceof ServiceDeclaration].map[d | d as ServiceDeclaration].toList
+//    }
+//    
+//    def Collection<ServiceDataDeclaration> dataDeclarationsForService(ServiceDeclaration it) {
+//        it.members.filter[m | m instanceof ServiceDataDeclaration].map[m | m as ServiceDataDeclaration].toList 
+//    }
+//    
+//    def Collection<ServiceFunctionDeclaration> functionDeclarationsForService(ServiceDeclaration it) {
+//        it.members.filter[m | m instanceof ServiceFunctionDeclaration].map[m | m as ServiceFunctionDeclaration].toList 
+//    }
     
     def Collection<ActorDeclaration> actorDeclarations(ModelDeclaration it) {
         it.declarations.filter[m | m instanceof ActorDeclaration].map[m | m as ActorDeclaration].toList 

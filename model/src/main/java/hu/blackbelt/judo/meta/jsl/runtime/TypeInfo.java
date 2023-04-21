@@ -44,7 +44,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.RawStringLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Self;
-import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration;
+// import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.SingleType;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral;
@@ -561,7 +561,7 @@ public class TypeInfo {
 		if (transferFieldDeclaration.getReferenceType() instanceof TransferDeclaration) {
 			TransferDeclaration transferDeclaration = (TransferDeclaration) transferFieldDeclaration.getReferenceType();
 			EntityDeclaration entityDeclaration = (EntityDeclaration) transferDeclaration.getMap().getEntity();
-			return new TypeInfo(entityDeclaration, transferFieldDeclaration.isIsMany(), false);
+			return new TypeInfo(entityDeclaration, false, false);
 		} else if (transferFieldDeclaration.getReferenceType() instanceof PrimitiveDeclaration) {
 			return new TypeInfo((PrimitiveDeclaration) transferFieldDeclaration.getReferenceType(), false, false);
 		}
@@ -569,23 +569,23 @@ public class TypeInfo {
 		return new TypeInfo(BaseType.UNDEFINED, false);
 	}
 
-	public static TypeInfo getTargetType(ServiceDataDeclaration data) {
-		if (data == null || data.getReturn() == null || data.getReturn().getReferenceType() == null) {
-			return new TypeInfo(BaseType.UNDEFINED, false);
-		}
-
-		if (data.getReturn().getReferenceType() instanceof TransferDeclaration) {
-			TransferDeclaration transferDeclaration = (TransferDeclaration) data.getReturn().getReferenceType();
-			EntityDeclaration entityDeclaration = (EntityDeclaration) transferDeclaration.getMap().getEntity();
-			return new TypeInfo(entityDeclaration, data.isIsMany(), false);
-		} else if (data.getReturn().getReferenceType() instanceof ViewDeclaration) {
-			ViewDeclaration viewDeclaration = (ViewDeclaration) data.getReturn().getReferenceType();
-			EntityDeclaration entityDeclaration = (EntityDeclaration) viewDeclaration.getMap().getEntity();
-			return new TypeInfo(entityDeclaration, true, false);
-		}
-
-		return new TypeInfo(BaseType.UNDEFINED, false);
-	}
+//	public static TypeInfo getTargetType(ServiceDataDeclaration data) {
+//		if (data == null || data.getReturn() == null || data.getReturn().getReferenceType() == null) {
+//			return new TypeInfo(BaseType.UNDEFINED, false);
+//		}
+//
+//		if (data.getReturn().getReferenceType() instanceof TransferDeclaration) {
+//			TransferDeclaration transferDeclaration = (TransferDeclaration) data.getReturn().getReferenceType();
+//			EntityDeclaration entityDeclaration = (EntityDeclaration) transferDeclaration.getMap().getEntity();
+//			return new TypeInfo(entityDeclaration, data.isIsMany(), false);
+//		} else if (data.getReturn().getReferenceType() instanceof ViewDeclaration) {
+//			ViewDeclaration viewDeclaration = (ViewDeclaration) data.getReturn().getReferenceType();
+//			EntityDeclaration entityDeclaration = (EntityDeclaration) viewDeclaration.getMap().getEntity();
+//			return new TypeInfo(entityDeclaration, true, false);
+//		}
+//
+//		return new TypeInfo(BaseType.UNDEFINED, false);
+//	}
 
 	
 	public static TypeInfo getTargetType(EntityMemberDeclaration entityMemberDeclaration) {
@@ -604,7 +604,7 @@ public class TypeInfo {
 			return new TypeInfo(entityRelationDeclaration.getReferenceType(), entityRelationDeclaration.isIsMany(), false);
 		} else if (entityMemberDeclaration instanceof EntityDerivedDeclaration) {
 			EntityDerivedDeclaration entityDerivedDeclaration = (EntityDerivedDeclaration)entityMemberDeclaration;
-			return new TypeInfo(entityDerivedDeclaration.getReferenceType(), entityDerivedDeclaration.isIsMany(), false);
+			return new TypeInfo((SingleType)entityDerivedDeclaration.getReferenceType(), entityDerivedDeclaration.isIsMany(), false);
 		}
 //		else if (entityMemberDeclaration instanceof EntityQueryDeclaration) {
 //			EntityQueryDeclaration entityQueryDeclaration = (EntityQueryDeclaration)entityMemberDeclaration;

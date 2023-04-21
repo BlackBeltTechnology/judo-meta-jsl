@@ -70,10 +70,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Transferable
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration
+//import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceFunctionDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceMemberDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
+//import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceMemberDeclaration
+//import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDefault
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferConstructorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
@@ -91,6 +91,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTabsDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowColumnDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorGroupDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceAccessDeclaration
 
 /**
  * This class contains custom validation rules.
@@ -643,6 +646,8 @@ class JslDslValidator extends AbstractJslDslValidator {
         switch mark.eContainer {
             ModelDeclaration:               error = !mark.declaration.targets.exists[t | t.model]
 
+            ModelImportDeclaration:         error = !mark.declaration.targets.exists[t | t.^import]
+
             DataTypeDeclaration:            error = !mark.declaration.targets.exists[t | t.type]
 
             EnumDeclaration:                error = !mark.declaration.targets.exists[t | t.enumeration]
@@ -652,16 +657,18 @@ class JslDslValidator extends AbstractJslDslValidator {
             EntityFieldDeclaration:         error = !mark.declaration.targets.exists[t | t.entityField]
             EntityRelationDeclaration:      error = !mark.declaration.targets.exists[t | t.entityRelation]
             EntityIdentifierDeclaration:    error = !mark.declaration.targets.exists[t | t.entityIdentifier]
-            EntityDerivedDeclaration:       error = !mark.declaration.targets.exists[t | t.entityDerived]
+//            EntityDerivedDeclaration:       error = !mark.declaration.targets.exists[t | t.entityDerived]
 //            EntityQueryDeclaration:         error = !mark.declaration.targets.exists[t | t.entityQuery]
-            EntityOperationDeclaration:     error = !mark.declaration.targets.exists[t | t.entityOperation]
+//            EntityOperationDeclaration:     error = !mark.declaration.targets.exists[t | t.entityOperation]
 
             TransferDeclaration:            error = !mark.declaration.targets.exists[t | t.transfer]
             TransferFieldDeclaration:       error = !mark.declaration.targets.exists[t | t.transferField]
             TransferConstructorDeclaration: error = !mark.declaration.targets.exists[t | t.transferConstructor]
+            TransferRelationDeclaration:    error = !mark.declaration.targets.exists[t | t.transferRelation]
+            ServiceFunctionDeclaration:     error = !mark.declaration.targets.exists[t | t.transferFunction]
 
-            ServiceDeclaration:             error = !mark.declaration.targets.exists[t | t.service]
-            ServiceFunctionDeclaration:     error = !mark.declaration.targets.exists[t | t.serviceFunction]
+//            ServiceDeclaration:             error = !mark.declaration.targets.exists[t | t.service]
+//            ServiceFunctionDeclaration:     error = !mark.declaration.targets.exists[t | t.serviceFunction]
 
             ActorDeclaration:               error = !mark.declaration.targets.exists[t | t.actor]
             ActorMenuDeclaration:           error = !mark.declaration.targets.exists[t | t.actorMenu]
@@ -681,6 +688,9 @@ class JslDslValidator extends AbstractJslDslValidator {
 
             RowDeclaration:                 error = !mark.declaration.targets.exists[t | t.row]
             RowColumnDeclaration:           error = !mark.declaration.targets.exists[t | t.rowColumn]
+
+            ServiceDeclaration:             error = !mark.declaration.targets.exists[t | t.service]
+            ServiceAccessDeclaration:       error = !mark.declaration.targets.exists[t | t.serviceAccess]
         }
 
         if (error) {
@@ -1110,30 +1120,30 @@ class JslDslValidator extends AbstractJslDslValidator {
     @Check
     def checkTransferField(TransferFieldDeclaration field) {
         try {
-            if (field.maps !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.maps))) {
+            if (field.maps && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.expression))) {
                 error("Type mismatch. Mapping expression value does not match field type at '" + field.name + "'.",
                     JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
                     TYPE_MISMATCH)
             }
 
-            if (field.reads !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.reads))) {
+            if (field.reads && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.expression))) {
                 error("Type mismatch. Read expression value does not match field type at '" + field.name + "'.",
                     JsldslPackage::eINSTANCE.transferFieldDeclaration_Reads,
                     TYPE_MISMATCH)
             }
 
-            if (field.isIsMany && !(field.referenceType instanceof TransferDeclaration)) {
-                error("Invalid collection of primitives at '" + field.name + "'.",
-                    JsldslPackage::eINSTANCE.transferFieldDeclaration_ReferenceType,
-                    INVALID_COLLECTION)
-            }
-
-            if (field.isIsMany && field.isRequired) {
-                error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'.",
-                    JsldslPackage::eINSTANCE.transferFieldDeclaration_Required,
-                    USING_REQUIRED_WITH_IS_MANY,
-                    JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
-            }
+//            if (field.isIsMany && !(field.referenceType instanceof TransferDeclaration)) {
+//                error("Invalid collection of primitives at '" + field.name + "'.",
+//                    JsldslPackage::eINSTANCE.transferFieldDeclaration_ReferenceType,
+//                    INVALID_COLLECTION)
+//            }
+//
+//            if (field.isIsMany && field.isRequired) {
+//                error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'.",
+//                    JsldslPackage::eINSTANCE.transferFieldDeclaration_Required,
+//                    USING_REQUIRED_WITH_IS_MANY,
+//                    JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
+//            }
         } catch (IllegalArgumentException illegalArgumentException) {
             return
         }
@@ -1278,28 +1288,28 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkForDuplicateTransferFunctionDeclaration(TransferDeclaration transfer) {
-        for (ServiceDeclaration service : transfer.exports) {
-            for (ServiceMemberDeclaration member : service.members) {
-                var String tmp;
-
-                switch (member) {
-                    ServiceDataDeclaration: tmp = member.name
-                    ServiceFunctionDeclaration: tmp = member.name
-                }
-
-                val name = tmp;
-
-                if (transfer.exports.flatMap[export | export.members].filter[m | m.name.toLowerCase.equals(name.toLowerCase)].size > 1) {
-                    error("Duplicate service function declaration: '" + member.name + "'.",
-                        member.nameAttribute,
-                        DUPLICATE_MEMBER_NAME,
-                        member.name)
-                }
-            }
-        }
-    }
+//    @Check
+//    def checkForDuplicateTransferFunctionDeclaration(TransferDeclaration transfer) {
+//        for (ServiceDeclaration service : transfer.exports) {
+//            for (ServiceMemberDeclaration member : service.members) {
+//                var String tmp;
+//
+//                switch (member) {
+//                    ServiceDataDeclaration: tmp = member.name
+//                    ServiceFunctionDeclaration: tmp = member.name
+//                }
+//
+//                val name = tmp;
+//
+//                if (transfer.exports.flatMap[export | export.members].filter[m | m.name.toLowerCase.equals(name.toLowerCase)].size > 1) {
+//                    error("Duplicate service function declaration: '" + member.name + "'.",
+//                        member.nameAttribute,
+//                        DUPLICATE_MEMBER_NAME,
+//                        member.name)
+//                }
+//            }
+//        }
+//    }
 
 //    @Check
 //    def checkForDuplicateActorFunctionDeclaration(ActorDeclaration actor) {
@@ -1324,45 +1334,45 @@ class JslDslValidator extends AbstractJslDslValidator {
 //        }
 //    }
 
-    @Check
-    def checkForDuplicateNameForServiceMemberDeclaration(ServiceMemberDeclaration member) {
-        val ServiceDeclaration service = member.eContainer as ServiceDeclaration
+//    @Check
+//    def checkForDuplicateNameForServiceMemberDeclaration(ServiceMemberDeclaration member) {
+//        val ServiceDeclaration service = member.eContainer as ServiceDeclaration
+//
+//        if (service.map !== null && member.name.toLowerCase.equals(service.map.name.toLowerCase)) {
+//            error("Member declaration name conflicts with mapping field name: '" + member.name + "'.",
+//                member.nameAttribute,
+//                DUPLICATE_MEMBER_NAME,
+//                member.name)
+//        }
+//
+//        if (member instanceof Named && service.members.filter[m | m instanceof Named && m.name.toLowerCase.equals(member.name.toLowerCase)].size > 1) {
+//            error("Duplicate member declaration: '" + member.name + "'.",
+//                member.nameAttribute,
+//                DUPLICATE_MEMBER_NAME,
+//                member.name)
+//        }
+//    }
 
-        if (service.map !== null && member.name.toLowerCase.equals(service.map.name.toLowerCase)) {
-            error("Member declaration name conflicts with mapping field name: '" + member.name + "'.",
-                member.nameAttribute,
-                DUPLICATE_MEMBER_NAME,
-                member.name)
-        }
-
-        if (member instanceof Named && service.members.filter[m | m instanceof Named && m.name.toLowerCase.equals(member.name.toLowerCase)].size > 1) {
-            error("Duplicate member declaration: '" + member.name + "'.",
-                member.nameAttribute,
-                DUPLICATE_MEMBER_NAME,
-                member.name)
-        }
-    }
-
-    @Check
-    def checkServiceData(ServiceDataDeclaration data) {
-        try {
-            if (data.expression !== null && !TypeInfo.getTargetType(data).isCompatible(TypeInfo.getTargetType(data.expression))) {
-                error("Type mismatch. Data service expression does not match data service return type.",
-                    JsldslPackage::eINSTANCE.serviceDataDeclaration_Expression,
-                    TYPE_MISMATCH,
-                    JsldslPackage::eINSTANCE.serviceDataDeclaration.name)
-            }
-
-            if (data.choices !== null && !TypeInfo.getTargetType(data).isCompatibleCollection(TypeInfo.getTargetType(data.choices.expression))) {
-                error("Type mismatch. Choices must return compatible collection with field type.",
-                    JsldslPackage::eINSTANCE.serviceDataDeclaration_Choices,
-                    TYPE_MISMATCH,
-                    JsldslPackage::eINSTANCE.serviceDataDeclaration.name)
-            }
-        } catch (IllegalArgumentException illegalArgumentException) {
-            return
-        }
-    }
+//    @Check
+//    def checkServiceData(ServiceDataDeclaration data) {
+//        try {
+//            if (data.expression !== null && !TypeInfo.getTargetType(data).isCompatible(TypeInfo.getTargetType(data.expression))) {
+//                error("Type mismatch. Data service expression does not match data service return type.",
+//                    JsldslPackage::eINSTANCE.serviceDataDeclaration_Expression,
+//                    TYPE_MISMATCH,
+//                    JsldslPackage::eINSTANCE.serviceDataDeclaration.name)
+//            }
+//
+//            if (data.choices !== null && !TypeInfo.getTargetType(data).isCompatibleCollection(TypeInfo.getTargetType(data.choices.expression))) {
+//                error("Type mismatch. Choices must return compatible collection with field type.",
+//                    JsldslPackage::eINSTANCE.serviceDataDeclaration_Choices,
+//                    TYPE_MISMATCH,
+//                    JsldslPackage::eINSTANCE.serviceDataDeclaration.name)
+//            }
+//        } catch (IllegalArgumentException illegalArgumentException) {
+//            return
+//        }
+//    }
 
 
     @Check
@@ -1411,21 +1421,21 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkTransferExport(TransferDeclaration transfer) {
-        for (ServiceDeclaration service : transfer.exports) {
-            if (service.map !== null) {
-                if (transfer.map === null ||
-                    !TypeInfo.getTargetType(transfer.map.entity).isCompatible(TypeInfo.getTargetType(service.map.entity)))
-                {
-                    error("Incompatible export:'" + service.name + "'. Service must be mapped to the same entity type as transfer object.",
-                        JsldslPackage::eINSTANCE.named_Name,
-                        INCOMPAIBLE_EXPORT,
-                        JsldslPackage::eINSTANCE.named_Name.name)
-                }
-            }
-        }
-    }
+//    @Check
+//    def checkTransferExport(TransferDeclaration transfer) {
+//        for (ServiceDeclaration service : transfer.exports) {
+//            if (service.map !== null) {
+//                if (transfer.map === null ||
+//                    !TypeInfo.getTargetType(transfer.map.entity).isCompatible(TypeInfo.getTargetType(service.map.entity)))
+//                {
+//                    error("Incompatible export:'" + service.name + "'. Service must be mapped to the same entity type as transfer object.",
+//                        JsldslPackage::eINSTANCE.named_Name,
+//                        INCOMPAIBLE_EXPORT,
+//                        JsldslPackage::eINSTANCE.named_Name.name)
+//                }
+//            }
+//        }
+//    }
 
 //    @Check
 //    def checkActorExport(ActorDeclaration actor) {
@@ -1445,7 +1455,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
     @Check
     def checkTransferFieldReads(TransferFieldDeclaration field) {
-        if (field.reads === null) {
+        if (field.reads) {
             return
         }
 
@@ -1467,7 +1477,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
     @Check
     def checkTransferFieldMaps(TransferFieldDeclaration field) {
-        if (field.maps === null) {
+        if (field.maps) {
             return
         }
 
@@ -1495,7 +1505,7 @@ class JslDslValidator extends AbstractJslDslValidator {
             }
         }
 
-        if (!(field.maps instanceof Navigation)) {
+        if (!(field.expression instanceof Navigation)) {
             error("Invalid field mapping. Field mapping must be a navigation.",
                 JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
                 INVALID_FIELD_MAPPING,
@@ -1504,7 +1514,7 @@ class JslDslValidator extends AbstractJslDslValidator {
             return;
         }
 
-        val Navigation navigation = field.maps as Navigation;
+        val Navigation navigation = field.expression as Navigation;
 
         if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
             error("Invalid field mapping. Field mapping must be a navigation.",
@@ -1559,24 +1569,24 @@ class JslDslValidator extends AbstractJslDslValidator {
             return;
         }
 
-        if (!(memberReference.member instanceof EntityRelationDeclaration) &&
-            !(memberReference.member instanceof EntityRelationOppositeInjected) &&
-            field.choices !== null)
-        {
-            error("Invalid use of choices. Choices can only be used for relation.",
-                JsldslPackage::eINSTANCE.transferFieldDeclaration_Choices,
-                INVALID_CHOICES,
-                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
-
-            return;
-        }
-
-        if (field.choices !== null && !TypeInfo.getTargetType(field).isCompatibleCollection(TypeInfo.getTargetType(field.choices))) {
-            error("Type mismatch. Choices must return compatible collection with field type.",
-                JsldslPackage::eINSTANCE.transferFieldDeclaration_Choices,
-                TYPE_MISMATCH,
-                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
-        }
+//        if (!(memberReference.member instanceof EntityRelationDeclaration) &&
+//            !(memberReference.member instanceof EntityRelationOppositeInjected) &&
+//            field.choices !== null)
+//        {
+//            error("Invalid use of choices. Choices can only be used for relation.",
+//                JsldslPackage::eINSTANCE.transferFieldDeclaration_Choices,
+//                INVALID_CHOICES,
+//                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
+//
+//            return;
+//        }
+//
+//        if (field.choices !== null && !TypeInfo.getTargetType(field).isCompatibleCollection(TypeInfo.getTargetType(field.choices))) {
+//            error("Type mismatch. Choices must return compatible collection with field type.",
+//                JsldslPackage::eINSTANCE.transferFieldDeclaration_Choices,
+//                TYPE_MISMATCH,
+//                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
+//        }
     }
 
     @Check
@@ -1631,14 +1641,14 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
 
         val ServiceFunctionDeclaration function = mark.eContainer as ServiceFunctionDeclaration
-        val ServiceDeclaration service = function.eContainer as ServiceDeclaration
+//        val ServiceDeclaration service = function.eContainer as ServiceDeclaration
 
-        if (service.map === null) {
-            error("Invalid use of annotation: @" + mark.declaration.name + ". Export must be mapped.",
-                JsldslPackage::eINSTANCE.annotationMark_Declaration,
-                INVALID_ANNOTATION_MARK,
-                JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
-        }
+//        if (service.map === null) {
+//            error("Invalid use of annotation: @" + mark.declaration.name + ". Export must be mapped.",
+//                JsldslPackage::eINSTANCE.annotationMark_Declaration,
+//                INVALID_ANNOTATION_MARK,
+//                JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+//        }
 
         if (function.^return !== null) {
             error("Invalid use of annotation: @" + mark.declaration.name + ". Function must not have return type.",
@@ -1709,78 +1719,78 @@ class JslDslValidator extends AbstractJslDslValidator {
             return
         }
 
-        if (!(mark.eContainer instanceof ServiceDataDeclaration)) {
-            error("Invalid use of annotation: @" + mark.declaration.name + ". Function must be a data function.",
-                JsldslPackage::eINSTANCE.annotationMark_Declaration,
-                INVALID_ANNOTATION_MARK,
-                JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+//        if (!(mark.eContainer instanceof ServiceDataDeclaration)) {
+//            error("Invalid use of annotation: @" + mark.declaration.name + ". Function must be a data function.",
+//                JsldslPackage::eINSTANCE.annotationMark_Declaration,
+//                INVALID_ANNOTATION_MARK,
+//                JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+//
+//            return
+//        }
 
-            return
-        }
+//        val ServiceDataDeclaration data = mark.eContainer as ServiceDataDeclaration
 
-        val ServiceDataDeclaration data = mark.eContainer as ServiceDataDeclaration
+//        if (!(data.expression instanceof Navigation)) {
+//            error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
+//                JsldslPackage::eINSTANCE.annotationMark_Declaration,
+//                INVALID_ANNOTATION_MARK,
+//                JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+//
+//            return;
+//        }
 
-        if (!(data.expression instanceof Navigation)) {
-            error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
-                JsldslPackage::eINSTANCE.annotationMark_Declaration,
-                INVALID_ANNOTATION_MARK,
-                JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+//        val Navigation navigation = data.expression as Navigation;
 
-            return;
-        }
+//        if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
+//            error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
+//                JsldslPackage::eINSTANCE.annotationMark_Declaration,
+//                INVALID_ANNOTATION_MARK,
+//                JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+//
+//            return;
+//        }
 
-        val Navigation navigation = data.expression as Navigation;
-
-        if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
-            error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
-                JsldslPackage::eINSTANCE.annotationMark_Declaration,
-                INVALID_ANNOTATION_MARK,
-                JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
-
-            return;
-        }
-
-        val NavigationBaseDeclarationReference navigationBaseDeclarationReference = navigation.base as NavigationBaseDeclarationReference;
-
-        if (!(navigationBaseDeclarationReference.reference instanceof EntityMapDeclaration)) {
-            error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
-                JsldslPackage::eINSTANCE.annotationMark_Declaration,
-                INVALID_ANNOTATION_MARK,
-                JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
-
-            return;
-        }
-
-        if (navigation.features.size() != 1) {
-            error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
-                JsldslPackage::eINSTANCE.annotationMark_Declaration,
-                INVALID_ANNOTATION_MARK,
-                JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
-
-            return;
-        }
-
-        if (!(navigation.features.get(0) instanceof MemberReference)) {
-            error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
-                JsldslPackage::eINSTANCE.annotationMark_Declaration,
-                INVALID_ANNOTATION_MARK,
-                JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
-
-            return;
-        }
-
-        val MemberReference memberReference = navigation.features.get(0) as MemberReference;
-
-        if (!(memberReference.member instanceof EntityRelationDeclaration) &&
-            !(memberReference.member instanceof EntityRelationOppositeInjected))
-        {
-            error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
-                JsldslPackage::eINSTANCE.annotationMark_Declaration,
-                INVALID_ANNOTATION_MARK,
-                JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
-
-            return;
-        }
+//        val NavigationBaseDeclarationReference navigationBaseDeclarationReference = navigation.base as NavigationBaseDeclarationReference;
+//
+//        if (!(navigationBaseDeclarationReference.reference instanceof EntityMapDeclaration)) {
+//            error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
+//                JsldslPackage::eINSTANCE.annotationMark_Declaration,
+//                INVALID_ANNOTATION_MARK,
+//                JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+//
+//            return;
+//        }
+//
+//        if (navigation.features.size() != 1) {
+//            error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
+//                JsldslPackage::eINSTANCE.annotationMark_Declaration,
+//                INVALID_ANNOTATION_MARK,
+//                JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+//
+//            return;
+//        }
+//
+//        if (!(navigation.features.get(0) instanceof MemberReference)) {
+//            error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
+//                JsldslPackage::eINSTANCE.annotationMark_Declaration,
+//                INVALID_ANNOTATION_MARK,
+//                JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+//
+//            return;
+//        }
+//
+//        val MemberReference memberReference = navigation.features.get(0) as MemberReference;
+//
+//        if (!(memberReference.member instanceof EntityRelationDeclaration) &&
+//            !(memberReference.member instanceof EntityRelationOppositeInjected))
+//        {
+//            error("Invalid use of annotation: @" + mark.declaration.name + ". Function must select a mapped entity relation.",
+//                JsldslPackage::eINSTANCE.annotationMark_Declaration,
+//                INVALID_ANNOTATION_MARK,
+//                JsldslPackage::eINSTANCE.annotationMark_Declaration.name)
+//
+//            return;
+//        }
     }
 
 //    @Check
@@ -1924,13 +1934,13 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
 
     def NavigationTarget getMappedField(TransferFieldDeclaration field) {
-        if (field.maps === null) return null;
+        if (field.maps) return null;
 
-        if (!(field.maps instanceof Navigation)) {
+        if (!(field.expression instanceof Navigation)) {
             return null;
         }
 
-        val Navigation navigation = field.maps as Navigation;
+        val Navigation navigation = field.expression as Navigation;
 
         if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
             return null;
@@ -1955,7 +1965,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
     @Check
     def checkDuplicateFieldMapping(TransferFieldDeclaration field) {
-        if (field.maps === null) return;
+        if (field.maps) return;
 
         val TransferDeclaration transfer = field.eContainer as TransferDeclaration;
         val NavigationTarget target = getMappedField(field);

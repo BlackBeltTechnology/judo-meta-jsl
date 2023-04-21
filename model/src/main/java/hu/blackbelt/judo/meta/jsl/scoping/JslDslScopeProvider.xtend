@@ -60,7 +60,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationMark
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationArgument
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceOperationDeclaration
+//import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceOperationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferField
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration

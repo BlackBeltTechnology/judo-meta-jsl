@@ -22,8 +22,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
+//import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration
+//import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceReturnDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceReturnAlternateDeclaration
@@ -227,7 +227,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '''
     
     def transferFieldModifierFragment(TransferFieldDeclaration it)
-    '''«IF it.maps !== null || it.reads !== null»~«ELSE»+«ENDIF»'''
+    '''«IF it.maps || it.reads»~«ELSE»+«ENDIF»'''
     
     def transferStereotypeFragment(TransferDeclaration it)
     '''«IF automap» << AutoMapped >> «ELSE» << Transfer >>«ENDIF»'''
@@ -235,11 +235,11 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     def transferFieldNameFragment(TransferFieldDeclaration it)
     '''«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»'''
     
-    def transferFieldCardinalityFragment(TransferFieldDeclaration it)
-    '''«IF isIsMany»[0..*]«ENDIF»'''
+//    def transferFieldCardinalityFragment(TransferFieldDeclaration it)
+//    '''«IF isIsMany»[0..*]«ENDIF»'''
     
     def transferFieldRepresentation(TransferFieldDeclaration it)
-    '''«transferFieldModifierFragment»«transferFieldNameFragment» : «referenceType.name»«transferFieldCardinalityFragment»«IF it.maps !== null» <b>maps</b> «it.maps.sourceCode» «ENDIF»«IF it.reads !== null» <b>reads</b> «it.reads.sourceCode» «ENDIF»
+    '''«transferFieldModifierFragment»«transferFieldNameFragment» : «referenceType.name»«IF it.maps» <b>maps</b> «it.expression» «ENDIF»«IF it.reads» <b>reads</b> «it.expression» «ENDIF»
 	'''
 
     def transferRepresentation(TransferDeclaration it)
@@ -251,21 +251,21 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         }
     '''
     
-    def serviceStereotypeFragment(ServiceDeclaration it)
-    '''«IF map !== null» << MappedService >> «ELSE» << Service >>«ENDIF»'''
-    
-    def dataFunctionNameFragment(ServiceDataDeclaration it)
-    '''«name»'''
-    
-    def dataFunctionCardinalityFragment(ServiceDataDeclaration it)
-    '''«IF isIsMany»[0..*]«ENDIF»'''
-    
-    def dataFunctionModifierFragment(ServiceDataDeclaration it)
-    '''«IF it.guard !== null»~«ELSE»+«ENDIF»'''
-    
-    def dataFunctionRepresentation(ServiceDataDeclaration it)
-    '''{method}«dataFunctionModifierFragment»«dataFunctionNameFragment» : «it.^return.referenceType.name»«dataFunctionCardinalityFragment» <b>=></b> «it.expression.sourceCode»
-	'''
+//    def serviceStereotypeFragment(ServiceDeclaration it)
+//    '''«IF map !== null» << MappedService >> «ELSE» << Service >>«ENDIF»'''
+//    
+//    def dataFunctionNameFragment(ServiceDataDeclaration it)
+//    '''«name»'''
+//    
+//    def dataFunctionCardinalityFragment(ServiceDataDeclaration it)
+//    '''«IF isIsMany»[0..*]«ENDIF»'''
+//    
+//    def dataFunctionModifierFragment(ServiceDataDeclaration it)
+//    '''«IF it.guard !== null»~«ELSE»+«ENDIF»'''
+//    
+//    def dataFunctionRepresentation(ServiceDataDeclaration it)
+//    '''{method}«dataFunctionModifierFragment»«dataFunctionNameFragment» : «it.^return.referenceType.name»«dataFunctionCardinalityFragment» <b>=></b> «it.expression.sourceCode»
+//	'''
 	
 	def functionNameFragment(ServiceFunctionDeclaration it)
     '''«name»'''
@@ -280,17 +280,17 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '''{method}«functionModifierFragment»«functionNameFragment»(«IF it.parameter !== null»«it.parameter.referenceType.name» «it.parameter.name»«ENDIF») «IF it.^return instanceof ServiceReturnDeclaration»: «it.^return.referenceType.name»«ENDIF»«IF it.alternateReturn !== null»: «it.alternateReturn.functionUnionReturnConcatenated»«ENDIF»
 	'''
     
-    def serviceRepresentation(ServiceDeclaration it)
-    '''
-        class «name?:"none"»«serviceStereotypeFragment» {
-            «FOR dataFunction : it.dataDeclarationsForService»
-                «dataFunction.dataFunctionRepresentation»
-            «ENDFOR»
-            «FOR function : it.functionDeclarationsForService»
-                «function.functionRepresentation»
-            «ENDFOR»
-        }
-    '''
+//    def serviceRepresentation(ServiceDeclaration it)
+//    '''
+//        class «name?:"none"»«serviceStereotypeFragment» {
+//            «FOR dataFunction : it.dataDeclarationsForService»
+//                «dataFunction.dataFunctionRepresentation»
+//            «ENDFOR»
+//            «FOR function : it.functionDeclarationsForService»
+//                «function.functionRepresentation»
+//            «ENDFOR»
+//        }
+//    '''
     
     def actorStereotypeFragment(ActorDeclaration it)
     '''«IF map !== null» << MappedActor >> «ELSE» << Actor >>«ENDIF»'''
@@ -318,12 +318,12 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         «ENDIF»
     '''
     
-    def serviceMaps(ServiceDeclaration it)
-    '''
-        «IF it.map !== null»
-            «name» ...> "«it.map.name»" «it.map.entity.name»
-        «ENDIF»
-    '''
+//    def serviceMaps(ServiceDeclaration it)
+//    '''
+//        «IF it.map !== null»
+//            «name» ...> "«it.map.name»" «it.map.entity.name»
+//        «ENDIF»
+//    '''
     
     def actorMaps(ActorDeclaration it)
     '''
@@ -388,13 +388,13 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             «transfer.transferMaps»
         «ENDFOR»
 
-        «FOR service : serviceDeclarations»
-            «service.serviceRepresentation»
-        «ENDFOR»
-        
-        «FOR service : serviceDeclarations»
-            «service.serviceMaps»
-        «ENDFOR»
+«««        «FOR service : serviceDeclarations»
+«««            «service.serviceRepresentation»
+«««        «ENDFOR»
+«««        
+«««        «FOR service : serviceDeclarations»
+«««            «service.serviceMaps»
+«««        «ENDFOR»
         
 «««        «FOR service : externalServiceReferenceTypes»
 «««            class «getExternalNameOfServiceDeclaration(service)» <«service.parentContainer(ModelDeclaration)?.name»> << External >>
@@ -456,11 +456,11 @@ class JsldslDefaultPlantUMLDiagramGenerator {
                 }
             }
         }
-        for (service : it.serviceDeclarations) {
-        	if (service.map !== null && service.map.entity.parentContainer(ModelDeclaration)?.name !== it.name) {
-        		externalEntities.add(service.map.entity)
-        	}
-        }
+//        for (service : it.serviceDeclarations) {
+//        	if (service.map !== null && service.map.entity.parentContainer(ModelDeclaration)?.name !== it.name) {
+//        		externalEntities.add(service.map.entity)
+//        	}
+//        }
         for (actor : it.actorDeclarations) {
     		if (actor.map !== null) {
     			externalEntities.add(actor.map.entity)
@@ -497,18 +497,18 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         }
     }
     
-    def String getExternalNameOfServiceDeclaration(ModelDeclaration it, ServiceDeclaration serviceDeclaration) {
-        if (it.name !== serviceDeclaration?.parentContainer(ModelDeclaration)?.name) {
-            val importList = imports.filter[i | i.model.name.equals(serviceDeclaration.parentContainer(ModelDeclaration).name)]
-                .map[i | i.alias !== null ? i.alias + "::" + serviceDeclaration.name : serviceDeclaration.name]
-            if (importList !== null && importList.size > 0) {
-                return importList.get(0)
-            } else {
-                return serviceDeclaration.name
-            }
-        } else {
-            return serviceDeclaration.name
-        }
-    }
+//    def String getExternalNameOfServiceDeclaration(ModelDeclaration it, ServiceDeclaration serviceDeclaration) {
+//        if (it.name !== serviceDeclaration?.parentContainer(ModelDeclaration)?.name) {
+//            val importList = imports.filter[i | i.model.name.equals(serviceDeclaration.parentContainer(ModelDeclaration).name)]
+//                .map[i | i.alias !== null ? i.alias + "::" + serviceDeclaration.name : serviceDeclaration.name]
+//            if (importList !== null && importList.size > 0) {
+//                return importList.get(0)
+//            } else {
+//                return serviceDeclaration.name
+//            }
+//        } else {
+//            return serviceDeclaration.name
+//        }
+//    }
 
 }
