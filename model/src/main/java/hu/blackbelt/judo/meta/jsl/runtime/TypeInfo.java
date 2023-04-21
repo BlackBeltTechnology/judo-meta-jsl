@@ -16,7 +16,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryCall;
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration;
@@ -401,7 +400,7 @@ public class TypeInfo {
 			if (!modelExtension.isResolvedReference(feature, JsldslPackage.ENTITY_QUERY_CALL__DECLARATION)) {
 				return baseTypeInfo;
 			}
-			TypeInfo typeInfo = getTargetType( ((EntityQueryCall)feature).getDeclaration() );
+			TypeInfo typeInfo = getTargetType( (EntityMemberDeclaration) ((EntityQueryCall)feature).getDeclaration() );
 			typeInfo.modifier = typeInfo.modifier == TypeModifier.COLLECTION ? TypeModifier.COLLECTION : baseTypeInfo.modifier;
 			return typeInfo;
 		
@@ -606,10 +605,11 @@ public class TypeInfo {
 		} else if (entityMemberDeclaration instanceof EntityDerivedDeclaration) {
 			EntityDerivedDeclaration entityDerivedDeclaration = (EntityDerivedDeclaration)entityMemberDeclaration;
 			return new TypeInfo(entityDerivedDeclaration.getReferenceType(), entityDerivedDeclaration.isIsMany(), false);
-		} else if (entityMemberDeclaration instanceof EntityQueryDeclaration) {
-			EntityQueryDeclaration entityQueryDeclaration = (EntityQueryDeclaration)entityMemberDeclaration;
-			return new TypeInfo(entityQueryDeclaration.getReferenceType(), entityQueryDeclaration.isIsMany(), false);
 		}
+//		else if (entityMemberDeclaration instanceof EntityQueryDeclaration) {
+//			EntityQueryDeclaration entityQueryDeclaration = (EntityQueryDeclaration)entityMemberDeclaration;
+//			return new TypeInfo(entityQueryDeclaration.getReferenceType(), entityQueryDeclaration.isIsMany(), false);
+//		}
 		
 		return new TypeInfo(BaseType.UNDEFINED, false);
 	}

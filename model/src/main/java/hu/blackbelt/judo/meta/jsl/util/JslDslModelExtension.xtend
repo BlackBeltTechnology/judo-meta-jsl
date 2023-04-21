@@ -25,7 +25,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 import hu.blackbelt.judo.meta.jsl.jsldsl.Cardinality
@@ -312,9 +311,9 @@ class JslDslModelExtension {
         members.filter[d | d instanceof EntityDerivedDeclaration].map[d | d as EntityDerivedDeclaration].toList
     }
 
-    def Collection<EntityQueryDeclaration> queries(EntityDeclaration it) {
-        members.filter[d | d instanceof EntityQueryDeclaration].map[d | d as EntityQueryDeclaration].toList
-    }
+//    def Collection<EntityQueryDeclaration> queries(EntityDeclaration it) {
+//        members.filter[d | d instanceof EntityQueryDeclaration].map[d | d as EntityQueryDeclaration].toList
+//    }
 
     def Collection<ConstraintDeclaration> constraints(EntityDeclaration it) {
         members.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
@@ -332,9 +331,9 @@ class JslDslModelExtension {
         allMembers.filter[d | d instanceof EntityDerivedDeclaration].map[d | d as EntityDerivedDeclaration].toList
     }
 
-    def Collection<EntityQueryDeclaration> allQueries(EntityDeclaration it) {
-        allMembers.filter[d | d instanceof EntityQueryDeclaration].map[d | d as EntityQueryDeclaration].toList
-    }
+//    def Collection<EntityQueryDeclaration> allQueries(EntityDeclaration it) {
+//        allMembers.filter[d | d instanceof EntityQueryDeclaration].map[d | d as EntityQueryDeclaration].toList
+//    }
 
     def Collection<ConstraintDeclaration> allConstraints(EntityDeclaration it) {
         allMembers.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
@@ -407,7 +406,7 @@ class JslDslModelExtension {
     }
 
     def BigInteger getMaxFileSizeValue(ModifierMaxFileSize it) {
-        switch it.unit.literal {
+        switch it.measure {
             case "kB": return it.numeric.multiply(BigInteger.valueOf(1000))
             case "MB": return it.numeric.multiply(BigInteger.valueOf(1000 * 1000))
             case "GB": return it.numeric.multiply(BigInteger.valueOf(1000 * 1000 * 1000))

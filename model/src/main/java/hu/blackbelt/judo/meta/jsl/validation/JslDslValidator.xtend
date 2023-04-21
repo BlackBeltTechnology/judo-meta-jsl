@@ -32,7 +32,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
 import java.util.Arrays
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.runtime.TypeInfo
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnaryOperation
 import java.util.Iterator
@@ -278,22 +277,22 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkCyclicEntityQueryExpression(EntityQueryDeclaration query) {
-        if (query.expression !== null) {
-            try {
-                findExpressionCycle(query.expression, new ArrayList<Expression>())
-            } catch (IllegalCallerException e) {
-                error(
-                    "Cyclic expression at '" + query.name + "'.",
-                    JsldslPackage::eINSTANCE.entityQueryDeclaration_Expression,
-                    EXPRESSION_CYCLE,
-                    query.name
-                )
-                return
-            }
-        }
-    }
+//    @Check
+//    def checkCyclicEntityQueryExpression(EntityQueryDeclaration query) {
+//        if (query.expression !== null) {
+//            try {
+//                findExpressionCycle(query.expression, new ArrayList<Expression>())
+//            } catch (IllegalCallerException e) {
+//                error(
+//                    "Cyclic expression at '" + query.name + "'.",
+//                    JsldslPackage::eINSTANCE.entityQueryDeclaration_Expression,
+//                    EXPRESSION_CYCLE,
+//                    query.name
+//                )
+//                return
+//            }
+//        }
+//    }
 
     @Check
     def checkCyclicStaticQueryExpression(QueryDeclaration query) {
@@ -464,9 +463,9 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
 
     @Check
-    def checkEntityQueryRequiredArguments(EntityQueryCall entityQueryCall) {
-        val EntityQueryDeclaration entityQueryDeclaration = entityQueryCall.declaration;
-        val Iterator<QueryParameterDeclaration> itr = entityQueryDeclaration.parameters.iterator;
+    def checkEntityDerivedRequiredArguments(EntityQueryCall entityQueryCall) {
+        val EntityDerivedDeclaration entityDerivedDeclaration = entityQueryCall.declaration;
+        val Iterator<QueryParameterDeclaration> itr = entityDerivedDeclaration.parameters.iterator;
 
         while (itr.hasNext) {
             val QueryParameterDeclaration declaration = itr.next;
@@ -654,7 +653,7 @@ class JslDslValidator extends AbstractJslDslValidator {
             EntityRelationDeclaration:      error = !mark.declaration.targets.exists[t | t.entityRelation]
             EntityIdentifierDeclaration:    error = !mark.declaration.targets.exists[t | t.entityIdentifier]
             EntityDerivedDeclaration:       error = !mark.declaration.targets.exists[t | t.entityDerived]
-            EntityQueryDeclaration:         error = !mark.declaration.targets.exists[t | t.entityQuery]
+//            EntityQueryDeclaration:         error = !mark.declaration.targets.exists[t | t.entityQuery]
             EntityOperationDeclaration:     error = !mark.declaration.targets.exists[t | t.entityOperation]
 
             TransferDeclaration:            error = !mark.declaration.targets.exists[t | t.transfer]
@@ -1193,26 +1192,26 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkEntityQuery(EntityQueryDeclaration query) {
-        try {
-            if (query.expression !== null && !TypeInfo.getTargetType(query).isCompatible(TypeInfo.getTargetType(query.expression))) {
-                error("Type mismatch. Query expression does not match query type at '" + query.name + "'.",
-                    JsldslPackage::eINSTANCE.entityQueryDeclaration_Expression,
-                    TYPE_MISMATCH,
-                    JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
-            }
-
-            if (query.isIsMany && !(query.referenceType instanceof EntityDeclaration)) {
-                error("Invalid collection of primitives at '" + query.name + "'.",
-                    JsldslPackage::eINSTANCE.entityQueryDeclaration_ReferenceType,
-                    INVALID_COLLECTION)
-            }
-        } catch (IllegalArgumentException illegalArgumentException) {
-            return
-        }
-
-    }
+//    @Check
+//    def checkEntityQuery(EntityQueryDeclaration query) {
+//        try {
+//            if (query.expression !== null && !TypeInfo.getTargetType(query).isCompatible(TypeInfo.getTargetType(query.expression))) {
+//                error("Type mismatch. Query expression does not match query type at '" + query.name + "'.",
+//                    JsldslPackage::eINSTANCE.entityQueryDeclaration_Expression,
+//                    TYPE_MISMATCH,
+//                    JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
+//            }
+//
+//            if (query.isIsMany && !(query.referenceType instanceof EntityDeclaration)) {
+//                error("Invalid collection of primitives at '" + query.name + "'.",
+//                    JsldslPackage::eINSTANCE.entityQueryDeclaration_ReferenceType,
+//                    INVALID_COLLECTION)
+//            }
+//        } catch (IllegalArgumentException illegalArgumentException) {
+//            return
+//        }
+//
+//    }
 
     @Check
     def checkQuery(QueryDeclaration query) {

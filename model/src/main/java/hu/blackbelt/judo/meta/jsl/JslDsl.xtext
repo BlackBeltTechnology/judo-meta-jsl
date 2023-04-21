@@ -11,108 +11,6 @@ ModelDeclaration returns ModelDeclaration
 	  (declarations += Declaration)*
     ;
 
-KW_ABSTRACT:	'abstract';
-KW_ACTOR:		'actor';
-KW_ANNOTATION:	'annotation';
-KW_AS:			'as';
-KW_ENTITY:		'entity';
-KW_ENUM:		'enum';
-KW_ERROR:		'error';
-KW_EXPORTS:		'exports';
-KW_EXTENDS:		'extends';
-KW_IMPORT:		'import';
-KW_MAPS:		'maps';
-KW_MODEL:		'model';
-KW_ON:			'on';
-KW_QUERY:		'query';
-KW_ROW:			'row';
-KW_SERVICE:		'service';
-KW_TRANSFER:	'transfer';
-KW_TYPE:		'type';
-KW_VIEW:		'view';
-
-FEAT_ACTION:		'action';
-FEAT_COLUMN:		'column';
-FEAT_CONSTRAINT:	'constraint';
-FEAT_CONSTRUCTOR:	'constructor';
-FEAT_DERIVED:		'derived';
-FEAT_FIELD:			'field';
-FEAT_FUNCTION:		'function';
-FEAT_GROUP:			'group';
-FEAT_IDENTIFIER:	'identifier';
-FEAT_LINK:			'link';
-FEAT_MENU:			'menu';
-FEAT_QUERY:			'query';
-FEAT_RELATION:		'relation';
-FEAT_REQUIRED:		'required';
-FEAT_SUBMIT:		'submit';
-FEAT_TABLE:			'table';
-FEAT_TABS:			'tabs';
-
-CONST_BINARY:		'binary';
-CONST_BOOLEAN:		'boolean';
-CONST_BOTTOM:		'bottom';
-CONST_CENTER:		'center';
-CONST_DATE:			'date';
-CONST_FALSE:		'false';
-CONST_LEFT:			'left';
-CONST_NUMERIC:		'numeric';
-CONST_RIGHT:		'right';
-CONST_STRETCH:		'stretch';
-CONST_STRING:		'string';
-CONST_TIME:			'time';
-CONST_TIMESTAMP:	'timestamp';
-CONST_TOP:			'top';
-CONST_TRUE:			'true';
-CONST_VOID:			'void';
-
-ATTR_CHOICES:		'choices';
-ATTR_CLAIM:			'claim';
-ATTR_CREATE:		'create';
-ATTR_ENABLED:		'enabled';
-ATTR_ERROR:			'error';
-ATTR_FRAME:			'frame';
-ATTR_GUARD:			'guard';
-ATTR_HIDDEN:		'hidden';
-ATTR_HORIZONTAL:	'horizontal';
-ATTR_ICON:			'icon';
-ATTR_IDENTITY:		'identity';
-ATTR_LABEL:			'label';
-ATTR_REALM:			'realm';
-ATTR_ROWS:			'rows';
-ATTR_TAG:			'tag';
-ATTR_TARGET:		'target';
-ATTR_TEXT:			'text';
-ATTR_VERTICAL:		'vertical';
-ATTR_WIDTH:			'width';
-
-			// keywords
-JSLID : ID	| 'abstract' | 'actor' | 'annotation' | 'as' | 'entity' | 'enum' | 'error' | 'exports' | 'extends' | 'import'
-			| 'model' | 'on' | 'query' | 'row' | 'service' | 'transfer' | 'type' | 'view'
-
-			// features except 'query'
-			| 'action' | 'column' | 'constraint' | 'constructor' | 'derived' | 'field' | 'function' | 'group' | 'identifier'
-			| 'link' | 'menu' | 'relation' | 'required' | 'submit' | 'table' | 'tabs'
-
-			// constants
-			| 'binary' | 'boolean' | 'bottom' | 'center' | 'date' | 'left' | 'numeric' | 'right' | 'stretch'
-			| 'string' | 'time' | 'timestamp' | 'top'
-
-			// attributes except 'error'
-			| 'choices' | 'claim' | 'create' | 'enabled' | 'frame' | 'guard' | 'hidden' | 'horizontal' | 'icon'
-			| 'identity' | 'label' | 'realm' | 'rows' | 'tag' | 'target' | 'text' | 'vertical' | 'width'
-
-			// others
-			| 'regex' | 'precision' | 'scale' | 'lambda'
-			| 'collection' | 'declaration' | 'constant'
-			| 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' 
-			| 'kB' | 'MB' | 'GB' | 'KiB' | 'MiB' | 'GiB'
-	       
-	       // 'void' not included
-	       // 'reads', 'maps' are not included
-	       // 'self', 'true', 'false', 'not' are not included
-	;
-
 ModelImportDeclaration 
     : KW_IMPORT model = [ModelDeclaration | ModelName] (KW_AS alias = JSLID)? SC+
 	;
@@ -178,7 +76,7 @@ EntityMemberDeclaration
 	| EntityIdentifierDeclaration
 	| EntityRelationDeclaration
 	| EntityDerivedDeclaration
-	| EntityQueryDeclaration
+//	| EntityQueryDeclaration
 //	| EntityOperationDeclaration
 //	| ConstraintDeclaration
 	)
@@ -203,17 +101,18 @@ SingleType
 	;
 
 
+//EntityDerivedDeclaration
+//	: annotations += AnnotationMark*
+//	  FEAT_DERIVED (referenceType = [SingleType | ModelName] Cardinality?) Named
+//	  "=>" expression = Expression SC
+//	;
+
+
 EntityDerivedDeclaration
 	: annotations += AnnotationMark*
-	  FEAT_DERIVED (referenceType = [SingleType | ModelName] Cardinality?) Named
-	  "=>" expression = Expression SC
-	;
-
-EntityQueryDeclaration
-	: annotations += AnnotationMark*
-	  FEAT_QUERY (referenceType = [SingleType | ModelName] Cardinality?) Named
-	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')
-	  "=>" expression = Expression SC
+	  FEAT_FIELD (referenceType = [SingleType | ModelName] Cardinality?) Named
+	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*) ')')?
+	  => "<=" expression = Expression SC
 	;
  
 QueryParameterDeclaration
@@ -224,6 +123,12 @@ EntityRelationDeclaration
 	: annotations += AnnotationMark*
 	  FEAT_RELATION (isRequired ?= FEAT_REQUIRED? referenceType = [EntityDeclaration | ModelName] Cardinality?) Named
 	  opposite = EntityRelationOpposite? SC
+	;
+
+EntityDerivedRelationDeclaration
+	: annotations += AnnotationMark*
+	  FEAT_RELATION referenceType = [EntityDeclaration | ModelName] Cardinality? Named
+	  => "<=" expression = Expression SC
 	;
 
 EntityRelationOpposite
@@ -337,13 +242,14 @@ TransferDeclaration
 
 TransferMemberDeclaration
 	: TransferFieldDeclaration
+	| TransferRelationDeclaration
 	  SC*
 	;
 
 TransferFieldDeclaration
 	: annotations += AnnotationMark*
 	  FEAT_FIELD (required ?= FEAT_REQUIRED? referenceType = [TransferFieldType | ModelName] Cardinality?) Named
-	  ('maps' maps = Expression ('choices' choices = Expression)? | 'reads' reads = Expression)?
+	  (KW_MAPS maps = Expression (ATTR_CHOICES choices = Expression)? | 'reads' reads = Expression)?
 	  SC
 	;
 
@@ -365,6 +271,23 @@ TransferField
 TransferFieldType
 	: PrimitiveDeclaration
 	| TransferDeclaration
+	;
+
+TransferRelationDeclaration
+	: {TransferRelationDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_RELATION	
+	;
+
+//TransferRelationDeclaration
+//	: annotations += AnnotationMark*
+//	  FEAT_RELATION return = [TransferDeclaration | ModelName] Cardinality? Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+//	  modifiers += (ChoiceModifier | CreateTransferModifier)*
+//	  SC
+//	;
+
+CreateTransferModifier
+	: ATTR_CREATE ':' view = [TransferDeclaration | ModelName]
 	;
 
 /****************************
@@ -409,7 +332,7 @@ ViewField
 ViewTabsDeclaration
 	: {ViewTabDeclaration}
 	  annotations += AnnotationMark*
-	 FEAT_TABS
+	  FEAT_TABS
 	  ( tag = TagModifier
 	  & label = LabelModifier?
 	  & icon = IconModifier?
@@ -696,15 +619,15 @@ ModifierMaxSize
 	;
 
 ModifierRegex
-	: 'regex' '=' regex = StringLiteral
+	: OTHER_REGEX '=' regex = StringLiteral
 	;
 
 ModifierPrecision
-	: 'precision' '=' value = Natural
+	: OTHER_PRECISION '=' value = Natural
 	;
 
 ModifierScale
-	: 'scale' '=' value = Natural
+	: OTHER_SCALE '=' value = Natural
 	;
 
 ModifierMimeTypes
@@ -716,17 +639,17 @@ MimeType
 	;
 
 ModifierMaxFileSize
-	: 'max-file-size' '=' numeric = Natural (unit = DataUnit)?
+	: 'max-file-size' '=' numeric = Natural (measure = (OTHER_KB | OTHER_MB | OTHER_GB | OTHER_KIB | OTHER_MIB | OTHER_GIB))? 
 	;
 	
-enum DataUnit
-	: KB = 'kB'
-	| MB = 'MB'
-	| GB = 'GB'
-	| KiB = 'KiB'
-	| MiB = 'MiB'
-	| GiB = 'GiB'
-	;
+//DataUnit
+//	: KB ?= OTHER_KB
+//	| MB ?= OTHER_MB
+//	| GB ?= OTHER_GB
+//	| KiB ?= OTHER_KIB
+//	| MiB ?= OTHER_MIB
+//	| GiB ?= OTHER_GIB
+//	;
 
 /****************************
  *	Expression
@@ -742,19 +665,19 @@ SwitchExpression returns Expression
     ;
 
 ImpliesExpression returns Expression
-	: OrExpression (=> ({BinaryOperation.leftOperand=current} operator='implies') rightOperand=OrExpression)*
+	: OrExpression (=> ({BinaryOperation.leftOperand=current} operator=OTHER_IMPLIES) rightOperand=OrExpression)*
 	;
 
 OrExpression returns Expression
-	: XorExpression (=> ({BinaryOperation.leftOperand=current} operator='or') rightOperand=XorExpression)*
+	: XorExpression (=> ({BinaryOperation.leftOperand=current} operator=OTHER_OR) rightOperand=XorExpression)*
 	;
 
 XorExpression returns Expression
-	: AndExpression (=> ({BinaryOperation.leftOperand=current} operator='xor') rightOperand=AndExpression)*
+	: AndExpression (=> ({BinaryOperation.leftOperand=current} operator=OTHER_XOR) rightOperand=AndExpression)*
 	;
 
 AndExpression returns Expression
-	: EqualityExpression (=> ({BinaryOperation.leftOperand=current} operator='and') rightOperand=EqualityExpression)*
+	: EqualityExpression (=> ({BinaryOperation.leftOperand=current} operator=OTHER_AND) rightOperand=EqualityExpression)*
 	;
 
 EqualityExpression returns Expression
@@ -770,7 +693,7 @@ AdditiveExpression returns Expression
 	;
 
 MultiplicativeExpression returns Expression
-	: ExponentExpression (=> ({BinaryOperation.leftOperand=current} operator=('*' | '/' | 'div' | 'mod')) rightOperand=ExponentExpression)*
+	: ExponentExpression (=> ({BinaryOperation.leftOperand=current} operator=('*' | '/' | OTHER_DIV | OTHER_MOD)) rightOperand=ExponentExpression)*
 	;
 
 ExponentExpression returns Expression
@@ -834,7 +757,7 @@ Call
 	;
 
 EntityQueryCall
-	: '.' declaration = [EntityQueryDeclaration | LocalName ] => '(' (arguments += QueryArgument (',' arguments += QueryArgument)*)? ')'
+	: '.' declaration = [EntityDerivedDeclaration | LocalName ] => '(' (arguments += QueryArgument (',' arguments += QueryArgument)*)? ')'
 	;
 
 FunctionCall
@@ -862,26 +785,26 @@ LambdaVariable
  ***************************/
 
 FunctionDeclaration
-	: 'function' returnType = TypeDescription Named '(' (parameters += FunctionParameterDeclaration (',' parameters += FunctionParameterDeclaration)*)? ')' 'on' baseType = TypeDescription SC
+	: FEAT_FUNCTION returnType = TypeDescription Named '(' (parameters += FunctionParameterDeclaration (',' parameters += FunctionParameterDeclaration)*)? ')' KW_ON baseType = TypeDescription SC
 	;
 
 FunctionParameterDeclaration
-	: isRequired ?= 'required'? description = TypeDescription Named
+	: isRequired ?= FEAT_REQUIRED? description = TypeDescription Named
 	;
 
 TypeDescription
 	: {TypeDescription} type = Type
-	| collection ?= 'collection' '<' type = Type '>'
-	| declaration ?= 'declaration' '<' type = Type '>'
-	| constant ?= 'constant' '<' type = Type '>'
+	| collection ?= OTHER_COLLECTION '<' type = Type '>'
+	| declaration ?= OTHER_DECLARATION '<' type = Type '>'
+	| constant ?= OTHER_CONSTANT '<' type = Type '>'
 	;
 
 Type
-	: 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'timestamp' | 'enum' | 'entity'
+	: CONST_BOOLEAN | CONST_BINARY | CONST_STRING | CONST_NUMERIC | CONST_DATE | CONST_TIME | CONST_TIMESTAMP | KW_ENUM | KW_ENTITY
 	;
 
 LambdaDeclaration 
-	: 'lambda' returnType = TypeDescription Named '(' (expressionType = TypeDescription)? ')' SC
+	: OTHER_LAMBDA returnType = TypeDescription Named '(' (expressionType = TypeDescription)? ')' SC
 	;
 
 
@@ -904,37 +827,37 @@ AnnotationParameterType
 	;
 
 AnnotationTarget
-	: model ?= 'model'
-	| type ?= 'type'
-	| enumeration ?= 'enum'
-	| 'enum' '::' enumLiteral ?= 'literal'
-	| entity ?= 'entity'
-	| 'entity' '::' entityField ?= 'field'
-	| 'entity' '::' entityIdentifier ?= 'identifier'
-	| 'entity' '::' entityQuery ?= 'query'
-	| 'entity' '::' entityRelation ?= 'relation'
-	| 'entity' '::' entityDerived ?= 'derived'
-	| 'entity' '::' entityOperation ?= 'operation'
-	| transfer ?= 'transfer'
-	| 'transfer' '::' transferField ?= 'field'
-	| 'transfer' '::' transferConstructor ?= 'constructor'
-	| service ?= 'service'
-	| 'service' '::' serviceFunction ?= 'function'
-	| actor ?= 'actor'
-	| 'actor' '::' actorMenu ?= 'menu'
-	| 'actor' '::' actorGroup ?= 'group'
-	| query ?= 'query'
-	| view ?= 'view'
-	| 'view' '::' viewAction ?= 'action'
-	| 'view' '::' viewConstructor ?= 'constructor'
-	| 'view' '::' viewField ?= 'field'
-	| 'view' '::' viewGroup ?= 'group'
-	| 'view' '::' viewLink ?= 'link'
-	| 'view' '::' viewSubmit ?= 'submit'
-	| 'view' '::' viewTable ?= 'table'
-	| 'view' '::' viewTabs ?= 'tabs'
-	| row ?= 'row'
-	| 'row' '::' rowColumn ?= 'column'
+	: model ?= KW_MODEL
+	| type ?= KW_TYPE
+	| enumeration ?= KW_ENUM
+	| KW_ENUM '::' enumLiteral ?= 'literal'
+	| entity ?= KW_ENTITY
+	| KW_ENTITY '::' entityField ?= FEAT_FIELD
+	| KW_ENTITY '::' entityIdentifier ?= FEAT_IDENTIFIER
+//	| KW_ENTITY '::' entityQuery ?= FEAT_QUERY
+	| KW_ENTITY '::' entityRelation ?= FEAT_RELATION
+	| KW_ENTITY '::' entityDerived ?= FEAT_DERIVED
+	| KW_ENTITY '::' entityOperation ?= 'operation'
+	| transfer ?= KW_TRANSFER
+	| KW_TRANSFER '::' transferField ?= FEAT_FIELD
+	| KW_TRANSFER '::' transferConstructor ?= FEAT_CONSTRUCTOR
+	| service ?= KW_SERVICE
+	| KW_SERVICE '::' serviceFunction ?= FEAT_FUNCTION
+	| actor ?= KW_ACTOR
+	| KW_ACTOR '::' actorMenu ?= FEAT_MENU
+	| KW_ACTOR '::' actorGroup ?= FEAT_GROUP
+	| query ?= KW_QUERY
+	| view ?= KW_VIEW
+	| KW_VIEW '::' viewAction ?= FEAT_ACTION
+	| KW_VIEW '::' viewConstructor ?= FEAT_CONSTRUCTOR
+	| KW_VIEW '::' viewField ?= FEAT_FIELD
+	| KW_VIEW '::' viewGroup ?= FEAT_GROUP
+	| KW_VIEW '::' viewLink ?= FEAT_LINK
+	| KW_VIEW '::' viewSubmit ?= FEAT_SUBMIT
+	| KW_VIEW '::' viewTable ?= FEAT_TABLE
+	| KW_VIEW '::' viewTabs ?= FEAT_TABS
+	| row ?= KW_ROW
+	| KW_ROW '::' rowColumn ?= FEAT_COLUMN
 	;
 
 AnnotationMark
@@ -999,11 +922,11 @@ TemporalLiteral
  // ************************************
  
 ConstraintDeclaration
-	: FEAT_CONSTRAINT Named expression = Expression (error = ErrorModifier?) SC
+	: FEAT_CONSTRAINT Named expression = Expression (throw = ThrowModifier?) SC
 	;
 
-ErrorModifier
-	: ATTR_ERROR ':' value = CreateError
+ThrowModifier
+	: ATTR_THROW ':' value = CreateError
 	;
  
 /****************************
@@ -1048,15 +971,168 @@ ModelName
 	: JSLID ('::' JSLID)*
     ;
 
+JSLID : ID | KW | FEAT | CONST | ATTR | OTHER
+			// others
+//			| 'regex' | 'precision' | 'scale' | 'lambda'
+//			| 'collection' | 'declaration' | 'constant'
+//			| 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' 
+//			| 'kB' | 'MB' | 'GB' | 'KiB' | 'MiB' | 'GiB'
+
+;
+
+//			// keywords
+//JSLID : ID	| KW_ABSTRACT | KW_ACTOR | KW_ANNOTATION | KW_AS | KW_ENTITY | KW_ENUM | KW_ERROR | KW_EXPORTS | KW_EXTENDS | KW_IMPORT
+//			| KW_MODEL | KW_ON | KW_QUERY | KW_ROW | KW_SERVICE | KW_TRANSFER | KW_TYPE | KW_VIEW
+//
+//			// features
+//			| FEAT_ACTION | FEAT_COLUMN | FEAT_CONSTRAINT | FEAT_CONSTRUCTOR | FEAT_DERIVED | FEAT_FIELD | FEAT_FUNCTION
+//			| FEAT_GROUP | FEAT_IDENTIFIER | FEAT_LINK | FEAT_MENU | FEAT_RELATION | FEAT_REQUIRED | FEAT_SUBMIT | FEAT_TABLE | FEAT_TABS
+//
+//			// constants
+//			| CONST_BINARY | CONST_BOOLEAN | CONST_BOTTOM | CONST_CENTER | CONST_DATE | CONST_LEFT | CONST_NUMERIC | CONST_RIGHT
+//			| CONST_STRETCH	| CONST_STRING | CONST_TIME | CONST_TIMESTAMP | CONST_TOP
+//
+//			// attributes except 'error'
+//			| ATTR_CHOICES | ATTR_CLAIM | ATTR_CREATE | ATTR_ENABLED | ATTR_FRAME | ATTR_GUARD | ATTR_HIDDEN | ATTR_HORIZONTAL | ATTR_ICON
+//			| ATTR_IDENTITY | ATTR_LABEL | ATTR_REALM | ATTR_ROWS | ATTR_TAG | ATTR_TARGET | ATTR_TEXT | ATTR_THROW | ATTR_VERTICAL | ATTR_WIDTH
+//
+//			// others
+//			| 'regex' | 'precision' | 'scale' | 'lambda'
+//			| 'collection' | 'declaration' | 'constant'
+//			| 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' 
+//			| 'kB' | 'MB' | 'GB' | 'KiB' | 'MiB' | 'GiB'
+//	       
+//	       // 'void' not included
+//	       // 'reads', 'maps' are not included
+//	       // 'self', 'true', 'false', 'not' are not included
+//	;
+
 /****************************
  *	Terminals
  ****************************/
 
-BLOCK_START
+KW: KW_ABSTRACT | KW_ACTOR | KW_ANNOTATION | KW_AS | KW_ENTITY | KW_ENUM | KW_ERROR | KW_EXPORTS | KW_EXTENDS | KW_IMPORT
+			| KW_MODEL | KW_ON | KW_QUERY | KW_ROW | KW_SERVICE | KW_TRANSFER | KW_TYPE | KW_VIEW;
+
+FEAT: FEAT_ACTION | FEAT_COLUMN | FEAT_CONSTRAINT | FEAT_CONSTRUCTOR | FEAT_DERIVED | FEAT_FIELD | FEAT_FUNCTION
+			| FEAT_GROUP | FEAT_IDENTIFIER | FEAT_LINK | FEAT_MENU | FEAT_RELATION | FEAT_REQUIRED | FEAT_SUBMIT | FEAT_TABLE | FEAT_TABS;
+			
+CONST: CONST_BINARY | CONST_BOOLEAN | CONST_BOTTOM | CONST_CENTER | CONST_DATE | CONST_LEFT | CONST_NUMERIC | CONST_RIGHT
+			| CONST_STRETCH	| CONST_STRING | CONST_TIME | CONST_TIMESTAMP | CONST_TOP;
+
+ATTR: ATTR_CHOICES | ATTR_CLAIM | ATTR_CREATE | ATTR_ENABLED | ATTR_FRAME | ATTR_GUARD | ATTR_HIDDEN | ATTR_HORIZONTAL | ATTR_ICON
+			| ATTR_IDENTITY | ATTR_LABEL | ATTR_REALM | ATTR_ROWS | ATTR_TAG | ATTR_TARGET | ATTR_TEXT | ATTR_THROW | ATTR_VERTICAL | ATTR_WIDTH;
+
+OTHER: OTHER_OR | OTHER_XOR | OTHER_AND | OTHER_DIV | OTHER_MOD | OTHER_KB | OTHER_MB | OTHER_GB | OTHER_KIB | OTHER_MIB | OTHER_GIB;
+
+terminal KW_ABSTRACT:	'abstract';
+terminal KW_ACTOR:		'actor';
+terminal KW_ANNOTATION:	'annotation';
+terminal KW_AS:			'as';
+terminal KW_ENTITY:		'entity';
+terminal KW_ENUM:		'enum';
+terminal KW_ERROR:		'error';
+terminal KW_EXPORTS:	'exports';
+terminal KW_EXTENDS:	'extends';
+terminal KW_IMPORT:		'import';
+terminal KW_MAPS:		'maps';
+terminal KW_MODEL:		'model';
+terminal KW_ON:			'on';
+terminal KW_QUERY:		'query';
+terminal KW_ROW:		'row';
+terminal KW_SERVICE:	'service';
+terminal KW_TRANSFER:	'transfer';
+terminal KW_TYPE:		'type';
+terminal KW_VIEW:		'view';
+
+terminal FEAT_ACTION:		'action';
+terminal FEAT_COLUMN:		'column';
+terminal FEAT_CONSTRAINT:	'constraint';
+terminal FEAT_CONSTRUCTOR:	'constructor';
+terminal FEAT_DERIVED:		'derived';
+terminal FEAT_FIELD:		'field';
+terminal FEAT_FUNCTION:		'function';
+terminal FEAT_GROUP:		'group';
+terminal FEAT_IDENTIFIER:	'identifier';
+terminal FEAT_LINK:			'link';
+terminal FEAT_MENU:			'menu';
+// terminal FEAT_QUERY:		'query';
+terminal FEAT_RELATION:		'relation';
+terminal FEAT_REQUIRED:		'required';
+terminal FEAT_SUBMIT:		'submit';
+terminal FEAT_TABLE:		'table';
+terminal FEAT_TABS:			'tabs';
+
+terminal CONST_BINARY:		'binary';
+terminal CONST_BOOLEAN:		'boolean';
+terminal CONST_BOTTOM:		'bottom';
+terminal CONST_CENTER:		'center';
+terminal CONST_DATE:		'date';
+terminal CONST_FALSE:		'false';
+terminal CONST_LEFT:		'left';
+terminal CONST_NUMERIC:		'numeric';
+terminal CONST_RIGHT:		'right';
+terminal CONST_STRETCH:		'stretch';
+terminal CONST_STRING:		'string';
+terminal CONST_TIME:		'time';
+terminal CONST_TIMESTAMP:	'timestamp';
+terminal CONST_TOP:			'top';
+terminal CONST_TRUE:		'true';
+terminal CONST_VOID:		'void';
+
+terminal ATTR_CHOICES:		'choices';
+terminal ATTR_CLAIM:		'claim';
+terminal ATTR_CREATE:		'create';
+terminal ATTR_ENABLED:		'enabled';
+terminal ATTR_FRAME:		'frame';
+terminal ATTR_GUARD:		'guard';
+terminal ATTR_HIDDEN:		'hidden';
+terminal ATTR_HORIZONTAL:	'horizontal';
+terminal ATTR_ICON:			'icon';
+terminal ATTR_IDENTITY:		'identity';
+terminal ATTR_LABEL:		'label';
+terminal ATTR_REALM:		'realm';
+terminal ATTR_ROWS:			'rows';
+terminal ATTR_TAG:			'tag';
+terminal ATTR_TARGET:		'target';
+terminal ATTR_TEXT:			'text';
+terminal ATTR_THROW:		'throw';
+terminal ATTR_VERTICAL:		'vertical';
+terminal ATTR_WIDTH:		'width';
+
+terminal OTHER_REGEX:		'regex';
+terminal OTHER_PRECISION:	'precision';
+terminal OTHER_SCALE:		'scale';
+terminal OTHER_LAMBDA:		'lambda';
+terminal OTHER_COLLECTION:	'collection';
+terminal OTHER_DECLARATION:	'declaration';
+terminal OTHER_CONSTANT:	'constant';
+terminal OTHER_IMPLIES:		'implies';
+
+terminal OTHER_OR:		'or';
+terminal OTHER_XOR:		'xor';
+terminal OTHER_AND:		'and';
+terminal OTHER_DIV:		'div';
+terminal OTHER_MOD:		'mod';
+terminal OTHER_KB:		'kB';
+terminal OTHER_MB:		'MB';
+terminal OTHER_GB:		'GB';
+terminal OTHER_KIB:		'KiB';
+terminal OTHER_MIB:		'MiB';
+terminal OTHER_GIB:		'GiB';
+
+//			| 'regex' | 'precision' | 'scale' | 'lambda'
+//			| 'collection' | 'declaration' | 'constant'
+//			| 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' 
+//			| 'kB' | 'MB' | 'GB' | 'KiB' | 'MiB' | 'GiB'
+
+
+
+terminal BLOCK_START
 	: '{'
 	;
 
-BLOCK_END
+terminal BLOCK_END
 	: '}'
 	;
 

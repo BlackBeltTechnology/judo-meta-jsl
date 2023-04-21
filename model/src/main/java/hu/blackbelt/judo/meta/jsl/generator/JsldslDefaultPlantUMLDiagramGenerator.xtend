@@ -16,7 +16,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import java.util.Collection
 import java.util.HashSet
 import java.util.Set
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeReferenced
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
@@ -189,14 +188,14 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     def entityIdentifierRepresentation(EntityIdentifierDeclaration it)
     '''+<u>«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»</u> : «referenceType.name»'''
 
-    def entityQueryParameterFragment(EntityQueryDeclaration it)
-    '''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.name» =«param.^default»«ENDFOR»'''
+//    def entityQueryParameterFragment(EntityQueryDeclaration it)
+//    '''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.name» =«param.^default»«ENDFOR»'''
 
     def entityDerivedRepresentation(EntityDerivedDeclaration it)
     '''~<i>«name»</i> : «referenceType.name»«IF isIsMany»[0..*]«ENDIF»'''
 
-    def entityQueryRepresentation(EntityQueryDeclaration it)
-    '''~«name»«entityQueryParameterFragment» : «referenceType.name»[0..*]'''
+//    def entityQueryRepresentation(EntityQueryDeclaration it)
+//    '''~«name»«entityQueryParameterFragment» : «referenceType.name»[0..*]'''
 
 
 //    def constraintParameterFragment(ConstraintDeclaration it)
@@ -218,9 +217,9 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             «FOR derived : derivedes»
                 «derived.entityDerivedRepresentation»
             «ENDFOR»
-            «FOR query : queries»
-                «query.entityQueryRepresentation»
-            «ENDFOR»
+«««            «FOR query : queries»
+«««                «query.entityQueryRepresentation»
+«««            «ENDFOR»
 «««            «FOR constraint : constraints»
 «««                «constraint.constraintRepresentation»
 «««            «ENDFOR»

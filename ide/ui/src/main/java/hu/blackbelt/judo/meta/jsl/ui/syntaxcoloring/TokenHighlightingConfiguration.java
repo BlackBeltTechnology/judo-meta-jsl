@@ -75,6 +75,7 @@ public class TokenHighlightingConfiguration extends
             return HighlightingConfiguration.OPERATOR_ID;
         }
 
+        
         return HighlightingConfiguration.DEFAULT_ID;
     }
 
