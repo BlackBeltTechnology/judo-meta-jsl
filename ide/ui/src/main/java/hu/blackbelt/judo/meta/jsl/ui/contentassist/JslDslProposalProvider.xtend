@@ -21,6 +21,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
 import org.eclipse.xtext.RuleCall
 import org.eclipse.xtext.AbstractRule
 import org.eclipse.jface.text.contentassist.ICompletionProposal
+import org.eclipse.xtext.Group
+import org.eclipse.xtext.ParserRule
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
@@ -67,7 +69,13 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 			var Keyword keyword = calledRule.alternatives as Keyword;
 			completeKeyword(keyword, contentAssistContext, acceptor)
 		}
-				
+		
+//		if (calledRule instanceof ParserRule && calledRule.name.equals("RequiredModifier")) {
+//			var ICompletionProposal proposal = createCompletionProposal("required:true", "required", null, contentAssistContext);
+//			getPriorityHelper().adjustKeywordPriority(proposal, contentAssistContext.getPrefix());
+//			acceptor.accept(proposal);
+//		}
+
 		super.completeRuleCall(ruleCall, contentAssistContext, acceptor)
 	}
 

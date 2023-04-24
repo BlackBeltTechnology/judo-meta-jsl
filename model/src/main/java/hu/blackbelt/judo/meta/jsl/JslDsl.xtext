@@ -74,7 +74,6 @@ QueryDeclaration
 
 EntityMemberDeclaration
 	: (EntityFieldDeclaration
-	| EntityIdentifierDeclaration
 	| EntityRelationDeclaration
 	| EntityDerivedDeclaration
 //	| EntityQueryDeclaration
@@ -86,14 +85,16 @@ EntityMemberDeclaration
 
 EntityFieldDeclaration
 	: annotations += AnnotationMark*
-	  FEAT_FIELD (isRequired ?= FEAT_REQUIRED? referenceType = [SingleType | ModelName] Cardinality?) Named
-	  ('=' defaultExpression = Expression)? SC
+	  (FEAT_FIELD | identifier = FEAT_IDENTIFIER) (referenceType = [SingleType | ModelName] Cardinality?) Named
+	  ('=' defaultExpression = Expression)? (required ?= RequiredModifier | OptionalModifier)? SC
 	;
 
-EntityIdentifierDeclaration
-	: annotations += AnnotationMark*
-	  FEAT_IDENTIFIER isRequired ?= FEAT_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
-	  ('=' defaultExpression = Expression)? SC
+RequiredModifier
+	: ATTR_REQUIRED ':' value = CONST_TRUE
+	;
+
+OptionalModifier
+	: ATTR_REQUIRED ':' CONST_FALSE
 	;
 
 SingleType 
@@ -132,8 +133,9 @@ QueryParameterDeclaration
 
 EntityRelationDeclaration
 	: annotations += AnnotationMark*
-	  FEAT_RELATION (isRequired ?= FEAT_REQUIRED? referenceType = [EntityDeclaration | ModelName] Cardinality?) Named
-	  opposite = EntityRelationOpposite? SC
+	  FEAT_RELATION (referenceType = [EntityDeclaration | ModelName] Cardinality?) Named
+	  (opposite = EntityRelationOpposite? & (required ?= RequiredModifier | OptionalModifier)?)
+	  SC
 	;
 
 //EntityDerivedRelationDeclaration
@@ -263,8 +265,9 @@ TransferMemberDeclaration
 
 TransferFieldDeclaration
 	: annotations += AnnotationMark*
-	  FEAT_FIELD (required ?= FEAT_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName]) Named
+	  FEAT_FIELD (referenceType = [PrimitiveDeclaration | ModelName]) Named
 	  ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	  (required ?= RequiredModifier | OptionalModifier)?
 	  SC
 	;
 
@@ -374,7 +377,6 @@ ViewGroupDeclaration
 	  BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END
 	;
 
-
 HorizontalModifier
 	: ATTR_HORIZONTAL ':' (left ?= CONST_LEFT | right ?= CONST_RIGHT | center ?= CONST_CENTER)
 	;
@@ -385,8 +387,9 @@ VerticalModifier
 
 ViewFieldDeclaration
 	: annotations += AnnotationMark*
-	  FEAT_FIELD required ?= FEAT_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
-	  ( label = LabelModifier?
+	  FEAT_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	  ( (required ?= RequiredModifier | OptionalModifier)?
+	  & label = LabelModifier?
 	  & icon = IconModifier?
 	  & enabled = EnabledModifier?
 	  & ^hidden = HiddenModifier?
@@ -396,8 +399,9 @@ ViewFieldDeclaration
 
 ViewLinkDeclaration
 	: annotations += AnnotationMark*
-	  FEAT_LINK required ?= FEAT_REQUIRED? (referenceType = [ViewDeclaration | ModelName]) Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
-	  ( choices = ChoiceModifier?
+	  FEAT_LINK (referenceType = [ViewDeclaration | ModelName]) Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	  ( (required ?= RequiredModifier | OptionalModifier)?
+	  & choices = ChoiceModifier?
 	  & create = CreateModifier?
 	  & target = TargetViewModifier?
 	  & label = LabelModifier?
@@ -630,9 +634,9 @@ DataTypeDeclaration
       KW_TYPE
       (
 		  primitive = CONST_BOOLEAN Named
-		| primitive = CONST_BINARY Named '(' mimeTypes = ModifierMimeTypes ',' maxFileSize = ModifierMaxFileSize ')'
-		| primitive = CONST_STRING Named '(' minSize = ModifierMinSize ',' maxSize = ModifierMaxSize (',' regex = ModifierRegex)? ')'
-		| primitive = CONST_NUMERIC Named '(' precision = ModifierPrecision ',' scale = ModifierScale ')'
+		| primitive = CONST_BINARY Named (mimeTypes = ModifierMimeTypes & maxFileSize = ModifierMaxFileSize)
+		| primitive = CONST_STRING Named (minSize = ModifierMinSize & maxSize = ModifierMaxSize & regex = ModifierRegex?)
+		| primitive = CONST_NUMERIC Named (precision = ModifierPrecision & scale = ModifierScale)
 		| primitive = CONST_DATE Named
 		| primitive = CONST_TIME Named
 		| primitive = CONST_TIMESTAMP Named
@@ -657,27 +661,27 @@ EnumLiteral
 
 
 ModifierMinSize
-	: 'min-size' '=' value = Natural
+	: ATTR_MINSIZE ':' value = Natural
 	;
 
 ModifierMaxSize
-	: 'max-size' '=' value = Natural
+	: ATTR_MAXSIZE ':' value = Natural
 	;
 
 ModifierRegex
-	: OTHER_REGEX '=' regex = StringLiteral
+	: ATTR_REGEX ':' regex = StringLiteral
 	;
 
 ModifierPrecision
-	: OTHER_PRECISION '=' value = Natural
+	: ATTR_PRECISION ':' value = Natural
 	;
 
 ModifierScale
-	: OTHER_SCALE '=' value = Natural
+	: ATTR_SCALE ':' value = Natural
 	;
 
 ModifierMimeTypes
-	: 'mime-types' '=' '[' values += MimeType (',' values += MimeType)* ']'
+	: ATTR_MIMETYPE ':' '[' values += MimeType (',' values += MimeType)* ']'
 	;
 
 MimeType
@@ -685,7 +689,7 @@ MimeType
 	;
 
 ModifierMaxFileSize
-	: 'max-file-size' '=' numeric = Natural (measure = (OTHER_KB | OTHER_MB | OTHER_GB | OTHER_KIB | OTHER_MIB | OTHER_GIB))? 
+	: ATTR_MAXFILESIZE ':' numeric = Natural (measure = (OTHER_KB | OTHER_MB | OTHER_GB | OTHER_KIB | OTHER_MIB | OTHER_GIB))? 
 	;
 	
 //DataUnit
@@ -835,7 +839,7 @@ FunctionDeclaration
 	;
 
 FunctionParameterDeclaration
-	: isRequired ?= FEAT_REQUIRED? description = TypeDescription Named
+	: isRequired ?= ATTR_REQUIRED? description = TypeDescription Named
 	;
 
 TypeDescription
@@ -880,7 +884,7 @@ AnnotationTarget
 	| KW_ENUM '::' enumLiteral ?= FEAT_LITERAL
 	| entity ?= KW_ENTITY
 	| KW_ENTITY '::' entityField ?= FEAT_FIELD
-	| KW_ENTITY '::' entityIdentifier ?= FEAT_IDENTIFIER
+//	| KW_ENTITY '::' entityIdentifier ?= FEAT_IDENTIFIER
 //	| KW_ENTITY '::' entityQuery ?= FEAT_QUERY
 	| KW_ENTITY '::' entityRelation ?= FEAT_RELATION
 //	| KW_ENTITY '::' entityDerived ?= FEAT_DERIVED
@@ -925,7 +929,6 @@ EnumLiteralReference
 
 NavigationTarget
     : EntityFieldDeclaration
-	| EntityIdentifierDeclaration
 	| EntityRelationDeclaration
 	| EntityDerivedDeclaration
     | EntityRelationOppositeInjected
@@ -1068,13 +1071,14 @@ KW: KW_ABSTRACT | KW_ACTOR | KW_ANNOTATION | KW_AS | KW_ENTITY | KW_ENUM | KW_ER
 			| KW_MODEL | KW_ON | KW_QUERY | KW_ROW | KW_SERVICE | KW_TRANSFER | KW_TYPE | KW_VIEW;
 
 FEAT: FEAT_ACCESS | FEAT_ACTION | FEAT_COLUMN | FEAT_CONSTRAINT | FEAT_CONSTRUCTOR | FEAT_DERIVED | FEAT_FIELD | FEAT_FUNCTION
-			| FEAT_GROUP | FEAT_IDENTIFIER | FEAT_LINK | FEAT_LITERAL | FEAT_MENU | FEAT_RELATION | FEAT_REQUIRED | FEAT_SUBMIT | FEAT_TABLE | FEAT_TABS;
+			| FEAT_GROUP | FEAT_IDENTIFIER | FEAT_LINK | FEAT_LITERAL | FEAT_MENU | FEAT_RELATION | FEAT_SUBMIT | FEAT_TABLE | FEAT_TABS;
 			
 CONST: CONST_BINARY | CONST_BOOLEAN | CONST_BOTTOM | CONST_CENTER | CONST_DATE | CONST_LEFT | CONST_NUMERIC | CONST_RIGHT
 			| CONST_STRETCH	| CONST_STRING | CONST_TIME | CONST_TIMESTAMP | CONST_TOP;
 
 ATTR: ATTR_CHOICES | ATTR_CLAIM | ATTR_CREATE | ATTR_ENABLED | ATTR_FRAME | ATTR_GUARD | ATTR_HIDDEN | ATTR_HORIZONTAL | ATTR_ICON
-			| ATTR_IDENTITY | ATTR_LABEL | ATTR_REALM | ATTR_ROWS | ATTR_TAG | ATTR_TARGET | ATTR_TEXT | ATTR_THROW | ATTR_VERTICAL | ATTR_WIDTH;
+			| ATTR_IDENTITY | ATTR_LABEL | ATTR_REALM | ATTR_REQUIRED | ATTR_ROWS | ATTR_TAG | ATTR_TARGET | ATTR_TEXT | ATTR_THROW
+			| ATTR_VERTICAL | ATTR_WIDTH;
 
 OTHER: OTHER_OR | OTHER_XOR | OTHER_AND | OTHER_DIV | OTHER_MOD | OTHER_KB | OTHER_MB | OTHER_GB | OTHER_KIB | OTHER_MIB | OTHER_GIB;
 
@@ -1113,7 +1117,6 @@ terminal FEAT_LITERAL:		'literal';
 terminal FEAT_MENU:			'menu';
 // terminal FEAT_QUERY:		'query';
 terminal FEAT_RELATION:		'relation';
-terminal FEAT_REQUIRED:		'required';
 terminal FEAT_SUBMIT:		'submit';
 terminal FEAT_TABLE:		'table';
 terminal FEAT_TABS:			'tabs';
@@ -1146,10 +1149,18 @@ terminal ATTR_HORIZONTAL:	'horizontal';
 terminal ATTR_ICON:			'icon';
 terminal ATTR_IDENTITY:		'identity';
 terminal ATTR_LABEL:		'label';
+terminal ATTR_MAXFILESIZE:	'max-file-size';
+terminal ATTR_MAXSIZE:		'max-size';
+terminal ATTR_MINSIZE:		'min-size';
+terminal ATTR_MIMETYPE:		'mime-type';
 terminal ATTR_OPPOSITE:		'opposite';
 terminal ATTR_OPPOSITEADD:	'opposite-add';
+terminal ATTR_PRECISION:	'precision';
 terminal ATTR_REALM:		'realm';
+terminal ATTR_REGEX:		'regex';
+terminal ATTR_REQUIRED:		'required';
 terminal ATTR_ROWS:			'rows';
+terminal ATTR_SCALE:		'scale';
 terminal ATTR_TAG:			'tag';
 terminal ATTR_TARGET:		'target';
 terminal ATTR_TEXT:			'text';
@@ -1157,9 +1168,6 @@ terminal ATTR_THROW:		'throw';
 terminal ATTR_VERTICAL:		'vertical';
 terminal ATTR_WIDTH:		'width';
 
-terminal OTHER_REGEX:		'regex';
-terminal OTHER_PRECISION:	'precision';
-terminal OTHER_SCALE:		'scale';
 terminal OTHER_LAMBDA:		'lambda';
 terminal OTHER_COLLECTION:	'collection';
 terminal OTHER_DECLARATION:	'declaration';

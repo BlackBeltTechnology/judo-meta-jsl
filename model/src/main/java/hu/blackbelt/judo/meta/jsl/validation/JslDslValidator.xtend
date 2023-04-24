@@ -22,7 +22,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
@@ -656,7 +655,7 @@ class JslDslValidator extends AbstractJslDslValidator {
             EntityDeclaration:              error = !mark.declaration.targets.exists[t | t.entity]
             EntityFieldDeclaration:         error = !mark.declaration.targets.exists[t | t.entityField]
             EntityRelationDeclaration:      error = !mark.declaration.targets.exists[t | t.entityRelation]
-            EntityIdentifierDeclaration:    error = !mark.declaration.targets.exists[t | t.entityIdentifier]
+//            EntityIdentifierDeclaration:    error = !mark.declaration.targets.exists[t | t.entityIdentifier]
 //            EntityDerivedDeclaration:       error = !mark.declaration.targets.exists[t | t.entityDerived]
 //            EntityQueryDeclaration:         error = !mark.declaration.targets.exists[t | t.entityQuery]
 //            EntityOperationDeclaration:     error = !mark.declaration.targets.exists[t | t.entityOperation]
@@ -944,17 +943,17 @@ class JslDslValidator extends AbstractJslDslValidator {
     def checkRequiredOnEntityMemberDeclaration(EntityMemberDeclaration member) {
         if (member instanceof EntityFieldDeclaration) {
             val field = member
-            if (field.isIsMany && field.isIsRequired) {
+            if (field.isIsMany && field.required) {
                 error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'.",
-                    JsldslPackage::eINSTANCE.entityFieldDeclaration_IsRequired,
+                    JsldslPackage::eINSTANCE.entityFieldDeclaration_Required,
                     USING_REQUIRED_WITH_IS_MANY,
                     JsldslPackage::eINSTANCE.entityFieldDeclaration.name)
             }
         } else if (member instanceof EntityRelationDeclaration) {
             val relation = member
-            if (relation.isIsMany && relation.isIsRequired) {
+            if (relation.isIsMany && relation.required) {
                 error("Collection typed relation: '" + relation.name + "' cannot have keyword: 'required'.",
-                    JsldslPackage::eINSTANCE.entityRelationDeclaration_IsRequired,
+                    JsldslPackage::eINSTANCE.entityRelationDeclaration_Required,
                     USING_REQUIRED_WITH_IS_MANY,
                     JsldslPackage::eINSTANCE.entityRelationDeclaration.name)
             }
@@ -1168,19 +1167,19 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkEntityIdentifier(EntityIdentifierDeclaration field) {
-        try {
-            if (field.defaultExpression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.defaultExpression))) {
-                error("Type mismatch. Default value expression does not match identifier field type at '" + field.name + "'.",
-                    JsldslPackage::eINSTANCE.entityIdentifierDeclaration_DefaultExpression,
-                    TYPE_MISMATCH,
-                    JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
-            }
-        } catch (IllegalArgumentException illegalArgumentException) {
-            return
-        }
-    }
+//    @Check
+//    def checkEntityIdentifier(EntityIdentifierDeclaration field) {
+//        try {
+//            if (field.defaultExpression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.defaultExpression))) {
+//                error("Type mismatch. Default value expression does not match identifier field type at '" + field.name + "'.",
+//                    JsldslPackage::eINSTANCE.entityIdentifierDeclaration_DefaultExpression,
+//                    TYPE_MISMATCH,
+//                    JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
+//            }
+//        } catch (IllegalArgumentException illegalArgumentException) {
+//            return
+//        }
+//    }
 
     @Check
     def checkEntityDerived(EntityDerivedDeclaration derived) {
@@ -1557,7 +1556,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         val MemberReference memberReference = navigation.features.get(0) as MemberReference;
 
         if (!(memberReference.member instanceof EntityFieldDeclaration) &&
-            !(memberReference.member instanceof EntityIdentifierDeclaration) &&
+//            !(memberReference.member instanceof EntityIdentifierDeclaration) &&
             !(memberReference.member instanceof EntityRelationDeclaration) &&
             !(memberReference.member instanceof EntityRelationOppositeInjected))
         {
@@ -1886,7 +1885,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
         val MemberReference memberReference = navigation.features.get(0) as MemberReference;
 
-        if (!(memberReference.member instanceof EntityIdentifierDeclaration)) {
+        if (!(memberReference.member instanceof EntityFieldDeclaration)) {
             error("Invalid actor identity. Identity must be mapped to an identifier of the mapped entity type.",
                 JsldslPackage::eINSTANCE.actorDeclaration_Identity,
                 INVALID_IDENTITY_MAPPING,
@@ -1895,9 +1894,18 @@ class JslDslValidator extends AbstractJslDslValidator {
             return;
         }
 
-        val EntityIdentifierDeclaration entityIdentifierDeclaration = memberReference.member as EntityIdentifierDeclaration;
+        val EntityFieldDeclaration entityFieldDeclaration = memberReference.member as EntityFieldDeclaration;
 
-        if (!TypeInfo.getTargetType(entityIdentifierDeclaration).isString) {
+        if (entityFieldDeclaration.required) {
+            error("Invalid actor identity. Identity must be mapped to an identifier of the mapped entity type.",
+                JsldslPackage::eINSTANCE.actorDeclaration_Identity,
+                INVALID_IDENTITY_MAPPING,
+                JsldslPackage::eINSTANCE.actorDeclaration.name)
+
+            return;
+        }
+
+        if (!TypeInfo.getTargetType(entityFieldDeclaration).isString) {
             error("Invalid actor identity. Identifier must be a string.",
                 JsldslPackage::eINSTANCE.actorDeclaration_Identity,
                 INVALID_IDENTITY_MAPPING,

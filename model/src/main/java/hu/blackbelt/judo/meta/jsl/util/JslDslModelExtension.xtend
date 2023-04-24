@@ -9,7 +9,6 @@ import java.util.ArrayList
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import java.util.LinkedList
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import java.util.HashSet
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
@@ -319,9 +318,9 @@ class JslDslModelExtension {
         members.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
     }
 
-    def Collection<EntityIdentifierDeclaration> identifiers(EntityDeclaration it) {
-        members.filter[d | d instanceof EntityIdentifierDeclaration].map[d | d as EntityIdentifierDeclaration].toList
-    }
+//    def Collection<EntityIdentifierDeclaration> identifiers(EntityDeclaration it) {
+//        members.filter[d | d instanceof EntityIdentifierDeclaration].map[d | d as EntityIdentifierDeclaration].toList
+//    }
 
     def Collection<EntityFieldDeclaration> allFields(EntityDeclaration it) {
         allMembers.filter[d | d instanceof EntityFieldDeclaration].map[d | d as EntityFieldDeclaration].toList
@@ -339,9 +338,9 @@ class JslDslModelExtension {
         allMembers.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
     }
 
-    def Collection<EntityIdentifierDeclaration> allIdentifiers(EntityDeclaration it) {
-        allMembers.filter[d | d instanceof EntityIdentifierDeclaration].map[d | d as EntityIdentifierDeclaration].toList
-    }
+//    def Collection<EntityIdentifierDeclaration> allIdentifiers(EntityDeclaration it) {
+//        allMembers.filter[d | d instanceof EntityIdentifierDeclaration].map[d | d as EntityIdentifierDeclaration].toList
+//    }
     
     def Collection<AnnotationDeclaration> annotationDeclarations(ModelDeclaration it) {
         declarations.filter[d | d instanceof AnnotationDeclaration].map[d | d as AnnotationDeclaration].toList

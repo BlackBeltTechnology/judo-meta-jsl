@@ -11,7 +11,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorField
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityIdentifierDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import java.util.Collection
 import java.util.HashSet
@@ -125,7 +124,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '''
 
     def cardinalityRepresentation(EntityRelationDeclaration it)
-    '''[«IF isIsRequired»1«ELSE»0«ENDIF»..«IF isIsMany»*«ELSE»1«ENDIF»]'''
+    '''[«IF required»1«ELSE»0«ENDIF»..«IF isIsMany»*«ELSE»1«ENDIF»]'''
 
 
     def dataTypeRepresentation(DataTypeDeclaration it)
@@ -185,8 +184,8 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     def entityFieldRepresentation(EntityFieldDeclaration it)
     '''«entityFieldModifierFragment»«entityFieldNameFragment» : «referenceType.name»«entityFieldCardinalityFragment»'''
 
-    def entityIdentifierRepresentation(EntityIdentifierDeclaration it)
-    '''+<u>«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»</u> : «referenceType.name»'''
+//    def entityIdentifierRepresentation(EntityIdentifierDeclaration it)
+//    '''+<u>«IF required»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»</u> : «referenceType.name»'''
 
 //    def entityQueryParameterFragment(EntityQueryDeclaration it)
 //    '''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.name» =«param.^default»«ENDFOR»'''
@@ -211,9 +210,9 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             «FOR field : fields»
                 «field.entityFieldRepresentation»
             «ENDFOR»
-            «FOR identifier : identifiers»
-                «identifier.entityIdentifierRepresentation»
-            «ENDFOR»
+«««            «FOR identifier : identifiers»
+«««                «identifier.entityIdentifierRepresentation»
+«««            «ENDFOR»
             «FOR derived : derivedes»
                 «derived.entityDerivedRepresentation»
             «ENDFOR»
