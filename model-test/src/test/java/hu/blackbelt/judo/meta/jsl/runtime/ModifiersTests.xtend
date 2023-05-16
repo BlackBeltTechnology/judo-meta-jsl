@@ -53,14 +53,6 @@ class ModifiersTests {
             error
         )
     }
-    
-    //def private void assertFieldTypeIsAbstractEntityError(ModelDeclaration modelDeclaration, String error, EClass target) {
-    //    modelDeclaration.assertError(
-    //        target,
-    //        JslDslValidator.FIELD_TYPE_IS_ABSRTACT_ENTITY,
-    //        error
-    //    )
-    //}
 
     def private void assertMinSizeNegativeError(ModelDeclaration modelDeclaration, String error, EClass target) {
         modelDeclaration.assertError(
