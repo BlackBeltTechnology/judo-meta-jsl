@@ -929,19 +929,16 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
     
     @Check
-    def checkAbstractComposition(EntityMemberDeclaration member) {
-        if (member instanceof EntityFieldDeclaration) {
-            if (member.referenceType instanceof EntityDeclaration){
-                val reference = member.referenceType as EntityDeclaration
-	            if (reference.isIsAbstract()) {
-	            	error("You cannot use entity named: '" + (member.referenceType as EntityDeclaration).name + "'as a field type, because it is abstract.",
-		                    JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType,
-		                    FIELD_TYPE_IS_ABSRTACT_ENTITY,
-		                    JsldslPackage::eINSTANCE.entityFieldDeclaration.name)
-	            }
-            }
-    
-        }
+    def checkAbstractComposition(EntityFieldDeclaration member) {
+	    if (member.referenceType instanceof EntityDeclaration) {
+	        val reference = member.referenceType as EntityDeclaration
+		    if (reference.isIsAbstract()) {
+		    	error("You cannot use entity named '" + (member.referenceType as EntityDeclaration).name + "' as a field type, because it is abstract.",
+		             JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType,
+		             FIELD_TYPE_IS_ABSRTACT_ENTITY,
+		             JsldslPackage::eINSTANCE.entityFieldDeclaration.name)
+		    }
+	    }
     }
     
 

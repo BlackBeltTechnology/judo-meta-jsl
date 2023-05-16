@@ -227,7 +227,7 @@ class ModifiersTests {
                 field T1 ent;
             }
         '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.FIELD_TYPE_IS_ABSRTACT_ENTITY, "You cannot use entity named: 'T1'as a field type, because it is abstract")
+        	m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.FIELD_TYPE_IS_ABSRTACT_ENTITY, "You cannot use entity named 'T1' as a field type, because it is abstract")
         ]
     }
 
