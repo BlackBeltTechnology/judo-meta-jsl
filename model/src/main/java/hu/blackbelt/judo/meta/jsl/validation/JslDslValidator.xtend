@@ -139,6 +139,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     public static val ENUM_ORDINAL_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "EnumOrdinalIsTooLarge"
     public static val JAVA_BEAN_NAMING_ISSUE = ISSUE_CODE_PREFIX + "JavaBeanNamingIssue"
     public static val DUPLICATE_FIELD_MAPPING = ISSUE_CODE_PREFIX + "DuplicateFieldMapping"
+    public static val FIELD_TYPE_IS_ABSRTACT_ENTITY = ISSUE_CODE_PREFIX + "FieldTypeIsAbstractEntity"
 
     public static val MEMBER_NAME_LENGTH_MAX = 128
     public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -926,6 +927,23 @@ class JslDslValidator extends AbstractJslDslValidator {
             }
         }
     }
+    
+    @Check
+    def checkAbstractComposition(EntityMemberDeclaration member) {
+        if (member instanceof EntityFieldDeclaration) {
+            if (member.referenceType instanceof EntityDeclaration){
+                val reference = member.referenceType as EntityDeclaration
+	            if (reference.isIsAbstract()) {
+	            	error("You cannot use entity named: '" + (member.referenceType as EntityDeclaration).name + "'as a field type, because it is abstract.",
+		                    JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType,
+		                    FIELD_TYPE_IS_ABSRTACT_ENTITY,
+		                    JsldslPackage::eINSTANCE.entityFieldDeclaration.name)
+	            }
+            }
+    
+        }
+    }
+    
 
     @Check
     def checkTenaryOperation(TernaryOperation it) {
