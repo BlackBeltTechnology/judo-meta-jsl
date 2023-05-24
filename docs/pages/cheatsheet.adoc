@@ -112,7 +112,21 @@ No syntax change.
 entity abstract Person extends Customer, User;
 ----
 
-=== Entity primitive field
+=== Summary of entity members
+
+[options="header", cols="1,1,1,1,1"]
+|====================
+|             2+^|Stored               2+^|Calculated
+|               ^|__@Eager__ ^|__@Lazy__ ^|__@Eager__ ^|__@Lazy__
+|**Primitive**   |field       |field      |field <=	   |field <= +
+                                                        field (...) <=
+|**Relation**    |relation    |relation   |relation <= |relation <= +
+                                                        relation (...) <=
+|**Composition** |field       |field     ^|--	      ^|--
+|====================
+
+
+=== Entity stored primitive field
 
 No syntax change.
 
@@ -120,7 +134,7 @@ No syntax change.
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>] [purple]#**;**#
+([purple]#**field**#|[purple]#**identifier**#) &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>] [purple]#**;**#
 ----
 
 *Example:*
@@ -130,25 +144,7 @@ No syntax change.
 field required String name = "John Doe";
 ----
 
-=== Entity identifier
-
-No syntax change.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**identifier**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>] [purple]#**;**#
-----
-
-*Example:*
-
-[source,jsl]
-----
-identifier required String name = "John Doe";
-----
-
-=== Entity composition
+=== Entity stored composition
 
 No syntax change.
 
@@ -159,20 +155,28 @@ No syntax change.
 [purple]#**field**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]#**;**#
 ----
 
+[options="header", cols="1,2"]
+|====================
+|Annotation | Meaning
+|@Lazy      | Defer fetching the object(s) as long as it is possible.
+|@Eager     | Fetch the object(s) as soon as it is possible.
+|====================
+
 *Example:*
 
 [source,jsl]
 ----
+@Lazy
 field required Address address;
 ----
 
 [source,jsl]
 ----
+@Eager
 field Address[] addresses;
 ----
 
-=== Entity relation
-
+=== Entity stored relation
 
 *Syntax:*
 
@@ -188,10 +192,18 @@ field Address[] addresses;
 [purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B; [purple]##**opposite**## &lt;opposite> | [purple]##**opposite-add**## &lt;opposite>&#x5B;[purple]##**[]**##] ] [purple]#**;**#
 ----
 
+[options="header", cols="1,2"]
+|====================
+|Annotation | Meaning
+|@Lazy      | Defer fetching the object(s) as long as it is possible.
+|@Eager     | Fetch the object(s) as soon as it is possible.
+|====================
+
 *Example:*
 
 [source,jsl]
 ----
+@Eager
 relation required Student student = Student!any() opposite: class;
 ----
 
@@ -200,13 +212,13 @@ relation required Student student = Student!any() opposite: class;
 relation Student[] students = Student!all() opposite-add: class;
 ----
 
-=== Entity derived primitive
+=== Entity calculated primitive
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**field**# &lt;primitive> &lt;name> [purple]##**<=**## &lt;expression> [purple]#**;**#
+[purple]#**field**# &lt;primitive> &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...[purple]##**)**##] [purple]##**<=**## &lt;expression> [purple]#**;**#
 ----
 
 *Old syntax:*
@@ -216,15 +228,27 @@ relation Student[] students = Student!all() opposite-add: class;
 [purple]#**derived**# &lt;primitive> &lt;name> [purple]##**=>**## &lt;expression> [purple]#**;**#
 ----
 
-=== Entity derived relation
+and
 
-// applicable annotations
+[subs="quotes"]
+----
+[purple]#**query**# &lt;primitive> &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...][purple]##**)**## [purple]##**=>**## &lt;expression> [purple]#**;**#
+----
+
+[options="header", cols="1,2"]
+|====================
+|Annotation | Meaning
+|@Lazy      | Defer fetching the value as long as it is possible.
+|@Eager     | Fetch the value as soon as it is possible. Eager is not allowed together with argument list.
+|====================
+
+=== Entity calculated relation
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**<=**## &lt;expression> [purple]#**;**#
+[purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...[purple]##**)**##] [purple]##**<=**## &lt;expression> [purple]#**;**#
 ----
 
 *Old syntax:*
@@ -234,37 +258,19 @@ relation Student[] students = Student!all() opposite-add: class;
 [purple]#**derived**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**=>**## &lt;expression> [purple]#**;**#
 ----
 
-=== Entity primitive query
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**field**# &lt;primitive> &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...][purple]##**)**## [purple]##**<=**## &lt;expression> [purple]#**;**#
-----
-
-*Old syntax:*
-
-[subs="quotes"]
-----
-[purple]#**query**# &lt;primitive> &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...][purple]##**)**## [purple]##**=>**## &lt;expression> [purple]#**;**#
-----
-
-=== Entity relation query
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...][purple]##**)**## [purple]##**<=**## &lt;expression> [purple]#**;**#
-----
-
-*Old syntax:*
+and
 
 [subs="quotes"]
 ----
 [purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...][purple]##**)**## [purple]##**=>**## &lt;expression> [purple]#**;**#
 ----
+
+[options="header", cols="1,2"]
+|====================
+|Annotation | Meaning
+|@Lazy      | Defer fetching the object(s) as long as it is possible.
+|@Eager     | Fetch the object(s) as soon as it is possible. Eager is not allowed together with argument list.
+|====================
 
 == Query
 
@@ -353,8 +359,7 @@ Removed from service object.
 
 [subs="quotes"]
 ----
-[purple]#**function**# &#x5B;&lt;type>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**## &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...]
-&#x5B; [purple]##**guard**## [purple]##**:**## &lt;expression> ] [purple]#**;**#
+[purple]#**function**# &#x5B;&lt;type>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**## &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...] [purple]#**;**#
 ----
 
 == View
@@ -393,7 +398,7 @@ Removed from service object.
 |====================
 |Parameter name | Parameter type        | Meaning
 |label          | string literal        | The label to show for the field.
-|icon           | string literal        | the name of the icon to show for the field.
+|icon           | string literal        | The name of the icon to show for the field.
 |enabled        | boolean expression    | If the field is enabled for editing.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field.
@@ -413,7 +418,7 @@ Removed from service object.
 |====================
 |Parameter name | Parameter type        | Meaning
 |label          | string literal        | The label to show for the field.
-|icon           | string literal        | the name of the icon to show for the field.
+|icon           | string literal        | The name of the icon to show for the field.
 |enabled        | boolean expression    | If the field is enabled for editing.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field.
@@ -441,7 +446,7 @@ Removed from service object.
 |====================
 |Parameter name | Parameter type        | Meaning
 |label          | string literal        | The label to show for the field.
-|icon           | string literal        | the name of the icon to show for the field.
+|icon           | string literal        | The name of the icon to show for the field.
 |enabled        | boolean expression    | If the field is enabled for editing.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field.
@@ -469,7 +474,7 @@ Removed from service object.
 |====================
 |Parameter name | Parameter type        | Meaning
 |label          | string literal        | The label to show for the field.
-|icon           | string literal        | the name of the icon to show for the field.
+|icon           | string literal        | The name of the icon to show for the field.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field.
 |====================
@@ -490,7 +495,7 @@ Removed from service object.
 |====================
 |Parameter name | Parameter type        | Meaning
 |label          | string literal        | The label to show for the field.
-|icon           | string literal        | the name of the icon to show for the field.
+|icon           | string literal        | The name of the icon to show for the field.
 |enabled        | boolean expression    | If the field is enabled for editing.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field.
@@ -519,7 +524,7 @@ Removed from service object.
 |====================
 |Parameter name | Parameter type        | Meaning
 |label          | string literal        | The label to show for the field.
-|icon           | string literal        | the name of the icon to show for the field.
+|icon           | string literal        | The name of the icon to show for the field.
 |enabled        | boolean expression    | If the field is enabled for editing.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field.
@@ -546,8 +551,8 @@ Removed from service object.
 |====================
 |Parameter name | Parameter type        | Meaning
 |label          | string literal        | The label to show for the field.
-|icon           | string literal        | the name of the icon to show for the field.
-|enabled        | boolean expression    | If the field is enabled for editing.
+|icon           | string literal        | The name of the icon to show for the field.
+|enabled        | boolean expression    | If the field is enabled for execution.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field.
 |====================
@@ -555,8 +560,13 @@ Removed from service object.
 [options="header", cols="1,1,2"]
 |====================
 |Parameter name | Parameter type        | Meaning
-|guard          | boolean expression    | If the user is allowed to execute the action.
 |resource       | access name           | The name of an access where the returned transfer object is available.
+|====================
+
+[options="header", cols="1,2"]
+|====================
+|Annotation | Meaning
+|@Delete    | Generates the default delete behavior.
 |====================
 
 === View submit
@@ -574,8 +584,8 @@ Removed from service object.
 |====================
 |Parameter name | Parameter type        | Meaning
 |label          | string literal        | The label to show for the field.
-|icon           | string literal        | the name of the icon to show for the field.
-|enabled        | boolean expression    | If the field is enabled for editing.
+|icon           | string literal        | The name of the icon to show for the field.
+|enabled        | boolean expression    | If the field is enabled for execution.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field.
 |====================
@@ -583,8 +593,13 @@ Removed from service object.
 [options="header", cols="1,1,2"]
 |====================
 |Parameter name | Parameter type        | Meaning
-|guard          | boolean expression    | If the user is allowed to submit the view.
 |resource       | access name           | The name of an access where the returned transfer object is available.
+|====================
+
+[options="header", cols="1,2"]
+|====================
+|Annotation | Meaning
+|@Save      | Generates the default save behavior.
 |====================
 
 == Row
@@ -604,23 +619,17 @@ Removed from service object.
 
 [subs="quotes"]
 ----
-[purple]#**column**# &lt;primitive> &lt;name> &#x5B;([purple]##**<=**##|[purple]##**<=>**##) &lt;expression>]
+[purple]#**column**# &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
 &#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
 ----
 
 [options="header", cols="1,1,2"]
 |====================
 |Parameter name | Parameter type        | Meaning
-|label          | string literal        | The label to show for the field.
-|icon           | string literal        | the name of the icon to show for the field.
-|enabled        | boolean expression    | If the field is enabled for editing.
-|hidden         | boolean expression    | If the field is shown to the user.
+|label          | string literal        | The label to show for the column.
+|icon           | string literal        | The name of the icon to show for the column.
+|hidden         | boolean expression    | If the column is shown to the user.
 |====================
-
-
-=== Row action
-
-See <<View action>>.
 
 == Actor
 
@@ -646,7 +655,7 @@ See <<View action>>.
 
 === Actor group
 
-A group can contain only menu elements.
+A group can contain only menu link or menu table elements.
 
 *Syntax:*
 
@@ -660,37 +669,57 @@ A group can contain only menu elements.
 [options="header", cols="1,1,2"]
 |====================
 |Parameter name | Parameter type        | Meaning
-|label          | string literal        | The label to show for the field.
-|icon           | string literal        | the name of the icon to show for the field.
-|enabled        | boolean expression    | If the field is enabled for editing.
-|hidden         | boolean expression    | If the field is shown to the user.
+|label          | string literal        | The label to show for the menu group.
+|icon           | string literal        | The name of the icon to show for the menu group.
+|enabled        | boolean expression    | If the menu group is enabled to the user.
+|hidden         | boolean expression    | If the menu group is shown to the user.
 |====================
 
-=== Actor menu
+=== Actor menu link
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**menu**# &lt;view> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+[purple]#**link**# &lt;view> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
 &#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
 ----
 
+[options="header", cols="1,1,2"]
+|====================
+|Parameter name | Parameter type        | Meaning
+|label          | string literal        | The label to show for the menu.
+|icon           | string literal        | the name of the icon to show for the menu.
+|enabled        | boolean expression    | If the menu is enabled to the user.
+|hidden         | boolean expression    | If the menu is shown to the user.
+|====================
+
+=== Actor menu table
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**table**# &lt;row>[purple]##**[]**## &lt;name> [purple]##**<=**## &lt;expression>
+&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
+----
 
 [options="header", cols="1,1,2"]
 |====================
 |Parameter name | Parameter type        | Meaning
-|label          | string literal        | The label to show for the field.
-|icon           | string literal        | the name of the icon to show for the field.
-|enabled        | boolean expression    | If the field is enabled for editing.
-|hidden         | boolean expression    | If the field is shown to the user.
+|label          | string literal        | The label to show for the menu.
+|icon           | string literal        | the name of the icon to show for the menu.
+|enabled        | boolean expression    | If the menu is enabled to the user.
+|hidden         | boolean expression    | If the menu is shown to the user.
 |====================
 
 [options="header", cols="1,1,2"]
 |====================
 |Parameter name | Parameter type        | Meaning
-|guard          | boolean expression    | The condition to allow the external user to access the service.
+|create         | View declaration      | The view to show for creating new element.
+|rows           | Numeric literal       | The number of rows shown in the table.
 |====================
+
 
 === Actor resource
 
@@ -701,9 +730,3 @@ A group can contain only menu elements.
 [purple]#**resource**# &lt;view> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
 &#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
 ----
-
-[options="header", cols="1,1,2"]
-|====================
-|Parameter name | Parameter type        | Meaning
-|guard          | boolean expression    | The condition to allow the external user to access the service.
-|====================
