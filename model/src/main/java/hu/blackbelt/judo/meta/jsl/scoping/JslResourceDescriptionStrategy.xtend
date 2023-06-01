@@ -12,11 +12,11 @@ import org.eclipse.xtext.naming.IQualifiedNameProvider
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import java.util.Map
 import java.util.HashMap
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration
 
 @Singleton
 class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy {
@@ -73,13 +73,13 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
                                         )
                                     )
 
-                                    if (m instanceof EntityRelationDeclaration) {
-                                        if (m.opposite instanceof EntityRelationOppositeInjected) {
-                                            val fqOpposite = m.opposite.fullyQualifiedName
+                                    if (m instanceof EntityStoredRelationDeclaration) {
+                                        if ((m as EntityStoredRelationDeclaration).opposite instanceof EntityRelationOppositeInjected) {
+                                            val fqOpposite = (m as EntityStoredRelationDeclaration).opposite.fullyQualifiedName
                                             if (fqOpposite !== null) {
                                                 acceptor.accept(
                                                     EObjectDescription::create(
-                                                        fqOpposite, m.opposite, m.opposite.indexInfo(m)
+                                                        fqOpposite, (m as EntityStoredRelationDeclaration).opposite, (m as EntityStoredRelationDeclaration).opposite.indexInfo(m)
                                                     )
                                                 )
                                             }
@@ -157,9 +157,9 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
                  }
              }
 
-             EntityRelationDeclaration: {
-                 if (object.opposite !== null && object.opposite instanceof EntityRelationOppositeInjected) {
-                     userData.put("oppositeName", (object.opposite as EntityRelationOppositeInjected).name)
+             EntityStoredRelationDeclaration: {
+                 if ((object as EntityStoredRelationDeclaration).opposite !== null && (object as EntityStoredRelationDeclaration).opposite instanceof EntityRelationOppositeInjected) {
+                     userData.put("oppositeName", ((object as EntityStoredRelationDeclaration).opposite as EntityRelationOppositeInjected).name)
                  }
              }
          }

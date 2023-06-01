@@ -9,14 +9,13 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.DateLiteral;
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedMemberDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryCall;
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected;
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredFieldDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral;
@@ -52,7 +51,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TypeDescription;
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnaryOperation;
-import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration;
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension;
 
 public class TypeInfo {
@@ -395,15 +393,18 @@ public class TypeInfo {
 			TypeInfo typeInfo = getTargetType( ((MemberReference) feature).getMember() );
 			typeInfo.modifier = typeInfo.modifier == TypeModifier.COLLECTION ? TypeModifier.COLLECTION : baseTypeInfo.modifier;
 			return typeInfo;
-		} else if (feature instanceof EntityQueryCall) {
-			if (!modelExtension.isResolvedReference(feature, JsldslPackage.ENTITY_QUERY_CALL__DECLARATION)) {
-				return baseTypeInfo;
-			}
-			TypeInfo typeInfo = getTargetType( (EntityMemberDeclaration) ((EntityQueryCall)feature).getDeclaration() );
-			typeInfo.modifier = typeInfo.modifier == TypeModifier.COLLECTION ? TypeModifier.COLLECTION : baseTypeInfo.modifier;
-			return typeInfo;
+		}
 		
-		} else if (feature instanceof FunctionCall) {
+//		 else if (feature instanceof EntityQueryCall) {
+//			if (!modelExtension.isResolvedReference(feature, JsldslPackage.ENTITY_QUERY_CALL__DECLARATION)) {
+//				return baseTypeInfo;
+//			}
+//			TypeInfo typeInfo = getTargetType( (EntityMemberDeclaration) ((EntityQueryCall)feature).getDeclaration() );
+//			typeInfo.modifier = typeInfo.modifier == TypeModifier.COLLECTION ? TypeModifier.COLLECTION : baseTypeInfo.modifier;
+//			return typeInfo;
+//		} 
+		 
+		 else if (feature instanceof FunctionCall) {
 			if (!modelExtension.isResolvedReference(feature, JsldslPackage.FUNCTION_CALL__DECLARATION)) {
 				return baseTypeInfo;
 			}
@@ -495,7 +496,7 @@ public class TypeInfo {
 		
 	private static TypeInfo getTargetType(QueryCall queryCall) {
 		QueryDeclaration queryDeclaration = queryCall.getDeclaration();
-		return new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isIsMany(), false);
+		return new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isMany(), false);
 	}
 	
 	private static TypeInfo getTargetType(NavigationBaseDeclarationReference navigationBaseDeclarationReference) {
@@ -530,7 +531,7 @@ public class TypeInfo {
 		if (navigationTarget instanceof EntityMemberDeclaration) {
 			return getTargetType((EntityMemberDeclaration)navigationTarget);
 		} else if (navigationTarget instanceof EntityRelationOppositeInjected) {
-			return new TypeInfo((EntityDeclaration) navigationTarget.eContainer().eContainer(), ((EntityRelationOppositeInjected) navigationTarget).isIsMany(), false);
+			return new TypeInfo((EntityDeclaration) navigationTarget.eContainer().eContainer(), ((EntityRelationOppositeInjected) navigationTarget).isMany(), false);
 		}
 
 		throw new IllegalArgumentException("Could not determinate type for navigation target:" + navigationTarget);
@@ -591,23 +592,31 @@ public class TypeInfo {
 		if (entityMemberDeclaration == null) {
 			return new TypeInfo(BaseType.UNDEFINED, false);
 		}
-		
-		if (entityMemberDeclaration instanceof EntityFieldDeclaration) {
-			EntityFieldDeclaration entityFieldDeclaration = (EntityFieldDeclaration)entityMemberDeclaration;
-			return new TypeInfo(entityFieldDeclaration.getReferenceType(), entityFieldDeclaration.isIsMany(), false);
-		} else if (entityMemberDeclaration instanceof EntityRelationDeclaration) {
-			EntityRelationDeclaration entityRelationDeclaration = (EntityRelationDeclaration)entityMemberDeclaration;
-			return new TypeInfo(entityRelationDeclaration.getReferenceType(), entityRelationDeclaration.isIsMany(), false);
-		} else if (entityMemberDeclaration instanceof EntityDerivedDeclaration) {
-			EntityDerivedDeclaration entityDerivedDeclaration = (EntityDerivedDeclaration)entityMemberDeclaration;
-			return new TypeInfo((SingleType)entityDerivedDeclaration.getReferenceType(), entityDerivedDeclaration.isIsMany(), false);
-		}
-//		else if (entityMemberDeclaration instanceof EntityQueryDeclaration) {
-//			EntityQueryDeclaration entityQueryDeclaration = (EntityQueryDeclaration)entityMemberDeclaration;
-//			return new TypeInfo(entityQueryDeclaration.getReferenceType(), entityQueryDeclaration.isIsMany(), false);
+
+		return new TypeInfo(entityMemberDeclaration.getReferenceType(), entityMemberDeclaration.isMany(), false);
+
+//		EntityMemberDeclaration entityMember = (EntityMemberDeclaration)entityMemberDeclaration;
+
+//		if (entityMemberDeclaration instanceof EntityStoredFieldDeclaration) {
+////			EntityMember entityMember = (EntityMember)entityMemberDeclaration;
+//			return new TypeInfo(entityMemberDeclaration.getReferenceType(), entityMemberDeclaration.isMany(), false);
+//		} else if (entityMemberDeclaration instanceof EntityStoredRelationDeclaration) {
+////			EntityMember entityMember = (EntityMember)entityMemberDeclaration;
+//			return new TypeInfo(entityMemberDeclaration.getReferenceType(), entityMemberDeclaration.isMany(), false);
+//		} else if (entityMemberDeclaration instanceof EntityCalculatedMemberDeclaration) {
+////			EntityDerivedDeclaration entityDerivedDeclaration = (EntityDerivedDeclaration)entityMemberDeclaration;
+//			return new TypeInfo(entityMemberDeclaration.getReferenceType(), entityMemberDeclaration.isMany(), false);
+//			
+////			if (entityMemberDeclaration.getReferenceType() instanceof SingleType) {
+////				return new TypeInfo(entityMemberDeclaration.getReferenceType(), entityMemberDeclaration.isMany(), false);
+////			}
 //		}
-		
-		return new TypeInfo(BaseType.UNDEFINED, false);
+////		else if (entityMemberDeclaration instanceof EntityQueryDeclaration) {
+////			EntityQueryDeclaration entityQueryDeclaration = (EntityQueryDeclaration)entityMemberDeclaration;
+////			return new TypeInfo(entityQueryDeclaration.getReferenceType(), entityQueryDeclaration.isIsMany(), false);
+////		}
+//		
+//		return new TypeInfo(BaseType.UNDEFINED, false);
 	}
 
 	public static TypeInfo getTargetType(QueryDeclaration queryDeclaration) {
@@ -615,7 +624,7 @@ public class TypeInfo {
 			return new TypeInfo(BaseType.UNDEFINED, false);
 		}
 
-		return new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isIsMany(), false);
+		return new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isMany(), false);
 	}
 
 	public static TypeInfo getTargetType(FunctionDeclaration functionDeclaration) {

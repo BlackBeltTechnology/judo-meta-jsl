@@ -5,13 +5,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import com.google.inject.Singleton
 import com.google.inject.Inject
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorField
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import java.util.Collection
 import java.util.HashSet
 import java.util.Set
@@ -27,6 +24,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceReturnDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceReturnAlternateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedMemberDeclaration
 
 @Singleton
 class JsldslDefaultPlantUMLDiagramGenerator {
@@ -123,8 +123,8 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         }
     '''
 
-    def cardinalityRepresentation(EntityRelationDeclaration it)
-    '''[«IF required»1«ELSE»0«ENDIF»..«IF isIsMany»*«ELSE»1«ENDIF»]'''
+    def cardinalityRepresentation(EntityStoredRelationDeclaration it)
+    '''[«IF required»1«ELSE»0«ENDIF»..«IF isMany»*«ELSE»1«ENDIF»]'''
 
 
     def dataTypeRepresentation(DataTypeDeclaration it)
@@ -170,18 +170,18 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '''«FOR extend : extends BEFORE 'extends ' SEPARATOR ', '»«extend.name»«ENDFOR»'''
 
     def entityStereotypeFragment(EntityDeclaration it)
-    '''«IF isIsAbstract» << Abstract >> «ELSE» << Entity >>«ENDIF»'''
+    '''«IF isAbstract» << Abstract >> «ELSE» << Entity >>«ENDIF»'''
 
-    def entityFieldCardinalityFragment(EntityFieldDeclaration it)
-    '''«IF isIsMany»[0..*]«ENDIF»'''
+    def entityFieldCardinalityFragment(EntityStoredFieldDeclaration it)
+    '''«IF isMany»[0..*]«ENDIF»'''
 
-    def entityFieldModifierFragment(EntityFieldDeclaration it)
+    def entityFieldModifierFragment(EntityStoredFieldDeclaration it)
     '''«IF it instanceof EntityDeclaration»#«ELSE»+«ENDIF»'''
 
-    def entityFieldNameFragment(EntityFieldDeclaration it)
+    def entityFieldNameFragment(EntityStoredFieldDeclaration it)
     '''«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»'''
 
-    def entityFieldRepresentation(EntityFieldDeclaration it)
+    def entityFieldRepresentation(EntityStoredFieldDeclaration it)
     '''«entityFieldModifierFragment»«entityFieldNameFragment» : «referenceType.name»«entityFieldCardinalityFragment»'''
 
 //    def entityIdentifierRepresentation(EntityIdentifierDeclaration it)
@@ -190,8 +190,8 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 //    def entityQueryParameterFragment(EntityQueryDeclaration it)
 //    '''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.name» =«param.^default»«ENDFOR»'''
 
-    def entityDerivedRepresentation(EntityDerivedDeclaration it)
-    '''~<i>«name»</i> : «referenceType.name»«IF isIsMany»[0..*]«ENDIF»'''
+    def entityDerivedRepresentation(EntityCalculatedMemberDeclaration it)
+    '''~<i>«name»</i> : «referenceType.name»«IF isMany»[0..*]«ENDIF»'''
 
 //    def entityQueryRepresentation(EntityQueryDeclaration it)
 //    '''~«name»«entityQueryParameterFragment» : «referenceType.name»[0..*]'''
@@ -272,12 +272,12 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     def functionUnionReturnConcatenated(ServiceReturnAlternateDeclaration it)
     '''«it.referenceTypes.map[r | r.referenceType.name].join(' | ')»'''
     
-    def functionModifierFragment(ServiceFunctionDeclaration it)
-    '''«IF it.guard !== null»~«ELSE»+«ENDIF»'''
-    
-    def functionRepresentation(ServiceFunctionDeclaration it)
-    '''{method}«functionModifierFragment»«functionNameFragment»(«IF it.parameter !== null»«it.parameter.referenceType.name» «it.parameter.name»«ENDIF») «IF it.^return instanceof ServiceReturnDeclaration»: «it.^return.referenceType.name»«ENDIF»«IF it.alternateReturn !== null»: «it.alternateReturn.functionUnionReturnConcatenated»«ENDIF»
-	'''
+//    def functionModifierFragment(ServiceFunctionDeclaration it)
+//    '''«IF it.guard !== null»~«ELSE»+«ENDIF»'''
+//    
+//    def functionRepresentation(ServiceFunctionDeclaration it)
+//    '''{method}«functionModifierFragment»«functionNameFragment»(«IF it.parameter !== null»«it.parameter.referenceType.name» «it.parameter.name»«ENDIF») «IF it.^return instanceof ServiceReturnDeclaration»: «it.^return.referenceType.name»«ENDIF»«IF it.alternateReturn !== null»: «it.alternateReturn.functionUnionReturnConcatenated»«ENDIF»
+//	'''
     
 //    def serviceRepresentation(ServiceDeclaration it)
 //    '''
@@ -344,10 +344,10 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         }
     }
 
-    def entityRelationRepresentation(EntityRelationDeclaration it, ModelDeclaration base)
+    def entityRelationRepresentation(EntityStoredRelationDeclaration it, ModelDeclaration base)
     '''« base.getExternalNameOfEntityDeclaration(eContainer as EntityDeclaration)» «
         IF opposite !== null» «opposite.entityRelationOppositeRepresentation» «ELSE» --> «ENDIF
-        » "«name»\n«cardinalityRepresentation»" «base.getExternalNameOfEntityDeclaration(referenceType)»'''
+        » "«name»\n«cardinalityRepresentation»" «base.getExternalNameOfEntityDeclaration(referenceType as EntityDeclaration)»'''
 
     def generate(ModelDeclaration it, String style) '''
     @startuml «name?:"none"»
@@ -446,7 +446,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         for (entity : it.entityDeclarations) {
             for (relation : entity.relations) {
                 if (relation.referenceType?.parentContainer(ModelDeclaration)?.name !== it.name) {
-                    externalEntities.add(relation.referenceType)
+                    externalEntities.add(relation.referenceType as EntityDeclaration)
                 }
             }
             for (superType : entity.extends) {

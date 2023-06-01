@@ -3,14 +3,11 @@ package hu.blackbelt.judo.meta.jsl.util
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.eclipse.emf.ecore.EObject
 import com.google.inject.Singleton
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import java.util.Collection
 import java.util.ArrayList
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import java.util.LinkedList
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import java.util.HashSet
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
@@ -46,6 +43,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
 //import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedMemberDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -94,31 +94,31 @@ class JslDslModelExtension {
         return res
     }
 
-    def getAllOppositeRelations(EntityRelationDeclaration relation) {
+    def getAllOppositeRelations(EntityStoredRelationDeclaration relation) {
         relation.getAllOppositeRelations(null)
     }
 
-    def getValidOppositeRelations(EntityRelationDeclaration relation) {
+    def getValidOppositeRelations(EntityStoredRelationDeclaration relation) {
         relation.getValidOppositeRelations(null)
     }
 
-    def getValidOppositeRelations(EntityRelationDeclaration relation, Boolean single) {
-        relation.referenceType.getAllRelations(single).filter[r | relation.isSelectableForRelation(r)].toList
+    def getValidOppositeRelations(EntityStoredRelationDeclaration relation, Boolean single) {
+        (relation.referenceType as EntityDeclaration).getAllRelations(single).filter[r | relation.isSelectableForRelation(r)].toList
     }
 
-    def getAllOppositeRelations(EntityRelationDeclaration relation, Boolean single) {
-        relation.referenceType.getAllRelations(single)
+    def getAllOppositeRelations(EntityStoredRelationDeclaration relation, Boolean single) {
+        (relation.referenceType as EntityDeclaration).getAllRelations(single)
     }
 
-    def Collection<EntityRelationDeclaration> getAllRelations(EntityDeclaration entity) {
+    def Collection<EntityStoredRelationDeclaration> getAllRelations(EntityDeclaration entity) {
         entity.getAllRelations(null)
     }
 
-    def Collection<EntityRelationDeclaration> getAllRelations(EntityDeclaration entity, Boolean single) {
+    def Collection<EntityStoredRelationDeclaration> getAllRelations(EntityDeclaration entity, Boolean single) {
         entity.getAllRelations(single, new LinkedList, new LinkedList)
     }
 
-    private def Collection<EntityRelationDeclaration> getAllRelations(EntityDeclaration entity, Boolean single, Collection<EntityRelationDeclaration> collected, Collection<EntityDeclaration> visited) {
+    private def Collection<EntityStoredRelationDeclaration> getAllRelations(EntityDeclaration entity, Boolean single, Collection<EntityStoredRelationDeclaration> collected, Collection<EntityDeclaration> visited) {
         if (entity !== null) {
             visited.add(entity)
             collected.addAll(
@@ -145,7 +145,7 @@ class JslDslModelExtension {
         return asEntityRelationOppositeReferenced?.oppositeType
     }
 
-    def isSelectableForRelation(EntityRelationDeclaration currentRelation, EntityRelationDeclaration selectableRelation) {
+    def isSelectableForRelation(EntityStoredRelationDeclaration currentRelation, EntityStoredRelationDeclaration selectableRelation) {    	
         if (currentRelation.opposite === null) {
             return false
         }
@@ -190,7 +190,7 @@ class JslDslModelExtension {
              return false;
          }
         if (object instanceof Cardinality) {
-            object.isIsMany
+            object.isMany
         } else {
             throw new IllegalArgumentException("Object is not Cardinality: " + object)
         }
@@ -278,8 +278,8 @@ class JslDslModelExtension {
         return found;
     }
 
-    def Collection<EntityRelationDeclaration> getRelations(EntityDeclaration it) {
-        members.filter[m | m instanceof EntityRelationDeclaration].map[d | d as EntityRelationDeclaration].toList
+    def Collection<EntityStoredRelationDeclaration> getRelations(EntityDeclaration it) {
+        members.filter[m | m instanceof EntityStoredRelationDeclaration].map[d | d as EntityStoredRelationDeclaration].toList
     }
 
     def Collection<EntityDeclaration> entityDeclarations(ModelDeclaration it) {
@@ -302,12 +302,12 @@ class JslDslModelExtension {
         declarations.filter[d | d instanceof ErrorDeclaration].map[d | d as ErrorDeclaration].toList
     }
 
-    def Collection<EntityFieldDeclaration> fields(EntityDeclaration it) {
-        members.filter[d | d instanceof EntityFieldDeclaration].map[d | d as EntityFieldDeclaration].toList
+    def Collection<EntityStoredFieldDeclaration> fields(EntityDeclaration it) {
+        members.filter[d | d instanceof EntityStoredFieldDeclaration].map[d | d as EntityStoredFieldDeclaration].toList
     }
 
-    def Collection<EntityDerivedDeclaration> derivedes(EntityDeclaration it) {
-        members.filter[d | d instanceof EntityDerivedDeclaration].map[d | d as EntityDerivedDeclaration].toList
+    def Collection<EntityCalculatedMemberDeclaration> derivedes(EntityDeclaration it) {
+        members.filter[d | d instanceof EntityCalculatedMemberDeclaration].map[d | d as EntityCalculatedMemberDeclaration].toList
     }
 
 //    def Collection<EntityQueryDeclaration> queries(EntityDeclaration it) {
@@ -322,13 +322,13 @@ class JslDslModelExtension {
 //        members.filter[d | d instanceof EntityIdentifierDeclaration].map[d | d as EntityIdentifierDeclaration].toList
 //    }
 
-    def Collection<EntityFieldDeclaration> allFields(EntityDeclaration it) {
-        allMembers.filter[d | d instanceof EntityFieldDeclaration].map[d | d as EntityFieldDeclaration].toList
+    def Collection<EntityStoredFieldDeclaration> allFields(EntityDeclaration it) {
+        allMembers.filter[d | d instanceof EntityStoredFieldDeclaration].map[d | d as EntityStoredFieldDeclaration].toList
     }
 
-    def Collection<EntityDerivedDeclaration> allDerivedes(EntityDeclaration it) {
-        allMembers.filter[d | d instanceof EntityDerivedDeclaration].map[d | d as EntityDerivedDeclaration].toList
-    }
+//    def Collection<EntityDerivedDeclaration> allDerivedes(EntityDeclaration it) {
+//        allMembers.filter[d | d instanceof EntityDerivedDeclaration].map[d | d as EntityDerivedDeclaration].toList
+//    }
 
 //    def Collection<EntityQueryDeclaration> allQueries(EntityDeclaration it) {
 //        allMembers.filter[d | d instanceof EntityQueryDeclaration].map[d | d as EntityQueryDeclaration].toList
@@ -374,8 +374,8 @@ class JslDslModelExtension {
         return NodeModelUtils.findActualNodeFor(it)?.getText()
     }
 
-    def Collection<EntityRelationDeclaration> getAllRelations(ModelDeclaration it, boolean singleInstanceOfBidirectional) {
-        val List<EntityRelationDeclaration> relations = new ArrayList()
+    def Collection<EntityStoredRelationDeclaration> getAllRelations(ModelDeclaration it, boolean singleInstanceOfBidirectional) {
+        val List<EntityStoredRelationDeclaration> relations = new ArrayList()
 
         for (entity : entityDeclarations) {
             for (relation : entity.relations) {

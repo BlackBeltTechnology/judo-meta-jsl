@@ -9,7 +9,6 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 import org.eclipse.xtext.Assignment
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
@@ -23,6 +22,7 @@ import org.eclipse.xtext.AbstractRule
 import org.eclipse.jface.text.contentassist.ICompletionProposal
 import org.eclipse.xtext.Group
 import org.eclipse.xtext.ParserRule
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
@@ -85,8 +85,8 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
     ) {
         // System.out.println("model: " + model + " assignment: " + assignment + " context: " + context)
         lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor,
-            [ ((model as EntityRelationOpposite).eContainer as EntityRelationDeclaration)
-                .isSelectableForRelation(EObjectOrProxy as EntityRelationDeclaration)
+            [ ((model as EntityRelationOpposite).eContainer as EntityStoredRelationDeclaration)
+                .isSelectableForRelation(EObjectOrProxy as EntityStoredRelationDeclaration)
             ]
         );
     }

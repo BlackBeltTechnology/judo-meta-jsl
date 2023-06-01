@@ -9,7 +9,6 @@ import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import org.eclipse.xtext.validation.CheckType
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import hu.blackbelt.judo.meta.jsl.scoping.JslDslIndex
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
@@ -21,7 +20,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierScale
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
@@ -29,7 +27,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.MimeType
 import java.util.regex.Pattern
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
 import java.util.Arrays
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
 import hu.blackbelt.judo.meta.jsl.runtime.TypeInfo
 import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnaryOperation
@@ -44,7 +41,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.QueryArgument
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.common.util.EList
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 import org.eclipse.emf.ecore.util.EcoreUtil
@@ -61,18 +57,12 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationMark
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityOperationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityOperationReturnDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityOperationParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Transferable
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowDeclaration
-//import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceFunctionDeclaration
-//import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceMemberDeclaration
-//import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDefault
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferConstructorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
@@ -88,11 +78,17 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ViewSubmitDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTabsDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowColumnDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorGroupDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceAccessDeclaration
+
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
+
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedMemberDeclaration
+
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedRelationDeclaration
 
 /**
  * This class contains custom validation rules.
@@ -150,6 +146,8 @@ class JslDslValidator extends AbstractJslDslValidator {
     public static val ENUM_ORDINAL_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "EnumOrdinalIsTooLarge"
     public static val JAVA_BEAN_NAMING_ISSUE = ISSUE_CODE_PREFIX + "JavaBeanNamingIssue"
     public static val DUPLICATE_FIELD_MAPPING = ISSUE_CODE_PREFIX + "DuplicateFieldMapping"
+    public static val DUPLICATE_CONSTRUCTOR = ISSUE_CODE_PREFIX + "DuplicateConstructor"
+    public static val DUPLICATE_SUBMIT = ISSUE_CODE_PREFIX + "DuplicateSubmit"
 
     public static val MEMBER_NAME_LENGTH_MAX = 128
     public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -247,15 +245,9 @@ class JslDslValidator extends AbstractJslDslValidator {
         while (featureIterator.hasNext) {
             val EObject obj = featureIterator.next()
 
-            if (obj instanceof MemberReference && (obj as MemberReference).member instanceof EntityDerivedDeclaration) {
-                val EntityDerivedDeclaration derived = (obj as MemberReference).member as EntityDerivedDeclaration
-                if (derived.expression !== null) {
-                    findExpressionCycle(derived.expression, visited)
-                }
-            } else if (obj instanceof EntityQueryCall) {
-                if (obj.declaration !== null && obj.declaration.expression !== null) {
-                    findExpressionCycle(obj.declaration.expression, visited)
-                }
+            if (obj instanceof MemberReference && (obj as MemberReference).member instanceof EntityCalculatedMemberDeclaration) {
+                val EntityCalculatedMemberDeclaration member = (obj as MemberReference).member as EntityCalculatedMemberDeclaration
+                findExpressionCycle(member.getterExpr, visited)
             }
         }
 
@@ -263,19 +255,17 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
 
     @Check
-    def checkCyclicDerivedExpression(EntityDerivedDeclaration derived) {
-        if (derived.expression !== null) {
-            try {
-                findExpressionCycle(derived.expression, new ArrayList<Expression>())
-            } catch (IllegalCallerException e) {
-                error(
-                    "Cyclic expression at '" + derived.name + "'.",
-                    JsldslPackage::eINSTANCE.entityDerivedDeclaration_Expression,
-                    EXPRESSION_CYCLE,
-                    derived.name
-                )
-                return
-            }
+    def checkCyclicDerivedExpression(EntityCalculatedMemberDeclaration member) {
+        try {
+            findExpressionCycle(member.getterExpr, new ArrayList<Expression>())
+        } catch (IllegalCallerException e) {
+            error(
+                "Cyclic expression at '" + member.name + "'.",
+                JsldslPackage::eINSTANCE.entityCalculatedMemberDeclaration_GetterExpr,
+                EXPRESSION_CYCLE,
+                member.name
+            )
+            return
         }
     }
 
@@ -314,14 +304,29 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
 
     @Check
-    def checkSelfInDefaultExpression(EntityFieldDeclaration field) {
-        if (field.defaultExpression !== null) {
-            if (!this.isStaticExpression(field.defaultExpression)) {
+    def checkSelfInFieldDefaultExpression(EntityStoredFieldDeclaration member) {
+        if (member.defaultExpr !== null) {
+            if (!this.isStaticExpression(member.defaultExpr)) {
                 error(
-                    "Self is not allowed in default expression at '" + field.name + "'.",
-                    JsldslPackage::eINSTANCE.entityFieldDeclaration_DefaultExpression,
+                    "Self is not allowed in default expression at '" + member.name + "'.",
+                    JsldslPackage::eINSTANCE.entityStoredFieldDeclaration_DefaultExpr,
                     SELF_NOT_ALLOWED,
-                    field.name
+                    member.name
+                )
+                return
+            }
+        }
+    }
+
+    @Check
+    def checkSelfInRelationDefaultExpression(EntityStoredRelationDeclaration member) {
+        if (member.defaultExpr !== null) {
+            if (!this.isStaticExpression(member.defaultExpr)) {
+                error(
+                    "Self is not allowed in default expression at '" + member.name + "'.",
+                    JsldslPackage::eINSTANCE.entityStoredRelationDeclaration_DefaultExpr,
+                    SELF_NOT_ALLOWED,
+                    member.name
                 )
                 return
             }
@@ -452,10 +457,12 @@ class JslDslValidator extends AbstractJslDslValidator {
 
         if (container instanceof QueryCall) {
             arguments = (container as QueryCall).arguments;
-        } else {
-            arguments = (container as EntityQueryCall).arguments;
         }
-
+        
+        if (container instanceof MemberReference) {
+            arguments = (container as MemberReference).arguments;
+        }
+        
         if (arguments.filter[a | a.declaration.isEqual(argument.declaration)].size > 1) {
             error("Duplicate query parameter:" + argument.declaration.name,
                 JsldslPackage::eINSTANCE.queryArgument_Declaration,
@@ -464,22 +471,22 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkEntityDerivedRequiredArguments(EntityQueryCall entityQueryCall) {
-        val EntityDerivedDeclaration entityDerivedDeclaration = entityQueryCall.declaration;
-        val Iterator<QueryParameterDeclaration> itr = entityDerivedDeclaration.parameters.iterator;
-
-        while (itr.hasNext) {
-            val QueryParameterDeclaration declaration = itr.next;
-
-            if (declaration.getDefault() === null && !entityQueryCall.arguments.exists[a | a.declaration.isEqual(declaration)]) {
-                error("Missing required query parameter:" + declaration.name,
-                    JsldslPackage::eINSTANCE.entityQueryCall_Arguments,
-                    MISSING_REQUIRED_PARAMETER,
-                    JsldslPackage::eINSTANCE.entityQueryCall.name)
-            }
-        }
-    }
+//    @Check
+//    def checkEntityDerivedRequiredArguments(EntityQueryCall entityQueryCall) {
+//        val EntityDerivedDeclaration entityDerivedDeclaration = entityQueryCall.declaration;
+//        val Iterator<QueryParameterDeclaration> itr = entityDerivedDeclaration.parameters.iterator;
+//
+//        while (itr.hasNext) {
+//            val QueryParameterDeclaration declaration = itr.next;
+//
+//            if (declaration.getDefault() === null && !entityQueryCall.arguments.exists[a | a.declaration.isEqual(declaration)]) {
+//                error("Missing required query parameter:" + declaration.name,
+//                    JsldslPackage::eINSTANCE.entityQueryCall_Arguments,
+//                    MISSING_REQUIRED_PARAMETER,
+//                    JsldslPackage::eINSTANCE.entityQueryCall.name)
+//            }
+//        }
+//    }
 
     @Check
     def checkQueryRequiredArguments(QueryCall queryCall) {
@@ -653,8 +660,8 @@ class JslDslValidator extends AbstractJslDslValidator {
             EnumLiteral:                    error = !mark.declaration.targets.exists[t | t.enumLiteral]
 
             EntityDeclaration:              error = !mark.declaration.targets.exists[t | t.entity]
-            EntityFieldDeclaration:         error = !mark.declaration.targets.exists[t | t.entityField]
-            EntityRelationDeclaration:      error = !mark.declaration.targets.exists[t | t.entityRelation]
+//            EntityFieldDeclaration:         error = !mark.declaration.targets.exists[t | t.entityField]
+//            EntityRelationDeclaration:      error = !mark.declaration.targets.exists[t | t.entityRelation]
 //            EntityIdentifierDeclaration:    error = !mark.declaration.targets.exists[t | t.entityIdentifier]
 //            EntityDerivedDeclaration:       error = !mark.declaration.targets.exists[t | t.entityDerived]
 //            EntityQueryDeclaration:         error = !mark.declaration.targets.exists[t | t.entityQuery]
@@ -670,7 +677,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 //            ServiceFunctionDeclaration:     error = !mark.declaration.targets.exists[t | t.serviceFunction]
 
             ActorDeclaration:               error = !mark.declaration.targets.exists[t | t.actor]
-            ActorMenuDeclaration:           error = !mark.declaration.targets.exists[t | t.actorMenu]
+//            ActorMenuDeclaration:           error = !mark.declaration.targets.exists[t | t.actorMenu]
             ActorGroupDeclaration:          error = !mark.declaration.targets.exists[t | t.actorGroup]
 
             QueryDeclaration:               error = !mark.declaration.targets.exists[t | t.query]
@@ -687,9 +694,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 
             RowDeclaration:                 error = !mark.declaration.targets.exists[t | t.row]
             RowColumnDeclaration:           error = !mark.declaration.targets.exists[t | t.rowColumn]
-
-            ServiceDeclaration:             error = !mark.declaration.targets.exists[t | t.service]
-            ServiceAccessDeclaration:       error = !mark.declaration.targets.exists[t | t.serviceAccess]
         }
 
         if (error) {
@@ -699,35 +703,35 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkAssociation(EntityRelationDeclaration relation) {
-        // System.out.println("checkAssociationOpposite: " + relation + " opposite: " + relation?.opposite + " type: " + relation?.opposite?.oppositeType)
-
-        // Check the referenced opposite relation type reference back to this relation
-        if (relation.opposite?.oppositeType !== null) {
-            // System.out.println(" -- " + relation + " --- " + relation.opposite?.oppositeType?.opposite?.oppositeType)
-            if (relation !== relation.opposite?.oppositeType?.opposite?.oppositeType) {
-                error("The relation's opposite does not match '" + relation.opposite.oppositeType.name + "'.",
-                    JsldslPackage::eINSTANCE.entityRelationDeclaration_Opposite,
-                    OPPOSITE_TYPE_MISMATH,
-                    relation.name)
-            }
-        }
-
-        // Check this relation without oppoite type is referenced from another relation in the relation target type
-        if (relation.opposite === null) {
-            val selectableRelatations = relation.referenceType.getAllRelations(null)
-            val relationReferencedBack = selectableRelatations.filter[r | r.opposite !== null && r.opposite.oppositeType === relation].toList
-            // System.out.println(" -- " + relation + " --- Referenced back: " + relationReferencedBack.map[r | r.eContainer.fullyQualifiedName + "#" + r.name].join(", "))
-            if (!relationReferencedBack.empty) {
-                error("The relation does not declare an opposite relation, but the following relations refer to this relation as opposite: " +
-                    relationReferencedBack.map[r | "'" + r.eContainer.fullyQualifiedName.toString("::") + "#" + r.name + "'"].join(", "),
-                    JsldslPackage::eINSTANCE.entityRelationDeclaration_Opposite,
-                    OPPOSITE_TYPE_MISMATH,
-                    relation.name)
-            }
-        }
-    }
+//    @Check
+//    def checkAssociation(EntityRelationDeclaration relation) {
+//        // System.out.println("checkAssociationOpposite: " + relation + " opposite: " + relation?.opposite + " type: " + relation?.opposite?.oppositeType)
+//
+//        // Check the referenced opposite relation type reference back to this relation
+//        if (relation.opposite?.oppositeType !== null) {
+//            // System.out.println(" -- " + relation + " --- " + relation.opposite?.oppositeType?.opposite?.oppositeType)
+//            if (relation !== relation.opposite?.oppositeType?.opposite?.oppositeType) {
+//                error("The relation's opposite does not match '" + relation.opposite.oppositeType.name + "'.",
+//                    JsldslPackage::eINSTANCE.entityRelationDeclaration_Opposite,
+//                    OPPOSITE_TYPE_MISMATH,
+//                    relation.name)
+//            }
+//        }
+//
+//        // Check this relation without oppoite type is referenced from another relation in the relation target type
+//        if (relation.opposite === null) {
+//            val selectableRelatations = relation.referenceType.getAllRelations(null)
+//            val relationReferencedBack = selectableRelatations.filter[r | r.opposite !== null && r.opposite.oppositeType === relation].toList
+//            // System.out.println(" -- " + relation + " --- Referenced back: " + relationReferencedBack.map[r | r.eContainer.fullyQualifiedName + "#" + r.name].join(", "))
+//            if (!relationReferencedBack.empty) {
+//                error("The relation does not declare an opposite relation, but the following relations refer to this relation as opposite: " +
+//                    relationReferencedBack.map[r | "'" + r.eContainer.fullyQualifiedName.toString("::") + "#" + r.name + "'"].join(", "),
+//                    JsldslPackage::eINSTANCE.entityRelationDeclaration_Opposite,
+//                    OPPOSITE_TYPE_MISMATH,
+//                    relation.name)
+//            }
+//        }
+//    }
 
     @Check
     def checkCycleInInheritence(EntityDeclaration entity) {
@@ -764,9 +768,9 @@ class JslDslValidator extends AbstractJslDslValidator {
     @Check
     def checkForDuplicateNameForAddedOpposite(EntityRelationOppositeInjected opposite) {
         if (opposite.name !== null && !opposite.name.blank) {
-            val relation = opposite.eContainer as EntityRelationDeclaration
-            if (relation.referenceType.getMemberNames.contains(opposite.name)) {
-                error("Duplicate member name at the opposite side of '" + relation.name + "':'" + opposite.name + "'",
+            val member = opposite.eContainer as EntityStoredRelationDeclaration
+            if (member.referenceType instanceof EntityDeclaration && (member.referenceType as EntityDeclaration).getMemberNames.contains(opposite.name)) {
+                error("Duplicate member name at the opposite side of '" + member.name + "':'" + opposite.name + "'",
                     opposite.nameAttribute,
                     DUPLICATE_MEMBER_NAME,
                     opposite.name)
@@ -939,26 +943,26 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkRequiredOnEntityMemberDeclaration(EntityMemberDeclaration member) {
-        if (member instanceof EntityFieldDeclaration) {
-            val field = member
-            if (field.isIsMany && field.required) {
-                error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'.",
-                    JsldslPackage::eINSTANCE.entityFieldDeclaration_Required,
-                    USING_REQUIRED_WITH_IS_MANY,
-                    JsldslPackage::eINSTANCE.entityFieldDeclaration.name)
-            }
-        } else if (member instanceof EntityRelationDeclaration) {
-            val relation = member
-            if (relation.isIsMany && relation.required) {
-                error("Collection typed relation: '" + relation.name + "' cannot have keyword: 'required'.",
-                    JsldslPackage::eINSTANCE.entityRelationDeclaration_Required,
-                    USING_REQUIRED_WITH_IS_MANY,
-                    JsldslPackage::eINSTANCE.entityRelationDeclaration.name)
-            }
-        }
-    }
+//    @Check
+//    def checkRequiredOnEntityMemberDeclaration(EntityMemberDeclaration member) {
+//        if (member instanceof EntityFieldDeclaration) {
+//            val field = member
+//            if (field.isIsMany && field.required) {
+//                error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'.",
+//                    JsldslPackage::eINSTANCE.entityFieldDeclaration_Required,
+//                    USING_REQUIRED_WITH_IS_MANY,
+//                    JsldslPackage::eINSTANCE.entityFieldDeclaration.name)
+//            }
+//        } else if (member instanceof EntityRelationDeclaration) {
+//            val relation = member
+//            if (relation.isIsMany && relation.required) {
+//                error("Collection typed relation: '" + relation.name + "' cannot have keyword: 'required'.",
+//                    JsldslPackage::eINSTANCE.entityRelationDeclaration_Required,
+//                    USING_REQUIRED_WITH_IS_MANY,
+//                    JsldslPackage::eINSTANCE.entityRelationDeclaration.name)
+//            }
+//        }
+//    }
 
     @Check
     def checkTenaryOperation(TernaryOperation it) {
@@ -1149,18 +1153,29 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
 
     @Check
-    def checkEntityField(EntityFieldDeclaration field) {
+    def checkEntityStoredFieldMember(EntityStoredFieldDeclaration member) {
         try {
-            if (field.defaultExpression !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.defaultExpression))) {
-                error("Type mismatch. Default value expression does not match field type at '" + field.name + "'.",
-                    JsldslPackage::eINSTANCE.entityFieldDeclaration_DefaultExpression,
+        	var TypeInfo memberType = TypeInfo.getTargetType(member);
+        	var TypeInfo exprType = TypeInfo.getTargetType(member.defaultExpr);
+
+            if (member.defaultExpr !== null && !memberType.isCompatible(exprType)) {
+ //           if (member.defaultExpr !== null && !TypeInfo.getTargetType(member).isCompatible(TypeInfo.getTargetType(member.defaultExpr))) {
+                error("Type mismatch. Default value expression does not match field type at '" + member.name + "'.",
+                    JsldslPackage::eINSTANCE.entityStoredFieldDeclaration_DefaultExpr,
                     TYPE_MISMATCH)
             }
+        } catch (IllegalArgumentException illegalArgumentException) {
+            return
+        }
+    }
 
-            if (field.isIsMany && !(field.referenceType instanceof EntityDeclaration)) {
-                error("Invalid collection of primitives at '" + field.name + "'.",
-                    JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType,
-                    INVALID_COLLECTION)
+    @Check
+    def checkEntityStoredRelationMember(EntityStoredRelationDeclaration member) {
+        try {
+            if (member.defaultExpr !== null && !TypeInfo.getTargetType(member).isCompatible(TypeInfo.getTargetType(member.defaultExpr))) {
+                error("Type mismatch. Default value expression does not match relation type at '" + member.name + "'.",
+                    JsldslPackage::eINSTANCE.entityStoredRelationDeclaration_DefaultExpr,
+                    TYPE_MISMATCH)
             }
         } catch (IllegalArgumentException illegalArgumentException) {
             return
@@ -1182,19 +1197,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 //    }
 
     @Check
-    def checkEntityDerived(EntityDerivedDeclaration derived) {
+    def checkEntityDerived(EntityCalculatedMemberDeclaration member) {
         try {
-            if (derived.expression !== null && !TypeInfo.getTargetType(derived).isCompatible(TypeInfo.getTargetType(derived.expression))) {
-                error("Type mismatch. Derived value expression does not match derived field type at '" + derived.name + "'.",
-                    JsldslPackage::eINSTANCE.entityDerivedDeclaration_Expression,
+            if (member.getterExpr !== null && !TypeInfo.getTargetType(member).isCompatible(TypeInfo.getTargetType(member.getterExpr))) {
+                error("Type mismatch. Derived value expression does not match derived field type at '" + member.name + "'.",
+                    JsldslPackage::eINSTANCE.entityCalculatedMemberDeclaration_GetterExpr,
                     TYPE_MISMATCH,
                     JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
-            }
-
-            if (derived.isIsMany && !(derived.referenceType instanceof EntityDeclaration)) {
-                error("Invalid collection of primitives at '" + derived.name + "'.",
-                    JsldslPackage::eINSTANCE.entityDerivedDeclaration_ReferenceType,
-                    INVALID_COLLECTION)
             }
         } catch (IllegalArgumentException illegalArgumentException) {
             return
@@ -1232,7 +1241,7 @@ class JslDslValidator extends AbstractJslDslValidator {
                     JsldslPackage::eINSTANCE.queryDeclaration.name)
             }
 
-            if (query.isIsMany && !(query.referenceType instanceof EntityDeclaration)) {
+            if (query.isMany && !(query.referenceType instanceof EntityDeclaration)) {
                 error("Invalid collection of primitives at '" + query.name + "'.",
                     JsldslPackage::eINSTANCE.queryDeclaration_ReferenceType,
                     INVALID_COLLECTION)
@@ -1242,31 +1251,31 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkEntityOperationReturn(EntityOperationReturnDeclaration ret) {
-        try {
-            if (ret.isIsMany && !(ret.referenceType instanceof EntityDeclaration)) {
-                error("Invalid collection of primitives.",
-                    JsldslPackage::eINSTANCE.entityOperationReturnDeclaration_ReferenceType,
-                    INVALID_COLLECTION)
-            }
-        } catch (IllegalArgumentException illegalArgumentException) {
-            return
-        }
-    }
+//    @Check
+//    def checkEntityOperationReturn(EntityOperationReturnDeclaration ret) {
+//        try {
+//            if (ret.isIsMany && !(ret.referenceType instanceof EntityDeclaration)) {
+//                error("Invalid collection of primitives.",
+//                    JsldslPackage::eINSTANCE.entityOperationReturnDeclaration_ReferenceType,
+//                    INVALID_COLLECTION)
+//            }
+//        } catch (IllegalArgumentException illegalArgumentException) {
+//            return
+//        }
+//    }
 
-    @Check
-    def checkEntityOperationParameter(EntityOperationParameterDeclaration parameter) {
-        try {
-            if (parameter.isIsMany && !(parameter.referenceType instanceof EntityDeclaration)) {
-                error("Invalid collection of primitives at '" + parameter.name + "''.",
-                    JsldslPackage::eINSTANCE.entityOperationParameterDeclaration_ReferenceType,
-                    INVALID_COLLECTION)
-            }
-        } catch (IllegalArgumentException illegalArgumentException) {
-            return
-        }
-    }
+//    @Check
+//    def checkEntityOperationParameter(EntityOperationParameterDeclaration parameter) {
+//        try {
+//            if (parameter.isIsMany && !(parameter.referenceType instanceof EntityDeclaration)) {
+//                error("Invalid collection of primitives at '" + parameter.name + "''.",
+//                    JsldslPackage::eINSTANCE.entityOperationParameterDeclaration_ReferenceType,
+//                    INVALID_COLLECTION)
+//            }
+//        } catch (IllegalArgumentException illegalArgumentException) {
+//            return
+//        }
+//    }
 
     @Check
     def checkForDuplicateNameForTransferMemberDeclaration(TransferMemberDeclaration member) {
@@ -1406,10 +1415,10 @@ class JslDslValidator extends AbstractJslDslValidator {
                 JsldslPackage::eINSTANCE.transferDeclaration.name)
         };
 
-        val Iterator<EntityMemberDeclaration> containmentsIterator = transfer.map.entity.members.filter[m | m instanceof EntityFieldDeclaration && (m as EntityFieldDeclaration).referenceType instanceof EntityDeclaration].iterator
+        val Iterator<EntityMemberDeclaration> containmentsIterator = transfer.map.entity.members.filter[m | m instanceof EntityStoredFieldDeclaration && m.referenceType instanceof EntityDeclaration].iterator
 
         while (containmentsIterator.hasNext) {
-            val EntityFieldDeclaration containment = containmentsIterator.next() as EntityFieldDeclaration;
+            val EntityStoredFieldDeclaration containment = containmentsIterator.next() as EntityStoredFieldDeclaration;
 
             if (!transfer.parentContainer(ModelDeclaration).fromModel.transfers.exists[t | t.automap && t.map?.entity.isEqual(containment.referenceType)]){
                 error("Missing automapping in mapped entity for field '" + containment.name + "'",
@@ -1555,9 +1564,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 
         val MemberReference memberReference = navigation.features.get(0) as MemberReference;
 
-        if (!(memberReference.member instanceof EntityFieldDeclaration) &&
-//            !(memberReference.member instanceof EntityIdentifierDeclaration) &&
-            !(memberReference.member instanceof EntityRelationDeclaration) &&
+        if (!(memberReference.member instanceof EntityStoredFieldDeclaration) &&
+        	!(memberReference.member instanceof EntityStoredRelationDeclaration) &&
             !(memberReference.member instanceof EntityRelationOppositeInjected))
         {
             error("Invalid field mapping. Field mapping must select a member of the mapped entity.",
@@ -1885,7 +1893,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
         val MemberReference memberReference = navigation.features.get(0) as MemberReference;
 
-        if (!(memberReference.member instanceof EntityFieldDeclaration)) {
+        if (!(memberReference.member instanceof EntityStoredFieldDeclaration)) {
             error("Invalid actor identity. Identity must be mapped to an identifier of the mapped entity type.",
                 JsldslPackage::eINSTANCE.actorDeclaration_Identity,
                 INVALID_IDENTITY_MAPPING,
@@ -1894,9 +1902,9 @@ class JslDslValidator extends AbstractJslDslValidator {
             return;
         }
 
-        val EntityFieldDeclaration entityFieldDeclaration = memberReference.member as EntityFieldDeclaration;
+        val EntityStoredFieldDeclaration field = memberReference.member as EntityStoredFieldDeclaration;
 
-        if (entityFieldDeclaration.required) {
+        if (!field.identifier) {
             error("Invalid actor identity. Identity must be mapped to an identifier of the mapped entity type.",
                 JsldslPackage::eINSTANCE.actorDeclaration_Identity,
                 INVALID_IDENTITY_MAPPING,
@@ -1905,7 +1913,7 @@ class JslDslValidator extends AbstractJslDslValidator {
             return;
         }
 
-        if (!TypeInfo.getTargetType(entityFieldDeclaration).isString) {
+        if (!TypeInfo.getTargetType(field).isString) {
             error("Invalid actor identity. Identifier must be a string.",
                 JsldslPackage::eINSTANCE.actorDeclaration_Identity,
                 INVALID_IDENTITY_MAPPING,
@@ -1985,6 +1993,42 @@ class JslDslValidator extends AbstractJslDslValidator {
                 JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
                 DUPLICATE_FIELD_MAPPING,
                 JsldslPackage::eINSTANCE.named.name)
+        }
+    }
+    
+    @Check
+    def checkDuplicateTransferConstructor(TransferConstructorDeclaration constructor) {
+        val TransferDeclaration transfer = constructor.eContainer as TransferDeclaration;
+    	
+        if (transfer.members.filter[m | m instanceof TransferConstructorDeclaration].size > 1) {
+            error("More than one constructor declared in transfer '" + transfer.name + "'.",
+                JsldslPackage::eINSTANCE.transferConstructorDeclaration_Feature,
+                DUPLICATE_CONSTRUCTOR,
+                JsldslPackage::eINSTANCE.transferConstructorDeclaration.name)
+        }
+    }
+
+    @Check
+    def checkDuplicateViewConstructor(ViewConstructorDeclaration constructor) {
+        val ViewDeclaration view = constructor.eContainer as ViewDeclaration;
+    	
+        if (view.members.filter[m | m instanceof ViewConstructorDeclaration].size > 1) {
+            error("More than one constructor declared in view '" + view.name + "'.",
+                JsldslPackage::eINSTANCE.viewConstructorDeclaration_Feature,
+                DUPLICATE_CONSTRUCTOR,
+                JsldslPackage::eINSTANCE.viewConstructorDeclaration.name)
+        }
+    }
+
+    @Check
+    def checkDuplicateViewSubmit(ViewSubmitDeclaration submit) {
+        val ViewDeclaration view = submit.eContainer as ViewDeclaration;
+    	
+        if (view.members.filter[m | m instanceof ViewSubmitDeclaration].size > 1) {
+            error("More than one submit declared in view '" + view.name + "'.",
+                JsldslPackage::eINSTANCE.viewSubmitDeclaration_Feature,
+                DUPLICATE_SUBMIT,
+                JsldslPackage::eINSTANCE.viewSubmitDeclaration.name)
         }
     }
 }

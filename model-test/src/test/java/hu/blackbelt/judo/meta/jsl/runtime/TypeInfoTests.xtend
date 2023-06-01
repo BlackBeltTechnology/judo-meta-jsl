@@ -10,12 +10,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import static org.junit.jupiter.api.Assertions.assertEquals
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDerivedDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityQueryDeclaration
 import static org.junit.Assert.assertTrue
 import hu.blackbelt.judo.requirement.report.annotation.Requirement
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedMemberDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration
 
 @ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
@@ -126,7 +125,7 @@ class TypeInfoTests {
         val t1FieldTypeInfo = TypeInfo.getTargetType(t1Field)
 
         assertEquals(false, t1FieldTypeInfo.isCollection);
-        assertEquals((t1Field as EntityFieldDeclaration).referenceType, t1FieldTypeInfo.getEntity);
+        assertEquals((t1Field as EntityStoredFieldDeclaration).referenceType, t1FieldTypeInfo.getEntity);
     }
 
     @Test
@@ -159,7 +158,7 @@ class TypeInfoTests {
         val t1sFieldTypeInfo = TypeInfo.getTargetType(t1sField)
 
         assertEquals(true, t1sFieldTypeInfo.isCollection);
-        assertEquals((t1sField as EntityFieldDeclaration).referenceType, t1sFieldTypeInfo.getEntity);
+        assertEquals((t1sField as EntityStoredFieldDeclaration).referenceType, t1sFieldTypeInfo.getEntity);
     }
 
 
@@ -185,7 +184,7 @@ class TypeInfoTests {
 
             entity Test {
                 field T1 t1;
-                derived T1 t1d => self.t1;
+                field T1 t1d <= self.t1;
             }
         '''.parse
         p.assertNoErrors
@@ -196,11 +195,11 @@ class TypeInfoTests {
         val t1dField = testEntity.memberByName("t1d")
 
         val t1dFieldTypeInfo = TypeInfo.getTargetType(t1dField)
-        val t1dFieldExpressionTypeInfo = TypeInfo.getTargetType((t1dField as EntityDerivedDeclaration).expression);
+        val t1dFieldExpressionTypeInfo = TypeInfo.getTargetType((t1dField as EntityCalculatedMemberDeclaration).getterExpr);
 
         assertEquals(false, t1dFieldTypeInfo.isCollection);
-        assertEquals((t1Field as EntityFieldDeclaration).referenceType, t1dFieldTypeInfo.getEntity);
-        assertEquals((t1Field as EntityFieldDeclaration).referenceType, t1dFieldExpressionTypeInfo.getEntity);
+        assertEquals((t1Field as EntityStoredFieldDeclaration).referenceType, t1dFieldTypeInfo.getEntity);
+        assertEquals((t1Field as EntityStoredFieldDeclaration).referenceType, t1dFieldExpressionTypeInfo.getEntity);
     }
 
 
@@ -226,7 +225,7 @@ class TypeInfoTests {
 
             entity Test {
                 field T1[] t1s;
-                derived T1[] t1sd => self.t1s;
+                field T1[] t1sd <= self.t1s;
             }
         '''.parse
         p.assertNoErrors
@@ -237,11 +236,11 @@ class TypeInfoTests {
         val t1sdField = testEntity.memberByName("t1sd")
 
         val t1sdFieldTypeInfo = TypeInfo.getTargetType(t1sdField)
-        val t1sdFieldExpressionTypeInfo = TypeInfo.getTargetType((t1sdField as EntityDerivedDeclaration).expression);
+        val t1sdFieldExpressionTypeInfo = TypeInfo.getTargetType((t1sdField as EntityCalculatedMemberDeclaration).getterExpr);
 
         assertEquals(true, t1sdFieldTypeInfo.isCollection);
-        assertEquals((t1sField as EntityFieldDeclaration).referenceType, t1sdFieldTypeInfo.getEntity);
-        assertEquals((t1sField as EntityFieldDeclaration).referenceType, t1sdFieldExpressionTypeInfo.getEntity);
+        assertEquals((t1sField as EntityStoredFieldDeclaration).referenceType, t1sdFieldTypeInfo.getEntity);
+        assertEquals((t1sField as EntityStoredFieldDeclaration).referenceType, t1sdFieldExpressionTypeInfo.getEntity);
     }
 
 
@@ -268,7 +267,7 @@ class TypeInfoTests {
 
 
             entity Test {
-                derived T1 t1sd => T1!all()!any();
+                field T1 t1sd <= T1!all()!any();
             }
         '''.parse
         p.assertNoErrors
@@ -278,11 +277,11 @@ class TypeInfoTests {
         val t1sdField = testEntity.memberByName("t1sd")
 
         val t1sdFieldTypeInfo = TypeInfo.getTargetType(t1sdField)
-        val t1sdFieldExpressionTypeInfo = TypeInfo.getTargetType((t1sdField as EntityDerivedDeclaration).expression);
+        val t1sdFieldExpressionTypeInfo = TypeInfo.getTargetType((t1sdField as EntityCalculatedMemberDeclaration).getterExpr);
 
         assertEquals(false, t1sdFieldTypeInfo.isCollection);
-        assertEquals((t1sdField as EntityDerivedDeclaration).referenceType, t1sdFieldTypeInfo.getEntity);
-        assertEquals((t1sdField as EntityDerivedDeclaration).referenceType, t1sdFieldExpressionTypeInfo.getEntity);
+        assertEquals((t1sdField as EntityCalculatedMemberDeclaration).referenceType, t1sdFieldTypeInfo.getEntity);
+        assertEquals((t1sdField as EntityCalculatedMemberDeclaration).referenceType, t1sdFieldExpressionTypeInfo.getEntity);
     }
 
 
@@ -322,7 +321,7 @@ class TypeInfoTests {
         val t1FieldTypeInfo = TypeInfo.getTargetType(t1Field)
 
         assertEquals(false, t1FieldTypeInfo.isCollection);
-        assertEquals((t1Field as EntityRelationDeclaration).referenceType, t1FieldTypeInfo.getEntity);
+        assertEquals((t1Field as EntityStoredRelationDeclaration).referenceType, t1FieldTypeInfo.getEntity);
     }
 
     @Test
@@ -356,7 +355,7 @@ class TypeInfoTests {
         val t1sFieldTypeInfo = TypeInfo.getTargetType(t1sField)
 
         assertEquals(true, t1sFieldTypeInfo.isCollection);
-        assertEquals((t1sField as EntityRelationDeclaration).referenceType, t1sFieldTypeInfo.getEntity);
+        assertEquals((t1sField as EntityStoredRelationDeclaration).referenceType, t1sFieldTypeInfo.getEntity);
     }
 
 
@@ -390,7 +389,7 @@ class TypeInfoTests {
                 relation T1[] t1s;
                 relation T2[] t2s;
 
-                derived T2[] t2sd => self.t1s.test.t2s;
+                field T2[] t2sd <= self.t1s.test.t2s;
             }
         '''.parse
         p.assertNoErrors
@@ -403,10 +402,10 @@ class TypeInfoTests {
         val t2sFieldTypeInfo = TypeInfo.getTargetType(t2sField)
 
         assertEquals(true, t2sFieldTypeInfo.isCollection);
-        assertEquals((t2sField as EntityRelationDeclaration).referenceType, t2sFieldTypeInfo.getEntity);
+        assertEquals((t2sField as EntityStoredRelationDeclaration).referenceType, t2sFieldTypeInfo.getEntity);
 
-        val t2sdFieldExpressionTypeInfo = TypeInfo.getTargetType((t2sdField as EntityDerivedDeclaration).expression);
-        assertEquals((t2sdField as EntityDerivedDeclaration).referenceType, t2sdFieldExpressionTypeInfo.getEntity);
+        val t2sdFieldExpressionTypeInfo = TypeInfo.getTargetType((t2sdField as EntityCalculatedMemberDeclaration).getterExpr);
+        assertEquals((t2sdField as EntityCalculatedMemberDeclaration).referenceType, t2sdFieldExpressionTypeInfo.getEntity);
 
     }
 
@@ -434,39 +433,39 @@ class TypeInfoTests {
         val p = '''
             model TestModel;
 
-            type numeric Integer(precision = 9, scale = 0);
+            type numeric Integer precision:9 scale:0;
             type date Date;
             type timestamp Timestamp;
             type time Time;
-            type string String(min-size = 0, max-size = 32);
+            type string String min-size:0 max-size:32;
             type boolean Boolean;
 
             entity Test {
-                derived Integer numeric => 12;
-                derived Date date => `2022-01-01`;
-                derived Timestamp timestamp => `2022-01-01T12:00:00Z`;
-                derived Time time => `12:00:00`;
-                derived String string => "Test";
-                derived Boolean boolean => true;
+                field Integer numeric <= 12;
+                field Date date <= `2022-01-01`;
+                field Timestamp timestamp <= `2022-01-01T12:00:00Z`;
+                field Time time <= `12:00:00`;
+                field String string <= "Test";
+                field Boolean boolean <= true;
             }
         '''.parse
         p.assertNoErrors
         val m = p.fromModel
 
         val testEntity = m.entityByName("Test")
-        val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
-        val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
-        val timestampField = testEntity.memberByName("timestamp") as EntityDerivedDeclaration
-        val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
-        val stringField = testEntity.memberByName("string") as EntityDerivedDeclaration
-        val booleanField = testEntity.memberByName("boolean") as EntityDerivedDeclaration
+        val numericField = testEntity.memberByName("numeric") as EntityCalculatedMemberDeclaration
+        val dateField = testEntity.memberByName("date") as EntityCalculatedMemberDeclaration
+        val timestampField = testEntity.memberByName("timestamp") as EntityCalculatedMemberDeclaration
+        val timeField = testEntity.memberByName("time") as EntityCalculatedMemberDeclaration
+        val stringField = testEntity.memberByName("string") as EntityCalculatedMemberDeclaration
+        val booleanField = testEntity.memberByName("boolean") as EntityCalculatedMemberDeclaration
 
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(numericField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(timestampField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(stringField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(booleanField.expression).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(numericField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(timestampField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(stringField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(booleanField.getterExpr).getPrimitive);
     }
 
 
@@ -492,31 +491,31 @@ class TypeInfoTests {
         val p = '''
             model TestModel;
 
-            type string String(min-size = 0, max-size = 32);
+            type string String min-size:0 max-size:32;
             type boolean Boolean;
-            type numeric Integer(precision = 9, scale = 0);
+            type numeric Integer precision:9 scale:0;
 
 
             entity Test {
-                derived String left => "Test"!left(count = 1);
-                derived String right => "Test"!right(count = 1);
-                derived Integer position => "Test"!position(substring = "es");
-                derived String substring => "Test"!substring(count = 1, offset = 2);
-                derived String lower => "Test"!lower();
-                derived String upper => "Test"!upper();
-                derived String lowerCase => "Test"!lower();
-                derived String upperCase => "Test"!upper();
-                derived String capitalize => "Test"!capitalize();
-                derived Boolean matches => "Test"!matches(pattern = r".*es.*");
-                derived Boolean like => "Test"!like(pattern = "%es%");
-                derived Boolean ilike => "Test"!ilike(pattern = "%es%");
-                derived String replace => "Test"!replace(oldstring = "es", newstring = "ee");
-                derived String trim => "Test"!trim();
-                derived String ltrim => "Test"!ltrim();
-                derived String rtrim => "Test"!rtrim();
-                derived String lpad => "Test"!lpad(size = 10, padstring = "--");
-                derived String rpad => "Test"!rpad(size = 10, padstring = "--");
-                derived Integer size => "Test"!size();
+                field String left <= "Test"!left(count = 1);
+                field String right <= "Test"!right(count = 1);
+                field Integer position <= "Test"!position(substring = "es");
+                field String substring <= "Test"!substring(count = 1, offset = 2);
+                field String lower <= "Test"!lower();
+                field String upper <= "Test"!upper();
+                field String lowerCase <= "Test"!lower();
+                field String upperCase <= "Test"!upper();
+                field String capitalize <= "Test"!capitalize();
+                field Boolean matches <= "Test"!matches(pattern = r".*es.*");
+                field Boolean like <= "Test"!like(pattern = "%es%");
+                field Boolean ilike <= "Test"!ilike(pattern = "%es%");
+                field String replace <= "Test"!replace(oldstring = "es", newstring = "ee");
+                field String trim <= "Test"!trim();
+                field String ltrim <= "Test"!ltrim();
+                field String rtrim <= "Test"!rtrim();
+                field String lpad <= "Test"!lpad(size = 10, padstring = "--");
+                field String rpad <= "Test"!rpad(size = 10, padstring = "--");
+                field Integer size <= "Test"!size();
             }
         '''.parse
         p.assertNoErrors
@@ -524,51 +523,51 @@ class TypeInfoTests {
 
         val testEntity = m.entityByName("Test")
 
-        val firstField = testEntity.memberByName("left") as EntityDerivedDeclaration
-        val lastField = testEntity.memberByName("right") as EntityDerivedDeclaration
-        val positionField = testEntity.memberByName("position") as EntityDerivedDeclaration
-        val substringField = testEntity.memberByName("substring") as EntityDerivedDeclaration
-        val lowerField = testEntity.memberByName("lower") as EntityDerivedDeclaration
-        val upperField = testEntity.memberByName("upper") as EntityDerivedDeclaration
-        val lowerCaseField = testEntity.memberByName("lowerCase") as EntityDerivedDeclaration
-        val upperCaseField = testEntity.memberByName("upperCase") as EntityDerivedDeclaration
+        val firstField = testEntity.memberByName("left") as EntityCalculatedMemberDeclaration
+        val lastField = testEntity.memberByName("right") as EntityCalculatedMemberDeclaration
+        val positionField = testEntity.memberByName("position") as EntityCalculatedMemberDeclaration
+        val substringField = testEntity.memberByName("substring") as EntityCalculatedMemberDeclaration
+        val lowerField = testEntity.memberByName("lower") as EntityCalculatedMemberDeclaration
+        val upperField = testEntity.memberByName("upper") as EntityCalculatedMemberDeclaration
+        val lowerCaseField = testEntity.memberByName("lowerCase") as EntityCalculatedMemberDeclaration
+        val upperCaseField = testEntity.memberByName("upperCase") as EntityCalculatedMemberDeclaration
 
 
-        val capitalizeField = testEntity.memberByName("capitalize") as EntityDerivedDeclaration
-        val matchesField = testEntity.memberByName("matches") as EntityDerivedDeclaration
-        val likeField = testEntity.memberByName("like") as EntityDerivedDeclaration
-        val ilikeField = testEntity.memberByName("ilike") as EntityDerivedDeclaration
-        val replaceField = testEntity.memberByName("replace") as EntityDerivedDeclaration
-        val trimField = testEntity.memberByName("trim") as EntityDerivedDeclaration
-        val ltrimField = testEntity.memberByName("ltrim") as EntityDerivedDeclaration
-        val rtrimField = testEntity.memberByName("rtrim") as EntityDerivedDeclaration
-        val lpadField = testEntity.memberByName("lpad") as EntityDerivedDeclaration
-        val rpadField = testEntity.memberByName("rpad") as EntityDerivedDeclaration
-        val sizeField = testEntity.memberByName("size") as EntityDerivedDeclaration
+        val capitalizeField = testEntity.memberByName("capitalize") as EntityCalculatedMemberDeclaration
+        val matchesField = testEntity.memberByName("matches") as EntityCalculatedMemberDeclaration
+        val likeField = testEntity.memberByName("like") as EntityCalculatedMemberDeclaration
+        val ilikeField = testEntity.memberByName("ilike") as EntityCalculatedMemberDeclaration
+        val replaceField = testEntity.memberByName("replace") as EntityCalculatedMemberDeclaration
+        val trimField = testEntity.memberByName("trim") as EntityCalculatedMemberDeclaration
+        val ltrimField = testEntity.memberByName("ltrim") as EntityCalculatedMemberDeclaration
+        val rtrimField = testEntity.memberByName("rtrim") as EntityCalculatedMemberDeclaration
+        val lpadField = testEntity.memberByName("lpad") as EntityCalculatedMemberDeclaration
+        val rpadField = testEntity.memberByName("rpad") as EntityCalculatedMemberDeclaration
+        val sizeField = testEntity.memberByName("size") as EntityCalculatedMemberDeclaration
 
 
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(firstField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(lastField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(positionField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(substringField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(lowerField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(upperField.expression).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(firstField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(lastField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(positionField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(substringField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(lowerField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(upperField.getterExpr).getPrimitive);
 
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(lowerCaseField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(upperCaseField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(capitalizeField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(matchesField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(likeField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(ilikeField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(upperField.expression).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(lowerCaseField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(upperCaseField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(capitalizeField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(matchesField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(likeField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(ilikeField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(upperField.getterExpr).getPrimitive);
 
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(replaceField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(trimField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(ltrimField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(rtrimField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(lpadField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(rpadField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sizeField.expression).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(replaceField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(trimField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(ltrimField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(rtrimField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(lpadField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(rpadField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sizeField.getterExpr).getPrimitive);
 
     }
 
@@ -598,39 +597,39 @@ class TypeInfoTests {
         val p = '''
             model TestModel;
 
-            type numeric Integer(precision = 9, scale = 0);
+            type numeric Integer precision:9 scale:0;
             type date Date;
             type timestamp Timestamp;
             type time Time;
-            type string String(min-size = 0, max-size = 32);
+            type string String min-size:0 max-size:32;
             type boolean Boolean;
 
             entity Test {
-                derived Integer numeric => Integer!getVariable(category = "ENV", key = "NUMERIC");
-                derived Date date => Date!getVariable(category = "ENV", key = "DATE");
-                derived Timestamp timestamp => Timestamp!getVariable(category = "ENV", key = "TIMESTAMP");
-                derived Time time => Time!getVariable(category = "ENV", key = "TIME");
-                derived String string => String!getVariable(category = "ENV", key = "STRING");
-                derived Boolean boolean => Boolean!getVariable(category = "ENV", key = "BOOLEAN");
+                field Integer numeric <= Integer!getVariable(category = "ENV", key = "NUMERIC");
+                field Date date <= Date!getVariable(category = "ENV", key = "DATE");
+                field Timestamp timestamp <= Timestamp!getVariable(category = "ENV", key = "TIMESTAMP");
+                field Time time <= Time!getVariable(category = "ENV", key = "TIME");
+                field String string <= String!getVariable(category = "ENV", key = "STRING");
+                field Boolean boolean <= Boolean!getVariable(category = "ENV", key = "BOOLEAN");
             }
         '''.parse
         p.assertNoErrors
         val m = p.fromModel
 
         val testEntity = m.entityByName("Test")
-        val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
-        val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
-        val timestampField = testEntity.memberByName("timestamp") as EntityDerivedDeclaration
-        val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
-        val stringField = testEntity.memberByName("string") as EntityDerivedDeclaration
-        val booleanField = testEntity.memberByName("boolean") as EntityDerivedDeclaration
+        val numericField = testEntity.memberByName("numeric") as EntityCalculatedMemberDeclaration
+        val dateField = testEntity.memberByName("date") as EntityCalculatedMemberDeclaration
+        val timestampField = testEntity.memberByName("timestamp") as EntityCalculatedMemberDeclaration
+        val timeField = testEntity.memberByName("time") as EntityCalculatedMemberDeclaration
+        val stringField = testEntity.memberByName("string") as EntityCalculatedMemberDeclaration
+        val booleanField = testEntity.memberByName("boolean") as EntityCalculatedMemberDeclaration
 
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(numericField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(timestampField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(stringField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(booleanField.expression).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(numericField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(timestampField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(stringField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(booleanField.getterExpr).getPrimitive);
     }
 
     @Test
@@ -661,22 +660,22 @@ class TypeInfoTests {
             type time Time;
 
             entity Test {
-                derived Date date => Date!now();
-                derived Timestamp timestamp => Timestamp!now();
-                derived Time time => Time!now();
+                field Date date <= Date!now();
+                field Timestamp timestamp <= Timestamp!now();
+                field Time time <= Time!now();
             }
         '''.parse
         p.assertNoErrors
         val m = p.fromModel
 
         val testEntity = m.entityByName("Test")
-        val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
-        val timestampField = testEntity.memberByName("timestamp") as EntityDerivedDeclaration
-        val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
+        val dateField = testEntity.memberByName("date") as EntityCalculatedMemberDeclaration
+        val timestampField = testEntity.memberByName("timestamp") as EntityCalculatedMemberDeclaration
+        val timeField = testEntity.memberByName("time") as EntityCalculatedMemberDeclaration
 
-        assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(timestampField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.expression).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(timestampField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.getterExpr).getPrimitive);
     }
 
     @Test
@@ -705,39 +704,39 @@ class TypeInfoTests {
         val p = '''
             model TestModel;
 
-            type numeric Integer(precision = 9, scale = 0);
+            type numeric Integer precision:9 scale:0;
             type date Date;
             type timestamp Timestamp;
             type time Time;
-            type string String(min-size = 0, max-size = 32);
+            type string String min-size:0 max-size:32;
             type boolean Boolean;
 
             entity Test {
-                derived Boolean numeric => Integer!getVariable(category = "ENV", key = "NUMERIC")!isDefined();
-                derived Boolean date => Date!getVariable(category = "ENV", key = "DATE")!isDefined();
-                derived Boolean timestamp => Timestamp!getVariable(category = "ENV", key = "TIMESTAMP")!isDefined();
-                derived Boolean time => Time!getVariable(category = "ENV", key = "TIME")!isDefined();
-                derived Boolean string => String!getVariable(category = "ENV", key = "STRING")!isDefined();
-                derived Boolean boolean => Boolean!getVariable(category = "ENV", key = "BOOLEAN")!isDefined();
+                field Boolean numeric <= Integer!getVariable(category = "ENV", key = "NUMERIC")!isDefined();
+                field Boolean date <= Date!getVariable(category = "ENV", key = "DATE")!isDefined();
+                field Boolean timestamp <= Timestamp!getVariable(category = "ENV", key = "TIMESTAMP")!isDefined();
+                field Boolean time <= Time!getVariable(category = "ENV", key = "TIME")!isDefined();
+                field Boolean string <= String!getVariable(category = "ENV", key = "STRING")!isDefined();
+                field Boolean boolean <= Boolean!getVariable(category = "ENV", key = "BOOLEAN")!isDefined();
             }
         '''.parse
         p.assertNoErrors
         val m = p.fromModel
 
         val testEntity = m.entityByName("Test")
-        val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
-        val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
-        val timestampField = testEntity.memberByName("timestamp") as EntityDerivedDeclaration
-        val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
-        val stringField = testEntity.memberByName("string") as EntityDerivedDeclaration
-        val booleanField = testEntity.memberByName("boolean") as EntityDerivedDeclaration
+        val numericField = testEntity.memberByName("numeric") as EntityCalculatedMemberDeclaration
+        val dateField = testEntity.memberByName("date") as EntityCalculatedMemberDeclaration
+        val timestampField = testEntity.memberByName("timestamp") as EntityCalculatedMemberDeclaration
+        val timeField = testEntity.memberByName("time") as EntityCalculatedMemberDeclaration
+        val stringField = testEntity.memberByName("string") as EntityCalculatedMemberDeclaration
+        val booleanField = testEntity.memberByName("boolean") as EntityCalculatedMemberDeclaration
 
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(numericField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(dateField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(timestampField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(timeField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(stringField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(booleanField.expression).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(numericField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(dateField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(timestampField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(timeField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(stringField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(booleanField.getterExpr).getPrimitive);
     }
 
     @Test
@@ -765,39 +764,39 @@ class TypeInfoTests {
         val p = '''
             model TestModel;
 
-            type numeric Integer(precision = 9, scale = 0);
+            type numeric Integer precision:9 scale:0;
             type date Date;
             type timestamp Timestamp;
             type time Time;
-            type string String(min-size = 0, max-size = 32);
+            type string String min-size:0 max-size:32;
             type boolean Boolean;
 
             entity Test {
-                derived Boolean numeric => 12!isUndefined();
-                derived Boolean date => `2022-01-01`!isUndefined();
-                derived Boolean timestamp => `2022-01-01T12:00:00Z`!isUndefined();
-                derived Boolean time => `12:00:00`!isUndefined();
-                derived Boolean string => "Test"!isUndefined();
-                derived Boolean boolean => true!isUndefined();
+                field Boolean numeric <= 12!isUndefined();
+                field Boolean date <= `2022-01-01`!isUndefined();
+                field Boolean timestamp <= `2022-01-01T12:00:00Z`!isUndefined();
+                field Boolean time <= `12:00:00`!isUndefined();
+                field Boolean string <= "Test"!isUndefined();
+                field Boolean boolean <= true!isUndefined();
             }
         '''.parse
         p.assertNoErrors
         val m = p.fromModel
 
         val testEntity = m.entityByName("Test")
-        val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
-        val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
-        val timestampField = testEntity.memberByName("timestamp") as EntityDerivedDeclaration
-        val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
-        val stringField = testEntity.memberByName("string") as EntityDerivedDeclaration
-        val booleanField = testEntity.memberByName("boolean") as EntityDerivedDeclaration
+        val numericField = testEntity.memberByName("numeric") as EntityCalculatedMemberDeclaration
+        val dateField = testEntity.memberByName("date") as EntityCalculatedMemberDeclaration
+        val timestampField = testEntity.memberByName("timestamp") as EntityCalculatedMemberDeclaration
+        val timeField = testEntity.memberByName("time") as EntityCalculatedMemberDeclaration
+        val stringField = testEntity.memberByName("string") as EntityCalculatedMemberDeclaration
+        val booleanField = testEntity.memberByName("boolean") as EntityCalculatedMemberDeclaration
 
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(numericField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(dateField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(timestampField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(timeField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(stringField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(booleanField.expression).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(numericField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(dateField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(timestampField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(timeField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(stringField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(booleanField.getterExpr).getPrimitive);
     }
 
     @Test
@@ -828,11 +827,11 @@ class TypeInfoTests {
         val p = '''
             model TestModel;
 
-            type numeric Integer(precision = 9, scale = 0);
+            type numeric Integer precision:9 scale:0;
             type date Date;
             type timestamp Timestamp;
             type time Time;
-            type string String(min-size = 0, max-size = 32);
+            type string String min-size:0 max-size:32;
             type boolean Boolean;
 
             entity T1 {
@@ -840,7 +839,7 @@ class TypeInfoTests {
 
             entity Test {
                 relation T1[] t1s;
-                derived Integer size => self.t1s!size();
+                field Integer size <= self.t1s!size();
 
             }
         '''.parse
@@ -848,9 +847,9 @@ class TypeInfoTests {
         val m = p.fromModel
 
         val testEntity = m.entityByName("Test")
-        val sizeField = testEntity.memberByName("size") as EntityDerivedDeclaration
+        val sizeField = testEntity.memberByName("size") as EntityCalculatedMemberDeclaration
 
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sizeField.expression).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sizeField.getterExpr).getPrimitive);
     }
 
     @Test
@@ -878,39 +877,39 @@ class TypeInfoTests {
         val p = '''
             model TestModel;
 
-            type numeric Integer(precision = 9, scale = 0);
+            type numeric Integer precision:9 scale:0;
             type date Date;
             type timestamp Timestamp;
             type time Time;
-            type string String(min-size = 0, max-size = 32);
+            type string String min-size:0 max-size:32;
             type boolean Boolean;
 
             entity Test {
-                derived Integer numeric => 12!orElse(value = 11);
-                derived Date date => `2022-01-01`!orElse(value = `2022-01-01`);
-                derived Timestamp timestamp => `2022-01-01T12:00:00Z`!orElse(value = `2023-01-01T12:00:00Z`);
-                derived Time time => `12:00:00`!orElse(value = `13:00:00`);
-                derived String string => "Test"!orElse(value = "Test2");
-                derived Boolean boolean => true!orElse(value = false);
+                field Integer numeric <= 12!orElse(value = 11);
+                field Date date <= `2022-01-01`!orElse(value = `2022-01-01`);
+                field Timestamp timestamp <= `2022-01-01T12:00:00Z`!orElse(value = `2023-01-01T12:00:00Z`);
+                field Time time <= `12:00:00`!orElse(value = `13:00:00`);
+                field String string <= "Test"!orElse(value = "Test2");
+                field Boolean boolean <= true!orElse(value = false);
             }
         '''.parse
         p.assertNoErrors
         val m = p.fromModel
 
         val testEntity = m.entityByName("Test")
-        val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
-        val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
-        val timestampField = testEntity.memberByName("timestamp") as EntityDerivedDeclaration
-        val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
-        val stringField = testEntity.memberByName("string") as EntityDerivedDeclaration
-        val booleanField = testEntity.memberByName("boolean") as EntityDerivedDeclaration
+        val numericField = testEntity.memberByName("numeric") as EntityCalculatedMemberDeclaration
+        val dateField = testEntity.memberByName("date") as EntityCalculatedMemberDeclaration
+        val timestampField = testEntity.memberByName("timestamp") as EntityCalculatedMemberDeclaration
+        val timeField = testEntity.memberByName("time") as EntityCalculatedMemberDeclaration
+        val stringField = testEntity.memberByName("string") as EntityCalculatedMemberDeclaration
+        val booleanField = testEntity.memberByName("boolean") as EntityCalculatedMemberDeclaration
 
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(numericField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(timestampField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(stringField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(booleanField.expression).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(numericField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(timestampField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(stringField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(booleanField.getterExpr).getPrimitive);
     }
 
     @Test
@@ -933,28 +932,28 @@ class TypeInfoTests {
         val p = '''
             model TestModel;
 
-            type numeric Decimal(precision = 9, scale = 2);
+            type numeric Decimal precision:9 scale:2;
 
             entity Test {
-                derived Decimal floor => 12!floor();
-                derived Decimal ceil => 12!ceil();
-                derived Decimal abs => 12!abs();
-                derived Decimal round => 12!round(scale = 2);
+                field Decimal floor <= 12!floor();
+                field Decimal ceil <= 12!ceil();
+                field Decimal abs <= 12!abs();
+                field Decimal round <= 12!round(scale = 2);
             }
         '''.parse
         p.assertNoErrors
         val m = p.fromModel
 
         val testEntity = m.entityByName("Test")
-        val floorField = testEntity.memberByName("floor") as EntityDerivedDeclaration
-        val ceilField = testEntity.memberByName("ceil") as EntityDerivedDeclaration
-        val absField = testEntity.memberByName("abs") as EntityDerivedDeclaration
-        val roundField = testEntity.memberByName("round") as EntityDerivedDeclaration
+        val floorField = testEntity.memberByName("floor") as EntityCalculatedMemberDeclaration
+        val ceilField = testEntity.memberByName("ceil") as EntityCalculatedMemberDeclaration
+        val absField = testEntity.memberByName("abs") as EntityCalculatedMemberDeclaration
+        val roundField = testEntity.memberByName("round") as EntityCalculatedMemberDeclaration
 
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(floorField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(ceilField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(absField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(roundField.expression).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(floorField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(ceilField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(absField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(roundField.getterExpr).getPrimitive);
     }
 
 
@@ -987,36 +986,36 @@ class TypeInfoTests {
         val p = '''
             model TestModel;
 
-            type numeric Integer(precision = 9, scale = 0);
+            type numeric Integer precision:9 scale:0;
             type date Date;
             type timestamp Timestamp;
             type time Time;
-            type string String(min-size = 0, max-size = 32);
+            type string String min-size:0 max-size:32;
             type boolean Boolean;
 
             entity Test {
-                derived String numeric => 12!asString();
-                derived String date => `2022-01-01`!asString();
-                derived String timestamp => `2022-01-01T12:00:00Z`!asString();
-                derived String time => `12:00:00`!asString();
-                derived String boolean => true!asString();
+                field String numeric <= 12!asString();
+                field String date <= `2022-01-01`!asString();
+                field String timestamp <= `2022-01-01T12:00:00Z`!asString();
+                field String time <= `12:00:00`!asString();
+                field String boolean <= true!asString();
             }
         '''.parse
         p.assertNoErrors
         val m = p.fromModel
 
         val testEntity = m.entityByName("Test")
-        val numericField = testEntity.memberByName("numeric") as EntityDerivedDeclaration
-        val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
-        val timestampField = testEntity.memberByName("timestamp") as EntityDerivedDeclaration
-        val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
-        val booleanField = testEntity.memberByName("boolean") as EntityDerivedDeclaration
+        val numericField = testEntity.memberByName("numeric") as EntityCalculatedMemberDeclaration
+        val dateField = testEntity.memberByName("date") as EntityCalculatedMemberDeclaration
+        val timestampField = testEntity.memberByName("timestamp") as EntityCalculatedMemberDeclaration
+        val timeField = testEntity.memberByName("time") as EntityCalculatedMemberDeclaration
+        val booleanField = testEntity.memberByName("boolean") as EntityCalculatedMemberDeclaration
 
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(numericField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(dateField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(timestampField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(timeField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(booleanField.expression).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(numericField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(dateField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(timestampField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(timeField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.STRING, TypeInfo.getTargetType(booleanField.getterExpr).getPrimitive);
     }
 
     @Test
@@ -1042,34 +1041,34 @@ class TypeInfoTests {
             model TestModel;
 
             type date Date;
-            type numeric Integer(precision = 9, scale = 0);
+            type numeric Integer precision:9 scale:0;
 
             entity Test {
-                derived Integer year => `2022-01-01`!year();
-                derived Integer month => `2022-01-01`!month();
-                derived Integer day => `2022-01-01`!day();
-                derived Integer dayOfWeek => `2022-01-01`!dayOfWeek();
-                derived Integer dayOfYear => `2022-01-01`!dayOfYear();
-                derived Date date => Date!of(year = 2022, month = 1, day = 1);
+                field Integer year <= `2022-01-01`!year();
+                field Integer month <= `2022-01-01`!month();
+                field Integer day <= `2022-01-01`!day();
+                field Integer dayOfWeek <= `2022-01-01`!dayOfWeek();
+                field Integer dayOfYear <= `2022-01-01`!dayOfYear();
+                field Date date <= Date!of(year = 2022, month = 1, day = 1);
             }
         '''.parse
         p.assertNoErrors
         val m = p.fromModel
 
         val testEntity = m.entityByName("Test")
-        val yearField = testEntity.memberByName("year") as EntityDerivedDeclaration
-        val monthField = testEntity.memberByName("month") as EntityDerivedDeclaration
-        val dayField = testEntity.memberByName("day") as EntityDerivedDeclaration
-        val dayOfWeekField = testEntity.memberByName("dayOfWeek") as EntityDerivedDeclaration
-        val dayOfYearField = testEntity.memberByName("dayOfYear") as EntityDerivedDeclaration
-        val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
+        val yearField = testEntity.memberByName("year") as EntityCalculatedMemberDeclaration
+        val monthField = testEntity.memberByName("month") as EntityCalculatedMemberDeclaration
+        val dayField = testEntity.memberByName("day") as EntityCalculatedMemberDeclaration
+        val dayOfWeekField = testEntity.memberByName("dayOfWeek") as EntityCalculatedMemberDeclaration
+        val dayOfYearField = testEntity.memberByName("dayOfYear") as EntityCalculatedMemberDeclaration
+        val dateField = testEntity.memberByName("date") as EntityCalculatedMemberDeclaration
 
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(yearField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(monthField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(dayField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(dayOfWeekField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(dayOfYearField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.expression).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(yearField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(monthField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(dayField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(dayOfWeekField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(dayOfYearField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.getterExpr).getPrimitive);
 
     }
 
@@ -1096,28 +1095,28 @@ class TypeInfoTests {
             model TestModel;
 
             type time Time;
-            type numeric Integer(precision = 9, scale = 0);
+            type numeric Integer precision:9 scale:0;
 
             entity Test {
-                derived Integer hour => `12:00:00`!hour();
-                derived Integer minute => `12:00:00`!minute();
-                derived Integer second => `12:00:00`!second();
-                derived Time time => Time!of(hour = 12, minute = 2, second = 23);
+                field Integer hour <= `12:00:00`!hour();
+                field Integer minute <= `12:00:00`!minute();
+                field Integer second <= `12:00:00`!second();
+                field Time time <= Time!of(hour = 12, minute = 2, second = 23);
             }
         '''.parse
         p.assertNoErrors
         val m = p.fromModel
 
         val testEntity = m.entityByName("Test")
-        val hourField = testEntity.memberByName("hour") as EntityDerivedDeclaration
-        val minuteField = testEntity.memberByName("minute") as EntityDerivedDeclaration
-        val secondField = testEntity.memberByName("second") as EntityDerivedDeclaration
-        val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
+        val hourField = testEntity.memberByName("hour") as EntityCalculatedMemberDeclaration
+        val minuteField = testEntity.memberByName("minute") as EntityCalculatedMemberDeclaration
+        val secondField = testEntity.memberByName("second") as EntityCalculatedMemberDeclaration
+        val timeField = testEntity.memberByName("time") as EntityCalculatedMemberDeclaration
 
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(hourField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(minuteField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(secondField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.expression).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(hourField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(minuteField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(secondField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.getterExpr).getPrimitive);
     }
 
     @Test
@@ -1150,12 +1149,12 @@ class TypeInfoTests {
             type numeric Integer(precision = 10, scale = 0);
 
             entity Test {
-                derived Date date => `2022-01-01T12:00:00Z`!date();
-                derived Time time => `2022-01-01T12:00:00Z`!time();
-                derived Integer asMilliseconds => `2022-01-01T12:00:00Z`!asMilliseconds();
-                derived Timestamp fromMilliseconds => Timestamp!fromMilliseconds(milliseconds = 12);
-                derived Timestamp timestamp => Timestamp!of(date = Date!of(year = 2022, month = 1, day = 1), time = Time!of(hour = 12, minute = 2, second = 23));
-                derived Timestamp plus => `2022-01-01T12:00:00Z`!plus(years = 1, months = -1, days = 0, hours = 12, minutes = 11, seconds = 1, milliseconds = 12);
+                field Date date <= `2022-01-01T12:00:00Z`!date();
+                field Time time <= `2022-01-01T12:00:00Z`!time();
+                field Integer asMilliseconds <= `2022-01-01T12:00:00Z`!asMilliseconds();
+                field Timestamp fromMilliseconds <= Timestamp!fromMilliseconds(milliseconds = 12);
+                field Timestamp timestamp <= Timestamp!of(date = Date!of(year = 2022, month = 1, day = 1), time = Time!of(hour = 12, minute = 2, second = 23));
+                field Timestamp plus <= `2022-01-01T12:00:00Z`!plus(years = 1, months = -1, days = 0, hours = 12, minutes = 11, seconds = 1, milliseconds = 12);
 
             }
         '''.parse
@@ -1163,19 +1162,19 @@ class TypeInfoTests {
         val m = p.fromModel
 
         val testEntity = m.entityByName("Test")
-        val dateField = testEntity.memberByName("date") as EntityDerivedDeclaration
-        val timeField = testEntity.memberByName("time") as EntityDerivedDeclaration
-        val asMillisecondsField = testEntity.memberByName("asMilliseconds") as EntityDerivedDeclaration
-        val fromMillisecondsField = testEntity.memberByName("fromMilliseconds") as EntityDerivedDeclaration
-        val timestampField = testEntity.memberByName("timestamp") as EntityDerivedDeclaration
-        val plusField = testEntity.memberByName("plus") as EntityDerivedDeclaration
+        val dateField = testEntity.memberByName("date") as EntityCalculatedMemberDeclaration
+        val timeField = testEntity.memberByName("time") as EntityCalculatedMemberDeclaration
+        val asMillisecondsField = testEntity.memberByName("asMilliseconds") as EntityCalculatedMemberDeclaration
+        val fromMillisecondsField = testEntity.memberByName("fromMilliseconds") as EntityCalculatedMemberDeclaration
+        val timestampField = testEntity.memberByName("timestamp") as EntityCalculatedMemberDeclaration
+        val plusField = testEntity.memberByName("plus") as EntityCalculatedMemberDeclaration
 
-        assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(asMillisecondsField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(fromMillisecondsField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(timestampField.expression).getPrimitive);
-        assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(plusField.expression).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(dateField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(timeField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(asMillisecondsField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(fromMillisecondsField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(timestampField.getterExpr).getPrimitive);
+        assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(plusField.getterExpr).getPrimitive);
 
     }
 
@@ -1217,11 +1216,11 @@ class TypeInfoTests {
                 field T2 t2;
                 field T2[] t2s;
 
-                derived Boolean typeOf => self.t1!typeOf(entityType = T1);
-                derived Boolean kindOf => self.t1!kindOf(entityType = T1);
-                derived Test container => self.t1!container(entityType = Test);
-                derived T1 asType => self.t2!asType(entityType = T1);
-                derived Boolean memberOf => self.t2!memberOf(instances = self.t2s);
+                field Boolean typeOf <= self.t1!typeOf(entityType = T1);
+                field Boolean kindOf <= self.t1!kindOf(entityType = T1);
+                field Test container <= self.t1!container(entityType = Test);
+                field T1 asType <= self.t2!asType(entityType = T1);
+                field Boolean memberOf <= self.t2!memberOf(instances = self.t2s);
 
             }
         '''.parse
@@ -1229,26 +1228,26 @@ class TypeInfoTests {
         val m = p.fromModel
 
         val testEntity = m.entityByName("Test")
-        val t1Field = testEntity.memberByName("t1") as EntityFieldDeclaration
+        val t1Field = testEntity.memberByName("t1") as EntityStoredFieldDeclaration
 
-        val typeOfField = testEntity.memberByName("typeOf") as EntityDerivedDeclaration
-        val kindOfField = testEntity.memberByName("kindOf") as EntityDerivedDeclaration
-        val containerField = testEntity.memberByName("container") as EntityDerivedDeclaration
-        val asTypeField = testEntity.memberByName("asType") as EntityDerivedDeclaration
+        val typeOfField = testEntity.memberByName("typeOf") as EntityCalculatedMemberDeclaration
+        val kindOfField = testEntity.memberByName("kindOf") as EntityCalculatedMemberDeclaration
+        val containerField = testEntity.memberByName("container") as EntityCalculatedMemberDeclaration
+        val asTypeField = testEntity.memberByName("asType") as EntityCalculatedMemberDeclaration
 
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(typeOfField.expression).getPrimitive)
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(kindOfField.expression).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(typeOfField.getterExpr).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(kindOfField.getterExpr).getPrimitive)
 
-        val TypeInfo containerTypeInfo = TypeInfo.getTargetType(containerField.expression)
+        val TypeInfo containerTypeInfo = TypeInfo.getTargetType(containerField.getterExpr)
         assertEquals(testEntity, containerTypeInfo.getEntity)
         assertEquals(false, containerTypeInfo.isCollection)
 
-        val TypeInfo asTypeTypeInfo = TypeInfo.getTargetType(asTypeField.expression)
+        val TypeInfo asTypeTypeInfo = TypeInfo.getTargetType(asTypeField.getterExpr)
         assertEquals(t1Field.referenceType, asTypeTypeInfo.getEntity)
         assertEquals(false, containerTypeInfo.isCollection)
 
-        val memberOfField = testEntity.memberByName("memberOf") as EntityDerivedDeclaration
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(memberOfField.expression).getPrimitive)
+        val memberOfField = testEntity.memberByName("memberOf") as EntityCalculatedMemberDeclaration
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(memberOfField.getterExpr).getPrimitive)
 
     }
 
@@ -1279,7 +1278,7 @@ class TypeInfoTests {
         val p = '''
             model TestModel;
 
-            type string String(min-size = 0, max-size = 32);
+            type string String min-size:0 max-size:32;
             type boolean Boolean;
             type numeric Integer(precision = 10, scale = 0);
 
@@ -1292,46 +1291,46 @@ class TypeInfoTests {
                 field T1[] t1s;
                 field T1 t1;
 
-                derived T1[] head => self.t1s!first(t | t.name);
-                derived T1[] tail => self.t1s!last(t | t.name);
-                derived T1 any => self.t1s!any();
-                derived Integer size => self.t1s!size();
-                derived Boolean contains => self.t1s!contains(instance = self.t1);
-                derived T1[] asCollection => self.t1s!asCollection(entityType = T1);
+                field T1[] head <= self.t1s!first(t | t.name);
+                field T1[] tail <= self.t1s!last(t | t.name);
+                field T1 any <= self.t1s!any();
+                field Integer size <= self.t1s!size();
+                field Boolean contains <= self.t1s!contains(instance = self.t1);
+                field T1[] asCollection <= self.t1s!asCollection(entityType = T1);
             }
         '''.parse
         p.assertNoErrors
         val m = p.fromModel
 
         val testEntity = m.entityByName("Test")
-        val t1sField = testEntity.memberByName("t1s") as EntityFieldDeclaration
+        val t1sField = testEntity.memberByName("t1s") as EntityStoredFieldDeclaration
 
-        val headField = testEntity.memberByName("head") as EntityDerivedDeclaration
-        val tailField = testEntity.memberByName("tail") as EntityDerivedDeclaration
-        val anyField = testEntity.memberByName("any") as EntityDerivedDeclaration
-        val sizeField = testEntity.memberByName("size") as EntityDerivedDeclaration
-        val containsField = testEntity.memberByName("contains") as EntityDerivedDeclaration
-        val asCollectionField = testEntity.memberByName("asCollection") as EntityDerivedDeclaration
+        val headField = testEntity.memberByName("head") as EntityCalculatedMemberDeclaration
+        val tailField = testEntity.memberByName("tail") as EntityCalculatedMemberDeclaration
+        val anyField = testEntity.memberByName("any") as EntityCalculatedMemberDeclaration
+        val sizeField = testEntity.memberByName("size") as EntityCalculatedMemberDeclaration
+        val containsField = testEntity.memberByName("contains") as EntityCalculatedMemberDeclaration
+        val asCollectionField = testEntity.memberByName("asCollection") as EntityCalculatedMemberDeclaration
 
-        val TypeInfo headTypeInfo = TypeInfo.getTargetType(headField.expression)
+        val TypeInfo headTypeInfo = TypeInfo.getTargetType(headField.getterExpr)
         assertEquals(t1sField.referenceType, headTypeInfo.getEntity)
         assertEquals(true, headTypeInfo.isCollection)
 
-        val TypeInfo tailTypeInfo = TypeInfo.getTargetType(tailField.expression)
+        val TypeInfo tailTypeInfo = TypeInfo.getTargetType(tailField.getterExpr)
         assertEquals(t1sField.referenceType, tailTypeInfo.getEntity)
         assertEquals(true, tailTypeInfo.isCollection)
 
-        val TypeInfo anyTypeInfo = TypeInfo.getTargetType(anyField.expression)
+        val TypeInfo anyTypeInfo = TypeInfo.getTargetType(anyField.getterExpr)
         assertEquals(anyField.referenceType, anyTypeInfo.getEntity)
         assertEquals(false, anyTypeInfo.isCollection)
 
-        val TypeInfo asCollectionTypeInfo = TypeInfo.getTargetType(asCollectionField.expression)
+        val TypeInfo asCollectionTypeInfo = TypeInfo.getTargetType(asCollectionField.getterExpr)
         assertEquals(asCollectionField.referenceType, asCollectionTypeInfo.getEntity)
         assertEquals(true, asCollectionTypeInfo.isCollection)
 
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sizeField.expression).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sizeField.getterExpr).getPrimitive)
 
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(containsField.expression).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(containsField.getterExpr).getPrimitive)
     }
 
     @Test
@@ -1361,8 +1360,8 @@ class TypeInfoTests {
         val p = '''
             model TestModel;
 
-            type string String(min-size = 0, max-size = 32);
-            type numeric Decimal(precision = 9, scale = 2);
+            type string String min-size:0 max-size:32;
+            type numeric Decimal precision:9 scale:2;
             type boolean Boolean;
 
             entity T1 {
@@ -1374,16 +1373,16 @@ class TypeInfoTests {
                 field T1[] t1s;
                 field T1 t1;
 
-                derived T1[] filter => self.t1s!filter(t | t.name == "Test");
-                derived Boolean anyTrue => self.t1s!anyTrue(t | t.name == "Test");
-                derived Boolean allTrue => self.t1s!allTrue(t | t.name == "Test");
-                derived Boolean anyFalse => self.t1s!anyFalse(t | t.name == "Test");
-                derived Boolean allFalse => self.t1s!allFalse(t | t.name == "Test");
+                field T1[] filter <= self.t1s!filter(t | t.name == "Test");
+                field Boolean anyTrue <= self.t1s!anyTrue(t | t.name == "Test");
+                field Boolean allTrue <= self.t1s!allTrue(t | t.name == "Test");
+                field Boolean anyFalse <= self.t1s!anyFalse(t | t.name == "Test");
+                field Boolean allFalse <= self.t1s!allFalse(t | t.name == "Test");
 
-                derived Decimal min => self.t1s!min(t | t.price);
-                derived Decimal max => self.t1s!max(t | t.price);
-                derived Decimal avg => self.t1s!avg(t | t.price);
-                derived Decimal sum => self.t1s!sum(t | t.price);
+                field Decimal min <= self.t1s!min(t | t.price);
+                field Decimal max <= self.t1s!max(t | t.price);
+                field Decimal avg <= self.t1s!avg(t | t.price);
+                field Decimal sum <= self.t1s!sum(t | t.price);
             }
         '''.parse
         p.assertNoErrors
@@ -1391,29 +1390,29 @@ class TypeInfoTests {
 
         val testEntity = m.entityByName("Test")
 
-        val filterField = testEntity.memberByName("filter") as EntityDerivedDeclaration
-        val anyTrueField = testEntity.memberByName("anyTrue") as EntityDerivedDeclaration
-        val allTrueField = testEntity.memberByName("allTrue") as EntityDerivedDeclaration
-        val anyFalseField = testEntity.memberByName("anyFalse") as EntityDerivedDeclaration
-        val allFalseField = testEntity.memberByName("allFalse") as EntityDerivedDeclaration
-        val minField = testEntity.memberByName("min") as EntityDerivedDeclaration
-        val maxField = testEntity.memberByName("max") as EntityDerivedDeclaration
-        val avgField = testEntity.memberByName("avg") as EntityDerivedDeclaration
-        val sumField = testEntity.memberByName("sum") as EntityDerivedDeclaration
+        val filterField = testEntity.memberByName("filter") as EntityCalculatedMemberDeclaration
+        val anyTrueField = testEntity.memberByName("anyTrue") as EntityCalculatedMemberDeclaration
+        val allTrueField = testEntity.memberByName("allTrue") as EntityCalculatedMemberDeclaration
+        val anyFalseField = testEntity.memberByName("anyFalse") as EntityCalculatedMemberDeclaration
+        val allFalseField = testEntity.memberByName("allFalse") as EntityCalculatedMemberDeclaration
+        val minField = testEntity.memberByName("min") as EntityCalculatedMemberDeclaration
+        val maxField = testEntity.memberByName("max") as EntityCalculatedMemberDeclaration
+        val avgField = testEntity.memberByName("avg") as EntityCalculatedMemberDeclaration
+        val sumField = testEntity.memberByName("sum") as EntityCalculatedMemberDeclaration
 
-        val TypeInfo filterTypeInfo = TypeInfo.getTargetType(filterField.expression)
+        val TypeInfo filterTypeInfo = TypeInfo.getTargetType(filterField.getterExpr)
         assertEquals(filterField.referenceType, filterTypeInfo.getEntity)
         assertEquals(true, filterTypeInfo.isCollection)
 
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(anyTrueField.expression).getPrimitive)
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(allTrueField.expression).getPrimitive)
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(anyFalseField.expression).getPrimitive)
-        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(allFalseField.expression).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(anyTrueField.getterExpr).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(allTrueField.getterExpr).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(anyFalseField.getterExpr).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(allFalseField.getterExpr).getPrimitive)
 
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(minField.expression).getPrimitive)
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(maxField.expression).getPrimitive)
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(avgField.expression).getPrimitive)
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sumField.expression).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(minField.getterExpr).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(maxField.getterExpr).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(avgField.getterExpr).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sumField.getterExpr).getPrimitive)
     }
 
     @Test
@@ -1448,35 +1447,35 @@ class TypeInfoTests {
         val p = '''
             model TestModel;
 
-            type numeric Integer(precision = 9, scale = 0);
+            type numeric Integer precision:9 scale:0;
             type string String(min-size = 0, max-size = 128);
 
-            query Lead[] staticLeadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) => Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
-            query Lead[] staticLeadsOverWithMin(Integer minLeadsOverMin = 5) => staticLeadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
-            query Integer staticLeadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) => Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
-            query Integer staticLeadsOverWithMinCount(Integer minLeadsOverMin = 5) => staticLeadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
+            query Lead[] staticLeadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
+            query Lead[] staticLeadsOverWithMin(Integer minLeadsOverMin = 5) <= staticLeadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
+            query Integer staticLeadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
+            query Integer staticLeadsOverWithMinCount(Integer minLeadsOverMin = 5) <= staticLeadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
             query Lead[] staticLeadsBetweenAndSalesPersonLeads(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) =>
                 Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween).salesPerson.leadsBetween(minLeadsBetween = minLeadsBetween, maxLeadsBetween = maxLeadsBetween);
 
             entity SalesPerson {
                 relation Lead[] leads opposite salesPerson;
 
-                query Lead[] leadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) => self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
-                query Lead[] leadsOverWithMin(Integer minLeadsOverMin = 5) => self.leadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
-                query Lead[] leadsOverWithMinStatic(Integer minLeadsOverMin = 5) => staticLeadsBetween(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
+                query Lead[] leadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
+                query Lead[] leadsOverWithMin(Integer minLeadsOverMin = 5) <= self.leadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
+                query Lead[] leadsOverWithMinStatic(Integer minLeadsOverMin = 5) <= staticLeadsBetween(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
 
-                derived Lead[] leadsOver10 => self.leadsOverWithMin(minLeadsOverMin = 10);
-                derived Lead[] leadsOver20 => self.leadsBetween(minLeadsBetween = 20);
-                derived Lead[] leadsOver10Static => staticLeadsOverWithMin(minLeadsOverMin = 10);
-                derived Lead[] leadsOver20Static => staticLeadsBetween(minLeadsBetween = 20);
+                field Lead[] leadsOver10 <= self.leadsOverWithMin(minLeadsOverMin = 10);
+                field Lead[] leadsOver20 <= self.leadsBetween(minLeadsBetween = 20);
+                field Lead[] leadsOver10Static <= staticLeadsOverWithMin(minLeadsOverMin = 10);
+                field Lead[] leadsOver20Static <= staticLeadsBetween(minLeadsBetween = 20);
 
-                query Integer leadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) => self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
-                query Integer leadsOverWithMinCount(Integer minLeadsOverMin = 5) => self.leadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
+                query Integer leadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
+                query Integer leadsOverWithMinCount(Integer minLeadsOverMin = 5) <= self.leadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
 
-                derived Integer leadsOver10Count => self.leadsOverWithMinCount(minLeadsOverMin = 10);
-                derived Integer leadsOver20Count => self.leadsBetweenCount(minLeadsBetween = 20);
-                derived Integer leadsOver10CountStatic => staticLeadsOverWithMinCount(minLeadsOverMin = 10);
-                derived Integer leadsOver20CountStatic => staticLeadsBetweenCount(minLeadsBetween = 20);
+                field Integer leadsOver10Count <= self.leadsOverWithMinCount(minLeadsOverMin = 10);
+                field Integer leadsOver20Count <= self.leadsBetweenCount(minLeadsBetween = 20);
+                field Integer leadsOver10CountStatic <= staticLeadsOverWithMinCount(minLeadsOverMin = 10);
+                field Integer leadsOver20CountStatic <= staticLeadsBetweenCount(minLeadsBetween = 20);
             }
 
             entity Lead {
@@ -1495,23 +1494,23 @@ class TypeInfoTests {
         val staticLeadsOverWithMinCountQuery = m.queryByName("staticLeadsOverWithMinCount")
         val staticLeadsBetweenAndSalesPersonLeadsQuery = m.queryByName("staticLeadsBetweenAndSalesPersonLeads")
 
-        val leadsBetweenQuery = testEntity.memberByName("leadsBetween") as EntityQueryDeclaration
+        val leadsBetweenQuery = testEntity.memberByName("leadsBetween") as EntityCalculatedMemberDeclaration
 
-        val leadsOverWithMinQuery = testEntity.memberByName("leadsOverWithMin") as EntityQueryDeclaration
-        val leadsOverWithMinStaticQuery = testEntity.memberByName("leadsOverWithMinStatic") as EntityQueryDeclaration
+        val leadsOverWithMinQuery = testEntity.memberByName("leadsOverWithMin") as EntityCalculatedMemberDeclaration
+        val leadsOverWithMinStaticQuery = testEntity.memberByName("leadsOverWithMinStatic") as EntityCalculatedMemberDeclaration
 
-        val leadsOver10Field = testEntity.memberByName("leadsOver10") as EntityDerivedDeclaration
-        val leadsOver20Field = testEntity.memberByName("leadsOver20") as EntityDerivedDeclaration
-        val leadsOver10StaticField = testEntity.memberByName("leadsOver10Static") as EntityDerivedDeclaration
-        val leadsOver20StaticField = testEntity.memberByName("leadsOver20Static") as EntityDerivedDeclaration
+        val leadsOver10Field = testEntity.memberByName("leadsOver10") as EntityCalculatedMemberDeclaration
+        val leadsOver20Field = testEntity.memberByName("leadsOver20") as EntityCalculatedMemberDeclaration
+        val leadsOver10StaticField = testEntity.memberByName("leadsOver10Static") as EntityCalculatedMemberDeclaration
+        val leadsOver20StaticField = testEntity.memberByName("leadsOver20Static") as EntityCalculatedMemberDeclaration
 
-        val leadsBetweenCountQuery = testEntity.memberByName("leadsBetweenCount") as EntityQueryDeclaration
-        val leadsOverWithMinCountQuery = testEntity.memberByName("leadsOverWithMinCount") as EntityQueryDeclaration
+        val leadsBetweenCountQuery = testEntity.memberByName("leadsBetweenCount") as EntityCalculatedMemberDeclaration
+        val leadsOverWithMinCountQuery = testEntity.memberByName("leadsOverWithMinCount") as EntityCalculatedMemberDeclaration
 
-        val leadsOver10CountField = testEntity.memberByName("leadsOver10Count") as EntityDerivedDeclaration
-        val leadsOver20CountField = testEntity.memberByName("leadsOver20Count") as EntityDerivedDeclaration
-        val leadsOver10CountStaticField = testEntity.memberByName("leadsOver10CountStatic") as EntityDerivedDeclaration
-        val leadsOver20CountStaticField = testEntity.memberByName("leadsOver20CountStatic") as EntityDerivedDeclaration
+        val leadsOver10CountField = testEntity.memberByName("leadsOver10Count") as EntityCalculatedMemberDeclaration
+        val leadsOver20CountField = testEntity.memberByName("leadsOver20Count") as EntityCalculatedMemberDeclaration
+        val leadsOver10CountStaticField = testEntity.memberByName("leadsOver10CountStatic") as EntityCalculatedMemberDeclaration
+        val leadsOver20CountStaticField = testEntity.memberByName("leadsOver20CountStatic") as EntityCalculatedMemberDeclaration
 
 
         val TypeInfo staticLeadsBetweenTypeInfo = TypeInfo.getTargetType(staticLeadsBetweenQuery.expression)
@@ -1529,41 +1528,41 @@ class TypeInfoTests {
         assertEquals(staticLeadsBetweenAndSalesPersonLeadsQuery.referenceType, staticLeadsBetweenAndSalesPersonLeadsTypeInfo.getEntity)
         assertEquals(true, staticLeadsBetweenAndSalesPersonLeadsTypeInfo.isCollection)
 
-        val TypeInfo leadsBetweenTypeInfo = TypeInfo.getTargetType(leadsBetweenQuery.expression)
+        val TypeInfo leadsBetweenTypeInfo = TypeInfo.getTargetType(leadsBetweenQuery.getterExpr)
         assertEquals(leadsBetweenQuery.referenceType, leadsBetweenTypeInfo.getEntity)
         assertEquals(true, staticLeadsBetweenAndSalesPersonLeadsTypeInfo.isCollection)
 
-        val TypeInfo leadsOverWithMinTypeInfo = TypeInfo.getTargetType(leadsOverWithMinQuery.expression)
+        val TypeInfo leadsOverWithMinTypeInfo = TypeInfo.getTargetType(leadsOverWithMinQuery.getterExpr)
         assertEquals(leadsOverWithMinQuery.referenceType, leadsOverWithMinTypeInfo.getEntity)
         assertEquals(true, leadsOverWithMinTypeInfo.isCollection)
 
-        val TypeInfo leadsOverWithMinStaticTypeInfo = TypeInfo.getTargetType(leadsOverWithMinStaticQuery.expression)
+        val TypeInfo leadsOverWithMinStaticTypeInfo = TypeInfo.getTargetType(leadsOverWithMinStaticQuery.getterExpr)
         assertEquals(leadsOverWithMinStaticQuery.referenceType, leadsOverWithMinStaticTypeInfo.getEntity)
         assertEquals(true, leadsOverWithMinStaticTypeInfo.isCollection)
 
-        val TypeInfo leadsOver10TypeInfo = TypeInfo.getTargetType(leadsOver10Field.expression)
+        val TypeInfo leadsOver10TypeInfo = TypeInfo.getTargetType(leadsOver10Field.getterExpr)
         assertEquals(leadsOver10Field.referenceType, leadsOver10TypeInfo.getEntity)
         assertEquals(true, leadsOver10TypeInfo.isCollection)
 
-        val TypeInfo leadsOver20TypeInfo = TypeInfo.getTargetType(leadsOver20Field.expression)
+        val TypeInfo leadsOver20TypeInfo = TypeInfo.getTargetType(leadsOver20Field.getterExpr)
         assertEquals(leadsOver20Field.referenceType, leadsOver20TypeInfo.getEntity)
         assertEquals(true, leadsOver20TypeInfo.isCollection)
 
-        val TypeInfo leadsOver10StaticTypeInfo = TypeInfo.getTargetType(leadsOver10StaticField.expression)
+        val TypeInfo leadsOver10StaticTypeInfo = TypeInfo.getTargetType(leadsOver10StaticField.getterExpr)
         assertEquals(leadsOver10StaticField.referenceType, leadsOver10StaticTypeInfo.getEntity)
         assertEquals(true, leadsOver10StaticTypeInfo.isCollection)
 
-        val TypeInfo leadsOver20StaticTypeInfo = TypeInfo.getTargetType(leadsOver20StaticField.expression)
+        val TypeInfo leadsOver20StaticTypeInfo = TypeInfo.getTargetType(leadsOver20StaticField.getterExpr)
         assertEquals(leadsOver20StaticField.referenceType, leadsOver20StaticTypeInfo.getEntity)
         assertEquals(true, leadsOver20StaticTypeInfo.isCollection)
 
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsBetweenCountQuery.expression).getPrimitive)
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsOverWithMinCountQuery.expression).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsBetweenCountQuery.getterExpr).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsOverWithMinCountQuery.getterExpr).getPrimitive)
 
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsOver10CountField.expression).getPrimitive)
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsOver20CountField.expression).getPrimitive)
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsOver10CountStaticField.expression).getPrimitive)
-        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsOver20CountStaticField.expression).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsOver10CountField.getterExpr).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsOver20CountField.getterExpr).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsOver10CountStaticField.getterExpr).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(leadsOver20CountStaticField.getterExpr).getPrimitive)
 
     }
 

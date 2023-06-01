@@ -118,11 +118,11 @@ entity abstract Person extends Customer, User;
 |====================
 |             2+^|Stored               2+^|Calculated
 |               ^|__@Eager__ ^|__@Lazy__ ^|__@Eager__ ^|__@Lazy__
-|**Primitive**   |field       |field      |field <=	   |field <= +
+|**Primitive**   |[underline]##field##       |field      |[underline]##field <=##	   |field <= +
                                                         field (...) <=
-|**Relation**    |relation    |relation   |relation <= |relation <= +
-                                                        relation (...) <=
-|**Composition** |field       |field     ^|--	      ^|--
+|**Relation**    |relation    |[underline]##relation##   |relation <= |[underline]##relation <= +
+                                                        relation (...) <=##
+|**Composition** |field       |[underline]##field##     ^|--	      ^|--
 |====================
 
 
