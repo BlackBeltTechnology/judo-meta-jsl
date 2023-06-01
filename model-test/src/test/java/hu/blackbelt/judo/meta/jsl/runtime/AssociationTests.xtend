@@ -33,11 +33,11 @@ class AssociationTests {
         '''
             model Test;
             entity A {
-                relation B b opposite a;
+                relation B b opposite:a;
             }
 
             entity B {
-                relation A a opposite b;
+                relation A a opposite:b;
             }
 
         '''.parse => [
@@ -90,7 +90,7 @@ class AssociationTests {
             }
 
             entity B {
-                relation A a opposite b;
+                relation A a opposite:b;
             }
 
         '''.parse => [

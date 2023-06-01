@@ -37,11 +37,11 @@ class IdEscapingTests {
     def void testFieldNameReservedWord() {
         '''
             model Test;
-            type string String(min-size = 0, max-size = 128);
+            type string String min-size:0 max-size:128;
 
             entity A {
                 field String `entity`;
-                derived String d => self.`entity`;
+                field String d <= self.`entity`;
             }
         '''.parse => [
             assertNoErrors
@@ -68,14 +68,14 @@ class IdEscapingTests {
     def void testEntityNameReservedWord() {
         '''
             model Test;
-            type string String(min-size = 0, max-size = 128);
+            type string String min-size:0 max-size:128;
 
             entity `entity` {
                 field String str;
             }
 
             entity B {
-                derived `entity`[] e => `entity`!all();
+                field `entity`[] e <= `entity`!all();
             }
 
         '''.parse => [
@@ -102,7 +102,7 @@ class IdEscapingTests {
         val a =
         '''
             model `entity`;
-            type string String(min-size = 0, max-size = 128);
+            type string String min-size:0 max-size:128;
         '''.parse(resourceSet)
 
         val b =
@@ -138,7 +138,7 @@ class IdEscapingTests {
         val a =
         '''
             model `entity`;
-            type string String(min-size = 0, max-size = 128);
+            type string String min-size:0 max-size:128;
         '''.parse(resourceSet)
 
         val b =

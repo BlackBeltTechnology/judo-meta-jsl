@@ -703,35 +703,35 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-//    @Check
-//    def checkAssociation(EntityRelationDeclaration relation) {
-//        // System.out.println("checkAssociationOpposite: " + relation + " opposite: " + relation?.opposite + " type: " + relation?.opposite?.oppositeType)
-//
-//        // Check the referenced opposite relation type reference back to this relation
-//        if (relation.opposite?.oppositeType !== null) {
-//            // System.out.println(" -- " + relation + " --- " + relation.opposite?.oppositeType?.opposite?.oppositeType)
-//            if (relation !== relation.opposite?.oppositeType?.opposite?.oppositeType) {
-//                error("The relation's opposite does not match '" + relation.opposite.oppositeType.name + "'.",
-//                    JsldslPackage::eINSTANCE.entityRelationDeclaration_Opposite,
-//                    OPPOSITE_TYPE_MISMATH,
-//                    relation.name)
-//            }
-//        }
-//
-//        // Check this relation without oppoite type is referenced from another relation in the relation target type
-//        if (relation.opposite === null) {
-//            val selectableRelatations = relation.referenceType.getAllRelations(null)
-//            val relationReferencedBack = selectableRelatations.filter[r | r.opposite !== null && r.opposite.oppositeType === relation].toList
-//            // System.out.println(" -- " + relation + " --- Referenced back: " + relationReferencedBack.map[r | r.eContainer.fullyQualifiedName + "#" + r.name].join(", "))
-//            if (!relationReferencedBack.empty) {
-//                error("The relation does not declare an opposite relation, but the following relations refer to this relation as opposite: " +
-//                    relationReferencedBack.map[r | "'" + r.eContainer.fullyQualifiedName.toString("::") + "#" + r.name + "'"].join(", "),
-//                    JsldslPackage::eINSTANCE.entityRelationDeclaration_Opposite,
-//                    OPPOSITE_TYPE_MISMATH,
-//                    relation.name)
-//            }
-//        }
-//    }
+    @Check
+    def checkAssociation(EntityStoredRelationDeclaration relation) {
+        // System.out.println("checkAssociationOpposite: " + relation + " opposite: " + relation?.opposite + " type: " + relation?.opposite?.oppositeType)
+
+        // Check the referenced opposite relation type reference back to this relation
+        if (relation.opposite?.oppositeType !== null) {
+            // System.out.println(" -- " + relation + " --- " + relation.opposite?.oppositeType?.opposite?.oppositeType)
+            if (relation !== relation.opposite?.oppositeType?.opposite?.oppositeType) {
+                error("The relation's opposite does not match '" + relation.opposite.oppositeType.name + "'.",
+                    JsldslPackage::eINSTANCE.entityStoredRelationDeclaration_Opposite,
+                    OPPOSITE_TYPE_MISMATH,
+                    relation.name)
+            }
+        }
+
+        // Check this relation without oppoite type is referenced from another relation in the relation target type
+        if (relation.opposite === null) {
+            val selectableRelatations = (relation.referenceType as EntityDeclaration).getAllRelations(null)
+            val relationReferencedBack = selectableRelatations.filter[r | r.opposite !== null && r.opposite.oppositeType === relation].toList
+            // System.out.println(" -- " + relation + " --- Referenced back: " + relationReferencedBack.map[r | r.eContainer.fullyQualifiedName + "#" + r.name].join(", "))
+            if (!relationReferencedBack.empty) {
+                error("The relation does not declare an opposite relation, but the following relations refer to this relation as opposite: " +
+                    relationReferencedBack.map[r | "'" + r.eContainer.fullyQualifiedName.toString("::") + "#" + r.name + "'"].join(", "),
+                    JsldslPackage::eINSTANCE.entityStoredRelationDeclaration_Opposite,
+                    OPPOSITE_TYPE_MISMATH,
+                    relation.name)
+            }
+        }
+    }
 
     @Check
     def checkCycleInInheritence(EntityDeclaration entity) {
@@ -1842,7 +1842,7 @@ class JslDslValidator extends AbstractJslDslValidator {
             return
         }
 
-        if (!(actor.identity instanceof Navigation)) {
+        if (!(actor.identity.expression instanceof Navigation)) {
             error("Invalid actor identity. Identity must be mapped to an identifier of the mapped entity type.",
                 JsldslPackage::eINSTANCE.actorDeclaration_Identity,
                 INVALID_IDENTITY_MAPPING,
@@ -1851,7 +1851,7 @@ class JslDslValidator extends AbstractJslDslValidator {
             return;
         }
 
-        val Navigation navigation = actor.identity as Navigation;
+        val Navigation navigation = actor.identity.expression as Navigation;
 
         if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
             error("Invalid actor identity. Identity must be mapped to an identifier of the mapped entity type.",
