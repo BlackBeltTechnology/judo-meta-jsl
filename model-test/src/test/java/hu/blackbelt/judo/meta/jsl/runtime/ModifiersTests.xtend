@@ -203,6 +203,33 @@ class ModifiersTests {
             m | m.assertError(JsldslPackage::eINSTANCE.modifierScale, JslDslValidator.SCALE_MODIFIER_IS_TOO_LARGE, "Scale must be less than the defined precision: 15")
         ]
     }
+    
+    @Test
+    @Requirement(reqs = #[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-MDL-001",
+        "REQ-TYPE-001",
+        "REQ-TYPE-006",
+        "REQ-ENT-001",
+        "REQ-ENT-007"
+    ])
+    def void testAbstarctField() {
+        '''
+            model test;
+
+            entity abstract T1 {
+            }
+            
+            entity Test {
+                field T1 ent;
+            }
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.FIELD_TYPE_IS_ABSRTACT_ENTITY, "You cannot use entity named 'T1' as a field type, because it is abstract")
+        ]
+    }
 
     def private void assertMaxSizeTooLargeError(ModelDeclaration modelDeclaration, String error, EClass target) {
         modelDeclaration.assertError(
