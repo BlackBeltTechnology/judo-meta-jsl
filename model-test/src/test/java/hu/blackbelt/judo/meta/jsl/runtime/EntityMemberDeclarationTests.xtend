@@ -121,21 +121,19 @@ class EntityMemberDeclarationTests {
         "REQ-TYPE-004"
     ])
     def void testFieldIsManyRequired() {
-    	// this test is unnecessary, the new JSL syntax does not allow primitives with cardinality
-    	
         //TODO: JNG-4381
-//        '''
-//            model test;
-//
-//            type string String min-size:0 max-size:1000;
-//
-//            entity B1 {
-//                field required String[] attr;
-//            }
-//
-//        '''.parse => [
-//            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.USING_REQUIRED_WITH_IS_MANY, "Collection typed field: 'attr' cannot have keyword: 'required'")
-//        ]
+        '''
+            model test;
+
+            type string String min-size:0 max-size:1000;
+
+            entity B1 {
+                field required String[] attr;
+            }
+
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
+        ]
     }
 
     @Test
@@ -153,21 +151,21 @@ class EntityMemberDeclarationTests {
     def void testRelationIsManyRequired() {
     	// this test is unnecessary, the new JSL syntax does not allow required keyword for collections
     	
-//        '''
-//            model test;
-//
-//            type string String(min-size = 0, max-size = 1000);
-//
-//            entity B1 {
-//                relation required B2[] others;
-//            }
-//
-//            entity B2 {
-//                String name;
-//            }
-//        '''.parse => [
-//            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredRelationDeclaration, JslDslValidator.USING_REQUIRED_WITH_IS_MANY, "Collection typed relation: 'others' cannot have keyword: 'required'")
-//        ]
+        '''
+            model test;
+
+            type string String min-size:0 max-size:1000;
+
+            entity B1 {
+                relation required B2[] others;
+            }
+
+            entity B2 {
+                String name;
+            }
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.entityDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
+        ]
     }
 
     def private void assertInheritedMemberNameCollisionError(ModelDeclaration modelDeclaration, String error, EClass target) {

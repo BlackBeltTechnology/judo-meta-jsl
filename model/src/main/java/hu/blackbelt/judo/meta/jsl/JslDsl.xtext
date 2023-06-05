@@ -47,16 +47,16 @@ ClassDeclaration
 	| ActorDeclaration
 	;
 
-/****************************
- *	Entity
- ****************************/
-
 fragment Named
-	: name = JSLID;
+	: => name = JSLID;
 
 fragment Cardinality
     : many ?= '[]'
     ;
+
+/****************************
+ *	Entity
+ ****************************/
 
 EntityDeclaration
 	: {EntityDeclaration}
@@ -69,34 +69,33 @@ EntityDeclaration
 EntityMemberDeclaration
 	: {EntityStoredFieldDeclaration}
 	  annotations += AnnotationMark*
-	  ( identifier ?= FEAT_IDENTIFIER required ?= ATTR_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName]
-	  | FEAT_FIELD required ?= ATTR_REQUIRED? referenceType = [SingleType | ModelName]
-	  | FEAT_FIELD referenceType = [EntityDeclaration | ModelName] Cardinality
+	  ( FEAT_FIELD required ?= ATTR_REQUIRED? singleReferenceType = [SingleType | ModelName]
+	    Named ('=' defaultExpr = Expression)?
+	  | FEAT_FIELD entityReferenceType = [EntityDeclaration | ModelName] Cardinality
+	  	Named ('=' defaultExpr = Expression)?
+	  | identifier ?= FEAT_IDENTIFIER required ?= ATTR_REQUIRED? primitiveReferenceType = [PrimitiveDeclaration | ModelName]
+	    Named ('=' defaultExpr = Expression)?
 	  )
-	  Named
-	  ('=' defaultExpr = Expression)?
 	  SC
 	  | EntityStoredRelationDeclaration
 	  | EntityCalculatedMemberDeclaration
 	;
 
 EntityStoredRelationDeclaration
-	: annotations += AnnotationMark*
-	  ( FEAT_RELATION required ?= ATTR_REQUIRED? referenceType = [EntityDeclaration | ModelName]
-	  | FEAT_RELATION referenceType = [EntityDeclaration | ModelName] Cardinality
+	: {EntityStoredRelationDeclaration}
+	  annotations += AnnotationMark*
+	  ( FEAT_RELATION required ?= ATTR_REQUIRED? entityReferenceType = [EntityDeclaration | ModelName]
+	  	Named ('=' defaultExpr = Expression)? opposite = EntityRelationOpposite?
+	  | FEAT_RELATION entityReferenceType = [EntityDeclaration | ModelName] Cardinality
+	  	Named ('=' defaultExpr = Expression)? opposite = EntityRelationOpposite?
 	  )
-	  Named
-	  ('=' defaultExpr = Expression)?
-	  opposite = EntityRelationOpposite?
 	  SC
 	;
 
 EntityCalculatedMemberDeclaration
 	: {EntityCalculatedFieldDeclaration}
 	  annotations += AnnotationMark*
-	  ( FEAT_FIELD referenceType = [SingleType | ModelName]
-	  | FEAT_FIELD referenceType = [EntityDeclaration | ModelName] Cardinality
-	  )
+	  FEAT_FIELD primitiveReferenceType = [PrimitiveDeclaration | ModelName]
 	  Named
 	  ('(' parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)* ')')? '<=' getterExpr = Expression
 	  SC
@@ -104,48 +103,13 @@ EntityCalculatedMemberDeclaration
 	;
 
 EntityCalculatedRelationDeclaration
-	: annotations += AnnotationMark*
-	  FEAT_RELATION referenceType = [EntityDeclaration | ModelName] Cardinality?
+	: {EntityCalculatedRelationDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_RELATION entityReferenceType = [EntityDeclaration | ModelName] Cardinality?
 	  Named
 	  ('(' parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)* ')')? '<=' getterExpr = Expression
 	  SC
 	;
-
-//EntityDerivedDeclaration
-//	: annotations += AnnotationMark*
-//	  FEAT_DERIVED (referenceType = [SingleType | ModelName] Cardinality?) Named
-//	  "=>" expression = Expression SC
-//	;
-
-//EntityDerivedDeclaration
-//	: annotations += AnnotationMark*
-//	  (FEAT_FIELD referenceType = [PrimitiveDeclaration | ModelName] | FEAT_RELATION referenceType = [EntityDeclaration | ModelName]) Cardinality?
-//	  Named
-//	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*) ')')?
-//	  => "<=" expression = Expression
-//	  SC
-//	;
-
-
-//EntityDerivedFieldDeclaration
-//	: annotations += AnnotationMark*
-//	  FEAT_FIELD (referenceType = [PrimitiveDeclaration | ModelName]) Named
-//	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*) ')')?
-//	  => "<=" expression = Expression SC
-//	;
-
- 
-QueryParameterDeclaration
-	: referenceType = [PrimitiveDeclaration | ModelName] Named ("=" default = Expression)?
-	;
-
-
-//EntityDerivedRelationDeclaration
-//	: annotations += AnnotationMark*
-//	  FEAT_RELATION (referenceType = [EntityDeclaration | ModelName] Cardinality?) Named
-//	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*) ')')?
-//	  => "<=" expression = Expression SC
-//	;
 
 EntityRelationOpposite
 	: EntityRelationOppositeInjected
@@ -175,10 +139,6 @@ EntityRelationOppositeReferenced
 //	: referenceType = [SingleType | ModelName] Cardinality? Named
 //	;
 
-GuardModifier
-	: ATTR_GUARD ':' expression = Expression
-	;
-
 EntityMapDeclaration
 	: '(' entity = [EntityDeclaration | ModelName] Named ')'  // if no name defined, the 'self' shall be default name
 	| KW_MAPS entity = [EntityDeclaration | ModelName] KW_AS Named
@@ -196,88 +156,77 @@ QueryDeclaration
 	  SC
 	;
 
+QueryParameterDeclaration
+	: referenceType = [PrimitiveDeclaration | ModelName] Named ("=" default = Expression)?
+	;
+
 /****************************
- *	Service
+ *	Return
  ****************************/
-//
-//ServiceDeclaration
-//	: {ServiceDeclaration}
-//	  annotations += AnnotationMark*
-//	  KW_SERVICE Named
-//	  map = EntityMapDeclaration?
-//	  guard = GuardModifier?
-//	  (SC | BLOCK_START (members += ServiceMemberDeclaration)* BLOCK_END)
-//	;
-//
-//
-//
-//ServiceMemberDeclaration
-//	: ServiceOperationDeclaration
-//	  SC*
-//	;
-//
-//ServiceOperationDeclaration
-//	: ServiceDataDeclaration
-//	| ServiceFunctionDeclaration
-//	;
-//
-//ServiceDataDeclaration
-//	: annotations += AnnotationMark*
-//	  FEAT_FUNCTION return = ServiceReturnDeclaration Cardinality? Named '=>' expression = Expression
-//	  (guard = GuardModifier? & choices = ChoiceModifier?)
-//	  SC
-//	;
-//
-ServiceFunctionDeclaration
-	: annotations += AnnotationMark*
-	  FEAT_FUNCTION
-	  (CONST_VOID? | return = ServiceReturnDeclaration | alternateReturn = ServiceReturnAlternateDeclaration) Named
-	  '(' parameter = ServiceFunctionParameterDeclaration? ')'
-// 	  guard = GuardModifier?
-	  (automapping ?= SC | BLOCK_START BLOCK_END)
-	;
 
-
-ServiceReturnAlternateDeclaration
-	: '<' referenceTypes += ServiceReturnDeclaration ("|" referenceTypes += ServiceReturnDeclaration)+ '>'
-	;
-
-
-ServiceReturnDeclaration
-	: referenceType = [Transferable | ModelName]
-	;
-
-ServiceFunctionParameterDeclaration
-	: referenceType = [Transferable | ModelName] Named?
-	;
-
-Transferable
-	: TransferDeclaration
-	| ViewDeclaration
-	| RowDeclaration
+ReturnDeclaration
+	: {ReturnDeclaration} CONST_VOID?
+	| referenceTypes += [TransferDeclaration | ModelName]
+	| '<' referenceTypes += [TransferDeclaration | ModelName] ("|" referenceType += [TransferDeclaration | ModelName])+ '>'
 	;
 
 /****************************
  *	Transfer
  ****************************/
 
+//Transferable
+//	: TransferDeclaration
+//	| PrimitiveDeclaration
+//	;
+
 TransferDeclaration
 	: {TransferDeclaration}
 	  annotations += AnnotationMark*
 	  KW_TRANSFER Named
 	  map = EntityMapDeclaration?
-//	  (KW_EXPORTS exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
 	  (automap ?= SC | BLOCK_START members += TransferMemberDeclaration* BLOCK_END)
 	;
 
 TransferMemberDeclaration
 	: TransferConstructorDeclaration
 	| TransferDestructorDeclaration
-	| TransferGetDeclaration
-	| TransferPutDeclaration
-	| TransferFieldDeclaration
+	| TransferInitializerDeclaration
+	
+	| TransferDataMemberDeclaration
+
+	| TransferActionDeclaration
+	| TransferSubmitDeclaration
+	;
+
+TransferDataMemberDeclaration
+	: TransferFieldDeclaration
 	| TransferRelationDeclaration
-	| ServiceFunctionDeclaration
+	;
+
+TransferDestructorDeclaration
+	: {TransferGetDeclaration}
+	  FEAT_DESTRUCTOR
+	  (SC | BLOCK_START BLOCK_END)
+	;
+
+TransferConstructorDeclaration
+	: {TransferConstructorDeclaration}
+	  FEAT_CONSTRUCTOR
+	  (SC | BLOCK_START (defaults += TransferDefault)* BLOCK_END)
+	;
+
+TransferInitializerDeclaration
+	: {TransferInitializerDeclaration}
+	  FEAT_INITIALIZER
+	  (SC | BLOCK_START BLOCK_END)
+	;
+
+TransferDefault
+	: member = TransferDataMember '=' rightValue = Expression SC
+	;
+
+TransferDataMember
+	: 'self' '.' reference = [TransferDataMemberDeclaration | ModelName]
 	;
 
 TransferFieldDeclaration
@@ -287,63 +236,31 @@ TransferFieldDeclaration
 	  SC
 	;
 
-//TransferFieldDeclaration
-//	: annotations += AnnotationMark*
-//	  FEAT_FIELD (required ?= FEAT_REQUIRED? referenceType = [TransferFieldType | ModelName] Cardinality?) Named
-//	  (KW_MAPS maps = Expression (ATTR_CHOICES choices = Expression)? | 'reads' reads = Expression)?
-//	  SC
-//	;
-
-TransferGetDeclaration
-	: {TransferGetDeclaration}
-	  feature = FEAT_GET
-	;
-
-TransferPutDeclaration
-	: {TransferGetDeclaration}
-	  feature = FEAT_PUT
-	;
-
-TransferDestructorDeclaration
-	: {TransferGetDeclaration}
-	  feature = FEAT_DESTRUCTOR
-	;
-
-TransferConstructorDeclaration
-	: {TransferConstructorDeclaration}
-	  feature = FEAT_CONSTRUCTOR
-	  BLOCK_START (defaults += TransferDefault)* BLOCK_END
-	;
-
-TransferDefault
-	: field = TransferField '=' rightValue = Expression SC
-	;
-
-TransferField
-	: 'self' '.' reference = [TransferFieldDeclaration | ModelName]
-	;
-
-TransferFieldType
-	: PrimitiveDeclaration
-	| TransferDeclaration
-	;
-
 TransferRelationDeclaration
 	: annotations += AnnotationMark*
-	  FEAT_RELATION return = [TransferDeclaration | ModelName] Cardinality? Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	  FEAT_RELATION referenceType = [TransferDeclaration | ModelName] Cardinality? Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
 	  (choices = TransferChoiceModifier?)
 	  SC
 	;
 
-CreateTransferModifier
-	: ATTR_CREATE ':' view = [TransferDeclaration | ModelName]
+TransferSubmitDeclaration
+	: annotations += AnnotationMark*
+	  FEAT_SUBMIT return = ReturnDeclaration Named
+	  SC
+	;
+
+TransferActionDeclaration
+	: annotations += AnnotationMark*
+	  FEAT_ACTION return = ReturnDeclaration Named
+	  '(' (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? ')'
+	  SC
 	;
 
 /****************************
  *	View
  ****************************/
 
-ViewDeclaration
+ViewDeclaration returns TransferDeclaration
 	: {ViewDeclaration}
 	  annotations += AnnotationMark*
 	  KW_VIEW Named
@@ -351,34 +268,33 @@ ViewDeclaration
 	  (automap ?= SC | BLOCK_START members += ViewMemberDeclaration* BLOCK_END)
 	;
 
-ViewMemberDeclaration
-	: ViewConstructorDeclaration
+ViewMemberDeclaration returns TransferMemberDeclaration
+	: TransferConstructorDeclaration
+	| TransferDestructorDeclaration
+	| TransferInitializerDeclaration
+
 	| ViewTextDeclaration
 	| ViewFieldDeclaration
 	| ViewLinkDeclaration
 	| ViewTableDeclaration
-	| ViewGroupDeclaration
-	| ViewTabsDeclaration
+	
 	| ViewSubmitDeclaration
 	| ViewActionDeclaration
+
+	| ViewGroupDeclaration
+	| ViewTabsDeclaration
 	;
 
-ViewConstructorDeclaration
-	: {ViewConstructorDeclaration}
-	  feature = FEAT_CONSTRUCTOR
-	  BLOCK_START (defaults += ViewDefault)* BLOCK_END
-	;
-
-ViewDefault
-	: field = ViewField '=' rightValue = Expression SC
-	;
-
-ViewField
-	: 'self' '.' declaration = [ViewFieldDeclaration | ModelName]
-	;
+//ViewDefault
+//	: field = ViewField '=' rightValue = Expression SC
+//	;
+//
+//ViewField
+//	: 'self' '.' declaration = [ViewFieldDeclaration | ModelName]
+//	;
 
 ViewTabsDeclaration
-	: {ViewTabDeclaration}
+	: {ViewTabsDeclaration}
 	  annotations += AnnotationMark*
 	  FEAT_TABS tag = JSLID
 	  ( label = LabelModifier?
@@ -412,9 +328,10 @@ VerticalModifier
 	: ATTR_VERTICAL ':' (top ?= CONST_TOP | bottom ?= CONST_BOTTOM | center ?= CONST_CENTER | stretch ?= CONST_STRETCH)
 	;
 
-ViewTextDeclaration
-	: annotations += AnnotationMark*
-	  FEAT_TEXT Named '<=' expression = Expression
+ViewTextDeclaration returns TransferFieldDeclaration
+	: {ViewTextDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_TEXT Named reads ?= '<=' expression = Expression
 	  ( label = LabelModifier?
 	  & icon = IconModifier?
 	  & ^hidden = HiddenModifier?
@@ -422,8 +339,9 @@ ViewTextDeclaration
 	  SC
 	;
 
-ViewFieldDeclaration
-	: annotations += AnnotationMark*
+ViewFieldDeclaration returns TransferFieldDeclaration
+	: {ViewFieldDeclaration}
+	  annotations += AnnotationMark*
 	  FEAT_FIELD  required ?= ATTR_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
 	  ((maps ?= '<=>' | reads ?= '<=') getterExpr = Expression)?
 	  ( label = LabelModifier?
@@ -434,8 +352,16 @@ ViewFieldDeclaration
 	  SC
 	;
 
-ViewLinkDeclaration
-	: annotations += AnnotationMark*
+//TransferFieldDeclaration
+//	: annotations += AnnotationMark*
+//	  FEAT_FIELD  required ?= ATTR_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
+//	  ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+//	  SC
+//	;
+
+ViewLinkDeclaration returns TransferRelationDeclaration
+	: {ViewLinkDeclaration}
+	  annotations += AnnotationMark*
 	  FEAT_LINK required ?= ATTR_REQUIRED? referenceType = [ViewDeclaration | ModelName] Named
 	  ((maps ?= '<=>' | reads ?= '<=') getterExpr = Expression)?
 	  ( choices = ViewChoiceModifier?
@@ -449,8 +375,9 @@ ViewLinkDeclaration
 	  SC
 	;
 
-ViewTableDeclaration
-	: annotations += AnnotationMark*
+ViewTableDeclaration returns TransferRelationDeclaration
+	: {ViewTableDeclaration}
+	  annotations += AnnotationMark*
 	  FEAT_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
 	  ((maps ?= '<=>' | reads ?= '<=') getterExpr = Expression)?
 	  ( choices = ViewChoiceModifier?
@@ -464,9 +391,10 @@ ViewTableDeclaration
 	  SC
 	;
 
-ViewSubmitDeclaration
-	: annotations += AnnotationMark*
-	  feature = FEAT_SUBMIT (CONST_VOID? | return = ServiceReturnDeclaration | alternateReturn = ServiceReturnAlternateDeclaration) Named
+ViewSubmitDeclaration returns TransferSubmitDeclaration
+	: {ViewSubmitDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_SUBMIT return = ReturnDeclaration Named
 	  ( label = LabelModifier?
 	  & icon = IconModifier?
 	  & enabled = EnabledModifier?
@@ -476,10 +404,11 @@ ViewSubmitDeclaration
 	  SC
 	;
 
-ViewActionDeclaration
-	: annotations += AnnotationMark*
-	  feature = FEAT_ACTION (CONST_VOID? | return = ServiceReturnDeclaration | alternateReturn = ServiceReturnAlternateDeclaration) Named
-	  '(' parameter = ServiceFunctionParameterDeclaration? ')'
+ViewActionDeclaration returns TransferActionDeclaration
+	: {ViewActionDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_ACTION return = ReturnDeclaration Named
+	  '(' (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID)? ')'
 	  ( label = LabelModifier?
 	  & icon = IconModifier?
 	  & enabled = EnabledModifier?
@@ -525,7 +454,7 @@ TransferChoiceModifier
 	: ATTR_CHOICES ':' expression = Expression
 	;
 
-ViewChoiceModifier
+ViewChoiceModifier returns TransferChoiceModifier
 	: ATTR_CHOICES ':' rows = [RowDeclaration | ModelName] '[]' '(' expression = Expression ')'
 	;
 
@@ -554,7 +483,7 @@ DetailModifier
  *	Row
  ****************************/
 
-RowDeclaration
+RowDeclaration returns TransferDeclaration
 	: {RowDeclaration}
 	  annotations += AnnotationMark*
 	  KW_ROW Named
@@ -563,14 +492,15 @@ RowDeclaration
 	  (automap ?= SC | BLOCK_START (members += RowMemberDeclaration)* BLOCK_END)
 	;
 
-RowMemberDeclaration
+RowMemberDeclaration returns TransferMemberDeclaration
 	: RowColumnDeclaration
 	| ViewActionDeclaration
 	;
 
-RowColumnDeclaration
-	: annotations += AnnotationMark*
-	  FEAT_COLUMN (referenceType = [PrimitiveDeclaration | ModelName]) Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+RowColumnDeclaration returns TransferFieldDeclaration
+	: {RowColumnDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_COLUMN referenceType = [PrimitiveDeclaration | ModelName] Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
 	  ( label = LabelModifier?
 	  & icon = IconModifier?
 	  & width = WidthModifier?)
@@ -603,6 +533,10 @@ ClaimModifier
 
 IdentityModifier
 	: ATTR_IDENTITY ':' expression = Expression
+	;
+
+GuardModifier
+	: ATTR_GUARD ':' expression = Expression
 	;
 
 ActorMemberDeclaration
@@ -643,7 +577,7 @@ ActorAccessDeclaration
 
 ActorResourceDeclaration
 	: annotations += AnnotationMark*
-	  FEAT_RESOURCE referenceType = [Transferable | ModelName] Cardinality? Named
+	  FEAT_RESOURCE referenceType = [TransferDeclaration | ModelName] Cardinality? Named
 	  '<=' expression = Expression
 //	  guard = GuardModifier?
 	  SC
@@ -651,7 +585,7 @@ ActorResourceDeclaration
 
 ActorMenuDeclaration
 	: annotations += AnnotationMark*
-	  FEAT_MENU referenceType = [Transferable | ModelName] Cardinality? Named
+	  FEAT_MENU referenceType = [TransferDeclaration | ModelName] Cardinality? Named
 	  ('<=' expression = Expression)?
 	  ( choices = ViewChoiceModifier?
 //	  & guard = GuardModifier?
@@ -1111,7 +1045,7 @@ JSLID : ID
 		| CONST_STRETCH	| CONST_STRING | CONST_TIME | CONST_TIMESTAMP | CONST_TOP
 
 		| ATTR_CHOICES | ATTR_CLAIM | ATTR_CREATE | ATTR_DETAIL | ATTR_ENABLED | ATTR_FRAME | ATTR_GUARD | ATTR_HIDDEN | ATTR_HORIZONTAL | ATTR_ICON
-		| ATTR_IDENTITY | ATTR_LABEL | ATTR_REALM | ATTR_REQUIRED | ATTR_ROWS | ATTR_TAG
+		| ATTR_IDENTITY | ATTR_LABEL | ATTR_REALM | ATTR_ROWS | ATTR_SCALE | ATTR_TAG
 		| ATTR_THROW | ATTR_VERTICAL | ATTR_WIDTH
 
 //		| OTHER_OR | OTHER_XOR | OTHER_AND | OTHER_DIV | OTHER_MOD | OTHER_KB | OTHER_MB | OTHER_GB | OTHER_KIB | OTHER_MIB | OTHER_GIB
@@ -1201,14 +1135,12 @@ terminal FEAT_DERIVED:		'derived';
 terminal FEAT_DESTRUCTOR:	'destructor';
 terminal FEAT_FIELD:		'field';
 terminal FEAT_FUNCTION:		'function';
-terminal FEAT_GET:			'get';
 terminal FEAT_GROUP:		'group';
 terminal FEAT_IDENTIFIER:	'identifier';
+terminal FEAT_INITIALIZER:	'initializer';
 terminal FEAT_LINK:			'link';
 terminal FEAT_LITERAL:		'literal';
 terminal FEAT_MENU:			'menu';
-// terminal FEAT_QUERY:		'query';
-terminal FEAT_PUT:			'put';
 terminal FEAT_RELATION:		'relation';
 terminal FEAT_RESOURCE:		'resource';
 terminal FEAT_SUBMIT:		'submit';

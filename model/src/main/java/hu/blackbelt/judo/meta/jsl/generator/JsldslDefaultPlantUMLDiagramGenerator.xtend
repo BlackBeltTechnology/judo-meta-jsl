@@ -20,9 +20,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
 //import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration
 //import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceFunctionDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceReturnDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceReturnAlternateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredFieldDeclaration
@@ -266,11 +263,11 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 //    '''{method}«dataFunctionModifierFragment»«dataFunctionNameFragment» : «it.^return.referenceType.name»«dataFunctionCardinalityFragment» <b>=></b> «it.expression.sourceCode»
 //	'''
 	
-	def functionNameFragment(ServiceFunctionDeclaration it)
-    '''«name»'''
-    
-    def functionUnionReturnConcatenated(ServiceReturnAlternateDeclaration it)
-    '''«it.referenceTypes.map[r | r.referenceType.name].join(' | ')»'''
+//	def functionNameFragment(ServiceFunctionDeclaration it)
+//    '''«name»'''
+//    
+//    def functionUnionReturnConcatenated(ServiceReturnAlternateDeclaration it)
+//    '''«it.referenceTypes.map[r | r.referenceType.name].join(' | ')»'''
     
 //    def functionModifierFragment(ServiceFunctionDeclaration it)
 //    '''«IF it.guard !== null»~«ELSE»+«ENDIF»'''
@@ -386,18 +383,6 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         «FOR transfer : transferDeclarations»
             «transfer.transferMaps»
         «ENDFOR»
-
-«««        «FOR service : serviceDeclarations»
-«««            «service.serviceRepresentation»
-«««        «ENDFOR»
-«««        
-«««        «FOR service : serviceDeclarations»
-«««            «service.serviceMaps»
-«««        «ENDFOR»
-        
-«««        «FOR service : externalServiceReferenceTypes»
-«««            class «getExternalNameOfServiceDeclaration(service)» <«service.parentContainer(ModelDeclaration)?.name»> << External >>
-«««        «ENDFOR»
     }
     
     together {

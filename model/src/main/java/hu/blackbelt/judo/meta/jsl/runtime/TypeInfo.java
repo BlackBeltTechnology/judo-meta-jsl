@@ -9,7 +9,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.DateLiteral;
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedMemberDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedFieldDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedRelationDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration;
@@ -42,13 +43,14 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.RawStringLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Self;
-// import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.SingleType;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimestampLiteral;
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataMemberDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TypeDescription;
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnaryOperation;
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension;
@@ -552,23 +554,35 @@ public class TypeInfo {
 			
 		return new TypeInfo(annotationParameterType);
 	}
+
+	public static TypeInfo getTargetType(TransferDataMemberDeclaration transferDataMemberDeclaration) {
+		if (transferDataMemberDeclaration instanceof TransferFieldDeclaration) {
+			return getTargetType((TransferFieldDeclaration) transferDataMemberDeclaration);
+		} else if (transferDataMemberDeclaration instanceof TransferRelationDeclaration) {
+			return getTargetType((TransferRelationDeclaration) transferDataMemberDeclaration);
+		}
+
+		return new TypeInfo(BaseType.UNDEFINED, false);
+	}
 	
 	public static TypeInfo getTargetType(TransferFieldDeclaration transferFieldDeclaration) {
 		if (transferFieldDeclaration == null) {
 			return new TypeInfo(BaseType.UNDEFINED, false);
 		}
 
-		if (transferFieldDeclaration.getReferenceType() instanceof TransferDeclaration) {
-			TransferDeclaration transferDeclaration = (TransferDeclaration) transferFieldDeclaration.getReferenceType();
-			EntityDeclaration entityDeclaration = (EntityDeclaration) transferDeclaration.getMap().getEntity();
-			return new TypeInfo(entityDeclaration, false, false);
-		} else if (transferFieldDeclaration.getReferenceType() instanceof PrimitiveDeclaration) {
-			return new TypeInfo((PrimitiveDeclaration) transferFieldDeclaration.getReferenceType(), false, false);
-		}
-		
-		return new TypeInfo(BaseType.UNDEFINED, false);
+		return new TypeInfo((PrimitiveDeclaration) transferFieldDeclaration.getReferenceType(), false, false);
 	}
 
+	public static TypeInfo getTargetType(TransferRelationDeclaration transferRelationDeclaration) {
+		if (transferRelationDeclaration == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+
+		EntityDeclaration entityDeclaration = transferRelationDeclaration.getReferenceType().getMap().getEntity();
+		return new TypeInfo(entityDeclaration, transferRelationDeclaration.isMany(), false);
+	}
+	
+	
 //	public static TypeInfo getTargetType(ServiceDataDeclaration data) {
 //		if (data == null || data.getReturn() == null || data.getReturn().getReferenceType() == null) {
 //			return new TypeInfo(BaseType.UNDEFINED, false);
@@ -593,30 +607,26 @@ public class TypeInfo {
 			return new TypeInfo(BaseType.UNDEFINED, false);
 		}
 
-		return new TypeInfo(entityMemberDeclaration.getReferenceType(), entityMemberDeclaration.isMany(), false);
-
-//		EntityMemberDeclaration entityMember = (EntityMemberDeclaration)entityMemberDeclaration;
-
-//		if (entityMemberDeclaration instanceof EntityStoredFieldDeclaration) {
-////			EntityMember entityMember = (EntityMember)entityMemberDeclaration;
-//			return new TypeInfo(entityMemberDeclaration.getReferenceType(), entityMemberDeclaration.isMany(), false);
-//		} else if (entityMemberDeclaration instanceof EntityStoredRelationDeclaration) {
-////			EntityMember entityMember = (EntityMember)entityMemberDeclaration;
-//			return new TypeInfo(entityMemberDeclaration.getReferenceType(), entityMemberDeclaration.isMany(), false);
-//		} else if (entityMemberDeclaration instanceof EntityCalculatedMemberDeclaration) {
-////			EntityDerivedDeclaration entityDerivedDeclaration = (EntityDerivedDeclaration)entityMemberDeclaration;
-//			return new TypeInfo(entityMemberDeclaration.getReferenceType(), entityMemberDeclaration.isMany(), false);
-//			
-////			if (entityMemberDeclaration.getReferenceType() instanceof SingleType) {
-////				return new TypeInfo(entityMemberDeclaration.getReferenceType(), entityMemberDeclaration.isMany(), false);
-////			}
-//		}
-////		else if (entityMemberDeclaration instanceof EntityQueryDeclaration) {
-////			EntityQueryDeclaration entityQueryDeclaration = (EntityQueryDeclaration)entityMemberDeclaration;
-////			return new TypeInfo(entityQueryDeclaration.getReferenceType(), entityQueryDeclaration.isIsMany(), false);
-////		}
-//		
-//		return new TypeInfo(BaseType.UNDEFINED, false);
+		if (entityMemberDeclaration instanceof EntityStoredFieldDeclaration) {
+			EntityStoredFieldDeclaration storedField = (EntityStoredFieldDeclaration)entityMemberDeclaration;
+			if (storedField.getPrimitiveReferenceType() != null) {
+				return new TypeInfo(storedField.getPrimitiveReferenceType(), entityMemberDeclaration.isMany(), false); 
+			} else if (storedField.getEntityReferenceType() != null) {
+				return new TypeInfo(storedField.getEntityReferenceType(), entityMemberDeclaration.isMany(), false); 
+			}
+			return new TypeInfo(storedField.getSingleReferenceType(), entityMemberDeclaration.isMany(), false);
+		} else if (entityMemberDeclaration instanceof EntityStoredRelationDeclaration) {
+			EntityStoredRelationDeclaration storedRelation = (EntityStoredRelationDeclaration)entityMemberDeclaration;
+			return new TypeInfo(storedRelation.getEntityReferenceType(), entityMemberDeclaration.isMany(), false);
+		} else if (entityMemberDeclaration instanceof EntityCalculatedFieldDeclaration) {
+			EntityCalculatedFieldDeclaration calcualtedField = (EntityCalculatedFieldDeclaration)entityMemberDeclaration;
+			return new TypeInfo(calcualtedField.getPrimitiveReferenceType(), entityMemberDeclaration.isMany(), false);
+		} else if (entityMemberDeclaration instanceof EntityCalculatedRelationDeclaration) {
+			EntityCalculatedRelationDeclaration calcualtedRelation = (EntityCalculatedRelationDeclaration)entityMemberDeclaration;
+			return new TypeInfo(calcualtedRelation.getEntityReferenceType(), entityMemberDeclaration.isMany(), false);
+		}
+		
+		return new TypeInfo(BaseType.UNDEFINED, false);
 	}
 
 	public static TypeInfo getTargetType(QueryDeclaration queryDeclaration) {

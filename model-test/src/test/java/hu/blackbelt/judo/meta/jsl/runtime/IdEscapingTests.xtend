@@ -75,7 +75,7 @@ class IdEscapingTests {
             }
 
             entity B {
-                field `entity`[] e <= `entity`!all();
+                relation `entity`[] e <= `entity`!all();
             }
 
         '''.parse => [

@@ -41,11 +41,13 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
 //import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration
 //import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceFunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedMemberDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.SingleType
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedRelationDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -67,8 +69,26 @@ class JslDslModelExtension {
 
     def isResolvedReference(EObject it, int featureID) {
         val EObject featureObject = it.eGet(it.eClass().getEStructuralFeature(featureID), false) as EObject;
-        return !featureObject.eIsProxy();
+        return featureObject !== null && !featureObject.eIsProxy();
     }
+
+	def SingleType getReferenceType(EntityMemberDeclaration member) { 
+		if (member instanceof EntityStoredFieldDeclaration) {
+			if ((member as EntityStoredFieldDeclaration).primitiveReferenceType !== null) {
+				return (member as EntityStoredFieldDeclaration).primitiveReferenceType;
+			} if ((member as EntityStoredFieldDeclaration).entityReferenceType !== null) {
+				return (member as EntityStoredFieldDeclaration).entityReferenceType;
+			} else {
+				return (member as EntityStoredFieldDeclaration).singleReferenceType;
+			}
+		} else if (member instanceof EntityStoredRelationDeclaration) {
+			return (member as EntityStoredRelationDeclaration).entityReferenceType;
+		} else if (member instanceof EntityCalculatedFieldDeclaration) {
+			return (member as EntityCalculatedFieldDeclaration).primitiveReferenceType;
+		} else if (member instanceof EntityCalculatedRelationDeclaration) {
+			return (member as EntityCalculatedRelationDeclaration).entityReferenceType;
+		}
+	}
 
     /*
     def ModelDeclaration modelDeclaration(EObject obj) {

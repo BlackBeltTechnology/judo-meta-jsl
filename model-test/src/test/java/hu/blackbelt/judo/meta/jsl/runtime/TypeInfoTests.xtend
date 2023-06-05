@@ -184,7 +184,7 @@ class TypeInfoTests {
 
             entity Test {
                 field T1 t1;
-                field T1 t1d <= self.t1;
+                relation T1 t1d <= self.t1;
             }
         '''.parse
         p.assertNoErrors
@@ -225,7 +225,7 @@ class TypeInfoTests {
 
             entity Test {
                 field T1[] t1s;
-                field T1[] t1sd <= self.t1s;
+                relation T1[] t1sd <= self.t1s;
             }
         '''.parse
         p.assertNoErrors
@@ -267,7 +267,7 @@ class TypeInfoTests {
 
 
             entity Test {
-                field T1 t1sd <= T1!all()!any();
+                relation T1 t1sd <= T1!all()!any();
             }
         '''.parse
         p.assertNoErrors
@@ -389,7 +389,7 @@ class TypeInfoTests {
                 relation T1[] t1s;
                 relation T2[] t2s;
 
-                field T2[] t2sd <= self.t1s.test.t2s;
+                relation T2[] t2sd <= self.t1s.test.t2s;
             }
         '''.parse
         p.assertNoErrors
@@ -1146,7 +1146,7 @@ class TypeInfoTests {
             type timestamp Timestamp;
             type date Date;
             type time Time;
-            type numeric Integer(precision = 10, scale = 0);
+            type numeric Integer precision:10 scale:0;
 
             entity Test {
                 field Date date <= `2022-01-01T12:00:00Z`!date();
@@ -1218,8 +1218,8 @@ class TypeInfoTests {
 
                 field Boolean typeOf <= self.t1!typeOf(entityType = T1);
                 field Boolean kindOf <= self.t1!kindOf(entityType = T1);
-                field Test container <= self.t1!container(entityType = Test);
-                field T1 asType <= self.t2!asType(entityType = T1);
+                relation Test container <= self.t1!container(entityType = Test);
+                relation T1 asType <= self.t2!asType(entityType = T1);
                 field Boolean memberOf <= self.t2!memberOf(instances = self.t2s);
 
             }
@@ -1280,7 +1280,7 @@ class TypeInfoTests {
 
             type string String min-size:0 max-size:32;
             type boolean Boolean;
-            type numeric Integer(precision = 10, scale = 0);
+            type numeric Integer precision:10 scale:0;
 
 
             entity T1 {
@@ -1291,12 +1291,12 @@ class TypeInfoTests {
                 field T1[] t1s;
                 field T1 t1;
 
-                field T1[] head <= self.t1s!first(t | t.name);
-                field T1[] tail <= self.t1s!last(t | t.name);
-                field T1 any <= self.t1s!any();
+                relation T1[] head <= self.t1s!first(t | t.name);
+                relation T1[] tail <= self.t1s!last(t | t.name);
+                relation T1 any <= self.t1s!any();
                 field Integer size <= self.t1s!size();
                 field Boolean contains <= self.t1s!contains(instance = self.t1);
-                field T1[] asCollection <= self.t1s!asCollection(entityType = T1);
+                relation T1[] asCollection <= self.t1s!asCollection(entityType = T1);
             }
         '''.parse
         p.assertNoErrors
@@ -1373,7 +1373,7 @@ class TypeInfoTests {
                 field T1[] t1s;
                 field T1 t1;
 
-                field T1[] filter <= self.t1s!filter(t | t.name == "Test");
+                relation T1[] filter <= self.t1s!filter(t | t.name == "Test");
                 field Boolean anyTrue <= self.t1s!anyTrue(t | t.name == "Test");
                 field Boolean allTrue <= self.t1s!allTrue(t | t.name == "Test");
                 field Boolean anyFalse <= self.t1s!anyFalse(t | t.name == "Test");
@@ -1448,29 +1448,29 @@ class TypeInfoTests {
             model TestModel;
 
             type numeric Integer precision:9 scale:0;
-            type string String(min-size = 0, max-size = 128);
+            type string String min-size:0 max-size:128;
 
             query Lead[] staticLeadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
             query Lead[] staticLeadsOverWithMin(Integer minLeadsOverMin = 5) <= staticLeadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
             query Integer staticLeadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
             query Integer staticLeadsOverWithMinCount(Integer minLeadsOverMin = 5) <= staticLeadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
-            query Lead[] staticLeadsBetweenAndSalesPersonLeads(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) =>
+            query Lead[] staticLeadsBetweenAndSalesPersonLeads(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <=
                 Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween).salesPerson.leadsBetween(minLeadsBetween = minLeadsBetween, maxLeadsBetween = maxLeadsBetween);
 
             entity SalesPerson {
-                relation Lead[] leads opposite salesPerson;
+                relation Lead[] leads opposite:salesPerson;
 
-                query Lead[] leadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
-                query Lead[] leadsOverWithMin(Integer minLeadsOverMin = 5) <= self.leadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
-                query Lead[] leadsOverWithMinStatic(Integer minLeadsOverMin = 5) <= staticLeadsBetween(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
+                relation Lead[] leadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
+                relation Lead[] leadsOverWithMin(Integer minLeadsOverMin = 5) <= self.leadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
+                relation Lead[] leadsOverWithMinStatic(Integer minLeadsOverMin = 5) <= staticLeadsBetween(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
 
-                field Lead[] leadsOver10 <= self.leadsOverWithMin(minLeadsOverMin = 10);
-                field Lead[] leadsOver20 <= self.leadsBetween(minLeadsBetween = 20);
-                field Lead[] leadsOver10Static <= staticLeadsOverWithMin(minLeadsOverMin = 10);
-                field Lead[] leadsOver20Static <= staticLeadsBetween(minLeadsBetween = 20);
+                relation Lead[] leadsOver10 <= self.leadsOverWithMin(minLeadsOverMin = 10);
+                relation Lead[] leadsOver20 <= self.leadsBetween(minLeadsBetween = 20);
+                relation Lead[] leadsOver10Static <= staticLeadsOverWithMin(minLeadsOverMin = 10);
+                relation Lead[] leadsOver20Static <= staticLeadsBetween(minLeadsBetween = 20);
 
-                query Integer leadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
-                query Integer leadsOverWithMinCount(Integer minLeadsOverMin = 5) <= self.leadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
+                field Integer leadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
+                field Integer leadsOverWithMinCount(Integer minLeadsOverMin = 5) <= self.leadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
 
                 field Integer leadsOver10Count <= self.leadsOverWithMinCount(minLeadsOverMin = 10);
                 field Integer leadsOver20Count <= self.leadsBetweenCount(minLeadsBetween = 20);
@@ -1480,7 +1480,7 @@ class TypeInfoTests {
 
             entity Lead {
                 field Integer value = 100000;
-                relation required SalesPerson salesPerson opposite leads;
+                relation required SalesPerson salesPerson opposite:leads;
             }
         '''.parse
         p.assertNoErrors
