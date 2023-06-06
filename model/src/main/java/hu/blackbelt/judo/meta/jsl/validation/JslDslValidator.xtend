@@ -963,37 +963,16 @@ class JslDslValidator extends AbstractJslDslValidator {
 //            }
 //        }
 //    }
-
-    @Check
-    def checkRequiredOnEntityMemberDeclaration(EntityMemberDeclaration member) {
-        if (member instanceof EntityFieldDeclaration) {
-            val field = member
-            if (field.isIsMany && field.isIsRequired) {
-                error("Collection typed field: '" + field.name + "' cannot have keyword: 'required'.",
-                    JsldslPackage::eINSTANCE.entityFieldDeclaration_IsRequired,
-                    USING_REQUIRED_WITH_IS_MANY,
-                    JsldslPackage::eINSTANCE.entityFieldDeclaration.name)
-            }
-        } else if (member instanceof EntityRelationDeclaration) {
-            val relation = member
-            if (relation.isIsMany && relation.isIsRequired) {
-                error("Collection typed relation: '" + relation.name + "' cannot have keyword: 'required'.",
-                    JsldslPackage::eINSTANCE.entityRelationDeclaration_IsRequired,
-                    USING_REQUIRED_WITH_IS_MANY,
-                    JsldslPackage::eINSTANCE.entityRelationDeclaration.name)
-            }
-        }
-    }
     
     @Check
-    def checkAbstractComposition(EntityFieldDeclaration member) {
+    def checkAbstractComposition(EntityStoredFieldDeclaration member) {
 	    if (member.referenceType instanceof EntityDeclaration) {
 	        val reference = member.referenceType as EntityDeclaration
-		    if (reference.isIsAbstract()) {
+		    if (reference.isAbstract()) {
 		    	error("You cannot use entity named '" + (member.referenceType as EntityDeclaration).name + "' as a field type, because it is abstract.",
-		             JsldslPackage::eINSTANCE.entityFieldDeclaration_ReferenceType,
+		             JsldslPackage::eINSTANCE.entityStoredFieldDeclaration_EntityReferenceType,
 		             FIELD_TYPE_IS_ABSRTACT_ENTITY,
-		             JsldslPackage::eINSTANCE.entityFieldDeclaration.name)
+		             JsldslPackage::eINSTANCE.entityStoredFieldDeclaration.name)
 		    }
 	    }
     }
