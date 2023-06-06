@@ -9,7 +9,6 @@ import org.eclipse.emf.ecore.EObject
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
 import org.eclipse.xtext.Assignment
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
@@ -18,6 +17,12 @@ import java.util.Set
 import com.google.common.collect.ImmutableSet
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
+import org.eclipse.xtext.RuleCall
+import org.eclipse.xtext.AbstractRule
+import org.eclipse.jface.text.contentassist.ICompletionProposal
+import org.eclipse.xtext.Group
+import org.eclipse.xtext.ParserRule
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
@@ -29,8 +34,8 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 
     public static Set<String> FILTERED_KEYWORDS = ImmutableSet.of("lambda", "function");
 
-    public static Set<String> FILTERED_TERMINALS = ImmutableSet.of(";", "(", ")", "+", "-", "*", "/", "@",
-                                                                  "!=", "<", "<=", ">", ">=", "==", "?", "^",
+    public static Set<String> FILTERED_TERMINALS = ImmutableSet.of("{", "}", ";", "(", ")", "+", "-", "*", "/", "@",
+                                                                  "!=", "<", ">", ">=", "==", "?", "^",
                                                                   "and", "div", "implies", "mod", "or", "xor");
 
     override completeKeyword(Keyword keyword, ContentAssistContext contentAssistContext, ICompletionProposalAcceptor acceptor) {
@@ -55,14 +60,33 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
         super.completeKeyword(keyword, contentAssistContext, acceptor);
     }
 
+	override completeRuleCall(RuleCall ruleCall, ContentAssistContext contentAssistContext,
+			ICompletionProposalAcceptor acceptor) {
+
+		var AbstractRule calledRule = ruleCall.getRule();
+		
+		if (calledRule.alternatives instanceof Keyword) {
+			var Keyword keyword = calledRule.alternatives as Keyword;
+			completeKeyword(keyword, contentAssistContext, acceptor)
+		}
+		
+//		if (calledRule instanceof ParserRule && calledRule.name.equals("RequiredModifier")) {
+//			var ICompletionProposal proposal = createCompletionProposal("required:true", "required", null, contentAssistContext);
+//			getPriorityHelper().adjustKeywordPriority(proposal, contentAssistContext.getPrefix());
+//			acceptor.accept(proposal);
+//		}
+
+		super.completeRuleCall(ruleCall, contentAssistContext, acceptor)
+	}
+
 
     override completeEntityRelationOppositeReferenced_OppositeType(EObject model, Assignment assignment,
         ContentAssistContext context, ICompletionProposalAcceptor acceptor
     ) {
         // System.out.println("model: " + model + " assignment: " + assignment + " context: " + context)
         lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor,
-            [ ((model as EntityRelationOpposite).eContainer as EntityRelationDeclaration)
-                .isSelectableForRelation(EObjectOrProxy as EntityRelationDeclaration)
+            [ ((model as EntityRelationOpposite).eContainer as EntityStoredRelationDeclaration)
+                .isSelectableForRelation(EObjectOrProxy as EntityStoredRelationDeclaration)
             ]
         );
     }
