@@ -62,6 +62,13 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataMember
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferSubmitDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewSubmitDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTableDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -112,6 +119,18 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
             AnnotationArgument case ref == JsldslPackage::eINSTANCE.annotationArgument_Declaration && context.eContainer instanceof AnnotationMark: return scope.scope_Containments((context.eContainer as AnnotationMark).declaration, ref)
 
 			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
+
+			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
+			ViewSubmitDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
+
+			ViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
+			ViewTableDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
+
+			SimpleTransferDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
+			TransferRelationDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
+
+			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
+			TransferSubmitDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
             Navigation: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
         }

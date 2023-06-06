@@ -164,23 +164,18 @@ QueryParameterDeclaration
  *	Return
  ****************************/
 
-ReturnDeclaration
-	: {ReturnDeclaration} CONST_VOID?
+fragment ReturnFragment
+	: CONST_VOID?
 	| referenceTypes += [TransferDeclaration | ModelName]
-	| '<' referenceTypes += [TransferDeclaration | ModelName] ("|" referenceType += [TransferDeclaration | ModelName])+ '>'
+	| '<' referenceTypes += [TransferDeclaration | ModelName] ("|" referenceTypes += [TransferDeclaration | ModelName])+ '>'
 	;
 
 /****************************
  *	Transfer
  ****************************/
 
-//Transferable
-//	: TransferDeclaration
-//	| PrimitiveDeclaration
-//	;
-
 TransferDeclaration
-	: {TransferDeclaration}
+	: {SimpleTransferDeclaration}
 	  annotations += AnnotationMark*
 	  KW_TRANSFER Named
 	  map = EntityMapDeclaration?
@@ -238,20 +233,25 @@ TransferFieldDeclaration
 
 TransferRelationDeclaration
 	: annotations += AnnotationMark*
-	  FEAT_RELATION referenceType = [TransferDeclaration | ModelName] Cardinality? Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
-	  (choices = TransferChoiceModifier?)
+	  ( FEAT_RELATION required ?= ATTR_REQUIRED? referenceType = [TransferDeclaration | ModelName]
+	  	Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	  	(choices = TransferChoiceModifier?)
+	  | FEAT_RELATION referenceType = [TransferDeclaration | ModelName] Cardinality
+	  	Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	  	(choices = TransferChoiceModifier?)
+	  )
 	  SC
 	;
 
 TransferSubmitDeclaration
 	: annotations += AnnotationMark*
-	  FEAT_SUBMIT return = ReturnDeclaration Named
+	  FEAT_SUBMIT ReturnFragment Named
 	  SC
 	;
 
 TransferActionDeclaration
 	: annotations += AnnotationMark*
-	  FEAT_ACTION return = ReturnDeclaration Named
+	  FEAT_ACTION ReturnFragment Named
 	  '(' (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? ')'
 	  SC
 	;
@@ -352,13 +352,6 @@ ViewFieldDeclaration returns TransferFieldDeclaration
 	  SC
 	;
 
-//TransferFieldDeclaration
-//	: annotations += AnnotationMark*
-//	  FEAT_FIELD  required ?= ATTR_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
-//	  ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
-//	  SC
-//	;
-
 ViewLinkDeclaration returns TransferRelationDeclaration
 	: {ViewLinkDeclaration}
 	  annotations += AnnotationMark*
@@ -394,7 +387,7 @@ ViewTableDeclaration returns TransferRelationDeclaration
 ViewSubmitDeclaration returns TransferSubmitDeclaration
 	: {ViewSubmitDeclaration}
 	  annotations += AnnotationMark*
-	  FEAT_SUBMIT return = ReturnDeclaration Named
+	  FEAT_SUBMIT ReturnFragment Named
 	  ( label = LabelModifier?
 	  & icon = IconModifier?
 	  & enabled = EnabledModifier?
@@ -407,7 +400,7 @@ ViewSubmitDeclaration returns TransferSubmitDeclaration
 ViewActionDeclaration returns TransferActionDeclaration
 	: {ViewActionDeclaration}
 	  annotations += AnnotationMark*
-	  FEAT_ACTION return = ReturnDeclaration Named
+	  FEAT_ACTION ReturnFragment Named
 	  '(' (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID)? ')'
 	  ( label = LabelModifier?
 	  & icon = IconModifier?
