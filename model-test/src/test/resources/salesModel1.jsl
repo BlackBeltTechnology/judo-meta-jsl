@@ -2,14 +2,14 @@ model SalesModel;
 
 import SalesModelContract as SC;
 
-type numeric Integer(precision = 9, scale = 0);
-type string String(min-size = 0, max-size = 128);
-type string PhoneNumber(min-size = 0, max-size = 32, regex = "^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$");  // escape sequencing does not work in regexp!!!!
+type numeric Integer precision:9 scale:0;
+type string String min-size:0 max-size:128;
+type string PhoneNumber min-size:0 max-size:32 regex:"^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$";  // escape sequencing does not work in regexp!!!!
 type boolean Boolean;
 
 type date Date;
 type timestamp Timestamp;
-type binary Binary(mime-types = ["application/pdf", "application/3g"], max-file-size = 10 MB);
+type binary Binary mime-type:["application/pdf", "application/3g"] max-file-size:10MB;
 
 error MyError {
 	field Integer code;
@@ -31,26 +31,26 @@ entity abstract Person {
 	field String lastName;
 	relation Lead[] leadsNoOpposite;
 
-	derived	String fullName => self.firstName + " "
+	field	String fullName <= self.firstName + " "
 		+ self.lastName ;
 }
 
-query SalesPerson[] allSalesPerson() => SalesPerson!all();
+query SalesPerson[] allSalesPerson() <= SalesPerson!all();
 
 entity SalesPerson extends Person {
-	relation Lead[] leads opposite salesPerson;
-	query Lead[] leadsOver(Integer limit = 100) => self.leads!filter(lead | lead.value > limit);
-	query Lead[] allLeads() => self.leads;
+	relation Lead[] leads opposite:salesPerson;
+	relation Lead[] leadsOver(Integer limit = 100) <= self.leads!filter(lead | lead.value > limit);
+	relation Lead[] allLeads <= self.leads;
 
-	derived Lead[] leadsOver10 => self.leadsOver(limit = 10);
-	relation SC::Contract[] contracts opposite-add salesPerson;
+	relation Lead[] leadsOver10 <= self.leadsOver(limit = 10);
+	relation SC::Contract[] contracts opposite-add:salesPerson;
 }
 
 entity Lead {
 	field Integer value = 100000;
 
-	relation required SalesPerson salesPerson opposite leads;
-	relation SC::Contract contract opposite-add lead;
+	relation required SalesPerson salesPerson opposite:leads;
+	relation SC::Contract contract opposite-add:lead;
 
 //	constraint valueLessThan10 self.value > 10 onerror MyError(code = 10, msg = "Error message");
 }
@@ -58,7 +58,7 @@ entity Lead {
 entity Customer {
 	identifier required String name;
 
-	relation Lead lead opposite-add customer;
+	relation Lead lead opposite-add:customer;
 }
 
 
