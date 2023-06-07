@@ -1172,6 +1172,32 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
 
     @Check
+    def checkActorResource(ActorResourceDeclaration resource) {
+        try {
+            if (!TypeInfo.getTargetType(resource).isCompatible(TypeInfo.getTargetType(resource.expression))) {
+                error("Type mismatch. Expression value does not match resource type at '" + resource.name + "'.",
+                    JsldslPackage::eINSTANCE.actorAccessDeclaration_Expression,
+                    TYPE_MISMATCH)
+            }
+        } catch (IllegalArgumentException illegalArgumentException) {
+            return
+        }
+    }
+
+    @Check
+    def checkActorMenu(ActorMenuDeclaration menu) {
+        try {
+            if (!TypeInfo.getTargetType(menu).isCompatible(TypeInfo.getTargetType(menu.expression))) {
+                error("Type mismatch. Expression value does not match menu type at '" + menu.name + "'.",
+                    JsldslPackage::eINSTANCE.actorAccessDeclaration_Expression,
+                    TYPE_MISMATCH)
+            }
+        } catch (IllegalArgumentException illegalArgumentException) {
+            return
+        }
+    }
+
+    @Check
     def checkEntityStoredFieldMember(EntityStoredFieldDeclaration member) {
         try {
         	var TypeInfo memberType = TypeInfo.getTargetType(member);

@@ -48,6 +48,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.SingleType
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorResourceDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -88,6 +91,18 @@ class JslDslModelExtension {
 		} else if (member instanceof EntityCalculatedRelationDeclaration) {
 			return (member as EntityCalculatedRelationDeclaration).entityReferenceType;
 		}
+	}
+
+	def TransferDeclaration getReferenceType(ActorAccessDeclaration access) { 
+		if (access instanceof ActorMenuDeclaration) {
+			if ((access as ActorMenuDeclaration).viewReferenceType !== null) {
+				return (access as ActorMenuDeclaration).viewReferenceType
+			}
+
+			return (access as ActorMenuDeclaration).rowReferenceType
+		}
+
+		return (access as ActorResourceDeclaration).transferReferenceType;
 	}
 
     /*

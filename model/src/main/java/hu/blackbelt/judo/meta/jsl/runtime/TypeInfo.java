@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import com.google.common.collect.ImmutableMap;
 
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationParameterType;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral;
@@ -582,6 +583,14 @@ public class TypeInfo {
 		return new TypeInfo(entityDeclaration, transferRelationDeclaration.isMany(), false);
 	}
 	
+	public static TypeInfo getTargetType(ActorAccessDeclaration access) {
+		if (access == null || modelExtension.getReferenceType(access).getMap() == null) {
+			return new TypeInfo(BaseType.UNDEFINED, false);
+		}
+
+		EntityDeclaration entityDeclaration = modelExtension.getReferenceType(access).getMap().getEntity();
+		return new TypeInfo(entityDeclaration, access.isMany(), false);
+	}
 	
 //	public static TypeInfo getTargetType(ServiceDataDeclaration data) {
 //		if (data == null || data.getReturn() == null || data.getReturn().getReferenceType() == null) {
@@ -607,26 +616,7 @@ public class TypeInfo {
 			return new TypeInfo(BaseType.UNDEFINED, false);
 		}
 
-		if (entityMemberDeclaration instanceof EntityStoredFieldDeclaration) {
-			EntityStoredFieldDeclaration storedField = (EntityStoredFieldDeclaration)entityMemberDeclaration;
-			if (storedField.getPrimitiveReferenceType() != null) {
-				return new TypeInfo(storedField.getPrimitiveReferenceType(), entityMemberDeclaration.isMany(), false); 
-			} else if (storedField.getEntityReferenceType() != null) {
-				return new TypeInfo(storedField.getEntityReferenceType(), entityMemberDeclaration.isMany(), false); 
-			}
-			return new TypeInfo(storedField.getSingleReferenceType(), entityMemberDeclaration.isMany(), false);
-		} else if (entityMemberDeclaration instanceof EntityStoredRelationDeclaration) {
-			EntityStoredRelationDeclaration storedRelation = (EntityStoredRelationDeclaration)entityMemberDeclaration;
-			return new TypeInfo(storedRelation.getEntityReferenceType(), entityMemberDeclaration.isMany(), false);
-		} else if (entityMemberDeclaration instanceof EntityCalculatedFieldDeclaration) {
-			EntityCalculatedFieldDeclaration calcualtedField = (EntityCalculatedFieldDeclaration)entityMemberDeclaration;
-			return new TypeInfo(calcualtedField.getPrimitiveReferenceType(), entityMemberDeclaration.isMany(), false);
-		} else if (entityMemberDeclaration instanceof EntityCalculatedRelationDeclaration) {
-			EntityCalculatedRelationDeclaration calcualtedRelation = (EntityCalculatedRelationDeclaration)entityMemberDeclaration;
-			return new TypeInfo(calcualtedRelation.getEntityReferenceType(), entityMemberDeclaration.isMany(), false);
-		}
-		
-		return new TypeInfo(BaseType.UNDEFINED, false);
+		return new TypeInfo(modelExtension.getReferenceType(entityMemberDeclaration), entityMemberDeclaration.isMany(), false);
 	}
 
 	public static TypeInfo getTargetType(QueryDeclaration queryDeclaration) {

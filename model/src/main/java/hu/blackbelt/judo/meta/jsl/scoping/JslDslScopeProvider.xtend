@@ -97,22 +97,18 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
             Call case ref == JsldslPackage::eINSTANCE.lambdaCall_Declaration: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
             Call case ref == JsldslPackage::eINSTANCE.functionCall_Declaration: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
-//            Call case ref == JsldslPackage::eINSTANCE.entityQueryCall_Declaration: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
             Call case ref == JsldslPackage::eINSTANCE.memberReference_Member: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
 
             QueryCall case ref == JsldslPackage::eINSTANCE.functionCall_Declaration: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
             QueryCall case ref == JsldslPackage::eINSTANCE.lambdaCall_Declaration: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
-//            QueryCall case ref == JsldslPackage::eINSTANCE.entityQueryCall_Declaration: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
             QueryCall case ref == JsldslPackage::eINSTANCE.memberReference_Member: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
 
             FunctionCall case ref == JsldslPackage::eINSTANCE.functionArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
-//            EntityQueryCall case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
             MemberReference case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_Containments(context.member, ref)
             TransferDataMember case ref == JsldslPackage::eINSTANCE.transferDataMember_Reference: return scope.scope_Containments(context.eContainer.eContainer.eContainer, ref)
             QueryCall case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
             AnnotationMark case ref == JsldslPackage::eINSTANCE.annotationArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
 
-//            QueryArgument case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration && context.eContainer instanceof EntityQueryCall: return scope.scope_Containments((context.eContainer as EntityQueryCall).declaration, ref)
             QueryArgument case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration && context.eContainer instanceof MemberReference: return scope.scope_Containments((context.eContainer as MemberReference).member, ref)
             QueryArgument case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration && context.eContainer instanceof QueryCall: return scope.scope_Containments((context.eContainer as QueryCall).declaration, ref)
             FunctionArgument case ref == JsldslPackage::eINSTANCE.functionArgument_Declaration: return scope.scope_Containments((context.eContainer as FunctionCall).declaration, ref)
@@ -184,6 +180,12 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
         }]);
     }
 
+    def scope_FilterByEClassifierNot(IScope scope, EClassifier classifier) {
+        return new FilteringScope(scope, [desc | {
+            return classifier.isInstance(desc.EObjectOrProxy) ? false : true;
+        }]);
+    }
+
     def scope_FilterByReferenceType(IScope scope, EReference ref) {
         return new FilteringScope(scope, [desc | {
             return ref.EReferenceType.isInstance(desc.EObjectOrProxy) ? true : false;
@@ -208,8 +210,6 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
                 QueryParameterDeclaration: return context.parentContainer(QueryParameterDeclaration) === null && (context.isEqual(obj.eContainer) || EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)])
                 EntityMapDeclaration: return context.isEqual(obj.eContainer) || EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]
                 AnnotationParameterDeclaration: return EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]
-
-//                ServiceOperationDeclaration: return context.parentContainer(ViewDeclaration).exports.exists[g | g.isEqual(obj.eContainer)]
             }
 
             return false;
@@ -218,7 +218,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
     def scope_EntityRelationOppositeReferenced_oppositeType(EntityRelationOpposite context, EReference ref) {
         val entityRelationDeclaration = context.eContainer as EntityStoredRelationDeclaration
-//        if (context.eContainer !== null && entityRelationDeclaration.isResolvedReference(JsldslPackage.ENTITY_RELATION_DECLARATION__REFERENCE_TYPE)) {
+
         if (context.eContainer !== null && entityRelationDeclaration.isResolvedReference(JsldslPackage.ENTITY_STORED_RELATION_DECLARATION__ENTITY_REFERENCE_TYPE)) {
             getEntityMembers(IScope.NULLSCOPE, entityRelationDeclaration.referenceType as EntityDeclaration, ref, new ArrayList<EntityDeclaration>())
         } else {

@@ -504,9 +504,8 @@ RowColumnDeclaration returns TransferFieldDeclaration
  ****************************/
 
 ActorDeclaration
-	: {ActorDeclaration}
-	  annotations += AnnotationMark*
-	  KW_ACTOR (human ?= KW_HUMAN | system ?= KW_SYSTEM) Named
+	: annotations += AnnotationMark*
+	  KW_ACTOR (system ?= KW_SYSTEM | human ?= KW_HUMAN) Named
 	  map = EntityMapDeclaration?
 	  ( realm = RealmModifier?
 	  & claim = ClaimModifier?
@@ -531,13 +530,18 @@ GuardModifier
 	: ATTR_GUARD ':' expression = Expression
 	;
 
-ActorMemberDeclaration
-	: ActorResourceDeclaration
+ActorMemberDeclaration 
+	: ActorAccessDeclaration
 	| ActorMenuDeclaration
-//	| ActorAccessViewDeclaration
-//	| ActorAccessTableDeclaration
-//	| ActorMenuDeclaration
 	| ActorGroupDeclaration
+	;
+
+ActorAccessDeclaration
+	: {ActorResourceDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_RESOURCE transferReferenceType = [TransferDeclaration | ModelName] Cardinality? Named
+	  '<=' expression = Expression
+	  SC
 	;
 
 ActorGroupDeclaration
@@ -550,37 +554,13 @@ ActorGroupDeclaration
 	  BLOCK_START (members += ActorMenuDeclaration)* BLOCK_END
 	;
 
-//ActorAccessViewDeclaration
-//	: annotations += AnnotationMark*
-//	  (access ?= FEAT_ACCESS | menu ?= FEAT_MENU) referenceType = [ViewDeclaration | ModelName] Named
-//	  '<=' expression = Expression
-//	  ( guard = GuardModifier?
-//	  & label = LabelModifier?
-//	  & icon = IconModifier?
-//	  & enabled = EnabledModifier?
-//	  & ^hidden = HiddenModifier?)
-//	  SC
-//	;
-
-ActorAccessDeclaration
-	: ActorResourceDeclaration
-	| ActorMenuDeclaration
-	;
-
-ActorResourceDeclaration
-	: annotations += AnnotationMark*
-	  FEAT_RESOURCE referenceType = [TransferDeclaration | ModelName] Cardinality? Named
-	  '<=' expression = Expression
-//	  guard = GuardModifier?
-	  SC
-	;
-
-ActorMenuDeclaration
-	: annotations += AnnotationMark*
-	  FEAT_MENU referenceType = [TransferDeclaration | ModelName] Cardinality? Named
-	  ('<=' expression = Expression)?
+ActorMenuDeclaration returns ActorAccessDeclaration
+	: {ActorMenuDeclaration}
+	  annotations += AnnotationMark*
+	  ( FEAT_MENU viewReferenceType = [ViewDeclaration | ModelName] Named ('<=' expression = Expression)?
+	  | FEAT_MENU rowReferenceType = [RowDeclaration | ModelName] Cardinality Named ('<=' expression = Expression)?
+	  )
 	  ( choices = ViewChoiceModifier?
-//	  & guard = GuardModifier?
 	  & create = CreateActionModifier?
 	  & label = LabelModifier?
 	  & icon = IconModifier?
@@ -590,26 +570,6 @@ ActorMenuDeclaration
 	  SC
 	;
 
-//ActorMenuViewDeclaration
-//	: annotations += AnnotationMark*
-//	  FEAT_MENU referenceType = [ViewDeclaration | ModelName] Named
-//	  '<=' expression = Expression
-//	  ( target = TargetViewModifier
-//	  & guard = GuardModifier?
-//	  & label = LabelModifier?
-//	  & icon = IconModifier?
-//	  & enabled = EnabledModifier?
-//	  & ^hidden = HiddenModifier?)
-//	  SC
-//	;
-//
-//ActorAccessDeclaration
-//	: annotations += AnnotationMark*
-//	  FEAT_ACCESS Named
-//	  ( target = TargetTransferModifier
-//	  	guard = GuardModifier?)
-//	  SC
-//	;
 
 /****************************
  *	Datatype
@@ -787,14 +747,9 @@ MemberReference
     ;
 
 Call
-//	: EntityQueryCall
 	: FunctionCall
 	| LambdaCall
 	;
-
-//EntityQueryCall
-//	: '.' declaration = [EntityDerivedDeclaration | LocalName ] => '(' (arguments += QueryArgument (',' arguments += QueryArgument)*)? ')'
-//	;
 
 FunctionCall
 	: '!' declaration = [FunctionDeclaration | LocalName ] '(' (arguments += FunctionArgument (',' arguments += FunctionArgument)*)? ')'
