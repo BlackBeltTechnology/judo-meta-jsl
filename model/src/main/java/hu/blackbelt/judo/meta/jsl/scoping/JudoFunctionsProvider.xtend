@@ -50,13 +50,11 @@ class JudoFunctionsProvider {
 	 	
 	def model() '''
 		model judo::functions;
-
-		annotation Factory on service::function;
-		annotation Create on service::function;
-		annotation Delete on service::function;
-		annotation Update on service::function;
-		annotation Insert on service::function;
-		annotation Remove on service::function;
+		
+		annotation Lazy on entity:relation, entity:field, transfer:relation, transfer:field, view:table, view:link, view:field;
+		annotation Eager on entity:relation, entity:field, transfer:relation, transfer:field, view:table, view:link, view:field;
+		
+		annotation Popup on view:action, view:submit, view:link, row, actor:menu;
 		
 		function string asString() on boolean;
 		function string asString() on enum;

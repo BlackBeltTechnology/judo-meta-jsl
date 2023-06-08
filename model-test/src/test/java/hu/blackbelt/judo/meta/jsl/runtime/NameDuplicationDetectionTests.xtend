@@ -37,7 +37,7 @@ class NameDuplicationDetectionTests {
     def void testDuplicateMemberNameValid() {
         '''
             model Test;
-            type string String(min-size = 0, max-size = 128);
+            type string String min-size:0 max-size:128;
 
             entity A {
                 relation B b opposite a;
@@ -49,8 +49,8 @@ class NameDuplicationDetectionTests {
             }
 
         '''.parse => [
-            assertDuplicateMemberName("Duplicate member declaration: 'b'", JsldslPackage::eINSTANCE.entityFieldDeclaration)
-            assertDuplicateMemberName("Duplicate member declaration: 'b'", JsldslPackage::eINSTANCE.entityRelationDeclaration)
+            assertDuplicateMemberName("Duplicate member declaration: 'b'", JsldslPackage::eINSTANCE.entityStoredFieldDeclaration)
+            assertDuplicateMemberName("Duplicate member declaration: 'b'", JsldslPackage::eINSTANCE.entityStoredRelationDeclaration)
         ]
     }
 
@@ -71,7 +71,7 @@ class NameDuplicationDetectionTests {
         '''
             model Inheritence;
 
-            type string String(min-size = 0, max-size = 100);
+            type string String min-size:0 max-size:100;
 
             entity A {
                 field String name;
@@ -81,7 +81,7 @@ class NameDuplicationDetectionTests {
                 field String name;
             }
         '''.parse => [
-            assertOppositeMismatchError("Duplicate member declaration: 'name'", JsldslPackage::eINSTANCE.entityFieldDeclaration)
+            assertOppositeMismatchError("Duplicate member declaration: 'name'", JsldslPackage::eINSTANCE.entityStoredFieldDeclaration)
         ]
     }
 
