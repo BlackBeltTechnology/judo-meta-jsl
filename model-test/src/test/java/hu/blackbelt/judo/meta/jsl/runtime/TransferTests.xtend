@@ -46,7 +46,7 @@ class TransferTests {
 
             transfer T1 {
                 field String f;
-                field T2[] t2;
+                relation T2[] t2;
 
                 constructor {
                     self.f = "";
@@ -56,17 +56,17 @@ class TransferTests {
 
             transfer T2(E1 e1) {
                 field String f;
-                field Integer f2 reads e1.f;
-                field Integer f3 maps e1.f;
-                field Integer f4 reads E1!all()!size();
-                field EN en maps e1.en;
+                field Integer f2 <= e1.f;
+                field Integer f3 <=> e1.f;
+                field Integer f4 <= E1!all()!size();
+                field EN en <=> e1.en;
             }
 
             transfer T3(E2 e2);
 
             transfer T4(E3 e3) {
-                field Integer f reads e3.f;
-                field Integer f2 reads e3.f2;
+                field Integer f <= e3.f;
+                field Integer f2 <= e3.f2;
             }
 
         '''.parse => [
@@ -84,7 +84,7 @@ class TransferTests {
             entity E {}
 
             transfer T {
-                field Integer i reads E!all()!size();
+                field Integer i <= E!all()!size();
             };
         '''.parse => [
             assertNoErrors
@@ -110,8 +110,8 @@ class TransferTests {
             transfer T2(E2 e2);
 
             transfer T1(E1 e1) {
-                field T2 t2 reads e1.e2;
-                field T2[] t2list reads e1.e2list;
+                relation T2 t2 <= e1.e2;
+                relation T2[] t2list <= e1.e2list;
             }
 
         '''.parse => [
@@ -127,7 +127,7 @@ class TransferTests {
             import judo::types;
 
             entity E1 {
-                relation E2 e2 opposite-add e1;
+                relation E2 e2 opposite-add:e1;
             }
 
             entity E2 {
@@ -136,8 +136,8 @@ class TransferTests {
             transfer T1(E1 e1);
 
             transfer T2(E2 e2) {
-                field T1 t1r reads e2.e1;
-                field T1 t1m maps e2.e1 choices E1!all();
+                relation T1 t1r <= e2.e1;
+                relation T1 t1m <=> e2.e1 choices:E1!all();
             }
         '''.parse => [
             assertNoErrors
@@ -149,15 +149,15 @@ class TransferTests {
         '''
             model MappedTransferObjectTypeModel;
 
-            type string String(min-size = 0, max-size = 250);
-            type numeric Integer(precision = 3, scale = 0);
+            type string String min-size:0 max-size:250;
+            type numeric Integer precision:3 scale:0;
 
             entity Entity {
                 identifier Integer identifier;
             }
 
             transfer Mapped maps Entity as e {
-                field Integer mappedIdentifier maps e.identifier;
+                field Integer mappedIdentifier <=> e.identifier;
             }
         '''.parse => [
             assertNoErrors
@@ -179,13 +179,13 @@ class TransferTests {
 
             transfer T1 {
                 field String f;
-                field required T2[] t2;
+                relation required T2[] t2;
             }
 
             transfer T2(E1 e1) {
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.USING_REQUIRED_WITH_IS_MANY)
+            m | m.assertError(JsldslPackage::eINSTANCE.simpleTransferDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
         ]
     }
 
@@ -247,7 +247,7 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                field Integer f reads e1.f;
+                field Integer f <= e1.f;
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
@@ -266,7 +266,7 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                field Integer f maps e1.f;
+                field Integer f <=> e1.f;
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
@@ -285,7 +285,7 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                field String f maps E1!any().f;
+                field String f <=> E1!any().f;
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
@@ -307,7 +307,7 @@ class TransferTests {
                 field Integer[] f;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_COLLECTION,"Invalid collection of primitives at 'f'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
         ]
     }
 
@@ -344,30 +344,6 @@ class TransferTests {
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.DUPLICATE_MEMBER_NAME)
-        ]
-    }
-
-    @Test
-    def void testTransferDuplicateFunctionExport() {
-        '''
-            model Test;
-
-            import judo::types;
-
-            entity E1 {
-                identifier String id;
-            }
-
-            service S1(E1 e1) {
-                function void f();
-            }
-            service S2(E1 e1) {
-                function void f();
-            }
-
-            transfer A(E1 e) exports S1, S2 {}
-        '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferDeclaration, JslDslValidator.DUPLICATE_MEMBER_NAME)
         ]
     }
 
@@ -412,55 +388,6 @@ class TransferTests {
         ]
     }
 
-
-    @Test
-    def void testTransferExportIncompatible() {
-        '''
-            model Test;
-
-            import judo::types;
-
-            entity E1 {
-                identifier String id;
-            }
-
-            entity E2 {
-            }
-
-            service S1(E1 e1) {}
-            service S2(E2 e2) {}
-            service S3 {}
-
-            transfer T exports S1, S3;
-        '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferDeclaration, JslDslValidator.INCOMPAIBLE_EXPORT)
-        ]
-    }
-
-    @Test
-    def void testTransferMappedExportIncompatible() {
-        '''
-            model Test;
-
-            import judo::types;
-
-            entity E1 {
-                identifier String id;
-            }
-
-            entity E2 {
-            }
-
-            service S1(E1 e1) {}
-            service S2(E2 e2) {}
-            service S3 {}
-
-            transfer T(E1 e) exports S1, S2;
-        '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferDeclaration, JslDslValidator.INCOMPAIBLE_EXPORT)
-        ]
-    }
-
     @Test
     def void testTransferUnmappedMaps() {
         '''
@@ -471,7 +398,7 @@ class TransferTests {
             entity E {}
 
             transfer T {
-                field Integer i maps E!all()!size();
+                field Integer i <=> E!all()!size();
             };
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING,"Invalid field mapping. Maps keyword cannot be used in unmapped transfer object.")
@@ -495,10 +422,10 @@ class TransferTests {
             transfer T1 {}
 
             transfer T2 maps E1 as e {
-                field T1 t1 maps e.e2;
+                relation T1 t1 <=> e.e2;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
         ]
     }
 
@@ -519,10 +446,10 @@ class TransferTests {
             transfer T1 {}
 
             transfer T2 maps E1 as e {
-                field T1 t1 reads e.e2;
+                relation T1 t1 <= e.e2;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
         ]
     }
 
@@ -534,7 +461,7 @@ class TransferTests {
             import judo::types;
 
             entity E0 {
-                relation E2 e2 opposite-add e0;
+                relation E2 e2 opposite-add:e0;
             }
 
             entity E1 {
@@ -547,10 +474,10 @@ class TransferTests {
             transfer T1(E1 e1);
 
             transfer T2(E2 e2) {
-                field T1 t1r reads e2.e0;
+                relation T1 t1r <= e2.e0;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, JslDslValidator.TYPE_MISMATCH)
         ]
     }
 
@@ -562,7 +489,7 @@ class TransferTests {
             import judo::types;
 
             entity E0 {
-                relation E2 e2 opposite-add e0;
+                relation E2 e2 opposite-add:e0;
             }
 
             entity E1 {
@@ -575,7 +502,7 @@ class TransferTests {
             transfer T1(E1 e1);
 
             transfer T2(E2 e2) {
-                field T1 t1r maps e2.e0;
+                field T1 t1r <=> e2.e0;
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
@@ -597,12 +524,12 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                field T2 t2 maps e1.e2 choices E2!any();
+                relation T2 t2 <=> e1.e2 choices:E2!any();
             }
 
             transfer T2(E2 e2);
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, JslDslValidator.INVALID_CHOICES)
         ]
     }
 
@@ -621,12 +548,12 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                field T2 t2 maps e1.e2 choices E2!any();
+                relation T2 t2 <=> e1.e2 choices:E2!any();
             }
 
             transfer T2(E2 e2);
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_CHOICES)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, JslDslValidator.INVALID_CHOICES)
         ]
     }
 
@@ -642,8 +569,8 @@ class TransferTests {
             }
 
             transfer T(E e) {
-                field Integer f1 maps e.f;
-                field Integer f2 maps e.f;
+                field Integer f1 <=> e.f;
+                field Integer f2 <=> e.f;
             }
         '''.parse => [
             m | m.assertWarning(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.DUPLICATE_FIELD_MAPPING)

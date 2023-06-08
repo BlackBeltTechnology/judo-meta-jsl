@@ -52,6 +52,7 @@ public class TokenHighlightingConfiguration extends
             "'>='",
             "'<='",
             "'=>'",
+            "'<=>'",
             "'+'",
             "'-'",
             "'*'",
@@ -74,6 +75,7 @@ public class TokenHighlightingConfiguration extends
             return HighlightingConfiguration.OPERATOR_ID;
         }
 
+        
         return HighlightingConfiguration.DEFAULT_ID;
     }
 

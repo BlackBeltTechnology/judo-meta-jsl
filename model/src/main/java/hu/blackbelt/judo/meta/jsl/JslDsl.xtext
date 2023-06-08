@@ -6,44 +6,28 @@ generate jsldsl "http://www.blackbelt.hu/judo/meta/jsl/JslDsl"
 ModelDeclaration returns ModelDeclaration
     : {ModelDeclaration}
       annotations += AnnotationMark*
-      'model' name = ModelName SC+
+      KW_MODEL name = ModelName SC
       imports += ModelImportDeclaration*
 	  (declarations += Declaration)*
     ;
 
-JSLID : ID | 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'timestamp'
-	       | 'regex' | 'precision' | 'scale'
-	       | 'model' | 'import' | 'entity' | 'transfer' | 'query' | 'type' | 'enum' | 'function' | 'lambda'
-	       | 'field' | 'identifier' | 'derived' | 'relation' | 'constraint' | 'error'
-	       | 'required' | 'as' | 'abstract' | 'extends' | 'exports' | 'opposite' | 'on' | 'onerror'
-	       | 'collection' | 'declaration' | 'constant'
-	       | 'implies' | 'or' | 'xor' | 'and' | 'div' | 'mod' 
-	       | 'kB' | 'MB' | 'GB' | 'KiB' | 'MiB' | 'GiB'
-	       | 'view' | 'widget' | 'action' | 'table' | 'row' | 'column'
-	       | 'caption' | 'icon' | 'enabled' | 'hidden' | 'width' | 'height'
-	       | 'group' | 'tab' | 'horizontal' | 'vertical' | 'frame' | 'left' | 'right' | 'center' | 'top' | 'bottom' | 'stretch'
-	       | 'service' | 'choices' | 'guard'
-	       | 'actor' | 'claim'
-	       | 'constructor'
-	       
-	       // 'reads', 'maps' are not included
-	       // 'self', 'true', 'false', 'not' are not included
-	;
-
 ModelImportDeclaration 
-    : 'import' model = [ModelDeclaration | ModelName] ('as' alias = JSLID)? SC+
+    : KW_IMPORT model = [ModelDeclaration | ModelName] (KW_AS alias = JSLID)? SC
 	;
 
 Declaration
-	: (TypeDeclaration
+	: TypeDeclaration
 	| ErrorDeclaration
 	| QueryDeclaration
 	| FunctionDeclaration
 	| LambdaDeclaration
-	| AnnotationDeclaration)
-	  SC*
+	| AnnotationDeclaration
 	;
 
+SingleType 
+	: PrimitiveDeclaration
+	| EntityDeclaration
+	;
 
 TypeDeclaration
 	: PrimitiveDeclaration
@@ -57,90 +41,74 @@ PrimitiveDeclaration
 
 ClassDeclaration
 	: EntityDeclaration
-	| ServiceDeclaration
 	| TransferDeclaration
-//	| ViewDeclaration
-//	| RowDeclaration
+	| ViewDeclaration
+	| RowDeclaration
 	| ActorDeclaration
 	;
+
+fragment Named
+	: => name = JSLID;
+
+fragment Cardinality
+    : many ?= '[]'
+    ;
 
 /****************************
  *	Entity
  ****************************/
-fragment Named
-	: name = JSLID;
-
-fragment Cardinality
-    : isMany ?= '[]'
-    ;
 
 EntityDeclaration
 	: {EntityDeclaration}
 	  annotations += AnnotationMark*
-	  'entity' isAbstract ?= 'abstract'? Named
-	  ('extends' extends += [EntityDeclaration | ModelName] (',' extends += [EntityDeclaration | ModelName])*)?
+	  KW_ENTITY abstract ?= KW_ABSTRACT? Named
+	  (KW_EXTENDS extends += [EntityDeclaration | ModelName] (',' extends += [EntityDeclaration | ModelName])*)?
 	  (SC | BLOCK_START (members += EntityMemberDeclaration)* BLOCK_END)
 	;
 
+EntityMemberDeclaration
+	: {EntityStoredFieldDeclaration}
+	  annotations += AnnotationMark*
+	  ( FEAT_FIELD required ?= ATTR_REQUIRED? singleReferenceType = [SingleType | ModelName]
+	    Named ('=' defaultExpr = Expression)?
+	  | FEAT_FIELD entityReferenceType = [EntityDeclaration | ModelName] Cardinality
+	  	Named ('=' defaultExpr = Expression)?
+	  | identifier ?= FEAT_IDENTIFIER required ?= ATTR_REQUIRED? primitiveReferenceType = [PrimitiveDeclaration | ModelName]
+	    Named ('=' defaultExpr = Expression)?
+	  )
+	  SC
+	  | EntityStoredRelationDeclaration
+	  | EntityCalculatedMemberDeclaration
+	;
 
-QueryDeclaration
-	: 'query' (referenceType = [SingleType | ModelName] Cardinality?) Named
-	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')
-	  "=>" expression = Expression
+EntityStoredRelationDeclaration
+	: {EntityStoredRelationDeclaration}
+	  annotations += AnnotationMark*
+	  ( FEAT_RELATION required ?= ATTR_REQUIRED? entityReferenceType = [EntityDeclaration | ModelName]
+	  	Named ('=' defaultExpr = Expression)? opposite = EntityRelationOpposite?
+	  | FEAT_RELATION entityReferenceType = [EntityDeclaration | ModelName] Cardinality
+	  	Named ('=' defaultExpr = Expression)? opposite = EntityRelationOpposite?
+	  )
 	  SC
 	;
 
-EntityMemberDeclaration
-	: (EntityFieldDeclaration
-	| EntityIdentifierDeclaration
-	| EntityRelationDeclaration
-	| EntityDerivedDeclaration
-	| EntityQueryDeclaration
-//	| EntityOperationDeclaration
-//	| ConstraintDeclaration
-	)
-	  SC*
+EntityCalculatedMemberDeclaration
+	: {EntityCalculatedFieldDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_FIELD primitiveReferenceType = [PrimitiveDeclaration | ModelName]
+	  Named
+	  ('(' parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)* ')')? '<=' getterExpr = Expression
+	  SC
+	  | EntityCalculatedRelationDeclaration
 	;
 
-EntityFieldDeclaration
-	: annotations += AnnotationMark*
-	  'field' (isRequired ?= 'required'? referenceType = [SingleType | ModelName] Cardinality?) Named
-	  ('=' defaultExpression = Expression)? SC
-	;
-
-EntityIdentifierDeclaration
-	: annotations += AnnotationMark*
-	  'identifier' isRequired ?= 'required'? referenceType = [PrimitiveDeclaration | ModelName] Named
-	  ('=' defaultExpression = Expression)? SC
-	;
-
-SingleType 
-	: PrimitiveDeclaration
-	| EntityDeclaration
-	;
-
-
-EntityDerivedDeclaration
-	: annotations += AnnotationMark*
-	  'derived' (referenceType = [SingleType | ModelName] Cardinality?) Named
-	  "=>" expression = Expression SC
-	;
-
-EntityQueryDeclaration
-	: annotations += AnnotationMark*
-	  'query' (referenceType = [SingleType | ModelName] Cardinality?) Named
-	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')
-	  "=>" expression = Expression SC
-	;
- 
-QueryParameterDeclaration
-	: referenceType = [PrimitiveDeclaration | ModelName] Named ("=" default = Expression)?
-	;
-
-EntityRelationDeclaration
-	: annotations += AnnotationMark*
-	  'relation' (isRequired ?= 'required'? referenceType = [EntityDeclaration | ModelName] Cardinality?) Named
-	  opposite = EntityRelationOpposite? SC
+EntityCalculatedRelationDeclaration
+	: {EntityCalculatedRelationDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_RELATION entityReferenceType = [EntityDeclaration | ModelName] Cardinality?
+	  Named
+	  ('(' parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)* ')')? '<=' getterExpr = Expression
+	  SC
 	;
 
 EntityRelationOpposite
@@ -149,93 +117,57 @@ EntityRelationOpposite
 	;
 
 EntityRelationOppositeInjected
-	: 'opposite-add' Named Cardinality?
+	: ATTR_OPPOSITEADD ':' Named Cardinality?
 	;
 
 EntityRelationOppositeReferenced
-	: 'opposite' oppositeType = [EntityRelationDeclaration | LocalName]
+	: ATTR_OPPOSITE ':' oppositeType = [EntityStoredRelationDeclaration | LocalName]
 	;
 
-EntityOperationDeclaration
-	: annotations += AnnotationMark*
-	  'operation' static ?= 'static'? ('void'? | return = EntityOperationReturnDeclaration) Named
-	  ('(' (parameters += EntityOperationParameterDeclaration (',' parameters += EntityOperationParameterDeclaration)*)? ')')
-	  (SC | BLOCK_START BLOCK_END )
-	;
+//EntityOperationDeclaration
+//	: annotations += AnnotationMark*
+//	  'operation' static ?= 'static'? (CONST_VOID? | return = EntityOperationReturnDeclaration) Named
+//	  ('(' (parameters += EntityOperationParameterDeclaration (',' parameters += EntityOperationParameterDeclaration)*)? ')')
+//	  (SC | BLOCK_START BLOCK_END )
+//	;
+//
+//EntityOperationReturnDeclaration
+//	: referenceType = [SingleType | ModelName] Cardinality?
+//	;
+//
+//EntityOperationParameterDeclaration
+//	: referenceType = [SingleType | ModelName] Cardinality? Named
+//	;
 
-EntityOperationReturnDeclaration
-	: referenceType = [SingleType | ModelName] Cardinality?
-	;
-
-EntityOperationParameterDeclaration
-	: referenceType = [SingleType | ModelName] Cardinality? Named
+EntityMapDeclaration
+	: '(' entity = [EntityDeclaration | ModelName] Named ')'  // if no name defined, the 'self' shall be default name
+	| KW_MAPS entity = [EntityDeclaration | ModelName] KW_AS Named
 	;
 
 
 /****************************
- *	Service
+ *	Query
  ****************************/
 
-Guard
-	: 'guard' expression = Expression
+QueryDeclaration
+	: KW_QUERY (referenceType = [SingleType | ModelName] Cardinality?) Named
+	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')
+	  "<=" expression = Expression
+	  SC
 	;
 
-ServiceDeclaration
-	: {ServiceDeclaration}
-	  annotations += AnnotationMark*
-	  'service' Named
-	  map = EntityMapDeclaration?
-	  guard = Guard?
-	  (SC | BLOCK_START (members += ServiceMemberDeclaration)* BLOCK_END)
+QueryParameterDeclaration
+	: referenceType = [PrimitiveDeclaration | ModelName] Named ("=" default = Expression)?
 	;
 
-EntityMapDeclaration
-	: '(' entity = [EntityDeclaration | ModelName] Named ')'  // if no name defined, the 'self' shall be default name
-	| 'maps' entity = [EntityDeclaration | ModelName] 'as' Named
-	;
+/****************************
+ *	Return
+ ****************************/
 
-
-ServiceMemberDeclaration
-	: ServiceOperationDeclaration
-	  SC*
-	;
-
-ServiceOperationDeclaration
-	: ServiceDataDeclaration
-	| ServiceFunctionDeclaration
-	;
-
-ServiceDataDeclaration
-	: annotations += AnnotationMark*
-	  'function' return = ServiceReturnDeclaration Cardinality? Named '=>' expression = Expression
-	  (guard = Guard? & ('choices' choices = Expression)?)SC
-	;
-
-ServiceFunctionDeclaration
-	: annotations += AnnotationMark*
-	  'function'
-	  ('void'? | return = ServiceReturnDeclaration | alternateReturn = ServiceReturnAlternateDeclaration) Named
-	  '(' parameter = ServiceFunctionParameterDeclaration? ')'
-  	  guard = Guard?
-	  (automapping ?= SC | BLOCK_START BLOCK_END )
-	;
-
-ServiceReturnAlternateDeclaration
-	: '<' referenceTypes += ServiceReturnDeclaration ("|" referenceTypes += ServiceReturnDeclaration)+ '>'
-	;
-
-ServiceReturnDeclaration
-	: referenceType = [Transferable | ModelName]
-	;
-
-ServiceFunctionParameterDeclaration
-	: referenceType = [Transferable | ModelName] Named?
-	;
-
-Transferable
-	: TransferDeclaration
-	| ViewDeclaration
-	| RowDeclaration
+fragment ReturnFragment
+	: CONST_VOID?
+	| referenceTypes += [TransferDeclaration | ModelName]
+	| '<' referenceTypes += [TransferDeclaration | ModelName] ("|" referenceTypes += [TransferDeclaration | ModelName])+ '>'
 	;
 
 /****************************
@@ -243,174 +175,313 @@ Transferable
  ****************************/
 
 TransferDeclaration
-	: {TransferDeclaration}
+	: {SimpleTransferDeclaration}
 	  annotations += AnnotationMark*
-	  'transfer' Named
+	  KW_TRANSFER Named
 	  map = EntityMapDeclaration?
-	  ('exports' exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
-	  (automap ?= SC | BLOCK_START (members += TransferMemberDeclaration)* constructor = TransferConstructorDeclaration? BLOCK_END)
+	  (automap ?= SC | BLOCK_START members += TransferMemberDeclaration* BLOCK_END)
 	;
 
 TransferMemberDeclaration
-	: TransferFieldDeclaration
-	  SC*
+	: TransferConstructorDeclaration
+	| TransferDestructorDeclaration
+	| TransferInitializerDeclaration
+	
+	| TransferDataMemberDeclaration
+
+	| TransferActionDeclaration
+	| TransferSubmitDeclaration
 	;
 
-TransferFieldDeclaration
-	: annotations += AnnotationMark*
-	  'field' (required ?= 'required'? referenceType = [TransferFieldType | ModelName] Cardinality?) Named
-	  ('maps' maps = Expression ('choices' choices = Expression)? | 'reads' reads = Expression)?
-	  SC
+TransferDataMemberDeclaration
+	: TransferFieldDeclaration
+	| TransferRelationDeclaration
+	;
+
+TransferDestructorDeclaration
+	: {TransferGetDeclaration}
+	  FEAT_DESTRUCTOR
+	  (SC | BLOCK_START BLOCK_END)
 	;
 
 TransferConstructorDeclaration
 	: {TransferConstructorDeclaration}
-	  'constructor'
-	  BLOCK_START (defaults += TransferDefault)* BLOCK_END
-	  SC*
+	  FEAT_CONSTRUCTOR
+	  (SC | BLOCK_START (defaults += TransferDefault)* BLOCK_END)
+	;
+
+TransferInitializerDeclaration
+	: {TransferInitializerDeclaration}
+	  FEAT_INITIALIZER
+	  (SC | BLOCK_START BLOCK_END)
 	;
 
 TransferDefault
-	: field = TransferField '=' rightValue = Expression SC+
+	: member = TransferDataMember '=' rightValue = Expression SC
 	;
 
-TransferField
-	: 'self' '.' reference = [TransferFieldDeclaration | ModelName]
+TransferDataMember
+	: 'self' '.' reference = [TransferDataMemberDeclaration | ModelName]
 	;
 
-TransferFieldType
-	: PrimitiveDeclaration
-	| TransferDeclaration
+TransferFieldDeclaration
+	: annotations += AnnotationMark*
+	  FEAT_FIELD  required ?= ATTR_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
+	  ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	  SC
+	;
+
+TransferRelationDeclaration
+	: annotations += AnnotationMark*
+	  ( FEAT_RELATION required ?= ATTR_REQUIRED? referenceType = [TransferDeclaration | ModelName]
+	  	Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	  	(choices = TransferChoiceModifier?)
+	  | FEAT_RELATION referenceType = [TransferDeclaration | ModelName] Cardinality
+	  	Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	  	(choices = TransferChoiceModifier?)
+	  )
+	  SC
+	;
+
+TransferSubmitDeclaration
+	: annotations += AnnotationMark*
+	  FEAT_SUBMIT ReturnFragment Named
+	  SC
+	;
+
+TransferActionDeclaration
+	: annotations += AnnotationMark*
+	  FEAT_ACTION ReturnFragment Named
+	  '(' (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? ')'
+	  SC
 	;
 
 /****************************
  *	View
  ****************************/
 
-ViewDeclaration
+ViewDeclaration returns TransferDeclaration
 	: {ViewDeclaration}
 	  annotations += AnnotationMark*
-	  'view' Named
+	  KW_VIEW Named
 	  map = EntityMapDeclaration?
-	  ('exports' exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
-	  (automap ?= SC | BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END)
+	  (automap ?= SC | BLOCK_START members += ViewMemberDeclaration* BLOCK_END)
 	;
 
-ViewMemberDeclaration
-	: ViewWidgetDeclaration
+ViewMemberDeclaration returns TransferMemberDeclaration
+	: TransferConstructorDeclaration
+	| TransferDestructorDeclaration
+	| TransferInitializerDeclaration
+
+	| ViewTextDeclaration
+	| ViewFieldDeclaration
+	| ViewLinkDeclaration
 	| ViewTableDeclaration
-	| ViewGroupDeclaration
-	| ViewTabDeclaration
+	
+	| ViewSubmitDeclaration
 	| ViewActionDeclaration
-	  SC*
+
+	| ViewGroupDeclaration
+	| ViewTabsDeclaration
 	;
 
-ViewTabDeclaration
-	: annotations += AnnotationMark*
-	 'tab' Named
-	  (caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier? & frame = ViewFrameModifier?)
+
+ViewTabsDeclaration
+	: {ViewTabsDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_TABS tag = JSLID
+	  ( label = LabelModifier?
+	  & icon = IconModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?
+	  & width = WidthModifier?
+	  & frame = FrameModifier?)
 	  BLOCK_START (members += ViewGroupDeclaration)* BLOCK_END
 	;
 
 ViewGroupDeclaration
-	: annotations += AnnotationMark*
-	  'group' Named
-	  (caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier? & horizontal = ViewHorizontalModifier? & vertical = ViewVerticalModifier? & frame = ViewFrameModifier?)
+	: {ViewGroupDeclaration} 
+	  annotations += AnnotationMark*
+	  FEAT_GROUP tag = JSLID
+	  ( (horizontal = HorizontalModifier | vertical = VerticalModifier)?
+	  & label = LabelModifier?
+	  & icon = IconModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?
+	  & width = WidthModifier?
+	  & frame = FrameModifier?)
 	  BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END
 	;
 
-ViewWidgetDeclaration
-	: annotations += AnnotationMark*
-	  'widget' (referenceType = [PrimitiveDeclaration | ModelName]) Named
-	  "=" expression = Expression
-	  (caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier? & height = ViewHeightModifier?)
+HorizontalModifier
+	: ATTR_HORIZONTAL ':' (left ?= CONST_LEFT | right ?= CONST_RIGHT | center ?= CONST_CENTER)
+	;
+
+VerticalModifier
+	: ATTR_VERTICAL ':' (top ?= CONST_TOP | bottom ?= CONST_BOTTOM | center ?= CONST_CENTER | stretch ?= CONST_STRETCH)
+	;
+
+ViewTextDeclaration returns TransferFieldDeclaration
+	: {ViewTextDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_TEXT Named reads ?= '<=' expression = Expression
+	  ( label = LabelModifier?
+	  & icon = IconModifier?
+	  & ^hidden = HiddenModifier?
+	  & width = WidthModifier?)
 	  SC
 	;
 
-ViewTableDeclaration
-	: annotations += AnnotationMark*
-	  'table' (referenceType = [RowDeclaration | ModelName]) '[]' Named
-	  "=" expression = Expression
-	  (caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier? & height = ViewHeightModifier?)
+ViewFieldDeclaration returns TransferFieldDeclaration
+	: {ViewFieldDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_FIELD  required ?= ATTR_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
+	  ((maps ?= '<=>' | reads ?= '<=') getterExpr = Expression)?
+	  ( label = LabelModifier?
+	  & icon = IconModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?
+	  & width = WidthModifier?)
 	  SC
 	;
 
-ViewActionDeclaration
-	: annotations += AnnotationMark*
-	  'action' Named
-	  ('function' function = ServiceFunctionCall & caption = ViewCaptionModifier? & icon = ViewIconModifier? & enabled = ViewEnabledModifier? & ^hidden = ViewHiddenModifier? & width = ViewWidthModifier?)
+ViewLinkDeclaration returns TransferRelationDeclaration
+	: {ViewLinkDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_LINK required ?= ATTR_REQUIRED? referenceType = [ViewDeclaration | ModelName] Named
+	  ((maps ?= '<=>' | reads ?= '<=') getterExpr = Expression)?
+	  ( choices = ViewChoiceModifier?
+	  & create = CreateActionModifier?
+	  & text = TextModifier?
+	  & label = LabelModifier?
+	  & icon = IconModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?
+	  & width = WidthModifier?)
 	  SC
 	;
 
-ViewCaptionModifier
-	: 'caption' expression = Expression
+ViewTableDeclaration returns TransferRelationDeclaration
+	: {ViewTableDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
+	  ((maps ?= '<=>' | reads ?= '<=') getterExpr = Expression)?
+	  ( choices = ViewChoiceModifier?
+	  & create = CreateActionModifier?
+	  & rows = RowsModifier?
+	  & label = LabelModifier?
+	  & icon = IconModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?
+	  & width = WidthModifier?)
+	  SC
 	;
 
-ViewIconModifier
-	: 'icon' name = StringLiteral
+ViewSubmitDeclaration returns TransferSubmitDeclaration
+	: {ViewSubmitDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_SUBMIT ReturnFragment Named
+	  ( label = LabelModifier?
+	  & icon = IconModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?
+	  & width = WidthModifier?
+	  & resource = ResourceModifier?)
+	  SC
+	;
+
+ViewActionDeclaration returns TransferActionDeclaration
+	: {ViewActionDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_ACTION ReturnFragment Named
+	  '(' (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID)? ')'
+	  ( label = LabelModifier?
+	  & icon = IconModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?
+	  & width = WidthModifier?
+	  & resource = ResourceModifier?)
+	  SC
+	;
+
+ResourceModifier
+	: FEAT_RESOURCE ':' value = [ActorAccessDeclaration | ModelName]
+	;
+
+LabelModifier
+	: ATTR_LABEL ':' value = StringLiteral
+	;
+
+IconModifier
+	:  ATTR_ICON ':' value = StringLiteral
 	;	
 
-ViewFrameModifier
-	: 'frame' expression = Expression
+FrameModifier
+	: ATTR_FRAME ':' expression = Expression
 	;	
 	
-ViewEnabledModifier
-	: 'enabled' expression = Expression
+EnabledModifier
+	: ATTR_ENABLED ':' expression = Expression
 	;
 
-ViewHiddenModifier
-	: 'hidden' expression = Expression
+HiddenModifier
+	: ATTR_HIDDEN ':' expression = Expression
 	;
 
-ViewWidthModifier
-	: 'width' expression = Expression
+WidthModifier
+	: ATTR_WIDTH ':' value = Natural
 	;
 
-ViewHeightModifier
-	: 'height' expression = Expression
+RowsModifier
+	: ATTR_ROWS ':' value = Natural
 	;
 
-ViewHorizontalModifier
-	: 'horizontal' (left ?= 'left' | right ?= 'right' | center ?= 'center')
+TransferChoiceModifier
+	: ATTR_CHOICES ':' expression = Expression
 	;
 
-ViewVerticalModifier
-	: 'vertical' (top ?= 'top' | bottom ?= 'bottom' | center ?= 'center' | stretch = 'stretch')
+ViewChoiceModifier returns TransferChoiceModifier
+	: ATTR_CHOICES ':' rows = [RowDeclaration | ModelName] '[]' '(' expression = Expression ')'
 	;
 
-ServiceFunctionCall
-	: declaration = [ServiceFunctionDeclaration | ModelName] '(' argument = Expression? ')'
+
+TextModifier
+	: FEAT_TEXT ':' expression = Expression
 	;
+
+CreateActionModifier
+	: ATTR_CREATE ':' view = [ViewDeclaration | ModelName]
+	;
+
+DetailModifier
+	: ATTR_DETAIL ':' view = [ViewDeclaration | ModelName]
+	;
+
 
 /****************************
  *	Row
  ****************************/
 
-RowDeclaration
+RowDeclaration returns TransferDeclaration
 	: {RowDeclaration}
 	  annotations += AnnotationMark*
-	  'row' Named
+	  KW_ROW Named
 	  map = EntityMapDeclaration?
-	  ('exports' exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
+	  detail = DetailModifier?
 	  (automap ?= SC | BLOCK_START (members += RowMemberDeclaration)* BLOCK_END)
 	;
 
-RowMemberDeclaration
+RowMemberDeclaration returns TransferMemberDeclaration
 	: RowColumnDeclaration
-	| RowActionDeclaration
-	  SC*
 	;
 
-RowColumnDeclaration
-	: annotations += AnnotationMark*
-	  'column' (referenceType = [PrimitiveDeclaration | ModelName]) Named
-	  "=" expression = Expression
-	  SC
-	;
-
-RowActionDeclaration
-	: annotations += AnnotationMark*
-	  'action' Named 'function' function = ServiceFunctionCall
+RowColumnDeclaration returns TransferFieldDeclaration
+	: {RowColumnDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_COLUMN referenceType = [PrimitiveDeclaration | ModelName] Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	  ( label = LabelModifier?
+	  & icon = IconModifier?
+	  & width = WidthModifier?)
 	  SC
 	;
 
@@ -419,14 +490,72 @@ RowActionDeclaration
  ****************************/
 
 ActorDeclaration
-	: {ActorDeclaration}
-	  annotations += AnnotationMark*
-	  'actor' Named
+	: annotations += AnnotationMark*
+	  KW_ACTOR (system ?= KW_SYSTEM | human ?= KW_HUMAN) Named
 	  map = EntityMapDeclaration?
-	  ('exports' exports += [ServiceDeclaration | ModelName] (',' exports += [ServiceDeclaration | ModelName])*)?
-	  (('realm' realm = StringLiteral)? & ('claim' claim = StringLiteral)? & ('identity' identity = Expression)? & guard = Guard?)
+	  ( realm = RealmModifier?
+	  & claim = ClaimModifier?
+	  & identity = IdentityModifier?
+	  & guard = GuardModifier?)
+	  (SC | BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END)
+	;
+
+RealmModifier
+	: ATTR_REALM ':' value = StringLiteral
+	;
+
+ClaimModifier
+	: ATTR_CLAIM ':' value = StringLiteral
+	;
+
+IdentityModifier
+	: ATTR_IDENTITY ':' expression = Expression
+	;
+
+GuardModifier
+	: ATTR_GUARD ':' expression = Expression
+	;
+
+ActorMemberDeclaration 
+	: ActorAccessDeclaration
+	| ActorMenuDeclaration
+	| ActorGroupDeclaration
+	;
+
+ActorAccessDeclaration
+	: {ActorResourceDeclaration}
+	  annotations += AnnotationMark*
+	  FEAT_RESOURCE transferReferenceType = [TransferDeclaration | ModelName] Cardinality? Named
+	  '<=' expression = Expression
 	  SC
 	;
+
+ActorGroupDeclaration
+	: annotations += AnnotationMark*
+	  FEAT_GROUP tag = JSLID
+	  ( label = LabelModifier?
+	  & icon = IconModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?)
+	  BLOCK_START (members += ActorMenuDeclaration)* BLOCK_END
+	;
+
+ActorMenuDeclaration returns ActorAccessDeclaration
+	: {ActorMenuDeclaration}
+	  annotations += AnnotationMark*
+	  ( FEAT_MENU viewReferenceType = [ViewDeclaration | ModelName] Named ('<=' expression = Expression)?
+	  | FEAT_MENU rowReferenceType = [RowDeclaration | ModelName] Cardinality Named ('<=' expression = Expression)?
+	  )
+	  ( choices = ViewChoiceModifier?
+	  & create = CreateActionModifier?
+	  & label = LabelModifier?
+	  & icon = IconModifier?
+	  & enabled = EnabledModifier?
+	  & ^hidden = HiddenModifier?
+	  & rows = RowsModifier?)
+	  SC
+	;
+
 
 /****************************
  *	Datatype
@@ -434,16 +563,16 @@ ActorDeclaration
 
 DataTypeDeclaration
     : annotations += AnnotationMark*
-      'type'
-      (
-		  primitive = 'boolean' Named
-		| primitive = 'binary' Named '(' mimeTypes = ModifierMimeTypes ',' maxFileSize = ModifierMaxFileSize ')'
-		| primitive = 'string' Named '(' minSize = ModifierMinSize ',' maxSize = ModifierMaxSize (',' regex = ModifierRegex)? ')'
-		| primitive = 'numeric' Named '(' precision = ModifierPrecision ',' scale = ModifierScale ')'
-		| primitive = 'date' Named
-		| primitive = 'time' Named
-		| primitive = 'timestamp' Named
-      ) SC
+      KW_TYPE
+      ( primitive = CONST_BOOLEAN Named
+      | primitive = CONST_BINARY Named (mimeTypes = ModifierMimeTypes & maxFileSize = ModifierMaxFileSize)
+      | primitive = CONST_STRING Named (minSize = ModifierMinSize & maxSize = ModifierMaxSize & regex = ModifierRegex?)
+      | primitive = CONST_NUMERIC Named (precision = ModifierPrecision & scale = ModifierScale)
+      | primitive = CONST_DATE Named
+      | primitive = CONST_TIME Named
+      | primitive = CONST_TIMESTAMP Named
+      )
+      SC
     ;
 
 
@@ -453,38 +582,38 @@ DataTypeDeclaration
 
 EnumDeclaration
     : annotations += AnnotationMark*
-      'enum' Named
+      KW_ENUM Named
       BLOCK_START (literals += EnumLiteral)* BLOCK_END
     ;
 
 EnumLiteral
     : annotations += AnnotationMark*
-      Named '=' value = Natural SC+
+      Named '=' value = Natural SC
     ;
 
 
 ModifierMinSize
-	: 'min-size' '=' value = Natural
+	: ATTR_MINSIZE ':' value = Natural
 	;
 
 ModifierMaxSize
-	: 'max-size' '=' value = Natural
+	: ATTR_MAXSIZE ':' value = Natural
 	;
 
 ModifierRegex
-	: 'regex' '=' regex = StringLiteral
+	: ATTR_REGEX ':' regex = StringLiteral
 	;
 
 ModifierPrecision
-	: 'precision' '=' value = Natural
+	: ATTR_PRECISION ':' value = Natural
 	;
 
 ModifierScale
-	: 'scale' '=' value = Natural
+	: ATTR_SCALE ':' value = Natural
 	;
 
 ModifierMimeTypes
-	: 'mime-types' '=' '[' values += MimeType (',' values += MimeType)* ']'
+	: ATTR_MIMETYPE ':' '[' values += MimeType (',' values += MimeType)* ']'
 	;
 
 MimeType
@@ -492,18 +621,9 @@ MimeType
 	;
 
 ModifierMaxFileSize
-	: 'max-file-size' '=' numeric = Natural (unit = DataUnit)?
+	: ATTR_MAXFILESIZE ':' numeric = Natural (measure = (OTHER_KB | OTHER_MB | OTHER_GB | OTHER_KIB | OTHER_MIB | OTHER_GIB))? 
 	;
 	
-enum DataUnit
-	: KB = 'kB'
-	| MB = 'MB'
-	| GB = 'GB'
-	| KiB = 'KiB'
-	| MiB = 'MiB'
-	| GiB = 'GiB'
-	;
-
 /****************************
  *	Expression
  ***************************/
@@ -518,19 +638,19 @@ SwitchExpression returns Expression
     ;
 
 ImpliesExpression returns Expression
-	: OrExpression (=> ({BinaryOperation.leftOperand=current} operator='implies') rightOperand=OrExpression)*
+	: OrExpression (=> ({BinaryOperation.leftOperand=current} operator=OTHER_IMPLIES) rightOperand=OrExpression)*
 	;
 
 OrExpression returns Expression
-	: XorExpression (=> ({BinaryOperation.leftOperand=current} operator='or') rightOperand=XorExpression)*
+	: XorExpression (=> ({BinaryOperation.leftOperand=current} operator=OTHER_OR) rightOperand=XorExpression)*
 	;
 
 XorExpression returns Expression
-	: AndExpression (=> ({BinaryOperation.leftOperand=current} operator='xor') rightOperand=AndExpression)*
+	: AndExpression (=> ({BinaryOperation.leftOperand=current} operator=OTHER_XOR) rightOperand=AndExpression)*
 	;
 
 AndExpression returns Expression
-	: EqualityExpression (=> ({BinaryOperation.leftOperand=current} operator='and') rightOperand=EqualityExpression)*
+	: EqualityExpression (=> ({BinaryOperation.leftOperand=current} operator=OTHER_AND) rightOperand=EqualityExpression)*
 	;
 
 EqualityExpression returns Expression
@@ -546,7 +666,7 @@ AdditiveExpression returns Expression
 	;
 
 MultiplicativeExpression returns Expression
-	: ExponentExpression (=> ({BinaryOperation.leftOperand=current} operator=('*' | '/' | 'div' | 'mod')) rightOperand=ExponentExpression)*
+	: ExponentExpression (=> ({BinaryOperation.leftOperand=current} operator=('*' | '/' | OTHER_DIV | OTHER_MOD)) rightOperand=ExponentExpression)*
 	;
 
 ExponentExpression returns Expression
@@ -600,17 +720,12 @@ Feature
 	;
 
 MemberReference
-    : '.' member = [NavigationTarget | LocalName]
+    : '.' member = [NavigationTarget | LocalName] ('(' (arguments += QueryArgument (',' arguments += QueryArgument)*)? ')')?
     ;
 
 Call
-	: EntityQueryCall
-	| FunctionCall
+	: FunctionCall
 	| LambdaCall
-	;
-
-EntityQueryCall
-	: '.' declaration = [EntityQueryDeclaration | LocalName ] => '(' (arguments += QueryArgument (',' arguments += QueryArgument)*)? ')'
 	;
 
 FunctionCall
@@ -638,26 +753,31 @@ LambdaVariable
  ***************************/
 
 FunctionDeclaration
-	: 'function' returnType = TypeDescription Named '(' (parameters += FunctionParameterDeclaration (',' parameters += FunctionParameterDeclaration)*)? ')' 'on' baseType = TypeDescription SC
+	: FEAT_FUNCTION returnType = TypeDescription
+	  Named '(' (parameters += FunctionParameterDeclaration (',' parameters += FunctionParameterDeclaration)*)? ')'
+	  KW_ON baseType = TypeDescription
+	  SC
 	;
 
 FunctionParameterDeclaration
-	: isRequired ?= 'required'? description = TypeDescription Named
+	: isRequired ?= ATTR_REQUIRED? description = TypeDescription Named
 	;
 
 TypeDescription
 	: {TypeDescription} type = Type
-	| collection ?= 'collection' '<' type = Type '>'
-	| declaration ?= 'declaration' '<' type = Type '>'
-	| constant ?= 'constant' '<' type = Type '>'
+	| collection ?= OTHER_COLLECTION '<' type = Type '>'
+	| declaration ?= OTHER_DECLARATION '<' type = Type '>'
+	| constant ?= OTHER_CONSTANT '<' type = Type '>'
 	;
 
 Type
-	: 'boolean' | 'binary' | 'string' | 'numeric' | 'date' | 'time' | 'timestamp' | 'enum' | 'entity'
+	: CONST_BOOLEAN | CONST_BINARY | CONST_STRING | CONST_NUMERIC | CONST_DATE | CONST_TIME | CONST_TIMESTAMP | KW_ENUM | KW_ENTITY
 	;
 
 LambdaDeclaration 
-	: 'lambda' returnType = TypeDescription Named '(' (expressionType = TypeDescription)? ')' SC
+	: OTHER_LAMBDA returnType = TypeDescription
+	  Named '(' (expressionType = TypeDescription)? ')'
+	  SC
 	;
 
 
@@ -666,9 +786,9 @@ LambdaDeclaration
  ***************************/
 
 AnnotationDeclaration
-	: 'annotation' Named ('(' (parameters += AnnotationParameterDeclaration (',' parameters += AnnotationParameterDeclaration)*)? ')')?
-	  ('on' targets += AnnotationTarget (',' targets += AnnotationTarget)*)?
-	  (SC | BLOCK_START annotations += AnnotationMark* BLOCK_END )
+	: KW_ANNOTATION Named ('(' (parameters += AnnotationParameterDeclaration (',' parameters += AnnotationParameterDeclaration)*)? ')')?
+	  (KW_ON targets += AnnotationTarget (',' targets += AnnotationTarget)*)?
+	  (SC | BLOCK_START annotations += AnnotationMark* BLOCK_END)
 	;
 
 AnnotationParameterDeclaration
@@ -676,28 +796,45 @@ AnnotationParameterDeclaration
 	;
 
 AnnotationParameterType
-	: type = ('boolean'	| 'string' | 'numeric')
+	: type = (CONST_BOOLEAN	| CONST_STRING | CONST_NUMERIC)
 	;
 
 AnnotationTarget
-	: model ?= 'model'
-	| type ?= 'type'
-	| enumeration ?= 'enum'
-	| 'enum' '::' enumLiteral ?= 'literal'
-	| entity ?= 'entity'
-	| 'entity' '::' entityField ?= 'field'
-	| 'entity' '::' entityIdentifier ?= 'identifier'
-	| 'entity' '::' entityQuery ?= 'query'
-	| 'entity' '::' entityRelation ?= 'relation'
-	| 'entity' '::' entityDerived ?= 'derived'
-	| 'entity' '::' entityOperation ?= 'operation'
-	| transfer ?= 'transfer'
-	| 'transfer' '::' transferField ?= 'field'
-	| 'transfer' '::' transferConstructor ?= 'constructor'
-	| service ?= 'service'
-	| 'service' '::' serviceFunction ?= 'function'
-	| actor ?= 'actor'
-	| query ?= 'query'
+	: model ?= KW_MODEL
+	| ^import ?= KW_IMPORT
+	| type ?= KW_TYPE
+	| enumeration ?= KW_ENUM
+	| KW_ENUM enumLiteral ?= '::literal'
+	| entity ?= KW_ENTITY
+	| KW_ENTITY entityField ?= '::field'
+	| KW_ENTITY entityRelation ?= '::relation'
+	| transfer ?= KW_TRANSFER
+	| KW_TRANSFER transferAction ?= '::action'
+	| KW_TRANSFER transferConstructor ?= '::constructor'
+	| KW_TRANSFER transferDestructor ?= '::destructor'
+	| KW_TRANSFER transferField ?= '::field'
+	| KW_TRANSFER transferInitializer ?= '::initializer'
+	| KW_TRANSFER transferRelation ?= '::relation'
+	| KW_TRANSFER transferSubmit ?= '::submit'
+	| actor ?= KW_ACTOR
+	| KW_ACTOR actorGroup ?= '::group'
+	| KW_ACTOR actorMenu ?= '::menu'
+	| KW_ACTOR actorResource ?= '::resource'
+	| query ?= KW_QUERY
+	| view ?= KW_VIEW
+	| KW_VIEW viewAction ?= '::action'
+	| KW_VIEW viewConstructor ?= '::constructor'
+	| KW_VIEW viewDestructor ?= '::destructor'
+	| KW_VIEW viewField ?= '::field'
+	| KW_VIEW viewGroup ?= '::group'
+	| KW_VIEW viewInitializer ?= '::initializer'
+	| KW_VIEW viewLink ?= '::link'
+	| KW_VIEW viewSubmit ?= '::submit'
+	| KW_VIEW viewTable ?= '::table'
+	| KW_VIEW viewTabs ?= '::tabs'
+	| KW_VIEW viewText ?= '::text'
+	| row ?= KW_ROW
+	| KW_ROW rowColumn ?= '::column'
 	;
 
 AnnotationMark
@@ -713,10 +850,7 @@ EnumLiteralReference
     ;
 
 NavigationTarget
-    : EntityFieldDeclaration
-	| EntityIdentifierDeclaration
-	| EntityRelationDeclaration
-	| EntityDerivedDeclaration
+    : EntityMemberDeclaration
     | EntityRelationOppositeInjected
     ;
 
@@ -729,7 +863,7 @@ Literal
 	;
 
 BooleanLiteral
-	: {BooleanLiteral} ('false' | isTrue?='true')
+	: {BooleanLiteral} (CONST_FALSE | isTrue?=CONST_TRUE)
 	;
 
 NumberLiteral
@@ -761,23 +895,26 @@ TemporalLiteral
  // For later use
  // ************************************
  
- ConstraintDeclaration
-	: 'constraint' Named expression = Expression ('onerror' error = CreateError)? SC
+ConstraintDeclaration
+	: FEAT_CONSTRAINT Named expression = Expression (throw = ThrowModifier?) SC
 	;
 
+ThrowModifier
+	: ATTR_THROW ':' value = CreateError
+	;
  
 /****************************
  *	Error
  ****************************/
 
 ErrorDeclaration
-	: 'error' Named ('extends' extends = [ErrorDeclaration | ModelName])?
+	: KW_ERROR Named (KW_EXTENDS extends = [ErrorDeclaration | ModelName])?
 	  (SC | BLOCK_START (fields += ErrorField)* BLOCK_END)
 	;
 
 ErrorField
-	: 'field' referenceType = [PrimitiveDeclaration | ModelName] Named
-	  ('=' defaultExpression = Expression)? SC+
+	: FEAT_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named
+	  ('=' defaultExpression = Expression)? SC
 	;
 
 CreateError
@@ -787,6 +924,10 @@ CreateError
 ThrowParameter
 	: errorFieldType=[ErrorField | LocalName] '=' expession=Literal;
 
+
+/****************************
+ *	Common
+ ****************************/
 
 Decimal returns ecore::EBigDecimal
 	: NUMBER '.' NUMBER
@@ -805,19 +946,147 @@ LocalName
     ;
 
 ModelName
-	: JSLID ('::' JSLID)*
+	: JSLID (SUBID | '::relation' | '::literal' | '::field' | '::action' | '::constructor' | '::destructor' | '::initializer' | '::submit' | '::group'
+		    | '::menu' | '::resource' | '::link' | '::table' | '::tabs' | '::text' | '::column')*
     ;
+
+JSLID: ID | KW | FEAT | ATTR | CONST | OTHER ;
+
+KW: KW_ABSTRACT | KW_ACTOR | KW_ANNOTATION | KW_AS | KW_ENTITY | KW_ENUM | KW_ERROR | KW_EXPORTS | KW_EXTENDS | KW_HUMAN |  KW_IMPORT
+			| KW_MODEL | KW_ON | KW_QUERY | KW_ROW | KW_SERVICE | KW_SYSTEM | KW_TRANSFER | KW_TYPE | KW_VIEW;
+
+FEAT: FEAT_ACTION | FEAT_COLUMN | FEAT_CONSTRAINT | FEAT_CONSTRUCTOR | FEAT_DERIVED | FEAT_FIELD | FEAT_FUNCTION
+			| FEAT_GROUP | FEAT_IDENTIFIER | FEAT_LINK | FEAT_LITERAL | FEAT_MENU | FEAT_RELATION | FEAT_RESOURCE | FEAT_SUBMIT | FEAT_TABLE | FEAT_TABS
+			| FEAT_TEXT ;
+			
+CONST: CONST_BINARY | CONST_BOOLEAN | CONST_BOTTOM | CONST_CENTER | CONST_DATE | CONST_LEFT | CONST_NUMERIC | CONST_RIGHT
+			| CONST_STRETCH	| CONST_STRING | CONST_TIME | CONST_TIMESTAMP | CONST_TOP;
+
+ATTR: ATTR_CHOICES | ATTR_CLAIM | ATTR_CREATE | ATTR_DETAIL | ATTR_ENABLED | ATTR_FRAME | ATTR_GUARD | ATTR_HIDDEN | ATTR_HORIZONTAL | ATTR_ICON
+			| ATTR_IDENTITY | ATTR_LABEL | ATTR_REALM | ATTR_REQUIRED | ATTR_ROWS | ATTR_SCALE | ATTR_TAG
+			| ATTR_THROW | ATTR_VERTICAL | ATTR_WIDTH;
+
+OTHER: OTHER_OR | OTHER_XOR | OTHER_AND | OTHER_DIV | OTHER_MOD | OTHER_KB | OTHER_MB | OTHER_GB | OTHER_KIB | OTHER_MIB | OTHER_GIB;
+
 
 /****************************
  *	Terminals
  ****************************/
 
-BLOCK_START
+terminal KW_ABSTRACT:	'abstract';
+terminal KW_ACTOR:		'actor';
+terminal KW_ANNOTATION:	'annotation';
+terminal KW_AS:			'as';
+terminal KW_ENTITY:		'entity';
+terminal KW_ENUM:		'enum';
+terminal KW_ERROR:		'error';
+terminal KW_EXPORTS:	'exports';
+terminal KW_EXTENDS:	'extends';
+terminal KW_HUMAN:		'human';
+terminal KW_IMPORT:		'import';
+terminal KW_MAPS:		'maps';
+terminal KW_MODEL:		'model';
+terminal KW_ON:			'on';
+terminal KW_QUERY:		'query';
+terminal KW_ROW:		'row';
+terminal KW_SERVICE:	'service';
+terminal KW_SYSTEM:		'system';
+terminal KW_TRANSFER:	'transfer';
+terminal KW_TYPE:		'type';
+terminal KW_VIEW:		'view';
+
+terminal FEAT_ACTION:		'action';
+terminal FEAT_COLUMN:		'column';
+terminal FEAT_CONSTRAINT:	'constraint';
+terminal FEAT_CONSTRUCTOR:	'constructor';
+terminal FEAT_DERIVED:		'derived';
+terminal FEAT_DESTRUCTOR:	'destructor';
+terminal FEAT_FIELD:		'field';
+terminal FEAT_FUNCTION:		'function';
+terminal FEAT_GROUP:		'group';
+terminal FEAT_IDENTIFIER:	'identifier';
+terminal FEAT_INITIALIZER:	'initializer';
+terminal FEAT_LINK:			'link';
+terminal FEAT_LITERAL:		'literal';
+terminal FEAT_MENU:			'menu';
+terminal FEAT_RELATION:		'relation';
+terminal FEAT_RESOURCE:		'resource';
+terminal FEAT_SUBMIT:		'submit';
+terminal FEAT_TABLE:		'table';
+terminal FEAT_TABS:			'tabs';
+terminal FEAT_TEXT:			'text';
+
+terminal CONST_BINARY:		'binary';
+terminal CONST_BOOLEAN:		'boolean';
+terminal CONST_BOTTOM:		'bottom';
+terminal CONST_CENTER:		'center';
+terminal CONST_DATE:		'date';
+terminal CONST_FALSE:		'false';
+terminal CONST_LEFT:		'left';
+terminal CONST_NUMERIC:		'numeric';
+terminal CONST_RIGHT:		'right';
+terminal CONST_STRETCH:		'stretch';
+terminal CONST_STRING:		'string';
+terminal CONST_TIME:		'time';
+terminal CONST_TIMESTAMP:	'timestamp';
+terminal CONST_TOP:			'top';
+terminal CONST_TRUE:		'true';
+terminal CONST_VOID:		'void';
+
+terminal ATTR_CHOICES:		'choices';
+terminal ATTR_CLAIM:		'claim';
+terminal ATTR_CREATE:		'create';
+terminal ATTR_DETAIL:		'detail';
+terminal ATTR_ENABLED:		'enabled';
+terminal ATTR_FRAME:		'frame';
+terminal ATTR_GUARD:		'guard';
+terminal ATTR_HIDDEN:		'hidden';
+terminal ATTR_HORIZONTAL:	'horizontal';
+terminal ATTR_ICON:			'icon';
+terminal ATTR_IDENTITY:		'identity';
+terminal ATTR_LABEL:		'label';
+terminal ATTR_MAXFILESIZE:	'max-file-size';
+terminal ATTR_MAXSIZE:		'max-size';
+terminal ATTR_MINSIZE:		'min-size';
+terminal ATTR_MIMETYPE:		'mime-type';
+terminal ATTR_OPPOSITE:		'opposite';
+terminal ATTR_OPPOSITEADD:	'opposite-add';
+terminal ATTR_PRECISION:	'precision';
+terminal ATTR_REALM:		'realm';
+terminal ATTR_REGEX:		'regex';
+terminal ATTR_REQUIRED:		'required';
+terminal ATTR_ROWS:			'rows';
+terminal ATTR_SCALE:		'scale';
+terminal ATTR_TAG:			'tag';
+terminal ATTR_THROW:		'throw';
+terminal ATTR_VERTICAL:		'vertical';
+terminal ATTR_WIDTH:		'width';
+
+terminal OTHER_LAMBDA:		'lambda';
+terminal OTHER_COLLECTION:	'collection';
+terminal OTHER_DECLARATION:	'declaration';
+terminal OTHER_CONSTANT:	'constant';
+terminal OTHER_IMPLIES:		'implies';
+
+terminal OTHER_OR:		'or';
+terminal OTHER_XOR:		'xor';
+terminal OTHER_AND:		'and';
+terminal OTHER_DIV:		'div';
+terminal OTHER_MOD:		'mod';
+terminal OTHER_KB:		'kB';
+terminal OTHER_MB:		'MB';
+terminal OTHER_GB:		'GB';
+terminal OTHER_KIB:		'KiB';
+terminal OTHER_MIB:		'MiB';
+terminal OTHER_GIB:		'GiB';
+
+
+terminal BLOCK_START
 	: '{'
 	;
 
-BLOCK_END
-	: '}'
+terminal BLOCK_END
+	: '}' WS? SC?
 	;
 
 terminal fragment DIGIT
@@ -848,6 +1117,10 @@ terminal NUMBER
 	: DIGIT+
 	;
 
+terminal SUBID
+	: '::' ID
+	;
+
 terminal ID
 	: ALPHABET (ALPHABET | DIGIT)* | '`' ALPHABET (ALPHABET | DIGIT)* '`'
 	;
@@ -869,7 +1142,7 @@ terminal SL_COMMENT
 	;
 
 terminal SC
-	: ';'
+	: (';' WS?)+
 	;
 
 terminal WS
