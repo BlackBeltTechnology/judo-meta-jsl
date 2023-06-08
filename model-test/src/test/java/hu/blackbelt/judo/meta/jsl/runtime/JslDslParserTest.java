@@ -48,8 +48,8 @@ public class JslDslParserTest {
 
     private static final String TEST_MODEL = "model SampleModel;\n" +
             "\n" +
-            "type numeric Integer(precision = 9,  scale = 0);\n" +
-            "type string String(min-size = 0, max-size = 128);\n";
+            "type numeric Integer precision:9 scale:0;\n" +
+            "type string String min-size:0 max-size:128;\n";
 
     private static final String TEST_MODEL2 = "model SampleModel2;\n" +
             "import SampleModel;\n" +
@@ -183,7 +183,8 @@ public class JslDslParserTest {
             "REQ-ENT-006",
             "REQ-ENT-008",
             "REQ-ENT-009",
-            "REQ-ENT-010",
+            "REQ-ENT-010",    	// this test is unnecessary, the new JSL syntax does not allow primitives with cardinality
+
             "REQ-EXPR-001",
             "REQ-EXPR-002",
             "REQ-EXPR-003",
