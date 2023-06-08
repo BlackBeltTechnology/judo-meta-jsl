@@ -51,10 +51,10 @@ class JudoFunctionsProvider {
 	def model() '''
 		model judo::functions;
 		
-		annotation Lazy on entity::relation, entity::field, transfer::relation, transfer::field, view::table, view::link, view::field;
-		annotation Eager on entity::relation, entity::field, transfer::relation, transfer::field, view::table, view::link, view::field;
+		annotation Lazy on entity:relation, entity:field, transfer:relation, transfer:field, view:table, view:link, view:field;
+		annotation Eager on entity:relation, entity:field, transfer:relation, transfer:field, view:table, view:link, view:field;
 		
-		annotation Popup on view::action, view::submit, view::link, row, actor::menu;
+		annotation Popup on view:action, view:submit, view:link, row, actor:menu;
 		
 		function string asString() on boolean;
 		function string asString() on enum;

@@ -37,9 +37,9 @@ class AnnotationTests {
                 action T f3();
             }
 
-            annotation A1 on transfer::action;
-            annotation A2(string s) on transfer::action;
-            annotation A3  on transfer::action {
+            annotation A1 transfer:action;
+            annotation A2(string s) transfer:action;
+            annotation A3 transfer:action {
                 @A1
                 @A2(s = "string")
             }
@@ -364,7 +364,7 @@ class AnnotationTests {
                 action T f2();
             }
 
-            annotation A2(string s) on transfer::action;
+            annotation A2(string s) transfer:action;
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.annotationArgument, JslDslValidator.TYPE_MISMATCH,"Literal at annotation argument 's' is not compatible. (Expected: string constant, Got: numeric constant)")
         ]
@@ -383,7 +383,7 @@ class AnnotationTests {
                 action T f2();
             }
 
-            annotation A2(string s) on transfer::action;
+            annotation A2(string s) transfer:action;
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.annotationArgument, JslDslValidator.DUPLICATE_PARAMETER)
         ]
@@ -423,7 +423,7 @@ class AnnotationTests {
             transfer T(E e) {
             }
 
-            annotation A on transfer;
+            annotation A model:transfer;
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.annotationMark, JslDslValidator.INVALID_ANNOTATION)
         ]
