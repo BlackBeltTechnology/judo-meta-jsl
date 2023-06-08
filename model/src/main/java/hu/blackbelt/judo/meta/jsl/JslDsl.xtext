@@ -47,13 +47,6 @@ ClassDeclaration
 	| ActorDeclaration
 	;
 
-fragment Named
-	: => name = JSLID;
-
-fragment Cardinality
-    : many ?= '[]'
-    ;
-
 /****************************
  *	Entity
  ****************************/
@@ -158,16 +151,6 @@ QueryDeclaration
 
 QueryParameterDeclaration
 	: referenceType = [PrimitiveDeclaration | ModelName] Named ("=" default = Expression)?
-	;
-
-/****************************
- *	Return
- ****************************/
-
-fragment ReturnFragment
-	: CONST_VOID?
-	| referenceTypes += [TransferDeclaration | ModelName]
-	| '<' referenceTypes += [TransferDeclaration | ModelName] ("|" referenceTypes += [TransferDeclaration | ModelName])+ '>'
 	;
 
 /****************************
@@ -575,23 +558,6 @@ DataTypeDeclaration
       SC
     ;
 
-
-/****************************
- *	Enum
- ****************************/
-
-EnumDeclaration
-    : annotations += AnnotationMark*
-      KW_ENUM Named
-      BLOCK_START (literals += EnumLiteral)* BLOCK_END
-    ;
-
-EnumLiteral
-    : annotations += AnnotationMark*
-      Named '=' value = Natural SC
-    ;
-
-
 ModifierMinSize
 	: ATTR_MINSIZE ':' value = Natural
 	;
@@ -623,6 +589,21 @@ MimeType
 ModifierMaxFileSize
 	: ATTR_MAXFILESIZE ':' numeric = Natural (measure = (OTHER_KB | OTHER_MB | OTHER_GB | OTHER_KIB | OTHER_MIB | OTHER_GIB))? 
 	;
+
+/****************************
+ *	Enum
+ ****************************/
+
+EnumDeclaration
+    : annotations += AnnotationMark*
+      KW_ENUM Named
+      BLOCK_START (literals += EnumLiteral)* BLOCK_END
+    ;
+
+EnumLiteral
+    : annotations += AnnotationMark*
+      Named '=' value = Natural SC
+    ;
 	
 /****************************
  *	Expression
@@ -854,41 +835,6 @@ NavigationTarget
     | EntityRelationOppositeInjected
     ;
 
-Literal
-	: BooleanLiteral
-	| NumberLiteral
-	| StringLiteral
-	| TemporalLiteral
-	| EnumLiteralReference
-	;
-
-BooleanLiteral
-	: {BooleanLiteral} (CONST_FALSE | isTrue?=CONST_TRUE)
-	;
-
-NumberLiteral
-	: IntegerLiteral
-	| DecimalLiteral
-	;
-
-IntegerLiteral hidden()
-	: (minus ?= "-" | "+")? value=Natural
-	;
-
-DecimalLiteral hidden()
-	: (minus ?= "-" | "+")? value=Decimal
-	;
-
-StringLiteral
-	: {EscapedStringLiteral} value=STRING
-	| {RawStringLiteral} value=RAW_STRING
-	;
-
-TemporalLiteral
-	: {DateLiteral} value=DATE
-	| {TimestampLiteral} value=TIMESTAMP
-	| {TimeLiteral} value=TIME
-	;
 
 
  // ************************************
@@ -926,8 +872,62 @@ ThrowParameter
 
 
 /****************************
+ *	Literals
+ ****************************/
+
+Literal
+	: BooleanLiteral
+	| NumberLiteral
+	| StringLiteral
+	| TemporalLiteral
+	| EnumLiteralReference
+	;
+
+BooleanLiteral
+	: {BooleanLiteral} (CONST_FALSE | isTrue?=CONST_TRUE)
+	;
+
+NumberLiteral
+	: IntegerLiteral
+	| DecimalLiteral
+	;
+
+IntegerLiteral hidden()
+	: (minus ?= "-" | "+")? value=Natural
+	;
+
+DecimalLiteral hidden()
+	: (minus ?= "-" | "+")? value=Decimal
+	;
+
+StringLiteral
+	: {EscapedStringLiteral} value=STRING
+	| {RawStringLiteral} value=RAW_STRING
+	;
+
+TemporalLiteral
+	: {DateLiteral} value=DATE
+	| {TimestampLiteral} value=TIMESTAMP
+	| {TimeLiteral} value=TIME
+	;
+
+
+/****************************
  *	Common
  ****************************/
+
+fragment Named
+	: => name = JSLID;
+
+fragment Cardinality
+    : many ?= '[]'
+    ;
+
+fragment ReturnFragment
+	: CONST_VOID?
+	| referenceTypes += [TransferDeclaration | ModelName]
+	| '<' referenceTypes += [TransferDeclaration | ModelName] ("|" referenceTypes += [TransferDeclaration | ModelName])+ '>'
+	;
 
 Decimal returns ecore::EBigDecimal
 	: NUMBER '.' NUMBER
@@ -946,8 +946,6 @@ LocalName
     ;
 
 ModelName
-//	: JSLID (SUBID | '::' (FEAT_RELATION | FEAT_LITERAL | FEAT_FIELD | FEAT_ACTION | FEAT_CONSTRUCTOR | FEAT_DESTRUCTOR | FEAT_INITIALIZER
-//		    | FEAT_SUBMIT | FEAT_GROUP | FEAT_MENU | FEAT_RESOURCE | FEAT_LINK | FEAT_TABLE | FEAT_TABS | FEAT_TEXT | FEAT_COLUMN))*
 	: JSLID SUBID*
     ;
 
