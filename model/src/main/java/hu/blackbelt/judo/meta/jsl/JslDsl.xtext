@@ -285,13 +285,6 @@ ViewMemberDeclaration returns TransferMemberDeclaration
 	| ViewTabsDeclaration
 	;
 
-//ViewDefault
-//	: field = ViewField '=' rightValue = Expression SC
-//	;
-//
-//ViewField
-//	: 'self' '.' declaration = [ViewFieldDeclaration | ModelName]
-//	;
 
 ViewTabsDeclaration
 	: {ViewTabsDeclaration}
@@ -464,13 +457,6 @@ DetailModifier
 	: ATTR_DETAIL ':' view = [ViewDeclaration | ModelName]
 	;
 
-//TargetTransferModifier
-//	: ATTR_TARGET ':' transfer = [TransferDeclaration | ModelName] ('(' expression = Expression ')')?
-//	;
-
-//ServiceFunctionCall
-//	: declaration = [ServiceFunctionDeclaration | ModelName] '(' argument = Expression? ')'
-//	;
 
 /****************************
  *	Row
@@ -638,15 +624,6 @@ ModifierMaxFileSize
 	: ATTR_MAXFILESIZE ':' numeric = Natural (measure = (OTHER_KB | OTHER_MB | OTHER_GB | OTHER_KIB | OTHER_MIB | OTHER_GIB))? 
 	;
 	
-//DataUnit
-//	: KB ?= OTHER_KB
-//	| MB ?= OTHER_MB
-//	| GB ?= OTHER_GB
-//	| KiB ?= OTHER_KIB
-//	| MiB ?= OTHER_MIB
-//	| GiB ?= OTHER_GIB
-//	;
-
 /****************************
  *	Expression
  ***************************/
@@ -827,37 +804,37 @@ AnnotationTarget
 	| ^import ?= KW_IMPORT
 	| type ?= KW_TYPE
 	| enumeration ?= KW_ENUM
-	| KW_ENUM '::' enumLiteral ?= FEAT_LITERAL
+	| KW_ENUM enumLiteral ?= '::literal'
 	| entity ?= KW_ENTITY
-	| KW_ENTITY '::' entityField ?= FEAT_FIELD
-	| KW_ENTITY '::' entityRelation ?= FEAT_RELATION
+	| KW_ENTITY entityField ?= '::field'
+	| KW_ENTITY entityRelation ?= '::relation'
 	| transfer ?= KW_TRANSFER
-	| KW_TRANSFER '::' transferAction ?= FEAT_ACTION
-	| KW_TRANSFER '::' transferConstructor ?= FEAT_CONSTRUCTOR
-	| KW_TRANSFER '::' transferDestructor ?= FEAT_DESTRUCTOR
-	| KW_TRANSFER '::' transferField ?= FEAT_FIELD
-	| KW_TRANSFER '::' transferInitializer ?= FEAT_INITIALIZER
-	| KW_TRANSFER '::' transferRelation ?= FEAT_RELATION
-	| KW_TRANSFER '::' transferSubmit ?= FEAT_SUBMIT
+	| KW_TRANSFER transferAction ?= '::action'
+	| KW_TRANSFER transferConstructor ?= '::constructor'
+	| KW_TRANSFER transferDestructor ?= '::destructor'
+	| KW_TRANSFER transferField ?= '::field'
+	| KW_TRANSFER transferInitializer ?= '::initializer'
+	| KW_TRANSFER transferRelation ?= '::relation'
+	| KW_TRANSFER transferSubmit ?= '::submit'
 	| actor ?= KW_ACTOR
-	| KW_ACTOR '::' actorGroup ?= FEAT_GROUP
-	| KW_ACTOR '::' actorMenu ?= FEAT_MENU
-	| KW_ACTOR '::' actorResource ?= FEAT_RESOURCE
+	| KW_ACTOR actorGroup ?= '::group'
+	| KW_ACTOR actorMenu ?= '::menu'
+	| KW_ACTOR actorResource ?= '::resource'
 	| query ?= KW_QUERY
 	| view ?= KW_VIEW
-	| KW_VIEW '::' viewAction ?= FEAT_ACTION
-	| KW_VIEW '::' viewConstructor ?= FEAT_CONSTRUCTOR
-	| KW_VIEW '::' viewDestructor ?= FEAT_DESTRUCTOR
-	| KW_VIEW '::' viewField ?= FEAT_FIELD
-	| KW_VIEW '::' viewGroup ?= FEAT_GROUP
-	| KW_VIEW '::' viewInitializer ?= FEAT_INITIALIZER
-	| KW_VIEW '::' viewLink ?= FEAT_LINK
-	| KW_VIEW '::' viewSubmit ?= FEAT_SUBMIT
-	| KW_VIEW '::' viewTable ?= FEAT_TABLE
-	| KW_VIEW '::' viewTabs ?= FEAT_TABS
-	| KW_VIEW '::' viewText ?= FEAT_TEXT
+	| KW_VIEW viewAction ?= '::action'
+	| KW_VIEW viewConstructor ?= '::constructor'
+	| KW_VIEW viewDestructor ?= '::destructor'
+	| KW_VIEW viewField ?= '::field'
+	| KW_VIEW viewGroup ?= '::group'
+	| KW_VIEW viewInitializer ?= '::initializer'
+	| KW_VIEW viewLink ?= '::link'
+	| KW_VIEW viewSubmit ?= '::submit'
+	| KW_VIEW viewTable ?= '::table'
+	| KW_VIEW viewTabs ?= '::tabs'
+	| KW_VIEW viewText ?= '::text'
 	| row ?= KW_ROW
-	| KW_ROW '::' rowColumn ?= FEAT_COLUMN
+	| KW_ROW rowColumn ?= '::column'
 	;
 
 AnnotationMark
@@ -873,9 +850,6 @@ EnumLiteralReference
     ;
 
 NavigationTarget
-//    : EntityFieldDeclaration
-//	| EntityRelationDeclaration
-//	| EntityDerivedDeclaration
     : EntityMemberDeclaration
     | EntityRelationOppositeInjected
     ;
@@ -972,14 +946,10 @@ LocalName
     ;
 
 ModelName
-	: JSLID (SUBNAME)*
+	: JSLID (SUBID | '::relation' | '::literal' | '::field' | '::action' | '::constructor' | '::destructor' | '::initializer' | '::submit' | '::group'
+		    | '::menu' | '::resource' | '::link' | '::table' | '::tabs' | '::text' | '::column')*
     ;
 
-terminal SUBNAME
-	: '::' ID
-	;
-
-// TODO: all keywords occurs java error
 JSLID: ID | KW | FEAT | ATTR | CONST | OTHER ;
 
 KW: KW_ABSTRACT | KW_ACTOR | KW_ANNOTATION | KW_AS | KW_ENTITY | KW_ENUM | KW_ERROR | KW_EXPORTS | KW_EXTENDS | KW_HUMAN |  KW_IMPORT
@@ -993,7 +963,7 @@ CONST: CONST_BINARY | CONST_BOOLEAN | CONST_BOTTOM | CONST_CENTER | CONST_DATE |
 			| CONST_STRETCH	| CONST_STRING | CONST_TIME | CONST_TIMESTAMP | CONST_TOP;
 
 ATTR: ATTR_CHOICES | ATTR_CLAIM | ATTR_CREATE | ATTR_DETAIL | ATTR_ENABLED | ATTR_FRAME | ATTR_GUARD | ATTR_HIDDEN | ATTR_HORIZONTAL | ATTR_ICON
-			| ATTR_IDENTITY | ATTR_LABEL | ATTR_REALM | ATTR_REQUIRED | ATTR_ROWS | ATTR_TAG
+			| ATTR_IDENTITY | ATTR_LABEL | ATTR_REALM | ATTR_REQUIRED | ATTR_ROWS | ATTR_SCALE | ATTR_TAG
 			| ATTR_THROW | ATTR_VERTICAL | ATTR_WIDTH;
 
 OTHER: OTHER_OR | OTHER_XOR | OTHER_AND | OTHER_DIV | OTHER_MOD | OTHER_KB | OTHER_MB | OTHER_GB | OTHER_KIB | OTHER_MIB | OTHER_GIB;
@@ -1145,6 +1115,10 @@ terminal DATE
  
 terminal NUMBER
 	: DIGIT+
+	;
+
+terminal SUBID
+	: '::' ID
 	;
 
 terminal ID

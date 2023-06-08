@@ -132,7 +132,7 @@ class EntityMemberDeclarationTests {
             }
 
         '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
+        	m | m.assertError(JsldslPackage::eINSTANCE.entityDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
         ]
     }
 

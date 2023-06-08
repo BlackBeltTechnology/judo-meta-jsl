@@ -185,7 +185,7 @@ class TransferTests {
             transfer T2(E1 e1) {
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
+            m | m.assertError(JsldslPackage::eINSTANCE.simpleTransferDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
         ]
     }
 
