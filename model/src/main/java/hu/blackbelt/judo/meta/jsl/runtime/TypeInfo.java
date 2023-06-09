@@ -579,7 +579,7 @@ public class TypeInfo {
 			return new TypeInfo(BaseType.UNDEFINED, false);
 		}
 
-		EntityDeclaration entityDeclaration = transferRelationDeclaration.getReferenceType().getMap().getEntity();
+		EntityDeclaration entityDeclaration = modelExtension.getReferenceType(transferRelationDeclaration).getMap().getEntity();
 		return new TypeInfo(entityDeclaration, transferRelationDeclaration.isMany(), false);
 	}
 	

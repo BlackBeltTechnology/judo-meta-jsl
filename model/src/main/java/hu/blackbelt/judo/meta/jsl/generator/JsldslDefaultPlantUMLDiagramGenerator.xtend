@@ -24,6 +24,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedMemberDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
 
 @Singleton
 class JsldslDefaultPlantUMLDiagramGenerator {
@@ -112,17 +115,20 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             AttributeFontColor<< External >> #7f7f7f
         }
 
-        skinparam package<<DataTypes>> {
-            borderColor Transparent
-            backgroundColor Transparent
-            fontColor Transparent
-            stereotypeFontColor Transparent
+        skinparam rectangle {
+            BorderColor Transparent
+            FontColor Transparent
         }
     '''
 
     def cardinalityRepresentation(EntityStoredRelationDeclaration it)
     '''[«IF required»1«ELSE»0«ENDIF»..«IF isMany»*«ELSE»1«ENDIF»]'''
 
+    def cardinalityRepresentation(EntityCalculatedRelationDeclaration it)
+    '''[0..«IF isMany»*«ELSE»1«ENDIF»]'''
+
+    def cardinalityRepresentation(TransferRelationDeclaration it)
+    '''[«IF required»1«ELSE»0«ENDIF»..«IF isMany»*«ELSE»1«ENDIF»]'''
 
     def dataTypeRepresentation(DataTypeDeclaration it)
     '''
@@ -173,22 +179,19 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '''«IF isMany»[0..*]«ENDIF»'''
 
     def entityFieldModifierFragment(EntityStoredFieldDeclaration it)
-    '''«IF it instanceof EntityDeclaration»#«ELSE»+«ENDIF»'''
+    '''«IF isIdentifier»<&key>«ELSE»<&pencil>«ENDIF»'''
 
     def entityFieldNameFragment(EntityStoredFieldDeclaration it)
     '''«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»'''
 
     def entityFieldRepresentation(EntityStoredFieldDeclaration it)
-    '''«entityFieldModifierFragment»«entityFieldNameFragment» : «referenceType.name»«entityFieldCardinalityFragment»'''
-
-//    def entityIdentifierRepresentation(EntityIdentifierDeclaration it)
-//    '''+<u>«IF required»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»</u> : «referenceType.name»'''
+    '''«entityFieldModifierFragment» «entityFieldNameFragment» : «referenceType.name»«entityFieldCardinalityFragment»'''
 
 //    def entityQueryParameterFragment(EntityQueryDeclaration it)
 //    '''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.name» =«param.^default»«ENDFOR»'''
 
     def entityDerivedRepresentation(EntityCalculatedMemberDeclaration it)
-    '''~<i>«name»</i> : «referenceType.name»«IF isMany»[0..*]«ENDIF»'''
+    '''<U+00A0><U+00A0><U+00A0><U+00A0>«name» : «referenceType.name»«IF isMany»[0..*]«ENDIF»'''
 
 //    def entityQueryRepresentation(EntityQueryDeclaration it)
 //    '''~«name»«entityQueryParameterFragment» : «referenceType.name»[0..*]'''
@@ -204,27 +207,20 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     def entityRepresentation(EntityDeclaration it)
     '''
         class «name?:"none"»«entityStereotypeFragment» {
-            «FOR field : fields»
-                «field.entityFieldRepresentation»
+            «FOR member : members»
+            	«IF member instanceof EntityCalculatedFieldDeclaration»
+                «member.entityDerivedRepresentation»
+                «ENDIF»
+            	«IF member instanceof EntityStoredFieldDeclaration»
+                «member.entityFieldRepresentation»
+                «ENDIF»
             «ENDFOR»
-«««            «FOR identifier : identifiers»
-«««                «identifier.entityIdentifierRepresentation»
-«««            «ENDFOR»
-            «FOR derived : derivedes»
-                «derived.entityDerivedRepresentation»
-            «ENDFOR»
-«««            «FOR query : queries»
-«««                «query.entityQueryRepresentation»
-«««            «ENDFOR»
-«««            «FOR constraint : constraints»
-«««                «constraint.constraintRepresentation»
-«««            «ENDFOR»
         }
     '''
     
     def transferFieldModifierFragment(TransferFieldDeclaration it)
-    '''«IF it.maps || it.reads»~«ELSE»+«ENDIF»'''
-    
+    '''«IF it.reads»<&caret-left>«ELSEIF it.maps»<&caret-right>«ELSE»<U+00A0><U+00A0><U+00A0>«ENDIF»'''
+
     def transferStereotypeFragment(TransferDeclaration it)
     '''«IF automap» << AutoMapped >> «ELSE» << Transfer >>«ENDIF»'''
     
@@ -235,7 +231,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 //    '''«IF isIsMany»[0..*]«ENDIF»'''
     
     def transferFieldRepresentation(TransferFieldDeclaration it)
-    '''«transferFieldModifierFragment»«transferFieldNameFragment» : «referenceType.name»«IF it.maps» <b>maps</b> «it.expression» «ENDIF»«IF it.reads» <b>reads</b> «it.expression» «ENDIF»
+    '''«transferFieldModifierFragment»«transferFieldNameFragment» : «referenceType.name»
 	'''
 
     def transferRepresentation(TransferDeclaration it)
@@ -310,7 +306,8 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     def transferMaps(TransferDeclaration it)
     '''
         «IF it.map !== null»
-            «name» ...> "«it.map.name»" «it.map.entity.name»«IF it.automap» : <<automapped>>«ENDIF»
+«««            «name» -[dotted]-> "«it.map.name»  " «it.map.entity.name»«IF it.automap» : <<automapped>>«ENDIF»
+            «name» -[dotted]-> «it.map.entity.name»
         «ENDIF»
     '''
     
@@ -329,10 +326,10 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '''
     
     def entityRelationOppositeInjectedRepresentation(EntityRelationOppositeInjected it)
-    '''"«name»\n«IF many»[0..*] «ELSE»[0..1]«ENDIF»" -- '''
+    '''"«name»  \n«IF many»[0..*]  «ELSE»[0..1]  «ENDIF»" -- '''
 
     def entityRelationOppositeReferencedRepresentation(EntityRelationOppositeReferenced it)
-    '''"«oppositeType?.name»\n«oppositeType?.cardinalityRepresentation»" -- '''
+    '''"«oppositeType?.name»  \n«oppositeType?.cardinalityRepresentation»" -- '''
 
     def entityRelationOppositeRepresentation(EntityRelationOpposite it) {
         switch it {
@@ -345,6 +342,20 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '''« base.getExternalNameOfEntityDeclaration(eContainer as EntityDeclaration)» «
         IF opposite !== null» «opposite.entityRelationOppositeRepresentation» «ELSE» --> «ENDIF
         » "«name»\n«cardinalityRepresentation»" «base.getExternalNameOfEntityDeclaration(referenceType as EntityDeclaration)»'''
+
+    def entityRelationRepresentation(EntityCalculatedRelationDeclaration it, ModelDeclaration base)
+    '''«IF referenceType !== null
+         »« base.getExternalNameOfEntityDeclaration(eContainer as EntityDeclaration)» ..> "«name»  \n«cardinalityRepresentation»  " «base.getExternalNameOfEntityDeclaration(referenceType as EntityDeclaration)»
+	   «ENDIF»'''
+
+    def transferRelationRepresentation(TransferRelationDeclaration it, ModelDeclaration base)
+    '''«IF referenceType !== null
+    	»« base.getExternalNameOfTransferDeclaration(eContainer as TransferDeclaration)» --> "«name»  \n«cardinalityRepresentation»  " «base.getExternalNameOfTransferDeclaration(referenceType as TransferDeclaration)»
+	   «ENDIF»'''
+
+//    def entityRelationRepresentation(EntityCalculatedRelationDeclaration it, ModelDeclaration base)
+//    '''« base.getExternalNameOfEntityDeclaration(eContainer as EntityDeclaration)»
+//        --> "«name»\n«cardinalityRepresentation»" «base.getExternalNameOfEntityDeclaration(referenceType as EntityDeclaration)»'''
 
     def generate(ModelDeclaration it, String style) '''
     @startuml «name?:"none"»
@@ -359,15 +370,15 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         «ENDFOR»
     }
 
-    together {
-        «FOR type : dataTypeDeclarations»
-            «type.dataTypeRepresentation»
-        «ENDFOR»
-
-        «FOR enumt : enumDeclarations»
-            «enumt.enumRepresentation»
-        «ENDFOR»
-    }
+«««    together {
+«««        «FOR type : dataTypeDeclarations»
+«««            «type.dataTypeRepresentation»
+«««        «ENDFOR»
+«««
+«««        «FOR enumt : enumDeclarations»
+«««            «enumt.enumRepresentation»
+«««        «ENDFOR»
+«««    }
 
     together {
         «FOR error : errorDeclarations»
@@ -375,13 +386,13 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         «ENDFOR»
     }
     
-    together {
+    rectangle Transfers {
     	«FOR transfer : transferDeclarations»
             «transfer.transferRepresentation»
         «ENDFOR»
-        
-        «FOR transfer : transferDeclarations»
-            «transfer.transferMaps»
+
+        «FOR relation : allTransferRelations»
+            «relation.transferRelationRepresentation(it)»
         «ENDFOR»
     }
     
@@ -395,7 +406,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	    «ENDFOR»
     }
 
-    together {
+    rectangle Entities {
         «FOR entity : entityDeclarations»
             «entity.entityRepresentation»
         «ENDFOR»
@@ -412,6 +423,10 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             «relation.entityRelationRepresentation(it)»
         «ENDFOR»
 
+        «FOR relation : getAllCalculatedRelations(true)»
+            «relation.entityRelationRepresentation(it)»
+        «ENDFOR»
+
         «FOR external : externalReferencedRelationReferenceTypes»
             «FOR relation : external.relations»
                 «IF relation.opposite instanceof EntityRelationOppositeInjected && relation.referenceType?.parentContainer(ModelDeclaration)?.name === it.name»
@@ -421,6 +436,10 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         «ENDFOR»
 
     }
+
+    «FOR transfer : transferDeclarations»
+        «transfer.transferMaps»
+    «ENDFOR»
 
     @enduml
     '''
@@ -478,6 +497,20 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             }
         } else {
             return entityDeclaration.name
+        }
+    }
+
+    def String getExternalNameOfTransferDeclaration(ModelDeclaration it, TransferDeclaration transferDeclaration) {
+        if (it.name !== transferDeclaration?.parentContainer(ModelDeclaration)?.name) {
+            val importList = imports.filter[i | i.model.name.equals(transferDeclaration.parentContainer(ModelDeclaration).name)]
+                .map[i | i.alias !== null ? i.alias + "::" + transferDeclaration.name : transferDeclaration.name]
+            if (importList !== null && importList.size > 0) {
+                return importList.get(0)
+            } else {
+                return transferDeclaration.name
+            }
+        } else {
+            return transferDeclaration.name
         }
     }
     

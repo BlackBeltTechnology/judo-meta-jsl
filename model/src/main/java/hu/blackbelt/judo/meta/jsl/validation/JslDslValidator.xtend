@@ -89,7 +89,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDestructorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferInitializerDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferSubmitDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ActorResourceDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessDeclaration
 
 /**
  * This class contains custom validation rules.
@@ -679,6 +679,11 @@ class JslDslValidator extends AbstractJslDslValidator {
             RowDeclaration:                 error = !mark.declaration.targets.exists[t | t.row]
             RowColumnDeclaration:           error = !mark.declaration.targets.exists[t | t.rowColumn]
 
+            ActorDeclaration:               error = !mark.declaration.targets.exists[t | t.actor]
+            ActorMenuDeclaration:           error = !mark.declaration.targets.exists[t | t.actorMenu]
+            ActorGroupDeclaration:          error = !mark.declaration.targets.exists[t | t.actorGroup]
+            ActorAccessDeclaration:         error = !mark.declaration.targets.exists[t | t.actorAccess]
+
             TransferDeclaration:            error = !mark.declaration.targets.exists[t | t.transfer]
             TransferActionDeclaration:      error = !mark.declaration.targets.exists[t | t.transferAction]
             TransferConstructorDeclaration: error = !mark.declaration.targets.exists[t | t.transferConstructor]
@@ -687,11 +692,6 @@ class JslDslValidator extends AbstractJslDslValidator {
             TransferInitializerDeclaration: error = !mark.declaration.targets.exists[t | t.transferInitializer]
             TransferRelationDeclaration:    error = !mark.declaration.targets.exists[t | t.transferRelation]
             TransferSubmitDeclaration:      error = !mark.declaration.targets.exists[t | t.transferSubmit]
-
-            ActorDeclaration:               error = !mark.declaration.targets.exists[t | t.actor]
-            ActorMenuDeclaration:           error = !mark.declaration.targets.exists[t | t.actorMenu]
-            ActorGroupDeclaration:          error = !mark.declaration.targets.exists[t | t.actorGroup]
-            ActorResourceDeclaration:       error = !mark.declaration.targets.exists[t | t.actorResource]
 
             QueryDeclaration:               error = !mark.declaration.targets.exists[t | t.query]
         }
@@ -1171,31 +1171,31 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkActorResource(ActorResourceDeclaration resource) {
-        try {
-            if (!TypeInfo.getTargetType(resource).isCompatible(TypeInfo.getTargetType(resource.expression))) {
-                error("Type mismatch. Expression value does not match resource type at '" + resource.name + "'.",
-                    JsldslPackage::eINSTANCE.actorAccessDeclaration_Expression,
-                    TYPE_MISMATCH)
-            }
-        } catch (IllegalArgumentException illegalArgumentException) {
-            return
-        }
-    }
-
-    @Check
-    def checkActorMenu(ActorMenuDeclaration menu) {
-        try {
-            if (!TypeInfo.getTargetType(menu).isCompatible(TypeInfo.getTargetType(menu.expression))) {
-                error("Type mismatch. Expression value does not match menu type at '" + menu.name + "'.",
-                    JsldslPackage::eINSTANCE.actorAccessDeclaration_Expression,
-                    TYPE_MISMATCH)
-            }
-        } catch (IllegalArgumentException illegalArgumentException) {
-            return
-        }
-    }
+//    @Check
+//    def checkActorResource(ActorResourceDeclaration resource) {
+//        try {
+//            if (!TypeInfo.getTargetType(resource).isCompatible(TypeInfo.getTargetType(resource.expression))) {
+//                error("Type mismatch. Expression value does not match resource type at '" + resource.name + "'.",
+//                    JsldslPackage::eINSTANCE.actorAccessDeclaration_Expression,
+//                    TYPE_MISMATCH)
+//            }
+//        } catch (IllegalArgumentException illegalArgumentException) {
+//            return
+//        }
+//    }
+//
+//    @Check
+//    def checkActorMenu(ActorMenuDeclaration menu) {
+//        try {
+//            if (!TypeInfo.getTargetType(menu).isCompatible(TypeInfo.getTargetType(menu.expression))) {
+//                error("Type mismatch. Expression value does not match menu type at '" + menu.name + "'.",
+//                    JsldslPackage::eINSTANCE.actorAccessDeclaration_Expression,
+//                    TYPE_MISMATCH)
+//            }
+//        } catch (IllegalArgumentException illegalArgumentException) {
+//            return
+//        }
+//    }
 
     @Check
     def checkEntityStoredFieldMember(EntityStoredFieldDeclaration member) {

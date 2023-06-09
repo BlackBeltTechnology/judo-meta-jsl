@@ -216,13 +216,13 @@ TransferFieldDeclaration
 
 TransferRelationDeclaration
 	: annotations += AnnotationMark*
-	  ( FEAT_RELATION required ?= ATTR_REQUIRED? referenceType = [TransferDeclaration | ModelName]
-	  	Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
-	  	(choices = TransferChoiceModifier?)
-	  | FEAT_RELATION referenceType = [TransferDeclaration | ModelName] Cardinality
-	  	Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
-	  	(choices = TransferChoiceModifier?)
+	  ( FEAT_RELATION required ?= ATTR_REQUIRED? simpleTransferReferenceType = [SimpleTransferDeclaration | ModelName]
+	  	Named
+	  | FEAT_RELATION simpleTransferReferenceType = [SimpleTransferDeclaration | ModelName] => Cardinality
+	  	Named
 	  )
+	   ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	  	(choices = TransferChoiceModifier?)
 	  SC
 	;
 
@@ -331,7 +331,7 @@ ViewFieldDeclaration returns TransferFieldDeclaration
 ViewLinkDeclaration returns TransferRelationDeclaration
 	: {ViewLinkDeclaration}
 	  annotations += AnnotationMark*
-	  FEAT_LINK required ?= ATTR_REQUIRED? referenceType = [ViewDeclaration | ModelName] Named
+	  FEAT_LINK required ?= ATTR_REQUIRED? viewReferenceType = [ViewDeclaration | ModelName] Named
 	  ((maps ?= '<=>' | reads ?= '<=') getterExpr = Expression)?
 	  ( choices = ViewChoiceModifier?
 	  & create = CreateActionModifier?
@@ -347,7 +347,7 @@ ViewLinkDeclaration returns TransferRelationDeclaration
 ViewTableDeclaration returns TransferRelationDeclaration
 	: {ViewTableDeclaration}
 	  annotations += AnnotationMark*
-	  FEAT_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
+	  FEAT_TABLE rowReferenceType = [RowDeclaration | ModelName] Cardinality Named
 	  ((maps ?= '<=>' | reads ?= '<=') getterExpr = Expression)?
 	  ( choices = ViewChoiceModifier?
 	  & create = CreateActionModifier?
@@ -388,7 +388,7 @@ ViewActionDeclaration returns TransferActionDeclaration
 	;
 
 ResourceModifier
-	: FEAT_RESOURCE ':' value = [ActorAccessDeclaration | ModelName]
+	: FEAT_ACCESS ':' value = [ActorAccessDeclaration | ModelName]
 	;
 
 LabelModifier
@@ -472,15 +472,16 @@ RowColumnDeclaration returns TransferFieldDeclaration
  *	Actor
  ****************************/
 
-ActorDeclaration
-	: annotations += AnnotationMark*
+ActorDeclaration returns TransferDeclaration
+	: {ActorDeclaration}
+	  annotations += AnnotationMark*
 	  KW_ACTOR (system ?= KW_SYSTEM | human ?= KW_HUMAN) Named
 	  map = EntityMapDeclaration?
 	  ( realm = RealmModifier?
 	  & claim = ClaimModifier?
 	  & identity = IdentityModifier?
 	  & guard = GuardModifier?)
-	  (SC | BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END)
+	  (automap ?= SC | BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END)
 	;
 
 RealmModifier
@@ -499,16 +500,16 @@ GuardModifier
 	: ATTR_GUARD ':' expression = Expression
 	;
 
-ActorMemberDeclaration 
+ActorMemberDeclaration returns TransferMemberDeclaration
 	: ActorAccessDeclaration
 	| ActorMenuDeclaration
-	| ActorGroupDeclaration
+//	| ActorGroupDeclaration
 	;
 
-ActorAccessDeclaration
-	: {ActorResourceDeclaration}
+ActorAccessDeclaration returns TransferRelationDeclaration
+	: {ActorAccessDeclaration}
 	  annotations += AnnotationMark*
-	  FEAT_RESOURCE transferReferenceType = [TransferDeclaration | ModelName] Cardinality? Named
+	  FEAT_ACCESS transferReferenceType = [TransferDeclaration | ModelName] Cardinality? Named
 	  '<=' expression = Expression
 	  SC
 	;
@@ -800,7 +801,7 @@ AnnotationTarget
 	| KW_MODEL ':' actor ?= KW_ACTOR
 	| KW_ACTOR ':' actorGroup ?= FEAT_GROUP
 	| KW_ACTOR ':' actorMenu ?= FEAT_MENU
-	| KW_ACTOR ':' actorResource ?= FEAT_RESOURCE
+	| KW_ACTOR ':' actorAccess ?= FEAT_ACCESS
 	| KW_MODEL ':' query ?= KW_QUERY
 	| KW_MODEL ':' view ?= KW_VIEW
 	| KW_VIEW ':' viewAction ?= FEAT_ACTION
@@ -954,16 +955,16 @@ JSLID: ID | KW | FEAT | ATTR | CONST | OTHER ;
 KW: KW_ABSTRACT | KW_ACTOR | KW_ANNOTATION | KW_AS | KW_ENTITY | KW_ENUM | KW_ERROR | KW_EXPORTS | KW_EXTENDS | KW_HUMAN |  KW_IMPORT
 			| KW_MODEL | KW_ON | KW_QUERY | KW_ROW | KW_SERVICE | KW_SYSTEM | KW_TRANSFER | KW_TYPE | KW_VIEW;
 
-FEAT: FEAT_ACTION | FEAT_COLUMN | FEAT_CONSTRAINT | FEAT_CONSTRUCTOR | FEAT_DERIVED | FEAT_FIELD | FEAT_FUNCTION
-			| FEAT_GROUP | FEAT_IDENTIFIER | FEAT_LINK | FEAT_LITERAL | FEAT_MENU | FEAT_RELATION | FEAT_RESOURCE | FEAT_SUBMIT | FEAT_TABLE | FEAT_TABS
+FEAT: FEAT_ACCESS | FEAT_ACTION | FEAT_COLUMN | FEAT_CONSTRAINT | FEAT_CONSTRUCTOR | FEAT_DERIVED | FEAT_FIELD | FEAT_FUNCTION
+			| FEAT_GROUP | FEAT_IDENTIFIER | FEAT_LINK | FEAT_LITERAL | FEAT_MENU | FEAT_RELATION | FEAT_SUBMIT | FEAT_TABLE | FEAT_TABS
 			| FEAT_TEXT ;
 			
 CONST: CONST_BINARY | CONST_BOOLEAN | CONST_BOTTOM | CONST_CENTER | CONST_DATE | CONST_LEFT | CONST_NUMERIC | CONST_RIGHT
 			| CONST_STRETCH	| CONST_STRING | CONST_TIME | CONST_TIMESTAMP | CONST_TOP;
 
 ATTR: ATTR_CHOICES | ATTR_CLAIM | ATTR_CREATE | ATTR_DETAIL | ATTR_ENABLED | ATTR_FRAME | ATTR_GUARD | ATTR_HIDDEN | ATTR_HORIZONTAL | ATTR_ICON
-			| ATTR_IDENTITY | ATTR_LABEL | ATTR_REALM | ATTR_REQUIRED | ATTR_ROWS | ATTR_SCALE | ATTR_TAG
-			| ATTR_THROW | ATTR_VERTICAL | ATTR_WIDTH;
+			| ATTR_IDENTITY | ATTR_LABEL | ATTR_REALM | ATTR_ROWS | ATTR_SCALE | ATTR_TAG
+			| ATTR_THROW | ATTR_VERTICAL | ATTR_WIDTH;  // ATTR_REQUIRED is missing deliberately !!!!
 
 OTHER: OTHER_OR | OTHER_XOR | OTHER_AND | OTHER_DIV | OTHER_MOD | OTHER_KB | OTHER_MB | OTHER_GB | OTHER_KIB | OTHER_MIB | OTHER_GIB;
 
@@ -994,6 +995,7 @@ terminal KW_TRANSFER:	'transfer';
 terminal KW_TYPE:		'type';
 terminal KW_VIEW:		'view';
 
+terminal FEAT_ACCESS:		'access';
 terminal FEAT_ACTION:		'action';
 terminal FEAT_COLUMN:		'column';
 terminal FEAT_CONSTRAINT:	'constraint';
@@ -1009,7 +1011,6 @@ terminal FEAT_LINK:			'link';
 terminal FEAT_LITERAL:		'literal';
 terminal FEAT_MENU:			'menu';
 terminal FEAT_RELATION:		'relation';
-terminal FEAT_RESOURCE:		'resource';
 terminal FEAT_SUBMIT:		'submit';
 terminal FEAT_TABLE:		'table';
 terminal FEAT_TABS:			'tabs';

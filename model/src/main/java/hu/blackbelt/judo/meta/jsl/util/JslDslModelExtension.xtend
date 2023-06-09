@@ -49,8 +49,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.SingleType
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ActorResourceDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTableDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewLinkDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -93,16 +96,21 @@ class JslDslModelExtension {
 		}
 	}
 
-	def TransferDeclaration getReferenceType(ActorAccessDeclaration access) { 
-		if (access instanceof ActorMenuDeclaration) {
-			if ((access as ActorMenuDeclaration).viewReferenceType !== null) {
-				return (access as ActorMenuDeclaration).viewReferenceType
+	def TransferDeclaration getReferenceType(TransferRelationDeclaration relation) { 
+		if (relation instanceof ActorMenuDeclaration) {
+			if ((relation as ActorMenuDeclaration).rowReferenceType !== null) {
+				return (relation as ActorMenuDeclaration).rowReferenceType
 			}
-
-			return (access as ActorMenuDeclaration).rowReferenceType
-		}
-
-		return (access as ActorResourceDeclaration).transferReferenceType;
+			return (relation as ActorMenuDeclaration).viewReferenceType;
+		} else if (relation instanceof ActorAccessDeclaration) {
+			return (relation as ActorAccessDeclaration).transferReferenceType;
+		} else if (relation instanceof ViewTableDeclaration) {
+			return (relation as ViewTableDeclaration).rowReferenceType;
+		} if (relation instanceof ViewLinkDeclaration) {
+			return (relation as ViewLinkDeclaration).viewReferenceType;
+		} 
+		
+		return relation.simpleTransferReferenceType;
 	}
 
     /*
@@ -317,6 +325,10 @@ class JslDslModelExtension {
         members.filter[m | m instanceof EntityStoredRelationDeclaration].map[d | d as EntityStoredRelationDeclaration].toList
     }
 
+    def Collection<EntityCalculatedRelationDeclaration> getCalculatedRelations(EntityDeclaration it) {
+        members.filter[m | m instanceof EntityCalculatedRelationDeclaration].map[d | d as EntityCalculatedRelationDeclaration].toList
+    }
+
     def Collection<EntityDeclaration> entityDeclarations(ModelDeclaration it) {
         declarations.filter[d | d instanceof EntityDeclaration].map[d | d as EntityDeclaration].toList
     }
@@ -421,6 +433,34 @@ class JslDslModelExtension {
                 }
             }
         }
+        return relations
+    }
+
+    def Collection<TransferRelationDeclaration> getAllTransferRelations(ModelDeclaration it) {
+    	return eAllContents.filter[c | c instanceof TransferRelationDeclaration].map[e | e as TransferRelationDeclaration].toList
+//        val List<TransferRelationDeclaration> relations = new ArrayList()
+//
+//        for (transfer : transferDeclarations) {
+//            for (relation : transfer.eContents.filter[c | c instanceof TransferRelationDeclaration].toList) {
+//                if (singleInstanceOfBidirectional && relation.opposite?.oppositeType !== null && !relations.contains(relation.opposite.oppositeType) ||
+//                    relation.opposite?.oppositeType === null
+//                ) {
+//                    relations.add(relation)
+//                }
+//            }
+//        }
+//        return relations
+    }
+
+    def Collection<EntityCalculatedRelationDeclaration> getAllCalculatedRelations(ModelDeclaration it, boolean singleInstanceOfBidirectional) {
+        val List<EntityCalculatedRelationDeclaration> relations = new ArrayList()
+
+        for (entity : entityDeclarations) {
+            for (relation : entity.calculatedRelations) {
+            	relations.add(relation)
+            }
+        }
+        
         return relations
     }
 
