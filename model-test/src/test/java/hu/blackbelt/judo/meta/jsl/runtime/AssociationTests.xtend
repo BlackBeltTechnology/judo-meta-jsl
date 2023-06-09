@@ -33,11 +33,11 @@ class AssociationTests {
         '''
             model Test;
             entity A {
-                relation B b opposite a;
+                relation B b opposite:a;
             }
 
             entity B {
-                relation A a opposite b;
+                relation A a opposite:b;
             }
 
         '''.parse => [
@@ -63,11 +63,11 @@ class AssociationTests {
             }
 
             entity B {
-                relation A a opposite b2;
+                relation A a opposite:b2;
             }
 
         '''.parse => [
-            assertOppositeLinkingError("Couldn't resolve reference to EntityRelationDeclaration 'b2'")
+            assertOppositeLinkingError("Couldn't resolve reference to EntityStoredRelationDeclaration 'b2'")
         ]
     }
 
@@ -90,7 +90,7 @@ class AssociationTests {
             }
 
             entity B {
-                relation A a opposite b;
+                relation A a opposite:b;
             }
 
         '''.parse => [
@@ -142,7 +142,7 @@ class AssociationTests {
 
     def private void assertOppositeMismatchError(ModelDeclaration modelDeclaration, String error) {
         modelDeclaration.assertError(
-            JsldslPackage::eINSTANCE.entityRelationDeclaration,
+            JsldslPackage::eINSTANCE.entityStoredRelationDeclaration,
             JslDslValidator.OPPOSITE_TYPE_MISMATH,
             error
         )
