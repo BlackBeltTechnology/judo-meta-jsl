@@ -238,8 +238,8 @@ class JslDslValidator extends AbstractJslDslValidator {
         while (queryCallIterator.hasNext) {
             val QueryCall queryCall = queryCallIterator.next()
 
-            if (queryCall.declaration !== null && queryCall.declaration.expression !== null) {
-                findExpressionCycle(queryCall.declaration.expression, visited)
+            if (queryCall.declaration !== null && queryCall.declaration.getterExpr !== null) {
+                findExpressionCycle(queryCall.declaration.getterExpr, visited)
             }
         }
 
@@ -290,13 +290,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 
     @Check
     def checkCyclicStaticQueryExpression(QueryDeclaration query) {
-        if (query.expression !== null) {
+        if (query.getterExpr !== null) {
             try {
-                findExpressionCycle(query.expression, new ArrayList<Expression>())
+                findExpressionCycle(query.getterExpr, new ArrayList<Expression>())
             } catch (IllegalCallerException e) {
                 error(
                     "Cyclic expression at '" + query.name + "'.",
-                    JsldslPackage::eINSTANCE.queryDeclaration_Expression,
+                    JsldslPackage::eINSTANCE.queryDeclaration_GetterExpr,
                     EXPRESSION_CYCLE,
                     query.name
                 )
@@ -1136,13 +1136,13 @@ class JslDslValidator extends AbstractJslDslValidator {
     @Check
     def checkTransferField(TransferFieldDeclaration field) {
         try {
-            if (field.maps && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.expression))) {
+            if (field.maps && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.getterExpr))) {
                 error("Type mismatch. Mapping expression value does not match field type at '" + field.name + "'.",
                     JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
                     TYPE_MISMATCH)
             }
 
-            if (field.reads && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.expression))) {
+            if (field.reads && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.getterExpr))) {
                 error("Type mismatch. Read expression value does not match field type at '" + field.name + "'.",
                     JsldslPackage::eINSTANCE.transferFieldDeclaration_Reads,
                     TYPE_MISMATCH)
@@ -1155,13 +1155,13 @@ class JslDslValidator extends AbstractJslDslValidator {
     @Check
     def checkTransferRelation(TransferRelationDeclaration relation) {
         try {
-            if (relation.maps && !TypeInfo.getTargetType(relation).isCompatible(TypeInfo.getTargetType(relation.expression))) {
+            if (relation.maps && !TypeInfo.getTargetType(relation).isCompatible(TypeInfo.getTargetType(relation.getterExpr))) {
                 error("Type mismatch. Mapping expression value does not match relation type at '" + relation.name + "'.",
                     JsldslPackage::eINSTANCE.transferRelationDeclaration_Maps,
                     TYPE_MISMATCH)
             }
 
-            if (relation.reads && !TypeInfo.getTargetType(relation).isCompatible(TypeInfo.getTargetType(relation.expression))) {
+            if (relation.reads && !TypeInfo.getTargetType(relation).isCompatible(TypeInfo.getTargetType(relation.getterExpr))) {
                 error("Type mismatch. Read expression value does not match relation type at '" + relation.name + "'.",
                     JsldslPackage::eINSTANCE.transferRelationDeclaration_Reads,
                     TYPE_MISMATCH)
@@ -1279,9 +1279,9 @@ class JslDslValidator extends AbstractJslDslValidator {
     @Check
     def checkQuery(QueryDeclaration query) {
         try {
-            if (query.expression !== null && !TypeInfo.getTargetType(query).isCompatible(TypeInfo.getTargetType(query.expression))) {
+            if (query.getterExpr !== null && !TypeInfo.getTargetType(query).isCompatible(TypeInfo.getTargetType(query.getterExpr))) {
                 error("Type mismatch. Query expression does not match query type at '" + query.name + "'.",
-                    JsldslPackage::eINSTANCE.queryDeclaration_Expression,
+                    JsldslPackage::eINSTANCE.queryDeclaration_GetterExpr,
                     TYPE_MISMATCH,
                     JsldslPackage::eINSTANCE.queryDeclaration.name)
             }
@@ -1326,10 +1326,11 @@ class JslDslValidator extends AbstractJslDslValidator {
     def checkForDuplicateNameForTransferMemberDeclaration(TransferMemberDeclaration member) {
     	// TODO: it does not work for views
     	
-    	if (!(member.eContainer instanceof TransferDeclaration)) {
+        val TransferDeclaration transfer = member.parentContainer(TransferDeclaration)
+
+    	if (transfer === null) {
     		return
     	}
-        val TransferDeclaration transfer = member.eContainer as TransferDeclaration
 
         if (transfer.map !== null && member.name.toLowerCase.equals(transfer.map.name.toLowerCase)) {
             error("Member declaration name conflicts with mapping field name: '" + member.name + "'.",
@@ -1581,7 +1582,7 @@ class JslDslValidator extends AbstractJslDslValidator {
             }
         }
 
-        if (!(field.expression instanceof Navigation)) {
+        if (!(field.getterExpr instanceof Navigation)) {
             error("Invalid field mapping. Field mapping must be a navigation.",
                 JsldslPackage::eINSTANCE.transferFieldDeclaration_Maps,
                 INVALID_FIELD_MAPPING,
@@ -1590,7 +1591,7 @@ class JslDslValidator extends AbstractJslDslValidator {
             return;
         }
 
-        val Navigation navigation = field.expression as Navigation;
+        val Navigation navigation = field.getterExpr as Navigation;
 
         if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
             error("Invalid field mapping. Field mapping must be a navigation.",
@@ -1694,7 +1695,7 @@ class JslDslValidator extends AbstractJslDslValidator {
             }
         }
 
-        if (!(relation.expression instanceof Navigation)) {
+        if (!(relation.getterExpr instanceof Navigation)) {
             error("Invalid field mapping. Field mapping must be a navigation.",
                 JsldslPackage::eINSTANCE.transferRelationDeclaration_Maps,
                 INVALID_FIELD_MAPPING,
@@ -1703,7 +1704,7 @@ class JslDslValidator extends AbstractJslDslValidator {
             return;
         }
 
-        val Navigation navigation = relation.expression as Navigation;
+        val Navigation navigation = relation.getterExpr as Navigation;
 
         if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
             error("Invalid field mapping. Field mapping must be a navigation.",
@@ -2111,11 +2112,11 @@ class JslDslValidator extends AbstractJslDslValidator {
     def NavigationTarget getMappedField(TransferFieldDeclaration field) {
         if (!field.maps) return null;
 
-        if (!(field.expression instanceof Navigation)) {
+        if (!(field.getterExpr instanceof Navigation)) {
             return null;
         }
 
-        val Navigation navigation = field.expression as Navigation;
+        val Navigation navigation = field.getterExpr as Navigation;
 
         if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
             return null;

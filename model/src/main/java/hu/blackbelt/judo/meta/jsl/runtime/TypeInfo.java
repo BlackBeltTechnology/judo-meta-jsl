@@ -571,7 +571,7 @@ public class TypeInfo {
 			return new TypeInfo(BaseType.UNDEFINED, false);
 		}
 
-		return new TypeInfo((PrimitiveDeclaration) transferFieldDeclaration.getReferenceType(), false, false);
+		return new TypeInfo(transferFieldDeclaration.getReferenceType(), false, false);
 	}
 
 	public static TypeInfo getTargetType(TransferRelationDeclaration transferRelationDeclaration) {

@@ -145,7 +145,7 @@ EntityMapDeclaration
 QueryDeclaration
 	: KW_QUERY (referenceType = [SingleType | ModelName] Cardinality?) Named
 	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')
-	  "<=" expression = Expression
+	  "<=" getterExpr = Expression
 	  SC
 	;
 
@@ -162,7 +162,7 @@ TransferDeclaration
 	  annotations += AnnotationMark*
 	  KW_TRANSFER Named
 	  map = EntityMapDeclaration?
-	  (automap ?= SC | BLOCK_START members += TransferMemberDeclaration* BLOCK_END)
+	  (automap ?= SC | BLOCK_START directMembers += TransferMemberDeclaration* BLOCK_END)
 	;
 
 TransferMemberDeclaration
@@ -210,7 +210,7 @@ TransferDataMember
 TransferFieldDeclaration
 	: annotations += AnnotationMark*
 	  FEAT_FIELD  required ?= ATTR_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
-	  ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	  ((maps ?= '<=>' | reads ?= '<=') getterExpr = Expression)?
 	  SC
 	;
 
@@ -221,7 +221,7 @@ TransferRelationDeclaration
 	  | FEAT_RELATION simpleTransferReferenceType = [SimpleTransferDeclaration | ModelName] => Cardinality
 	  	Named
 	  )
-	   ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	   ((maps ?= '<=>' | reads ?= '<=') getterExpr = Expression)?
 	  	(choices = TransferChoiceModifier?)
 	  SC
 	;
@@ -248,10 +248,10 @@ ViewDeclaration returns TransferDeclaration
 	  annotations += AnnotationMark*
 	  KW_VIEW Named
 	  map = EntityMapDeclaration?
-	  (automap ?= SC | BLOCK_START members += ViewMemberDeclaration* BLOCK_END)
+	  (automap ?= SC | BLOCK_START directMembers += ViewMemberDeclaration* BLOCK_END)
 	;
 
-ViewMemberDeclaration returns TransferMemberDeclaration
+ViewMemberDeclaration
 	: TransferConstructorDeclaration
 	| TransferDestructorDeclaration
 	| TransferInitializerDeclaration
@@ -307,7 +307,7 @@ VerticalModifier
 ViewTextDeclaration returns TransferFieldDeclaration
 	: {ViewTextDeclaration}
 	  annotations += AnnotationMark*
-	  FEAT_TEXT Named reads ?= '<=' expression = Expression
+	  FEAT_TEXT Named reads ?= '<=' getterExpr = Expression
 	  ( label = LabelModifier?
 	  & icon = IconModifier?
 	  & ^hidden = HiddenModifier?
@@ -451,17 +451,17 @@ RowDeclaration returns TransferDeclaration
 	  KW_ROW Named
 	  map = EntityMapDeclaration?
 	  detail = DetailModifier?
-	  (automap ?= SC | BLOCK_START (members += RowMemberDeclaration)* BLOCK_END)
+	  (automap ?= SC | BLOCK_START (directMembers += RowMemberDeclaration)* BLOCK_END)
 	;
 
-RowMemberDeclaration returns TransferMemberDeclaration
+RowMemberDeclaration
 	: RowColumnDeclaration
 	;
 
 RowColumnDeclaration returns TransferFieldDeclaration
 	: {RowColumnDeclaration}
 	  annotations += AnnotationMark*
-	  FEAT_COLUMN referenceType = [PrimitiveDeclaration | ModelName] Named ((maps ?= '<=>' | reads ?= '<=') expression = Expression)?
+	  FEAT_COLUMN referenceType = [PrimitiveDeclaration | ModelName] Named ((maps ?= '<=>' | reads ?= '<=') getterExpr = Expression)?
 	  ( label = LabelModifier?
 	  & icon = IconModifier?
 	  & width = WidthModifier?)
@@ -481,7 +481,7 @@ ActorDeclaration returns TransferDeclaration
 	  & claim = ClaimModifier?
 	  & identity = IdentityModifier?
 	  & guard = GuardModifier?)
-	  (automap ?= SC | BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END)
+	  (automap ?= SC | BLOCK_START (directMembers += ActorMemberDeclaration)* BLOCK_END)
 	;
 
 RealmModifier
@@ -500,7 +500,7 @@ GuardModifier
 	: ATTR_GUARD ':' expression = Expression
 	;
 
-ActorMemberDeclaration returns TransferMemberDeclaration
+ActorMemberDeclaration
 	: ActorAccessDeclaration
 	| ActorMenuDeclaration
 	| ActorGroupDeclaration
@@ -510,7 +510,7 @@ ActorAccessDeclaration returns TransferRelationDeclaration
 	: {ActorAccessDeclaration}
 	  annotations += AnnotationMark*
 	  FEAT_ACCESS transferReferenceType = [TransferDeclaration | ModelName] Cardinality? Named
-	  '<=' expression = Expression
+	  '<=' getterExpr = Expression
 	  SC
 	;
 
@@ -527,8 +527,8 @@ ActorGroupDeclaration
 ActorMenuDeclaration returns ActorAccessDeclaration
 	: {ActorMenuDeclaration}
 	  annotations += AnnotationMark*
-	  ( FEAT_MENU viewReferenceType = [ViewDeclaration | ModelName] Named ('<=' expression = Expression)?
-	  | FEAT_MENU rowReferenceType = [RowDeclaration | ModelName] Cardinality Named ('<=' expression = Expression)?
+	  ( FEAT_MENU viewReferenceType = [ViewDeclaration | ModelName] Named ('<=' getterExpr = Expression)?
+	  | FEAT_MENU rowReferenceType = [RowDeclaration | ModelName] Cardinality Named ('<=' getterExpr = Expression)?
 	  )
 	  ( choices = ViewChoiceModifier?
 	  & create = CreateActionModifier?

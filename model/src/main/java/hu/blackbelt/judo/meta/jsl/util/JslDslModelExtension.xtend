@@ -54,6 +54,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -77,6 +79,10 @@ class JslDslModelExtension {
         val EObject featureObject = it.eGet(it.eClass().getEStructuralFeature(featureID), false) as EObject;
         return featureObject !== null && !featureObject.eIsProxy();
     }
+
+	def Collection<TransferMemberDeclaration> getMembers(TransferDeclaration transfer) {
+		return transfer.eAllContents.filter[c | c instanceof TransferMemberDeclaration].map[e | e as TransferMemberDeclaration].toList
+	}
 
 	def SingleType getReferenceType(EntityMemberDeclaration member) { 
 		if (member instanceof EntityStoredFieldDeclaration) {

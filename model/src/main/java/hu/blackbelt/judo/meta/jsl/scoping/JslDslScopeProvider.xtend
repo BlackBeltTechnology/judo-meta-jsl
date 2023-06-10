@@ -62,13 +62,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataMember
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferSubmitDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewSubmitDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ViewLinkDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTableDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
