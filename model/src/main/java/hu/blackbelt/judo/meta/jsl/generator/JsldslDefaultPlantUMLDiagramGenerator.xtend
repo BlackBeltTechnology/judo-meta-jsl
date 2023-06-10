@@ -115,10 +115,10 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             AttributeFontColor<< External >> #7f7f7f
         }
 
-        skinparam rectangle {
-            BorderColor Transparent
-            FontColor Transparent
-        }
+«««        skinparam rectangle {
+«««            BorderColor Transparent
+«««            FontColor Transparent
+«««        }
     '''
 
     def cardinalityRepresentation(EntityStoredRelationDeclaration it)
@@ -299,7 +299,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     def entityExtends(EntityDeclaration it)
     '''
         «FOR supertype : it.extends»
-            «name» --|> «supertype.name»
+            «name» -up-|> «supertype.name»
         «ENDFOR»
     '''
     
@@ -307,7 +307,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '''
         «IF it.map !== null»
 «««            «name» -[dotted]-> "«it.map.name»  " «it.map.entity.name»«IF it.automap» : <<automapped>>«ENDIF»
-            «name» -[dotted]-> «it.map.entity.name»
+            «name» -down[dotted]-> «it.map.entity.name»
         «ENDIF»
     '''
     
@@ -350,7 +350,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
     def transferRelationRepresentation(TransferRelationDeclaration it, ModelDeclaration base)
     '''«IF referenceType !== null
-    	»« base.getExternalNameOfTransferDeclaration(it.parentContainer(TransferDeclaration))» --> "«name»  \n«cardinalityRepresentation»  " «base.getExternalNameOfTransferDeclaration(referenceType as TransferDeclaration)»
+    	»« base.getExternalNameOfTransferDeclaration(it.parentContainer(TransferDeclaration))» -«IF it.parentContainer(TransferDeclaration) instanceof ActorDeclaration»right«ENDIF»-> "«name»  \n«cardinalityRepresentation»  " «base.getExternalNameOfTransferDeclaration(referenceType as TransferDeclaration)»
 	   «ENDIF»'''
 
 //    def entityRelationRepresentation(EntityCalculatedRelationDeclaration it, ModelDeclaration base)
@@ -364,11 +364,11 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
     package «name» {
 
-    together {
-        «FOR annotation : annotationDeclarations»
-            «annotation.annotationRepresentation»
-        «ENDFOR»
-    }
+«««    together {
+«««        «FOR annotation : annotationDeclarations»
+«««            «annotation.annotationRepresentation»
+«««        «ENDFOR»
+«««    }
 
 «««    together {
 «««        «FOR type : dataTypeDeclarations»
@@ -380,13 +380,13 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 «««        «ENDFOR»
 «««    }
 
-    together {
-        «FOR error : errorDeclarations»
-            «error.errorRepresentation»
-        «ENDFOR»
-    }
-    
-    rectangle Transfers {
+«««    together {
+«««        «FOR error : errorDeclarations»
+«««            «error.errorRepresentation»
+«««        «ENDFOR»
+«««    }
+	
+	together {
     	«FOR transfer : transferDeclarations»
             «transfer.transferRepresentation»
         «ENDFOR»
@@ -395,18 +395,8 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             «relation.transferRelationRepresentation(it)»
         «ENDFOR»
     }
-    
+
     together {
-     	«FOR actor : actorDeclarations»
-	        «actor.actorRepresentation»
-	    «ENDFOR»
-
-	    «FOR actor : actorDeclarations»
-	        «actor.actorMaps»
-	    «ENDFOR»
-    }
-
-    rectangle Entities {
         «FOR entity : entityDeclarations»
             «entity.entityRepresentation»
         «ENDFOR»
@@ -436,6 +426,18 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         «ENDFOR»
 
     }
+
+	together {
+     	«FOR actor : actorDeclarations»
+	        «actor.actorRepresentation»
+	    «ENDFOR»
+	}
+
+«««	rectangle_Actors -right-> rectangle_Transfers
+
+	«FOR actor : actorDeclarations»
+	    «actor.actorMaps»
+	«ENDFOR»
 
     «FOR transfer : transferDeclarations»
         «transfer.transferMaps»
