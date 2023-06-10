@@ -1,13 +1,13 @@
 model SampleModel;
 
-type numeric Integer(precision = 9, scale = 0);
-type string String(min-size = 0, max-size = 128);
-type string PhoneNumber(min-size = 0, max-size = 32, regex = "^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$");  // escape sequencing does not work in regexp!!!!
+type numeric Integer precision:9 scale:0;
+type string String min-size:0 max-size:128;
+type string PhoneNumber min-size:0 max-size:32 regex:"^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$";  // escape sequencing does not work in regexp!!!!
 type boolean Boolean;
 
 type date Date;
 type timestamp Timestamp;
-type binary Binary(mime-types = ["application/xyz"], max-file-size = 10MB);
+type binary Binary mime-type:["application/xyz"] max-file-size:10MB;
 
 error MyError {
 	field Integer code;
@@ -31,20 +31,20 @@ entity abstract Person {
 	// field Lead[] i = new Lead[new Lead()]
 
 
-	derived	String fullName => self.firstName + " "
+	field String fullName <= self.firstName + " "
 		+ self.lastName ;
 }
 
 entity SalesPerson extends Person {
-	relation Lead[] leads opposite salesPerson;
-	query Lead[] leadsOver(Integer limit = 100) => self.leads!filter(lead | lead.value > limit);
-	derived Lead[] leadsOver10 => self.leadsOver(limit = 10);
+	relation Lead[] leads opposite:salesPerson;
+	relation Lead[] leadsOver(Integer limit = 100) <= self.leads!filter(lead | lead.value > limit);
+	relation Lead[] leadsOver10 <= self.leadsOver(limit = 10);
 }
 
 entity Lead {
 	field Integer value = 100000;
 
-	relation required SalesPerson salesPerson opposite leads;
+	relation required SalesPerson salesPerson opposite:leads;
 
 	// constraint valueLessThan10 self.value > 10 onerror MyError(code = 10, msg = "Error message");
 }
@@ -52,7 +52,7 @@ entity Lead {
 entity Customer {
 	identifier required String name;
 
-	relation Lead[] lead opposite-add customer;
+	relation Lead[] lead opposite-add:customer;
 }
 
 

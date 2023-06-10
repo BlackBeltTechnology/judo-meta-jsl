@@ -98,7 +98,7 @@ class EnumDeclarationTests {
                 field TestLiteral f1;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.enumDeclaration, org.eclipse.xtext.diagnostics.Diagnostic.SYNTAX_DIAGNOSTIC, "mismatched input '11' expecting '}'")
+            m | m.assertError(JsldslPackage::eINSTANCE.enumDeclaration, org.eclipse.xtext.diagnostics.Diagnostic.SYNTAX_DIAGNOSTIC, "mismatched input '11' expecting RULE_BLOCK_END")
         ]
     }
 
@@ -188,7 +188,7 @@ class EnumDeclarationTests {
             model modelTC020;
 
             type boolean Bool;
-            type string String(min-size=0, max-size=10);
+            type string String min-size:0 max-size:10;
 
             enum TestLiteral {
                 Aaa01 = 1;
@@ -200,13 +200,13 @@ class EnumDeclarationTests {
             entity E1 {
                 field TestLiteral f1 = TestLiteral#AA00;
                 field TestLiteral f2 = TestLiteral#Aaa01;
-                derived Bool   f3 => self.f1 < self.f2;
-                derived Bool   f4 => self.f1 <= self.f2;
-                derived Bool   f5 => self.f1 > self.f2;
-                derived Bool   f6 => self.f1 >= self.f2;
-                derived Bool   f7 => self.f1 == self.f2;
-                derived Bool   f8 => self.f1 != self.f2;
-                derived String f9 => self.f1!asString();
+                field Bool   f3 <= self.f1 < self.f2;
+                field Bool   f4 <= self.f1 <= self.f2;
+                field Bool   f5 <= self.f1 > self.f2;
+                field Bool   f6 <= self.f1 >= self.f2;
+                field Bool   f7 <= self.f1 == self.f2;
+                field Bool   f8 <= self.f1 != self.f2;
+                field String f9 <= self.f1!asString();
             }
         '''.parse => [
             assertNoErrors
@@ -322,7 +322,7 @@ class EnumDeclarationTests {
                 field Genre favoredGenre = GenreOther#HOUSE;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'favoredGenre'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'favoredGenre'.")
         ]
     }
 }
