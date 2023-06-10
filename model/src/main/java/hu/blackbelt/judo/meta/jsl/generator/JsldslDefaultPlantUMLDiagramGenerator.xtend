@@ -350,7 +350,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
     def transferRelationRepresentation(TransferRelationDeclaration it, ModelDeclaration base)
     '''«IF referenceType !== null
-    	»« base.getExternalNameOfTransferDeclaration(eContainer as TransferDeclaration)» --> "«name»  \n«cardinalityRepresentation»  " «base.getExternalNameOfTransferDeclaration(referenceType as TransferDeclaration)»
+    	»« base.getExternalNameOfTransferDeclaration(it.parentContainer(TransferDeclaration))» --> "«name»  \n«cardinalityRepresentation»  " «base.getExternalNameOfTransferDeclaration(referenceType as TransferDeclaration)»
 	   «ENDIF»'''
 
 //    def entityRelationRepresentation(EntityCalculatedRelationDeclaration it, ModelDeclaration base)

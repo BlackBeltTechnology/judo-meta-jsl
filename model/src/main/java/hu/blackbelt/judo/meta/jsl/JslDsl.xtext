@@ -503,7 +503,7 @@ GuardModifier
 ActorMemberDeclaration returns TransferMemberDeclaration
 	: ActorAccessDeclaration
 	| ActorMenuDeclaration
-//	| ActorGroupDeclaration
+	| ActorGroupDeclaration
 	;
 
 ActorAccessDeclaration returns TransferRelationDeclaration
