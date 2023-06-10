@@ -56,6 +56,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewLinkDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.RowDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -402,7 +404,23 @@ class JslDslModelExtension {
     def Collection<TransferDeclaration> transferDeclarations(ModelDeclaration it) {
         declarations.filter[d | d instanceof TransferDeclaration].map[d | d as TransferDeclaration].toList
     }
+
+    def Collection<SimpleTransferDeclaration> simpleTransferDeclarations(ModelDeclaration it) {
+        declarations.filter[d | d instanceof SimpleTransferDeclaration].map[d | d as SimpleTransferDeclaration].toList
+    }
+
+    def Collection<ViewDeclaration> viewDeclarations(ModelDeclaration it) {
+        declarations.filter[d | d instanceof ViewDeclaration].map[d | d as ViewDeclaration].toList
+    }
     
+    def Collection<RowDeclaration> rowDeclarations(ModelDeclaration it) {
+        declarations.filter[d | d instanceof RowDeclaration].map[d | d as RowDeclaration].toList
+    }
+
+    def Collection<ActorDeclaration> actorDeclarations(ModelDeclaration it) {
+        declarations.filter[d | d instanceof ActorDeclaration].map[d | d as ActorDeclaration].toList
+    }
+
     def Collection<TransferFieldDeclaration> fields(TransferDeclaration it) {
         members.filter[d | d instanceof TransferFieldDeclaration].map[d | d as TransferFieldDeclaration].toList
     }
@@ -418,10 +436,6 @@ class JslDslModelExtension {
 //    def Collection<ServiceFunctionDeclaration> functionDeclarationsForService(ServiceDeclaration it) {
 //        it.members.filter[m | m instanceof ServiceFunctionDeclaration].map[m | m as ServiceFunctionDeclaration].toList 
 //    }
-    
-    def Collection<ActorDeclaration> actorDeclarations(ModelDeclaration it) {
-        it.declarations.filter[m | m instanceof ActorDeclaration].map[m | m as ActorDeclaration].toList 
-    }
 
     def String sourceCode(Expression it) {
         return NodeModelUtils.findActualNodeFor(it)?.getText()
@@ -444,18 +458,18 @@ class JslDslModelExtension {
 
     def Collection<TransferRelationDeclaration> getAllTransferRelations(ModelDeclaration it) {
     	return eAllContents.filter[c | c instanceof TransferRelationDeclaration].map[e | e as TransferRelationDeclaration].toList
-//        val List<TransferRelationDeclaration> relations = new ArrayList()
-//
-//        for (transfer : transferDeclarations) {
-//            for (relation : transfer.eContents.filter[c | c instanceof TransferRelationDeclaration].toList) {
-//                if (singleInstanceOfBidirectional && relation.opposite?.oppositeType !== null && !relations.contains(relation.opposite.oppositeType) ||
-//                    relation.opposite?.oppositeType === null
-//                ) {
-//                    relations.add(relation)
-//                }
-//            }
-//        }
-//        return relations
+    }
+
+    def Collection<TransferRelationDeclaration> getAllSimpleTransferRelations(ModelDeclaration it) {
+    	return eAllContents.filter[c | c instanceof TransferRelationDeclaration && c.parentContainer(SimpleTransferDeclaration) !== null].map[e | e as TransferRelationDeclaration].toList
+    }
+
+    def Collection<TransferRelationDeclaration> getAllViewTransferRelations(ModelDeclaration it) {
+    	return eAllContents.filter[c | c instanceof TransferRelationDeclaration && c.parentContainer(ViewDeclaration) !== null].map[e | e as TransferRelationDeclaration].toList
+    }
+
+    def Collection<TransferRelationDeclaration> getAllActorTransferRelations(ModelDeclaration it) {
+    	return eAllContents.filter[c | c instanceof TransferRelationDeclaration && c.parentContainer(ActorDeclaration) !== null].map[e | e as TransferRelationDeclaration].toList
     }
 
     def Collection<EntityCalculatedRelationDeclaration> getAllCalculatedRelations(ModelDeclaration it, boolean singleInstanceOfBidirectional) {

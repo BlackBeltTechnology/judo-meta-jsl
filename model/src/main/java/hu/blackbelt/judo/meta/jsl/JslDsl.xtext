@@ -527,8 +527,8 @@ ActorGroupDeclaration
 ActorMenuDeclaration returns ActorAccessDeclaration
 	: {ActorMenuDeclaration}
 	  annotations += AnnotationMark*
-	  ( FEAT_MENU viewReferenceType = [ViewDeclaration | ModelName] Named ('<=' getterExpr = Expression)?
-	  | FEAT_MENU rowReferenceType = [RowDeclaration | ModelName] Cardinality Named ('<=' getterExpr = Expression)?
+	  ( FEAT_MENU viewReferenceType = [ViewDeclaration | ModelName] Named (reads ?= '<=' getterExpr = Expression)?
+	  | FEAT_MENU rowReferenceType = [RowDeclaration | ModelName] Cardinality Named (reads ?= '<=' getterExpr = Expression)?
 	  )
 	  ( choices = ViewChoiceModifier?
 	  & create = CreateActionModifier?
