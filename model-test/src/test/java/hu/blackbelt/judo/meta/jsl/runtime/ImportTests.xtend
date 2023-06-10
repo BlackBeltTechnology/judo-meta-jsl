@@ -195,7 +195,7 @@ class ImportTests {
         '''.parse(resourceSet)
 
         a.assertNoErrors
-        b.assertSyntaxError("no viable alternative at input")
+        b.assertSyntaxError("no viable alternative at input ';\\n'")
     }
 
 
@@ -291,7 +291,7 @@ class ImportTests {
         val a =
         '''
             model A;
-            type string String(min-size = 0, max-size = 128);
+            type string String min-size:0 max-size:128;
         '''.parse(resourceSet)
 
         val b =
@@ -328,7 +328,7 @@ class ImportTests {
         val a =
         '''
             model A;
-            type string String(min-size = 0, max-size = 128);
+            type string String min-size:0 max-size:128;
         '''.parse(resourceSet)
 
         val b =
@@ -342,7 +342,7 @@ class ImportTests {
 
         a.assertNoErrors
         b.assertError(
-            JsldslPackage::eINSTANCE.entityFieldDeclaration,
+            JsldslPackage::eINSTANCE.entityStoredFieldDeclaration,
             "org.eclipse.xtext.diagnostics.Diagnostic.Linking",
             "Couldn't resolve reference to SingleType 'A::String'."
         )
@@ -367,7 +367,7 @@ class ImportTests {
         val a =
         '''
             model A;
-            type string String(min-size = 0, max-size = 128);
+            type string String min-size:0 max-size:128;
         '''.parse(resourceSet)
 
         val b =
@@ -400,13 +400,13 @@ class ImportTests {
         val a =
         '''
             model A;
-            type string String(min-size = 0, max-size = 128);
+            type string String min-size:0 max-size:128;
         '''.parse(resourceSet)
 
         val b =
         '''
             model B;
-            type string String(min-size = 0, max-size = 128);
+            type string String min-size:0 max-size:128;
         '''.parse(resourceSet)
 
         val c =
@@ -438,13 +438,13 @@ class ImportTests {
         val a =
         '''
             model A;
-            type string String(min-size = 0, max-size = 128);
+            type string String min-size:0 max-size:128;
         '''.parse(resourceSet)
 
         val b =
         '''
             model B;
-            type string String(min-size = 0, max-size = 128);
+            type string String min-size:0 max-size:128;
         '''.parse(resourceSet)
 
         val c =
