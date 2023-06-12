@@ -29,6 +29,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 import org.eclipse.emf.ecore.EObject
+import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.RowDeclaration
 
 @Singleton
 class JsldslDefaultPlantUMLDiagramGenerator {
@@ -36,12 +39,12 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     @Inject extension JslDslModelExtension
 
     def defaultStyle() '''
-        'left to right direction
+        top to bottom direction
 
         skinparam nodesep 50
         skinparam ranksep 100
 
-        hide circle
+«««        hide circle
         hide stereotype
 
         skinparam padding 2
@@ -84,6 +87,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
             BackgroundColor<< Entity >> white|#cfe3e8
             HeaderBackgroundColor<< Entity >> #cee2e6/#bed8df
+«««            FontColor<< Entity >> white
 
             BackgroundColor<< Enumeration >> white|#d6e6c8
             HeaderBackgroundColor<< Enumeration >> #d6e6c8/#c8e0be
@@ -177,7 +181,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '''«FOR extend : extends BEFORE 'extends ' SEPARATOR ', '»«extend.name»«ENDFOR»'''
 
     def entityStereotypeFragment(EntityDeclaration it)
-    '''«IF isAbstract» << Abstract >> «ELSE» << Entity >>«ENDIF»'''
+    '''«IF isAbstract» << (A,Transparent) Abstract >> «ELSE» << (E,Transparent) Entity >>«ENDIF»'''
 
     def entityFieldCardinalityFragment(EntityStoredFieldDeclaration it)
     '''«IF isMany»[0..*]«ENDIF»'''
@@ -188,8 +192,17 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     def entityFieldNameFragment(EntityStoredFieldDeclaration it)
     '''«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»'''
 
+    def entityRelationNameFragment(EntityStoredRelationDeclaration it)
+    '''«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»'''
+
     def entityFieldRepresentation(EntityStoredFieldDeclaration it)
     '''«entityFieldModifierFragment» «entityFieldNameFragment» : «it.parentContainer(ModelDeclaration).getExternalName(referenceType)»«entityFieldCardinalityFragment»'''
+
+    def entityRelationRepresentation(EntityStoredRelationDeclaration it)
+    '''<&pencil> «entityRelationNameFragment» : «it.parentContainer(ModelDeclaration).getExternalName(referenceType)»«cardinalityRepresentation»'''
+
+//    def entityCalculatedRelationRepresentation(EntityCalculatedRelationDeclaration it)
+//    '''<U+00A0><U+00A0><U+00A0><U+00A0>«name» : «it.parentContainer(ModelDeclaration).getExternalName(referenceType)»«IF isMany»[0..*]«ENDIF»'''
 
 //    def entityQueryParameterFragment(EntityQueryDeclaration it)
 //    '''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.name» =«param.^default»«ENDFOR»'''
@@ -219,6 +232,14 @@ class JsldslDefaultPlantUMLDiagramGenerator {
                 «member.entityFieldRepresentation»
                 «ENDIF»
             «ENDFOR»
+«««            «FOR member : members»
+«««            	«IF member instanceof EntityCalculatedRelationDeclaration»
+«««                «member.entityDerivedRepresentation»
+«««                «ENDIF»
+«««            	«IF member instanceof EntityStoredRelationDeclaration»
+«««                «member.entityRelationRepresentation»
+«««                «ENDIF»
+«««            «ENDFOR»
         }
     '''
     
@@ -226,7 +247,18 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '''«IF it.reads»<&caret-left>«ELSEIF it.maps»<&caret-right>«ELSE»<U+00A0><U+00A0><U+00A0>«ENDIF»'''
 
     def transferStereotypeFragment(TransferDeclaration it)
-    '''«IF automap» << AutoMapped >> «ELSE» << Transfer >>«ENDIF»'''
+    '''«IF it instanceof SimpleTransferDeclaration» << (T,Transparent) Transfer >> «
+        ELSEIF it instanceof ViewDeclaration» << (V,Transparent) Transfer >> «
+        ELSEIF it instanceof RowDeclaration» << (R,Transparent) Transfer >> «
+        ENDIF
+    »'''
+
+    def transferExternalStereotypeFragment(TransferDeclaration it)
+    '''«IF it instanceof SimpleTransferDeclaration» << (T,Transparent) External >> «
+        ELSEIF it instanceof ViewDeclaration» << (V,Transparent) External >> «
+        ELSEIF it instanceof RowDeclaration» << (R,Transparent) External >> «
+        ENDIF
+    »'''
     
     def transferFieldNameFragment(TransferFieldDeclaration it)
     '''«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»'''
@@ -345,6 +377,13 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
     def generate(ModelDeclaration it, String style) '''
     @startuml «name?:"none"»
+    <style>
+    spot{
+      spotClass {
+        FontColor: grey;
+        LineColor: grey;
+      }
+    </style>
     allow_mixing
     '!pragma layout smetana
     «IF style === null || style.blank»«defaultStyle»«ELSE»«style»«ENDIF»
@@ -387,6 +426,10 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	            «transfer.transferRepresentation»
 	        «ENDFOR»
 	
+	        «FOR transfer : getExternalReferencedTransfers»
+	            class «getExternalName(transfer)» <«transfer.parentContainer(ModelDeclaration)?.name»> «transfer.transferExternalStereotypeFragment»
+	        «ENDFOR»
+	
 	        «FOR relation : allSimpleTransferRelations»
 	            «relation.transferRelationRepresentation(it)»
 	        «ENDFOR»
@@ -401,8 +444,8 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	            «entity.entityRepresentation»
 	        «ENDFOR»
 	
-	        «FOR entity : externalReferencedRelationReferenceTypes»
-	            class «getExternalName(entity)» <«entity.parentContainer(ModelDeclaration)?.name»> << External >>
+	        «FOR entity : getExternalReferencedEntities»
+	            class «getExternalName(entity)» <«entity.parentContainer(ModelDeclaration)?.name»> << (E, Transparent) External >>
 	        «ENDFOR»
 	
 	        «FOR entity : entityDeclarations»
@@ -417,7 +460,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 	            «relation.entityRelationRepresentation(it)»
 	        «ENDFOR»
 	
-	        «FOR external : externalReferencedRelationReferenceTypes»
+	        «FOR external : getExternalReferencedEntities»
 	            «FOR relation : external.relations»
 	                «IF relation.opposite instanceof EntityRelationOppositeInjected && relation.referenceType?.parentContainer(ModelDeclaration)?.name === it.name»
 	                    «relation.entityRelationRepresentation(it)»
@@ -447,7 +490,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '''
 
 
-    def Collection<EntityDeclaration> getExternalReferencedRelationReferenceTypes(ModelDeclaration it) {
+    def Collection<EntityDeclaration> getExternalReferencedEntities(ModelDeclaration it) {
         val Set<EntityDeclaration> externalEntities = new HashSet()
         for (entity : it.entityDeclarations) {
             for (relation : entity.relations) {
@@ -473,6 +516,18 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     		}
     	}
         externalEntities
+    }
+
+    def Collection<TransferDeclaration> getExternalReferencedTransfers(ModelDeclaration it) {
+        val Set<TransferDeclaration> externalTransfers = new HashSet()
+        for (transfer : it.transferDeclarations) {
+            for (member : transfer.members) {
+                if (member instanceof TransferRelationDeclaration && (member as TransferRelationDeclaration).referenceType?.parentContainer(ModelDeclaration)?.name !== it.name) {
+                    externalTransfers.add((member as TransferRelationDeclaration).referenceType)
+                }
+            }
+        }
+        externalTransfers
     }
 
     def String getExternalName(ModelDeclaration it, EObject object) {
