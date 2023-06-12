@@ -332,7 +332,7 @@ class NamedTests {
 
          import judo::types;
 
-         type string SType(min-size = 0, max-size = 10);
+         type string SType min-size:0 max-size:10;
 
          enum Enum {
               a0 = 0;
@@ -340,13 +340,13 @@ class NamedTests {
          }
 
          entity Ent1 {
-             derived Boolean xBool => true;
-             derived SType xString => "Sting";
-             derived Integer xNumeric => 1;
-             derived Enum xEnum => Enum#a0;
-             derived Date xDate => `2023-11-09`;
-             derived Timestamp xTimestamp => `2020-02-18T10:11:12`;
-             derived Time xTime => `12:23:56.1`;
+             field Boolean xBool <= true;
+             field SType xString <= "Sting";
+             field Integer xNumeric <= 1;
+             field Enum xEnum <= Enum#a0;
+             field Date xDate <= `2023-11-09`;
+             field Timestamp xTimestamp <= `2020-02-18T10:11:12`;
+             field Time xTime <= `12:23:56.1`;
          }
          '''.parse => [
              assertFirstLowSecondUpperNamedError("xBool")

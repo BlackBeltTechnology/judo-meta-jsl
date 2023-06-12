@@ -41,7 +41,7 @@ class PrimitiveDefaultValuesTests {
                 field Bool boolAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'boolAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'boolAttr'.")
         ]
     }
 
@@ -68,7 +68,7 @@ class PrimitiveDefaultValuesTests {
                 field String stringAttr = 123;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'stringAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'stringAttr'.")
         ]
     }
 
@@ -95,7 +95,7 @@ class PrimitiveDefaultValuesTests {
                 field Integer intAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'intAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'intAttr'.")
         ]
     }
 
@@ -122,7 +122,7 @@ class PrimitiveDefaultValuesTests {
                 field Decimal decimalAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'decimalAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'decimalAttr'.")
         ]
     }
 
@@ -149,7 +149,7 @@ class PrimitiveDefaultValuesTests {
                 field Date dateAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'dateAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'dateAttr'.")
         ]
     }
 
@@ -176,7 +176,7 @@ class PrimitiveDefaultValuesTests {
                 field Time timeAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'timeAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'timeAttr'.")
         ]
     }
 
@@ -203,7 +203,7 @@ class PrimitiveDefaultValuesTests {
                 field Timestamp timestampAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'timestampAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'timestampAttr'.")
         ]
     }
 
@@ -238,14 +238,14 @@ class PrimitiveDefaultValuesTests {
         '''
             model PrimitiveDefaultsModel;
 
-            type numeric Integer(precision = 9,  scale = 0);
-            type numeric Decimal(precision = 5,  scale = 3);
-            type string String(min-size = 0, max-size = 128);
+            type numeric Integer precision:9 scale:0;
+            type numeric Decimal precision:5 scale:3;
+            type string String min-size:0 max-size:128;
             type boolean Bool;
             type date Date;
             type time Time;
             type timestamp Timestamp;
-            type string PhoneNumber(min-size = 0, max-size = 32, regex = "^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$");   // escape sequencing does not work in regexp!!!!
+            type string PhoneNumber min-size:0 max-size:32 regex:"^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$";   // escape sequencing does not work in regexp!!!!
 
             entity TestIdentifiers {
                 identifier Bool a = true;

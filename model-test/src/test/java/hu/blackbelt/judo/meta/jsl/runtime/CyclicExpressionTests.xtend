@@ -39,10 +39,10 @@ class CyclicExpressionTests {
             type boolean Boolean;
 
             entity Test {
-                derived Boolean b => self.b;
+                field Boolean b <= self.b;
             }
 
-        '''.parse.assertError(JsldslPackage::eINSTANCE.entityDerivedDeclaration, JslDslValidator.EXPRESSION_CYCLE,"Cyclic expression at 'b'.")
+        '''.parse.assertError(JsldslPackage::eINSTANCE.entityCalculatedMemberDeclaration, JslDslValidator.EXPRESSION_CYCLE,"Cyclic expression at 'b'.")
     }
 
 
@@ -72,19 +72,19 @@ class CyclicExpressionTests {
 
             type boolean Boolean;
 
-            query Boolean staticQuery() => A!any().c;
+            query Boolean staticQuery() <= A!any().c;
 
             entity A {
-                query Boolean q() => staticQuery();
-                derived Boolean a => self.q();
-                derived Boolean b => self.a;
-                derived Boolean c => self.b;
+                field Boolean q <= staticQuery();
+                field Boolean a <= self.q();
+                field Boolean b <= self.a;
+                field Boolean c <= self.b;
             }
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.entityQueryDeclaration, JslDslValidator.EXPRESSION_CYCLE,"Cyclic expression at 'q'.")
-            assertError(JsldslPackage::eINSTANCE.entityDerivedDeclaration, JslDslValidator.EXPRESSION_CYCLE,"Cyclic expression at 'a'.")
-            assertError(JsldslPackage::eINSTANCE.entityDerivedDeclaration, JslDslValidator.EXPRESSION_CYCLE,"Cyclic expression at 'b'.")
-            assertError(JsldslPackage::eINSTANCE.entityDerivedDeclaration, JslDslValidator.EXPRESSION_CYCLE,"Cyclic expression at 'c'.")
+            assertError(JsldslPackage::eINSTANCE.entityCalculatedMemberDeclaration, JslDslValidator.EXPRESSION_CYCLE,"Cyclic expression at 'q'.")
+            assertError(JsldslPackage::eINSTANCE.entityCalculatedMemberDeclaration, JslDslValidator.EXPRESSION_CYCLE,"Cyclic expression at 'a'.")
+            assertError(JsldslPackage::eINSTANCE.entityCalculatedMemberDeclaration, JslDslValidator.EXPRESSION_CYCLE,"Cyclic expression at 'b'.")
+            assertError(JsldslPackage::eINSTANCE.entityCalculatedMemberDeclaration, JslDslValidator.EXPRESSION_CYCLE,"Cyclic expression at 'c'.")
             assertError(JsldslPackage::eINSTANCE.queryDeclaration, JslDslValidator.EXPRESSION_CYCLE,"Cyclic expression at 'staticQuery'.")
         ]
     }
