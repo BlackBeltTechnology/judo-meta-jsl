@@ -35,7 +35,7 @@ class ModifiersTests {
         '''
             model test;
 
-            type string String (min-size = 129, max-size = 128);
+            type string String min-size:129 max-size:128;
 
             entity Person{
                 field String fullName;
@@ -78,7 +78,7 @@ class ModifiersTests {
         '''
             model test;
 
-            type string String(min-size = 0, max-size = 0);
+            type string String min-size:0 max-size:0;
 
             entity Person{
                 field String fullName;
@@ -105,7 +105,7 @@ class ModifiersTests {
         '''
             model test;
 
-            type string String (min-size = 0, max-size = 4001);
+            type string String min-size:0 max-size:4001;
 
             entity Person{
                 field String fullName;
@@ -140,7 +140,7 @@ class ModifiersTests {
         '''
             model test;
 
-            type numeric Number1(precision = 0, scale = 0);
+            type numeric Number1 precision:0 scale:0;
 
             entity Entity {
                 field Number1 number;
@@ -167,7 +167,7 @@ class ModifiersTests {
         '''
             model test;
 
-            type numeric Number1(precision = 16, scale = 0);
+            type numeric Number1 precision:16 scale:0;
 
             entity Entity {
                 field Number1 number;
@@ -194,7 +194,7 @@ class ModifiersTests {
         '''
             model test;
 
-            type numeric Number1(precision = 15, scale = 15);
+            type numeric Number1 precision:15 scale:15;
 
             entity Entity {
                 field Number1 number;
@@ -227,7 +227,7 @@ class ModifiersTests {
                 field T1 ent;
             }
         '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.FIELD_TYPE_IS_ABSRTACT_ENTITY, "You cannot use entity named 'T1' as a field type, because it is abstract")
+        	m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.FIELD_TYPE_IS_ABSRTACT_ENTITY, "You cannot use entity named 'T1' as a field type, because it is abstract")
         ]
     }
 

@@ -1,17 +1,17 @@
 model oppoistetest;
 
-type numeric Integer(precision = 12, scale = 0);
+type numeric Integer precision:12 scale:0;
 
 entity Product {
 }
 
 entity Discount {
-	relation Product[] products opposite-add discount;
+	relation Product[] products opposite-add:discount;
 	field required Integer `escaped`;
 }
 
 entity CartItem {
 	relation required Product product;
 
-	derived Discount b => self.product.discount;
+	relation Discount b <= self.product.discount;
 }
