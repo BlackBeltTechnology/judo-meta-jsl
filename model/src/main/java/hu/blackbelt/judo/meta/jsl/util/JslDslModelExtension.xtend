@@ -58,6 +58,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
+import hu.blackbelt.judo.meta.jsl.jsldsl.MemberReference
 
 @Singleton
 class JslDslModelExtension {
@@ -540,4 +542,32 @@ class JslDslModelExtension {
         members.stream.filter[e | e.name.equals(name)].findFirst.orElseThrow[new IllegalArgumentException("EntityMemberDeclaration not found: " + name)]
     }
 
+	def isAggregation(TransferRelationDeclaration relation) {
+		if (relation.referenceType.map === null) {
+			return true
+		}
+		
+		if (relation.annotations.exists[a | a.declaration.name.equals("Greedy")]) {
+			return true
+		}
+		
+		return false
+	}
+
+	def isQuery(EntityMemberDeclaration member) {
+		if (member.annotations.exists[a | a.declaration.name.equals("Lazy")]) {
+			return true
+		}
+		
+		return false
+	}
+
+	def isQueryCall(Feature feature) {
+		if (feature instanceof MemberReference && (feature as MemberReference).member instanceof EntityMemberDeclaration) {
+			val EntityMemberDeclaration member = (feature as MemberReference).member as EntityMemberDeclaration
+			return member.isQuery
+		}
+		
+		return false
+	}
 }

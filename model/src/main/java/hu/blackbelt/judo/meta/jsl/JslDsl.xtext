@@ -861,7 +861,7 @@ ErrorDeclaration
 
 ErrorField
 	: FEAT_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named
-	  ('=' defaultExpression = Expression)? SC
+	  ('=' defaultExpr = Expression)? SC
 	;
 
 CreateError
