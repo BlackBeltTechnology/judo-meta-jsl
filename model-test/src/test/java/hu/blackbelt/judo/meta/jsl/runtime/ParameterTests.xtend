@@ -36,7 +36,7 @@ class ParameterTests {
         '''
             model ParametersModel;
 
-            type string String(min-size = 0, max-size = 100);
+            type string String min-size:0 max-size:100;
 
             entity Test {
                 field String leftValue = "hello"!left(count = 1, count = 1);
@@ -157,11 +157,11 @@ class ParameterTests {
         '''
             model ParametersModel;
 
-            type string String(min-size = 0, max-size = 100);
+            type string String min-size:0 max-size:100;
 
             entity Test {
                 field String value;
-                derived Test[] tests => Test!all()!filter(t | t.value == self.value);
+                relation Test[] tests <= Test!all()!filter(t | t.value == self.value);
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.lambdaCall, JslDslValidator.SELF_NOT_ALLOWED)
