@@ -547,7 +547,7 @@ class JslDslModelExtension {
 			return true
 		}
 		
-		if (relation.annotations.exists[a | a.declaration.name.equals("Greedy")]) {
+		if (relation.annotations.exists[a | a.declaration.name.equals("Eager")]) {
 			return true
 		}
 		
