@@ -54,6 +54,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TypeDescription;
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnaryOperation;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTextDeclaration;
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension;
 
 public class TypeInfo {
@@ -571,6 +572,10 @@ public class TypeInfo {
 			return new TypeInfo(BaseType.UNDEFINED, false);
 		}
 
+		if (transferFieldDeclaration instanceof ViewTextDeclaration) {
+			return new TypeInfo(BaseType.STRING, false);
+		}
+		
 		return new TypeInfo(transferFieldDeclaration.getReferenceType(), false, false);
 	}
 
