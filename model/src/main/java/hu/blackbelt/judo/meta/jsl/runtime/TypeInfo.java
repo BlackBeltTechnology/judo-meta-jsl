@@ -10,14 +10,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.DateLiteral;
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedFieldDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedRelationDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected;
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredFieldDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral;
@@ -49,7 +45,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimestampLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataMemberDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TypeDescription;
@@ -398,15 +393,6 @@ public class TypeInfo {
 			typeInfo.modifier = typeInfo.modifier == TypeModifier.COLLECTION ? TypeModifier.COLLECTION : baseTypeInfo.modifier;
 			return typeInfo;
 		}
-		
-//		 else if (feature instanceof EntityQueryCall) {
-//			if (!modelExtension.isResolvedReference(feature, JsldslPackage.ENTITY_QUERY_CALL__DECLARATION)) {
-//				return baseTypeInfo;
-//			}
-//			TypeInfo typeInfo = getTargetType( (EntityMemberDeclaration) ((EntityQueryCall)feature).getDeclaration() );
-//			typeInfo.modifier = typeInfo.modifier == TypeModifier.COLLECTION ? TypeModifier.COLLECTION : baseTypeInfo.modifier;
-//			return typeInfo;
-//		} 
 		 
 		 else if (feature instanceof FunctionCall) {
 			if (!modelExtension.isResolvedReference(feature, JsldslPackage.FUNCTION_CALL__DECLARATION)) {
@@ -492,8 +478,6 @@ public class TypeInfo {
 		}
 
 		typeInfo.modifier = TypeModifier.NONE;
-
-		// System.out.println(typeInfo);
 		
 		return typeInfo;
 	}
@@ -596,25 +580,6 @@ public class TypeInfo {
 		EntityDeclaration entityDeclaration = modelExtension.getReferenceType(access).getMap().getEntity();
 		return new TypeInfo(entityDeclaration, access.isMany(), false);
 	}
-	
-//	public static TypeInfo getTargetType(ServiceDataDeclaration data) {
-//		if (data == null || data.getReturn() == null || data.getReturn().getReferenceType() == null) {
-//			return new TypeInfo(BaseType.UNDEFINED, false);
-//		}
-//
-//		if (data.getReturn().getReferenceType() instanceof TransferDeclaration) {
-//			TransferDeclaration transferDeclaration = (TransferDeclaration) data.getReturn().getReferenceType();
-//			EntityDeclaration entityDeclaration = (EntityDeclaration) transferDeclaration.getMap().getEntity();
-//			return new TypeInfo(entityDeclaration, data.isIsMany(), false);
-//		} else if (data.getReturn().getReferenceType() instanceof ViewDeclaration) {
-//			ViewDeclaration viewDeclaration = (ViewDeclaration) data.getReturn().getReferenceType();
-//			EntityDeclaration entityDeclaration = (EntityDeclaration) viewDeclaration.getMap().getEntity();
-//			return new TypeInfo(entityDeclaration, true, false);
-//		}
-//
-//		return new TypeInfo(BaseType.UNDEFINED, false);
-//	}
-
 	
 	public static TypeInfo getTargetType(EntityMemberDeclaration entityMemberDeclaration) {
 		if (entityMemberDeclaration == null) {

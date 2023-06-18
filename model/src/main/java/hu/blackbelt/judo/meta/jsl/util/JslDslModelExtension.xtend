@@ -39,8 +39,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.StringLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
-//import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDeclaration
-//import hu.blackbelt.judo.meta.jsl.jsldsl.ServiceDataDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredFieldDeclaration
@@ -51,7 +49,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ViewFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewLinkDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
@@ -367,38 +364,18 @@ class JslDslModelExtension {
         members.filter[d | d instanceof EntityCalculatedMemberDeclaration].map[d | d as EntityCalculatedMemberDeclaration].toList
     }
 
-//    def Collection<EntityQueryDeclaration> queries(EntityDeclaration it) {
-//        members.filter[d | d instanceof EntityQueryDeclaration].map[d | d as EntityQueryDeclaration].toList
-//    }
-
     def Collection<ConstraintDeclaration> constraints(EntityDeclaration it) {
         members.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
     }
-
-//    def Collection<EntityIdentifierDeclaration> identifiers(EntityDeclaration it) {
-//        members.filter[d | d instanceof EntityIdentifierDeclaration].map[d | d as EntityIdentifierDeclaration].toList
-//    }
 
     def Collection<EntityStoredFieldDeclaration> allFields(EntityDeclaration it) {
         allMembers.filter[d | d instanceof EntityStoredFieldDeclaration].map[d | d as EntityStoredFieldDeclaration].toList
     }
 
-//    def Collection<EntityDerivedDeclaration> allDerivedes(EntityDeclaration it) {
-//        allMembers.filter[d | d instanceof EntityDerivedDeclaration].map[d | d as EntityDerivedDeclaration].toList
-//    }
-
-//    def Collection<EntityQueryDeclaration> allQueries(EntityDeclaration it) {
-//        allMembers.filter[d | d instanceof EntityQueryDeclaration].map[d | d as EntityQueryDeclaration].toList
-//    }
-
     def Collection<ConstraintDeclaration> allConstraints(EntityDeclaration it) {
         allMembers.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
     }
 
-//    def Collection<EntityIdentifierDeclaration> allIdentifiers(EntityDeclaration it) {
-//        allMembers.filter[d | d instanceof EntityIdentifierDeclaration].map[d | d as EntityIdentifierDeclaration].toList
-//    }
-    
     def Collection<AnnotationDeclaration> annotationDeclarations(ModelDeclaration it) {
         declarations.filter[d | d instanceof AnnotationDeclaration].map[d | d as AnnotationDeclaration].toList
     }
@@ -426,18 +403,6 @@ class JslDslModelExtension {
     def Collection<TransferFieldDeclaration> fields(TransferDeclaration it) {
         members.filter[d | d instanceof TransferFieldDeclaration].map[d | d as TransferFieldDeclaration].toList
     }
-
-//	def Collection<ServiceDeclaration> serviceDeclarations(ModelDeclaration it) {
-//        declarations.filter[d | d instanceof ServiceDeclaration].map[d | d as ServiceDeclaration].toList
-//    }
-//    
-//    def Collection<ServiceDataDeclaration> dataDeclarationsForService(ServiceDeclaration it) {
-//        it.members.filter[m | m instanceof ServiceDataDeclaration].map[m | m as ServiceDataDeclaration].toList 
-//    }
-//    
-//    def Collection<ServiceFunctionDeclaration> functionDeclarationsForService(ServiceDeclaration it) {
-//        it.members.filter[m | m instanceof ServiceFunctionDeclaration].map[m | m as ServiceFunctionDeclaration].toList 
-//    }
 
     def String sourceCode(Expression it) {
         return NodeModelUtils.findActualNodeFor(it)?.getText()

@@ -69,12 +69,6 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 			var Keyword keyword = calledRule.alternatives as Keyword;
 			completeKeyword(keyword, contentAssistContext, acceptor)
 		}
-		
-//		if (calledRule instanceof ParserRule && calledRule.name.equals("RequiredModifier")) {
-//			var ICompletionProposal proposal = createCompletionProposal("required:true", "required", null, contentAssistContext);
-//			getPriorityHelper().adjustKeywordPriority(proposal, contentAssistContext.getPrefix());
-//			acceptor.accept(proposal);
-//		}
 
 		super.completeRuleCall(ruleCall, contentAssistContext, acceptor)
 	}

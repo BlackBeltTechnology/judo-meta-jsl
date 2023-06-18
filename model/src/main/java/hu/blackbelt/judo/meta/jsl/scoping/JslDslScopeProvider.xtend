@@ -115,12 +115,6 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
 			ViewSubmitDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
 
-//			ViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.tr: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
-//			ViewTableDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
-//
-//			SimpleTransferDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_TransferReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
-//			TransferRelationDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
-
 			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 			TransferSubmitDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
@@ -284,14 +278,6 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
             if (resolved !== null) {
                 return resolved
             }
-//            val descriptor = object.EObjectDescription
-//            if (descriptor !== null) {
-//                val type = descriptor.getUserData("referenceType")
-//                val referenceDesc = object.getEObjectDescriptionByName(type)
-//                if (referenceDesc !== null) {
-//                    return referenceDesc.EObjectOrProxy
-//                }
-//            }
         }
         null
     }
@@ -347,27 +333,4 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
         }
         System.out.println("\u001B[0m")
     }
-
-//    def IScope nullSafeScope(Object input) {
-//        nullSafeScope(input, IScope.NULLSCOPE)
-//    }
-//
-//    def IScope nullSafeScope(Object input, IScope fallback) {
-//        if (input === null) {
-//            return fallback
-//        }
-//        if (input instanceof IScope) {
-//            return input
-//        } else if (input instanceof Iterable) {
-//            if (input.size > 0) {
-//                return Scopes.scopeFor(input, fallback)
-//            } else {
-//                return fallback
-//            }
-//        } else if (input instanceof EObject) {
-//            return Scopes.scopeFor(#[input], fallback)
-//        } else {
-//            throw new IllegalArgumentException("Only EObject / Iterable / IScope are accepted")
-//        }
-//    }
 }

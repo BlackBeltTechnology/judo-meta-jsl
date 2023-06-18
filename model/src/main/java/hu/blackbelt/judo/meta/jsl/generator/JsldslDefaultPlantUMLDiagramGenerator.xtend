@@ -123,10 +123,6 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             AttributeFontColor<< External >> #7f7f7f
         }
 
-«««        skinparam rectangle {
-«««            BorderColor Transparent
-«««            FontColor Transparent
-«««        }
     '''
 
     def cardinalityRepresentation(EntityStoredRelationDeclaration it)
@@ -201,24 +197,8 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     def entityRelationRepresentation(EntityStoredRelationDeclaration it)
     '''<&pencil> «entityRelationNameFragment» : «it.parentContainer(ModelDeclaration).getExternalName(referenceType)»«cardinalityRepresentation»'''
 
-//    def entityCalculatedRelationRepresentation(EntityCalculatedRelationDeclaration it)
-//    '''<U+00A0><U+00A0><U+00A0><U+00A0>«name» : «it.parentContainer(ModelDeclaration).getExternalName(referenceType)»«IF isMany»[0..*]«ENDIF»'''
-
-//    def entityQueryParameterFragment(EntityQueryDeclaration it)
-//    '''«FOR param : parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.name» : «param.referenceType.name» =«param.^default»«ENDFOR»'''
-
     def entityDerivedRepresentation(EntityCalculatedMemberDeclaration it)
     '''<U+00A0><U+00A0><U+00A0><U+00A0>«name» : «it.parentContainer(ModelDeclaration).getExternalName(referenceType)»«IF isMany»[0..*]«ENDIF»'''
-
-//    def entityQueryRepresentation(EntityQueryDeclaration it)
-//    '''~«name»«entityQueryParameterFragment» : «referenceType.name»[0..*]'''
-
-
-//    def constraintParameterFragment(ConstraintDeclaration it)
-//    '''«FOR param : error.parameters BEFORE '(' SEPARATOR ', ' AFTER ')'»«param.errorFieldType.name» =«param.expession.sourceCode»«ENDFOR»'''
-//
-//    def constraintRepresentation(ConstraintDeclaration it)
-//    '''-«error.errorDeclarationType.name»«constraintParameterFragment»'''
 
 
     def entityRepresentation(EntityDeclaration it)
@@ -232,14 +212,6 @@ class JsldslDefaultPlantUMLDiagramGenerator {
                 «member.entityFieldRepresentation»
                 «ENDIF»
             «ENDFOR»
-«««            «FOR member : members»
-«««            	«IF member instanceof EntityCalculatedRelationDeclaration»
-«««                «member.entityDerivedRepresentation»
-«««                «ENDIF»
-«««            	«IF member instanceof EntityStoredRelationDeclaration»
-«««                «member.entityRelationRepresentation»
-«««                «ENDIF»
-«««            «ENDFOR»
         }
     '''
     
@@ -263,9 +235,6 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     def transferFieldNameFragment(TransferFieldDeclaration it)
     '''«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»'''
     
-//    def transferFieldCardinalityFragment(TransferFieldDeclaration it)
-//    '''«IF isIsMany»[0..*]«ENDIF»'''
-    
     def transferFieldRepresentation(TransferFieldDeclaration it)
     '''«transferFieldModifierFragment»«transferFieldNameFragment» : «it.parentContainer(ModelDeclaration).getExternalName(referenceType)»
 	'''
@@ -278,59 +247,13 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             «ENDFOR»
         }
     '''
-    
-//    def serviceStereotypeFragment(ServiceDeclaration it)
-//    '''«IF map !== null» << MappedService >> «ELSE» << Service >>«ENDIF»'''
-//    
-//    def dataFunctionNameFragment(ServiceDataDeclaration it)
-//    '''«name»'''
-//    
-//    def dataFunctionCardinalityFragment(ServiceDataDeclaration it)
-//    '''«IF isIsMany»[0..*]«ENDIF»'''
-//    
-//    def dataFunctionModifierFragment(ServiceDataDeclaration it)
-//    '''«IF it.guard !== null»~«ELSE»+«ENDIF»'''
-//    
-//    def dataFunctionRepresentation(ServiceDataDeclaration it)
-//    '''{method}«dataFunctionModifierFragment»«dataFunctionNameFragment» : «it.^return.referenceType.name»«dataFunctionCardinalityFragment» <b>=></b> «it.expression.sourceCode»
-//	'''
-	
-//	def functionNameFragment(ServiceFunctionDeclaration it)
-//    '''«name»'''
-//    
-//    def functionUnionReturnConcatenated(ServiceReturnAlternateDeclaration it)
-//    '''«it.referenceTypes.map[r | r.referenceType.name].join(' | ')»'''
-    
-//    def functionModifierFragment(ServiceFunctionDeclaration it)
-//    '''«IF it.guard !== null»~«ELSE»+«ENDIF»'''
-//    
-//    def functionRepresentation(ServiceFunctionDeclaration it)
-//    '''{method}«functionModifierFragment»«functionNameFragment»(«IF it.parameter !== null»«it.parameter.referenceType.name» «it.parameter.name»«ENDIF») «IF it.^return instanceof ServiceReturnDeclaration»: «it.^return.referenceType.name»«ENDIF»«IF it.alternateReturn !== null»: «it.alternateReturn.functionUnionReturnConcatenated»«ENDIF»
-//	'''
-    
-//    def serviceRepresentation(ServiceDeclaration it)
-//    '''
-//        class «name?:"none"»«serviceStereotypeFragment» {
-//            «FOR dataFunction : it.dataDeclarationsForService»
-//                «dataFunction.dataFunctionRepresentation»
-//            «ENDFOR»
-//            «FOR function : it.functionDeclarationsForService»
-//                «function.functionRepresentation»
-//            «ENDFOR»
-//        }
-//    '''
-    
+        
     def actorStereotypeFragment(ActorDeclaration it)
     '''«IF map !== null» << MappedActor >> «ELSE» << Actor >>«ENDIF»'''
     
     def actorRepresentation(ActorDeclaration it)
     '''
            actor «name?:"none"»
-«««        class «name?:"none"»«actorStereotypeFragment» {
-«««            «IF realm !== null»realm "«realm.value.value»"«ENDIF»
-«««            «IF claim !== null»claim "«claim.value.value»"«ENDIF»
-«««            «IF identity !== null»identity "«identity.expression»"«ENDIF»
-«««        }
     '''
 
     def entityExtends(EntityDeclaration it)
@@ -389,28 +312,6 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     «IF style === null || style.blank»«defaultStyle»«ELSE»«style»«ENDIF»
 
     package «name» {
-
-«««    together {
-«««        «FOR annotation : annotationDeclarations»
-«««            «annotation.annotationRepresentation»
-«««        «ENDFOR»
-«««    }
-
-«««    together {
-«««        «FOR type : dataTypeDeclarations»
-«««            «type.dataTypeRepresentation»
-«««        «ENDFOR»
-«««
-«««        «FOR enumt : enumDeclarations»
-«««            «enumt.enumRepresentation»
-«««        «ENDFOR»
-«««    }
-
-«««    together {
-«««        «FOR error : errorDeclarations»
-«««            «error.errorRepresentation»
-«««        «ENDFOR»
-«««    }
 	
 	together {
 		together {
