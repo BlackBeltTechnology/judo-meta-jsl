@@ -43,13 +43,13 @@ class OppositeAddTests {
             }
 
             entity Discount {
-                relation Product[] products opposite-add discount;
+                relation Product[] products opposite-add:discount;
             }
 
 
             entity CartItem {
                 relation required Product product;
-                derived Discount b => self.product.discount;
+                relation Discount b <= self.product.discount;
             }
         '''.parse => [
             assertNoErrors
@@ -79,13 +79,13 @@ class OppositeAddTests {
             }
 
             entity Discount {
-                relation Product[] products opposite-add discounts[];
+                relation Product[] products opposite-add:discounts[];
             }
 
 
             entity CartItem {
                 relation required Product product;
-                derived Discount[] b => self.product.discounts;
+                relation Discount[] b <= self.product.discounts;
             }
         '''.parse => [
             assertNoErrors
@@ -121,13 +121,13 @@ class OppositeAddTests {
 
 
             entity Discount {
-                relation Product[] products opposite-add discount;
+                relation Product[] products opposite-add:discount;
             }
 
 
             entity CartItem {
                 relation required ChildProduct product;
-                derived Discount b => self.product.discount;
+                relation Discount b <= self.product.discount;
             }
         '''.parse => [
             assertNoErrors
@@ -167,13 +167,13 @@ class OppositeAddTests {
             import ImportedModelNavigationProduct as P;
 
             entity Discount {
-                relation P::Product[] products opposite-add discount;
+                relation P::Product[] products opposite-add:discount;
             }
 
 
             entity CartItem {
                 relation required P::Product product;
-                derived Discount b => self.product.discount;
+                relation Discount b <= self.product.discount;
             }
 
 
@@ -220,13 +220,13 @@ class OppositeAddTests {
 
 
             entity Discount {
-                relation ChildProduct products opposite-add discount;
+                relation ChildProduct products opposite-add:discount;
             }
 
 
             entity CartItem {
                 relation required ChildProduct product;
-                derived Discount b => self.product.discount;
+                relation Discount b <= self.product.discount;
             }
 
 

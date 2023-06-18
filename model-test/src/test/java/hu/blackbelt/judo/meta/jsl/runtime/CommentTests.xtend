@@ -12,7 +12,6 @@ import hu.blackbelt.judo.requirement.report.annotation.Requirement
 import hu.blackbelt.judo.requirement.report.annotation.TestCase
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import static org.junit.Assert.assertTrue
-import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertFalse
 
 @ExtendWith(InjectionExtension)
