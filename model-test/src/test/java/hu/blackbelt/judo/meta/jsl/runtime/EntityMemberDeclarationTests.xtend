@@ -43,7 +43,7 @@ class EntityMemberDeclarationTests {
                 field Boolean b = self.a;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.SELF_NOT_ALLOWED,"Self is not allowed in default expression at 'b'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.SELF_NOT_ALLOWED,"Self is not allowed in default expression at 'b'.")
         ]
     }
 
@@ -125,14 +125,14 @@ class EntityMemberDeclarationTests {
         '''
             model test;
 
-            type string String(min-size = 0, max-size = 1000);
+            type string String min-size:0 max-size:1000;
 
             entity B1 {
                 field required String[] attr;
             }
 
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.USING_REQUIRED_WITH_IS_MANY, "Collection typed field: 'attr' cannot have keyword: 'required'")
+        	m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
         ]
     }
 
@@ -149,10 +149,12 @@ class EntityMemberDeclarationTests {
         "REQ-TYPE-004"
     ])
     def void testRelationIsManyRequired() {
+    	// this test is unnecessary, the new JSL syntax does not allow required keyword for collections
+    	
         '''
             model test;
 
-            type string String(min-size = 0, max-size = 1000);
+            type string String min-size:0 max-size:1000;
 
             entity B1 {
                 relation required B2[] others;
@@ -162,7 +164,7 @@ class EntityMemberDeclarationTests {
                 String name;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityRelationDeclaration, JslDslValidator.USING_REQUIRED_WITH_IS_MANY, "Collection typed relation: 'others' cannot have keyword: 'required'")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
         ]
     }
 
@@ -196,7 +198,7 @@ class EntityMemberDeclarationTests {
             entity E {
                 field Integer e;
 
-                query Integer q(Integer p = 10 + 10) => E!all()!size();
+                field Integer q(Integer p = 10 + 10) <= E!all()!size();
             }
         '''.parse => [
             assertNoErrors

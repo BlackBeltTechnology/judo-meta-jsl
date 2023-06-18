@@ -34,6 +34,8 @@ public class HighlightingConfiguration implements IHighlightingConfiguration {
 
     public final static String FEATURE_ID = "Feature";
 
+    public final static String ATTRIBUTE_ID = "Attribute";
+
     public final static String OPERATOR_ID = "Operator";
 
     public final static String CONSTANT_ID = "Constant";
@@ -47,12 +49,14 @@ public class HighlightingConfiguration implements IHighlightingConfiguration {
         acceptor.acceptDefaultHighlighting(DEFAULT_ID, "Default", defaultTextStyle());
         acceptor.acceptDefaultHighlighting(KEYWORD_ID, "Keyword", keywordTextStyle());
         acceptor.acceptDefaultHighlighting(FEATURE_ID, "Feature", featureTextStyle());
+        acceptor.acceptDefaultHighlighting(ATTRIBUTE_ID, "Attribute", attributeTextStyle());
         acceptor.acceptDefaultHighlighting(OPERATOR_ID, "Operator", operatorTextStyle());
         acceptor.acceptDefaultHighlighting(CONSTANT_ID, "Constant", constantTextStyle());
         acceptor.acceptDefaultHighlighting(COMMENT_ID, "Comment", commentTextStyle());
         acceptor.acceptDefaultHighlighting(ANNOTATION_ID, "Annotation", annotationTextStyle());
     }
 
+    
     public TextStyle defaultTextStyle() {
         TextStyle textStyle = new TextStyle();
         return textStyle;
@@ -60,39 +64,46 @@ public class HighlightingConfiguration implements IHighlightingConfiguration {
 
     public TextStyle keywordTextStyle() {
         TextStyle textStyle = defaultTextStyle().copy();
-        textStyle.setColor(new RGB(127, 0, 85));
+        textStyle.setColor(new RGB(0x87, 0x00, 0x5f));
         textStyle.setStyle(SWT.BOLD);
         return textStyle;
     }
 
     public TextStyle featureTextStyle() {
         TextStyle textStyle = defaultTextStyle().copy();
-        textStyle.setColor(new RGB(156, 0, 176));
+        textStyle.setColor(new RGB(0x87, 0x00, 0x5f));
+        return textStyle;
+    }
+
+    public TextStyle attributeTextStyle() {
+        TextStyle textStyle = defaultTextStyle().copy();
+        textStyle.setColor(new RGB(0x00, 0x57, 0x46));
         return textStyle;
     }
 
     public TextStyle operatorTextStyle() {
         TextStyle textStyle = defaultTextStyle().copy();
-        textStyle.setColor(new RGB(21, 101, 192));
+        textStyle.setColor(new RGB(0x1a, 0x6d, 0xc3));
         textStyle.setStyle(SWT.BOLD);
         return textStyle;
     }
 
     public TextStyle constantTextStyle() {
         TextStyle textStyle = defaultTextStyle().copy();
-        textStyle.setColor(new RGB(192, 57, 43));
+        textStyle.setColor(new RGB(0xcf, 0x43, 0x15));
         return textStyle;
     }
 
     public TextStyle commentTextStyle() {
         TextStyle textStyle = defaultTextStyle().copy();
-        textStyle.setColor(new RGB(92, 158, 92));
+        textStyle.setColor(new RGB(0x8c, 0x8c, 0x8c));
+        textStyle.setStyle(SWT.ITALIC);
         return textStyle;
     }
 
     public TextStyle annotationTextStyle() {
         TextStyle textStyle = defaultTextStyle().copy();
-        textStyle.setColor(new RGB(100, 100, 100));
+        textStyle.setColor(new RGB(0x64, 0x64, 0x64));
         return textStyle;
     }
 }

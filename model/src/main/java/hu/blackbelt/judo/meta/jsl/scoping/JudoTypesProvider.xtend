@@ -62,9 +62,9 @@ class JudoTypesProvider {
         type date Date;
         type time Time;
         type timestamp Timestamp;
-        type numeric Integer(precision = 9, scale = 0);
-        type numeric Long(precision = 15, scale = 0);
-        type string String(min-size = 0, max-size = 4000);
+        type numeric Integer precision:9 scale:0;
+        type numeric Long precision:15 scale:0;
+        type string String min-size:0 max-size:4000;
 
         // type numeric Scaled(precision = 9, scale = 2);
         // type binary Binary(mime-types = ["application/octet-stream", "text/plain"], max-file-size=1 MB);
