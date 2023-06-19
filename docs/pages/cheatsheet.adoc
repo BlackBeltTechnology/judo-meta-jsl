@@ -701,7 +701,7 @@ or
 
 [subs="quotes"]
 ----
-[purple]#**access**# &lt;view>&#x5B;[purple]##**[]**##]  &lt;name> [purple]##**<=**## &lt;expression> [purple]#**;**#
+[purple]#**access**# &lt;transfer|view|row>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**<=**## &lt;expression> [purple]#**;**#
 ----
 
 === Actor group
