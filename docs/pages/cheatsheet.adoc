@@ -15,6 +15,9 @@ endif::[]
 
 == Model
 
+Every model file must start with the definition of the model name.
+The `model` keyword is used to start a model definition.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -35,6 +38,8 @@ model judo::example::shop;
 ----
 
 == Import
+
+The import keyword is used to import another model.
 
 *Syntax:*
 
@@ -61,6 +66,8 @@ If an alias is specified, the elements of the imported model can be accessed by 
 
 == Type
 
+The primitive data types in the model must be specified with the `type` keyword.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -82,6 +89,8 @@ type string String min-size:0 max-size:4000;
 ----
 
 == Entity
+
+The persistent data of a model is described in the form of entity types.
 
 *Syntax:*
 
@@ -115,6 +124,8 @@ entity abstract Person extends Customer, User;
 
 === Entity stored primitive field
 
+An entity instance can store primitive values in its fields.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -130,6 +141,8 @@ field required String name = "John Doe";
 ----
 
 === Entity stored composition
+
+A composite field is an entity member whose type is an entity.
 
 *Syntax:*
 
@@ -163,6 +176,8 @@ field Address[] addresses;
 
 === Entity stored relation
 
+Relation is a reference to an other entity or set of entities defined within an entity.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -194,6 +209,8 @@ relation Student[] students = Student!all() opposite-add: class;
 
 === Entity calculated primitive
 
+Calculated primitives can be read as if they were stored fields, but they have an expression that returns their value.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -213,6 +230,8 @@ relation Student[] students = Student!all() opposite-add: class;
 
 === Entity calculated relation
 
+Calculated relations can be read as if they were stored relations, but they have an expression that returns their value.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -231,6 +250,8 @@ relation Student[] students = Student!all() opposite-add: class;
 
 == Query
 
+A query is a request within the scope of the model that retrieves a primitive or entities.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -239,6 +260,8 @@ relation Student[] students = Student!all() opposite-add: class;
 ----
 
 == Transfer
+
+A transfer object is a container for a set of data fields that is transferred between the service layer and any upper layers (e.g. user interface or external system).
 
 *Syntax:*
 
@@ -260,6 +283,8 @@ or
 
 === Transfer constructor
 
+The constructor is automatically called when a new transfer object is created and can be used to set default values of the fields. Transfer objects with no constructor can not be created.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -271,6 +296,8 @@ or
 
 === Transfer initializer
 
+The initializer is automatically called when a transfer object is created or selected. It can be used to set the values of the transient fields.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -280,6 +307,8 @@ or
 
 === Transfer destructor
 
+Before the transfer object instance is deleted, the system calls the `destructor`. The destructor is a special action that is used to delete mapped entity or invoke other destruct actions. Transfer objects with no destructor can not be created. The default behavior of the destructor is to delete the mapped entity.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -288,6 +317,8 @@ or
 ----
 
 === Transfer primitive field
+
+A transfer object may contain data descriptions called primitive fields. A primitive field can store only a single primitive value.
 
 *Syntax:*
 
@@ -306,6 +337,8 @@ or
 |====================
 
 === Transfer relation
+
+A transfer object may contain data descriptions called relations. Relation is a reference to an other transfer object or set of objects.
 
 *Syntax:*
 
@@ -326,6 +359,8 @@ or
 
 === Transfer action
 
+The action is a piece of code (currently Java implementation) that is executed when the action is invoked. An action may receive input as defined in its parameter.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -334,6 +369,8 @@ or
 ----
 
 === Transfer submit
+
+The submit is a piece of code (currently Java implementation) that is executed when the submit is invoked. The submit receives the primitive fields and relations annotated with @Eager as its input. If there is no body defined for the submit, the default behavior is saving the transfer object's field to the mapped entity.
 
 *Syntax:*
 
