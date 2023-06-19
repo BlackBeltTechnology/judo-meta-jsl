@@ -15,8 +15,6 @@ endif::[]
 
 == Model
 
-No syntax change.
-
 *Syntax:*
 
 [subs="quotes"]
@@ -37,8 +35,6 @@ model judo::example::shop;
 ----
 
 == Import
-
-No syntax change.
 
 *Syntax:*
 
@@ -72,13 +68,6 @@ If an alias is specified, the elements of the imported model can be accessed by 
 [purple]#**type**# &lt;basetype> &lt;name> &#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
 ----
 
-*Old syntax:*
-
-[subs="quotes"]
-----
-[purple]#**type**# &lt;basetype> &lt;name> &#x5B; [purple]#**(**#&lt;parameter name> [purple]#**=**# &lt;parameter value>][purple]#**,**# ...[purple]#**)**# ] [purple]#**;**#
-----
-
 *Example:*
 
 [source,jsl]
@@ -93,8 +82,6 @@ type string String min-size:0 max-size:4000;
 ----
 
 == Entity
-
-No syntax change.
 
 *Syntax:*
 
@@ -128,8 +115,6 @@ entity abstract Person extends Customer, User;
 
 === Entity stored primitive field
 
-No syntax change.
-
 *Syntax:*
 
 [subs="quotes"]
@@ -146,14 +131,14 @@ field required String name = "John Doe";
 
 === Entity stored composition
 
-No syntax change.
-
 *Syntax:*
 
 [subs="quotes"]
 ----
 [purple]#**field**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]#**;**#
 ----
+
+*Annotations:*
 
 [options="header", cols="1,2"]
 |====================
@@ -185,12 +170,7 @@ field Address[] addresses;
 [purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**=**## &lt;default>]  &#x5B; [purple]##**opposite**## [purple]##**:**## &lt;opposite> | [purple]##**opposite-add**## [purple]##**:**## &lt;opposite>&#x5B;[purple]##**[]**##] ] [purple]#**;**#
 ----
 
-*Old syntax:*
-
-[subs="quotes"]
-----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B; [purple]##**opposite**## &lt;opposite> | [purple]##**opposite-add**## &lt;opposite>&#x5B;[purple]##**[]**##] ] [purple]#**;**#
-----
+*Annotations:*
 
 [options="header", cols="1,2"]
 |====================
@@ -221,26 +201,15 @@ relation Student[] students = Student!all() opposite-add: class;
 [purple]#**field**# &lt;primitive> &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...[purple]##**)**##] [purple]##**<=**## &lt;expression> [purple]#**;**#
 ----
 
-*Old syntax:*
-
-[subs="quotes"]
-----
-[purple]#**derived**# &lt;primitive> &lt;name> [purple]##**=>**## &lt;expression> [purple]#**;**#
-----
-
-and
-
-[subs="quotes"]
-----
-[purple]#**query**# &lt;primitive> &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...][purple]##**)**## [purple]##**=>**## &lt;expression> [purple]#**;**#
-----
+*Annotations:*
 
 [options="header", cols="1,2"]
 |====================
 |Annotation | Meaning
 |@Lazy      | Defer fetching the value as long as it is possible.
-|@Eager     | Fetch the value as soon as it is possible. Eager is not allowed together with argument list.
+|@Eager     | Fetch the value as soon as it is possible.
 |====================
+
 
 === Entity calculated relation
 
@@ -251,19 +220,7 @@ and
 [purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...[purple]##**)**##] [purple]##**<=**## &lt;expression> [purple]#**;**#
 ----
 
-*Old syntax:*
-
-[subs="quotes"]
-----
-[purple]#**derived**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**=>**## &lt;expression> [purple]#**;**#
-----
-
-and
-
-[subs="quotes"]
-----
-[purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...][purple]##**)**## [purple]##**=>**## &lt;expression> [purple]#**;**#
-----
+*Annotations:*
 
 [options="header", cols="1,2"]
 |====================
@@ -281,16 +238,7 @@ and
 [purple]#**query**# (&lt;primitive>|&lt;entity>&#x5B;[purple]##**[]**##]) &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...][purple]##**)**## [purple]##**<=**## &lt;expression> [purple]#**;**#
 ----
 
-*Old syntax:*
-
-[subs="quotes"]
-----
-[purple]#**query**# (&lt;primitive>|&lt;entity>&#x5B;[purple]##**[]**##]) &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...][purple]##**)**## [purple]##**=>**## &lt;expression> [purple]#**;**#
-----
-
 == Transfer
-
-No syntax change.
 
 *Syntax:*
 
@@ -312,8 +260,6 @@ or
 
 === Transfer constructor
 
-No syntax change.
-
 *Syntax:*
 
 [subs="quotes"]
@@ -321,6 +267,24 @@ No syntax change.
 [purple]#**constructor**# {
     &#x5B;&lt;field> = &lt;expression>[purple]#**;**#] ...
 }
+----
+
+=== Transfer initializer
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**initializer**# [purple]#**;**#
+----
+
+=== Transfer destructor
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**destructor**# [purple]#**;**#
 ----
 
 === Transfer primitive field
@@ -332,16 +296,16 @@ No syntax change.
 [purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;([purple]##**<=**##|[purple]##**<=>**##) &lt;expression>] [purple]#**;**#
 ----
 
-*Old syntax:*
+*Annotations:*
 
-[subs="quotes"]
-----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;([purple]##**reads**##|[purple]##**maps**##) &lt;expression>] [purple]#**;**#
-----
+[options="header", cols="1,2"]
+|====================
+|Annotation | Meaning
+|@Lazy      | Defer fetching the object(s) as long as it is possible.
+|@Eager     | Fetch the object(s) as soon as it is possible.
+|====================
 
 === Transfer relation
-
-Removed from service object.
 
 *Syntax:*
 
@@ -351,15 +315,31 @@ Removed from service object.
 &#x5B; [purple]##**choices**## [purple]##**:**## &lt;expression> ] [purple]#**;**#
 ----
 
-=== Transfer function
+*Annotations:*
 
-Removed from service object.
+[options="header", cols="1,2"]
+|====================
+|Annotation | Meaning
+|@Lazy      | Defer fetching the object(s) as long as it is possible.
+|@Eager     | Fetch the object(s) as soon as it is possible.
+|====================
+
+=== Transfer action
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**function**# &#x5B;&lt;type>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**## &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...] [purple]#**;**#
+[purple]#**action**# &#x5B;&lt;type>|&lt;union>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**## &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...] [purple]#**;**#
+----
+
+=== Transfer submit
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**submit**# &#x5B;&lt;type>|&lt;union>|[purple]#**void**#] &lt;name> &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...] [purple]#**;**#
 ----
 
 == View
@@ -373,6 +353,15 @@ Removed from service object.
 }] [purple]#**;**#
 ----
 
+or
+
+[subs="quotes"]
+----
+[purple]#**view**# &lt;name> &#x5B; [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> ] &#x5B;{
+    &#x5B;member] ...
+}] [purple]#**;**#
+----
+
 === View constructor
 
 *Syntax:*
@@ -382,6 +371,24 @@ Removed from service object.
 [purple]#**constructor**# {
     &#x5B;&lt;field> = &lt;expression>[purple]#**;**#] ...
 }
+----
+
+=== View initializer
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**initializer**# [purple]#**;**#
+----
+
+=== View destructor
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**destructor**# [purple]#**;**#
 ----
 
 === View primitive field
@@ -402,6 +409,15 @@ Removed from service object.
 |enabled        | boolean expression    | If the field is enabled for editing.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field.
+|====================
+
+*Annotations:*
+
+[options="header", cols="1,2"]
+|====================
+|Annotation | Meaning
+|@Lazy      | Defer fetching the object(s) as long as it is possible.
+|@Eager     | Fetch the object(s) as soon as it is possible.
 |====================
 
 === View link
@@ -432,6 +448,15 @@ Removed from service object.
 |text           | string expression     | The textual representation of the link.
 |====================
 
+*Annotations:*
+
+[options="header", cols="1,2"]
+|====================
+|Annotation | Meaning
+|@Lazy      | Defer fetching the object(s) as long as it is possible.
+|@Eager     | Fetch the object(s) as soon as it is possible.
+|====================
+
 === View table
 
 *Syntax:*
@@ -458,6 +483,15 @@ Removed from service object.
 |choices        | Row declaration + expression  | The possible values for selection.
 |create         | View declaration      | The view to show for creating new element.
 |rows           | Numeric literal       | The number of rows shown in the table.
+|====================
+
+*Annotations:*
+
+[options="header", cols="1,2"]
+|====================
+|Annotation | Meaning
+|@Lazy      | Defer fetching the object(s) as long as it is possible.
+|@Eager     | Fetch the object(s) as soon as it is possible.
 |====================
 
 === View text
@@ -563,12 +597,6 @@ Removed from service object.
 |resource       | access name           | The name of an access where the returned transfer object is available.
 |====================
 
-[options="header", cols="1,2"]
-|====================
-|Annotation | Meaning
-|@Delete    | Generates the default delete behavior.
-|====================
-
 === View submit
 
 *Syntax:*
@@ -596,12 +624,6 @@ Removed from service object.
 |resource       | access name           | The name of an access where the returned transfer object is available.
 |====================
 
-[options="header", cols="1,2"]
-|====================
-|Annotation | Meaning
-|@Save      | Generates the default save behavior.
-|====================
-
 == Row
 
 *Syntax:*
@@ -609,6 +631,15 @@ Removed from service object.
 [subs="quotes"]
 ----
 [purple]#**row**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##] &#x5B; [purple]#**detail**# [purple]#**:**# &lt;view> ] &#x5B;{
+    &#x5B;member] ...
+}] [purple]#**;**#
+----
+
+or
+
+[subs="quotes"]
+----
+[purple]#**row**# &lt;name> &#x5B; [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> ]  &#x5B; [purple]#**detail**# [purple]#**:**# &lt;view> ] &#x5B;{
     &#x5B;member] ...
 }] [purple]#**;**#
 ----
@@ -644,6 +675,17 @@ Removed from service object.
 [purple]##**}**##] [purple]#**;**#
 ----
 
+or 
+
+[subs="quotes"]
+----
+[purple]#**actor**# &lt;[purple]##**human**##|[purple]##**system**##> &lt;name> &#x5B; [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> ]
+&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ...
+&#x5B;[purple]##**{**##
+    &#x5B;member] ...
+[purple]##**}**##] [purple]#**;**#
+----
+
 [options="header", cols="1,1,2"]
 |====================
 |Parameter name | Parameter type        | Meaning
@@ -653,9 +695,18 @@ Removed from service object.
 |guard          | boolean expression    | The condition to allow the external user to access the services.
 |====================
 
+=== Actor access
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**access**# &lt;view>&#x5B;[purple]##**[]**##]  &lt;name> [purple]##**<=**## &lt;expression> [purple]#**;**#
+----
+
 === Actor group
 
-A group can contain only menu link or menu table elements.
+A group can contain only menu elements.
 
 *Syntax:*
 
@@ -675,13 +726,21 @@ A group can contain only menu link or menu table elements.
 |hidden         | boolean expression    | If the menu group is shown to the user.
 |====================
 
-=== Actor menu link
+=== Actor menu
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**link**# &lt;view> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+[purple]#**menu**# &lt;view> &lt;name> [purple]##**<=**## &lt;expression>
+&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
+----
+
+or
+
+[subs="quotes"]
+----
+[purple]#**menu**# &lt;row>[purple]##**[]**## &lt;name> [purple]##**<=**## &lt;expression>
 &#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
 ----
 
@@ -694,39 +753,11 @@ A group can contain only menu link or menu table elements.
 |hidden         | boolean expression    | If the menu is shown to the user.
 |====================
 
-=== Actor menu table
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**table**# &lt;row>[purple]##**[]**## &lt;name> [purple]##**<=**## &lt;expression>
-&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
-----
-
 [options="header", cols="1,1,2"]
 |====================
 |Parameter name | Parameter type        | Meaning
-|label          | string literal        | The label to show for the menu.
-|icon           | string literal        | the name of the icon to show for the menu.
-|enabled        | boolean expression    | If the menu is enabled to the user.
-|hidden         | boolean expression    | If the menu is shown to the user.
-|====================
-
-[options="header", cols="1,1,2"]
-|====================
-|Parameter name | Parameter type        | Meaning
+|choices        | Row declaration + expression  | The possible values for selection.
 |create         | View declaration      | The view to show for creating new element.
 |rows           | Numeric literal       | The number of rows shown in the table.
 |====================
 
-
-=== Actor resource
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**resource**# &lt;view> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
-&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
-----
