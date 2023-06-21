@@ -85,11 +85,16 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedRelationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDestructorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferInitializerDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferSubmitDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessDeclaration
+
+import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferUpdateDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeleteDeclaration
 
 /**
  * This class contains custom validation rules.
@@ -148,6 +153,10 @@ class JslDslValidator extends AbstractJslDslValidator {
     public static val JAVA_BEAN_NAMING_ISSUE = ISSUE_CODE_PREFIX + "JavaBeanNamingIssue"
     public static val DUPLICATE_FIELD_MAPPING = ISSUE_CODE_PREFIX + "DuplicateFieldMapping"
     public static val DUPLICATE_CONSTRUCTOR = ISSUE_CODE_PREFIX + "DuplicateConstructor"
+    public static val DUPLICATE_INITIALIZER = ISSUE_CODE_PREFIX + "DuplicateInitializer"
+    public static val DUPLICATE_CREATE = ISSUE_CODE_PREFIX + "DuplicateCreate"
+    public static val DUPLICATE_UPDATE = ISSUE_CODE_PREFIX + "DuplicateUpdate"
+    public static val DUPLICATE_DELETE = ISSUE_CODE_PREFIX + "DuplicateDelete"
     public static val DUPLICATE_SUBMIT = ISSUE_CODE_PREFIX + "DuplicateSubmit"
     public static val FIELD_TYPE_IS_ABSRTACT_ENTITY = ISSUE_CODE_PREFIX + "FieldTypeIsAbstractEntity"
 
@@ -653,7 +662,6 @@ class JslDslValidator extends AbstractJslDslValidator {
             TransferDeclaration:            error = !mark.declaration.targets.exists[t | t.transfer]
             TransferActionDeclaration:      error = !mark.declaration.targets.exists[t | t.transferAction]
             TransferConstructorDeclaration: error = !mark.declaration.targets.exists[t | t.transferConstructor]
-            TransferDestructorDeclaration:  error = !mark.declaration.targets.exists[t | t.transferDestructor]
             TransferFieldDeclaration:       error = !mark.declaration.targets.exists[t | t.transferField]
             TransferInitializerDeclaration: error = !mark.declaration.targets.exists[t | t.transferInitializer]
             TransferRelationDeclaration:    error = !mark.declaration.targets.exists[t | t.transferRelation]
@@ -1646,13 +1654,92 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
     
     @Check
-    def checkDuplicateTransferConstructor(TransferConstructorDeclaration constructor) {
-        val TransferDeclaration transfer = constructor.eContainer as TransferDeclaration;
+    def checkTransferConstructor(TransferConstructorDeclaration declaration) {
+        val TransferDeclaration transfer = declaration.eContainer as TransferDeclaration;
     	
         if (transfer.members.filter[m | m instanceof TransferConstructorDeclaration].size > 1) {
             error("More than one constructor declared in transfer '" + transfer.name + "'.",
                 JsldslPackage::eINSTANCE.transferConstructorDeclaration.getEStructuralFeature("ID"),
                 DUPLICATE_CONSTRUCTOR)
+        }
+    }
+
+    @Check
+    def checkTransferInitializer(TransferInitializerDeclaration declaration) {
+        val TransferDeclaration transfer = declaration.eContainer as TransferDeclaration;
+    	
+    	if (transfer.map === null) {
+            error("Inititalizer is not allowed in unmapped transfer object.",
+                JsldslPackage::eINSTANCE.transferInitializerDeclaration.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+    	}
+    	
+        if (transfer.members.filter[m | m instanceof TransferInitializerDeclaration].size > 1) {
+            error("More than one initializer declared in transfer '" + transfer.name + "'.",
+                JsldslPackage::eINSTANCE.transferInitializerDeclaration.getEStructuralFeature("ID"),
+                DUPLICATE_INITIALIZER)
+        }
+    }
+	
+    @Check
+    def checkTransferCreate(TransferCreateDeclaration declaration) {
+        val TransferDeclaration transfer = declaration.eContainer as TransferDeclaration;
+    	
+    	if (transfer.map === null) {
+            error("Create is not allowed in unmapped transfer object.",
+                JsldslPackage::eINSTANCE.transferInitializerDeclaration.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+    	}
+
+        if (transfer.members.filter[m | m instanceof TransferCreateDeclaration].size > 1) {
+            error("More than one create declared in transfer '" + transfer.name + "'.",
+                JsldslPackage::eINSTANCE.transferCreateDeclaration.getEStructuralFeature("ID"),
+                DUPLICATE_CREATE)
+        }
+
+		if (declaration.^default) {
+			if (declaration.parameterType.map === null ||
+				declaration.parameterType.map.entity === null ||
+				!TypeInfo.getTargetType(transfer.map.entity).isCompatible(TypeInfo.getTargetType(declaration.parameterType.map.entity)))
+			{
+	            error("Create parameter must be compatible to transfer object type.",
+	                JsldslPackage::eINSTANCE.transferCreateDeclaration_ParamaterName,
+	                INVALID_DECLARATION)
+			}
+		}
+    }
+
+    @Check
+    def checkTransferUpdate(TransferUpdateDeclaration declaration) {
+        val TransferDeclaration transfer = declaration.eContainer as TransferDeclaration;
+    	
+    	if (transfer.map === null) {
+            error("Update is not allowed in unmapped transfer object.",
+                JsldslPackage::eINSTANCE.transferInitializerDeclaration.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+    	}
+
+        if (transfer.members.filter[m | m instanceof TransferUpdateDeclaration].size > 1) {
+            error("More than one update declared in transfer '" + transfer.name + "'.",
+                JsldslPackage::eINSTANCE.transferUpdateDeclaration.getEStructuralFeature("ID"),
+                DUPLICATE_UPDATE)
+        }
+    }
+
+    @Check
+    def checkTransferDelete(TransferDeleteDeclaration declaration) {
+        val TransferDeclaration transfer = declaration.eContainer as TransferDeclaration;
+    	
+    	if (transfer.map === null) {
+            error("Delete is not allowed in unmapped transfer object.",
+                JsldslPackage::eINSTANCE.transferInitializerDeclaration.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+    	}
+
+        if (transfer.members.filter[m | m instanceof TransferUpdateDeclaration].size > 1) {
+            error("More than one update declared in transfer '" + transfer.name + "'.",
+                JsldslPackage::eINSTANCE.transferDeleteDeclaration.getEStructuralFeature("ID"),
+                DUPLICATE_DELETE)
         }
     }
 }
