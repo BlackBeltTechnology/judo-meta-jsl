@@ -57,6 +57,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
 import hu.blackbelt.judo.meta.jsl.jsldsl.MemberReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferCreateDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewCreateDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -118,6 +122,16 @@ class JslDslModelExtension {
 		} 
 		
 		return relation.simpleTransferReferenceType;
+	}
+
+	def TransferDeclaration getParameterType(TransferCreateDeclaration create) { 
+		if (create instanceof SimpleTransferCreateDeclaration) {
+			return (create as SimpleTransferCreateDeclaration).transferParameterType;
+		} if (create instanceof ViewCreateDeclaration) {
+			return (create as ViewCreateDeclaration).viewParameterType;
+		}
+		
+        throw new IllegalArgumentException("Create modifier:" + create)
 	}
 
     /*
