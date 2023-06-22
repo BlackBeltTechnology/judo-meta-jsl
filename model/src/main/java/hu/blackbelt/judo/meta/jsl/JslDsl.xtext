@@ -55,7 +55,7 @@ EntityDeclaration
 	: {EntityDeclaration}
 	  annotations += AnnotationMark*
 	  KW_ENTITY abstract ?= KW_ABSTRACT? Named
-	  (KW_EXTENDS extends += [EntityDeclaration | ModelName] (',' extends += [EntityDeclaration | ModelName])*)?
+	  (KW_EXTENDS extends += [EntityDeclaration | ModelName] (COMMA extends += [EntityDeclaration | ModelName])*)?
 	  (SC | BLOCK_START (members += EntityMemberDeclaration)* BLOCK_END)
 	;
 
@@ -63,11 +63,11 @@ EntityMemberDeclaration
 	: {EntityStoredFieldDeclaration}
 	  annotations += AnnotationMark*
 	  ( KW_FIELD required ?= KW_REQUIRED? singleReferenceType = [SingleType | ModelName]
-	    Named ('=' defaultExpr = Expression)?
+	    Named (ASSIGN defaultExpr = Expression)?
 	  | KW_FIELD entityReferenceType = [EntityDeclaration | ModelName] Cardinality
-	  	Named ('=' defaultExpr = Expression)?
+	  	Named (ASSIGN defaultExpr = Expression)?
 	  | identifier ?= KW_IDENTIFIER required ?= KW_REQUIRED? primitiveReferenceType = [PrimitiveDeclaration | ModelName]
-	    Named ('=' defaultExpr = Expression)?
+	    Named (ASSIGN defaultExpr = Expression)?
 	  )
 	  SC
 	  | EntityStoredRelationDeclaration
@@ -78,9 +78,9 @@ EntityStoredRelationDeclaration
 	: {EntityStoredRelationDeclaration}
 	  annotations += AnnotationMark*
 	  ( KW_RELATION required ?= KW_REQUIRED? entityReferenceType = [EntityDeclaration | ModelName]
-	  	Named ('=' defaultExpr = Expression)? opposite = EntityRelationOpposite?
+	  	Named (ASSIGN defaultExpr = Expression)? opposite = EntityRelationOpposite?
 	  | KW_RELATION entityReferenceType = [EntityDeclaration | ModelName] Cardinality
-	  	Named ('=' defaultExpr = Expression)? opposite = EntityRelationOpposite?
+	  	Named (ASSIGN defaultExpr = Expression)? opposite = EntityRelationOpposite?
 	  )
 	  SC
 	;
@@ -90,7 +90,7 @@ EntityCalculatedMemberDeclaration
 	  annotations += AnnotationMark*
 	  KW_FIELD primitiveReferenceType = [PrimitiveDeclaration | ModelName]
 	  Named
-	  ('(' parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)* ')')? '<=' getterExpr = Expression
+	  (LP parameters += QueryParameterDeclaration (COMMA parameters += QueryParameterDeclaration)* RP)? LTE getterExpr = Expression
 	  SC
 	  | EntityCalculatedRelationDeclaration
 	;
@@ -100,7 +100,7 @@ EntityCalculatedRelationDeclaration
 	  annotations += AnnotationMark*
 	  KW_RELATION entityReferenceType = [EntityDeclaration | ModelName] Cardinality?
 	  Named
-	  ('(' parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)* ')')? '<=' getterExpr = Expression
+	  (LP parameters += QueryParameterDeclaration (COMMA parameters += QueryParameterDeclaration)* RP)? LTE getterExpr = Expression
 	  SC
 	;
 
@@ -110,17 +110,17 @@ EntityRelationOpposite
 	;
 
 EntityRelationOppositeInjected
-	: KW_OPPOSITEADD ':' Named Cardinality?
+	: KW_OPPOSITEADD COLON Named Cardinality?
 	;
 
 EntityRelationOppositeReferenced
-	: KW_OPPOSITE ':' oppositeType = [EntityStoredRelationDeclaration | LocalName]
+	: KW_OPPOSITE COLON oppositeType = [EntityStoredRelationDeclaration | LocalName]
 	;
 
 //EntityOperationDeclaration
 //	: annotations += AnnotationMark*
 //	  'operation' static ?= 'static'? (KW_VOID? | return = EntityOperationReturnDeclaration) Named
-//	  ('(' (parameters += EntityOperationParameterDeclaration (',' parameters += EntityOperationParameterDeclaration)*)? ')')
+//	  (LP (parameters += EntityOperationParameterDeclaration (COMMA parameters += EntityOperationParameterDeclaration)*)? RP)
 //	  (SC | BLOCK_START BLOCK_END )
 //	;
 //
@@ -133,7 +133,7 @@ EntityRelationOppositeReferenced
 //	;
 
 EntityMapDeclaration
-	: '(' entity = [EntityDeclaration | ModelName] Named ')'  // if no name defined, the 'self' shall be default name
+	: LP entity = [EntityDeclaration | ModelName] Named RP  // if no name defined, the 'self' shall be default name
 	| KW_MAPS entity = [EntityDeclaration | ModelName] KW_AS Named
 	;
 
@@ -144,13 +144,13 @@ EntityMapDeclaration
 
 QueryDeclaration
 	: KW_QUERY (referenceType = [SingleType | ModelName] Cardinality?) Named
-	  ('(' (parameters += QueryParameterDeclaration (',' parameters += QueryParameterDeclaration)*)? ')')
-	  "<=" getterExpr = Expression
+	  (LP (parameters += QueryParameterDeclaration (COMMA parameters += QueryParameterDeclaration)*)? RP)
+	  LTE getterExpr = Expression
 	  SC
 	;
 
 QueryParameterDeclaration
-	: referenceType = [PrimitiveDeclaration | ModelName] Named ("=" default = Expression)?
+	: referenceType = [PrimitiveDeclaration | ModelName] Named (ASSIGN default = Expression)?
 	;
 
 /****************************
@@ -176,7 +176,7 @@ TransferMemberDeclaration
 	| TransferDataMemberDeclaration
 
 	| TransferActionDeclaration
-	| TransferSubmitDeclaration
+//	| TransferSubmitDeclaration
 	;
 
 TransferDataMemberDeclaration
@@ -197,8 +197,8 @@ TransferInitializerDeclaration
 	;
 
 SimpleTransferCreateDeclaration returns TransferCreateDeclaration
-	: {SimpleTransferCreateDeclaration} KW_CREATE ('(' transferParameterType = [SimpleTransferDeclaration | ModelName] ')')? default ?= SC
-	| {SimpleTransferCreateDeclaration} KW_CREATE  '(' transferParameterType = [SimpleTransferDeclaration | ModelName] paramaterName = JSLID ')' BLOCK_START BLOCK_END
+	: {SimpleTransferCreateDeclaration} KW_CREATE (LP transferParameterType = [SimpleTransferDeclaration | ModelName] RP)? default ?= SC
+	| {SimpleTransferCreateDeclaration} KW_CREATE  LP transferParameterType = [SimpleTransferDeclaration | ModelName] paramaterName = JSLID RP BLOCK_START BLOCK_END
 	;
 
 TransferUpdateDeclaration
@@ -214,17 +214,17 @@ TransferDeleteDeclaration
 	;
 
 TransferDefault
-	: member = TransferDataMember '=' rightValue = Expression SC
+	: member = TransferDataMember ASSIGN rightValue = Expression SC
 	;
 
 TransferDataMember
-	: 'self' '.' reference = [TransferDataMemberDeclaration | ModelName]
+	: 'self' DOT reference = [TransferDataMemberDeclaration | ModelName]
 	;
 
 TransferFieldDeclaration
 	: annotations += AnnotationMark*
 	  KW_FIELD  required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
-	  ((maps ?= '<=>' | reads ?= '<=') getterExpr = Expression)?
+	  ((maps ?= MAP | reads ?= LTE) getterExpr = Expression)?
 	  SC
 	;
 
@@ -235,7 +235,7 @@ TransferRelationDeclaration
 	  | KW_RELATION simpleTransferReferenceType = [SimpleTransferDeclaration | ModelName] => Cardinality
 	  	Named
 	  )
-	  ((maps ?= '<=>' | reads ?= '<=') getterExpr = Expression)?
+	  ((maps ?= MAP | reads ?= LTE) getterExpr = Expression)?
 	  (choices = TransferChoiceModifier?
 	  & create = CreateModifier?
 	  & update ?= UpdateModifier?
@@ -252,7 +252,7 @@ TransferSubmitDeclaration
 TransferActionDeclaration
 	: annotations += AnnotationMark*
 	  KW_ACTION ReturnFragment Named
-	  '(' (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? ')'
+	  LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? RP
 	  SC
 	;
 
@@ -270,15 +270,15 @@ ViewDeclaration returns TransferDeclaration
 
 
 CreateModifier
-	: KW_CREATE ':' BooleanLiteral
+	: KW_CREATE COLON BooleanLiteral
 	;
 
 UpdateModifier
-	: KW_UPDATE ':' BooleanLiteral
+	: KW_UPDATE COLON BooleanLiteral
 	;
 
 DeleteModifier
-	: KW_DELETE ':' BooleanLiteral
+	: KW_DELETE COLON BooleanLiteral
 	;
 
 ViewMemberDeclaration
@@ -294,7 +294,7 @@ ViewMemberDeclaration
 	| ViewLinkDeclaration
 	| ViewTableDeclaration
 	
-	| ViewSubmitDeclaration
+//	| ViewSubmitDeclaration
 	| ViewActionDeclaration
 
 	| ViewGroupDeclaration
@@ -302,8 +302,8 @@ ViewMemberDeclaration
 	;
 
 ViewCreateDeclaration returns TransferCreateDeclaration
-	: {ViewCreateDeclaration} KW_CREATE ('(' viewParameterType = [ViewDeclaration | ModelName] ')')? default ?= SC
-	| {ViewCreateDeclaration} KW_CREATE  '(' viewParameterType = [ViewDeclaration | ModelName] paramaterName = JSLID ')' BLOCK_START BLOCK_END
+	: {ViewCreateDeclaration} KW_CREATE (LP viewParameterType = [ViewDeclaration | ModelName] RP)? default ?= SC
+	| {ViewCreateDeclaration} KW_CREATE  LP viewParameterType = [ViewDeclaration | ModelName] paramaterName = JSLID RP BLOCK_START BLOCK_END
 	;
 
 ViewTabsDeclaration
@@ -336,21 +336,21 @@ ViewGroupDeclaration
 	;
 
 HorizontalModifier
-	: KW_HALIGN ':' (left ?= KW_LEFT | right ?= KW_RIGHT | center ?= KW_CENTER)
+	: KW_HALIGN COLON (left ?= KW_LEFT | right ?= KW_RIGHT | center ?= KW_CENTER)
 	;
 
 VerticalModifier
-	: KW_VALIGN ':' (top ?= KW_TOP | bottom ?= KW_BOTTOM | center ?= KW_CENTER)
+	: KW_VALIGN COLON (top ?= KW_TOP | bottom ?= KW_BOTTOM | center ?= KW_CENTER)
 	;
 
 StretchModifier
-	: KW_STRETCH ':' (disabled ?= KW_FALSE | enabled ?= KW_TRUE)
+	: KW_STRETCH COLON (disabled ?= KW_FALSE | enabled ?= KW_TRUE)
 	;
 
 ViewTextDeclaration returns TransferFieldDeclaration
 	: {ViewTextDeclaration}
 	  annotations += AnnotationMark*
-	  KW_TEXT Named reads ?= '<=' getterExpr = Expression
+	  KW_TEXT Named reads ?= LTE getterExpr = Expression
 	  ( label = LabelModifier?
 	  & icon = IconModifier?
 	  & ^hidden = HiddenModifier?
@@ -362,7 +362,7 @@ ViewFieldDeclaration returns TransferFieldDeclaration
 	: {ViewFieldDeclaration}
 	  annotations += AnnotationMark*
 	  KW_FIELD  required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
-	  ((maps ?= '<=>' | reads ?= '<=') getterExpr = Expression)?
+	  ((maps ?= MAP | reads ?= LTE) getterExpr = Expression)?
 	  ( label = LabelModifier?
 	  & icon = IconModifier?
 	  & enabled = EnabledModifier?
@@ -375,7 +375,7 @@ ViewLinkDeclaration returns TransferRelationDeclaration
 	: {ViewLinkDeclaration}
 	  annotations += AnnotationMark*
 	  KW_LINK required ?= KW_REQUIRED? viewReferenceType = [ViewDeclaration | ModelName] Named
-	  ((maps ?= '<=>' | reads ?= '<=') getterExpr = Expression)?
+	  ((maps ?= MAP | reads ?= LTE) getterExpr = Expression)?
 	  ( choices = ViewChoiceModifier?
 	  & text = TextModifier?
 	  & label = LabelModifier?
@@ -393,7 +393,7 @@ ViewTableDeclaration returns TransferRelationDeclaration
 	: {ViewTableDeclaration}
 	  annotations += AnnotationMark*
 	  KW_TABLE rowReferenceType = [RowDeclaration | ModelName] Cardinality Named
-	  ((maps ?= '<=>' | reads ?= '<=') getterExpr = Expression)?
+	  ((maps ?= MAP | reads ?= LTE) getterExpr = Expression)?
 	  ( choices = ViewChoiceModifier?
 	  & rows = RowsModifier?
 	  & label = LabelModifier?
@@ -425,7 +425,7 @@ ViewActionDeclaration returns TransferActionDeclaration
 	: {ViewActionDeclaration}
 	  annotations += AnnotationMark*
 	  KW_ACTION ReturnFragment Named
-	  '(' (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID)? ')'
+	  LP (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID)? RP
 	  ( label = LabelModifier?
 	  & icon = IconModifier?
 	  & enabled = EnabledModifier?
@@ -436,52 +436,52 @@ ViewActionDeclaration returns TransferActionDeclaration
 	;
 
 ResourceModifier
-	: KW_ACCESS ':' value = [ActorAccessDeclaration | ModelName]
+	: KW_ACCESS COLON value = [ActorAccessDeclaration | ModelName]
 	;
 
 LabelModifier
-	: KW_LABEL ':' value = StringLiteral
+	: KW_LABEL COLON value = StringLiteral
 	;
 
 IconModifier
-	:  KW_ICON ':' value = StringLiteral
+	:  KW_ICON COLON value = StringLiteral
 	;	
 
 FrameModifier
-	: KW_FRAME ':' (disabled ?= KW_FALSE | enabled ?= KW_TRUE)
+	: KW_FRAME COLON (disabled ?= KW_FALSE | enabled ?= KW_TRUE)
 	;	
 	
 EnabledModifier
-	: KW_ENABLED ':' expression = Expression
+	: KW_ENABLED COLON expression = Expression
 	;
 
 HiddenModifier
-	: KW_HIDDEN ':' expression = Expression
+	: KW_HIDDEN COLON expression = Expression
 	;
 
 WidthModifier
-	: KW_WIDTH ':' value = Natural
+	: KW_WIDTH COLON value = NaturalNumber
 	;
 
 RowsModifier
-	: KW_ROWS ':' value = Natural
+	: KW_ROWS COLON value = NaturalNumber
 	;
 
 TransferChoiceModifier
-	: KW_CHOICES ':' expression = Expression
+	: KW_CHOICES COLON expression = Expression
 	;
 
 ViewChoiceModifier returns TransferChoiceModifier
-	: KW_CHOICES ':' rows = [RowDeclaration | ModelName] '[]' '(' expression = Expression ')'
+	: KW_CHOICES COLON rows = [RowDeclaration | ModelName] LRB LP expression = Expression RP
 	;
 
 
 TextModifier
-	: KW_TEXT ':' expression = Expression
+	: KW_TEXT COLON expression = Expression
 	;
 
 DetailModifier
-	: KW_DETAIL ':' view = [ViewDeclaration | ModelName]
+	: KW_DETAIL COLON view = [ViewDeclaration | ModelName]
 	;
 
 
@@ -504,7 +504,7 @@ RowMemberDeclaration
 RowColumnDeclaration returns TransferFieldDeclaration
 	: {RowColumnDeclaration}
 	  annotations += AnnotationMark*
-	  KW_COLUMN referenceType = [PrimitiveDeclaration | ModelName] Named ((maps ?= '<=>' | reads ?= '<=') getterExpr = Expression)?
+	  KW_COLUMN referenceType = [PrimitiveDeclaration | ModelName] Named ((maps ?= MAP | reads ?= LTE) getterExpr = Expression)?
 	  ( label = LabelModifier?
 	  & icon = IconModifier?
 	  & width = WidthModifier?)
@@ -528,19 +528,19 @@ ActorDeclaration returns TransferDeclaration
 	;
 
 RealmModifier
-	: KW_REALM ':' value = StringLiteral
+	: KW_REALM COLON value = StringLiteral
 	;
 
 ClaimModifier
-	: KW_CLAIM ':' value = StringLiteral
+	: KW_CLAIM COLON value = StringLiteral
 	;
 
 IdentityModifier
-	: KW_IDENTITY ':' expression = Expression
+	: KW_IDENTITY COLON expression = Expression
 	;
 
 GuardModifier
-	: KW_GUARD ':' expression = Expression
+	: KW_GUARD COLON expression = Expression
 	;
 
 ActorMemberDeclaration
@@ -553,7 +553,7 @@ ActorAccessDeclaration returns TransferRelationDeclaration
 	: {ActorAccessDeclaration}
 	  annotations += AnnotationMark*
 	  KW_ACCESS transferReferenceType = [TransferDeclaration | ModelName] Cardinality? Named
-	  '<=' getterExpr = Expression
+	  LTE getterExpr = Expression
 	  ( create = CreateModifier?
 	  & update ?= UpdateModifier?
 	  & delete ?= DeleteModifier?)
@@ -573,8 +573,8 @@ ActorGroupDeclaration
 ActorMenuDeclaration returns ActorAccessDeclaration
 	: {ActorMenuDeclaration}
 	  annotations += AnnotationMark*
-	  ( KW_MENU viewReferenceType = [ViewDeclaration | ModelName] Named reads ?= '<=' getterExpr = Expression
-	  | KW_MENU rowReferenceType = [RowDeclaration | ModelName] Cardinality Named reads ?= '<=' getterExpr = Expression
+	  ( KW_MENU viewReferenceType = [ViewDeclaration | ModelName] Named reads ?= LTE getterExpr = Expression
+	  | KW_MENU rowReferenceType = [RowDeclaration | ModelName] Cardinality Named reads ?= LTE getterExpr = Expression
 	  )
 	  ( choices = ViewChoiceModifier?
 	  & label = LabelModifier?
@@ -608,27 +608,27 @@ DataTypeDeclaration
     ;
 
 ModifierMinSize
-	: KW_MINSIZE ':' value = Natural
+	: KW_MINSIZE COLON value = NaturalNumber
 	;
 
 ModifierMaxSize
-	: KW_MAXSIZE ':' value = Natural
+	: KW_MAXSIZE COLON value = NaturalNumber
 	;
 
 ModifierRegex
-	: KW_REGEX ':' regex = StringLiteral
+	: KW_REGEX COLON regex = StringLiteral
 	;
 
 ModifierPrecision
-	: KW_PRECISION ':' value = Natural
+	: KW_PRECISION COLON value = NaturalNumber
 	;
 
 ModifierScale
-	: KW_SCALE ':' value = Natural
+	: KW_SCALE COLON value = NaturalNumber
 	;
 
 ModifierMimeTypes
-	: KW_MIMETYPE ':' '[' values += MimeType (',' values += MimeType)* ']'
+	: KW_MIMETYPE COLON LB values += MimeType (COMMA values += MimeType)* RB
 	;
 
 MimeType
@@ -636,7 +636,7 @@ MimeType
 	;
 
 ModifierMaxFileSize
-	: KW_MAXFILESIZE ':' numeric = Natural (measure = (KW_KB | KW_MB | KW_GB | KW_KIB | KW_MIB | KW_GIB))? 
+	: KW_MAXFILESIZE COLON numeric = NaturalNumber (measure = (KW_KB | KW_MB | KW_GB | KW_KIB | KW_MIB | KW_GIB))? 
 	;
 
 /****************************
@@ -651,7 +651,7 @@ EnumDeclaration
 
 EnumLiteral
     : annotations += AnnotationMark*
-      Named '=' value = Natural SC
+      Named ASSIGN value = NaturalNumber SC
     ;
 	
 /****************************
@@ -662,8 +662,8 @@ Expression returns Expression:
     SwitchExpression;
 
 SwitchExpression returns Expression
-	: ImpliesExpression (=> ({TernaryOperation.condition=current} '?')
-	  thenExpression=SwitchExpression ':'
+	: ImpliesExpression (=> ({TernaryOperation.condition=current} QM)
+	  thenExpression=SwitchExpression COLON
       elseExpression=SwitchExpression)?
     ;
 
@@ -684,27 +684,27 @@ AndExpression returns Expression
 	;
 
 EqualityExpression returns Expression
-	: RelationalExpression (=> ({BinaryOperation.leftOperand=current} operator=('!='|'==')) rightOperand=RelationalExpression)*
+	: RelationalExpression (=> ({BinaryOperation.leftOperand=current} operator=(NEQ|EQ)) rightOperand=RelationalExpression)*
 	;
 
 RelationalExpression returns Expression
-	: AdditiveExpression (=> ({BinaryOperation.leftOperand=current} operator=('>=' | '<=' | '>' | '<')) rightOperand=AdditiveExpression)*
+	: AdditiveExpression (=> ({BinaryOperation.leftOperand=current} operator=(GTE | LTE | GT | LT)) rightOperand=AdditiveExpression)*
 	;
 
 AdditiveExpression returns Expression
-	: MultiplicativeExpression (=> ({BinaryOperation.leftOperand=current} operator=('+'|'-')) rightOperand=MultiplicativeExpression)*
+	: MultiplicativeExpression (=> ({BinaryOperation.leftOperand=current} operator=(PLUS|MINUS)) rightOperand=MultiplicativeExpression)*
 	;
 
 MultiplicativeExpression returns Expression
-	: ExponentExpression (=> ({BinaryOperation.leftOperand=current} operator=('*' | '/' | KW_DIV | KW_MOD)) rightOperand=ExponentExpression)*
+	: ExponentExpression (=> ({BinaryOperation.leftOperand=current} operator=(MUL | DIV | KW_DIV | KW_MOD)) rightOperand=ExponentExpression)*
 	;
 
 ExponentExpression returns Expression
-	: UnaryOperation (=> ({BinaryOperation.leftOperand=current} operator='^') rightOperand=UnaryOperation)*
+	: UnaryOperation (=> ({BinaryOperation.leftOperand=current} operator=EXP) rightOperand=UnaryOperation)*
 	;
  
 UnaryOperation returns Expression
-	: {UnaryOperation} operator='not' operand=UnaryOperation
+	: {UnaryOperation} operator=KW_NOT operand=UnaryOperation
 	| Navigation
     ;
 
@@ -725,7 +725,7 @@ Self
 	;
 
 Parentheses
-	: '(' => expression = Expression ')'		
+	: LP => expression = Expression RP		
 	;
  
 NavigationBaseDeclarationReference
@@ -741,7 +741,7 @@ NavigationBaseDeclaration
 	;
 
 QueryCall
-	: declaration = [QueryDeclaration | ModelName ] '(' (arguments += QueryArgument (',' arguments += QueryArgument)*)? ')'
+	: declaration = [QueryDeclaration | ModelName ] LP (arguments += QueryArgument (COMMA arguments += QueryArgument)*)? RP
 	;
 
 Feature
@@ -750,7 +750,7 @@ Feature
 	;
 
 MemberReference
-    : '.' member = [NavigationTarget | LocalName] ('(' (arguments += QueryArgument (',' arguments += QueryArgument)*)? ')')?
+    : DOT member = [NavigationTarget | LocalName] (LP (arguments += QueryArgument (COMMA arguments += QueryArgument)*)? RP)?
     ;
 
 Call
@@ -759,19 +759,19 @@ Call
 	;
 
 FunctionCall
-	: '!' declaration = [FunctionDeclaration | LocalName ] '(' (arguments += FunctionArgument (',' arguments += FunctionArgument)*)? ')'
+	: EXCL declaration = [FunctionDeclaration | LocalName ] LP (arguments += FunctionArgument (COMMA arguments += FunctionArgument)*)? RP
 	;
 
 FunctionArgument
-    : declaration = [FunctionParameterDeclaration | LocalName ] '=' expression = Expression
+    : declaration = [FunctionParameterDeclaration | LocalName ] ASSIGN expression = Expression
     ;
 
 QueryArgument
-    : declaration = [QueryParameterDeclaration | LocalName ] '=' expression = Expression
+    : declaration = [QueryParameterDeclaration | LocalName ] ASSIGN expression = Expression
     ;
 
 LambdaCall
-	: '!' declaration = [LambdaDeclaration | LocalName ] '(' variable = LambdaVariable => '|' lambdaExpression = Expression ')';
+	: EXCL declaration = [LambdaDeclaration | LocalName ] LP variable = LambdaVariable => PIPE lambdaExpression = Expression RP;
 
 LambdaVariable
     : {LambdaVariable} Named    	
@@ -784,7 +784,7 @@ LambdaVariable
 
 FunctionDeclaration
 	: KW_FUNCTION returnType = TypeDescription
-	  Named '(' (parameters += FunctionParameterDeclaration (',' parameters += FunctionParameterDeclaration)*)? ')'
+	  Named LP (parameters += FunctionParameterDeclaration (COMMA parameters += FunctionParameterDeclaration)*)? RP
 	  KW_ON baseType = TypeDescription
 	  SC
 	;
@@ -795,9 +795,9 @@ FunctionParameterDeclaration
 
 TypeDescription
 	: {TypeDescription} type = Type
-	| collection ?= KW_COLLECTION '<' type = Type '>'
-	| declaration ?= KW_DECLARATION '<' type = Type '>'
-	| constant ?= KW_CONSTANT '<' type = Type '>'
+	| collection ?= KW_COLLECTION LT type = Type GT
+	| declaration ?= KW_DECLARATION LT type = Type GT
+	| constant ?= KW_CONSTANT LT type = Type GT
 	;
 
 Type
@@ -806,7 +806,7 @@ Type
 
 LambdaDeclaration 
 	: KW_LAMBDA returnType = TypeDescription
-	  Named '(' (expressionType = TypeDescription)? ')'
+	  Named LP (expressionType = TypeDescription)? RP
 	  SC
 	;
 
@@ -816,7 +816,7 @@ LambdaDeclaration
  ***************************/
 
 AnnotationDeclaration
-	: KW_ANNOTATION Named ('(' (parameters += AnnotationParameterDeclaration (',' parameters += AnnotationParameterDeclaration)*)? ')')?
+	: KW_ANNOTATION Named (LP (parameters += AnnotationParameterDeclaration (COMMA parameters += AnnotationParameterDeclaration)*)? RP)?
 	  targets += AnnotationTarget*
 	  (SC | BLOCK_START annotations += AnnotationMark* BLOCK_END)
 	;
@@ -830,49 +830,49 @@ AnnotationParameterType
 	;
 
 AnnotationTarget
-	: KW_MODEL ':' model ?= KW_MODEL
-	| KW_MODEL ':' ^import ?= KW_IMPORT
-	| KW_MODEL ':' type ?= KW_TYPE
-	| KW_MODEL ':' enumeration ?= KW_ENUM
-	| KW_ENUM ':' enumLiteral ?= KW_LITERAL
-	| KW_MODEL ':' entity ?= KW_ENTITY
-	| KW_ENTITY ':' entityField ?= KW_FIELD
-	| KW_ENTITY ':' entityRelation ?= KW_RELATION
-	| KW_MODEL ':' transfer ?= KW_TRANSFER
-	| KW_TRANSFER ':' transferAction ?= KW_ACTION
-	| KW_TRANSFER ':' transferConstructor ?= KW_CONSTRUCTOR
-	| KW_TRANSFER ':' transferDestructor ?= KW_DESTRUCTOR
-	| KW_TRANSFER ':' transferField ?= KW_FIELD
-	| KW_TRANSFER ':' transferInitializer ?= KW_INITIALIZER
-	| KW_TRANSFER ':' transferRelation ?= KW_RELATION
-	| KW_TRANSFER ':' transferSubmit ?= KW_SUBMIT
-	| KW_MODEL ':' actor ?= KW_ACTOR
-	| KW_ACTOR ':' actorGroup ?= KW_GROUP
-	| KW_ACTOR ':' actorMenu ?= KW_MENU
-	| KW_ACTOR ':' actorAccess ?= KW_ACCESS
-	| KW_MODEL ':' query ?= KW_QUERY
-	| KW_MODEL ':' view ?= KW_VIEW
-	| KW_VIEW ':' viewAction ?= KW_ACTION
-	| KW_VIEW ':' viewConstructor ?= KW_CONSTRUCTOR
-	| KW_VIEW ':' viewDestructor ?= KW_DESTRUCTOR
-	| KW_VIEW ':' viewField ?= KW_FIELD
-	| KW_VIEW ':' viewGroup ?= KW_GROUP
+	: KW_MODEL COLON model ?= KW_MODEL
+	| KW_MODEL COLON ^import ?= KW_IMPORT
+	| KW_MODEL COLON type ?= KW_TYPE
+	| KW_MODEL COLON enumeration ?= KW_ENUM
+	| KW_ENUM COLON enumLiteral ?= KW_LITERAL
+	| KW_MODEL COLON entity ?= KW_ENTITY
+	| KW_ENTITY COLON entityField ?= KW_FIELD
+	| KW_ENTITY COLON entityRelation ?= KW_RELATION
+	| KW_MODEL COLON transfer ?= KW_TRANSFER
+	| KW_TRANSFER COLON transferAction ?= KW_ACTION
+	| KW_TRANSFER COLON transferConstructor ?= KW_CONSTRUCTOR
+	| KW_TRANSFER COLON transferDestructor ?= KW_DESTRUCTOR
+	| KW_TRANSFER COLON transferField ?= KW_FIELD
+	| KW_TRANSFER COLON transferInitializer ?= KW_INITIALIZER
+	| KW_TRANSFER COLON transferRelation ?= KW_RELATION
+	| KW_TRANSFER COLON transferSubmit ?= KW_SUBMIT
+	| KW_MODEL COLON actor ?= KW_ACTOR
+	| KW_ACTOR COLON actorGroup ?= KW_GROUP
+	| KW_ACTOR COLON actorMenu ?= KW_MENU
+	| KW_ACTOR COLON actorAccess ?= KW_ACCESS
+	| KW_MODEL COLON query ?= KW_QUERY
+	| KW_MODEL COLON view ?= KW_VIEW
+	| KW_VIEW COLON viewAction ?= KW_ACTION
+	| KW_VIEW COLON viewConstructor ?= KW_CONSTRUCTOR
+	| KW_VIEW COLON viewDestructor ?= KW_DESTRUCTOR
+	| KW_VIEW COLON viewField ?= KW_FIELD
+	| KW_VIEW COLON viewGroup ?= KW_GROUP
 	| KW_VIEW '::' viewInitializer ?= KW_INITIALIZER
-	| KW_VIEW ':' viewLink ?= KW_LINK
-	| KW_VIEW ':' viewSubmit ?= KW_SUBMIT
-	| KW_VIEW ':' viewTable ?= KW_TABLE
-	| KW_VIEW ':' viewTabs ?= KW_TABS
-	| KW_VIEW ':' viewText ?= KW_TEXT
-	| KW_MODEL ':' row ?= KW_ROW
-	| KW_ROW ':' rowColumn ?= KW_COLUMN
+	| KW_VIEW COLON viewLink ?= KW_LINK
+	| KW_VIEW COLON viewSubmit ?= KW_SUBMIT
+	| KW_VIEW COLON viewTable ?= KW_TABLE
+	| KW_VIEW COLON viewTabs ?= KW_TABS
+	| KW_VIEW COLON viewText ?= KW_TEXT
+	| KW_MODEL COLON row ?= KW_ROW
+	| KW_ROW COLON rowColumn ?= KW_COLUMN
 	;
 
 AnnotationMark
-	: '@' declaration = [AnnotationDeclaration | ModelName] ('(' arguments += AnnotationArgument? (',' arguments += AnnotationArgument?)* ')')?
+	: '@' declaration = [AnnotationDeclaration | ModelName] (LP arguments += AnnotationArgument? (COMMA arguments += AnnotationArgument?)* RP)?
 	;
 
 AnnotationArgument
-    : declaration = [AnnotationParameterDeclaration | LocalName] '=' (literal = Literal | reference = [AnnotationParameterDeclaration | LocalName])
+    : declaration = [AnnotationParameterDeclaration | LocalName] ASSIGN (literal = Literal | reference = [AnnotationParameterDeclaration | LocalName])
     ;
 
 EnumLiteralReference
@@ -895,7 +895,7 @@ ConstraintDeclaration
 	;
 
 ThrowModifier
-	: KW_THROW ':' value = CreateError
+	: KW_THROW COLON value = CreateError
 	;
  
 /****************************
@@ -909,15 +909,15 @@ ErrorDeclaration
 
 ErrorField
 	: KW_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named
-	  ('=' defaultExpr = Expression)? SC
+	  (ASSIGN defaultExpr = Expression)? SC
 	;
 
 CreateError
-	: errorDeclarationType=[ErrorDeclaration | ModelName] ('(' (parameters+=ThrowParameter (',' parameters+=ThrowParameter)*)? ')')?
+	: errorDeclarationType=[ErrorDeclaration | ModelName] (LP (parameters+=ThrowParameter (COMMA parameters+=ThrowParameter)*)? RP)?
 	;
 
 ThrowParameter
-	: errorFieldType=[ErrorField | LocalName] '=' expession=Literal;
+	: errorFieldType=[ErrorField | LocalName] ASSIGN expession=Literal;
 
 
 /****************************
@@ -942,11 +942,11 @@ NumberLiteral
 	;
 
 IntegerLiteral hidden()
-	: (minus ?= "-" | "+")? value=Natural
+	: (minus ?= MINUS | PLUS)? value=NaturalNumber
 	;
 
 DecimalLiteral hidden()
-	: (minus ?= "-" | "+")? value=Decimal
+	: (minus ?= MINUS | PLUS)? value=DecimalNumber
 	;
 
 StringLiteral
@@ -966,23 +966,23 @@ TemporalLiteral
  ****************************/
 
 fragment Named
-	: => name = JSLID;
+	: name = JSLID;
 
 fragment Cardinality
-    : many ?= '[]'
+    : many ?= LRB
     ;
 
 fragment ReturnFragment
 	: KW_VOID?
 	| referenceTypes += [TransferDeclaration | ModelName]
-	| '<' referenceTypes += [TransferDeclaration | ModelName] ("|" referenceTypes += [TransferDeclaration | ModelName])+ '>'
+	| LT referenceTypes += [TransferDeclaration | ModelName] (PIPE referenceTypes += [TransferDeclaration | ModelName])+ GT
 	;
 
-Decimal returns ecore::EBigDecimal
-	: NUMBER '.' NUMBER
+DecimalNumber returns ecore::EBigDecimal
+	: DECIMAL
 	;
 
-Natural returns ecore::EBigInteger
+NaturalNumber returns ecore::EBigInteger
 	: NUMBER
 	;
 
@@ -998,23 +998,30 @@ ModelName
 	: JSLID SUBID*
     ;
 
-JSLID: ID | KW | FEAT | ATTR | CONST | OTHER ;
+JSLID: ID
+	
+	// Declarations
+	| KW_ABSTRACT | KW_ACTOR | KW_ANNOTATION | KW_AS | KW_ENTITY | KW_ENUM | KW_ERROR | KW_EXTENDS | KW_FUNCTION | KW_HUMAN |  KW_IMPORT
+	| KW_LAMBDA | KW_MODEL | KW_ON | KW_QUERY | KW_ROW | KW_SYSTEM | KW_TRANSFER | KW_TYPE | KW_VIEW
 
-KW: KW_ABSTRACT | KW_ACTOR | KW_ANNOTATION | KW_AS | KW_ENTITY | KW_ENUM | KW_ERROR | KW_EXPORTS | KW_EXTENDS | KW_HUMAN |  KW_IMPORT
-			| KW_MODEL | KW_ON | KW_QUERY | KW_ROW | KW_SERVICE | KW_SYSTEM | KW_TRANSFER | KW_TYPE | KW_VIEW;
+	// Features	
+	| KW_ACCESS | KW_ACTION | KW_COLUMN | KW_CONSTRAINT | KW_CONSTRUCTOR | KW_FIELD
+	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_SUBMIT | KW_TABLE | KW_TABS
+	| KW_TEXT | KW_VERTICAL
+	
+	// Constants
+	| KW_BINARY | KW_BOOLEAN | KW_BOTTOM | KW_CENTER | KW_COLLECTION | KW_CONSTANT | KW_DATE | KW_DECLARATION | KW_LEFT | KW_NUMERIC | KW_RIGHT
+	| KW_STRING | KW_TIME | KW_TIMESTAMP | KW_TOP | KW_KB | KW_MB | KW_GB | KW_KIB | KW_MIB | KW_GIB
+	
+	// Attributes
+	| KW_CHOICES | KW_CLAIM | KW_CREATE | KW_DELETE | KW_DETAIL | KW_ENABLED | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
+	| KW_IDENTITY | KW_LABEL | KW_REALM | KW_ROWS | KW_SCALE | KW_THROW
+	| KW_UPDATE | KW_WIDTH  // KW_REQUIRED is missing deliberately !!!!
+	
+	// Other
+	| KW_OR | KW_XOR | KW_AND | KW_DIV | KW_MOD
 
-FEAT: KW_ACCESS | KW_ACTION | KW_COLUMN | KW_CONSTRAINT | KW_CONSTRUCTOR | KW_DERIVED | KW_FIELD | KW_FUNCTION
-			| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_SUBMIT | KW_TABLE | KW_TABS
-			| KW_TEXT | KW_VERTICAL ;
-			
-CONST: KW_BINARY | KW_BOOLEAN | KW_BOTTOM | KW_CENTER | KW_DATE | KW_LEFT | KW_NUMERIC | KW_RIGHT
-			| KW_STRING | KW_TIME | KW_TIMESTAMP | KW_TOP;
-
-ATTR: KW_CHOICES | KW_CLAIM | KW_CREATE | KW_DELETE | KW_DETAIL | KW_ENABLED | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
-			| KW_IDENTITY | KW_LABEL | KW_REALM | KW_ROWS | KW_SCALE | KW_TAG
-			| KW_THROW | KW_UPDATE | KW_WIDTH;  // KW_REQUIRED is missing deliberately !!!!
-
-OTHER: KW_OR | KW_XOR | KW_AND | KW_DIV | KW_MOD | KW_KB | KW_MB | KW_GB | KW_KIB | KW_MIB | KW_GIB;
+	;
 
 
 /****************************
@@ -1028,16 +1035,16 @@ terminal KW_AS:			'as';
 terminal KW_ENTITY:		'entity';
 terminal KW_ENUM:		'enum';
 terminal KW_ERROR:		'error';
-terminal KW_EXPORTS:	'exports';
 terminal KW_EXTENDS:	'extends';
+terminal KW_FUNCTION:	'function';
 terminal KW_HUMAN:		'human';
 terminal KW_IMPORT:		'import';
+terminal KW_LAMBDA:		'lambda';
 terminal KW_MAPS:		'maps';
 terminal KW_MODEL:		'model';
 terminal KW_ON:			'on';
 terminal KW_QUERY:		'query';
 terminal KW_ROW:		'row';
-terminal KW_SERVICE:	'service';
 terminal KW_SYSTEM:		'system';
 terminal KW_TRANSFER:	'transfer';
 terminal KW_TYPE:		'type';
@@ -1047,91 +1054,118 @@ terminal KW_ACCESS:		'access';
 terminal KW_ACTION:		'action';
 terminal KW_COLUMN:		'column';
 terminal KW_CONSTRAINT:	'constraint';
-terminal KW_CONSTRUCTOR:	'constructor';
+terminal KW_CONSTRUCTOR:'constructor';
 terminal KW_CREATE:		'create';
 terminal KW_DELETE:		'delete';
-terminal KW_DERIVED:		'derived';
 terminal KW_DESTRUCTOR:	'destructor';
 terminal KW_FIELD:		'field';
-terminal KW_FUNCTION:		'function';
 terminal KW_GROUP:		'group';
-terminal KW_HORIZONTAL:   'horizontal';
+terminal KW_HORIZONTAL: 'horizontal';
 terminal KW_IDENTIFIER:	'identifier';
-terminal KW_INITIALIZER:	'initializer';
-terminal KW_LINK:			'link';
-terminal KW_LITERAL:		'literal';
-terminal KW_MENU:			'menu';
-terminal KW_RELATION:		'relation';
+terminal KW_INITIALIZER:'initializer';
+terminal KW_LINK:		'link';
+terminal KW_LITERAL:	'literal';
+terminal KW_MENU:		'menu';
+terminal KW_RELATION:	'relation';
 terminal KW_SUBMIT:		'submit';
 terminal KW_TABLE:		'table';
-terminal KW_TABS:			'tabs';
-terminal KW_TEXT:			'text';
+terminal KW_TABS:		'tabs';
+terminal KW_TEXT:		'text';
 terminal KW_UPDATE:		'update';
-terminal KW_VERTICAL:     'vertical';
+terminal KW_VERTICAL:   'vertical';
 
 terminal KW_BINARY:		'binary';
-terminal KW_BOOLEAN:		'boolean';
+terminal KW_BOOLEAN:	'boolean';
 terminal KW_BOTTOM:		'bottom';
 terminal KW_CENTER:		'center';
+terminal KW_COLLECTION:	'collection';
+terminal KW_CONSTANT:	'constant';
 terminal KW_DATE:		'date';
+terminal KW_DECLARATION:'declaration';
 terminal KW_FALSE:		'false';
 terminal KW_LEFT:		'left';
-terminal KW_NUMERIC:		'numeric';
+terminal KW_NUMERIC:	'numeric';
 terminal KW_RIGHT:		'right';
 terminal KW_STRING:		'string';
 terminal KW_TIME:		'time';
 terminal KW_TIMESTAMP:	'timestamp';
-terminal KW_TOP:			'top';
+terminal KW_TOP:		'top';
 terminal KW_TRUE:		'true';
 terminal KW_VOID:		'void';
 
-terminal KW_CHOICES:		'choices';
+terminal KW_CHOICES:	'choices';
 terminal KW_CLAIM:		'claim';
 terminal KW_DETAIL:		'detail';
-terminal KW_ENABLED:		'enabled';
+terminal KW_ENABLED:	'enabled';
 terminal KW_FRAME:		'frame';
 terminal KW_GUARD:		'guard';
 terminal KW_HIDDEN:		'hidden';
 terminal KW_HALIGN:	    'h-align';
-terminal KW_ICON:			'icon';
-terminal KW_IDENTITY:		'identity';
+terminal KW_ICON:		'icon';
+terminal KW_IDENTITY:	'identity';
 terminal KW_LABEL:		'label';
-terminal KW_MAXFILESIZE:	'max-file-size';
-terminal KW_MAXSIZE:		'max-size';
-terminal KW_MINSIZE:		'min-size';
-terminal KW_MIMETYPE:		'mime-type';
-terminal KW_OPPOSITE:		'opposite';
-terminal KW_OPPOSITEADD:	'opposite-add';
+terminal KW_MAXFILESIZE:'max-file-size';
+terminal KW_MAXSIZE:	'max-size';
+terminal KW_MINSIZE:	'min-size';
+terminal KW_MIMETYPE:	'mime-type';
+terminal KW_OPPOSITE:	'opposite';
+terminal KW_OPPOSITEADD:'opposite-add';
 terminal KW_PRECISION:	'precision';
 terminal KW_REALM:		'realm';
 terminal KW_REGEX:		'regex';
-terminal KW_REQUIRED:		'required';
-terminal KW_ROWS:			'rows';
+terminal KW_REQUIRED:	'required';
+terminal KW_ROWS:		'rows';
 terminal KW_SCALE:		'scale';
-terminal KW_STRETCH:		'stretch';
-terminal KW_TAG:			'tag';
+terminal KW_STRETCH:	'stretch';
 terminal KW_THROW:		'throw';
 terminal KW_VALIGN:		'v-align';
 terminal KW_WIDTH:		'width';
 
-terminal KW_LAMBDA:		'lambda';
-terminal KW_COLLECTION:	'collection';
-terminal KW_DECLARATION:	'declaration';
-terminal KW_CONSTANT:	'constant';
-terminal KW_IMPLIES:		'implies';
-
-terminal KW_OR:		'or';
+terminal KW_NOT:        'not';
+terminal KW_IMPLIES:	'implies';
+terminal KW_OR:			'or';
 terminal KW_XOR:		'xor';
 terminal KW_AND:		'and';
 terminal KW_DIV:		'div';
 terminal KW_MOD:		'mod';
-terminal KW_KB:		'kB';
-terminal KW_MB:		'MB';
-terminal KW_GB:		'GB';
+terminal KW_KB:			'KB';
+terminal KW_MB:			'MB';
+terminal KW_GB:			'GB';
 terminal KW_KIB:		'KiB';
 terminal KW_MIB:		'MiB';
 terminal KW_GIB:		'GiB';
 
+terminal LP:    '(';
+terminal RP:    ')';
+terminal DOT:   '.';
+terminal COMMA: ',';
+terminal LB:    '[';
+terminal RB:    ']';
+terminal LRB:   '[]';
+terminal ASSIGN:'=';
+terminal LT:    '<';
+terminal GT:    '>';
+terminal QM:    '?';
+terminal COLON: ':';
+terminal NEQ:   '!=';
+terminal EQ:    '==';
+terminal GTE:   '>=';
+terminal LTE:   '<=';
+terminal MAP:   '<=>';
+terminal PLUS:  '+';
+terminal MINUS: '-';
+terminal MUL:   '*';
+terminal DIV:   '/';
+terminal EXP:   '^';
+terminal EXCL:  '!';
+terminal PIPE:  '|';
+
+//terminal IMPLIES: 'implies';
+//terminal OR:      'or';
+//terminal XOR:     'xor';
+//terminal AND:     'and';
+//terminal DIV:     'div';
+//terminal MODE:    'mod';
 
 terminal BLOCK_START
 	: '{'
@@ -1164,7 +1198,11 @@ terminal TIME
 terminal DATE
 	: '`' DIGIT+ '-' DIGIT DIGIT '-' DIGIT DIGIT '`'
 	;
- 
+
+terminal DECIMAL
+	: NUMBER '.' NUMBER
+	;
+
 terminal NUMBER
 	: DIGIT+
 	;

@@ -39,7 +39,7 @@ model judo::example::shop;
 
 == Import
 
-The import keyword is used to import another model.
+The `import` keyword is used to access elements of another model in the current model.
 
 *Syntax:*
 
@@ -557,7 +557,7 @@ or
 
 [subs="quotes"]
 ----
-[purple]#**group**# &lt;name> &#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]##**{**##
+([purple]#**horizontal**#|[purple]#**vertical**#) &lt;name> &#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]##**{**##
     [member] ...
 [purple]#**}**# [purple]#**;**#
 ----
@@ -574,10 +574,11 @@ or
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type        | Meaning
-|frame          | boolean literal       | If the group is surrounded by a frame.
-|horizontal     | `left`, `right`, `center`    | The location of elements inside the group. 
-|vertical       | `top`, `bottom`, `center`, `stretch` | The location of elements inside the group.
+|Parameter name | Parameter type            | Meaning
+|frame          | boolean literal           | If the group is surrounded by a frame.
+|h-align        | `left`, `right`, `center` | The horizontal location of elements inside the group. 
+|v-align        | `top`, `bottom`, `center` | The vertical location of elements inside the group.
+|stretch        | boolean literal           | If the group fills the available space.
 |====================
 
 === View tabs
@@ -604,7 +605,8 @@ or
 [options="header", cols="1,1,2"]
 |====================
 |Parameter name | Parameter type        | Meaning
-|frame          | boolean literal       | If the group is surrounded by a frame.
+|frame          | boolean literal       | If the tabs are surrounded by a frame.
+|stretch        | boolean literal       | If the tabs fill the available space.
 |====================
 
 === View action

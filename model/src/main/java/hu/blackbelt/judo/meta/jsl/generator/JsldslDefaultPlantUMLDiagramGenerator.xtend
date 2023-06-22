@@ -443,7 +443,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         }
 
         if (it.name !== named?.parentContainer(ModelDeclaration).name) {
-            val importList = imports.filter[i | i.model.name.equals(named.parentContainer(ModelDeclaration).name)]
+            val importList = imports.filter[i | i.model.name.equals(named.parentContainer(ModelDeclaration)?.name)]
                 .map[i | i.alias !== null ? i.alias + "::" + named.name : named.name]
             if (importList !== null && importList.size > 0) {
                 return importList.get(0)
