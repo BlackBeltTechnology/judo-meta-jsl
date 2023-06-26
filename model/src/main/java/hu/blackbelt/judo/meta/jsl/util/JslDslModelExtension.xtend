@@ -526,7 +526,7 @@ class JslDslModelExtension {
 			return true
 		}
 		
-		if (relation.annotations.exists[a | a.declaration.name.equals("Eager")]) {
+		if (relation.annotations.exists[a | a.declaration.name.equals("Embedded")]) {
 			return true
 		}
 		
@@ -534,7 +534,7 @@ class JslDslModelExtension {
 	}
 
 	def isQuery(EntityMemberDeclaration member) {
-		if (member.annotations.exists[a | a.declaration.name.equals("Lazy")]) {
+		if (member.annotations.exists[a | a.declaration.name.equals("Query")]) {
 			return true
 		}
 		

@@ -113,7 +113,7 @@ entity abstract Person extends Customer, User;
 [options="header", cols="1,1,1,1,1"]
 |====================
 |             2+^|Stored               2+^|Calculated
-|               ^|__@Eager__ ^|__@Lazy__ ^|__@Eager__ ^|__@Lazy__
+|               ^|__@Embedded__ ^|__@Query__ ^|__@Embedded__ ^|__@Query__
 |**Primitive**   |[underline]##field##       |field      |[underline]##field <=##	   |field <= +
                                                         field (...) <=
 |**Relation**    |relation    |[underline]##relation##   |relation <= |[underline]##relation <= +
@@ -156,21 +156,21 @@ A composite field is an entity member whose type is an entity.
 [options="header", cols="1,2"]
 |====================
 |Annotation | Meaning
-|@Lazy      | Defer fetching the object(s) as long as it is possible.
-|@Eager     | Fetch the object(s) as soon as it is possible.
+|@Query     | Query the composite object(s) on first use.
+|@Embedded  | Fetch the composite object(s) together with the entity.
 |====================
 
 *Example:*
 
 [source,jsl]
 ----
-@Lazy
+@Query
 field required Address address;
 ----
 
 [source,jsl]
 ----
-@Eager
+@Embedded
 field Address[] addresses;
 ----
 
@@ -189,16 +189,16 @@ Relation is a reference to an other entity or set of entities defined within an 
 
 [options="header", cols="1,2"]
 |====================
-|Annotation | Meaning
-|@Lazy      | Defer fetching the object(s) as long as it is possible.
-|@Eager     | Fetch the object(s) as soon as it is possible.
+|Annotation  | Meaning
+|@Query      | Query the related object(s) on first use.
+|@Embedded   | Fetch the related object(s) together with the entity.
 |====================
 
 *Example:*
 
 [source,jsl]
 ----
-@Eager
+@Embedded
 relation required Student student = Student!any() opposite: class;
 ----
 
@@ -222,9 +222,9 @@ Calculated primitives can be read as if they were stored fields, but they have a
 
 [options="header", cols="1,2"]
 |====================
-|Annotation | Meaning
-|@Lazy      | Defer fetching the value as long as it is possible.
-|@Eager     | Fetch the value as soon as it is possible.
+|Annotation  | Meaning
+|@Query      | Query the value on first use.
+|@Embedded   | Fetch the value together with the entity.
 |====================
 
 
@@ -243,9 +243,9 @@ Calculated relations can be read as if they were stored relations, but they have
 
 [options="header", cols="1,2"]
 |====================
-|Annotation | Meaning
-|@Lazy      | Defer fetching the object(s) as long as it is possible.
-|@Eager     | Fetch the object(s) as soon as it is possible. Eager is not allowed together with argument list.
+|Annotation  | Meaning
+|@Query      | Query the related object(s) on first use.
+|@Embedded   | Fetch the related object(s) together with the entity. Embedded is not allowed together with argument list.
 |====================
 
 == Query
@@ -283,7 +283,7 @@ or
 
 === Transfer constructor
 
-The constructor is automatically called when a new transfer object is created and can be used to set default values of the fields. Transfer objects with no constructor can not be created.
+The constructor is automatically called when a new transfer object is created and can be used to set default values of the fields.
 
 *Syntax:*
 
@@ -296,7 +296,7 @@ The constructor is automatically called when a new transfer object is created an
 
 === Transfer initializer
 
-The initializer is automatically called when a transfer object is created or selected. It can be used to set the values of the transient fields.
+The initializer is automatically called after the constructor is called or after the transfer object fetching. It can be used to set the values of the transient fields.
 
 *Syntax:*
 
@@ -307,6 +307,8 @@ The initializer is automatically called when a transfer object is created or sel
 
 === Transfer create
 
+The create operation is automatically called when a new transfer object is saved for the first time. It can be used to create the mapped entity.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -315,6 +317,8 @@ The initializer is automatically called when a transfer object is created or sel
 ----
 
 === Transfer update
+
+The update operation is automatically called when a transfer object is saved. It can be used to update the mapped entity.
 
 *Syntax:*
 
@@ -325,7 +329,7 @@ The initializer is automatically called when a transfer object is created or sel
 
 === Transfer delete
 
-Before the transfer object instance is deleted, the system calls the `destructor`. The destructor is a special action that is used to delete mapped entity or invoke other destruct actions. Transfer objects with no destructor can not be created. The default behavior of the destructor is to delete the mapped entity.
+Before the transfer object instance is deleted, the system calls the delete operation. The delete operation is used to delete the mapped entity or invoke other destruct actions.
 
 *Syntax:*
 
@@ -349,9 +353,9 @@ A transfer object may contain data descriptions called primitive fields. A primi
 
 [options="header", cols="1,2"]
 |====================
-|Annotation | Meaning
-|@Lazy      | Defer fetching the object(s) as long as it is possible.
-|@Eager     | Fetch the object(s) as soon as it is possible.
+|Annotation  | Meaning
+|@Query      | Query the value on first use.
+|@Embedded   | Fetch value together with the transfer object.
 |====================
 
 === Transfer relation
@@ -379,9 +383,9 @@ A transfer object may contain data descriptions called relations. Relation is a 
 
 [options="header", cols="1,2"]
 |====================
-|Annotation | Meaning
-|@Lazy      | Defer fetching the object(s) as long as it is possible.
-|@Eager     | Fetch the object(s) as soon as it is possible.
+|Annotation  | Meaning
+|@Query      | Query the related object(s) on first use.
+|@Embedded   | Fetch the related object(s) together with the transfer object.
 |====================
 
 === Transfer action
@@ -398,7 +402,7 @@ The action is a piece of code (currently Java implementation) that is executed w
 ////
 === Transfer submit
 
-The submit is a piece of code (currently Java implementation) that is executed when the submit is invoked. The submit receives the primitive fields and relations annotated with @Eager as its input. If there is no body defined for the submit, the default behavior is saving the transfer object's field to the mapped entity.
+The submit is a piece of code (currently Java implementation) that is executed when the submit is invoked. The submit receives the primitive fields and relations annotated with @Embedded as its input. If there is no body defined for the submit, the default behavior is saving the transfer object's field to the mapped entity.
 
 *Syntax:*
 
@@ -409,6 +413,8 @@ The submit is a piece of code (currently Java implementation) that is executed w
 ////
 
 == View
+
+A view is a transfer object that also defines the visual representation of data.
 
 *Syntax:*
 
@@ -430,6 +436,8 @@ or
 
 === View constructor
 
+The constructor is automatically called when a new view is created and can be used to set default values of the fields.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -441,6 +449,8 @@ or
 
 === View initializer
 
+The initializer is automatically called after the constructor is called or after the view fetching. It can be used to set the values of the transient fields.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -448,16 +458,42 @@ or
 [purple]#**initializer**# [purple]#**;**#
 ----
 
-=== View destructor
+=== View create
+
+The create operation is automatically called when a new view is saved for the first time. It can be used to create the mapped entity.
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**destructor**# [purple]#**;**#
+[purple]#**create**# &#x5B;[purple]##**(**##&lt;parameter>[purple]##**)**##] [purple]#**;**#
+----
+
+=== View update
+
+The update operation is automatically called when a view is saved. It can be used to update the mapped entity.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**update**# [purple]#**;**#
+----
+
+=== View delete
+
+Before the view instance is deleted, the system calls the delete operation. The delete operation is used to delete the mapped entity or invoke other destruct actions.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**delete**# [purple]#**;**#
 ----
 
 === View primitive field
+
+A view primitive field can represent a single primitive value on the view.
 
 *Syntax:*
 
@@ -477,16 +513,9 @@ or
 |width          | numeric literal       | The logical width of the field.
 |====================
 
-*Annotations:*
-
-[options="header", cols="1,2"]
-|====================
-|Annotation | Meaning
-|@Lazy      | Defer fetching the object(s) as long as it is possible.
-|@Eager     | Fetch the object(s) as soon as it is possible.
-|====================
-
 === View link
+
+A view link can represent a relation to an other view.
 
 *Syntax:*
 
@@ -522,11 +551,13 @@ or
 [options="header", cols="1,2"]
 |====================
 |Annotation | Meaning
-|@Lazy      | Defer fetching the object(s) as long as it is possible.
-|@Eager     | Fetch the object(s) as soon as it is possible.
+|@Query     | Query the related object on first use.
+|@Embedded  | Fetch the related view together with the view.
 |====================
 
 === View table
+
+A view table represents collection of rows.
 
 *Syntax:*
 
@@ -562,8 +593,8 @@ or
 [options="header", cols="1,2"]
 |====================
 |Annotation | Meaning
-|@Lazy      | Defer fetching the object(s) as long as it is possible.
-|@Eager     | Fetch the object(s) as soon as it is possible.
+|@Query     | Query the related objects on first use.
+|@Embedded  | Fetch the related rows together with the view.
 |====================
 
 === View text
@@ -646,6 +677,8 @@ or
 
 === View action
 
+The action is a piece of code (currently Java implementation) that is executed when the action is invoked. An action may receive input as defined in its parameter.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -702,6 +735,8 @@ or
 
 == Row
 
+A row is a transfer object that also defines the visual representation of data as cells in a table.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -722,6 +757,10 @@ or
 
 === Row column
 
+Should we rename column to cell??
+
+A primitive field that can store only a single primitive value and is displayed as a row cell.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -739,6 +778,8 @@ or
 |====================
 
 == Actor
+
+An actor represents a generic user of the system and can be used to represent humans or another system.
 
 *Syntax:*
 
@@ -772,6 +813,8 @@ or
 |====================
 
 === Actor access
+
+Access provides an entity or collection of entities to the user represented by the actor.
 
 *Syntax:*
 
@@ -810,7 +853,9 @@ A group can contain only menu elements.
 |hidden         | boolean expression    | If the menu group is shown to the user.
 |====================
 
-=== Actor menu
+=== Actor single menu
+
+Single menu is a visually represented access for human actors that provides an entity. 
 
 *Syntax:*
 
@@ -820,7 +865,18 @@ A group can contain only menu elements.
 &#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
 ----
 
-or
+[options="header", cols="1,1,2"]
+|====================
+|Parameter name | Parameter type        | Meaning
+|label          | string literal        | The label to show for the menu.
+|icon           | string literal        | the name of the icon to show for the menu.
+|enabled        | boolean expression    | If the menu is enabled to the user.
+|hidden         | boolean expression    | If the menu is shown to the user.
+|====================
+
+=== Actor table menu
+
+Table menu is a visually represented access for human actors that provides a collection of entities. 
 
 [subs="quotes"]
 ----
