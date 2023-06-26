@@ -626,21 +626,23 @@ class JslDslValidator extends AbstractJslDslValidator {
 
         switch mark.eContainer {
             ModelDeclaration:                     error = !mark.declaration.targets.exists[t | t.model]
-
             ModelImportDeclaration:               error = !mark.declaration.targets.exists[t | t.^import]
-
+            EntityDeclaration:                    error = !mark.declaration.targets.exists[t | t.entity]
+            ViewDeclaration:                      error = !mark.declaration.targets.exists[t | t.view]
+            RowDeclaration:                       error = !mark.declaration.targets.exists[t | t.row]
+            ActorDeclaration:                     error = !mark.declaration.targets.exists[t | t.actor]
+            TransferDeclaration:                  error = !mark.declaration.targets.exists[t | t.transfer]
+            QueryDeclaration:                     error = !mark.declaration.targets.exists[t | t.query]
             DataTypeDeclaration:                  error = !mark.declaration.targets.exists[t | t.type]
-
             EnumDeclaration:                      error = !mark.declaration.targets.exists[t | t.enumeration]
+
             EnumLiteral:                          error = !mark.declaration.targets.exists[t | t.enumLiteral]
 
-            EntityDeclaration:                    error = !mark.declaration.targets.exists[t | t.entity]
             EntityStoredFieldDeclaration:         error = !mark.declaration.targets.exists[t | t.entityField]
             EntityCalculatedFieldDeclaration:     error = !mark.declaration.targets.exists[t | t.entityField]
             EntityStoredRelationDeclaration:      error = !mark.declaration.targets.exists[t | t.entityRelation]
             EntityCalculatedRelationDeclaration:  error = !mark.declaration.targets.exists[t | t.entityRelation]
 
-            ViewDeclaration:                error = !mark.declaration.targets.exists[t | t.view]
             ViewActionDeclaration:          error = !mark.declaration.targets.exists[t | t.viewAction]
             ViewFieldDeclaration:           error = !mark.declaration.targets.exists[t | t.viewField]
             ViewGroupDeclaration:           error = !mark.declaration.targets.exists[t | t.viewGroup]
@@ -649,23 +651,18 @@ class JslDslValidator extends AbstractJslDslValidator {
             ViewTableDeclaration:           error = !mark.declaration.targets.exists[t | t.viewTable]
             ViewTabsDeclaration:            error = !mark.declaration.targets.exists[t | t.viewTabs]
 
-            RowDeclaration:                 error = !mark.declaration.targets.exists[t | t.row]
             RowColumnDeclaration:           error = !mark.declaration.targets.exists[t | t.rowColumn]
 
-            ActorDeclaration:               error = !mark.declaration.targets.exists[t | t.actor]
             ActorMenuDeclaration:           error = !mark.declaration.targets.exists[t | t.actorMenu]
             ActorGroupDeclaration:          error = !mark.declaration.targets.exists[t | t.actorGroup]
             ActorAccessDeclaration:         error = !mark.declaration.targets.exists[t | t.actorAccess]
 
-            TransferDeclaration:            error = !mark.declaration.targets.exists[t | t.transfer]
             TransferActionDeclaration:      error = !mark.declaration.targets.exists[t | t.transferAction]
             TransferConstructorDeclaration: error = !mark.declaration.targets.exists[t | t.transferConstructor]
             TransferFieldDeclaration:       error = !mark.declaration.targets.exists[t | t.transferField]
             TransferInitializerDeclaration: error = !mark.declaration.targets.exists[t | t.transferInitializer]
             TransferRelationDeclaration:    error = !mark.declaration.targets.exists[t | t.transferRelation]
             TransferSubmitDeclaration:      error = !mark.declaration.targets.exists[t | t.transferSubmit]
-
-            QueryDeclaration:               error = !mark.declaration.targets.exists[t | t.query]
         }
 
         if (error) {

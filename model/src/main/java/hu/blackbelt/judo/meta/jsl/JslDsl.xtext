@@ -826,7 +826,7 @@ AnnotationParameterDeclaration
 	;
 
 AnnotationParameterType
-	: type = (KW_BOOLEAN	| KW_STRING | KW_NUMERIC)
+	: type = (KW_BOOLEAN | KW_STRING | KW_NUMERIC)
 	;
 
 AnnotationTarget
@@ -834,11 +834,18 @@ AnnotationTarget
 	| KW_MODEL COLON ^import ?= KW_IMPORT
 	| KW_MODEL COLON type ?= KW_TYPE
 	| KW_MODEL COLON enumeration ?= KW_ENUM
-	| KW_ENUM COLON enumLiteral ?= KW_LITERAL
 	| KW_MODEL COLON entity ?= KW_ENTITY
+	| KW_MODEL COLON transfer ?= KW_TRANSFER
+	| KW_MODEL COLON actor ?= KW_ACTOR
+	| KW_MODEL COLON query ?= KW_QUERY
+	| KW_MODEL COLON view ?= KW_VIEW
+	| KW_MODEL COLON row ?= KW_ROW
+	
+	| KW_ENUM COLON enumLiteral ?= KW_LITERAL
+
 	| KW_ENTITY COLON entityField ?= KW_FIELD
 	| KW_ENTITY COLON entityRelation ?= KW_RELATION
-	| KW_MODEL COLON transfer ?= KW_TRANSFER
+
 	| KW_TRANSFER COLON transferAction ?= KW_ACTION
 	| KW_TRANSFER COLON transferConstructor ?= KW_CONSTRUCTOR
 	| KW_TRANSFER COLON transferDestructor ?= KW_DESTRUCTOR
@@ -846,24 +853,23 @@ AnnotationTarget
 	| KW_TRANSFER COLON transferInitializer ?= KW_INITIALIZER
 	| KW_TRANSFER COLON transferRelation ?= KW_RELATION
 	| KW_TRANSFER COLON transferSubmit ?= KW_SUBMIT
-	| KW_MODEL COLON actor ?= KW_ACTOR
+
 	| KW_ACTOR COLON actorGroup ?= KW_GROUP
 	| KW_ACTOR COLON actorMenu ?= KW_MENU
 	| KW_ACTOR COLON actorAccess ?= KW_ACCESS
-	| KW_MODEL COLON query ?= KW_QUERY
-	| KW_MODEL COLON view ?= KW_VIEW
+
 	| KW_VIEW COLON viewAction ?= KW_ACTION
 	| KW_VIEW COLON viewConstructor ?= KW_CONSTRUCTOR
 	| KW_VIEW COLON viewDestructor ?= KW_DESTRUCTOR
 	| KW_VIEW COLON viewField ?= KW_FIELD
 	| KW_VIEW COLON viewGroup ?= KW_GROUP
-	| KW_VIEW '::' viewInitializer ?= KW_INITIALIZER
+	| KW_VIEW COLON viewInitializer ?= KW_INITIALIZER
 	| KW_VIEW COLON viewLink ?= KW_LINK
 	| KW_VIEW COLON viewSubmit ?= KW_SUBMIT
 	| KW_VIEW COLON viewTable ?= KW_TABLE
 	| KW_VIEW COLON viewTabs ?= KW_TABS
 	| KW_VIEW COLON viewText ?= KW_TEXT
-	| KW_MODEL COLON row ?= KW_ROW
+
 	| KW_ROW COLON rowColumn ?= KW_COLUMN
 	;
 
