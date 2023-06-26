@@ -90,8 +90,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferSubmitDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessDeclaration
 
-import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferUpdateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeleteDeclaration
@@ -1279,6 +1277,22 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
 
     @Check
+    def checkTransferRelationCreateFlag(TransferRelationDeclaration relation) {
+    	if (relation instanceof ActorAccessDeclaration) {
+    		return
+    	}
+    	
+        if (relation.create !== null && !relation.maps) {
+            error("Create flag is allowed only for mapped relations.",
+                JsldslPackage::eINSTANCE.transferRelationDeclaration_Create,
+                INVALID_DECLARATION,
+                JsldslPackage::eINSTANCE.transferRelationDeclaration.name)
+
+            return;
+        }
+    }
+
+    @Check
     def checkTransferRelationReads(TransferRelationDeclaration relation) {
         if (!relation.reads) {
             return
@@ -1741,5 +1755,29 @@ class JslDslValidator extends AbstractJslDslValidator {
                 JsldslPackage::eINSTANCE.transferDeleteDeclaration.getEStructuralFeature("ID"),
                 DUPLICATE_DELETE)
         }
+    }
+    
+    @Check
+    def checkActorMenu(ActorMenuDeclaration menu) {
+    	if (menu.parentContainer(ActorDeclaration).system) {
+            error("Menu is not allowed in system actor.",
+                JsldslPackage::eINSTANCE.actorMenuDeclaration.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+    	}
+    	
+    	if (!menu.many && menu.rows !== null) {
+            error("Rows is not allowed to define for single links.",
+                JsldslPackage::eINSTANCE.actorMenuDeclaration_Rows,
+                INVALID_DECLARATION)
+    	}
+    }
+
+    @Check
+    def checkActorGroup(ActorGroupDeclaration group) {
+    	if (group.parentContainer(ActorDeclaration).system) {
+            error("Group is not allowed in system actor.",
+                JsldslPackage::eINSTANCE.actorGroupDeclaration.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+    	}
     }
 }

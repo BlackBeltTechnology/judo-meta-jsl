@@ -238,8 +238,8 @@ TransferRelationDeclaration
 	  ((maps ?= MAP | reads ?= LTE) getterExpr = Expression)?
 	  (choices = TransferChoiceModifier?
 	  & create = CreateModifier?
-	  & update ?= UpdateModifier?
-	  & delete ?= DeleteModifier?)
+	  & update = UpdateModifier?
+	  & delete = DeleteModifier?)
 	  SC
 	;
 
@@ -270,15 +270,15 @@ ViewDeclaration returns TransferDeclaration
 
 
 CreateModifier
-	: KW_CREATE COLON BooleanLiteral
+	: KW_CREATE COLON value = BooleanLiteral
 	;
 
 UpdateModifier
-	: KW_UPDATE COLON BooleanLiteral
+	: KW_UPDATE COLON value = BooleanLiteral
 	;
 
 DeleteModifier
-	: KW_DELETE COLON BooleanLiteral
+	: KW_DELETE COLON value = BooleanLiteral
 	;
 
 ViewMemberDeclaration
@@ -384,8 +384,8 @@ ViewLinkDeclaration returns TransferRelationDeclaration
 	  & ^hidden = HiddenModifier?
 	  & width = WidthModifier?
 	  & create = CreateModifier?
-	  & update ?= UpdateModifier?
-	  & delete ?= DeleteModifier?)
+	  & update = UpdateModifier?
+	  & delete = DeleteModifier?)
 	  SC
 	;
 
@@ -403,8 +403,8 @@ ViewTableDeclaration returns TransferRelationDeclaration
 	  & width = WidthModifier?
 	  & detail = DetailModifier?
 	  & create = CreateModifier?
-	  & update ?= UpdateModifier?
-	  & delete ?= DeleteModifier?)
+	  & update = UpdateModifier?
+	  & delete = DeleteModifier?)
 	  SC
 	;
 
@@ -555,8 +555,8 @@ ActorAccessDeclaration returns TransferRelationDeclaration
 	  KW_ACCESS transferReferenceType = [TransferDeclaration | ModelName] Cardinality? Named
 	  LTE getterExpr = Expression
 	  ( create = CreateModifier?
-	  & update ?= UpdateModifier?
-	  & delete ?= DeleteModifier?)
+	  & update = UpdateModifier?
+	  & delete = DeleteModifier?)
 	  SC
 	;
 
@@ -584,8 +584,8 @@ ActorMenuDeclaration returns ActorAccessDeclaration
 	  & rows = RowsModifier?
 	  & detail = DetailModifier?
 	  & create = CreateModifier?
-	  & update ?= UpdateModifier?
-	  & delete ?= DeleteModifier?)
+	  & update = UpdateModifier?
+	  & delete = DeleteModifier?)
 	  SC
 	;
 

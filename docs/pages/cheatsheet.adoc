@@ -305,7 +305,25 @@ The initializer is automatically called when a transfer object is created or sel
 [purple]#**initializer**# [purple]#**;**#
 ----
 
-=== Transfer destructor
+=== Transfer create
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**create**# &#x5B;[purple]##**(**##&lt;parameter>[purple]##**)**##] [purple]#**;**#
+----
+
+=== Transfer update
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**update**# [purple]#**;**#
+----
+
+=== Transfer delete
 
 Before the transfer object instance is deleted, the system calls the `destructor`. The destructor is a special action that is used to delete mapped entity or invoke other destruct actions. Transfer objects with no destructor can not be created. The default behavior of the destructor is to delete the mapped entity.
 
@@ -313,7 +331,7 @@ Before the transfer object instance is deleted, the system calls the `destructor
 
 [subs="quotes"]
 ----
-[purple]#**destructor**# [purple]#**;**#
+[purple]#**delete**# [purple]#**;**#
 ----
 
 === Transfer primitive field
@@ -345,8 +363,17 @@ A transfer object may contain data descriptions called relations. Relation is a 
 [subs="quotes"]
 ----
 [purple]#**relation**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;([purple]##**<=**##|[purple]##**<=>**##) &lt;expression>]
-&#x5B; [purple]##**choices**## [purple]##**:**## &lt;expression> ] [purple]#**;**#
+&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
 ----
+
+[options="header", cols="1,1,2"]
+|====================
+|Parameter name | Parameter type               | Meaning
+|choices        | expression returns transfers | The possible list of transfers to add.
+|create         | boolean literal              | If create is allowed on this relation.
+|update         | boolean literal              | If update is allowed on this relation.
+|delete         | boolean literal              | If delete is allowed on this relation.
+|====================
 
 *Annotations:*
 
@@ -368,6 +395,7 @@ The action is a piece of code (currently Java implementation) that is executed w
 [purple]#**action**# &#x5B;&lt;type>|&lt;union>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**## &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...] [purple]#**;**#
 ----
 
+////
 === Transfer submit
 
 The submit is a piece of code (currently Java implementation) that is executed when the submit is invoked. The submit receives the primitive fields and relations annotated with @Eager as its input. If there is no body defined for the submit, the default behavior is saving the transfer object's field to the mapped entity.
@@ -378,6 +406,7 @@ The submit is a piece of code (currently Java implementation) that is executed w
 ----
 [purple]#**submit**# &#x5B;&lt;type>|&lt;union>|[purple]#**void**#] &lt;name> &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...] [purple]#**;**#
 ----
+////
 
 == View
 
@@ -483,6 +512,9 @@ or
 |choices        | Row declaration + expression  | The possible values for selection.
 |create         | View declaration      | The view to show for creating new element.
 |text           | string expression     | The textual representation of the link.
+|create         | boolean literal              | If create is allowed on this relation.
+|update         | boolean literal              | If update is allowed on this relation.
+|delete         | boolean literal              | If delete is allowed on this relation.
 |====================
 
 *Annotations:*
@@ -520,6 +552,9 @@ or
 |choices        | Row declaration + expression  | The possible values for selection.
 |create         | View declaration      | The view to show for creating new element.
 |rows           | Numeric literal       | The number of rows shown in the table.
+|create         | boolean literal              | If create is allowed on this relation.
+|update         | boolean literal              | If update is allowed on this relation.
+|delete         | boolean literal              | If delete is allowed on this relation.
 |====================
 
 *Annotations:*
@@ -636,6 +671,7 @@ or
 |resource       | access name           | The name of an access where the returned transfer object is available.
 |====================
 
+////
 === View submit
 
 *Syntax:*
@@ -662,6 +698,7 @@ or
 |Parameter name | Parameter type        | Meaning
 |resource       | access name           | The name of an access where the returned transfer object is available.
 |====================
+////
 
 == Row
 
@@ -743,6 +780,14 @@ or
 [purple]#**access**# &lt;transfer|view|row>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**<=**## &lt;expression> [purple]#**;**#
 ----
 
+[options="header", cols="1,1,2"]
+|====================
+|Parameter name | Parameter type        | Meaning
+|create         | boolean literal       | If create is allowed on this access.
+|update         | boolean literal       | If update is allowed on this access.
+|delete         | boolean literal       | If delete is allowed on this access.
+|====================
+
 === Actor group
 
 A group can contain only menu elements.
@@ -796,7 +841,9 @@ or
 |====================
 |Parameter name | Parameter type        | Meaning
 |choices        | Row declaration + expression  | The possible values for selection.
-|create         | View declaration      | The view to show for creating new element.
+|create         | boolean literal       | If create is allowed on this table.
+|update         | boolean literal       | If update is allowed on this table.
+|delete         | boolean literal       | If delete is allowed on this table.
 |rows           | Numeric literal       | The number of rows shown in the table.
 |====================
 
