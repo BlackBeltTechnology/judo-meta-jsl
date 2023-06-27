@@ -1245,3 +1245,4 @@ terminal SC
 terminal WS
 	: (' '|'\t'|'\r'|'\n')+
 	;
+
