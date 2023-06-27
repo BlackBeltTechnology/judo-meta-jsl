@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test
 import com.google.inject.Provider
 import org.eclipse.emf.ecore.resource.ResourceSet
 import hu.blackbelt.judo.requirement.report.annotation.Requirement
+import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
+import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
 
 @ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
@@ -236,4 +238,20 @@ class OppositeAddTests {
         b.assertNoErrors
     }
 
+	@Test
+	def void testOppositeSingleRequiredError() {
+        '''
+            model Test;
+
+            entity A {
+                relation required B b opposite:a;
+            }
+            
+            entity B {
+                relation required A a opposite:b;
+            }
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.entityRelationOppositeReferenced, JslDslValidator.INVALID_DECLARATION, "Bidirectional relation is not allowed to be required on both ends.")
+        ]
+	}
 }

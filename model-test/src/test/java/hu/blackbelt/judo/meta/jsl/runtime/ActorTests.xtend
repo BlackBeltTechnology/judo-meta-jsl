@@ -101,4 +101,46 @@ class ActorTests {
             m | m.assertError(JsldslPackage::eINSTANCE.actorDeclaration, JslDslValidator.INVALID_IDENTITY_MAPPING)
         ]
     }
+    
+    @Test
+    def void testSystemActorMenuError() {
+        '''
+            model Test;
+
+            import judo::types;
+
+            entity E {
+                identifier String id;
+            }
+
+            view VE(E e) {}
+
+            actor system A(E e)
+                claim:"claim"
+                realm:"realm"
+                guard:true
+                identity:e.id
+            {
+            	menu VE ve <= E!any();
+            };
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.actorMenuDeclaration, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
+    @Test
+    def void testSystemActorGroupError() {
+        '''
+            model Test;
+
+            import judo::types;
+
+            actor system A
+            {
+            	group g {};
+            };
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.actorGroupDeclaration, JslDslValidator.INVALID_DECLARATION, "Group is not allowed in system actor.")
+        ]
+    }
 }
