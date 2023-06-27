@@ -199,12 +199,12 @@ Relation is a reference to an other entity or set of entities defined within an 
 [source,jsl]
 ----
 @Embedded
-relation required Student student = Student!any() opposite: class;
+relation Order[] orders opposite:customer;
 ----
 
 [source,jsl]
 ----
-relation Student[] students = Student!all() opposite-add: class;
+relation required Product product opposite-add:orderItems[];
 ----
 
 === Entity calculated primitive
@@ -227,6 +227,12 @@ Calculated primitives can be read as if they were stored fields, but they have a
 |@Embedded   | Fetch the value together with the entity.
 |====================
 
+*Example:*
+
+[source,jsl]
+----
+field String fullName <= self.firstName + " " + self.lastName;
+----
 
 === Entity calculated relation
 
@@ -248,6 +254,13 @@ Calculated relations can be read as if they were stored relations, but they have
 |@Embedded   | Fetch the related object(s) together with the entity. Embedded is not allowed together with argument list.
 |====================
 
+*Example:*
+
+[source,jsl]
+----
+relation Order cart <= self.orders!filter(o | o.status == OrderStatus#OPEN)!any();
+----
+
 == Query
 
 A query is a request within the scope of the model that retrieves a primitive or entities.
@@ -257,6 +270,17 @@ A query is a request within the scope of the model that retrieves a primitive or
 [subs="quotes"]
 ----
 [purple]#**query**# (&lt;primitive>|&lt;entity>&#x5B;[purple]##**[]**##]) &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...][purple]##**)**## [purple]##**<=**## &lt;expression> [purple]#**;**#
+----
+
+*Example:*
+
+[source,jsl]
+----
+query Integer NumOfCustomers(String country) <=
+        Customer!
+        all()!
+        filter(c | c.address.country == country)!
+        size();
 ----
 
 == Transfer
@@ -281,6 +305,16 @@ or
 }] [purple]#**;**#
 ----
 
+*Example:*
+
+[source,jsl]
+----
+transfer ProductTransfer(Product product) {
+	field String name <= product.name;
+	field String price <= product.price!asString() + " HUF";
+}
+----
+
 === Transfer constructor
 
 The constructor is automatically called when a new transfer object is created and can be used to set default values of the fields.
@@ -294,6 +328,17 @@ The constructor is automatically called when a new transfer object is created an
 }
 ----
 
+*Example:*
+
+[source,jsl]
+----
+constructor {
+	self.name = "";
+}
+----
+
+////
+//For later use 
 === Transfer initializer
 
 The initializer is automatically called after the constructor is called or after the transfer object fetching. It can be used to set the values of the transient fields.
@@ -304,6 +349,7 @@ The initializer is automatically called after the constructor is called or after
 ----
 [purple]#**initializer**# [purple]#**;**#
 ----
+////
 
 === Transfer create
 
@@ -358,6 +404,14 @@ A transfer object may contain data descriptions called primitive fields. A primi
 |@Embedded   | Fetch value together with the transfer object.
 |====================
 
+
+*Example:*
+
+[source,jsl]
+----
+field Integer price <= customer.cart.price;
+----
+
 === Transfer relation
 
 A transfer object may contain data descriptions called relations. Relation is a reference to an other transfer object or set of objects.
@@ -388,6 +442,13 @@ A transfer object may contain data descriptions called relations. Relation is a 
 |@Embedded   | Fetch the related object(s) together with the transfer object.
 |====================
 
+*Example:*
+
+[source,jsl]
+----
+relation OrderItemTransfer[] items <= customer.cart.orderItems;
+----
+
 === Transfer action
 
 The action is a piece of code (currently Java implementation) that is executed when the action is invoked. An action may receive input as defined in its parameter.
@@ -397,6 +458,13 @@ The action is a piece of code (currently Java implementation) that is executed w
 [subs="quotes"]
 ----
 [purple]#**action**# &#x5B;&lt;type>|&lt;union>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**## &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...] [purple]#**;**#
+----
+
+*Example:*
+
+[source,jsl]
+----
+action void order();
 ----
 
 ////
@@ -447,6 +515,17 @@ The constructor is automatically called when a new view is created and can be us
 }
 ----
 
+*Example:*
+
+[source,jsl]
+----
+constructor {
+	self.name = "";
+}
+----
+
+////
+//For later use 
 === View initializer
 
 The initializer is automatically called after the constructor is called or after the view fetching. It can be used to set the values of the transient fields.
@@ -457,6 +536,7 @@ The initializer is automatically called after the constructor is called or after
 ----
 [purple]#**initializer**# [purple]#**;**#
 ----
+////
 
 === View create
 
@@ -513,6 +593,13 @@ A view primitive field can represent a single primitive value on the view.
 |width          | numeric literal       | The logical width of the field.
 |====================
 
+*Example:*
+
+[source,jsl]
+----
+field Integer price <= customer.cart.price;
+----
+
 === View link
 
 A view link can represent a relation to an other view.
@@ -554,6 +641,13 @@ A view link can represent a relation to an other view.
 |@Query     | Query the related object on first use.
 |@Embedded  | Fetch the related view together with the view.
 |====================
+
+*Example:*
+
+[source,jsl]
+----
+link ProductListView productList text:"Back to shopping";
+----
 
 === View table
 
@@ -597,6 +691,13 @@ A view table represents collection of rows.
 |@Embedded  | Fetch the related rows together with the view.
 |====================
 
+*Example:*
+
+[source,jsl]
+----
+table ProductRow[] products <= Product!all();
+----
+
 === View text
 
 *Syntax:*
@@ -616,6 +717,12 @@ A view table represents collection of rows.
 |width          | numeric literal       | The logical width of the field.
 |====================
 
+*Example:*
+
+[source,jsl]
+----
+text message <= "Thank you for your order.";
+----
 
 === View group
 
@@ -646,6 +753,16 @@ A view table represents collection of rows.
 |v-align        | `top`, `bottom`, `center` | The vertical location of elements inside the group.
 |stretch        | boolean literal           | If the group fills the available space.
 |====================
+
+*Example:*
+
+[source,jsl]
+----
+vertical head {
+	field String price <= product.price!asString() + " HUF";
+	field String name <= product.name;
+}
+----
 
 === View tabs
 
@@ -704,6 +821,13 @@ The action is a piece of code (currently Java implementation) that is executed w
 |resource       | access name           | The name of an access where the returned transfer object is available.
 |====================
 
+*Example:*
+
+[source,jsl]
+----
+action ThankYouView order();
+----
+
 ////
 === View submit
 
@@ -755,9 +879,19 @@ or
 }] [purple]#**;**#
 ----
 
+*Example:*
+
+[source,jsl]
+----
+row ProductRow(Product product) {
+	column String name <= product.name;
+	column String price <= product.price!asString() + " HUF";
+}
+----
+
 === Row column
 
-Should we rename column to cell??
+_Should we rename column to cell??_
 
 A primitive field that can store only a single primitive value and is displayed as a row cell.
 
@@ -776,6 +910,13 @@ A primitive field that can store only a single primitive value and is displayed 
 |icon           | string literal        | The name of the icon to show for the column.
 |hidden         | boolean expression    | If the column is shown to the user.
 |====================
+
+*Example:*
+
+[source,jsl]
+----
+column String price <= product.price!asString() + " HUF";
+----
 
 == Actor
 
@@ -811,6 +952,16 @@ or
 |identity       | attribute selection expression    | The attribute of the mapped entity that serves as the identifier against the claim.
 |guard          | boolean expression    | The condition to allow the external user to access the services.
 |====================
+
+*Example:*
+
+[source,jsl]
+----
+actor human CustomerActor(Customer customer) {
+	menu CartView myCart <= customer label:"My cart";
+	menu ProductListView products label:"Products";
+}
+----
 
 === Actor access
 
@@ -874,6 +1025,13 @@ Single menu is a visually represented access for human actors that provides an e
 |hidden         | boolean expression    | If the menu is shown to the user.
 |====================
 
+*Example:*
+
+[source,jsl]
+----
+menu CartView myCart <= customer label:"My cart";
+----
+
 === Actor table menu
 
 Table menu is a visually represented access for human actors that provides a collection of entities. 
@@ -903,3 +1061,117 @@ Table menu is a visually represented access for human actors that provides a col
 |rows           | Numeric literal       | The number of rows shown in the table.
 |====================
 
+
+= Example model
+
+[source,jsl]
+----
+model shop;
+
+import judo::types;
+
+type string Email min-size:0 max-size:64 regex:r"^\w+@\w+(\.\w+)+$";
+
+enum OrderStatus {
+	OPEN = 1;
+	ORDERED = 2;
+	DELIVERED = 3;
+}
+
+entity Address {
+    field required String street;
+    field required String city;
+    field String country;
+}
+
+entity User {
+	identifier required Email email;
+}
+
+entity abstract Customer {
+    field required Address address;
+	relation Order[] orders opposite:customer;
+	relation Order cart <= self.orders!filter(o | o.status == OrderStatus#OPEN)!any();
+}
+
+query Integer NumOfCustomers(String country) <=
+		Customer!
+		all()!
+		filter(c | c.address.country == country)!
+		size();
+
+entity Person extends Customer, User {
+	field required String firstName;
+	field required String lastName;
+	field String fullName <= self.firstName + " " + self.lastName;
+}
+
+entity Enterprise extends Customer {
+	field required String name;
+}
+
+entity Order {
+	field required OrderStatus status = OrderStatus#OPEN;
+	field OrderItem[] orderItems;
+	relation required Customer customer opposite:orders;
+	field Integer price <= self.orderItems!sum(item | item.price);
+}
+
+entity OrderItem {
+	relation required Product product opposite-add:orderItems[];
+	field required Integer amount;
+	field String productName <= self.product.name;
+	field Integer price <= self.amount * self.product.price;
+}
+
+entity Product {
+	identifier required String name;
+	field required Integer price;
+}
+
+view ProductListView {
+	table ProductRow[] products <= Product!all();
+}
+
+row ProductRow(Product product) {
+	column String name <= product.name;
+	column String price <= product.price!asString() + " HUF";
+}
+
+view ProductView(Product product) {
+	vertical head {
+		field String price <= product.price!asString() + " HUF";
+		field String name <= product.name;
+	}
+
+	constructor {
+		self.name = "";
+	}
+}
+
+view CartView(Customer customer) {
+	table OrderItemRow[] items <= customer.cart.orderItems;
+	field Integer price <= customer.cart.price;
+
+	link ProductListView productList text:"Back to shopping";
+	
+	// set the status of the order to OrderStatus#ORDERED
+	action ThankYouView order();
+}
+
+view ThankYouView {
+	text message <= "Thank you for your order. Please check other products at";
+	link ProductListView productList text:"Our products page";
+}
+
+row OrderItemRow(OrderItem item) {
+	column String name <= item.productName;
+	column Integer amount <= item.amount;
+	column Integer price <= item.price;
+}
+
+actor human CustomerActor(Customer customer) {
+	menu CartView myCart <= customer label:"My cart";
+	menu ProductListView products label:"Products";
+}
+----
