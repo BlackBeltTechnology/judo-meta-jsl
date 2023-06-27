@@ -93,6 +93,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferUpdateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeleteDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeReferenced
 
 /**
  * This class contains custom validation rules.
@@ -1774,6 +1775,19 @@ class JslDslValidator extends AbstractJslDslValidator {
     	if (group.parentContainer(ActorDeclaration).system) {
             error("Group is not allowed in system actor.",
                 JsldslPackage::eINSTANCE.actorGroupDeclaration.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+    	}
+    }
+    
+    @Check
+    def checkOppositeRequired(EntityRelationOppositeReferenced opposite) {
+		if (opposite.oppositeType === null) return
+
+    	val EntityStoredRelationDeclaration relation = opposite.eContainer as EntityStoredRelationDeclaration
+
+    	if (relation.required && opposite.oppositeType.required) {
+            error("Bidirectional relation is not allowed to be required on both ends.",
+                JsldslPackage::eINSTANCE.entityRelationOppositeReferenced.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
     	}
     }
