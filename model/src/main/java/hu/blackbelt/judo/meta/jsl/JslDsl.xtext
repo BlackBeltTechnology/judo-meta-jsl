@@ -552,8 +552,9 @@ ActorMemberDeclaration
 ActorAccessDeclaration returns TransferRelationDeclaration
 	: {ActorAccessDeclaration}
 	  annotations += AnnotationMark*
-	  KW_ACCESS transferReferenceType = [TransferDeclaration | ModelName] Cardinality? Named
-	  LTE getterExpr = Expression
+	  ( KW_ACCESS transferReferenceType = [TransferDeclaration | ModelName] Named (LTE getterExpr = Expression)?
+	  | KW_ACCESS transferReferenceType = [TransferDeclaration | ModelName] Cardinality Named LTE getterExpr = Expression
+	  )
 	  ( create = CreateModifier?
 	  & update = UpdateModifier?
 	  & delete = DeleteModifier?)
@@ -573,7 +574,7 @@ ActorGroupDeclaration
 ActorMenuDeclaration returns ActorAccessDeclaration
 	: {ActorMenuDeclaration}
 	  annotations += AnnotationMark*
-	  ( KW_MENU viewReferenceType = [ViewDeclaration | ModelName] Named reads ?= LTE getterExpr = Expression
+	  ( KW_MENU viewReferenceType = [ViewDeclaration | ModelName] Named (reads ?= LTE getterExpr = Expression)?
 	  | KW_MENU rowReferenceType = [RowDeclaration | ModelName] Cardinality Named reads ?= LTE getterExpr = Expression
 	  )
 	  ( choices = ViewChoiceModifier?
