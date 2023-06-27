@@ -1681,7 +1681,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         val TransferDeclaration transfer = declaration.eContainer as TransferDeclaration;
     	
     	if (transfer.map === null) {
-            error("Inititalizer is not allowed in unmapped transfer object.",
+            error("Initializer is not allowed in unmapped transfer object.",
                 JsldslPackage::eINSTANCE.transferInitializerDeclaration.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
     	}
@@ -1744,12 +1744,12 @@ class JslDslValidator extends AbstractJslDslValidator {
     	
     	if (transfer.map === null) {
             error("Delete is not allowed in unmapped transfer object.",
-                JsldslPackage::eINSTANCE.transferInitializerDeclaration.getEStructuralFeature("ID"),
+                JsldslPackage::eINSTANCE.transferDeleteDeclaration.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
     	}
 
-        if (transfer.members.filter[m | m instanceof TransferUpdateDeclaration].size > 1) {
-            error("More than one update declared in transfer '" + transfer.name + "'.",
+        if (transfer.members.filter[m | m instanceof TransferDeleteDeclaration].size > 1) {
+            error("More than one delete declared in transfer '" + transfer.name + "'.",
                 JsldslPackage::eINSTANCE.transferDeleteDeclaration.getEStructuralFeature("ID"),
                 DUPLICATE_DELETE)
         }
@@ -1760,12 +1760,6 @@ class JslDslValidator extends AbstractJslDslValidator {
     	if (menu.parentContainer(ActorDeclaration).system) {
             error("Menu is not allowed in system actor.",
                 JsldslPackage::eINSTANCE.actorMenuDeclaration.getEStructuralFeature("ID"),
-                INVALID_DECLARATION)
-    	}
-    	
-    	if (!menu.many && menu.rows !== null) {
-            error("Rows is not allowed to define for single links.",
-                JsldslPackage::eINSTANCE.actorMenuDeclaration_Rows,
                 INVALID_DECLARATION)
     	}
     }
