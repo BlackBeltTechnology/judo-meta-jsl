@@ -502,6 +502,17 @@ or
 }] [purple]#**;**#
 ----
 
+*Example:*
+
+[source,jsl]
+----
+view CartView maps Customer as customer {
+	table OrderItemRow[] items <= customer.cart.orderItems;
+	field Integer price <= customer.cart.price;
+	action ThankYouView order();
+}
+----
+
 === View constructor
 
 The constructor is automatically called when a new view is created and can be used to set default values of the fields.
@@ -1149,7 +1160,7 @@ view ProductView(Product product) {
 	}
 }
 
-view CartView(Customer customer) {
+view CartView maps Customer as customer {
 	table OrderItemRow[] items <= customer.cart.orderItems;
 	field Integer price <= customer.cart.price;
 
