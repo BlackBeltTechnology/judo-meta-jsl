@@ -46,7 +46,11 @@ public class JslEditorDiagramIntentProvider extends AbstractDiagramIntentProvide
             try {
                 if (state.getContents().size() > 0 && state.getContents().get(0) instanceof ModelDeclaration) {
                     ModelDeclaration m = (ModelDeclaration) state.getContents().get(0);
-                    return m;
+                    if (m != null && m.eResource().getErrors().size() == 0) {
+                    	return m;
+                    } else {
+                    	return null;
+                    }
                 } else {
                     return null;
                 }
