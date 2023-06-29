@@ -85,11 +85,15 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedRelationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDestructorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferInitializerDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferSubmitDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessDeclaration
+
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferUpdateDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeleteDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeReferenced
 
 /**
  * This class contains custom validation rules.
@@ -148,8 +152,13 @@ class JslDslValidator extends AbstractJslDslValidator {
     public static val JAVA_BEAN_NAMING_ISSUE = ISSUE_CODE_PREFIX + "JavaBeanNamingIssue"
     public static val DUPLICATE_FIELD_MAPPING = ISSUE_CODE_PREFIX + "DuplicateFieldMapping"
     public static val DUPLICATE_CONSTRUCTOR = ISSUE_CODE_PREFIX + "DuplicateConstructor"
+    public static val DUPLICATE_INITIALIZER = ISSUE_CODE_PREFIX + "DuplicateInitializer"
+    public static val DUPLICATE_CREATE = ISSUE_CODE_PREFIX + "DuplicateCreate"
+    public static val DUPLICATE_UPDATE = ISSUE_CODE_PREFIX + "DuplicateUpdate"
+    public static val DUPLICATE_DELETE = ISSUE_CODE_PREFIX + "DuplicateDelete"
     public static val DUPLICATE_SUBMIT = ISSUE_CODE_PREFIX + "DuplicateSubmit"
     public static val FIELD_TYPE_IS_ABSRTACT_ENTITY = ISSUE_CODE_PREFIX + "FieldTypeIsAbstractEntity"
+    public static val QUERY_AND_EMBEDDED_TOGETHER = ISSUE_CODE_PREFIX + "QueryAndEmbeddedTogether"
 
     public static val MEMBER_NAME_LENGTH_MAX = 128
     public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -619,21 +628,23 @@ class JslDslValidator extends AbstractJslDslValidator {
 
         switch mark.eContainer {
             ModelDeclaration:                     error = !mark.declaration.targets.exists[t | t.model]
-
             ModelImportDeclaration:               error = !mark.declaration.targets.exists[t | t.^import]
-
+            EntityDeclaration:                    error = !mark.declaration.targets.exists[t | t.entity]
+            ViewDeclaration:                      error = !mark.declaration.targets.exists[t | t.view]
+            RowDeclaration:                       error = !mark.declaration.targets.exists[t | t.row]
+            ActorDeclaration:                     error = !mark.declaration.targets.exists[t | t.actor]
+            TransferDeclaration:                  error = !mark.declaration.targets.exists[t | t.transfer]
+            QueryDeclaration:                     error = !mark.declaration.targets.exists[t | t.query]
             DataTypeDeclaration:                  error = !mark.declaration.targets.exists[t | t.type]
-
             EnumDeclaration:                      error = !mark.declaration.targets.exists[t | t.enumeration]
+
             EnumLiteral:                          error = !mark.declaration.targets.exists[t | t.enumLiteral]
 
-            EntityDeclaration:                    error = !mark.declaration.targets.exists[t | t.entity]
             EntityStoredFieldDeclaration:         error = !mark.declaration.targets.exists[t | t.entityField]
             EntityCalculatedFieldDeclaration:     error = !mark.declaration.targets.exists[t | t.entityField]
             EntityStoredRelationDeclaration:      error = !mark.declaration.targets.exists[t | t.entityRelation]
             EntityCalculatedRelationDeclaration:  error = !mark.declaration.targets.exists[t | t.entityRelation]
 
-            ViewDeclaration:                error = !mark.declaration.targets.exists[t | t.view]
             ViewActionDeclaration:          error = !mark.declaration.targets.exists[t | t.viewAction]
             ViewFieldDeclaration:           error = !mark.declaration.targets.exists[t | t.viewField]
             ViewGroupDeclaration:           error = !mark.declaration.targets.exists[t | t.viewGroup]
@@ -642,24 +653,18 @@ class JslDslValidator extends AbstractJslDslValidator {
             ViewTableDeclaration:           error = !mark.declaration.targets.exists[t | t.viewTable]
             ViewTabsDeclaration:            error = !mark.declaration.targets.exists[t | t.viewTabs]
 
-            RowDeclaration:                 error = !mark.declaration.targets.exists[t | t.row]
             RowColumnDeclaration:           error = !mark.declaration.targets.exists[t | t.rowColumn]
 
-            ActorDeclaration:               error = !mark.declaration.targets.exists[t | t.actor]
             ActorMenuDeclaration:           error = !mark.declaration.targets.exists[t | t.actorMenu]
             ActorGroupDeclaration:          error = !mark.declaration.targets.exists[t | t.actorGroup]
             ActorAccessDeclaration:         error = !mark.declaration.targets.exists[t | t.actorAccess]
 
-            TransferDeclaration:            error = !mark.declaration.targets.exists[t | t.transfer]
             TransferActionDeclaration:      error = !mark.declaration.targets.exists[t | t.transferAction]
             TransferConstructorDeclaration: error = !mark.declaration.targets.exists[t | t.transferConstructor]
-            TransferDestructorDeclaration:  error = !mark.declaration.targets.exists[t | t.transferDestructor]
             TransferFieldDeclaration:       error = !mark.declaration.targets.exists[t | t.transferField]
             TransferInitializerDeclaration: error = !mark.declaration.targets.exists[t | t.transferInitializer]
             TransferRelationDeclaration:    error = !mark.declaration.targets.exists[t | t.transferRelation]
             TransferSubmitDeclaration:      error = !mark.declaration.targets.exists[t | t.transferSubmit]
-
-            QueryDeclaration:               error = !mark.declaration.targets.exists[t | t.query]
         }
 
         if (error) {
@@ -668,6 +673,28 @@ class JslDslValidator extends AbstractJslDslValidator {
                 INVALID_ANNOTATION)
         }
     }
+
+	@Check
+	def checkQueryAnnottation(AnnotationMark mark) {
+		if (mark.declaration.name.equals("Query")) {
+			if (mark.eContainer.eContents.exists[e | e instanceof AnnotationMark && (e as AnnotationMark).declaration.name.equals("Embedded")]) {
+                error("@Query and @Embedded annotations are not allowed to apply at the same target.",
+                    JsldslPackage::eINSTANCE.annotationMark_Declaration,
+                    QUERY_AND_EMBEDDED_TOGETHER)
+			}
+		}
+	}
+
+	@Check
+	def checkEmbeddedAnnottation(AnnotationMark mark) {
+		if (mark.declaration.name.equals("Embedded")) {
+			if (mark.eContainer.eContents.exists[e | e instanceof AnnotationMark && (e as AnnotationMark).declaration.name.equals("Query")]) {
+                error("@Query and @Embedded annotations are not allowed to apply at the same target.",
+                    JsldslPackage::eINSTANCE.annotationMark_Declaration,
+                    QUERY_AND_EMBEDDED_TOGETHER)
+			}
+		}
+	}
 
     @Check
     def checkAssociation(EntityStoredRelationDeclaration relation) {
@@ -1271,6 +1298,22 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
 
     @Check
+    def checkTransferRelationCreateFlag(TransferRelationDeclaration relation) {
+    	if (relation instanceof ActorAccessDeclaration) {
+    		return
+    	}
+    	
+        if (relation.create !== null && !relation.maps) {
+            error("Create flag is allowed only for mapped relations.",
+                JsldslPackage::eINSTANCE.transferRelationDeclaration_Create,
+                INVALID_DECLARATION,
+                JsldslPackage::eINSTANCE.transferRelationDeclaration.name)
+
+            return;
+        }
+    }
+
+    @Check
     def checkTransferRelationReads(TransferRelationDeclaration relation) {
         if (!relation.reads) {
             return
@@ -1646,13 +1689,123 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
     
     @Check
-    def checkDuplicateTransferConstructor(TransferConstructorDeclaration constructor) {
-        val TransferDeclaration transfer = constructor.eContainer as TransferDeclaration;
+    def checkTransferConstructor(TransferConstructorDeclaration declaration) {
+        val TransferDeclaration transfer = declaration.eContainer as TransferDeclaration;
     	
         if (transfer.members.filter[m | m instanceof TransferConstructorDeclaration].size > 1) {
             error("More than one constructor declared in transfer '" + transfer.name + "'.",
                 JsldslPackage::eINSTANCE.transferConstructorDeclaration.getEStructuralFeature("ID"),
                 DUPLICATE_CONSTRUCTOR)
         }
+    }
+
+    @Check
+    def checkTransferInitializer(TransferInitializerDeclaration declaration) {
+        val TransferDeclaration transfer = declaration.eContainer as TransferDeclaration;
+    	
+    	if (transfer.map === null) {
+            error("Initializer is not allowed in unmapped transfer object.",
+                JsldslPackage::eINSTANCE.transferInitializerDeclaration.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+    	}
+    	
+        if (transfer.members.filter[m | m instanceof TransferInitializerDeclaration].size > 1) {
+            error("More than one initializer declared in transfer '" + transfer.name + "'.",
+                JsldslPackage::eINSTANCE.transferInitializerDeclaration.getEStructuralFeature("ID"),
+                DUPLICATE_INITIALIZER)
+        }
+    }
+	
+    @Check
+    def checkTransferCreate(TransferCreateDeclaration declaration) {
+        val TransferDeclaration transfer = declaration.eContainer as TransferDeclaration;
+    	
+    	if (transfer.map === null) {
+            error("Create is not allowed in unmapped transfer object.",
+                JsldslPackage::eINSTANCE.transferInitializerDeclaration.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+    	}
+
+        if (transfer.members.filter[m | m instanceof TransferCreateDeclaration].size > 1) {
+            error("More than one create declared in transfer '" + transfer.name + "'.",
+                JsldslPackage::eINSTANCE.transferCreateDeclaration.getEStructuralFeature("ID"),
+                DUPLICATE_CREATE)
+        }
+
+		if (declaration.^default) {
+			if (declaration.parameterType.map === null ||
+				declaration.parameterType.map.entity === null ||
+				!TypeInfo.getTargetType(transfer.map.entity).isCompatible(TypeInfo.getTargetType(declaration.parameterType.map.entity)))
+			{
+	            error("Create parameter must be compatible to transfer object type.",
+	                JsldslPackage::eINSTANCE.transferCreateDeclaration_ParamaterName,
+	                INVALID_DECLARATION)
+			}
+		}
+    }
+
+    @Check
+    def checkTransferUpdate(TransferUpdateDeclaration declaration) {
+        val TransferDeclaration transfer = declaration.eContainer as TransferDeclaration;
+    	
+    	if (transfer.map === null) {
+            error("Update is not allowed in unmapped transfer object.",
+                JsldslPackage::eINSTANCE.transferInitializerDeclaration.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+    	}
+
+        if (transfer.members.filter[m | m instanceof TransferUpdateDeclaration].size > 1) {
+            error("More than one update declared in transfer '" + transfer.name + "'.",
+                JsldslPackage::eINSTANCE.transferUpdateDeclaration.getEStructuralFeature("ID"),
+                DUPLICATE_UPDATE)
+        }
+    }
+
+    @Check
+    def checkTransferDelete(TransferDeleteDeclaration declaration) {
+        val TransferDeclaration transfer = declaration.eContainer as TransferDeclaration;
+    	
+    	if (transfer.map === null) {
+            error("Delete is not allowed in unmapped transfer object.",
+                JsldslPackage::eINSTANCE.transferDeleteDeclaration.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+    	}
+
+        if (transfer.members.filter[m | m instanceof TransferDeleteDeclaration].size > 1) {
+            error("More than one delete declared in transfer '" + transfer.name + "'.",
+                JsldslPackage::eINSTANCE.transferDeleteDeclaration.getEStructuralFeature("ID"),
+                DUPLICATE_DELETE)
+        }
+    }
+    
+    @Check
+    def checkActorMenu(ActorMenuDeclaration menu) {
+    	if (menu.parentContainer(ActorDeclaration).system) {
+            error("Menu is not allowed in system actor.",
+                JsldslPackage::eINSTANCE.actorMenuDeclaration.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+    	}
+    }
+
+    @Check
+    def checkActorGroup(ActorGroupDeclaration group) {
+    	if (group.parentContainer(ActorDeclaration).system) {
+            error("Group is not allowed in system actor.",
+                JsldslPackage::eINSTANCE.actorGroupDeclaration.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+    	}
+    }
+    
+    @Check
+    def checkOppositeRequired(EntityRelationOppositeReferenced opposite) {
+		if (opposite.oppositeType === null) return
+
+    	val EntityStoredRelationDeclaration relation = opposite.eContainer as EntityStoredRelationDeclaration
+
+    	if (relation.required && opposite.oppositeType.required) {
+            error("Bidirectional relation is not allowed to be required on both ends.",
+                JsldslPackage::eINSTANCE.entityRelationOppositeReferenced.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+    	}
     }
 }

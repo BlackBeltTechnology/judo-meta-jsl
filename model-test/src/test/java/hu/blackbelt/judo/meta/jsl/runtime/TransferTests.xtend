@@ -576,4 +576,210 @@ class TransferTests {
             m | m.assertWarning(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.DUPLICATE_FIELD_MAPPING)
         ]
     }
+    
+    @Test
+    def void testTransferInitializerUnmapped() {
+        '''
+            model Test;
+
+            import judo::types;
+
+            transfer T {
+            	initializer;
+            }
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferInitializerDeclaration, JslDslValidator.INVALID_DECLARATION, "Initializer is not allowed in unmapped transfer object.")
+        ]
+    }
+
+    @Test
+    def void testTransferInitializerDuplicated() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity A {}
+			
+			transfer T(A a) {
+				initializer;
+				initializer;
+			}
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferInitializerDeclaration, JslDslValidator.DUPLICATE_INITIALIZER)
+        ]
+    }
+
+    @Test
+    def void testTransferCreateUnmapped() {
+        '''
+            model Test;
+
+            import judo::types;
+
+            transfer T {
+            	create;
+            }
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferCreateDeclaration, JslDslValidator.INVALID_DECLARATION, "Create is not allowed in unmapped transfer object.")
+        ]
+    }
+
+    @Test
+    def void testTransferCreateDuplicated() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity A {}
+			
+			transfer T(A a) {
+				create;
+				create;
+			}
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferCreateDeclaration, JslDslValidator.DUPLICATE_CREATE)
+        ]
+    }
+
+    @Test
+    def void testTransferCreateIncompatibleParameter() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity A {}
+			entity B {}
+			
+			transfer TA(A a) {
+				create(TB);
+			}
+			
+			transfer TB (B b) {}
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferCreateDeclaration, JslDslValidator.INVALID_DECLARATION, "Create parameter must be compatible to transfer object type.")
+        ]
+    }
+
+    @Test
+    def void testTransferCreateOk() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity A {}
+			entity B extends A {}
+			
+			transfer TA(A a) {
+				create(TB);
+			}
+			
+			transfer TB (B b) {}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+    @Test
+    def void testTransferUpdateUnmapped() {
+        '''
+            model Test;
+
+            import judo::types;
+
+            transfer T {
+            	update;
+            }
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferUpdateDeclaration, JslDslValidator.INVALID_DECLARATION, "Update is not allowed in unmapped transfer object.")
+        ]
+    }
+
+    @Test
+    def void testTransferUpdateDuplicated() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity A {}
+			
+			transfer T(A a) {
+				update;
+				update;
+			}
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferUpdateDeclaration, JslDslValidator.DUPLICATE_UPDATE)
+        ]
+    }
+
+    @Test
+    def void testTransferUpdateOk() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity A {}
+			
+			transfer T(A a) {
+				update;
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+    @Test
+    def void testTransferDeleteUnmapped() {
+        '''
+            model Test;
+
+            import judo::types;
+
+            transfer T {
+            	delete;
+            }
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferDeleteDeclaration, JslDslValidator.INVALID_DECLARATION, "Delete is not allowed in unmapped transfer object.")
+        ]
+    }
+
+    @Test
+    def void testTransferDeleteDuplicated() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity A {}
+			
+			transfer T(A a) {
+				delete;
+				delete;
+			}
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferDeleteDeclaration, JslDslValidator.DUPLICATE_DELETE)
+        ]
+    }
+
+    @Test
+    def void testTransferDeleteOk() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity A {}
+			
+			transfer T(A a) {
+				delete;
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
 }
