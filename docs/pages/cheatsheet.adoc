@@ -121,6 +121,9 @@ entity abstract Person extends Customer, User;
 |**Composition** |field       |[underline]##field##     ^|--	      ^|--
 |====================
 
+The default behavior (if no annotation is applied) is underlined in the table above.
+
+Note that `@Embedded` and `@Query` annotations cannot be used on the same target at the same time.
 
 === Entity stored primitive field
 
@@ -156,7 +159,7 @@ A composite field is an entity member whose type is an entity.
 [options="header", cols="1,2"]
 |====================
 |Annotation | Meaning
-|@Query     | Query the composite object(s) on first use.
+|@Query     | Do not fetch the composite object(s) together with the entity.
 |@Embedded  | Fetch the composite object(s) together with the entity.
 |====================
 
@@ -190,7 +193,7 @@ Relation is a reference to an other entity or set of entities defined within an 
 [options="header", cols="1,2"]
 |====================
 |Annotation  | Meaning
-|@Query      | Query the related object(s) on first use.
+|@Query      | Do not fetch the related object(s) with the entity.
 |@Embedded   | Fetch the related object(s) together with the entity.
 |====================
 
@@ -223,7 +226,7 @@ Calculated primitives can be read as if they were stored fields, but they have a
 [options="header", cols="1,2"]
 |====================
 |Annotation  | Meaning
-|@Query      | Query the value on first use.
+|@Query      | Do not fetch the value together with the entity.
 |@Embedded   | Fetch the value together with the entity.
 |====================
 
@@ -250,7 +253,7 @@ Calculated relations can be read as if they were stored relations, but they have
 [options="header", cols="1,2"]
 |====================
 |Annotation  | Meaning
-|@Query      | Query the related object(s) on first use.
+|@Query      | Do not fetch the related object(s) together with the entity.
 |@Embedded   | Fetch the related object(s) together with the entity. Embedded is not allowed together with argument list.
 |====================
 
@@ -353,7 +356,7 @@ The initializer is automatically called after the constructor is called or after
 
 === Transfer create
 
-The create operation is automatically called when a new transfer object is saved for the first time. It can be used to create the mapped entity.
+The create operation is called to save a new transfer object by overriding the default behaviour. It can be used to create the mapped entity.
 
 *Syntax:*
 
@@ -364,7 +367,7 @@ The create operation is automatically called when a new transfer object is saved
 
 === Transfer update
 
-The update operation is automatically called when a transfer object is saved. It can be used to update the mapped entity.
+The update operation is called to save changes for an existing transfer object by overriding the default behaviour. It can be used to update the mapped entity.
 
 *Syntax:*
 
@@ -375,7 +378,7 @@ The update operation is automatically called when a transfer object is saved. It
 
 === Transfer delete
 
-Before the transfer object instance is deleted, the system calls the delete operation. The delete operation is used to delete the mapped entity or invoke other destruct actions.
+The delete operation is called to delete an existing transfer object by overriding the default behaviour. The delete operation is used to delete the mapped entity or invoke other destruct actions.
 
 *Syntax:*
 
@@ -400,7 +403,7 @@ A transfer object may contain data descriptions called primitive fields. A primi
 [options="header", cols="1,2"]
 |====================
 |Annotation  | Meaning
-|@Query      | Query the value on first use.
+|@Query      | Do not fetch value together with the transfer object.
 |@Embedded   | Fetch value together with the transfer object.
 |====================
 
@@ -438,7 +441,7 @@ A transfer object may contain data descriptions called relations. Relation is a 
 [options="header", cols="1,2"]
 |====================
 |Annotation  | Meaning
-|@Query      | Query the related object(s) on first use.
+|@Query      | Do not fetch the related object(s) together with the transfer object.
 |@Embedded   | Fetch the related object(s) together with the transfer object.
 |====================
 
@@ -551,7 +554,7 @@ The initializer is automatically called after the constructor is called or after
 
 === View create
 
-The create operation is automatically called when a new view is saved for the first time. It can be used to create the mapped entity.
+The create operation is called to save a new view by overriding the default behaviour. It can be used to create the mapped entity.
 
 *Syntax:*
 
@@ -562,7 +565,7 @@ The create operation is automatically called when a new view is saved for the fi
 
 === View update
 
-The update operation is automatically called when a view is saved. It can be used to update the mapped entity.
+The update operation is called to save changes for an existing view by overriding the default behaviour. It can be used to update the mapped entity.
 
 *Syntax:*
 
@@ -573,7 +576,7 @@ The update operation is automatically called when a view is saved. It can be use
 
 === View delete
 
-Before the view instance is deleted, the system calls the delete operation. The delete operation is used to delete the mapped entity or invoke other destruct actions.
+The delete operation is called to delete an existing view by overriding the default behaviour. The delete operation is used to delete the mapped entity or invoke other destruct actions.
 
 *Syntax:*
 
@@ -649,7 +652,7 @@ A view link can represent a relation to an other view.
 [options="header", cols="1,2"]
 |====================
 |Annotation | Meaning
-|@Query     | Query the related object on first use.
+|@Query     | Do not fetch the related view together with the view.
 |@Embedded  | Fetch the related view together with the view.
 |====================
 
@@ -698,7 +701,7 @@ A view table represents collection of rows.
 [options="header", cols="1,2"]
 |====================
 |Annotation | Meaning
-|@Query     | Query the related objects on first use.
+|@Query     | Do not fetch the related rows together with the view.
 |@Embedded  | Fetch the related rows together with the view.
 |====================
 
@@ -977,7 +980,7 @@ actor human CustomerActor(Customer customer) {
 
 === Actor access
 
-Access provides an entity or collection of entities to the user represented by the actor.
+Access exposes an entity or collection of entities to the user represented by the actor.
 
 *Syntax:*
 

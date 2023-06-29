@@ -158,6 +158,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     public static val DUPLICATE_DELETE = ISSUE_CODE_PREFIX + "DuplicateDelete"
     public static val DUPLICATE_SUBMIT = ISSUE_CODE_PREFIX + "DuplicateSubmit"
     public static val FIELD_TYPE_IS_ABSRTACT_ENTITY = ISSUE_CODE_PREFIX + "FieldTypeIsAbstractEntity"
+    public static val QUERY_AND_EMBEDDED_TOGETHER = ISSUE_CODE_PREFIX + "QueryAndEmbeddedTogether"
 
     public static val MEMBER_NAME_LENGTH_MAX = 128
     public static val MODIFIER_MAX_SIZE_MAX_VALUE = BigInteger.valueOf(4000)
@@ -672,6 +673,28 @@ class JslDslValidator extends AbstractJslDslValidator {
                 INVALID_ANNOTATION)
         }
     }
+
+	@Check
+	def checkQueryAnnottation(AnnotationMark mark) {
+		if (mark.declaration.name.equals("Query")) {
+			if (mark.eContainer.eContents.exists[e | e instanceof AnnotationMark && (e as AnnotationMark).declaration.name.equals("Embedded")]) {
+                error("@Query and @Embedded annotations are not allowed to apply at the same target.",
+                    JsldslPackage::eINSTANCE.annotationMark_Declaration,
+                    QUERY_AND_EMBEDDED_TOGETHER)
+			}
+		}
+	}
+
+	@Check
+	def checkEmbeddedAnnottation(AnnotationMark mark) {
+		if (mark.declaration.name.equals("Embedded")) {
+			if (mark.eContainer.eContents.exists[e | e instanceof AnnotationMark && (e as AnnotationMark).declaration.name.equals("Query")]) {
+                error("@Query and @Embedded annotations are not allowed to apply at the same target.",
+                    JsldslPackage::eINSTANCE.annotationMark_Declaration,
+                    QUERY_AND_EMBEDDED_TOGETHER)
+			}
+		}
+	}
 
     @Check
     def checkAssociation(EntityStoredRelationDeclaration relation) {
