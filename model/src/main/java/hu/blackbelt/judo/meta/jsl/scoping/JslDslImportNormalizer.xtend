@@ -13,10 +13,12 @@ class JslDslImportNormalizer extends ImportNormalizer {
     }
 
     override deresolve(QualifiedName fullyQualifiedName) {
-        if (fullyQualifiedName.empty || fullyQualifiedName.segmentCount != importedNamespacePrefix.segmentCount + 1) return null;
-
         if (fullyQualifiedName.startsWith(importedNamespacePrefix)) {
-            return fullyQualifiedName.skipFirst(importedNamespacePrefix.getSegmentCount());
+	        if (alias !== null) {
+	            return QualifiedName.create(alias).append(fullyQualifiedName.skipFirst(importedNamespacePrefix.getSegmentCount()));
+			} else {
+		    	return fullyQualifiedName.skipFirst(importedNamespacePrefix.getSegmentCount());
+			}
         }
 
         return null;
