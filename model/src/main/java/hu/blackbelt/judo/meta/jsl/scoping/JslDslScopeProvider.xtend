@@ -101,7 +101,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
             FunctionCall case ref == JsldslPackage::eINSTANCE.functionArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
             MemberReference case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_Containments(context.member, ref)
-            TransferDataMember case ref == JsldslPackage::eINSTANCE.transferDataMember_Reference: return scope.scope_Containments(context.eContainer.eContainer.eContainer, ref)
+            TransferDataMember case ref == JsldslPackage::eINSTANCE.transferDataMember_Reference: return scope.scope_AllContainments(context.eContainer.eContainer.eContainer, ref)
             QueryCall case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
             AnnotationMark case ref == JsldslPackage::eINSTANCE.annotationArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
 
@@ -122,6 +122,19 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
         }
 
         return scope
+    }
+
+    def scope_AllContainments(IScope scope, EObject context, EReference ref) {
+        return new FilteringScope(scope.getLocalElementsScope(context, ref), [desc | {
+        	var EObject container = desc.EObjectOrProxy.eContainer;
+        	
+        	while (container !== null) {
+        		if (container.isEqual(context)) return true;
+        		container = container.eContainer;
+        	}
+        	
+        	return false;
+        }]);
     }
 
     def scope_Containments(IScope scope, EObject context, EReference ref) {

@@ -10,7 +10,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import org.junit.jupiter.api.Test
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import hu.blackbelt.judo.meta.jsl.validation.JslDslValidator
-import hu.blackbelt.judo.requirement.report.annotation.Requirement
 
 @ExtendWith(InjectionExtension)
 @InjectWith(JslDslInjectorProvider)
@@ -122,4 +121,19 @@ class AnnotationTests {
         ]
     }
 
+    @Test
+    def void testAnnotationQueryAndEmbedded() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity E {
+				@Query @Embedded
+				field Integer i <= 1;
+			}
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.annotationMark, JslDslValidator.QUERY_AND_EMBEDDED_TOGETHER)
+        ]
+    }
 }
