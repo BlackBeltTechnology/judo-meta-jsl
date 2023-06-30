@@ -982,7 +982,7 @@ fragment Cardinality
 fragment ReturnFragment
 	: KW_VOID?
 	| referenceTypes += [TransferDeclaration | ModelName]
-	| LT referenceTypes += [TransferDeclaration | ModelName] (PIPE referenceTypes += [TransferDeclaration | ModelName])+ GT
+	| LT referenceTypes += [TransferDeclaration | ModelName] (PIPE referenceTypes += [TransferDeclaration | ModelName])* GT
 	;
 
 DecimalNumber returns ecore::EBigDecimal
