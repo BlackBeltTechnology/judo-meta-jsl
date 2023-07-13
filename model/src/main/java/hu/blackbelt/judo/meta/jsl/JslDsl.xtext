@@ -849,7 +849,6 @@ AnnotationTarget
 
 	| KW_TRANSFER COLON transferAction ?= KW_ACTION
 	| KW_TRANSFER COLON transferConstructor ?= KW_CONSTRUCTOR
-	| KW_TRANSFER COLON transferDestructor ?= KW_DESTRUCTOR
 	| KW_TRANSFER COLON transferField ?= KW_FIELD
 	| KW_TRANSFER COLON transferInitializer ?= KW_INITIALIZER
 	| KW_TRANSFER COLON transferRelation ?= KW_RELATION
@@ -861,7 +860,6 @@ AnnotationTarget
 
 	| KW_VIEW COLON viewAction ?= KW_ACTION
 	| KW_VIEW COLON viewConstructor ?= KW_CONSTRUCTOR
-	| KW_VIEW COLON viewDestructor ?= KW_DESTRUCTOR
 	| KW_VIEW COLON viewField ?= KW_FIELD
 	| KW_VIEW COLON viewGroup ?= KW_GROUP
 	| KW_VIEW COLON viewInitializer ?= KW_INITIALIZER
@@ -1009,25 +1007,25 @@ JSLID: ID
 	
 	// Declarations
 	| KW_ABSTRACT | KW_ACTOR | KW_ANNOTATION | KW_AS | KW_ENTITY | KW_ENUM | KW_ERROR | KW_EXTENDS | KW_FUNCTION | KW_HUMAN |  KW_IMPORT
-	| KW_LAMBDA | KW_MODEL | KW_ON | KW_QUERY | KW_ROW | KW_SYSTEM | KW_TRANSFER | KW_TYPE | KW_VIEW
+	| KW_LAMBDA | KW_MAPS | KW_MODEL | KW_ON | KW_QUERY | KW_ROW | KW_SYSTEM | KW_TRANSFER | KW_TYPE | KW_VIEW
 
 	// Features	
-	| KW_ACCESS | KW_ACTION | KW_COLUMN | KW_CONSTRAINT | KW_CONSTRUCTOR | KW_FIELD
-	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_SUBMIT | KW_TABLE | KW_TABS
-	| KW_TEXT | KW_VERTICAL
+	| KW_ACCESS | KW_ACTION | KW_COLUMN | KW_CONSTRAINT | KW_CONSTRUCTOR | KW_CREATE | KW_DELETE | KW_FIELD
+	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_INITIALIZER | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_SUBMIT | KW_TABLE | KW_TABS
+	| KW_TEXT | KW_UPDATE | KW_VERTICAL
 	
 	// Constants
-	| KW_BINARY | KW_BOOLEAN | KW_BOTTOM | KW_CENTER | KW_COLLECTION | KW_CONSTANT | KW_DATE | KW_DECLARATION | KW_LEFT | KW_NUMERIC | KW_RIGHT
-	| KW_STRING | KW_TIME | KW_TIMESTAMP | KW_TOP | KW_KB | KW_MB | KW_GB | KW_KIB | KW_MIB | KW_GIB
+	| KW_BINARY | KW_BOOLEAN | KW_BOTTOM | KW_CENTER | KW_COLLECTION | KW_CONSTANT | KW_DATE | KW_DECLARATION
+	| KW_LEFT | KW_NUMERIC | KW_RIGHT | KW_STRING | KW_TIME | KW_TIMESTAMP | KW_TOP
+	| KW_KB | KW_MB | KW_GB | KW_KIB | KW_MIB | KW_GIB
 	
 	// Attributes
-	| KW_CHOICES | KW_CLAIM | KW_CREATE | KW_DELETE | KW_DETAIL | KW_ENABLED | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
-	| KW_IDENTITY | KW_LABEL | KW_REALM | KW_ROWS | KW_SCALE | KW_THROW
-	| KW_UPDATE | KW_WIDTH  // KW_REQUIRED is missing deliberately !!!!
+	| KW_CHOICES | KW_CLAIM | KW_DETAIL | KW_ENABLED | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
+	| KW_IDENTITY | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_ROWS | KW_SCALE | KW_STRETCH | KW_THROW
+	| KW_WIDTH  // KW_REQUIRED is missing deliberately !!!!
 	
-	// Other
-	| KW_OR | KW_XOR | KW_AND | KW_DIV | KW_MOD
-
+	// Operators
+	| KW_IMPLIES | KW_OR | KW_XOR | KW_AND | KW_DIV | KW_MOD
 	;
 
 
@@ -1035,6 +1033,7 @@ JSLID: ID
  *	Terminals
  ****************************/
 
+// Declarations
 terminal KW_ABSTRACT:	'abstract';
 terminal KW_ACTOR:		'actor';
 terminal KW_ANNOTATION:	'annotation';
@@ -1057,6 +1056,7 @@ terminal KW_TRANSFER:	'transfer';
 terminal KW_TYPE:		'type';
 terminal KW_VIEW:		'view';
 
+// Features	
 terminal KW_ACCESS:		'access';
 terminal KW_ACTION:		'action';
 terminal KW_COLUMN:		'column';
@@ -1064,7 +1064,6 @@ terminal KW_CONSTRAINT:	'constraint';
 terminal KW_CONSTRUCTOR:'constructor';
 terminal KW_CREATE:		'create';
 terminal KW_DELETE:		'delete';
-terminal KW_DESTRUCTOR:	'destructor';
 terminal KW_FIELD:		'field';
 terminal KW_GROUP:		'group';
 terminal KW_HORIZONTAL: 'horizontal';
@@ -1081,6 +1080,7 @@ terminal KW_TEXT:		'text';
 terminal KW_UPDATE:		'update';
 terminal KW_VERTICAL:   'vertical';
 
+// Constants
 terminal KW_BINARY:		'binary';
 terminal KW_BOOLEAN:	'boolean';
 terminal KW_BOTTOM:		'bottom';
@@ -1089,7 +1089,7 @@ terminal KW_COLLECTION:	'collection';
 terminal KW_CONSTANT:	'constant';
 terminal KW_DATE:		'date';
 terminal KW_DECLARATION:'declaration';
-terminal KW_FALSE:		'false';
+terminal KW_FALSE:		'false';  // not ID
 terminal KW_LEFT:		'left';
 terminal KW_NUMERIC:	'numeric';
 terminal KW_RIGHT:		'right';
@@ -1097,9 +1097,16 @@ terminal KW_STRING:		'string';
 terminal KW_TIME:		'time';
 terminal KW_TIMESTAMP:	'timestamp';
 terminal KW_TOP:		'top';
-terminal KW_TRUE:		'true';
-terminal KW_VOID:		'void';
+terminal KW_TRUE:		'true';  // not ID
+terminal KW_VOID:		'void';  // not ID
+terminal KW_KB:			'KB';
+terminal KW_MB:			'MB';
+terminal KW_GB:			'GB';
+terminal KW_KIB:		'KiB';
+terminal KW_MIB:		'MiB';
+terminal KW_GIB:		'GiB';
 
+// Attributes
 terminal KW_CHOICES:	'choices';
 terminal KW_CLAIM:		'claim';
 terminal KW_DETAIL:		'detail';
@@ -1120,7 +1127,7 @@ terminal KW_OPPOSITEADD:'opposite-add';
 terminal KW_PRECISION:	'precision';
 terminal KW_REALM:		'realm';
 terminal KW_REGEX:		'regex';
-terminal KW_REQUIRED:	'required';
+terminal KW_REQUIRED:	'required';  // not ID
 terminal KW_ROWS:		'rows';
 terminal KW_SCALE:		'scale';
 terminal KW_STRETCH:	'stretch';
@@ -1128,19 +1135,14 @@ terminal KW_THROW:		'throw';
 terminal KW_VALIGN:		'v-align';
 terminal KW_WIDTH:		'width';
 
-terminal KW_NOT:        'not';
+// Operators
+terminal KW_NOT:        'not';  // not ID
 terminal KW_IMPLIES:	'implies';
 terminal KW_OR:			'or';
 terminal KW_XOR:		'xor';
 terminal KW_AND:		'and';
 terminal KW_DIV:		'div';
 terminal KW_MOD:		'mod';
-terminal KW_KB:			'KB';
-terminal KW_MB:			'MB';
-terminal KW_GB:			'GB';
-terminal KW_KIB:		'KiB';
-terminal KW_MIB:		'MiB';
-terminal KW_GIB:		'GiB';
 
 terminal LP:    '(';
 terminal RP:    ')';
@@ -1166,13 +1168,6 @@ terminal DIV:   '/';
 terminal EXP:   '^';
 terminal EXCL:  '!';
 terminal PIPE:  '|';
-
-//terminal IMPLIES: 'implies';
-//terminal OR:      'or';
-//terminal XOR:     'xor';
-//terminal AND:     'and';
-//terminal DIV:     'div';
-//terminal MODE:    'mod';
 
 terminal BLOCK_START
 	: '{'

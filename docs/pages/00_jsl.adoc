@@ -81,12 +81,12 @@ The following example is syntactically valid.
 ----
 model crm;
 
-type string String(min-size = 0, max-size = 128);
+type string String min-size:0 max-size:128;
 
 entity Person {
     field required String firstName = "";
     field required String lastName = "";;;;;
-    derived String fullName =
+    field String fullName <=
         self.firstName + " " + self.lastName;
 };
 ----
@@ -96,27 +96,19 @@ entity Person {
 
 Keywords are predefined, reserved words used in JSL that have special meanings in the language. JSL keywords are always lowercase.
 
-Keywords cannot be used directly as element names. If you still want to use these reserved words as element names, the words must be enclosed in back-tick (```) characters as shown in the example below.
+Most keywords can also be used as element names. However, there are reserved keywords that cannot be used directly as an element name. If you still want to use these reserved keywords as element names, the words must be enclosed in back-tick (```) characters as shown in the example below.
 
 ----
-field String `model`;
+field String `void`;
 ----
 
-This is the list of keywords in the JSL.
+This is the list of reserved keywords in the JSL.
 
-[cols="1,1,1"]
-|======================================================================
-|abstract   |false       |opposite-add
-|and        |field       |or
-|as         |identifier  |query
-|constraint |implies     |relation
-|derived    |import      |required
-|div        |mod         |self
-|entity     |model       |true
-|enum       |not         |type
-|error      |onerror     |xor
-|extends    |opposite    |
-|======================================================================
+* `not`
+* `true`
+* `false`
+* `void`
+* `required`
 
 === Element names
 
@@ -150,7 +142,7 @@ The `model` keyword is used to start a model definition.
 
 [subs="quotes"]
 ----
-[purple]#**model**# &lt;fq-name> [purple]#**;**#
+[purple]#**model**# &lt;fq-name>[purple]#**;**#
 ----
 
 where the <fq-name> is the fully qualified name of the model. The fully qualified name consists of optional namespaces and the name of the model separated by double colons (`::`), for example `demo::enterprise::crm`. `crm` is the name of the model and the namespaces are `demo` and `enterprise`.
@@ -181,7 +173,7 @@ To import an existing model, use the `import` keyword.
 
 [subs="quotes"]
 ----
-[purple]#**import**# &lt;model> &#x5B;[purple]##**as**## &lt;alias>] [purple]#**;**#
+[purple]#**import**# &lt;model> &#x5B;[purple]##**as**## &lt;alias>][purple]#**;**#
 ----
 
 where the <model> is the fully qualified name of the imported model. 
@@ -223,6 +215,29 @@ entity Person {
 
 Notice the difference between the field declarations in the examples above.
 
+Imported model elements are also available in both cases with their fully qualified name. So the following examples are correct.
+
+*Example:*
+
+----
+import judo::types as types;
+
+entity Person {
+    field judo::types::String name;
+}
+----
+
+*Example:*
+
+----
+import judo::types;
+
+entity Person {
+    field judo::types::String name;
+}
+----
+
+ 
 == Primitives
 
 In order to support JSL as a rigorous modeling formalism, the primitive data types in the model must be specified.
@@ -241,14 +256,12 @@ The above base types cannot be used directly in domain models. However, you must
 
 To define a new domain model primitive, use the `type` keyword.
 
-*Syntax:*
-
 [subs="quotes"]
 ----
-[purple]#**type**# &lt;basetype> &lt;name> &#x5B; [purple]#**(**#&lt;parameter name> [purple]#**=**# &lt;parameter value>][purple]#**,**# ...[purple]#**)**# ] [purple]#**;**#
+[purple]#**type**# &lt;basetype> &lt;name> &#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ...[purple]#**;**#
 ----
 
-where the <basetype> is one of the base types defined above, the <name> is the name of the domain model primitive, and there can be an additional list of parameters for each base type. The optional comma-separated parameter list consists of name-value pairs, using `=` between name and value.
+where the <basetype> is one of the base types defined above, the <name> is the name of the domain model primitive, and there can be an additional list of parameters for each base type. The optional parameter list consists of name-value pairs, using `:` between name and value.
 
 Parameters are constraints that restrict the use of the newly created primitive data type.
 
@@ -256,8 +269,8 @@ Parameters are constraints that restrict the use of the newly created primitive 
 
 ----
 type boolean Boolean;
-type numeric Integer(precision = 9, scale = 0);
-type string String(min-size = 0, max-size = 128);
+type numeric Integer precision:9 scale:0;
+type string String min-size:0 max-size:128;
 ----
 
 The <<Base types>> section provide examples of each base type and its possible constraints and operations.
@@ -272,8 +285,8 @@ type boolean Boolean;
 type date Date;
 type time Time;
 type timestamp Timestamp;
-type numeric Integer(precision = 15, scale = 0);
-type string String(min-size = 0, max-size = 4000);
+type numeric Integer precision:15 scale:0;
+type string String min-size:0 max-size:4000;
 ----
 
 You can use these primitives a follows:
@@ -312,7 +325,7 @@ To define an enumeration, use the `enum` keyword.
 [subs="quotes"]
 ----
 [purple]#**enum**# &lt;name> [purple]#**{**#
-    &#x5B;&lt;literal> [purple]##**=**## &lt;ordinal> [purple]#**;**#] ...
+    &#x5B;&lt;literal> [purple]##**=**## &lt;ordinal>[purple]#**;**#] ...
 [purple]#**}**#
 ----
 
@@ -460,7 +473,7 @@ Use the `field` keyword to specify a primitive field within an entity.
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>] [purple]#**;**#
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>][purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive and <name> is the referable name of the primitive field.
@@ -497,7 +510,7 @@ Use the `identifier` keyword to specify a unique field within an entity.
 
 [subs="quotes"]
 ----
-[purple]#**identifier**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>] [purple]#**;**#
+[purple]#**identifier**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>][purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive and <name> is the referable name of the identifier. Any primitive type can be used as an identifier, except primitives of binary base type.
@@ -573,7 +586,7 @@ Use the `relation` keyword to specify a relation between two entities. The synta
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]#**;**#
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**=**## &lt;default>][purple]#**;**#
 ----
 
 where <entity> is the name of an entity to which the relation is targeted. The <name> is used to identify the relation within the entity, it is commonly referred to as role name.
@@ -581,6 +594,14 @@ where <entity> is the name of an entity to which the relation is targeted. The <
 The optional `[]` behind the <entity> indicates that the relation is a collection rather than a single reference to one <entity> instance. In other words, the cardinality of the relation is a collection.
 
 The keyword `required` means that the value of the relation must be specified, so the value is not allowed to be UNDEFINED. Each newly created entity instance must set this field. The keyword `required` is not allowed for collections.
+
+
+Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the identifier is set according to the default value expression. See <<Expression>> later.
+
+[NOTE]
+====
+The `self` variable cannot be used in default expressions. 
+====
 
 *Example:*
 
@@ -609,7 +630,7 @@ The syntax of the bidirectional relation is an extension of unidirectional synta
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite**## &lt;opposite> [purple]#**;**#
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**=**## &lt;default>] [purple]##**opposite:**##&lt;opposite>[purple]#**;**#
 ----
 
 The `opposite` keyword is used to link two relations into a bidirectional relation. The `opposite` keyword must be used on both sides of the bidirectional relation.
@@ -620,11 +641,11 @@ Both ends of a bidirectional relation cannot be required at the same time.
 
 ----
 entity SalesPerson {
-	relation Lead[] leads opposite salesperson;
+	relation Lead[] leads opposite:salesperson;
 }
 
 entity Lead {
-	relation required SalesPerson salesperson opposite leads;
+	relation required SalesPerson salesperson opposite:leads;
 }
 ----
 
@@ -634,7 +655,7 @@ Another form of bidirectional relationship declaration is as follows.
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite-add**## &lt;opposite>&#x5B;[purple]##**[]**##] [purple]#**;**#
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**=**## &lt;default>] [purple]##**opposite-add:**##&lt;opposite>&#x5B;[purple]##**[]**##][purple]#**;**#
 ----
 
 The `opposite-add` keyword with a simple <opposite> is used to create a bidirectional relation and inject the opposite relation to an already defined entity without changing the original definition of the entity.
@@ -652,11 +673,11 @@ entity SalesPerson {
 }
 
 entity Lead {
-	relation required SalesPerson salesperson opposite-add leads[];
+	relation required SalesPerson salesperson opposite-add:leads[];
 }
 
 entity Customer {
-	relation Lead[] leads opposite-add customer;
+	relation Lead[] leads opposite-add:customer;
 }
 ----
 
@@ -681,7 +702,7 @@ Use the `field` keyword to specify a composite field within an entity.
 ////
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]#**;**#
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>[purple]#**;**#
 ----
 
 where <entity> is the name of an entity and <name> is the referable name of the composition.
