@@ -30,10 +30,10 @@ An expression is evaluated to a value, which can be primitive value (e.g. `42` o
 [source,jsl]
 ----
 // it is a single line expression
-derived String fullName => self.firstName + " " + self.lastName;
+field String fullName <= self.firstName + " " + self.lastName;
     
 // it is a multi-line expression
-derived String fullName => self.firstName +
+field String fullName <= self.firstName +
                           " " +
                           self.lastName;
 ----
@@ -94,10 +94,10 @@ The starting point of the navigation can be
 [source,jsl]
 ----
 // a navigation starting from static collection
-derived Products[] orderedProducts => shop::Order!all().orderItems.product;
+relation Products[] orderedProducts <= shop::Order!all().orderItems.product;
 
 // a navigation starting from self variable in Order entity
-derived Products[] orderedProducts => self.orderItems.product;
+relation Products[] orderedProducts <= self.orderItems.product;
 ----
 
 Navigation can be chained, which means that you can navigate further from a navigation result.
@@ -121,13 +121,13 @@ When navigating from an instance collection, regardless of the cardinality of re
 [judo-req="true",judo-req-id="REQ-EXPR-004"]
 == Field selection
 
-Both derived and stored field values of an entity can be read in expressions. To read a field value use the `.` (dot) character. The field selection can be chained for navigation expression. The field selection can only be chained for navigation that returns a single instance.
+Both calculated and stored field values of an entity can be read in expressions. To read a field value use the `.` (dot) character. The field selection can be chained for navigation expression. The field selection can only be chained for navigation that returns a single instance.
 
 *Examples:*
 
 [source,jsl]
 ----
-derived String productName => self.product.name;
+field String productName <= self.product.name;
 ----
 
 In the example above, the expression returns the product's name.
@@ -141,7 +141,7 @@ Static and instance queries can be used in expressions. To execute an instance q
 
 [source,jsl]
 ----
-derived Customer[] havingOrdersBetween0and10 => shop::ordersBetween(min = 0, max = 10).customer;
+relation Customer[] havingOrdersBetween0and10 <= shop::ordersBetween(min = 0, max = 10).customer;
 ----
 
 In the example above, the `ordersBetween` query is executed with two arguments.
@@ -164,8 +164,8 @@ where <navigation> is a valid navigation expression and <function> is the name o
 
 [source,jsl]
 ----
-derived Integer count => self.orderItems!size();
-derived Integer nameLength => self.fullName!size();
+field Integer count <= self.orderItems!size();
+field Integer nameLength <= self.fullName!size();
 ----
 
 The `self.orderItems!size()` evaluates to an integer, it returns the number of the ordered items in the order. The expression `self.fullName!size()` will return the number of characters in the customers's name field (assuming it is a String type).
@@ -211,7 +211,7 @@ where <variable> is the name of the iterator variable that will iterate through 
 
 [source,jsl]
 ----
-derived Integer averagePrice => self.orders!avg(order | order.price);
+field Integer averagePrice <= self.orders!avg(order | order.price);
 ----
 
 In the example above, we navigate to a collection orders and define an iterator variable named `order`. Then, we read the `price` field of orders and pass this list to the `avg` built-in function. The example calculates the average price of the orders.
@@ -240,8 +240,8 @@ The following example selects a customer's orders that are cheaper than average 
 entity Customer {
 	relation Order[] orders opposite customer;
 
-    derived Price avgPrice => self.orders!avg(field = price);
-    derived Order[] belowAvgOrders => self.orders!filter(order | order.price < order.customer.avgPrice);
+    field Price avgPrice <= self.orders!avg(field = price);
+    relation Order[] belowAvgOrders <= self.orders!filter(order | order.price < order.customer.avgPrice);
 }
 ----
 
@@ -956,7 +956,7 @@ Makes sense in JCL only.
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**first(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : collection`
-|Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing the first elements. If there is more than one element in the first place, all elements in the first place are included in the result. The <expression> must navigate to a primitive type field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
+|Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing the first elements. If there is more than one element in the first place, all elements in the first place are included in the result. The <expression> must navigate to a primitive type field. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
 | Example:
 |`self.orderItems.product!first(item \| item.price)` returns the cheapest products of an order.
 |======================================================================
@@ -964,7 +964,7 @@ Makes sense in JCL only.
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**last(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : collection`
-|Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing the last elements. If there is more than one element in the last place, all elements in the last place are included in the result. The <expression> must navigate to a primitive type field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
+|Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing the last elements. If there is more than one element in the last place, all elements in the last place are included in the result. The <expression> must navigate to a primitive type field. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
 |Example:
 |`self.orderItems.product!last(item \| item.price)` returns the highest priced products of an order.
 |======================================================================
@@ -972,14 +972,14 @@ Makes sense in JCL only.
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**front(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : collection`
-|Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing all of the non-last elements. If there is more than one element in the last place, all elements in the last place are omitted from the result. The <expression> must navigate to a primitive type field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
+|Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing all of the non-last elements. If there is more than one element in the last place, all elements in the last place are omitted from the result. The <expression> must navigate to a primitive type field. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
 |`self.orderItems.product!front(item \| item.price)` returns all products in the order, except the highest priced products.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**back(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : collection`
-|Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing all of the non-first elements. If there is more than one element in the first place, all elements in the first place are omitted from the result. The <expression> must navigate to a primitive type field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
+|Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing all of the non-first elements. If there is more than one element in the first place, all elements in the first place are omitted from the result. The <expression> must navigate to a primitive type field. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
 |Example:
 |`self.orderItems.product!back(item \| item.price)` returns all products in the order, except the cheapest products.
 |======================================================================
@@ -1090,7 +1090,7 @@ TODO: what is this?
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**min(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : numeric`
-|Returns the minimum value from the set of values selected by the <expression>. The <expression> must navigate to a numeric field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter. 
+|Returns the minimum value from the set of values selected by the <expression>. The <expression> must navigate to a numeric field. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter. 
 |Example:
 |`self.orderItems!min(item \| item.price)` returns the lowest price from the prices of elements of `orderItems` list.
 |======================================================================
@@ -1098,7 +1098,7 @@ TODO: what is this?
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**max(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : numeric`
-|Returns the maximum value from the set of values selected by the <expression>. The <expression> must navigate to a numeric field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
+|Returns the maximum value from the set of values selected by the <expression>. The <expression> must navigate to a numeric field. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
 |Example:
 |`self.orderItems!max(item \| item.price)` returns the highest price from the prices of elements of `orderItems` list.
 |======================================================================
@@ -1106,7 +1106,7 @@ TODO: what is this?
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**avg(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : numeric`
-|Returns the average of the set of values selected by the <expression>. The <expression> must navigate to a numeric field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
+|Returns the average of the set of values selected by the <expression>. The <expression> must navigate to a numeric field. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
 |Example:
 |`self.orderItems!avg(item \| item.price)` returns the average price of the elements of `orderItems` list.
 |======================================================================
@@ -1114,7 +1114,7 @@ TODO: what is this?
 [options="header",grid="none",cols="1a"]
 |======================================================================
 |`[purple]#**sum(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : numeric`
-|Returns the sum of the set of values selected by the <expression>. The <expression> must navigate to a numeric field or derived. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
+|Returns the sum of the set of values selected by the <expression>. The <expression> must navigate to a numeric field. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
 |Example:
 |`self.orderItems!sum(item \| item.price)` returns the sum of the prices of the items in the `orderItems` list.
 |======================================================================
