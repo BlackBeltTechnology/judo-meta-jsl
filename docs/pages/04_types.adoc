@@ -189,12 +189,12 @@ To define string primitive, use the `type` keyword with `string`.
 
 [subs="quotes"]
 ----
-[purple]#**type string**# &lt;name> [purple]#**min-size:**#&lt;min>[purple]#** max-size:**#&lt;max> &#x5B;[purple]##**regex:**##&lt;regular expression>][purple]#**;**#
+[purple]#**type string**# &lt;name> [purple]#**min-size:**#&lt;min-size>[purple]#** max-size:**#&lt;max-size> &#x5B;[purple]##**regex:**##&lt;regex>][purple]#**;**#
 ----
 
-where the <name> is the name of the domain model string, and the mandatory <min> and <max> specify the minimum and the maximum size of the text that can be stored. <max> must be a value from 1 through 4000 and <min> must be a value from 0 through <max>.
+where the <name> is the name of the domain model string, and the mandatory <min-size> and <max-size> specify the minimum and the maximum size of the text that can be stored. <max-size> must be a value from 1 through 4000 and <min-size> must be a value from 0 through <max-size>.
 
-The optional <regular expression> is a sequence of characters that specifies a pattern, that is for validation. The following tables summarize the regular expression constructs.
+The optional <regex> is a regular expression that specifies a validation pattern. The following tables summarize the regular expression constructs.
 
 [options="header", cols="1,2"]
 |====================

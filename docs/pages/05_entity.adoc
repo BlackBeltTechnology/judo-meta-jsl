@@ -410,11 +410,9 @@ where <primitive> is the name of a domain model primitive, and <name> is the ref
 [purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;parameter> &#x5B;[purple]##**=**## &lt;value>][purple]##**,**## ...[purple]##**)**##] [purple]##**<=**## &lt;expression>[purple]#**;**#
 ----
 
-where the <entity> is the name of an entity, and <name> is the referable name of the calculated member. The optional `[]` indicates that the calculated member returns a collection rather than a single reference to one <entity>.
+where the <entity> is the name of an entity, and <name> is the referable name of the calculated relation. The optional `[]` indicates that the calculated relation returns a collection rather than a single reference to one <entity>.
 
-The getter <expression> returns the value of the derived member whenever it is evaluated. The moment of evaluation needs explanation. Calculated fields that return a primitive value are evaluated immediately when the owner entity is referenced. However, the getter <expression> of calculated relations are only evaluated during navigation.
-
-See xref:06_expression.adoc[Expression] later.
+The getter <expression> returns the value of the calculated member. See xref:06_expression.adoc[Expression] later.
 
 [NOTE]
 ====
@@ -438,7 +436,7 @@ The example above defines two stored fields and a calculated member. The name of
 
 ----
 entity Customer extends User, Person {
-	derived Order[] undeliveredOrders =>
+	relation Order[] undeliveredOrders <=
 		self.orders!filter(order | order.status != OrderStatus#PAID);
 }
 ----
@@ -466,38 +464,23 @@ The example above shows the calculated relation `leadsBetween`, which has two pa
 
 === Calculated member evaluation
 
+The moment of evaluation needs explanation. Calculated fields that return a primitive value are evaluated immediately when the owner entity is referenced. However, the getter <expression> of calculated relations are only evaluated during navigation.
 
-
-
-
+// @Query and @Embedded should be explained here?
 
 [judo-req="true",judo-req-id="REQ-ENT-009"]
+[judo-req="true",judo-req-id="REQ-ENT-011"]
 == Query
 
 A query is a request that retrieves a primitive or entities. Each query has a return type, a name and a query expression, which is used to calculate the return value.
 
-There are two main differences between queries and derived members.
-
-* queries can have arguments, and
-* queries are never evaluated automatically, their return values will only be calculated when the query is invoked.
-
-There are two types of queries
-
-* _instance query_ and
-* _static query_
-
-[judo-req="true",judo-req-id="REQ-ENT-010"]
-=== Instance query
-
-Instance queries are declared within an entity. The entity that contains the query can be referred to as `self` in the query expression.
-
-Use the `query` keyword to specify a query within an entity.
+Use the `query` keyword to specify a query.
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**query**# &lt;primitive> &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...][purple]##**)**## [purple]##**=>**## &lt;expression> [purple]#**;**#
+[purple]#**query**# &lt;primitive> &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;parameter> &#x5B;[purple]##**=**## &lt;value>][purple]##,## ...[purple]##**)**##] [purple]##**<=**## &lt;expression>[purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive that will be returned, and <name> is the referable name of the query, or
@@ -506,7 +489,7 @@ where <primitive> is the name of a domain model primitive that will be returned,
 
 [subs="quotes"]
 ----
-[purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> &#x5B;[purple]##**=**## &lt;default>][purple]##**,**## ...][purple]##**)**## [purple]##**=>**## &lt;expression> [purple]#**;**#
+[purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;parameter> &#x5B;[purple]##**=**## &lt;value>][purple]##**,**## ...[purple]##**)**##] [purple]##**<=**## &lt;expression>[purple]#**;**#
 ----
 
 where the <entity> is the name of an entity that will be returned, and <name> is the referable name of the query. The optional `[]` indicates that the query returns a list of <entity> instances rather than a single reference to one <entity>.
@@ -515,33 +498,10 @@ The <expression> calculates the return value of the query whenever it is request
 
 [NOTE]
 ====
-Note that queries do not use the assignment operator (=) but the arrow operator (\=>) to set the value.
+Note that queries do not use the assignment operator (=) but the (\<=) symbol to set the value.
 ====
 
-The optional comma separated list is the arguments of the <expression>. The arguments can be used in the <expression>. <primitive> is the type of argument which can be a domain model primitive only. <argument> is the name of the argument.
-
-Arguments can be declared with optional <default> values. The default values are used when the query is executed by one or more missing arguments. The default value is an expression, but `self` cannot be used in default expressions.
-
-*Example:*
-
-[source,jsl]
-----
-entity Customer {
-	relation Order[] orders opposite customer;
-
-	query Order[] ordersBetween(Integer min = 0, Integer max = 100) =>
-	    self.orders!filter(o | o.price > min and  o.price < max);
-}
-----
-
-The example above shows the query `ordersBetween`, which has two arguments (`min` and `max`). It returns the orders of a customer with a price between `min` and `max`. If no arguments are specified when executing `ordersBetween`, the query returns orders between 0 and 100. For more details about expressions, see the chapter xref:06_expression.adoc[Expression].
-
-[judo-req="true",judo-req-id="REQ-ENT-011"]
-=== Static query
-
-Static queries are very similar to instance queries, but static queries are within the scope of the model, not the scope of the entity. Thus, static queries cannot use `self` variable.
-
-The syntax of the static query declaration is the same as the syntax of the instance query declaration.
+The optional comma separated list in the query definition is the parameter list of the <expression>. The parameters can be used in the <expression>. <primitive> is the type of parameter which can be a domain model primitive only. <parameter> is the name of the parameter. An optional default <value> can be specified for the parameters. Default values are used when the calculated member is evaluated with one or more missing arguments.
 
 *Example:*
 
@@ -551,23 +511,18 @@ entity Customer {
 	relation Order[] orders opposite customer;
 }
 
-query Order[] ordersBetween(Integer min = 0, Integer max = 100) =>
+query Order[] ordersBetween(Integer min = 0, Integer max = 100) <=
     Order!filter(o | o.price > min and  o.price < max);
 ----
 
-The example above shows the static query `ordersBetween`, which has two arguments (`min` and `max`). It returns the orders from all orders in the application with a price between `min` and `max`.
-
-[NOTE]
-====
-Note the difference between the instance and the static query examples. The instance query uses the `self` variable as the starting point for navigation. It collects all the orders belonging to the given customer and then runs the filter condition. In the second example, the starting point of the static query is all the orders stored in the application. Then the static query also runs the filter condition to select the orders between the two price limits.
-====
+The example above shows the query `ordersBetween`, which has two parameters (`min` and `max`). It returns the orders from all orders in the application with a price between `min` and `max`.
 
 [judo-req="true",judo-req-id="REQ-ENT-012"]
 == Inheritance
 
 Inheritance is a mechanism by which more specific entities incorporate structure of the more general entities (called parent entities).
 
-Entities may inherit identifiers, stored fields, derived fields, relations and entity constraints from their parent entities. An entity and its parent entity are in IS-A relation, the entity can replace its parent entity anywhere.
+Entities may inherit identifiers, stored fields, calculated fields, relations and entity constraints from their parent entities. An entity and its parent entity are in IS-A relation, the entity can replace its parent entity anywhere.
 
 Inherited members of an entity which were defined in the parent behave as if they were defined in the entity itself.
 
