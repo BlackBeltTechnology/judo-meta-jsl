@@ -35,10 +35,10 @@ To define a new domain model primitive, use the `type` keyword.
 
 [subs="quotes"]
 ----
-[purple]#**type**# &lt;basetype> &lt;name> &#x5B; [purple]#**(**#&lt;parameter name> [purple]#**=**# &lt;parameter value>][purple]#**,**# ...[purple]#**)**# ] [purple]#**;**#
+[purple]#**type**# &lt;basetype> &lt;name> &#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ...[purple]#**;**#
 ----
 
-where the <basetype> is one of the base types defined above, the <name> is the name of the domain model primitive, and there can be an additional list of parameters for each base type. The optional comma-separated parameter list consists of name-value pairs, using `=` between name and value.
+where the <basetype> is one of the base types defined above, the <name> is the name of the domain model primitive, and there can be an additional list of parameters for each base type. The optional parameter list consists of name-value pairs, using `:` between name and value.
 
 Parameters are constraints that restrict the use of the newly created primitive data type.
 
@@ -47,8 +47,8 @@ Parameters are constraints that restrict the use of the newly created primitive 
 [source,jsl]
 ----
 type boolean Boolean;
-type numeric Integer(precision = 9, scale = 0);
-type string String(min-size = 0, max-size = 128);
+type numeric Integer precision:9 scale:0;
+type string String min-size:0 max-size:128;
 ----
 
 The <<Base types>> section provide examples of each base type and its possible constraints and operations.
@@ -64,9 +64,8 @@ type boolean Boolean;
 type date Date;
 type time Time;
 type timestamp Timestamp;
-type numeric Integer(precision = 9, scale = 0);
-type numeric Long(precision = 15, scale = 0);
-type string String(min-size = 0, max-size = 4000);
+type numeric Integer precision:15 scale:0;
+type string String min-size:0 max-size:4000;
 ----
 
 You can use these primitives a follows:
@@ -107,8 +106,8 @@ To define an enumeration, use the `enum` keyword.
 [subs="quotes"]
 ----
 [purple]#**enum**# &lt;name> [purple]#**{**#
-    &lt;literal> [purple]##**=**## &lt;ordinal> [purple]#**;**#
-    &#x5B;&lt;literal> [purple]##**=**## &lt;ordinal> [purple]#**;** ...#]
+    &lt;literal> [purple]##**=**## &lt;ordinal>[purple]#**;**#
+    &#x5B;&lt;literal> [purple]##**=**## &lt;ordinal>[purple]#**;** ...#]
 [purple]#**}**#
 ----
 
@@ -190,7 +189,7 @@ To define string primitive, use the `type` keyword with `string`.
 
 [subs="quotes"]
 ----
-[purple]#**type string**# &lt;name> [purple]#**(min-size =**# &lt;min>[purple]#**, max-size =**# &lt;max>&#x5B;[purple]##**, regex =**## &lt;regular expression>][purple]#**)**# [purple]#**;**#
+[purple]#**type string**# &lt;name> [purple]#**min-size:**#&lt;min>[purple]#** max-size:**#&lt;max> &#x5B;[purple]##**regex:**##&lt;regular expression>][purple]#**;**#
 ----
 
 where the <name> is the name of the domain model string, and the mandatory <min> and <max> specify the minimum and the maximum size of the text that can be stored. <max> must be a value from 1 through 4000 and <min> must be a value from 0 through <max>.
@@ -267,9 +266,9 @@ The optional <regular expression> is a sequence of characters that specifies a p
 
 [source,jsl]
 ----
-type string String(min-size = 0, max-size = 128);
-type string LongString(min-size = 0, max-size = 1024);
-type string Email(min-size = 0, max-size = 64, regex = r"^\w+@\w+(\.\w+)+$");
+type string String min-size:0 max-size:128;
+type string LongString min-size:0 max-size:1024;
+type string Email min-size:0 max-size:64 regex:r"^\w+@\w+(\.\w+)+$";
 ----
 
 This creates three domain model primitives. The first can store a maximum of 128 length text, the second may store texts up to 1024 characters.
@@ -280,7 +279,7 @@ The third string may accept only email addresses. Please note that the regular e
 
 [source,jsl]
 ----
-type string Email(min-size = 0, max-size = 64, regex = "^\\w+@\\w+(\\.\\w+)+$");
+type string Email min-size:0 max-size:64 regex:"^\\w+@\\w+(\\.\\w+)+$";
 ----
 
 You can find a detailed explanation of the operators and their precedence in the xref:06_expression.adoc#operators[Operators] chapter. The supported operators of string are the following:
@@ -312,7 +311,7 @@ To define numeric primitive, use the `type` keyword with `numeric`.
 
 [subs="quotes"]
 ----
-[purple]#**type numeric**# &lt;name> [purple]#**(precision =**# &lt;precision>[purple]#**, scale =**# &lt;scale>[purple]#**)**# [purple]#**;**#
+[purple]#**type numeric**# &lt;name> [purple]#**precision:**#&lt;precision>[purple]#** scale:**#&lt;scale>[purple]#**;**#
 ----
 
 where the <name> is the name of the domain model numeric,
@@ -325,8 +324,8 @@ The number `3.14` has a precision of 3 and a scale of 2.
 
 [source,jsl]
 ----
-type numeric Integer(precision = 9, scale = 0);
-type numeric Price(precision = 7, scale 2);
+type numeric Integer precision:9 scale:0;
+type numeric Price precision:7 scale:2;
 ----
 
 You can find a detailed explanation of the operators and their precedence in the xref:06_expression.adoc#operators[Operators] chapter. The supported operators of numeric are the following:
@@ -364,7 +363,7 @@ To define boolean primitive, use the `type` keyword with `boolean`.
 
 [subs="quotes"]
 ----
-[purple]#**type boolean**# &lt;name> [purple]#**;**#
+[purple]#**type boolean**# &lt;name>[purple]#**;**#
 ----
 
 where the <name> is the name of the domain model boolean.
@@ -437,7 +436,7 @@ To define date primitive, use the `type` keyword with `date`.
 
 [subs="quotes"]
 ----
-[purple]#**type date**# &lt;name> [purple]#**;**#
+[purple]#**type date**# &lt;name>[purple]#**;**#
 ----
 
 where the <name> is the name of the domain model date.
@@ -517,7 +516,7 @@ To define time primitive, use the `type` keyword with `time`.
 
 [subs="quotes"]
 ----
-[purple]#**type time**# &lt;name> [purple]#**;**#
+[purple]#**type time**# &lt;name>[purple]#**;**#
 ----
 
 where the <name> is the name of the domain model time.
@@ -579,7 +578,7 @@ To define timestamp primitive, use the `type` keyword with `timestamp`.
 
 [subs="quotes"]
 ----
-[purple]#**type timestamp**# &lt;name> [purple]#**;**#
+[purple]#**type timestamp**# &lt;name>[purple]#**;**#
 ----
 
 where the <name> is the name of the domain model timestamp.
@@ -648,7 +647,7 @@ To define binary primitive, use the `type` keyword with `binary`.
 
 [subs="quotes"]
 ----
-[purple]#**type binary**# &lt;name> [purple]#**(mime-types =**# &lt;mime-types>[purple]#**, max-file-size =**# &lt;max-file-size>[purple]#**)**# [purple]#**;**#
+[purple]#**type binary**# &lt;name> [purple]#**mime-types:**#&lt;mime-types>[purple]#** max-file-size:**#&lt;max-file-size>[purple]#**;**#
 ----
 
 where the <name> is the name of the domain model binary, the <mime-types> is a list of mime types indicating the accepted formats, and the <max-file-size> is the maximum size of the file.
@@ -687,14 +686,14 @@ Valid mime types and subtypes can only contain alphabetic characters, digits and
 
 [source,jsl]
 ----
-type binary Document (mime-types = ["application/pdf", "application/msword"], max-file-size = 10MB);
+type binary Document mime-types:["application/pdf", "application/msword"] max-file-size:10MB;
 ----
 
 The example above defines a Document type that accepts pdf or ms-word documents up to 10 megabytes in size.
 
 [source,jsl]
 ----
-type binary Image (mime-types = ["image/*"], max-file-size = 500kB);
+type binary Image mime-types:["image/*"] max-file-size:500kB;
 ----
 
 The second example defines an Image type that accepts any image format up to 500 kbytes in size.
