@@ -462,11 +462,55 @@ entity Lead {
 
 The example above shows the calculated relation `leadsBetween`, which has two parameters (`min` and `max`). It returns the leads of a salesperson with a value between `min` and `max`. If no arguments are specified when executing `leadsBetween`, the calculated relation returns leads between 0 and 100. For more details about expressions, see the chapter <<Expression>>.
 
-=== Calculated member evaluation
+== Fetching strategy
 
-The moment of evaluation needs explanation. Calculated fields that return a primitive value are evaluated immediately when the owner entity is referenced. However, the getter <expression> of calculated relations are only evaluated during navigation.
+The fetching strategy determines the timing of fetching entity member values and related entities from persistent storage. There are two ways available for fetching values and related entities.
 
-// @Query and @Embedded should be explained here?
+* *Embedded fetching* is a technique where values are fetched at the same time as the owner entity is retrieved from persistent storage. Its name refers to the fact that the value is embedded into the owner entity. This approach can be beneficial when dealing with simple getter expressions and only a few related objects, as it helps eliminate the need for additional fetches and improves the application's performance.
+
+* *Query fetching* is a technique where values are *not* fetched at the same time as the owner entity is retrieved from persistent storage. Instead, they are retrieved only when accessed for the first time. Its name refers to the fact that the value is calculated and retrieved in a separate database query. This approach ensures that values are loaded from persistent storage only as they are needed.
+
+By default, the following fetching strategies are applied to entity members:
+
+* compositions and fields with no parameters use embedded loading
+
+* relations use query loading
+
+* calculated members that have parameters use query loading
+
+=== Fetching annotations
+
+The default fetching strategy of the entity members can be altered by applying annotations. It is important to note that applying fetching annotations does not modify the business logic, but significantly impacts the performance of the application.
+
+To apply the query fetching strategy on an entity member, use the `@Query` annotation.
+
+*Example:*
+
+[source,jsl]
+----
+entity Order {
+	field OrderItem[] orderItems;
+
+    @Query
+	field Integer price <= self.orderItems!sum(item | item.price);
+}
+----
+
+In the above example, the `price` field will not be calculated and loaded when the order entity is fetched. Instead, it will be calculated only when a read request is made for the price of the order.
+
+To apply the embedded fetching strategy on an entity member, use the `@Embedded` annotation.
+
+*Example:*
+
+[source,jsl]
+----
+entity abstract Customer {
+    @Embedded
+	relation Order[] orders opposite:customer;
+}
+----
+
+In the above example, the `orders` relation will be loaded when the order entity is fetched. 
 
 [judo-req="true",judo-req-id="REQ-ENT-009"]
 [judo-req="true",judo-req-id="REQ-ENT-011"]

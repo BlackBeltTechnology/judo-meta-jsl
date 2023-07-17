@@ -15,7 +15,7 @@ endif::[]
 
 The service layer acts as a front-facing interface masking the underlying entity model. It can hide the complexity and the details of the entity model and provides a simpler interface to the clients of the application. Or it can provide different views for different purposes, allowing changes in functionality without changing the underlying, often rigid data model, which is often created from very different aspects. In addition, the service model also reduces the dependence between the entity model and the outside world.
 
-The main building blocks of the service model are transfer objects, services and actors. The following chapters describe these building blocks in detail.
+The main building blocks of the service model are transfer objects and actors. The following chapters describe these building blocks in detail.
 
 == Transfer object
 
@@ -45,7 +45,7 @@ To define an unmapped transfer object, use the `transfer` keyword.
 [subs="quotes"]
 ----
 [purple]#**transfer**# &lt;name> {
-    &#x5B;[purple]##**field**##] ...
+    &#x5B;field] ...
 }
 ----
 
@@ -80,7 +80,7 @@ To define a mapped transfer object, use the `transfer` keyword and specify an en
 [subs="quotes"]
 ----
 [purple]#**transfer**# &lt;name> (&lt;entity> &lt;mapping-field>) &#x5B;{
-    &#x5B;[purple]##**field**##] ...
+    &#x5B;field] ...
 }]
 ----
 
@@ -94,7 +94,7 @@ There is an alternative syntax to define a mapped transfer object. This alternat
 [subs="quotes"]
 ----
 [purple]#**transfer**# &lt;name> [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> &#x5B;{
-    &#x5B;[purple]##**field**##] ...
+    &#x5B;field] ...
 }]
 ----
 ====
@@ -112,7 +112,7 @@ entity Person {
 }
 
 transfer PersonTransfer(Person person) {
-    field String name maps person.name;
+    field String name <=> person.name;
 }
 ----
 
@@ -236,23 +236,23 @@ The constructor is not called when a mapped transfer object is produced for exis
 
 Mapping configuration is a declarative description of how the fields of a transfer object read and/or write specific fields of the entity mapped by the transfer object. Mapping configuration can only be used for mapped transfer objects.
 
-Use the `reads` or `maps` keywords in the field definitions to define the mapping configuration.
+Use the `\<=` or `\<\=>` symbols in the field definitions to define the mapping configuration.
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;([purple]##**reads**##|[purple]##**maps**##) &lt;expression>];
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;([purple]##**<=**##|[purple]##**<=>**##) &lt;expression>];
 ----
 
 where <primitive> is the name of a domain model primitive, or
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;([purple]##**reads**##|[purple]##**maps**##) &lt;expression>];
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;([purple]##**<=**##|[purple]##**<=>**##) &lt;expression>];
 ----
 
-If the `reads` keyword is used, the value of the transfer field will be set to the value of the expression specified after `reads`. 
+If the `\<=` symbol is used, the value of the transfer field will be set to the value of the expression specified after `\<=`. 
 
 *Example:*
 
@@ -264,17 +264,17 @@ entity SalesPerson {
 }
 
 transfer SalesPersonTransfer(SalesPerson salesperson) {
-    field String fullName reads salesperson.firstName + " " + salesperson.lastName;
+    field String fullName <= salesperson.firstName + " " + salesperson.lastName;
 }
 ----
 
 In the example above, transfer field value is set by concatenating the `firstName` and `lastName` fields of SalesPerson mapped entity with a space in the middle. Note the `salesperson` reference in the expression which refers to the mapping field.
 
-The `reads` expressions are used whenever a transfer object or a collection of transfer objects are requested in a function, see <<Data function>> section.
+The <expression> is used whenever a transfer object or a collection of transfer objects are requested in a function, see <<Data function>> section.
 
-If the `maps` keyword is used, in addition to setting the value of the transfer field, it writes the value of the transfer field to the entity field when the mapped entity instance is updated with the transfer object instance. See <<Update>> chapter.
+If the `\<=` symbol is used, in addition to setting the value of the transfer field, it writes the value of the transfer field to the entity field when the mapped entity instance is updated with the transfer object instance. See <<Update>> chapter.
 
-While `reads` can be followed by any expression, the expression behind `maps` can only points to one field of the mapped entity.
+While `\<=` symbol can be followed by any expression, the expression behind `\<\=>` symbol can only point to one field of the mapped entity.
 
 *Example:*
 
@@ -286,12 +286,12 @@ entity SalesPerson {
 }
 
 transfer SalesPersonTransfer(SalesPerson salesperson) {
-    field String firstName maps salesperson.firstName;
-    field String lastName maps salesperson.lastName;
+    field String firstName <=> salesperson.firstName;
+    field String lastName <=> salesperson.lastName;
 }
 ----
 
-In other words, `reads` creates a one-way connection between the entity and the transfer fields, where the value of the transfer field takes the value of the expression. And `maps` defines a two-way connection.
+In other words, `\<=` symbol creates a one-way connection between the entity and the transfer fields, where the value of the transfer field takes the value of the expression. And `\<\=>` symbol defines a two-way connection.
 
 Both read and map expressions must return a primitive compatible with the field type.
 
@@ -313,12 +313,12 @@ entity Lead {
 }
 
 transfer LeadTransfer(Lead lead) {
-    field Integer value reads lead.value;
+    field Integer value <= lead.value;
 }
 
 transfer SalesPersonTransfer(SalesPerson salesperson) {
-    field String fullName reads salesperson.firstName + " " + salesperson.lastName;
-    field LeadTransfer[] leads maps salesperson.leads;
+    field String fullName <= salesperson.firstName + " " + salesperson.lastName;
+    field LeadTransfer[] leads <=> salesperson.leads;
 }
 ----
 
