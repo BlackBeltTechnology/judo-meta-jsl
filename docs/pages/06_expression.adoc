@@ -50,7 +50,7 @@ An operator also returns a value. The value and its type depends on the operator
 We can divide operators into these categories:
 
 // * assignment (`=`,`+=`,`-=`)
-* navigation, field selection and query execution (`.`)
+* navigation and field selection (`.`)
 * function call (`!`)
 * assignment (`=`)
 * arithmetic (`+`, `-`, `*`, `/`, `div`, `mod`, `^`)
@@ -86,7 +86,7 @@ In expressions, the `.` (dot) character is used to navigate from an instance or 
 The starting point of the navigation can be
 
 * a static collection of references using the syntax `shop::Order!all()`, which means all instances of the Order entity, or
-* a static query execution using the syntax `shop::MyQuery()`, which means all entity instances returned by the query `shop::MyQuery`
+* a query execution using the syntax `shop::MyQuery()`, which means all entity instances returned by the query `shop::MyQuery`
 * the predefined variable called `self`. The `self` keyword refers to the current instance in an expression.
 
 *Examples:*
@@ -103,6 +103,21 @@ relation Products[] orderedProducts <= self.orderItems.product;
 Navigation can be chained, which means that you can navigate further from a navigation result.
 
 In the example above, we first navigate from `self` to the list of order items. We then proceed to the `product` of the OrderItem. This navigation will result a list of products that are in the order.
+
+If the calculated relation has parameters, pass the arguments of the relation within parentheses.
+
+*Examples:*
+
+[source,jsl]
+----
+entity abstract Customer {
+	relation Order[] ordersSelectByStatus(OrderStatus status)
+	    <= self.orders!filter(o | o.status == status);
+
+	relation Product[] deliveredProducts
+	    <= self.ordersSelectByStatus(status = OrderStatus#DELIVERED).orderItems.product;
+}
+----
 
 Navigation types can also be classified as follows.
 
@@ -123,7 +138,7 @@ When navigating from an instance collection, regardless of the cardinality of re
 
 Both calculated and stored field values of an entity can be read in expressions. To read a field value use the `.` (dot) character. The field selection can be chained for navigation expression. The field selection can only be chained for navigation that returns a single instance.
 
-*Examples:*
+*Example:*
 
 [source,jsl]
 ----
@@ -132,12 +147,32 @@ field String productName <= self.product.name;
 
 In the example above, the expression returns the product's name.
 
+If the calculated field has parameters, pass the arguments of the field within parentheses.
+
+*Example:*
+
+[source,jsl]
+----
+entity abstract Customer {
+	field Integer sumByStatus(OrderStatus status)
+	    <= self.orders!filter(o | o.status == status)!sum(o | o.price);
+
+	field Integer sumPaid
+	    <= self.sumByStatus(status = OrderStatus#PAID);
+
+	field Integer sumDelivered
+	    <= self.sumByStatus(status = OrderStatus#DELIVERED);
+}
+----
+
+
+
 [judo-req="true",judo-req-id="REQ-EXPR-005"]
 === Query execution
 
-Static and instance queries can be used in expressions. To execute an instance query use the `.` (dot) character before the query name and append the arguments in parentheses. To execute a static query use its name as a navigation starting point and append the arguments in parentheses. If you do not pass arguments to a query append parentheses with no arguments between them.
+To execute a static query use its name as a navigation starting point and append the arguments in parentheses. If you do not pass arguments to a query append parentheses with no arguments between them.
 
-*Examples:*
+*Example:*
 
 [source,jsl]
 ----
