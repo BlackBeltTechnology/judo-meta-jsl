@@ -10,10 +10,10 @@ endif::[]
 :KW: [purple]##**
 :KWE: **##
 
-= Entity
-:page-toctitle:Entity
+= Entity model
+:page-toctitle:Entity model
 
-Data model is the core part of the domain model that captures the real-world entities and the rules that determine how data can be created, changed, and deleted.
+Entity (or data) model is the core part of the domain model that captures the real-world entities and the rules that determine how data can be created, changed, and deleted.
 
 The persistent data of a domain model is described in the form of entity types. Actual data is stored by creating instances of entity types.
 
@@ -31,7 +31,7 @@ Entities represent persistent data, independent of the underlying data storage m
 ////
 
 [judo-req="true",judo-req-id="REQ-ENT-001"]
-== Entity definition
+== Entity
 
 To define an entity, use the `entity` keyword.
 
@@ -68,7 +68,7 @@ entity abstract Customer {
 
 
 [judo-req="true",judo-req-id="REQ-ENT-002"]
-== Primitive fields
+== Primitive field
 
 An entity instance can store primitive values in its fields.  A field can be interpreted as a container in a specific entity instance where data values can be stored (e.g. numbers or text values like "red" or "blue").
 
@@ -466,23 +466,29 @@ The example above shows the calculated relation `leadsBetween`, which has two pa
 
 The fetching strategy determines the timing of fetching entity member values and related entities from persistent storage. There are two ways available for fetching values and related entities.
 
+// Lazy? Eager?
+
 * *Embedded fetching* is a technique where values are fetched at the same time as the owner entity is retrieved from persistent storage. Its name refers to the fact that the value is embedded into the owner entity. This approach can be beneficial when dealing with simple getter expressions and only a few related objects, as it helps eliminate the need for additional fetches and improves the application's performance.
 
+* *Requested fetching* is a technique where values are *not* fetched at the same time as the owner entity is retrieved from persistent storage. Instead, they are retrieved only when requested for the first time. Its name refers to the fact that the value is calculated and retrieved upon request. This approach ensures that values are loaded from persistent storage only as they are needed.
+
+////
 * *Query fetching* is a technique where values are *not* fetched at the same time as the owner entity is retrieved from persistent storage. Instead, they are retrieved only when accessed for the first time. Its name refers to the fact that the value is calculated and retrieved in a separate database query. This approach ensures that values are loaded from persistent storage only as they are needed.
+////
 
 By default, the following fetching strategies are applied to entity members:
 
-* compositions and fields with no parameters use embedded loading
+* compositions and fields with no parameters use embedded fetching
 
-* relations use query loading
+* relations use requested fetching
 
-* calculated members that have parameters use query loading
+* calculated members that have parameters use requested fetching
 
 === Fetching annotations
 
 The default fetching strategy of the entity members can be altered by applying annotations. It is important to note that applying fetching annotations does not modify the business logic, but significantly impacts the performance of the application.
 
-To apply the query fetching strategy on an entity member, use the `@Query` annotation.
+To apply the requested fetching strategy on an entity member, use the `@Requested` annotation.
 
 *Example:*
 
@@ -491,7 +497,7 @@ To apply the query fetching strategy on an entity member, use the `@Query` annot
 entity Order {
 	field OrderItem[] orderItems;
 
-    @Query
+    @Requested
 	field Integer price <= self.orderItems!sum(item | item.price);
 }
 ----
