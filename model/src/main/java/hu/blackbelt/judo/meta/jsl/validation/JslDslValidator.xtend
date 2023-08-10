@@ -1219,41 +1219,41 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkTransferAutomap(TransferDeclaration transfer) {
-        if (!transfer.automap) {
-            return
-        }
-
-        if (transfer.map === null  || transfer.map.entity === null) {
-            error("Automapping requires mapping to an entity.",
-                JsldslPackage::eINSTANCE.transferDeclaration_Automap,
-                INVALID_DECLARATION,
-                JsldslPackage::eINSTANCE.transferDeclaration.name)
-
-            return
-        }
-
-        if (transfer.parentContainer(ModelDeclaration).fromModel.transfers.filter[t | t.automap && transfer.map.entity.isEqual(t.map?.entity)].size > 1){
-            error("Duplicate transfer automap: more than one automapped transfer objects for the same entity type.",
-                JsldslPackage::eINSTANCE.transferDeclaration_Automap,
-                DUPLICATE_AUTOMAP,
-                JsldslPackage::eINSTANCE.transferDeclaration.name)
-        };
-
-        val Iterator<EntityMemberDeclaration> containmentsIterator = transfer.map.entity.members.filter[m | m instanceof EntityFieldDeclaration && m.referenceType instanceof EntityDeclaration].iterator
-
-        while (containmentsIterator.hasNext) {
-            val EntityFieldDeclaration containment = containmentsIterator.next() as EntityFieldDeclaration;
-
-            if (!transfer.parentContainer(ModelDeclaration).fromModel.transfers.exists[t | t.automap && t.map?.entity.isEqual(containment.referenceType)]){
-                error("Missing automapping in mapped entity for field '" + containment.name + "'",
-                    JsldslPackage::eINSTANCE.transferDeclaration_Automap,
-                    INVALID_DECLARATION,
-                    JsldslPackage::eINSTANCE.transferDeclaration.name)
-            }
-        }
-    }
+//    @Check
+//    def checkTransferAutomap(TransferDeclaration transfer) {
+//        if (!transfer.automap) {
+//            return
+//        }
+//
+//        if (transfer.map === null  || transfer.map.entity === null) {
+//            error("Automapping requires mapping to an entity.",
+//                JsldslPackage::eINSTANCE.transferDeclaration_Automap,
+//                INVALID_DECLARATION,
+//                JsldslPackage::eINSTANCE.transferDeclaration.name)
+//
+//            return
+//        }
+//
+//        if (transfer.parentContainer(ModelDeclaration).fromModel.transfers.filter[t | t.automap && transfer.map.entity.isEqual(t.map?.entity)].size > 1){
+//            error("Duplicate transfer automap: more than one automapped transfer objects for the same entity type.",
+//                JsldslPackage::eINSTANCE.transferDeclaration_Automap,
+//                DUPLICATE_AUTOMAP,
+//                JsldslPackage::eINSTANCE.transferDeclaration.name)
+//        };
+//
+//        val Iterator<EntityMemberDeclaration> containmentsIterator = transfer.map.entity.members.filter[m | m instanceof EntityFieldDeclaration && m.referenceType instanceof EntityDeclaration].iterator
+//
+//        while (containmentsIterator.hasNext) {
+//            val EntityFieldDeclaration containment = containmentsIterator.next() as EntityFieldDeclaration;
+//
+//            if (!transfer.parentContainer(ModelDeclaration).fromModel.transfers.exists[t | t.automap && t.map?.entity.isEqual(containment.referenceType)]){
+//                error("Missing automapping in mapped entity for field '" + containment.name + "'",
+//                    JsldslPackage::eINSTANCE.transferDeclaration_Automap,
+//                    INVALID_DECLARATION,
+//                    JsldslPackage::eINSTANCE.transferDeclaration.name)
+//            }
+//        }
+//    }
 
     @Check
     def checkTransferFieldReads(TransferFieldDeclaration field) {

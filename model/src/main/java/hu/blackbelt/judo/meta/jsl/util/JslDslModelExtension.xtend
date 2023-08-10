@@ -98,13 +98,13 @@ class JslDslModelExtension {
 //		}
 //	}
 
-	def TransferDeclaration getReferenceType(TransferRelationDeclaration relation) { 
-		if (relation instanceof ActorMenuDeclaration) {
-			if ((relation as ActorMenuDeclaration).rowReferenceType !== null) {
-				return (relation as ActorMenuDeclaration).rowReferenceType
-			}
-			return (relation as ActorMenuDeclaration).viewReferenceType;
-		}
+//	def TransferDeclaration getReferenceType(TransferRelationDeclaration relation) { 
+//		if (relation instanceof ActorMenuDeclaration) {
+//			if ((relation as ActorMenuDeclaration).rowReferenceType !== null) {
+//				return (relation as ActorMenuDeclaration).rowReferenceType
+//			}
+//			return (relation as ActorMenuDeclaration).viewReferenceType;
+//		}
 //		 else if (relation instanceof ActorAccessDeclaration) {
 //			return (relation as ActorAccessDeclaration).transferReferenceType;
 //		} else if (relation instanceof ViewTableDeclaration) {
@@ -114,9 +114,9 @@ class JslDslModelExtension {
 //		} 
 //		
 //		return relation.simpleTransferReferenceType;
-
-		return relation.referenceType;
-	}
+//
+//		return relation.referenceType;
+//	}
 
 //	def TransferDeclaration getParameterType(TransferCreateDeclaration create) { 
 //		if (create instanceof TransferCreateDeclaration) {
@@ -534,9 +534,9 @@ class JslDslModelExtension {
 	}
 
 	def isQuery(EntityMemberDeclaration member) {
-		if (member.annotations.exists[a | a.declaration.name.equals("Query")]) {
-			return true
-		}
+//		if (member.annotations.exists[a | a.declaration.name.equals("Query")]) {
+//			return true
+//		}
 		
 		return false
 	}
