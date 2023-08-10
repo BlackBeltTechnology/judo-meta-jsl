@@ -57,8 +57,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewActionDeclaration
 import org.eclipse.emf.ecore.EClassifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataMember
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataReference
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -95,7 +95,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
             FunctionCall case ref == JsldslPackage::eINSTANCE.functionArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
             MemberReference case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_Containments(context.member, ref)
-            TransferDataMember case ref == JsldslPackage::eINSTANCE.transferDataMember_Reference: return scope.scope_AllContainments(context.eContainer.eContainer.eContainer, ref)
+            TransferDataReference case ref == JsldslPackage::eINSTANCE.transferDataReference_Declaration: return scope.scope_AllContainments(context.eContainer.eContainer.eContainer, ref)
             QueryCall case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
             AnnotationMark case ref == JsldslPackage::eINSTANCE.annotationArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
 

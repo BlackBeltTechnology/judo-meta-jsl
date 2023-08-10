@@ -57,7 +57,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDefault
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferConstructorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
@@ -87,6 +86,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Modifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.MinSizeModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.ScaleModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataAssignment
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -1051,26 +1051,26 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
 
     @Check
-    def checkTransferDefault(TransferDefault transferDefault) {
-        if (transferDefault.member === null || transferDefault.rightValue === null) {
+    def checkTransferDefault(TransferDataAssignment assignment) {
+        if (assignment.leftValue === null || assignment.rightValue === null) {
             return
         }
 
         try {
-            if (transferDefault.rightValue !== null) {
-                if (!this.isStaticExpression(transferDefault.rightValue)) {
+            if (assignment.rightValue !== null) {
+                if (!this.isStaticExpression(assignment.rightValue)) {
                     error(
                         "Default value expression must be static, it cannot contain mapping field.",
-                        JsldslPackage::eINSTANCE.transferDefault_RightValue,
+                        JsldslPackage::eINSTANCE.transferDataAssignment_RightValue,
                         NON_STATIC_EXPRESSION
                     )
                     return
                 }
             }
 
-            if (!TypeInfo.getTargetType(transferDefault.member.reference).isCompatible(TypeInfo.getTargetType(transferDefault.rightValue))) {
+            if (!TypeInfo.getTargetType(assignment.leftValue.declaration).isCompatible(TypeInfo.getTargetType(assignment.rightValue))) {
                 error("Type mismatch. Default value does not match field type.",
-                    JsldslPackage::eINSTANCE.transferDefault_RightValue,
+                    JsldslPackage::eINSTANCE.transferDataAssignment_RightValue,
                     TYPE_MISMATCH)
             }
         } catch (IllegalArgumentException illegalArgumentException) {

@@ -43,7 +43,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Self;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimestampLiteral;
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataMemberDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TypeDescription;
@@ -540,11 +540,11 @@ public class TypeInfo {
 		return new TypeInfo(annotationParameterType);
 	}
 
-	public static TypeInfo getTargetType(TransferDataMemberDeclaration transferDataMemberDeclaration) {
-		if (transferDataMemberDeclaration instanceof TransferFieldDeclaration) {
-			return getTargetType((TransferFieldDeclaration) transferDataMemberDeclaration);
-		} else if (transferDataMemberDeclaration instanceof TransferRelationDeclaration) {
-			return getTargetType((TransferRelationDeclaration) transferDataMemberDeclaration);
+	public static TypeInfo getTargetType(TransferDataDeclaration transferDataDeclaration) {
+		if (transferDataDeclaration instanceof TransferFieldDeclaration) {
+			return getTargetType((TransferFieldDeclaration) transferDataDeclaration);
+		} else if (transferDataDeclaration instanceof TransferRelationDeclaration) {
+			return getTargetType((TransferRelationDeclaration) transferDataDeclaration);
 		}
 
 		return new TypeInfo(BaseType.UNDEFINED, false);

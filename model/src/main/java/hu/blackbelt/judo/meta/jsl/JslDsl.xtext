@@ -148,25 +148,20 @@ TransferDeclaration
 
 TransferMemberDeclaration
 	: TransferConstructorDeclaration
-	| TransferDataMemberDeclaration
+	| TransferDataDeclaration
 	;
 
-TransferDataMemberDeclaration
-	: TransferFieldDeclaration
-	| TransferRelationDeclaration
-	;
-
-TransferFieldDeclaration returns TransferDataMemberDeclaration
+TransferDataDeclaration 
 	: {TransferFieldDeclaration}
 	  KW_FIELD
 	  required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
 	  (reads ?= LTE getterExpr = Expression)?
 	  SC
+	  | TransferRelationDeclaration
 	;
 
-TransferRelationDeclaration returns TransferDataMemberDeclaration
-	: {TransferRelationDeclaration}
-	  KW_RELATION
+TransferRelationDeclaration
+	: KW_RELATION
 	  ( required ?= KW_REQUIRED referenceType = [TransferDeclaration | ModelName]
 	  | referenceType = [TransferDeclaration | ModelName] Cardinality? )
 	  Named
@@ -174,18 +169,18 @@ TransferRelationDeclaration returns TransferDataMemberDeclaration
 	  SC
 	;
 
-TransferConstructorDeclaration returns TransferMemberDeclaration
+TransferConstructorDeclaration
 	: {TransferConstructorDeclaration}
 	  KW_CONSTRUCTOR
-	  (SC | BLOCK_START (defaults += TransferDefault)* BLOCK_END)
+	  (SC | BLOCK_START (defaults += TransferDataAssignment)* BLOCK_END)
 	;
 
-TransferDefault
-	: member = TransferDataMember ASSIGN rightValue = Expression SC
+TransferDataAssignment
+	: leftValue = TransferDataReference ASSIGN rightValue = Expression SC
 	;
 
-TransferDataMember
-	: 'self' DOT reference = [TransferDataMemberDeclaration | ModelName]
+TransferDataReference
+	: 'self' DOT declaration = [TransferDataDeclaration | ModelName]
 	;
 
 /****************************
@@ -339,7 +334,7 @@ ViewPanelDeclaration
 ViewTabsDeclaration returns ViewPanelDeclaration
 	: {ViewTabsDeclaration}
 //	  annotations += AnnotationMark*
-	  KW_TABS tag = JSLID
+	  KW_TABS Named
 	  modifiers += (VisualModifier | FrameModifier)*
 	  BLOCK_START (groups += ViewGroupDeclaration)* BLOCK_END
 	;
@@ -347,7 +342,7 @@ ViewTabsDeclaration returns ViewPanelDeclaration
 ViewGroupDeclaration returns ViewPanelDeclaration
 	: {ViewGroupDeclaration} 
 //	  annotations += AnnotationMark*
-	  (horizontal ?= KW_HORIZONTAL | vertical ?= KW_VERTICAL) tag = JSLID
+	  (horizontal ?= KW_HORIZONTAL | vertical ?= KW_VERTICAL) Named
 	  modifiers += (VisualModifier | FrameModifier | HorizontalModifier | VerticalModifier | StretchModifier)*
 	  BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END
 	;
@@ -439,10 +434,10 @@ RowDeclaration returns TransferDeclaration
 	  annotations += AnnotationMark*
 	  KW_ROW Named
 	  map = EntityMapDeclaration?
-	  (automap ?= SC | BLOCK_START (directMembers += RowMemberDeclaration)* BLOCK_END)
+	  (automap ?= SC | BLOCK_START (members += RowMemberDeclaration)* BLOCK_END)
 	;
 
-RowMemberDeclaration
+RowMemberDeclaration returns TransferMemberDeclaration
 	: RowColumnDeclaration
 	;
 
@@ -464,10 +459,10 @@ ActorDeclaration returns TransferDeclaration
 	  KW_ACTOR (system ?= KW_SYSTEM | human ?= KW_HUMAN) Named
 	  map = EntityMapDeclaration?
 	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier)*
-	  (automap ?= SC | BLOCK_START (directMembers += ActorMemberDeclaration)* BLOCK_END)
+	  (automap ?= SC | BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END)
 	;
 
-ActorMemberDeclaration
+ActorMemberDeclaration returns TransferMemberDeclaration
 	:
 //	  ActorAccessDeclaration
 	  ActorMenuDeclaration
