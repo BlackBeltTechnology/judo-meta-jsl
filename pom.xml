@@ -82,11 +82,11 @@
         <judo-epp-common-version>4.28.0.20230814_200100_86984830_develop</judo-epp-common-version>
         <judo-misc-p2-version>1.0.0</judo-misc-p2-version>
 
-        <xtext-version>2.29.0</xtext-version>
-        <emf-mwe2-launch-version>2.13.0</emf-mwe2-launch-version>
+        <xtext-version>2.31.0</xtext-version>
+        <emf-mwe2-launch-version>2.14.0</emf-mwe2-launch-version>
         <slf4j-version>1.7.36</slf4j-version>
 
-        <surefire-version>3.0.0-M7</surefire-version>
+        <surefire-version>3.0.0</surefire-version>
         <!--suppress UnresolvedMavenProperty -->
         <logback-test-config>${maven.multiModuleProjectDirectory}/logback-test.xml</logback-test-config>
 		
