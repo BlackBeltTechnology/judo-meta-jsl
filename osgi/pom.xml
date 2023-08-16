@@ -30,8 +30,6 @@
                             org.eclipse.xtext.xbase.lib;version="[2.14,3)",
                             org.eclipse.xtext.xtext.generator.model.project;resolution:=optional,
                             org.eclipse.xtend2.lib;version="[2.14,3)",
-                            com.google.common.base;version="[27,31)",
-                            com.google.common.collect;version="[27,31)",
                             *
                         </Import-Package>
                         <Export-Package>
@@ -64,6 +62,12 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>32.0.0-jre</version>
         </dependency>
 
     </dependencies>
