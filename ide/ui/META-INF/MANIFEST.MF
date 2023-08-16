@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: hu.blackbelt.judo.meta.jsl.ui
 Bundle-SymbolicName: hu.blackbelt.judo.meta.jsl.ide.ui;singleton:=true
 Bundle-Version: 1.0.3.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: hu.blackbelt.judo.meta.jsl.ui,
  hu.blackbelt.judo.meta.jsl.ui.contentassist,
