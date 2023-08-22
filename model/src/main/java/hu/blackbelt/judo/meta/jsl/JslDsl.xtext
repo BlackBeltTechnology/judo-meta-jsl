@@ -5,7 +5,6 @@ generate jsldsl "http://www.blackbelt.hu/judo/meta/jsl/JslDsl"
 
 ModelDeclaration returns ModelDeclaration
     : {ModelDeclaration}
-//      annotations += AnnotationMark*
       KW_MODEL name = ModelName SC
       imports += ModelImportDeclaration*
 	  (declarations += Declaration)*
@@ -74,8 +73,7 @@ EntityMemberDeclaration
 	;
 
 EntityRelationDeclaration
-	: 
-//	  annotations += AnnotationMark*
+	: // annotations += AnnotationMark*
 	  KW_RELATION required ?= KW_REQUIRED? referenceType = [EntityDeclaration | ModelName] Cardinality?
 	  Named
 	  (
@@ -154,6 +152,7 @@ TransferMemberDeclaration
 
 TransferDataDeclaration 
 	: {TransferFieldDeclaration}
+//	  annotations += AnnotationMark*
 	  KW_FIELD
 	  required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
 	  ((reads ?= LTE | maps ?= MAP) getterExpr = Expression)?
@@ -162,7 +161,8 @@ TransferDataDeclaration
 	;
 
 TransferRelationDeclaration
-	: KW_RELATION
+	: // annotations += AnnotationMark*
+	  KW_RELATION
 	  required ?= KW_REQUIRED referenceType = [TransferDeclaration | ModelName] Cardinality?
 	  Named
 	  (
@@ -184,6 +184,7 @@ TransferEventDeclaration
 
 TransferInitializerDeclaration returns TransferEventDeclaration
 	: {TransferInitializerDeclaration}
+//	  annotations += AnnotationMark*
 	  KW_INITIALIZER
 	  SC
 	;
@@ -195,24 +196,28 @@ TransferCreateDeclaration returns TransferEventDeclaration
 
 TransferUpdateDeclaration returns TransferEventDeclaration
 	: {TransferUpdateDeclaration}
+//	  annotations += AnnotationMark*
 	  KW_UPDATE
 	  SC
 	;
 
 TransferDeleteDeclaration returns TransferEventDeclaration
 	: {TransferDeleteDeclaration}
+//	  annotations += AnnotationMark*
 	  KW_DELETE
 	  SC
 	;
 
 TransferActionDeclaration
-	: KW_ACTION ReturnFragment Named
+	: // annotations += AnnotationMark*
+	  KW_ACTION ReturnFragment Named
 	  LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? RP
 	  SC
 	;
 
 TransferConstructorDeclaration
 	: {TransferConstructorDeclaration}
+//	  annotations += AnnotationMark*
 	  KW_CONSTRUCTOR
 	  (SC | BLOCK_START (defaults += TransferDataAssignment)* BLOCK_END)
 	;
@@ -417,8 +422,7 @@ HumanActorMemberDeclaration returns TransferMemberDeclaration
 
 
 ActorGroupDeclaration
-	:
-//	  annotations += AnnotationMark*
+	: // annotations += AnnotationMark*
 	  KW_GROUP tag = JSLID
 	  modifiers += (LabelModifier | IconModifier | EnabledModifier | HiddenModifier)*
 	  BLOCK_START (members += ActorMenuDeclaration)* BLOCK_END
@@ -440,8 +444,7 @@ ActorMenuDeclaration returns ActorAccessDeclaration
  ****************************/
 
 DataTypeDeclaration
-    :
-//      annotations += AnnotationMark*
+    : // annotations += AnnotationMark*
       KW_TYPE
       ( primitive = KW_BOOLEAN Named
       | primitive = KW_BINARY Named modifiers += (MimeTypesModifier | MaxFileSizeModifier)*
@@ -464,15 +467,13 @@ MimeType
  ****************************/
 
 EnumDeclaration
-    :
-//      annotations += AnnotationMark*
+    : // annotations += AnnotationMark*
       KW_ENUM Named
       BLOCK_START (literals += EnumLiteral)* BLOCK_END
     ;
 
 EnumLiteral
-    :
-//      annotations += AnnotationMark*
+    : // annotations += AnnotationMark*
       Named ASSIGN value = NaturalNumber SC
     ;
 	
@@ -636,6 +637,17 @@ LambdaDeclaration
 /****************************
  *	Annotation
  ***************************/
+
+//Annotation
+//	: {Annotation} marks += AnnotationMark*
+//	;
+//
+//AnnotableDeclaration returns Annotable
+//	: ModelDeclaration
+//	| Declaration
+//	| TransferMemberDeclaration
+//	| EntityMemberDeclaration
+//	;
 
 AnnotationDeclaration
 	: KW_ANNOTATION Named (LP (parameters += AnnotationParameterDeclaration (COMMA parameters += AnnotationParameterDeclaration)*)? RP)?
