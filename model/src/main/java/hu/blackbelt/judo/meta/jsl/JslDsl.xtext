@@ -164,7 +164,7 @@ TransferDataDeclaration
 TransferRelationDeclaration
 	: annotations += AnnotationMark*
 	  KW_RELATION
-	  required ?= KW_REQUIRED referenceType = [TransferDeclaration | ModelName] Cardinality?
+	  required ?= KW_REQUIRED? referenceType = [TransferDeclaration | ModelName] Cardinality?
 	  Named
 	  (
 	    reads ?= LTE getterExpr = Expression
