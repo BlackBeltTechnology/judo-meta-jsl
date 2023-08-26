@@ -61,7 +61,8 @@
         <osgi-default-import>
             org.osgi.framework;version="[1.8,2.0)",
             !lombok,
-            javax.annotation;version="[1.0,2)"
+            javax.annotation;version="[1.0,2)",
+            org.slf4j;version="[1.6,3)"
         </osgi-default-import>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <timestamp>${maven.build.timestamp}</timestamp>
@@ -84,7 +85,7 @@
 
         <xtext-version>2.31.0</xtext-version>
         <emf-mwe2-launch-version>2.14.0</emf-mwe2-launch-version>
-        <slf4j-version>1.7.36</slf4j-version>
+        <slf4j-version>2.0.7</slf4j-version>
 
         <surefire-version>3.0.0</surefire-version>
         <!--suppress UnresolvedMavenProperty -->
@@ -111,7 +112,7 @@
         <sonar.language>java</sonar.language>
         <sonar.java.source>${java.version}</sonar.java.source>
         <jacoco.version>0.8.8</jacoco.version>
-        <judo-requirement-report-version>1.0.0.20230816_144941_80e9b223_develop</judo-requirement-report-version>
+        <judo-requirement-report-version>1.0.0.20230824_182039_4470199c_feature_JNG_5144_ReplaceLogger</judo-requirement-report-version>
     </properties>
 
     <repositories>
