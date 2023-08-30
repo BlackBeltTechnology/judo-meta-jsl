@@ -10,33 +10,44 @@ endif::[]
 
 // TODO: schedule and init
 
-= Service layer
-:page-toctitle:Transfer
+= Transfer model
+:page-toctitle:Transfer model
 
-The service layer acts as a front-facing interface masking the underlying entity model. It can hide the complexity and the details of the entity model and provides a simpler interface to the clients of the application. Or it can provide different views for different purposes, allowing changes in functionality without changing the underlying, often rigid data model, which is often created from very different aspects. In addition, the service model also reduces the dependence between the entity model and the outside world.
+The transfer objects act as a front-facing interface masking the underlying entity model. The transfer object model can hide the complexity and the details of the entity model and provides a simpler interface to the clients of the application. Or it can provide different views for different purposes, allowing changes in functionality without changing the underlying, often rigid data model, which is often created from very different aspects. In addition, the transfer object model also reduces the dependence between the entity model and the outside world.
 
-The main building blocks of the service model are transfer objects, services and actors. The following chapters describe these building blocks in detail.
+The main building blocks of the transfer object model are transfer objects and actors. The following chapters describe these building blocks in detail.
 
 == Transfer object
 
-A transfer object is a container for a set of data fields that is transferred between the service layer and any upper layers (e.g. user interface or external system).
+A transfer object is a container for a set of data fields that is transferred between the entity layer and any upper layers (e.g. user interface or external system).
 
 [NOTE]
 ====
 The term "transfer object" is a short version of "transfer object type". The correct term would be "transfer object type". However, to distinguish between the type and the instance, the object is called "instance of a transfer object" or "transfer object instance".
 ====
 
+[NOTE]
+====
+The transfer objects discussed in this sub-chapter are often referred to as "unmapped" transfer objects. This term is used because there are also "mapped" transfer objects, which will be discussed later.
+====
+
+////
 There are two categories of transfer objects:
 
 * unmapped and
 * mapped transfer objects.
+////
 
 // Additionally, transfer objects may contain activities such as internal consistency checking, validation and services.
 
+////
 [judo-req="true",judo-req-id="REQ-SRV-001"]
 === Unmapped transfer object
 
-Unmapped transfer objects are simple non-persistent objects that carry data between our application and the outside world. The data fields of an unmapped transfer object can be set and read at any stage of its life cycle.
+Unmapped transfer objects are simple non-persistent objects that carry data between our application and the outside world. The data members of an unmapped transfer object can be set and read at any stage of its life cycle.
+////
+
+Transfer objects are simple non-persistent objects that carry data between our application and the outside world. The data members of a transfer object can be set and read at any stage of its life cycle.
 
 To define an unmapped transfer object, use the `transfer` keyword.
 
@@ -45,11 +56,13 @@ To define an unmapped transfer object, use the `transfer` keyword.
 [subs="quotes"]
 ----
 [purple]#**transfer**# &lt;name> {
-    &#x5B;[purple]##**field**##] ...
+    &#x5B;member] ...
 }
 ----
 
-where the <name> is the name of the transfer object, and its data fields are defined between `{` and `}`. Possible field definitions are provided in the <<Field>> section.
+where the <name> is the name of the transfer object, and its data members are defined between `{` and `}`.
+
+// Possible member definitions are provided in the <<Member>> section.
 
 *Example:*
 
@@ -59,71 +72,18 @@ transfer PersonTransfer {
 }
 ----
 
-The above example declares the transfer object `PersonTransfer` with no fields.
+The above example declares the transfer object `PersonTransfer` with no members.
 
-[judo-req="true",judo-req-id="REQ-SRV-002"]
-=== Mapped transfer object
-
-Data transformation between entities and transfer objects is a tedious and error-prone task. Mapped transfer objects are intended to facilitate this work and also carry data between our application and the outside world, but they can be linked to a specific entity instance. The link between the mapped transfer object instance and the entity instance is represented by a specific field of the mapped transfer object, called mapping field.
-
-[IMPORTANT]
-====
-Understanding the concept of a *mapping field* is extremely important as you continue reading this document. The name "mapping field" comes from its role. In practice, the mapping field is a field in the mapped transfer object. This is a reference to the entity instance to which the transfer object is linked. This reference can be read at any time like any other field of the transfer object. An important consequence of the above is that the name of the mapping field cannot be used as a field name in the mapped transfer object.
-====
-
-Mapping is a configuration approach that copies entity field values to transfer object fields and vice versa in a pre-defined way, see more in <<Mapping configuration>> chapter.
-
-To define a mapped transfer object, use the `transfer` keyword and specify an entity type as a parameter.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**transfer**# &lt;name> (&lt;entity> &lt;mapping-field>) &#x5B;{
-    &#x5B;[purple]##**field**##] ...
-}]
-----
-
-where the <name> is the name of the transfer object, and the member fields are defined between `{` and `}`. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance.
-
-
-[NOTE]
-====
-There is an alternative syntax to define a mapped transfer object. This alternative is a bit more expressive, although it may be too verbose.
-
-[subs="quotes"]
-----
-[purple]#**transfer**# &lt;name> [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> &#x5B;{
-    &#x5B;[purple]##**field**##] ...
-}]
-----
-====
-
-For mapped transfer objects, the field block surrounded by `{` and `}` is optional. See <<Auto-mapping>>.
-
-The example below shows a mapped transfer object.
-
-*Example:*
-
-[source,jsl]
-----
-entity Person {
-    field String name;
-}
-
-transfer PersonTransfer(Person person) {
-    field String name maps person.name;
-}
-----
-
-The transfer object `PersonTransfer` is mapped to the `Person` entity. A particular instance of the Person entity is accessible as `person` within the scope of the PersonTransfer transfer object. The `person` field is a field of type `Person`, which is the mapping field.
-
-The value of the mapping field (`person` in the example above) can be undefined (e.g. the mapping field is not required). In some PersonTransfer instances, the mapping field may refer to a particular Person entity instance, and in others it may be undefined.
 
 [judo-req="true",judo-req-id="REQ-SRV-003"]
 === Field
 
-A transfer object may contain data descriptions called fields. A field has an associated domain type that can be either a primitive or other transfer object, in other words, the field is a typed element. Fields cannot store multiple primitive values (that is, collection), but only a single primitive value. If you want to have a collection of primitives, use a wrapper transfer object with just one primitive field, and use a collection of wrappers to store a collection of primitive values.
+A transfer object may contain data members called fields. A field has an associated primitive domain type, in other words, the field is a typed element. Fields cannot store multiple primitive values (that is, collection), but only a single primitive value.
+
+[NOTE]
+====
+If you want to have a collection of primitives, use a wrapper transfer object with just one primitive field, and use a relation to the collection of wrappers to store a collection of primitive values.
+====
 
 Use the `field` keyword to specify a field within a transfer object.
 
@@ -134,24 +94,11 @@ Use the `field` keyword to specify a field within a transfer object.
 [purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name>[purple]#**;**#
 ----
 
-where <primitive> is the name of a domain model primitive, or
-
-[subs="quotes"]
-----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name>[purple]#**;**#
-----
-
-where the <transfer> is the name of a transfer object.
-
-The <name> is the referable name of the field.
-
-The optional `[]` indicates that the field is a collection of transfer object instances rather than a single transfer object.
+where <primitive> is the name of a domain model primitive and the <name> is the referable name of the field.
 
 The `required` keyword means that the value of the field cannot be undefined at the time the object is validated. When the transfer object is validated it will report fields that are required and having the value of UNDEFINED. The timing of validation is not discussed in this document. Validation can be called at any time from Java or script execution, or it can be called by the architecture (e.g. before the execution of a service).
 
 // See the validate command.
-
-The keyword `required` is not allowed in fields with collection type.
 
 *Example:*
 
@@ -166,6 +113,47 @@ transfer PersonTransfer {
 
 The example above defines a transfer object named PersonTransfer. This transfer object has three fields. `firstName` and `lastName` are two required strings, and `midName` is an optional string.
 
+// read-only fields?
+
+=== Relation
+
+A relation is a reference defined between two transfer objects. The concept closely resembles the relation concept described in xref:05_entity.adoc[Relations] section of entities. The transfer object instance that holds the reference is considered the owner of the relation. As the owner, it has access to the instance being referred to by the reference.
+
+Relations can be not only references to a single instance, but also collections. If the relation is a collection, the owner can access a set of instances at the same time.
+
+Relations between transfer objects are inherently unidirectional. A relation can only be navigated in one direction: from the owner to the target of the relation. Navigation means that, at run-time, the owner of the relation gets the instance(s) of the target of the relation.
+
+Use the `relation` keyword to specify a relation between two transfer objects.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name>[purple]#**;**#
+----
+
+where <transfer> is the name of a transfer object to which the relation is targeted. The <name> is used to identify the relation within the owner, it is commonly referred to as role name.
+
+The optional `[]` behind the <transfer> indicates that the relation is a collection rather than a single reference to one <transfer> instance. In other words, the cardinality of the relation is a collection.
+
+The `required` keyword means that the value of the relation cannot be undefined at the time the object is validated. When the transfer object is validated it will report relations that are required and having the value of UNDEFINED. The timing of validation is not discussed in this document. Validation can be called at any time from Java or script execution, or it can be called by the architecture (e.g. before the execution of a service).
+
+The keyword `required` is not allowed for collections.
+
+*Example:*
+
+[source,jsl]
+----
+transfer CustomerTransfer {
+	relation OrderTransfer[] orders;
+}
+
+transfer OrderTransfer {
+}
+----
+
+The example above defines a relation. `orders` is defined within CustomerTransfer transfer object and refers to a list of OrderTransfer transfer object instances that belong to a particular customer. 
+
 *Example:*
 
 [source,jsl]
@@ -178,18 +166,18 @@ transfer AddressTransfer {
 }
 
 transfer PersonTransfer {
-    field required AddressTransfer address;
+    relation required AddressTransfer address;
 }
 ----
 
 The second example defines the AddressTransfer transfer object with its fields, and each PersonTransfer instance must have an AddressTransfer.
 
-// read-only fields?
-
 [judo-req="true",judo-req-id="REQ-SRV-004"]
 === Constructor
 
-Optionally, a constructor can be specified for transfer objects. The constructor is automatically called when a new transfer object is created and can be used to set default values of the fields. Typically a new transfer object is created by factory functions, see <<Factory>>.
+Optionally, a constructor can be specified for transfer objects. The constructor is automatically called when a new transfer object is created and can be used to set default values of the fields.
+
+// Typically a new transfer object is created by factory functions, see <<Factory>>.
 
 *Syntax:*
 
@@ -200,7 +188,9 @@ Optionally, a constructor can be specified for transfer objects. The constructor
 }
 ----
 
-where <field> is a field of the transfer object having the constructor and <expression> is the default value of the field. The expression cannot contain reference to the mapping field.
+where <field> is a field of the transfer object having the constructor and <expression> is the default value of the field. 
+
+// The expression cannot contain reference to the mapping field.
 
 
 *Example:*
@@ -220,15 +210,75 @@ transfer PersonTransfer {
 }
 ----
 
-The example above complements the previous PersonTransfer example by adding a default value to the `firstName`, `lastName` and `midName` fields.
+The example above complements the PersonTransfer example by adding a default value to the `firstName`, `lastName` and `midName` fields.
 
+////
 [NOTE]
 ====
 The constructor is not called when a mapped transfer object is produced for existing entity. For example, when a data function looks up entities and returns their associated mapped transfer objects, the constructors for the mapped transfer objects are not called.
 ====
+////
+
+// TODO: default must be constant
+
+[judo-req="true",judo-req-id="REQ-SRV-002"]
+== Mapped transfer object
+
+Data transformation between entities and transfer objects is a tedious and error-prone task. Mapped transfer objects are intended to facilitate this work and also carry data between our application and the outside world, but they can be linked to a specific entity instance. The link between the mapped transfer object instance and the entity instance is represented by a specific field of the mapped transfer object, called mapping field.
+
+[IMPORTANT]
+====
+Understanding the concept of a *mapping field* is extremely important as you continue reading this document. The name "mapping field" comes from its role. In practice, the mapping field is a field in the mapped transfer object. This is a reference to the entity instance to which the transfer object is linked. This reference can be read at any time like any other field of the transfer object. An important consequence of the above is that the name of the mapping field cannot be used as a field name in the mapped transfer object.
+====
+
+Mapping is a configuration approach that copies entity field values to transfer object fields and vice versa in a pre-defined way, see more in <<Mapping configuration>> chapter.
+
+To define a mapped transfer object, use the `transfer` keyword and specify an entity type as a parameter.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**transfer**# &lt;name> (&lt;entity> &lt;mapping-field>) &#x5B;{
+    &#x5B;field] ...
+}]
+----
+
+where the <name> is the name of the transfer object, and the member fields are defined between `{` and `}`. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance.
 
 
-// TODO: deafult must be constant
+[NOTE]
+====
+There is an alternative syntax to define a mapped transfer object. This alternative is a bit more expressive, although it may be too verbose.
+
+[subs="quotes"]
+----
+[purple]#**transfer**# &lt;name> [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> &#x5B;{
+    &#x5B;field] ...
+}]
+----
+====
+
+For mapped transfer objects, the field block surrounded by `{` and `}` is optional. See <<Auto-mapping>>.
+
+The example below shows a mapped transfer object.
+
+*Example:*
+
+[source,jsl]
+----
+entity Person {
+    field String name;
+}
+
+transfer PersonTransfer(Person person) {
+    field String name <=> person.name;
+}
+----
+
+The transfer object `PersonTransfer` is mapped to the `Person` entity. A particular instance of the Person entity is accessible as `person` within the scope of the PersonTransfer transfer object. The `person` field is a field of type `Person`, which is the mapping field.
+
+The value of the mapping field (`person` in the example above) can be undefined (e.g. the mapping field is not required). In some PersonTransfer instances, the mapping field may refer to a particular Person entity instance, and in others it may be undefined.
 
 
 [judo-req="true",judo-req-id="REQ-SRV-005"]
@@ -236,23 +286,23 @@ The constructor is not called when a mapped transfer object is produced for exis
 
 Mapping configuration is a declarative description of how the fields of a transfer object read and/or write specific fields of the entity mapped by the transfer object. Mapping configuration can only be used for mapped transfer objects.
 
-Use the `reads` or `maps` keywords in the field definitions to define the mapping configuration.
+Use the `\<=` or `\<\=>` symbols in the field definitions to define the mapping configuration.
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;([purple]##**reads**##|[purple]##**maps**##) &lt;expression>];
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;([purple]##**<=**##|[purple]##**<=>**##) &lt;expression>];
 ----
 
 where <primitive> is the name of a domain model primitive, or
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;([purple]##**reads**##|[purple]##**maps**##) &lt;expression>];
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;([purple]##**<=**##|[purple]##**<=>**##) &lt;expression>];
 ----
 
-If the `reads` keyword is used, the value of the transfer field will be set to the value of the expression specified after `reads`. 
+If the `\<=` symbol is used, the value of the transfer field will be set to the value of the expression specified after `\<=`. 
 
 *Example:*
 
@@ -264,17 +314,17 @@ entity SalesPerson {
 }
 
 transfer SalesPersonTransfer(SalesPerson salesperson) {
-    field String fullName reads salesperson.firstName + " " + salesperson.lastName;
+    field String fullName <= salesperson.firstName + " " + salesperson.lastName;
 }
 ----
 
 In the example above, transfer field value is set by concatenating the `firstName` and `lastName` fields of SalesPerson mapped entity with a space in the middle. Note the `salesperson` reference in the expression which refers to the mapping field.
 
-The `reads` expressions are used whenever a transfer object or a collection of transfer objects are requested in a function, see <<Data function>> section.
+The <expression> is used whenever a transfer object or a collection of transfer objects are requested in a function, see <<Data function>> section.
 
-If the `maps` keyword is used, in addition to setting the value of the transfer field, it writes the value of the transfer field to the entity field when the mapped entity instance is updated with the transfer object instance. See <<Update>> chapter.
+If the `\<=` symbol is used, in addition to setting the value of the transfer field, it writes the value of the transfer field to the entity field when the mapped entity instance is updated with the transfer object instance. See <<Update>> chapter.
 
-While `reads` can be followed by any expression, the expression behind `maps` can only points to one field of the mapped entity.
+While `\<=` symbol can be followed by any expression, the expression behind `\<\=>` symbol can only point to one field of the mapped entity.
 
 *Example:*
 
@@ -286,12 +336,12 @@ entity SalesPerson {
 }
 
 transfer SalesPersonTransfer(SalesPerson salesperson) {
-    field String firstName maps salesperson.firstName;
-    field String lastName maps salesperson.lastName;
+    field String firstName <=> salesperson.firstName;
+    field String lastName <=> salesperson.lastName;
 }
 ----
 
-In other words, `reads` creates a one-way connection between the entity and the transfer fields, where the value of the transfer field takes the value of the expression. And `maps` defines a two-way connection.
+In other words, `\<=` symbol creates a one-way connection between the entity and the transfer fields, where the value of the transfer field takes the value of the expression. And `\<\=>` symbol defines a two-way connection.
 
 Both read and map expressions must return a primitive compatible with the field type.
 
@@ -313,12 +363,12 @@ entity Lead {
 }
 
 transfer LeadTransfer(Lead lead) {
-    field Integer value reads lead.value;
+    field Integer value <= lead.value;
 }
 
 transfer SalesPersonTransfer(SalesPerson salesperson) {
-    field String fullName reads salesperson.firstName + " " + salesperson.lastName;
-    field LeadTransfer[] leads maps salesperson.leads;
+    field String fullName <= salesperson.firstName + " " + salesperson.lastName;
+    field LeadTransfer[] leads <=> salesperson.leads;
 }
 ----
 
@@ -478,61 +528,6 @@ The piece of code above deletes the entity referred to as `person`. More informa
 ////
 
 
-[judo-req="true",judo-req-id="REQ-SRV-009"]
-=== Function
-
-The function is the piece of code (currently Java implementation) that is executed when the function is invoked.
-
-The function has a name, an optional input parameter and an optional return value. The return value is a computed value passed to the function caller. This value is often referred to as output.
-
-////
-In addition to the output, an action may also return different type of errors. The definition of errors is discussed in chapter Errors.
-////
-
-The function parameter is a variable used to configure the function. It is passed to the function in order to determine how the function will behave when it is invoked. Function parameter can be used to customize the behavior of the function for different situations.
-
-Use the `function` keyword to specify a function.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**function**# &#x5B;&lt;type>|[purple]#**void**#] &lt;name> (&#x5B;&lt;parameter>]) &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...]
-----
-
-where the <name> is the name of the function.
-
-The optional <type> is the output type of the function. If there is no <type> defined or the return type is `void`, the function cannot return any data. The <type> can be one of the following:
-
-* domain primitive
-* single transfer object
-* collection of transfer objects
-* union
-
-Unions are discussed in the <<Union>> chapter.
-
-The optional <parameter> is specified after the function name, inside the parentheses. It consists of a type and a name. The type is the name of a transfer object, and the parameter name can be referenced within the body of the function.
-
-Both the return value and the parameter are required when calling the function if specified in the function declaration.
-
-The `throws` keyword is used to declare a list of errors that may occur during the execution of the function code. This optional error list contains the names of the errors that the function may throw and the caller must be prepared to handle them.
-
-The body of functions cannot currently be defined in JSL. Currently, the functions must be implemented in Java.
-////
-The body of the function is optional. If no function body is specified (e.g. missing block with curly braces), the function must be implemented in Java.
-////
-
-*Example:*
-
-[source,jsl]
-----
-service PersonService(Person person) {
-    function void delete();
-    function LeadTransfer[] addLead(LeadTransfer lead);
-}
-----
-
-The above example shows two functions. The `delete` function has no return value or parameters and will be implemented in Java. The second function (`addLead`) has both a return value and a parameter. This must also be implemented in Java.
 
 [judo-req="true",judo-req-id="REQ-SRV-010"]
 === Data function

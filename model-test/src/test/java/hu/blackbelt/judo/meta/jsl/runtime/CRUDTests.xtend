@@ -38,7 +38,7 @@ class CRUDTests {
 				relation TA[] talist <= b.alist create:true;
 			}
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, JslDslValidator.INVALID_DECLARATION, "Create flag is allowed only for mapped relations.")
+            assertError(JsldslPackage::eINSTANCE.transferDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
         ]
     }
 
@@ -88,7 +88,7 @@ class CRUDTests {
 				relation TA[] talist <= b.alist create:true;
 			}
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, JslDslValidator.INVALID_DECLARATION, "Create flag is allowed only for mapped relations.")
+            assertError(JsldslPackage::eINSTANCE.transferDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
         ]
     }
 

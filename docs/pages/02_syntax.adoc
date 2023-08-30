@@ -56,12 +56,12 @@ The following example is syntactically valid.
 ----
 model shop;
 
-type string String(min-size = 0, max-size = 128);
+type string String min-size:0 max-size:128;
 
 entity Person {
     field required String firstName = "";
     field required String lastName = "";;;;;
-    derived String fullName =>
+    field String fullName <=
         self.firstName + " " + self.lastName;
 };
 ----
@@ -72,28 +72,20 @@ entity Person {
 
 Keywords are predefined, reserved words used in JSL that have special meanings in the language. JSL keywords are always lowercase.
 
-Keywords cannot be used directly as element names. If you still want to use these reserved words as element names, the words must be enclosed in back-tick (```) characters as shown in the example below.
+Most keywords can also be used as element names. However, there are reserved keywords that cannot be used directly as an element name. If you still want to use these reserved keywords as element names, the words must be enclosed in back-tick (```) characters as shown in the example below.
 
-[source,jsl]
 ----
-field String `model`;
+field String `void`;
 ----
 
-This is the list of keywords in the JSL.
+This is the list of reserved keywords in the JSL.
 
-[cols="1,1,1"]
-|======================================================================
-|abstract   |false       |opposite-add
-|and        |field       |or
-|as         |identifier  |query
-|constraint |implies     |relation
-|derived    |import      |required
-|div        |mod         |self
-|entity     |model       |true
-|enum       |not         |type
-|error      |onerror     |xor
-|extends    |opposite    |
-|======================================================================
+* `not`
+* `true`
+* `false`
+* `void`
+* `required`
+
 
 [judo-req="true",judo-req-id="REQ-SYNT-004"]
 == Element names

@@ -24,7 +24,7 @@ The `model` keyword is used to start a model definition.
 
 [subs="quotes"]
 ----
-[purple]#**model**# &lt;fq-name> [purple]#**;**#
+[purple]#**model**# &lt;fq-name>[purple]#**;**#
 ----
 
 Where the <fq-name> is the fully qualified name of the model. The fully qualified name consists of optional namespaces and the name of the model separated by double colons (`::`), for example `judo::example::shop`. `shop` is the name of the model and the namespaces are `judo` and `example`. (See: link:#namespace[Namespace])
@@ -59,7 +59,7 @@ To import an existing model, use the `import` keyword.
 
 [subs="quotes"]
 ----
-[purple]#**import**# &lt;model> &#x5B;[purple]##**as**## &lt;alias>] [purple]#**;**#
+[purple]#**import**# &lt;model> &#x5B;[purple]##**as**## &lt;alias>][purple]#**;**#
 ----
 
 where the <model> is the fully qualified name of the imported model. 
