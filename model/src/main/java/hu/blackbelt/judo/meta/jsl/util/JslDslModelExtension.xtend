@@ -526,17 +526,17 @@ class JslDslModelExtension {
 			return true
 		}
 		
-//		if (relation.annotations.exists[a | a.declaration.name.equals("Embedded")]) {
-//			return true
-//		}
+		if (relation.annotations.exists[a | a.declaration.name.equals("Embedded")]) {
+			return true
+		}
 		
 		return false
 	}
 
 	def isQuery(EntityMemberDeclaration member) {
-//		if (member.annotations.exists[a | a.declaration.name.equals("Query")]) {
-//			return true
-//		}
+		if (member.annotations.exists[a | a.declaration.name.equals("Query")]) {
+			return true
+		}
 		
 		return false
 	}
