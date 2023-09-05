@@ -80,12 +80,15 @@ field String `void`;
 
 This is the list of reserved keywords in the JSL.
 
-* `not`
-* `true`
-* `false`
-* `void`
-* `required`
-
+[cols="1,1,1"]
+|====================
+|`actor`       |`import`   | `transfer`
+|`annotation`  |`model`    | `true`
+|`entity`      |`not`      | `type`
+|`enum`        |`query`    | `view`
+|`error`       |`required` | `void`
+|`false`       |`row`      |
+|====================
 
 [judo-req="true",judo-req-id="REQ-SYNT-004"]
 == Element names

@@ -138,7 +138,8 @@ QueryParameterDeclaration
  ****************************/
 
 TransferDeclaration
-	: annotations += AnnotationMark*
+	: {SimpleTransferDeclaration}
+	  annotations += AnnotationMark*
 	  KW_TRANSFER Named
 	  map = EntityMapDeclaration?
 	  (SC | BLOCK_START members += TransferMemberDeclaration* BLOCK_END)
@@ -232,11 +233,16 @@ TransferDataReference
 	;
 
 
+VisibleDeclaration returns TransferDeclaration
+	: ViewDeclaration
+	| RowDeclaration
+	;
+
 /****************************
  *	View
  ****************************/
 
-ViewDeclaration returns TransferDeclaration
+ViewDeclaration returns VisibleDeclaration
 	: {ViewDeclaration}
 	  annotations += AnnotationMark*
 	  KW_VIEW Named
@@ -357,7 +363,7 @@ ViewActionDeclaration returns TransferActionDeclaration
  *	Row
  ****************************/
 
-RowDeclaration returns TransferDeclaration
+RowDeclaration returns VisibleDeclaration
 	: {RowDeclaration}
 	  annotations += AnnotationMark*
 	  KW_ROW Named
@@ -382,8 +388,7 @@ RowColumnDeclaration returns TransferFieldDeclaration
  ****************************/
 
 ActorDeclaration returns TransferDeclaration
-	: {ActorDeclaration}
-	  annotations += AnnotationMark*
+	: annotations += AnnotationMark*
 	  KW_ACTOR KW_SYSTEM? Named
 	  map = EntityMapDeclaration?
 	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier)*
@@ -432,9 +437,10 @@ ActorGroupDeclaration
 ActorMenuDeclaration returns ActorAccessDeclaration
 	: {ActorMenuDeclaration}
 	  annotations += AnnotationMark*
-	  ( KW_MENU referenceType = [ViewDeclaration | ModelName] Named (reads ?= LTE getterExpr = Expression)?
-	  | KW_MENU referenceType = [RowDeclaration | ModelName] Cardinality Named reads ?= LTE getterExpr = Expression
-	  )
+//	  ( KW_MENU referenceType = [ViewDeclaration | ModelName] Named (reads ?= LTE getterExpr = Expression)?
+//	  | KW_MENU referenceType = [RowDeclaration | ModelName] Cardinality Named reads ?= LTE getterExpr = Expression
+//	  )
+	  KW_MENU referenceType = [VisibleDeclaration | ModelName] Cardinality? Named reads ?= LTE getterExpr = Expression
 	  modifiers += (LabelModifier | IconModifier | EnabledModifier | HiddenModifier
 	  			   | ViewChoiceModifier | RowsModifier | DetailModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC

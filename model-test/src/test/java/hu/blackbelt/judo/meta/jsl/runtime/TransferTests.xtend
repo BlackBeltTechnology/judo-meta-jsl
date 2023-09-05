@@ -347,47 +347,6 @@ class TransferTests {
         ]
     }
 
-//    @Test
-//    def void testTransferAutomapDuplication() {
-//        '''
-//            model Test;
-//
-//            import judo::types;
-//
-//            entity E1 {
-//                identifier String id;
-//            }
-//
-//            transfer A1(E1 e);
-//            transfer A2(E1 e);
-//        '''.parse => [
-//            m | m.assertError(JsldslPackage::eINSTANCE.transferDeclaration, JslDslValidator.DUPLICATE_AUTOMAP)
-//        ]
-//    }
-
-//    @Test
-//    def void testTransferMissingAutomap() {
-//        '''
-//            model Test;
-//
-//            import judo::types;
-//
-//            entity E1 {
-//                field String f;
-//            }
-//
-//            entity E2 {
-//                field E1[] e1list;
-//            }
-//
-//            transfer T1(E1 e1) {};
-//
-//            transfer T2(E2 e2);
-//        '''.parse => [
-//            m | m.assertError(JsldslPackage::eINSTANCE.transferDeclaration, JslDslValidator.INVALID_DECLARATION)
-//        ]
-//    }
-
     @Test
     def void testTransferUnmappedMaps() {
         '''
@@ -612,7 +571,7 @@ class TransferTests {
 
     @Test
     def void testTransferCreateUnmapped() {
-    	// TODO: Is create allowed in unmapped transfer object? Delete? Update? Initializer?
+    	// TODO JNG-5183: Is create allowed in unmapped transfer object? Delete? Update? Initializer?
 //        '''
 //            model Test;
 //

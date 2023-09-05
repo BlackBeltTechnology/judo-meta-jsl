@@ -80,69 +80,6 @@ class JslDslModelExtension {
 		return transfer.eAllContents.filter[c | c instanceof TransferMemberDeclaration].map[e | e as TransferMemberDeclaration].toList
 	}
 
-//	def SingleType getReferenceType(EntityMemberDeclaration member) { 
-//		if (member instanceof EntityStoredFieldDeclaration) {
-//			if ((member as EntityStoredFieldDeclaration).primitiveReferenceType !== null) {
-//				return (member as EntityStoredFieldDeclaration).primitiveReferenceType;
-//			} if ((member as EntityStoredFieldDeclaration).entityReferenceType !== null) {
-//				return (member as EntityStoredFieldDeclaration).entityReferenceType;
-//			} else {
-//				return (member as EntityStoredFieldDeclaration).singleReferenceType;
-//			}
-//		} else if (member instanceof EntityStoredRelationDeclaration) {
-//			return (member as EntityStoredRelationDeclaration).entityReferenceType;
-//		} else if (member instanceof EntityCalculatedFieldDeclaration) {
-//			return (member as EntityCalculatedFieldDeclaration).primitiveReferenceType;
-//		} else if (member instanceof EntityCalculatedRelationDeclaration) {
-//			return (member as EntityCalculatedRelationDeclaration).entityReferenceType;
-//		}
-//	}
-
-//	def TransferDeclaration getReferenceType(TransferRelationDeclaration relation) { 
-//		if (relation instanceof ActorMenuDeclaration) {
-//			if ((relation as ActorMenuDeclaration).rowReferenceType !== null) {
-//				return (relation as ActorMenuDeclaration).rowReferenceType
-//			}
-//			return (relation as ActorMenuDeclaration).viewReferenceType;
-//		}
-//		 else if (relation instanceof ActorAccessDeclaration) {
-//			return (relation as ActorAccessDeclaration).transferReferenceType;
-//		} else if (relation instanceof ViewTableDeclaration) {
-//			return (relation as ViewTableDeclaration).rowReferenceType;
-//		} if (relation instanceof ViewLinkDeclaration) {
-//			return (relation as ViewLinkDeclaration).viewReferenceType;
-//		} 
-//		
-//		return relation.simpleTransferReferenceType;
-//
-//		return relation.referenceType;
-//	}
-
-//	def TransferDeclaration getParameterType(TransferCreateDeclaration create) { 
-//		if (create instanceof TransferCreateDeclaration) {
-//			return (create as TransferCreateDeclaration).parameterType;
-//		} if (create instanceof ViewCreateDeclaration) {
-//			return (create as ViewCreateDeclaration).viewParameterType;
-//		}
-//		
-//        throw new IllegalArgumentException("Create modifier:" + create)
-//	}
-
-    /*
-    def ModelDeclaration modelDeclaration(EObject obj) {
-        var current = obj
-
-        while (current.eContainer !== null) {
-            current = current.eContainer
-        }
-
-        if (current instanceof ModelDeclaration) {
-            current as ModelDeclaration
-        } else {
-            throw new IllegalAccessException("The root container is not ModelDeclaration: " + obj + "\n Root: " + current)
-        }
-    } */
-
     def Collection<EntityMemberDeclaration> allNamedEntityMemberDeclarations(ModelDeclaration model) {
         val res = new ArrayList<EntityMemberDeclaration>();
 

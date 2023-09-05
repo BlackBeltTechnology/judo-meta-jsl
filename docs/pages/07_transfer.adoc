@@ -239,27 +239,12 @@ To define a mapped transfer object, use the `transfer` keyword and specify an en
 
 [subs="quotes"]
 ----
-[purple]#**transfer**# &lt;name> (&lt;entity> &lt;mapping-field>) &#x5B;{
+[purple]#**transfer**# &lt;name> (&lt;entity> &lt;mapping-field>) {
     &#x5B;field] ...
-}]
+}
 ----
 
 where the <name> is the name of the transfer object, and the member fields are defined between `{` and `}`. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance.
-
-
-[NOTE]
-====
-There is an alternative syntax to define a mapped transfer object. This alternative is a bit more expressive, although it may be too verbose.
-
-[subs="quotes"]
-----
-[purple]#**transfer**# &lt;name> [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> &#x5B;{
-    &#x5B;field] ...
-}]
-----
-====
-
-For mapped transfer objects, the field block surrounded by `{` and `}` is optional. See <<Auto-mapping>>.
 
 The example below shows a mapped transfer object.
 
@@ -343,7 +328,7 @@ transfer SalesPersonTransfer(SalesPerson salesperson) {
 
 In other words, `\<=` symbol creates a one-way connection between the entity and the transfer fields, where the value of the transfer field takes the value of the expression. And `\<\=>` symbol defines a two-way connection.
 
-Both read and map expressions must return a primitive compatible with the field type.
+Both read and map expressions must return a primitive compatible value with the field type.
 
 The following example shows a collection field that is mapped to one of the entity's relations. The example defines an additional field for `SalesPersonTransfer`. The field `leads` is defined within SalesPersonTransfer and contains a list of LeadTransfer transfer objects that belong to a particular salesperson.
 
@@ -376,61 +361,6 @@ transfer SalesPersonTransfer(SalesPerson salesperson) {
 ====
 An important note, that if the transfer field's type is transfer object (or a collection of transfer objects) the expression after the `reads` or `maps` must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
 ====
-
-[judo-req="true",judo-req-id="REQ-SRV-006"]
-=== Auto-mapping
-
-We often encounter the situation when entities need to be delivered to external clients without structural changes. A typical situation of this kind is master data management. To facilitate the creation of such transfer objects, automatic mapping is provided.
-
-If a mapped transfer object is defined without members, all entity fields are automatically mapped in the transfer object with the same names as the names defined in the entity.
-
-[source,jsl]
-----
-entity SalesPerson {
-    field String firstName;
-    field String lastName;
-}
-
-transfer SalesPersonTransfer(SalesPerson salesPerson);
-----
-
-In the example above, there will be two fields in the transfer object, the `firstName` and the `lastName`.
-
-Auto-mapping also maps fields with transfer object type. A prerequisite for automatic mapping with a transfer object type is that the referenced transfer object must also already exist as an automatically mapped transfer object. The following example shows a transfer object with a list of transfer objects in one of its fields.
-
-[source,jsl]
-----
-entity SalesPerson {
-    field String firstName;
-    field String lastName;
-	relation Lead[] leads;
-}
-
-entity Lead {
-    field Integer value;
-}
-
-transfer LeadTransfer(Lead lead);
-transfer SalesPersonTransfer(SalesPerson salesPerson);
-----
-
-The above declaration of `SalesPersonTransfer` equals to the following:
-
-[source,jsl]
-----
-transfer SalesPersonTransfer(SalesPerson salesPerson) {
-    field String firstName maps salesPerson.firstName;
-    field String lastName maps salesPerson.lastName;
-    relation LeadTransfer[] leads maps salesPerson.leads;
-}
-----
-
-
-[NOTE]
-====
-Note that there can only be one auto-mapped transfer object for an entity.
-====
-
 
 == Service
 

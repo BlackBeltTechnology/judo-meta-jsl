@@ -59,6 +59,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ViewActionDeclaration
 import org.eclipse.emf.ecore.EClassifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -69,7 +72,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     @Inject IQualifiedNameProvider qualifiedNameProvider
 
     @Inject extension JslDslModelExtension
-//
+
     override getScope(EObject context, EReference ref) {
 //        System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
 //        "\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper
@@ -105,16 +108,15 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
             AnnotationArgument case ref == JsldslPackage::eINSTANCE.annotationArgument_Declaration && context.eContainer instanceof AnnotationMark: return scope.scope_Containments((context.eContainer as AnnotationMark).declaration, ref)
 
 			EntityRelationDeclaration case ref == JsldslPackage::eINSTANCE.entityMemberDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.entityDeclaration)
-			
-//			EntityRelationOppositeReferenced case ref == JsldslPackage::eINSTANCE.entityRelationOppositeReferenced_OppositeType: this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.entityRelationDeclaration)
 
-//			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
+			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
+			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
 			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
-//			ViewSubmitDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
+			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
-//			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
-//			TransferSubmitDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
+			ActorMenuDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.visibleDeclaration)
+			ActorAccessDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
             Navigation: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
         }
@@ -183,7 +185,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
     def scope_FilterByEClassifierNot(IScope scope, EClassifier classifier) {
         return new FilteringScope(scope, [desc | {
-            return classifier.isInstance(desc.EObjectOrProxy);
+            return !classifier.isInstance(desc.EObjectOrProxy);
         }]);
     }
 

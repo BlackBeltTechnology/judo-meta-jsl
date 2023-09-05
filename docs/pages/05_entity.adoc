@@ -466,15 +466,9 @@ The example above shows the calculated relation `leadsBetween`, which has two pa
 
 The fetching strategy determines the timing of fetching entity member values and related entities from persistent storage. There are two ways available for fetching values and related entities.
 
-// Lazy? Eager?
+* *Embedded fetching* is a technique where values are fetched at the same time as the owner entity is retrieved from persistent storage. Its name refers to the fact that the value is embedded into the owner entity. This approach can be beneficial when dealing with simple getter expressions and only a few related objects, as it helps eliminate the need for additional fetches and improves the application's performance. In other terminologies, this strategy is also referred to as 'eager'.
 
-* *Embedded fetching* is a technique where values are fetched at the same time as the owner entity is retrieved from persistent storage. Its name refers to the fact that the value is embedded into the owner entity. This approach can be beneficial when dealing with simple getter expressions and only a few related objects, as it helps eliminate the need for additional fetches and improves the application's performance.
-
-* *Requested fetching* is a technique where values are *not* fetched at the same time as the owner entity is retrieved from persistent storage. Instead, they are retrieved only when requested for the first time. Its name refers to the fact that the value is calculated and retrieved upon request. This approach ensures that values are loaded from persistent storage only as they are needed.
-
-////
-* *Query fetching* is a technique where values are *not* fetched at the same time as the owner entity is retrieved from persistent storage. Instead, they are retrieved only when accessed for the first time. Its name refers to the fact that the value is calculated and retrieved in a separate database query. This approach ensures that values are loaded from persistent storage only as they are needed.
-////
+* *Requested fetching* is a technique where values are *not* fetched at the same time as the owner entity is retrieved from persistent storage. Instead, they are retrieved only when requested for the first time. Its name refers to the fact that the value is calculated and retrieved upon request. This approach ensures that values are loaded from persistent storage only as they are needed. In other terminologies, this strategy is also referred to as 'lazy'.
 
 By default, the following fetching strategies are applied to entity members:
 
