@@ -124,7 +124,7 @@ class ActorTests {
             	menu VE ve <= E!any();
             };
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.actorDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
+            m | m.assertError(JsldslPackage::eINSTANCE.transferDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
         ]
     }
 
@@ -140,7 +140,7 @@ class ActorTests {
             	group g {};
             };
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.actorDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
+            m | m.assertError(JsldslPackage::eINSTANCE.transferDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
         ]
     }
 }
