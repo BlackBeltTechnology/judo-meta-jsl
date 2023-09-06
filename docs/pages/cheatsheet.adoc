@@ -294,18 +294,18 @@ A transfer object is a container for a set of data fields that is transferred be
 
 [subs="quotes"]
 ----
-[purple]#**transfer**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##] &#x5B;{
+[purple]#**transfer**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##] {
     &#x5B;member] ...
-}] [purple]#**;**#
+} [purple]#**;**#
 ----
 
 or
 
 [subs="quotes"]
 ----
-[purple]#**transfer**# &lt;name> &#x5B; [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> ] &#x5B;{
+[purple]#**transfer**# &lt;name> &#x5B; [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> ] {
     &#x5B;member] ...
-}] [purple]#**;**#
+} [purple]#**;**#
 ----
 
 *Example:*

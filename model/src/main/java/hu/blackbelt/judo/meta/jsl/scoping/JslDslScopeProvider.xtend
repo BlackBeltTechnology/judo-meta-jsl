@@ -55,16 +55,19 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationMark
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationArgument
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewActionDeclaration
 import org.eclipse.emf.ecore.EClassifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedRelationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataMember
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferSubmitDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ViewSubmitDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferConstructorDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTableDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -101,7 +104,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
             FunctionCall case ref == JsldslPackage::eINSTANCE.functionArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
             MemberReference case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_Containments(context.member, ref)
-            TransferDataMember case ref == JsldslPackage::eINSTANCE.transferDataMember_Reference: return scope.scope_AllContainments(context.eContainer.eContainer.eContainer, ref)
+            TransferDataReference case ref == JsldslPackage::eINSTANCE.transferDataReference_Declaration: return scope.scope_AllContainments(context.eContainer.eContainer.eContainer, ref)
             QueryCall case ref == JsldslPackage::eINSTANCE.queryArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
             AnnotationMark case ref == JsldslPackage::eINSTANCE.annotationArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
 
@@ -110,13 +113,24 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
             FunctionArgument case ref == JsldslPackage::eINSTANCE.functionArgument_Declaration: return scope.scope_Containments((context.eContainer as FunctionCall).declaration, ref)
             AnnotationArgument case ref == JsldslPackage::eINSTANCE.annotationArgument_Declaration && context.eContainer instanceof AnnotationMark: return scope.scope_Containments((context.eContainer as AnnotationMark).declaration, ref)
 
+			EntityRelationDeclaration case ref == JsldslPackage::eINSTANCE.entityMemberDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.entityDeclaration)
+
 			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
+			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
 			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
-			ViewSubmitDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
-
 			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
-			TransferSubmitDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
+
+			ActorMenuDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.visibleDeclaration)
+			ActorAccessDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
+
+			TransferConstructorDeclaration case ref == JsldslPackage::eINSTANCE.transferConstructorDeclaration_ParameterType && context.eContainer instanceof SimpleTransferDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
+			TransferConstructorDeclaration case ref == JsldslPackage::eINSTANCE.transferConstructorDeclaration_ParameterType && context.eContainer instanceof ViewDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
+
+			ViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
+			ViewTableDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
+
+			TransferRelationDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
             Navigation: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
         }
@@ -179,19 +193,19 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
     def scope_FilterByEClassifier(IScope scope, EClassifier classifier) {
         return new FilteringScope(scope, [desc | {
-            return classifier.isInstance(desc.EObjectOrProxy) ? true : false;
+            return classifier.isInstance(desc.EObjectOrProxy);
         }]);
     }
 
     def scope_FilterByEClassifierNot(IScope scope, EClassifier classifier) {
         return new FilteringScope(scope, [desc | {
-            return classifier.isInstance(desc.EObjectOrProxy) ? false : true;
+            return !classifier.isInstance(desc.EObjectOrProxy);
         }]);
     }
 
     def scope_FilterByReferenceType(IScope scope, EReference ref) {
         return new FilteringScope(scope, [desc | {
-            return ref.EReferenceType.isInstance(desc.EObjectOrProxy) ? true : false;
+            return ref.EReferenceType.isInstance(desc.EObjectOrProxy);
         }]);
     }
 
@@ -220,9 +234,9 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     }
 
     def scope_EntityRelationOppositeReferenced_oppositeType(EntityRelationOpposite context, EReference ref) {
-        val entityRelationDeclaration = context.eContainer as EntityStoredRelationDeclaration
+        val entityRelationDeclaration = context.eContainer as EntityRelationDeclaration
 
-        if (context.eContainer !== null && entityRelationDeclaration.isResolvedReference(JsldslPackage.ENTITY_STORED_RELATION_DECLARATION__ENTITY_REFERENCE_TYPE)) {
+        if (context.eContainer !== null && entityRelationDeclaration.isResolvedReference(JsldslPackage.ENTITY_MEMBER_DECLARATION__REFERENCE_TYPE)) {
             getEntityMembers(IScope.NULLSCOPE, entityRelationDeclaration.referenceType as EntityDeclaration, ref, new ArrayList<EntityDeclaration>())
         } else {
             return IScope.NULLSCOPE
@@ -231,7 +245,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
     def getEntityRelationOppositeInjected(IScope parent, EntityDeclaration entity, EReference reference) {
         val scope = new AtomicReference<IScope>(parent)
-        entity.getVisibleEObjectDescriptions(JsldslPackage::eINSTANCE.entityStoredRelationDeclaration)
+        entity.getVisibleEObjectDescriptions(JsldslPackage::eINSTANCE.entityRelationDeclaration)
             .filter[d | d.getUserData("oppositeName") !== null]
             .filter[d | entity?.fullyQualifiedName?.toString?.equals(entity?.getResolvedProxy(d)?.referenceTypeFromIndex?.fullyQualifiedName?.toString)]
 //            .filter[d | entity.fullyQualifiedName.toString.equals((entity.getResolvedProxy(d) as EntityRelationDeclaration).referenceType.fullyQualifiedName.toString)]
@@ -274,18 +288,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
             var EObject resolved = null
             
             switch object {
-                EntityStoredFieldDeclaration:
-                	if (object.isMany) {
-                		resolved = object.eGet(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration_EntityReferenceType, true) as EObject
-                	} else if (object.isIdentifier) {
-                		resolved = object.eGet(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration_PrimitiveReferenceType, true) as EObject
-                	} else {
-                		resolved = object.eGet(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration_SingleReferenceType, true) as EObject
-                	}
-
-                EntityStoredRelationDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityStoredRelationDeclaration_EntityReferenceType, true) as EObject
-                EntityCalculatedFieldDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityCalculatedFieldDeclaration_PrimitiveReferenceType, true) as EObject
-                EntityCalculatedRelationDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityCalculatedRelationDeclaration_EntityReferenceType, true) as EObject
+            	EntityMemberDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.entityMemberDeclaration_ReferenceType, true) as EObject
                 QueryDeclaration: resolved = object.eGet(JsldslPackage::eINSTANCE.queryDeclaration_ReferenceType, true) as EObject
             }
             if (resolved !== null) {
