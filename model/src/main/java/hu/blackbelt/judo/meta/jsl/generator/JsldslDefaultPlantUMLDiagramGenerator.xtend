@@ -317,21 +317,21 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 «««				«transfer.transferRepresentation»
 «««			«ENDFOR»
 	
-	    	«FOR transfer : rowDeclarations»
-	            «transfer.transferRepresentation»
-	        «ENDFOR»
+«««	    	«FOR transfer : rowDeclarations»
+«««	            «transfer.transferRepresentation»
+«««	        «ENDFOR»
 	
 	        «FOR transfer : getExternalReferencedTransfers»
 	            class «getExternalName(transfer)» <«transfer.parentContainer(ModelDeclaration)?.name»> «transfer.transferExternalStereotypeFragment»
 	        «ENDFOR»
 	
-	        «FOR relation : allSimpleTransferRelations»
+	        «FOR relation : allTransferRelations»
 	            «relation.transferRelationRepresentation(it)»
 	        «ENDFOR»
 	
-	        «FOR relation : allViewTransferRelations»
-	            «relation.transferRelationRepresentation(it)»
-	        «ENDFOR»
+«««	        «FOR relation : allViewTransferRelations»
+«««	            «relation.transferRelationRepresentation(it)»
+«««	        «ENDFOR»
 	    }
 	
 	    together {

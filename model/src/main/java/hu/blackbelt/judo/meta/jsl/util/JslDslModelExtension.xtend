@@ -39,7 +39,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
@@ -52,6 +51,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import org.eclipse.emf.ecore.EClassifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.Modifiable
 import hu.blackbelt.judo.meta.jsl.jsldsl.Modifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.VisibleDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.HumanActorDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -332,7 +334,7 @@ class JslDslModelExtension {
     }
     
     def Collection<TransferDeclaration> transferDeclarations(ModelDeclaration it) {
-        declarations.filter[d | d instanceof TransferDeclaration].map[d | d as TransferDeclaration].toList
+        declarations.filter[d | d instanceof TransferDeclaration && !(d instanceof ActorDeclaration)].map[d | d as TransferDeclaration].toList
     }
 
 //    def Collection<SimpleTransferDeclaration> simpleTransferDeclarations(ModelDeclaration it) {

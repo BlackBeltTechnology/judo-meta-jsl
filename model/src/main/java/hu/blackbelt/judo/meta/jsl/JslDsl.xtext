@@ -383,7 +383,8 @@ RowColumnDeclaration returns TransferFieldDeclaration
  ****************************/
 
 ActorDeclaration returns TransferDeclaration
-	: annotations += AnnotationMark*
+	: {ActorDeclaration}
+	  annotations += AnnotationMark*
 	  -> KW_ACTOR KW_SYSTEM? Named
 	  map = EntityMapDeclaration?
 	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier)*

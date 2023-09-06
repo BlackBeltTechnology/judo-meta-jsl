@@ -65,6 +65,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferConstructorDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTableDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -123,6 +126,11 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 			TransferConstructorDeclaration case ref == JsldslPackage::eINSTANCE.transferConstructorDeclaration_ParameterType && context.eContainer instanceof SimpleTransferDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 			TransferConstructorDeclaration case ref == JsldslPackage::eINSTANCE.transferConstructorDeclaration_ParameterType && context.eContainer instanceof ViewDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
+
+			ViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
+			ViewTableDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
+
+			TransferRelationDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
             Navigation: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
         }

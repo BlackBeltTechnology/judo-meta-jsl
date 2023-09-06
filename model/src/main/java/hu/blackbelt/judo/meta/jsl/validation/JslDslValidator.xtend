@@ -675,6 +675,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         // System.out.println("checkAssociationOpposite: " + relation + " opposite: " + relation?.opposite + " type: " + relation?.opposite?.oppositeType)
 
 		if (relation.calculated) return;
+		if (!(relation.referenceType instanceof EntityDeclaration)) return;
 
         // Check the referenced opposite relation type reference back to this relation
         if (relation.opposite?.oppositeType !== null) {
