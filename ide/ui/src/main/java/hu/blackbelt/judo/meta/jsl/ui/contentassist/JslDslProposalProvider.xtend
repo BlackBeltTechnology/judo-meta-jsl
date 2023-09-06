@@ -19,10 +19,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
 import org.eclipse.xtext.RuleCall
 import org.eclipse.xtext.AbstractRule
-import org.eclipse.jface.text.contentassist.ICompletionProposal
-import org.eclipse.xtext.Group
-import org.eclipse.xtext.ParserRule
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
@@ -73,14 +70,13 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 		super.completeRuleCall(ruleCall, contentAssistContext, acceptor)
 	}
 
-
     override completeEntityRelationOppositeReferenced_OppositeType(EObject model, Assignment assignment,
         ContentAssistContext context, ICompletionProposalAcceptor acceptor
     ) {
         // System.out.println("model: " + model + " assignment: " + assignment + " context: " + context)
         lookupCrossReference((assignment.getTerminal() as CrossReference), context, acceptor,
-            [ ((model as EntityRelationOpposite).eContainer as EntityStoredRelationDeclaration)
-                .isSelectableForRelation(EObjectOrProxy as EntityStoredRelationDeclaration)
+            [ ((model as EntityRelationOpposite).eContainer as EntityRelationDeclaration)
+                .isSelectableForRelation(EObjectOrProxy as EntityRelationDeclaration)
             ]
         );
     }
