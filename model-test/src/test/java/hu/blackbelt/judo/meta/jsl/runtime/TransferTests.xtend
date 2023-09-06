@@ -48,7 +48,7 @@ class TransferTests {
                 field String f;
                 relation T2[] t2;
 
-                constructor {
+                event create {
                     self.f = "";
                     self.t2 = E1!all();
                 }
@@ -203,7 +203,7 @@ class TransferTests {
             transfer T1(E1 e1) {
                 field String f;
 
-                constructor {
+                event create {
                     self.f = e1.id;
                 }
             }
@@ -226,7 +226,7 @@ class TransferTests {
             transfer T1(E1 e1) {
                 field String f;
 
-                constructor {
+                event create {
                     self.f = 1;
                 }
             }
@@ -536,20 +536,21 @@ class TransferTests {
         ]
     }
     
-    @Test
-    def void testTransferInitializerUnmapped() {
-        '''
-            model Test;
-
-            import judo::types;
-
-            transfer T {
-            	initializer;
-            }
-        '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferInitializerDeclaration, JslDslValidator.INVALID_DECLARATION)
-        ]
-    }
+//    TODO:JNG-5183
+//    @Test
+//    def void testTransferInitializerUnmapped() {
+//        '''
+//            model Test;
+//
+//            import judo::types;
+//
+//            transfer T {
+//            	event initialize;
+//            }
+//        '''.parse => [
+//            assertError(JsldslPackage::eINSTANCE.transferInitializerDeclaration, JslDslValidator.INVALID_DECLARATION)
+//        ]
+//    }
 
     @Test
     def void testTransferInitializerDuplicated() {
@@ -561,8 +562,8 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				initializer;
-				initializer;
+				event initialize;
+				event initialize;
 			}
         '''.parse => [
             assertError(JsldslPackage::eINSTANCE.transferInitializerDeclaration, JslDslValidator.DUPLICATE_EVENT)
@@ -595,11 +596,11 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				create;
-				create;
+				event create;
+				event create;
 			}
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferCreateDeclaration, JslDslValidator.DUPLICATE_EVENT)
+            assertError(JsldslPackage::eINSTANCE.transferConstructorDeclaration, JslDslValidator.DUPLICATE_EVENT)
         ]
     }
 
@@ -614,12 +615,12 @@ class TransferTests {
 			entity B {}
 			
 			transfer TA(A a) {
-				create(TB);
+				event create(TB tb);
 			}
 			
 			transfer TB (B b) {}
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferCreateDeclaration, JslDslValidator.INVALID_DECLARATION, "Create parameter must be compatible to transfer object type.")
+            assertError(JsldslPackage::eINSTANCE.transferConstructorDeclaration, JslDslValidator.INVALID_DECLARATION, "Create parameter must be compatible to transfer object type.")
         ]
     }
 
@@ -634,7 +635,7 @@ class TransferTests {
 			entity B extends A {}
 			
 			transfer TA(A a) {
-				create(TB);
+				event create(TB tb);
 			}
 			
 			transfer TB (B b) {}
@@ -643,20 +644,21 @@ class TransferTests {
         ]
     }
 
-    @Test
-    def void testTransferUpdateUnmapped() {
-        '''
-            model Test;
-
-            import judo::types;
-
-            transfer T {
-            	update;
-            }
-        '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferUpdateDeclaration, JslDslValidator.INVALID_DECLARATION)
-        ]
-    }
+//    TODO:JNG-5183
+//    @Test
+//    def void testTransferUpdateUnmapped() {
+//        '''
+//            model Test;
+//
+//            import judo::types;
+//
+//            transfer T {
+//            	event update;
+//            }
+//        '''.parse => [
+//            assertError(JsldslPackage::eINSTANCE.transferUpdateDeclaration, JslDslValidator.INVALID_DECLARATION)
+//        ]
+//    }
 
     @Test
     def void testTransferUpdateDuplicated() {
@@ -668,8 +670,8 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				update;
-				update;
+				event update;
+				event update;
 			}
         '''.parse => [
             assertError(JsldslPackage::eINSTANCE.transferUpdateDeclaration, JslDslValidator.DUPLICATE_EVENT)
@@ -686,27 +688,28 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				update;
+				event update;
 			}
         '''.parse => [
             assertNoErrors
         ]
     }
 
-    @Test
-    def void testTransferDeleteUnmapped() {
-        '''
-            model Test;
-
-            import judo::types;
-
-            transfer T {
-            	delete;
-            }
-        '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferDeleteDeclaration, JslDslValidator.INVALID_DECLARATION)
-        ]
-    }
+//    TODO:JNG-5183
+//    @Test
+//    def void testTransferDeleteUnmapped() {
+//        '''
+//            model Test;
+//
+//            import judo::types;
+//
+//            transfer T {
+//            	event delete;
+//            }
+//        '''.parse => [
+//            assertError(JsldslPackage::eINSTANCE.transferDeleteDeclaration, JslDslValidator.INVALID_DECLARATION)
+//        ]
+//    }
 
     @Test
     def void testTransferDeleteDuplicated() {
@@ -718,8 +721,8 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				delete;
-				delete;
+				event delete;
+				event delete;
 			}
         '''.parse => [
             assertError(JsldslPackage::eINSTANCE.transferEventDeclaration, JslDslValidator.DUPLICATE_EVENT)
@@ -736,7 +739,7 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				delete;
+				event delete;
 			}
         '''.parse => [
             assertNoErrors

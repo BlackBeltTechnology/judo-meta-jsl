@@ -5,7 +5,8 @@ generate jsldsl "http://www.blackbelt.hu/judo/meta/jsl/JslDsl"
 
 ModelDeclaration returns ModelDeclaration
     : {ModelDeclaration}
-      KW_MODEL name = ModelName SC
+      annotations += AnnotationMark*
+      -> KW_MODEL name = ModelName SC
       imports += ModelImportDeclaration*
 	  (declarations += Declaration)*
     ;
@@ -53,7 +54,7 @@ ClassDeclaration
 EntityDeclaration
 	: {EntityDeclaration}
 	  annotations += AnnotationMark*
-	  KW_ENTITY abstract ?= KW_ABSTRACT? Named
+	  -> KW_ENTITY abstract ?= KW_ABSTRACT? Named
 	  (KW_EXTENDS extends += [EntityDeclaration | ModelName] (COMMA extends += [EntityDeclaration | ModelName])*)?
 	  (SC | BLOCK_START members += EntityMemberDeclaration* BLOCK_END)
 	;
@@ -61,7 +62,7 @@ EntityDeclaration
 EntityMemberDeclaration
 	: {EntityFieldDeclaration}
 	  annotations += AnnotationMark*
-	  (KW_FIELD | identifier ?= KW_IDENTIFIER) required ?= KW_REQUIRED? referenceType = [Persistable | ModelName] Cardinality?
+	  ->(KW_FIELD | identifier ?= KW_IDENTIFIER) required ?= KW_REQUIRED? referenceType = [Persistable | ModelName] Cardinality?
 	  Named 
 	  (
 	  	(default ?= ASSIGN defaultExpr = Expression)?
@@ -74,7 +75,7 @@ EntityMemberDeclaration
 
 EntityRelationDeclaration
 	: annotations += AnnotationMark*
-	  KW_RELATION required ?= KW_REQUIRED? referenceType = [EntityDeclaration | ModelName] Cardinality?
+	  -> KW_RELATION required ?= KW_REQUIRED? referenceType = [EntityDeclaration | ModelName] Cardinality?
 	  Named
 	  (
 	  	(default ?= ASSIGN defaultExpr = Expression)? opposite = EntityRelationOpposite?
@@ -123,7 +124,8 @@ EntityMapDeclaration
  ****************************/
 
 QueryDeclaration
-	: KW_QUERY (referenceType = [Persistable | ModelName] Cardinality?) Named
+	: annotations += AnnotationMark*
+	  -> KW_QUERY (referenceType = [Persistable | ModelName] Cardinality?) Named
 	  (LP (parameters += QueryParameterDeclaration (COMMA parameters += QueryParameterDeclaration)*)? RP)
 	  LTE getterExpr = Expression
 	  SC
@@ -140,14 +142,13 @@ QueryParameterDeclaration
 TransferDeclaration
 	: {SimpleTransferDeclaration}
 	  annotations += AnnotationMark*
-	  KW_TRANSFER Named
+	  -> KW_TRANSFER Named
 	  map = EntityMapDeclaration?
 	  (SC | BLOCK_START members += TransferMemberDeclaration* BLOCK_END)
 	;
 
 TransferMemberDeclaration
-	: TransferConstructorDeclaration
-	| TransferEventDeclaration
+	: TransferEventDeclaration
 	| TransferDataDeclaration
 	| TransferActionDeclaration
 	;
@@ -155,7 +156,7 @@ TransferMemberDeclaration
 TransferDataDeclaration 
 	: {TransferFieldDeclaration}
 	  annotations += AnnotationMark*
-	  KW_FIELD
+	  -> KW_FIELD
 	  required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
 	  ((reads ?= LTE | maps ?= MAP) getterExpr = Expression)?
 	  SC
@@ -164,7 +165,7 @@ TransferDataDeclaration
 
 TransferRelationDeclaration
 	: annotations += AnnotationMark*
-	  KW_RELATION
+	  -> KW_RELATION
 	  required ?= KW_REQUIRED? referenceType = [TransferDeclaration | ModelName] Cardinality?
 	  Named
 	  (
@@ -177,9 +178,16 @@ TransferRelationDeclaration
 	  SC
 	;
 
+TransferActionDeclaration
+	: annotations += AnnotationMark*
+	  -> KW_ACTION ReturnFragment Named
+	  LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? RP
+	  SC
+	;
+
 TransferEventDeclaration
 	: TransferInitializerDeclaration
-	| TransferCreateDeclaration
+	| TransferConstructorDeclaration
 	| TransferUpdateDeclaration
 	| TransferDeleteDeclaration
 	;
@@ -187,40 +195,28 @@ TransferEventDeclaration
 TransferInitializerDeclaration returns TransferEventDeclaration
 	: {TransferInitializerDeclaration}
 	  annotations += AnnotationMark*
-	  KW_INITIALIZER
+	  KW_EVENT -> KW_INITIALIZE (LP RP)?
 	  SC
-	;
-
-TransferCreateDeclaration returns TransferEventDeclaration
-	: {TransferCreateDeclaration} annotations += AnnotationMark* KW_CREATE (LP parameterType = [TransferDeclaration | ModelName] RP)? default ?= SC
-	| {TransferCreateDeclaration} annotations += AnnotationMark* KW_CREATE  LP parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID RP => BLOCK_START BLOCK_END
 	;
 
 TransferUpdateDeclaration returns TransferEventDeclaration
 	: {TransferUpdateDeclaration}
 	  annotations += AnnotationMark*
-	  KW_UPDATE
+	  KW_EVENT -> KW_UPDATE (LP RP)?
 	  SC
 	;
 
 TransferDeleteDeclaration returns TransferEventDeclaration
 	: {TransferDeleteDeclaration}
 	  annotations += AnnotationMark*
-	  KW_DELETE
+	  KW_EVENT -> KW_DELETE (LP RP)?
 	  SC
 	;
 
-TransferActionDeclaration
-	: annotations += AnnotationMark*
-	  KW_ACTION ReturnFragment Named
-	  LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? RP
-	  SC
-	;
-
-TransferConstructorDeclaration
+TransferConstructorDeclaration returns TransferEventDeclaration
 	: {TransferConstructorDeclaration}
 	  annotations += AnnotationMark*
-	  KW_CONSTRUCTOR
+	  KW_EVENT -> KW_CREATE (LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? RP)?
 	  (SC | BLOCK_START (defaults += TransferDataAssignment)* BLOCK_END)
 	;
 
@@ -233,27 +229,26 @@ TransferDataReference
 	;
 
 
+/****************************
+ *	View
+ ****************************/
+
 VisibleDeclaration returns TransferDeclaration
 	: ViewDeclaration
 	| RowDeclaration
 	;
 
-/****************************
- *	View
- ****************************/
-
 ViewDeclaration returns VisibleDeclaration
 	: {ViewDeclaration}
 	  annotations += AnnotationMark*
-	  KW_VIEW Named
+	  -> KW_VIEW Named
 	  map = EntityMapDeclaration?
 	  (SC | BLOCK_START members += ViewMemberDeclaration* BLOCK_END)
 	;
 
 
 ViewMemberDeclaration returns TransferMemberDeclaration
-	: TransferConstructorDeclaration
-	| TransferEventDeclaration
+	: TransferEventDeclaration
 
 	| ViewTextDeclaration
 	| ViewFieldDeclaration
@@ -267,7 +262,7 @@ ViewMemberDeclaration returns TransferMemberDeclaration
 ViewTextDeclaration returns TransferFieldDeclaration
 	: {ViewTextDeclaration}
 	  annotations += AnnotationMark*
-	  KW_TEXT Named reads ?= LTE getterExpr = Expression
+	  -> KW_TEXT Named reads ?= LTE getterExpr = Expression
 	  modifiers += VisualModifier*
 	  SC
 	;
@@ -275,7 +270,7 @@ ViewTextDeclaration returns TransferFieldDeclaration
 ViewFieldDeclaration returns TransferFieldDeclaration
 	: {ViewFieldDeclaration} 
 	  annotations += AnnotationMark*
-	  KW_FIELD  required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
+	  -> KW_FIELD  required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
 	  ((reads ?= LTE | maps ?= MAP) getterExpr = Expression)?
 	  modifiers += VisualModifier*
 	  SC
@@ -284,7 +279,7 @@ ViewFieldDeclaration returns TransferFieldDeclaration
 ViewLinkDeclaration returns TransferRelationDeclaration
 	: {ViewLinkDeclaration}
 	  annotations += AnnotationMark*
-	  KW_LINK required ?= KW_REQUIRED? referenceType = [ViewDeclaration | ModelName] Named
+	  -> KW_LINK required ?= KW_REQUIRED? referenceType = [ViewDeclaration | ModelName] Named
 	  (
 	  	modifiers += (VisualModifier | TextModifier)*
 	    | 
@@ -300,7 +295,7 @@ ViewLinkDeclaration returns TransferRelationDeclaration
 ViewTableDeclaration returns TransferRelationDeclaration
 	: {ViewTableDeclaration}
 	  annotations += AnnotationMark*
-	  KW_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
+	  -> KW_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
 	  (
 	  	modifiers += (VisualModifier | RowsModifier | DetailModifier)*
 		|
@@ -321,7 +316,7 @@ ViewPanelDeclaration
 ViewTabsDeclaration returns ViewPanelDeclaration
 	: {ViewTabsDeclaration}
 	  annotations += AnnotationMark*
-	  KW_TABS Named
+	  -> KW_TABS Named
 	  modifiers += (VisualModifier | FrameModifier)*
 	  BLOCK_START (groups += ViewGroupDeclaration)* BLOCK_END
 	;
@@ -329,7 +324,7 @@ ViewTabsDeclaration returns ViewPanelDeclaration
 ViewGroupDeclaration returns ViewPanelDeclaration
 	: {ViewGroupDeclaration} 
 	  annotations += AnnotationMark*
-	  (horizontal ?= KW_HORIZONTAL | vertical ?= KW_VERTICAL) Named
+	  (-> horizontal ?= KW_HORIZONTAL | -> vertical ?= KW_VERTICAL) Named
 	  modifiers += (VisualModifier | FrameModifier | HorizontalModifier | VerticalModifier | StretchModifier)*
 	  BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END
 	;
@@ -337,7 +332,7 @@ ViewGroupDeclaration returns ViewPanelDeclaration
 ViewActionDeclaration returns TransferActionDeclaration
 	: {ViewActionDeclaration}
 	  annotations += AnnotationMark*
-	  KW_ACTION ReturnFragment Named
+	  -> KW_ACTION ReturnFragment Named
 	  LP (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID)? RP
 	  modifiers += (VisualModifier | ResourceModifier)*
 	  SC
@@ -366,7 +361,7 @@ ViewActionDeclaration returns TransferActionDeclaration
 RowDeclaration returns VisibleDeclaration
 	: {RowDeclaration}
 	  annotations += AnnotationMark*
-	  KW_ROW Named
+	  -> KW_ROW Named
 	  map = EntityMapDeclaration?
 	  (SC | BLOCK_START (members += RowMemberDeclaration)* BLOCK_END)
 	;
@@ -378,7 +373,7 @@ RowMemberDeclaration returns TransferMemberDeclaration
 RowColumnDeclaration returns TransferFieldDeclaration
 	: {RowColumnDeclaration}
 	  annotations += AnnotationMark*
-	  KW_COLUMN referenceType = [PrimitiveDeclaration | ModelName] Named ((maps ?= MAP | reads ?= LTE) getterExpr = Expression)?
+	  -> KW_COLUMN referenceType = [PrimitiveDeclaration | ModelName] Named ((maps ?= MAP | reads ?= LTE) getterExpr = Expression)?
 	  modifiers += (LabelModifier | IconModifier | WidthModifier)*
 	  SC
 	;
@@ -389,7 +384,7 @@ RowColumnDeclaration returns TransferFieldDeclaration
 
 ActorDeclaration returns TransferDeclaration
 	: annotations += AnnotationMark*
-	  KW_ACTOR KW_SYSTEM? Named
+	  -> KW_ACTOR KW_SYSTEM? Named
 	  map = EntityMapDeclaration?
 	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier)*
 	  (SC | BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END)
@@ -403,7 +398,7 @@ ActorMemberDeclaration returns TransferMemberDeclaration
 ActorAccessDeclaration returns TransferRelationDeclaration
 	: {ActorAccessDeclaration}
 	  annotations += AnnotationMark*
-	  KW_ACCESS referenceType = [TransferDeclaration | ModelName] Cardinality? Named LTE getterExpr = Expression
+	  -> KW_ACCESS referenceType = [TransferDeclaration | ModelName] Cardinality? Named reads ?= LTE getterExpr = Expression
 	  modifiers += (CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
@@ -415,7 +410,7 @@ ActorAccessDeclaration returns TransferRelationDeclaration
 HumanActorDeclaration returns ActorDeclaration
 	: {HumanActorDeclaration}
 	  annotations += AnnotationMark*
-	  KW_ACTOR KW_HUMAN Named
+	  KW_ACTOR -> KW_HUMAN Named
 	  map = EntityMapDeclaration?
 	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier)*
 	  (SC | BLOCK_START (members += HumanActorMemberDeclaration)* BLOCK_END)
@@ -429,7 +424,7 @@ HumanActorMemberDeclaration returns TransferMemberDeclaration
 
 ActorGroupDeclaration
 	: annotations += AnnotationMark*
-	  KW_GROUP tag = JSLID
+	  -> KW_GROUP tag = JSLID
 	  modifiers += (LabelModifier | IconModifier | EnabledModifier | HiddenModifier)*
 	  BLOCK_START (members += ActorMenuDeclaration)* BLOCK_END
 	;
@@ -437,10 +432,7 @@ ActorGroupDeclaration
 ActorMenuDeclaration returns ActorAccessDeclaration
 	: {ActorMenuDeclaration}
 	  annotations += AnnotationMark*
-//	  ( KW_MENU referenceType = [ViewDeclaration | ModelName] Named (reads ?= LTE getterExpr = Expression)?
-//	  | KW_MENU referenceType = [RowDeclaration | ModelName] Cardinality Named reads ?= LTE getterExpr = Expression
-//	  )
-	  KW_MENU referenceType = [VisibleDeclaration | ModelName] Cardinality? Named reads ?= LTE getterExpr = Expression
+	  -> KW_MENU referenceType = [VisibleDeclaration | ModelName] Cardinality? Named reads ?= LTE getterExpr = Expression
 	  modifiers += (LabelModifier | IconModifier | EnabledModifier | HiddenModifier
 	  			   | ViewChoiceModifier | RowsModifier | DetailModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
@@ -452,7 +444,7 @@ ActorMenuDeclaration returns ActorAccessDeclaration
 
 DataTypeDeclaration
     : annotations += AnnotationMark*
-      KW_TYPE
+      -> KW_TYPE
       ( primitive = KW_BOOLEAN Named
       | primitive = KW_BINARY Named modifiers += (MimeTypesModifier | MaxFileSizeModifier)*
       | primitive = KW_STRING Named modifiers += (MinSizeModifier | MaxSizeModifier | RegexModifier)*
@@ -475,13 +467,13 @@ MimeType
 
 EnumDeclaration
     : annotations += AnnotationMark*
-      KW_ENUM Named
+      -> KW_ENUM Named
       BLOCK_START (literals += EnumLiteral)* BLOCK_END
     ;
 
 EnumLiteral
     : annotations += AnnotationMark*
-      Named ASSIGN value = NaturalNumber SC
+      Named -> ASSIGN value = NaturalNumber SC
     ;
 	
 /****************************
@@ -677,23 +669,19 @@ AnnotationTarget
 	| KW_ENTITY COLON entityRelation ?= KW_RELATION
 
 	| KW_TRANSFER COLON transferAction ?= KW_ACTION
-	| KW_TRANSFER COLON transferConstructor ?= KW_CONSTRUCTOR
+	| KW_TRANSFER COLON transferEvent ?= KW_EVENT
 	| KW_TRANSFER COLON transferField ?= KW_FIELD
-	| KW_TRANSFER COLON transferInitializer ?= KW_INITIALIZER
 	| KW_TRANSFER COLON transferRelation ?= KW_RELATION
-	| KW_TRANSFER COLON transferSubmit ?= KW_SUBMIT
 
 	| KW_ACTOR COLON actorGroup ?= KW_GROUP
 	| KW_ACTOR COLON actorMenu ?= KW_MENU
 	| KW_ACTOR COLON actorAccess ?= KW_ACCESS
 
 	| KW_VIEW COLON viewAction ?= KW_ACTION
-	| KW_VIEW COLON viewConstructor ?= KW_CONSTRUCTOR
+	| KW_VIEW COLON viewEvent ?= KW_EVENT
 	| KW_VIEW COLON viewField ?= KW_FIELD
 	| KW_VIEW COLON viewGroup ?= KW_GROUP
-	| KW_VIEW COLON viewInitializer ?= KW_INITIALIZER
 	| KW_VIEW COLON viewLink ?= KW_LINK
-	| KW_VIEW COLON viewSubmit ?= KW_SUBMIT
 	| KW_VIEW COLON viewTable ?= KW_TABLE
 	| KW_VIEW COLON viewTabs ?= KW_TABS
 	| KW_VIEW COLON viewText ?= KW_TEXT
@@ -1000,6 +988,8 @@ ModelName
 	: JSLID SUBID*
     ;
 
+// JSLID: ID ;
+
 JSLID: ID
 
 //	// Declarations not allowed to use
@@ -1014,8 +1004,8 @@ JSLID: ID
 
 
 	// Features	
-	| KW_ACCESS | KW_ACTION | KW_COLUMN | KW_CONSTRAINT | KW_CONSTRUCTOR | KW_CREATE | KW_DELETE | KW_FIELD
-	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_INITIALIZER | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_SUBMIT | KW_TABLE | KW_TABS
+	| KW_ACCESS | KW_ACTION | KW_COLUMN | KW_CONSTRAINT | KW_CREATE | KW_DELETE | KW_EVENT | KW_FIELD
+	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_INITIALIZE | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_SUBMIT | KW_TABLE | KW_TABS
 	| KW_TEXT | KW_UPDATE | KW_VERTICAL
 	
 	// Constants
@@ -1065,14 +1055,14 @@ terminal KW_ACCESS:		'access';
 terminal KW_ACTION:		'action';
 terminal KW_COLUMN:		'column';
 terminal KW_CONSTRAINT:	'constraint';
-terminal KW_CONSTRUCTOR:'constructor';
 terminal KW_CREATE:		'create';
 terminal KW_DELETE:		'delete';
+terminal KW_EVENT:		'event';
 terminal KW_FIELD:		'field';
 terminal KW_GROUP:		'group';
 terminal KW_HORIZONTAL: 'horizontal';
 terminal KW_IDENTIFIER:	'identifier';
-terminal KW_INITIALIZER:'initializer';
+terminal KW_INITIALIZE: 'initialize';
 terminal KW_LINK:		'link';
 terminal KW_LITERAL:	'literal';
 terminal KW_MENU:		'menu';
