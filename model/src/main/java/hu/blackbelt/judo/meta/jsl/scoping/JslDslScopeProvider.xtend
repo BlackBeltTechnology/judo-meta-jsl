@@ -65,7 +65,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferConstructorDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.RowDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 

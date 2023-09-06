@@ -1478,7 +1478,6 @@ class JslDslValidator extends AbstractJslDslValidator {
     def checkActorIdentity(IdentityModifier identity) {
         if (!(identity.expression instanceof Navigation)) {
             error("Invalid actor identity. Identity must be mapped to an identifier of the mapped entity type.",
-//                JsldslPackage::eINSTANCE.actorDeclaration_Identity,
                 JsldslPackage::eINSTANCE.identityModifier_Expression,
                 INVALID_IDENTITY_MAPPING)
 
