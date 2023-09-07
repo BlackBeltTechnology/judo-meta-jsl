@@ -57,7 +57,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferConstructorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.GuardModifier
@@ -92,6 +91,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferEventDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferChoiceModifier
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -650,7 +650,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkQueryAnnottation(AnnotationMark mark) {
-		if (mark.declaration.name.equals("Query")) {
+		if (mark.declaration.name.equals("Requested")) {
 			if (mark.eContainer.eContents.exists[e | e instanceof AnnotationMark && (e as AnnotationMark).declaration.name.equals("Embedded")]) {
                 error("@Query and @Embedded annotations are not allowed to apply at the same target.",
                     JsldslPackage::eINSTANCE.annotationMark_Declaration,
@@ -662,7 +662,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	@Check
 	def checkEmbeddedAnnottation(AnnotationMark mark) {
 		if (mark.declaration.name.equals("Embedded")) {
-			if (mark.eContainer.eContents.exists[e | e instanceof AnnotationMark && (e as AnnotationMark).declaration.name.equals("Query")]) {
+			if (mark.eContainer.eContents.exists[e | e instanceof AnnotationMark && (e as AnnotationMark).declaration.name.equals("Requested")]) {
                 error("@Query and @Embedded annotations are not allowed to apply at the same target.",
                     JsldslPackage::eINSTANCE.annotationMark_Declaration,
                     QUERY_AND_EMBEDDED_TOGETHER)
@@ -1635,7 +1635,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
 	
     @Check
-    def checkTransferConstructor(TransferConstructorDeclaration declaration) {
+    def checkTransferConstructor(TransferCreateDeclaration declaration) {
         val TransferDeclaration transfer = declaration.eContainer as TransferDeclaration;
 
 		if (declaration.parameterType !== null) {
@@ -1644,7 +1644,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 				!TypeInfo.getTargetType(transfer.map.entity).isCompatible(TypeInfo.getTargetType(declaration.parameterType.map.entity)))
 			{
 	            error("Create parameter must be compatible to transfer object type.",
-	                JsldslPackage::eINSTANCE.transferConstructorDeclaration_ParamaterName,
+	                JsldslPackage::eINSTANCE.transferCreateDeclaration_ParamaterName,
 	                INVALID_DECLARATION)
 			}
 		}

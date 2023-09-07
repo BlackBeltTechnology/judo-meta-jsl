@@ -362,6 +362,52 @@ transfer SalesPersonTransfer(SalesPerson salesperson) {
 An important note, that if the transfer field's type is transfer object (or a collection of transfer objects) the expression after the `reads` or `maps` must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
 ====
 
+
+== Lifecycle
+
+[plantuml, target=diagram-classes, format=png]
+....
+@startuml lifecycle
+skinparam nodesep 50
+skinparam ranksep 10
+skinparam shadowing false
+
+skinparam padding 2
+skinparam roundCorner 8
+
+skinparam state {
+    FontColor<<White>> white
+    BackgroundColor<<White>> white
+    BorderColor<<White>> white
+
+    BackgroundColor white|#f5eece
+    BorderColor #grey
+    ArrowColor #black
+    FontSize 13
+    FontStyle bold
+}
+
+state Persisted
+state Modified
+
+state Start <<White>> {
+    [*] -right-> Initial : build
+    state Initial
+}
+
+
+[*] -down-> Persisted : fetch
+Initial -right-> Persisted : create
+Persisted ---> Modified : set
+Modified ---> Persisted : update
+Persisted -right-> [*] : delete
+
+Initial: Detached state
+Modified: Detached state
+
+@enduml
+....
+
 == Service
 
 Services are key components of software applications, allowing external systems or users to interact with the application. The services include creating, updating or deleting data or other real-time communications.

@@ -377,7 +377,7 @@ class JslDslModelExtension {
     }
 
     def Collection<TransferRelationDeclaration> getAllTransferRelations(ModelDeclaration it) {
-    	return eAllContents.filter[c | c instanceof TransferRelationDeclaration].map[e | e as TransferRelationDeclaration].toList
+    	return eAllContents.filter[c | c instanceof TransferRelationDeclaration && c.parentContainer(ActorDeclaration) == null].map[e | e as TransferRelationDeclaration].toList
     }
 
     def Collection<TransferRelationDeclaration> getAllSimpleTransferRelations(ModelDeclaration it) {
@@ -473,7 +473,7 @@ class JslDslModelExtension {
 	}
 
 	def isQuery(EntityMemberDeclaration member) {
-		if (member.annotations.exists[a | a.declaration.name.equals("Query")]) {
+		if (member.annotations.exists[a | a.declaration.name.equals("Requested")]) {
 			return true
 		}
 		
