@@ -92,6 +92,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferChoiceModifier
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferBuildDeclaration
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -145,7 +146,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     public static val DUPLICATE_EVENT = ISSUE_CODE_PREFIX + "DuplicateEvent"
     public static val DUPLICATE_SUBMIT = ISSUE_CODE_PREFIX + "DuplicateSubmit"
     public static val FIELD_TYPE_IS_ABSRTACT_ENTITY = ISSUE_CODE_PREFIX + "FieldTypeIsAbstractEntity"
-    public static val QUERY_AND_EMBEDDED_TOGETHER = ISSUE_CODE_PREFIX + "QueryAndEmbeddedTogether"
+    public static val REQUESTED_AND_EMBEDDED_TOGETHER = ISSUE_CODE_PREFIX + "RequestedAndEmbeddedTogether"
     public static val DUPLICATE_MODIFIER = ISSUE_CODE_PREFIX + "DuplicateModifier"
 
     public static val MEMBER_NAME_LENGTH_MAX = 128
@@ -652,9 +653,9 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkQueryAnnottation(AnnotationMark mark) {
 		if (mark.declaration.name.equals("Requested")) {
 			if (mark.eContainer.eContents.exists[e | e instanceof AnnotationMark && (e as AnnotationMark).declaration.name.equals("Embedded")]) {
-                error("@Query and @Embedded annotations are not allowed to apply at the same target.",
+                error("@Requested and @Embedded annotations are not allowed to apply at the same target.",
                     JsldslPackage::eINSTANCE.annotationMark_Declaration,
-                    QUERY_AND_EMBEDDED_TOGETHER)
+                    REQUESTED_AND_EMBEDDED_TOGETHER)
 			}
 		}
 	}
@@ -663,9 +664,9 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkEmbeddedAnnottation(AnnotationMark mark) {
 		if (mark.declaration.name.equals("Embedded")) {
 			if (mark.eContainer.eContents.exists[e | e instanceof AnnotationMark && (e as AnnotationMark).declaration.name.equals("Requested")]) {
-                error("@Query and @Embedded annotations are not allowed to apply at the same target.",
+                error("@Requested and @Embedded annotations are not allowed to apply at the same target.",
                     JsldslPackage::eINSTANCE.annotationMark_Declaration,
-                    QUERY_AND_EMBEDDED_TOGETHER)
+                    REQUESTED_AND_EMBEDDED_TOGETHER)
 			}
 		}
 	}
@@ -1632,10 +1633,16 @@ class JslDslValidator extends AbstractJslDslValidator {
                 JsldslPackage::eINSTANCE.transferEventDeclaration.getEStructuralFeature("ID"),
                 DUPLICATE_EVENT)
         }
+        
+        if (transfer.map === null && !(event instanceof TransferBuildDeclaration)) {
+            error("Unmapped transfer object cannot have " + event.kind + " event handler.",
+                JsldslPackage::eINSTANCE.transferEventDeclaration.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+        }
     }
 	
     @Check
-    def checkTransferConstructor(TransferCreateDeclaration declaration) {
+    def checkTransferCreate(TransferCreateDeclaration declaration) {
         val TransferDeclaration transfer = declaration.eContainer as TransferDeclaration;
 
 		if (declaration.parameterType !== null) {

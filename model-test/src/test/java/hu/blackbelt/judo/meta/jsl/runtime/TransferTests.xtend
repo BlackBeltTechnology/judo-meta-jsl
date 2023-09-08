@@ -48,7 +48,7 @@ class TransferTests {
                 field String f;
                 relation T2[] t2;
 
-                event create {
+                event build {
                     self.f = "";
                     self.t2 = E1!all();
                 }
@@ -203,7 +203,7 @@ class TransferTests {
             transfer T1(E1 e1) {
                 field String f;
 
-                event create {
+                event build {
                     self.f = e1.id;
                 }
             }
@@ -226,7 +226,7 @@ class TransferTests {
             transfer T1(E1 e1) {
                 field String f;
 
-                event create {
+                event build {
                     self.f = 1;
                 }
             }
@@ -536,24 +536,23 @@ class TransferTests {
         ]
     }
     
-//    TODO:JNG-5183
-//    @Test
-//    def void testTransferInitializerUnmapped() {
-//        '''
-//            model Test;
-//
-//            import judo::types;
-//
-//            transfer T {
-//            	event initialize;
-//            }
-//        '''.parse => [
-//            assertError(JsldslPackage::eINSTANCE.transferInitializerDeclaration, JslDslValidator.INVALID_DECLARATION)
-//        ]
-//    }
+    @Test
+    def void testTransferFetchUnmapped() {
+        '''
+            model Test;
+
+            import judo::types;
+
+            transfer T {
+            	event fetch;
+            }
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferFetchDeclaration, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
 
     @Test
-    def void testTransferInitializerDuplicated() {
+    def void testTransferBuildDuplicated() {
         '''
 			model Test;
 			
@@ -562,28 +561,27 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				event initialize;
-				event initialize;
+				event build;
+				event build;
 			}
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferInitializerDeclaration, JslDslValidator.DUPLICATE_EVENT)
+            assertError(JsldslPackage::eINSTANCE.transferBuildDeclaration, JslDslValidator.DUPLICATE_EVENT)
         ]
     }
 
     @Test
     def void testTransferCreateUnmapped() {
-    	// TODO JNG-5183: Is create allowed in unmapped transfer object? Delete? Update? Initializer?
-//        '''
-//            model Test;
-//
-//            import judo::types;
-//
-//            transfer T {
-//            	create;
-//            }
-//        '''.parse => [
-//            assertError(JsldslPackage::eINSTANCE.transferCreateDeclaration, JslDslValidator.INVALID_DECLARATION, "Create is not allowed in unmapped transfer object.")
-//        ]
+        '''
+            model Test;
+
+            import judo::types;
+
+            transfer T {
+            	event create;
+            }
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferCreateDeclaration, JslDslValidator.INVALID_DECLARATION)
+        ]
     }
 
     @Test
@@ -600,7 +598,7 @@ class TransferTests {
 				event create;
 			}
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferConstructorDeclaration, JslDslValidator.DUPLICATE_EVENT)
+            assertError(JsldslPackage::eINSTANCE.transferCreateDeclaration, JslDslValidator.DUPLICATE_EVENT)
         ]
     }
 
@@ -620,7 +618,7 @@ class TransferTests {
 			
 			transfer TB (B b) {}
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferConstructorDeclaration, JslDslValidator.INVALID_DECLARATION, "Create parameter must be compatible to transfer object type.")
+            assertError(JsldslPackage::eINSTANCE.transferCreateDeclaration, JslDslValidator.INVALID_DECLARATION, "Create parameter must be compatible to transfer object type.")
         ]
     }
 
@@ -644,21 +642,20 @@ class TransferTests {
         ]
     }
 
-//    TODO:JNG-5183
-//    @Test
-//    def void testTransferUpdateUnmapped() {
-//        '''
-//            model Test;
-//
-//            import judo::types;
-//
-//            transfer T {
-//            	event update;
-//            }
-//        '''.parse => [
-//            assertError(JsldslPackage::eINSTANCE.transferUpdateDeclaration, JslDslValidator.INVALID_DECLARATION)
-//        ]
-//    }
+    @Test
+    def void testTransferUpdateUnmapped() {
+        '''
+            model Test;
+
+            import judo::types;
+
+            transfer T {
+            	event update;
+            }
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferUpdateDeclaration, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
 
     @Test
     def void testTransferUpdateDuplicated() {
@@ -695,21 +692,20 @@ class TransferTests {
         ]
     }
 
-//    TODO:JNG-5183
-//    @Test
-//    def void testTransferDeleteUnmapped() {
-//        '''
-//            model Test;
-//
-//            import judo::types;
-//
-//            transfer T {
-//            	event delete;
-//            }
-//        '''.parse => [
-//            assertError(JsldslPackage::eINSTANCE.transferDeleteDeclaration, JslDslValidator.INVALID_DECLARATION)
-//        ]
-//    }
+    @Test
+    def void testTransferDeleteUnmapped() {
+        '''
+            model Test;
+
+            import judo::types;
+
+            transfer T {
+            	event delete;
+            }
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferDeleteDeclaration, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
 
     @Test
     def void testTransferDeleteDuplicated() {

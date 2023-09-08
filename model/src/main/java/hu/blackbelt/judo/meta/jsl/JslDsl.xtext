@@ -196,35 +196,35 @@ TransferEventDeclaration
 TransferFetchDeclaration returns TransferEventDeclaration
 	: {TransferFetchDeclaration}
 	  annotations += AnnotationMark*
-	  KW_EVENT -> KW_FETCH (LP RP)?
+	  KW_EVENT -> kind = KW_FETCH (LP RP)?
 	  SC
 	;
 
 TransferCreateDeclaration returns TransferEventDeclaration
 	: {TransferCreateDeclaration}
 	  annotations += AnnotationMark*
-	  KW_EVENT -> KW_CREATE (LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? RP)?
+	  KW_EVENT -> kind = KW_CREATE (LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? RP)?
 	  SC
 	;
 
 TransferUpdateDeclaration returns TransferEventDeclaration
 	: {TransferUpdateDeclaration}
 	  annotations += AnnotationMark*
-	  KW_EVENT -> KW_UPDATE (LP RP)?
+	  KW_EVENT -> kind = KW_UPDATE (LP RP)?
 	  SC
 	;
 
 TransferDeleteDeclaration returns TransferEventDeclaration
 	: {TransferDeleteDeclaration}
 	  annotations += AnnotationMark*
-	  KW_EVENT -> KW_DELETE (LP RP)?
+	  KW_EVENT -> kind = KW_DELETE (LP RP)?
 	  SC
 	;
 
 TransferBuildDeclaration returns TransferEventDeclaration
 	: {TransferBuildDeclaration}
 	  annotations += AnnotationMark*
-	  KW_EVENT -> KW_BUILD (LP RP)?
+	  KW_EVENT -> kind = KW_BUILD (LP RP)?
 	  (SC | BLOCK_START (defaults += TransferDataAssignment)* BLOCK_END)
 	;
 
