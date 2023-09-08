@@ -226,7 +226,7 @@ class CommentTests {
         assertTrue(m1.streamOfJsldslDataTypeDeclaration.allMatch[e | "boolean".equals(e.primitive) && "Bool".equals(e.name)])
 
         val e4 = m1.entityByName("e4")
-        assertTrue(e4.allFields.stream.allMatch[e | "bb".equals(e.name) && "Bool".equals(e.referenceType.name)])
+        assertTrue(e4.allMembers.stream.allMatch[e | "bb".equals(e.name) && "Bool".equals(e.referenceType.name)])
 
     }
 }

@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import com.google.common.collect.ImmutableMap;
 
-import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationParameterType;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral;
@@ -34,17 +33,17 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference;
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget;
 import hu.blackbelt.judo.meta.jsl.jsldsl.NumberLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Parentheses;
+import hu.blackbelt.judo.meta.jsl.jsldsl.Persistable;
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.RawStringLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Self;
-import hu.blackbelt.judo.meta.jsl.jsldsl.SingleType;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimeLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TimestampLiteral;
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataMemberDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.TypeDescription;
@@ -66,7 +65,7 @@ public class TypeInfo {
 
     private TypeModifier modifier = TypeModifier.NONE;
 	private BaseType baseType;
-	private SingleType type;
+	private Persistable type;
 
 	public String toString() {
 		String result = this.baseType.toString().toLowerCase();
@@ -156,7 +155,7 @@ public class TypeInfo {
 		return getBaseType(annotationParameterType.getType());
 	}
 
-	private TypeInfo(SingleType type, boolean isCollection, boolean isDeclarartion) {
+	private TypeInfo(Persistable type, boolean isCollection, boolean isDeclarartion) {
 		this.modifier = isDeclarartion ? TypeModifier.DECLARATION : this.modifier;
 
 		if (type instanceof DataTypeDeclaration) {
@@ -366,7 +365,7 @@ public class TypeInfo {
 		return typeInfo;
 	}
 	
-	public static TypeInfo getTargetType(SingleType type) {
+	public static TypeInfo getTargetType(Persistable type) {
 		return new TypeInfo(type, false, true);
 	}
 	
@@ -501,7 +500,7 @@ public class TypeInfo {
 			typeInfo = new TypeInfo( ((QueryParameterDeclaration) navigationBaseReference).getReferenceType(), false, false);
 			typeInfo.modifier = TypeModifier.CONSTANT;
 		} else if (navigationBaseReference instanceof PrimitiveDeclaration) {
-			typeInfo = new TypeInfo((SingleType) navigationBaseReference, false, true);
+			typeInfo = new TypeInfo((Persistable) navigationBaseReference, false, true);
 		} else {
 			typeInfo = new TypeInfo(BaseType.UNDEFINED, false);
 			// throw new IllegalArgumentException("Could not determinate type for navigation base reference.");
@@ -541,11 +540,11 @@ public class TypeInfo {
 		return new TypeInfo(annotationParameterType);
 	}
 
-	public static TypeInfo getTargetType(TransferDataMemberDeclaration transferDataMemberDeclaration) {
-		if (transferDataMemberDeclaration instanceof TransferFieldDeclaration) {
-			return getTargetType((TransferFieldDeclaration) transferDataMemberDeclaration);
-		} else if (transferDataMemberDeclaration instanceof TransferRelationDeclaration) {
-			return getTargetType((TransferRelationDeclaration) transferDataMemberDeclaration);
+	public static TypeInfo getTargetType(TransferDataDeclaration transferDataDeclaration) {
+		if (transferDataDeclaration instanceof TransferFieldDeclaration) {
+			return getTargetType((TransferFieldDeclaration) transferDataDeclaration);
+		} else if (transferDataDeclaration instanceof TransferRelationDeclaration) {
+			return getTargetType((TransferRelationDeclaration) transferDataDeclaration);
 		}
 
 		return new TypeInfo(BaseType.UNDEFINED, false);
@@ -568,25 +567,25 @@ public class TypeInfo {
 			return new TypeInfo(BaseType.UNDEFINED, false);
 		}
 
-		EntityDeclaration entityDeclaration = modelExtension.getReferenceType(transferRelationDeclaration).getMap().getEntity();
+		EntityDeclaration entityDeclaration = transferRelationDeclaration.getReferenceType().getMap().getEntity();
 		return new TypeInfo(entityDeclaration, transferRelationDeclaration.isMany(), false);
 	}
 	
-	public static TypeInfo getTargetType(ActorAccessDeclaration access) {
-		if (access == null || modelExtension.getReferenceType(access).getMap() == null) {
-			return new TypeInfo(BaseType.UNDEFINED, false);
-		}
-
-		EntityDeclaration entityDeclaration = modelExtension.getReferenceType(access).getMap().getEntity();
-		return new TypeInfo(entityDeclaration, access.isMany(), false);
-	}
+//	public static TypeInfo getTargetType(ActorAccessDeclaration access) {
+//		if (access == null || modelExtension.getReferenceType(access).getMap() == null) {
+//			return new TypeInfo(BaseType.UNDEFINED, false);
+//		}
+//
+//		EntityDeclaration entityDeclaration = modelExtension.getReferenceType(access).getMap().getEntity();
+//		return new TypeInfo(entityDeclaration, access.isMany(), false);
+//	}
 	
 	public static TypeInfo getTargetType(EntityMemberDeclaration entityMemberDeclaration) {
 		if (entityMemberDeclaration == null) {
 			return new TypeInfo(BaseType.UNDEFINED, false);
 		}
 
-		return new TypeInfo(modelExtension.getReferenceType(entityMemberDeclaration), entityMemberDeclaration.isMany(), false);
+		return new TypeInfo(entityMemberDeclaration.getReferenceType(), entityMemberDeclaration.isMany(), false);
 	}
 
 	public static TypeInfo getTargetType(QueryDeclaration queryDeclaration) {
