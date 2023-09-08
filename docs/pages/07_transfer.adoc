@@ -172,54 +172,16 @@ transfer PersonTransfer {
 
 The second example defines the AddressTransfer transfer object with its fields, and each PersonTransfer instance must have an AddressTransfer.
 
-[judo-req="true",judo-req-id="REQ-SRV-004"]
-=== Constructor
+=== Lifecycle
 
-Optionally, a constructor can be specified for transfer objects. The constructor is automatically called when a new transfer object is created and can be used to set default values of the fields.
+Unmapped transfer objects are objects used for data transfer but are not associated with any storage mechanism. Consequently, their lifecycle is straightforward, consisting of just one stage: from creation to garbage collection when they are no longer referenced. Here's how the lifecycle of unmapped transfer objects works:
 
-// Typically a new transfer object is created by factory functions, see <<Factory>>.
+* Once created, these objects are populated with data through their build event handler. More details on this process can be found later.
 
-*Syntax:*
+* After their purpose has been served, and the data has been transferred, unmapped transfer objects often become immediately eligible for garbage collection. When all references to an unmapped transfer object are lost, it becomes eligible for garbage collection.
 
-[subs="quotes"]
-----
-[purple]#**constructor**# {
-    &#x5B;&lt;field> = &lt;expression>[purple]#**;**#] ...
-}
-----
+Their simple lifecycle reflects their role as transient objects used for communication between different parts of the software, with an emphasis on efficiency and minimal memory usage. Garbage collection ensures that these objects are cleaned up when they are no longer needed, contributing to effective memory resource management.
 
-where <field> is a field of the transfer object having the constructor and <expression> is the default value of the field. 
-
-// The expression cannot contain reference to the mapping field.
-
-
-*Example:*
-
-[source,jsl]
-----
-transfer PersonTransfer {
-    field required String firstName;
-    field required String lastName;
-    field String midName;
-    
-    constructor {
-        self.firstName = "John";
-        self.lastName = "Doe";
-        self.midName = "";
-    }
-}
-----
-
-The example above complements the PersonTransfer example by adding a default value to the `firstName`, `lastName` and `midName` fields.
-
-////
-[NOTE]
-====
-The constructor is not called when a mapped transfer object is produced for existing entity. For example, when a data function looks up entities and returns their associated mapped transfer objects, the constructors for the mapped transfer objects are not called.
-====
-////
-
-// TODO: default must be constant
 
 [judo-req="true",judo-req-id="REQ-SRV-002"]
 == Mapped transfer object
@@ -303,11 +265,13 @@ transfer SalesPersonTransfer(SalesPerson salesperson) {
 }
 ----
 
-In the example above, transfer field value is set by concatenating the `firstName` and `lastName` fields of SalesPerson mapped entity with a space in the middle. Note the `salesperson` reference in the expression which refers to the mapping field.
+In the example above, transfer field value is set by concatenating the `firstName` and `lastName` fields of SalesPerson entity with a space in the middle. Note the `salesperson` reference in the expression which refers to the mapping field.
 
-The <expression> is used whenever a transfer object or a collection of transfer objects are requested in a function, see <<Data function>> section.
+////
+The <expression> is used whenever a transfer object or a collection of transfer objects are fetched from the persistent storage.
+////
 
-If the `\<=` symbol is used, in addition to setting the value of the transfer field, it writes the value of the transfer field to the entity field when the mapped entity instance is updated with the transfer object instance. See <<Update>> chapter.
+If the `\<\=>` symbol is used, in addition to setting the value of the transfer field, it writes the value of the transfer field to the entity field when the mapped entity instance is updated with the transfer object instance.
 
 While `\<=` symbol can be followed by any expression, the expression behind `\<\=>` symbol can only point to one field of the mapped entity.
 
@@ -328,9 +292,7 @@ transfer SalesPersonTransfer(SalesPerson salesperson) {
 
 In other words, `\<=` symbol creates a one-way connection between the entity and the transfer fields, where the value of the transfer field takes the value of the expression. And `\<\=>` symbol defines a two-way connection.
 
-Both read and map expressions must return a primitive compatible value with the field type.
-
-The following example shows a collection field that is mapped to one of the entity's relations. The example defines an additional field for `SalesPersonTransfer`. The field `leads` is defined within SalesPersonTransfer and contains a list of LeadTransfer transfer objects that belong to a particular salesperson.
+So far, expressions returned primitive values. The following example shows a collection field that is mapped to one of the entity's relations. The example defines an additional field for `SalesPersonTransfer`. The field `leads` is defined within SalesPersonTransfer and contains a list of LeadTransfer transfer objects that belong to a particular salesperson.
 
 *Example:*
 
@@ -359,11 +321,15 @@ transfer SalesPersonTransfer(SalesPerson salesperson) {
 
 [IMPORTANT]
 ====
-An important note, that if the transfer field's type is transfer object (or a collection of transfer objects) the expression after the `reads` or `maps` must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
+An important note, that if the transfer field's type is a transfer object (or a collection of transfer objects) the expression after the `\<=` or `\<=\>` must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
 ====
 
 
-== Lifecycle
+=== Lifecycle
+
+Mapped transfer objects are connected to the storage mechanism through entity mapping. As a result, their lifecycle is more complicated than the lifecycle of unmapped transfer objects.
+
+The following diagram depicts the lifecycle of mapped transfer objects.
 
 [plantuml, target=diagram-classes, format=png]
 ....
@@ -400,6 +366,7 @@ state Start <<White>> {
 Initial -right-> Persisted : create
 Persisted ---> Modified : set
 Modified ---> Persisted : update
+Modified ---> Persisted : fetch
 Persisted -right-> [*] : delete
 
 Initial: Detached state
@@ -407,6 +374,79 @@ Modified: Detached state
 
 @enduml
 ....
+
+A mapped transfer object can go through three stages during its lifecycle:
+
+* *Initial:* This is where the object begins its lifecycle. In this state, the object's fields have their default values. The object has not yet been persisted, so its mapping field is undefined. Since the fields of the mapped transfer object do not match the fields of the mapping entity (as it does not yet exist), we refer to this as a detached state.
+
+* *Persisted:* This state represents an object in a persisted or saved state, indicating that its fields are stored in the mapping entity. The mapped transfer object has already been persisted, so its mapping field is defined.
+
+* *Modified:* The Modified state represents an object that has been altered, but the modifications have not yet been saved to the fields of the mapping entity. The mapping entity already exists, so the mapped transfer object's mapping field is defined. Since the fields of the mapped transfer object do not match the fields of the mapping entity, we also refer to this as a detached state.
+
+A transition refers to a change in the object's state that occurs as a result of a specific event. Events are shown next to transition arrows on the diagram. The following events can occur to a mapped transfer object:
+
+* The *build* event represents the action of initializing an object, causing it to transition to a defined state. It sets the initial field values of the object.
+
+* The *create* event signifies the action of saving an object's state to the storage. It transitions the object from an initial or modified state to a persisted state.
+
+* The *fetch* event indicates the retrieval of data from the persistent storage. It transitions the object into a state where it holds the fetched data.
+
+* The *set* event represents an action where the mapped transfer object's fields modified. This can lead to a transition from a persisted state to a modified state, indicating that changes have been made but not yet saved.
+
+* The *update* event is associated with saving the modifications made to a transfer object. It causes the object to transition from a modified state back to a persisted state, reflecting that the changes have been persisted.
+
+* The *delete* event is used to indicate the removal or deletion of an object. It results in the object transitioning to an end state and being removed from the persistent storage entirely.
+
+== Event handlers
+
+[judo-req="true",judo-req-id="REQ-SRV-004"]
+=== Build
+
+Optionally, a constructor can be specified for transfer objects. The constructor is automatically called when a new transfer object is created and can be used to set default values of the fields.
+
+// Typically a new transfer object is created by factory functions, see <<Factory>>.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**constructor**# {
+    &#x5B;&lt;field> = &lt;expression>[purple]#**;**#] ...
+}
+----
+
+where <field> is a field of the transfer object having the constructor and <expression> is the default value of the field. 
+
+// The expression cannot contain reference to the mapping field.
+
+
+*Example:*
+
+[source,jsl]
+----
+transfer PersonTransfer {
+    field required String firstName;
+    field required String lastName;
+    field String midName;
+    
+    event build {
+        self.firstName = "John";
+        self.lastName = "Doe";
+        self.midName = "";
+    }
+}
+----
+
+The example above complements the PersonTransfer example by adding a default value to the `firstName`, `lastName` and `midName` fields.
+
+////
+[NOTE]
+====
+The constructor is not called when a mapped transfer object is produced for existing entity. For example, when a data function looks up entities and returns their associated mapped transfer objects, the constructors for the mapped transfer objects are not called.
+====
+////
+
+// TODO: default must be constant
 
 == Service
 
