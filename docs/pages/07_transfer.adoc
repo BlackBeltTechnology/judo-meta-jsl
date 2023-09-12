@@ -172,16 +172,6 @@ transfer PersonTransfer {
 
 The second example defines the AddressTransfer transfer object with its fields, and each PersonTransfer instance must have an AddressTransfer.
 
-=== Lifecycle
-
-Unmapped transfer objects are objects used for data transfer but are not associated with any storage mechanism. Consequently, their lifecycle is straightforward, consisting of just one stage: from creation to garbage collection when they are no longer referenced. Here's how the lifecycle of unmapped transfer objects works:
-
-* Once created, these objects are populated with data through their build event handler. More details on this process can be found later.
-
-* After their purpose has been served, and the data has been transferred, unmapped transfer objects often become immediately eligible for garbage collection. When all references to an unmapped transfer object are lost, it becomes eligible for garbage collection.
-
-Their simple lifecycle reflects their role as transient objects used for communication between different parts of the software, with an emphasis on efficiency and minimal memory usage. Garbage collection ensures that these objects are cleaned up when they are no longer needed, contributing to effective memory resource management.
-
 
 [judo-req="true",judo-req-id="REQ-SRV-002"]
 == Mapped transfer object
@@ -325,7 +315,65 @@ An important note, that if the transfer field's type is a transfer object (or a 
 ====
 
 
-=== Lifecycle
+== Action
+
+Actions, also known as methods or member functions, define the operations that a transfer object can perform.
+
+The action has a body, which is the piece of code (script) that is executed when the action is invoked. Actions, in this context, encapsulate the behavior of an object. Actions can perform a wide range of tasks, from simple calculations to complex operations including creating, updating or deleting data or other real-time communications, and they can interact with the transfer object's fields and relations.
+
+[NOTE]
+====
+Currently, the action body can only be specified in Java.
+====
+
+The action may return a computed value to its caller (its return value). This value is often referred to as output. In addition to the output, an action may also return different type of errors. The definition of errors is discussed in chapter Errors.
+
+Use the `action` keyword to specify an action within a transfer object.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**action**# &#x5B;&lt;type>|&lt;union>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**## &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...][purple]#**;**#
+----
+
+where the <name> is the name of the action. Information can be passed to actions through parameters, which act as variables within the action. A <parameter> is specified after the action name within parentheses and consists of the name of a transfer object and a parameter name. An action can have at most one parameter.
+
+The optional <type> is the output type of the action. If <type> is not specified or replaced by the keyword `void` the action cannot return any data. The <type> can be a single transfer object or a union.
+
+
+[judo-req="true",judo-req-id="REQ-SRV-013"]
+=== Union
+
+A union is a special return type to hold different type of transfer objects. Unions can be defined at the point of use, namely as the return type of functions. A union must have at least two members, but only one member can exist at any given time.
+
+Unions cannot be organized into a collection.
+
+*Example:*
+
+[source,jsl]
+----
+action <SalesPersonTransfer|DeveloperTransfer> getEmployee();
+----
+
+In the example above, the `getEmployee` function may return a SalesPersonTransfer or a DeveloperTransfer transfer object. Within the body of the function, it can be decided whether a SalesPersonTransfer or DeveloperTransfer object is returned.
+
+
+== Lifecycle
+
+Understanding the concept and behavior of transfer objects is essential when creating, updating, saving, deleting, and working with them. The lifetime of transfer objects is the time that elapses between the creation and destruction of a particular instance. The events that occur during their lifetime are described by the lifecycle process. 
+
+=== Unmapped transfer object lifecycle
+
+Unmapped transfer objects are objects used for data transfer but are not associated with any storage mechanism. Consequently, their lifecycle is straightforward, consisting of just one stage: from creation to garbage collection when they are no longer referenced. Here's how the lifecycle of unmapped transfer objects works:
+
+* Once created, these objects are populated with data through their build event handler. More details on this process can be found later.
+
+* After their purpose has been served, and the data has been transferred, unmapped transfer objects often become immediately eligible for garbage collection. When all references to an unmapped transfer object are lost, it becomes eligible for garbage collection.
+
+Their simple lifecycle reflects their role as transient objects used for communication between different parts of the software, with an emphasis on efficiency and minimal memory usage. Garbage collection ensures that these objects are cleaned up when they are no longer needed, contributing to effective memory resource management.
+
+=== Mapped transfer object lifecycle
 
 Mapped transfer objects are connected to the storage mechanism through entity mapping. As a result, their lifecycle is more complicated than the lifecycle of unmapped transfer objects.
 
@@ -568,199 +616,6 @@ transfer PersonTransfer {
     event delete;
 }
 ----
-
-== Action
-
-Actions, also known as methods or member functions, define the operations that a transfer object can perform.
-
-The action has a body, which is the piece of code (script) that is executed when the action is invoked. Actions, in this context, encapsulate the behavior of an object. Actions can perform a wide range of tasks, from simple calculations to complex operations including creating, updating or deleting data or other real-time communications, and they can interact with the transfer object's fields and relations.
-
-[NOTE]
-====
-Currently, the action body can only be specified in Java.
-====
-
-The action may return a computed value to its caller (its return value). This value is often referred to as output. In addition to the output, an action may also return different type of errors. The definition of errors is discussed in chapter Errors.
-
-Use the `action` keyword to specify an action within a transfer object.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**action**# &#x5B;&lt;type>|&lt;union>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**## &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...][purple]#**;**#
-----
-
-where the <name> is the name of the action. Information can be passed to actions through parameters, which act as variables within the action. A <parameter> is specified after the action name within parentheses and consists of the name of a transfer object and a parameter name. An action can have at most one parameter.
-
-The optional <type> is the output type of the action. If <type> is not specified or replaced by the keyword `void` the action cannot return any data. The <type> can be a single transfer object or a union.
-
-
-== Service
-
-Services are key components of software applications, allowing external systems or users to interact with the application. The services include creating, updating or deleting data or other real-time communications.
-
-A service is a component that groups functions together that are related in some way. Similar to transfer objects, we also distinguish two categories of services:
-
-* unmapped and
-
-* mapped service.
-
-[judo-req="true",judo-req-id="REQ-SRV-007"]
-=== Unmapped service
-
-Unmapped services are simple components that are solely responsible for grouping functions.
-
-To define an unmapped service, use the `service` keyword.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**service**# &lt;name> {
-    &#x5B;[purple]##**function**##] ...
-}
-----
-
-where the <name> is the name of the service, and the functions are defined between `{` and `}`. Possible function definitions are provided in the <<Function>> and <<Data function>> sections.
-
-*Example:*
-
-[subs="quotes"]
-[source,jsl]
-----
-service ManagerService {
-    function PersonTransfer create();
-}
-----
-
-The example above defines a service named `ManagerService` with only one function member.
-
-[judo-req="true",judo-req-id="REQ-SRV-008"]
-
-
-
-
-*Example:*
-
-[source,jsl]
-----
-service PersonService(Person person) {
-    function void delete();
-}
-----
-
-The above example defines a mapped service named "PersonService" with a single function. Within the body of the function, the mapped field is available using the variable `person`.
-
-////
-For example, the body of the deletion service can be
-
-----
-delete person;
-----
-
-The piece of code above deletes the entity referred to as `person`. More information about JSL scripts in later chapters.
-////
-
-
-
-[judo-req="true",judo-req-id="REQ-SRV-010"]
-=== Data function
-
-Data functions are used to query the data model quickly and elegantly. The data function is an expression (see xref:06_expression.adoc[Expression]) that will be evaluated when the function is invoked. Data functions are very similar to queries (see xref:05_entity.adoc#Query[Query]), except that they have no input parameters and are used by external systems or users.
-
-A very important feature of data functions is that collection results can be filtered and paging is provided out of the box. Filtering can be performed on the values of the return value fields. The aim of the paging is, dividing the result into discrete pages with the help of the function.
-
-The data function has a name and a return value. The return value is a computed value passed to the function caller.
-
-Use the `function` keyword to specify a data function.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**function**# &lt;primitive> &lt;name> [purple]#**=>**# &lt;expression>[purple]#**;**#
-----
-
-where <primitive> is the name of a domain model primitive that will be returned, and <name> is the referable name of the function, or
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**function**# &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> [purple]#**=>**# &lt;expression>[purple]#**;**#
-----
-
-where the <transfer> is the name of a mapped transfer object that will be returned, and <name> is the referable name of the function. The optional [] indicates that the function returns a collection of <transfer> instances rather than a single transfer object.
-
-The <expression> calculates the return value of the service whenever it is requested. See xref:06_expression.adoc[Expression]. If the service that groups the function is a mapped service, the mapping field of the service is available within the expression.
-
-*Example:*
-
-[source,jsl]
-----
-service PersonService(Person person) {
-    function PersonTransfer manager => person.manager;
-}
-----
-
-The example above returns a PersonTransfer object that is the manager of the person represented by the mapping field (`person`). The expression selects a Person entity, but the return value of the service is a PersonTransfer mapped transfer object. The mapping between the result of the expression and the return value of the function is done automatically.
-
-[NOTE]
-====
-A data function expression always works with entities and their relationships, but the return value of a data function is always a mapped transfer object. The mapping between the two is always done according to the mapping rules defined for the mapped transfer object (see <<Mapping configuration>>).
-====
-
-[judo-req="true",judo-req-id="REQ-SRV-011"]
-==== @Insert
-
-Use `@Insert` annotation on a data function to define an additional insert function in the service. The additional function inserts a new member to the relation specified by the given data function.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**@Insert**#
-[purple]#**function**# &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> [purple]#**=>**# &lt;expression> [purple]#**choices**# &lt;choices>[purple]#**;**#
-----
-
-The `@Insert` can only be specified for data functions where the function <expression> points to a relation of the mapped entity (see xref:05_entity.adoc[Relations]) and <choices> is specified. Moreover, the function must return a collection.
-
-The insert function inserts a new member to the relation of the mapped entity. The possible new members of the relation are limited to the available <choices>. The <choices> is an expression of the same type as the collection returned by <expression>.
-
-[judo-req="true",judo-req-id="REQ-SRV-012"]
-==== @Remove
-
-Use `@Remove` annotation on a data function to define an additional remove function in the service. The additional function removes a member from the relation specified by the given data function.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**@Remove**#
-[purple]#**function**# &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> [purple]#**=>**# &lt;expression>[purple]#**;**#
-----
-
-The `@Remove` can only be specified for data functions where the function <expression> points to a relation of the mapped entity, see xref:06_entity.adoc[Relations].  Moreover, the function must return a collection.
-
-The remove function removes a member from the relation of the mapped entity.
-
-[judo-req="true",judo-req-id="REQ-SRV-013"]
-=== Union
-
-A union is a special return type to hold different type of transfer objects. Unions can be defined at the point of use, namely as the return type of functions. A union must have at least two members, but only one member can exist at any given time.
-
-Unions cannot be organized into a collection.
-
-*Example:*
-
-[source,jsl]
-----
-function <SalesPersonTransfer|DeveloperTransfer> getEmployee();
-----
-
-In the example above, the `getEmployee` function may return a SalesPersonTransfer or a DeveloperTransfer transfer object. Within the body of the function, it can be decided whether a SalesPersonTransfer or DeveloperTransfer object is returned.
-
 
 ////
 The optional `static` keyword is used to create service that can be invoked without an existing instance of the transfer object. Static methods cannot use any of the fields or derived fields of the transfer object in which they were defined. In other words, static actions use the transfer objects that contain them as an embedding namespace.
