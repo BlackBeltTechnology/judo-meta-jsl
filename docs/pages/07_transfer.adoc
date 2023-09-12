@@ -357,19 +357,18 @@ state Persisted
 state Modified
 
 state Start <<White>> {
-    [*] -right-> Initial : build
-    state Initial
+    [*] -right-> Initialized : build
+    state Initialized : Detached state
 }
 
 
 [*] -down-> Persisted : fetch
-Initial -right-> Persisted : create
+Initialized -right-> Persisted : create
 Persisted ---> Modified : set
 Modified ---> Persisted : update
 Modified ---> Persisted : fetch
 Persisted -right-> [*] : delete
 
-Initial: Detached state
 Modified: Detached state
 
 @enduml
@@ -377,7 +376,7 @@ Modified: Detached state
 
 A mapped transfer object can go through three stages during its lifecycle:
 
-* *Initial:* This is where the object begins its lifecycle. In this state, the object's fields have their default values. The object has not yet been persisted, so its mapping field is undefined. Since the fields of the mapped transfer object do not match the fields of the mapping entity (as it does not yet exist), we refer to this as a detached state.
+* *Initialized:* This is where the object begins its lifecycle. In this state, the object's fields have their default values. The object has not yet been persisted, so its mapping field is undefined. Since the fields of the mapped transfer object do not match the fields of the mapping entity (as it does not yet exist), we refer to this as a detached state.
 
 * *Persisted:* This state represents an object in a persisted or saved state, indicating that its fields are stored in the mapping entity. The mapped transfer object has already been persisted, so its mapping field is defined.
 
@@ -385,37 +384,41 @@ A mapped transfer object can go through three stages during its lifecycle:
 
 A transition refers to a change in the object's state that occurs as a result of a specific event. Events are shown next to transition arrows on the diagram. The following events can occur to a mapped transfer object:
 
-* The *build* event represents the action of initializing an object, causing it to transition to a defined state. It sets the initial field values of the object.
+* The *build* event represents the action of initializing an object, causing it to transition to the initialized state. It sets the initial field values of the object.
 
-* The *create* event signifies the action of saving an object's state to the storage. It transitions the object from an initial or modified state to a persisted state.
+* The *create* event signifies the action of saving an object's state to the storage. It transitions the object from the initialized state to the persisted state.
 
-* The *fetch* event indicates the retrieval of data from the persistent storage. It transitions the object into a state where it holds the fetched data.
+* The *fetch* event indicates the retrieval of data from the persistent storage. It transitions the object into the persisted state where it holds the fetched data.
 
-* The *set* event represents an action where the mapped transfer object's fields modified. This can lead to a transition from a persisted state to a modified state, indicating that changes have been made but not yet saved.
+* The *set* event represents an action where the mapped transfer object's fields modified. This leads to a transition from the persisted state to the modified state, indicating that changes have been made but not yet saved.
 
-* The *update* event is associated with saving the modifications made to a transfer object. It causes the object to transition from a modified state back to a persisted state, reflecting that the changes have been persisted.
+* The *update* event is associated with saving the modifications made to a transfer object. It causes the object to transition from the modified state back to the persisted state, reflecting that the changes have been persisted.
 
 * The *delete* event is used to indicate the removal or deletion of an object. It results in the object transitioning to an end state and being removed from the persistent storage entirely.
 
 == Event handlers
 
+Event handlers are blocks of code that are designed to respond to specific events. Their primary purpose is to define how the system should react when particular events occur. The list of events that may occur can be found in the lifecycle description of transfer objects.
+
+The following event handlers can be defined for transfer objects.
+
 [judo-req="true",judo-req-id="REQ-SRV-004"]
 === Build
 
-Optionally, a constructor can be specified for transfer objects. The constructor is automatically called when a new transfer object is created and can be used to set default values of the fields.
+Optionally, a build event handler can be specified for transfer objects. The build event handler is automatically called when a new transfer object is constructed and can be used to set default values of the fields.  Its primary purpose is to set up the initial state and fields of a transfer object when it is first instantiated.
 
-// Typically a new transfer object is created by factory functions, see <<Factory>>.
+A build event handler can be defined both for unmapped and mapped transfer objects.
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**constructor**# {
+[purple]#**event build**# &#x5B;[purple]##**()**##] {
     &#x5B;&lt;field> = &lt;expression>[purple]#**;**#] ...
 }
 ----
 
-where <field> is a field of the transfer object having the constructor and <expression> is the default value of the field. 
+where <field> is a field of the transfer object having the build handler and <expression> is the default value of the field. 
 
 // The expression cannot contain reference to the mapping field.
 
@@ -447,6 +450,151 @@ The constructor is not called when a mapped transfer object is produced for exis
 ////
 
 // TODO: default must be constant
+
+=== Create
+
+The create event occurs when a mapped transfer object is persisted for the first time. Before the call of the create event handler, the mapping entity is created and its fields are set according to the field values of the transfer object.
+
+A create event handler can only be defined for mapped transfer objects.
+
+Currently, the body of the create event handler can only be defined in Java.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**event create**# &#x5B;[purple]##**(**##&lt;transfer> &lt;name>[purple]##**)**##][purple]##**;**##
+----
+
+
+*Example:*
+
+[source,jsl]
+----
+transfer PersonTransfer {
+    field required String firstName;
+    field required String lastName;
+    field String midName;
+    
+    event create;
+}
+----
+
+=== Fetch
+
+The primary purpose of the fetch event is to retrieve data from persistent storage. When the fetch event occurs, the field values of the mapping entity are copied to the fields of the mapped transfer object. After the fetch is complete, the fetch event handler is invoked to perform additional settings.
+
+A fetch event handler can only be defined for mapped transfer objects.
+
+Currently, the body of the fetch event handler can only be defined in Java.
+
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**event fetch**# &#x5B;[purple]##**()**##][purple]##**;**##
+----
+
+The creation event handler can optionally accept a transfer object parameter. The field values of this parameter can be utilized when the transfer object is saved for the first time. This parameter enables differentiation between the creation and update parameters of the transfer object.
+
+*Example:*
+
+[source,jsl]
+----
+transfer PersonTransfer {
+    field required String firstName;
+    field required String lastName;
+    field String midName;
+    
+    event fetch;
+}
+----
+
+=== Update
+
+The primary purpose of the update event is to save data to persistent storage. When the update event occurs, the field values of the mapped transfer object are copied to the fields of the mapping entity. After the update is completed, the update event handler is invoked to perform additional configuration or settings.
+
+An update event handler can only be defined for mapped transfer objects.
+
+Currently, the body of the update event handler can only be defined in Java.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**event update**# &#x5B;[purple]##**()**##][purple]##**;**##
+----
+
+
+*Example:*
+
+[source,jsl]
+----
+transfer PersonTransfer {
+    field required String firstName;
+    field required String lastName;
+    field String midName;
+    
+    event update;
+}
+----
+
+=== Delete
+
+The primary purpose of a delete event handler is to respond to the event of deleting transfer objects. When the delete event occurs, the delete event handler is first invoked. Once the delete event handler has completed its job, the mapping entity is deleted.
+
+A delete event handler can only be defined for mapped transfer objects.
+
+Currently, the body of the delete event handler can only be defined in Java.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**event delete**# &#x5B;[purple]##**()**##][purple]##**;**##
+----
+
+
+*Example:*
+
+[source,jsl]
+----
+transfer PersonTransfer {
+    field required String firstName;
+    field required String lastName;
+    field String midName;
+    
+    event delete;
+}
+----
+
+== Action
+
+Actions, also known as methods or member functions, define the operations that a transfer object can perform.
+
+The action has a body, which is the piece of code (script) that is executed when the action is invoked. Actions, in this context, encapsulate the behavior of an object. Actions can perform a wide range of tasks, from simple calculations to complex operations including creating, updating or deleting data or other real-time communications, and they can interact with the transfer object's fields and relations.
+
+[NOTE]
+====
+Currently, the action body can only be specified in Java.
+====
+
+The action may return a computed value to its caller (its return value). This value is often referred to as output. In addition to the output, an action may also return different type of errors. The definition of errors is discussed in chapter Errors.
+
+Use the `action` keyword to specify an action within a transfer object.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**action**# &#x5B;&lt;type>|&lt;union>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**## &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...][purple]#**;**#
+----
+
+where the <name> is the name of the action. Information can be passed to actions through parameters, which act as variables within the action. A <parameter> is specified after the action name within parentheses and consists of the name of a transfer object and a parameter name. An action can have at most one parameter.
+
+The optional <type> is the output type of the action. If <type> is not specified or replaced by the keyword `void` the action cannot return any data. The <type> can be a single transfer object or a union.
+
 
 == Service
 
@@ -489,36 +637,7 @@ service ManagerService {
 The example above defines a service named `ManagerService` with only one function member.
 
 [judo-req="true",judo-req-id="REQ-SRV-008"]
-=== Mapped service
 
-Mapped services also groups functions, but they are linked to a specific entity instance, similar to mapped transfer objects. The link between the mapped service and the entity instance is represented by a specific field, called mapping field.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**service**# &lt;name> (&lt;entity> &lt;mapping-field>) &#x5B;{
-    &#x5B;[purple]##**function**##] ...
-}]
-----
-
-where the <name> is the name of the service, and the functions are defined between `{` and `}`. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance.
-
-Possible functions definitions are provided in the next section.
-
-
-[NOTE]
-====
-There is an alternative syntax to define a mapped service. This alternative is a bit more expressive, although it may be too verbose.
-
-[subs="quotes"]
-----
-[purple]#**service**# &lt;name> [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> &#x5B;{
-    &#x5B;[purple]##**function**##] ...
-}]
-----
-
-====
 
 
 
@@ -648,223 +767,7 @@ The optional `static` keyword is used to create service that can be invoked with
 ////
 
 
-[judo-req="true",judo-req-id="REQ-SRV-014"]
-== Actor
-
-Authentication is the process of verifying a user’s identity and authorization is the process of determining whether an authenticated user has access to a particular resource or service. Authorization is critical for ensuring that only authorized users have access to sensitive data and resources. The following chapters describe JUDO's authentication and authorization process.
-
-An actor represents a generic user of the system and can be used to represent humans or another system.
-
-To define an actor, use the `actor` keyword.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**actor**# &lt;name> [(&lt;entity> &lt;mapping-field>)]
-    &#x5B;[purple]##**realm**## "&lt;realm>"]
-    &#x5B;[purple]##**claim**## "&lt;claim>"]
-    &#x5B;[purple]##**identity**## &lt;identity>][purple]#**;**#
-----
-
-where the <name> is the name of the actor. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance. The linked entity instance is the persistent representation of the user in the application. If there is no linked entity, the user is not represented in the application. A typical case of not represented user is an anonymous user, who shall not be identified within the application.
-
-The <realm> is the name of the security policy domain attached to the actor. The realm is collection of users who can be authenticated to use the application. The realms and identity management used by JUDO are out of scope of the application. The default realm management application that can be used by a JUDO application is Keycloack, but any OpenID3 compatible identity management application can be easily integrated.
-
-A claim is a name/value pair that contains information about the user. A collection of claims are sent by the realm management application to our application at the time when the user authenticates. The <claim> selects one of the claims, which will be used for user identification in the application.
-
-The <identity> is an expression that selects an identifier field of the mapped <entity>. The type of the field pointed to by <identifier> must be string. The <identity> is used to unambiguously identify the user within the application (e.g. find only one instance of the mapped entity) to define the relationship with the user in the <realm>.
-
-// TODO: managed user missing
-
-[NOTE]
-====
-There is an alternative syntax to define an actor. This alternative is a bit more expressive, although it may be too verbose.
-
-[subs="quotes"]
-----
-[purple]#**actor**# &lt;name> [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field>
-    &#x5B;[purple]##**realm**## "&lt;realm>"]
-    &#x5B;[purple]##**claim**## "&lt;claim>"]
-    &#x5B;[purple]##**identity**## &lt;identity>][purple]#**;**#
-----
-
-====
-
-
-*Example:*
-
-[source,jsl]
-----
-actor SalesPersonActor(SalesPerson salesPerson)
-    realm "COMPANY"
-    claim "email"
-    identity salesPerson.email;
-----
-
-The above example defines an actor named `SalesPersonActor`. The company's sales staff are managed in the "COMPANY" realm. The salespersons' unique identifier is their email address. During authentication, the system selects the instance of the SalesPerson entities whose email field has the same value as the value of the "email" claim.
-
-
-== Exporting services
-
-Exporting is the mechanism that makes the services and their included functions available to external users. Both actors and transfer objects can export services to external users. 
-
-[judo-req="true",judo-req-id="REQ-SRV-015"]
-=== Actor export
-
-The actors within the application can be considered the embodiment of external clients who can use the services exported to them. That is, an actor exposes services to the outside world. 
-
-Defining an actor with no `exports` would let users to authenticate themselves and log into the application. However, they cannot access any resources (services and data) within our application.
-
-The actor object can grant permission to services containing functions by exporting them. After exporting services, the user can call all the functions in the service.
-
-To authorize actors to use services, use `exports` in the actor specification.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**actor**# &lt;name> [(&lt;entity> &lt;mapping-field>)] &#x5B;[purple]##**exports**## &lt;service>, ...]
-    &#x5B;[purple]##**realm**## "&lt;realm>"]
-    &#x5B;[purple]##**claim**## "&lt;claim>"]
-    &#x5B;[purple]##**identity**## &lt;identity>][purple]#**;**#
-----
-
-where the `exports` keyword is followed by a comma-separated list of services.
-
-The actor can export only unmapped services or mapped services that are linked to the same type (or subtype) of entity to which the actor is linked. 
-
-*Example:*
-
-[source,jsl]
-----
-entity Person {
-    field String email;
-}
-
-transfer PersonTransfer(Person person) {
-    field String email reads salesPerson.email;
-}
-
-service ManagerService {
-    function PersonTransfer create();
-}
-
-actor Manager exports ManagerService;
-----
-
-The example above allows the manager to create a new person. To grant permissions to external users, we first need to define entities, transfer objects and services. The Manager actor in this application has no realm or identity, meaning this actor is an anonymous actor. Anonymous actors are publicly available, anyone who knows the URL of the Manager actor interface can invoke the create function. This way, the Manager actor is given access to the ManagerExport's create function, with which the user can create a PersonTransfer.
-
-[judo-req="true",judo-req-id="REQ-SRV-016"]
-=== Transfer object export
-
-Besides the actors, the transfer objects can also grant access to service functions by exporting services. For example, if a transfer object represents a customer, its exported services might include the ability to edit the customer's information, place orders, and view order history.
-
-JUDO's security mechanism can be thought of as a logical permission graph that defines the access of external users to resources within the application. The nodes of the permission graph are the actors and instances of the transfer objects. The edges of the graph are the exported service functions.
-
-At the entry point of the permission graph is the actor, which represents the external user, who can access service functions exported by the actor.
-
-Calling the functions exported by the actor, the user receives transfer object instances returned by the functions. Once the user gets a new transfer object instance, they can call the service functions exported by that transfer object (and so on). The entry point to the permission graph is the actor, which represents the external user and allows traversing (by calling functions) to transfer object instances. From each transfer object instance the user can further traverse to other transfer object instances, creating a recursive hierarchy of permissions. As a result of the above, functions exported by transfer objects that cannot be traversed from any actor will not be available to external users.
-
-JUDO's security mechanism also includes a number of built-in security features, such as encryption and secure communication protocols, to ensure the privacy and security of the data being exchanged between external users and the application.
-
-The complete authorization mechanism can be defined by carefully provisioning services to actors and transfer objects. Always be aware of that if a transfer object instance has already been received by an external user, then they are authorized to call the service functions exported by the transfer object.
-
-To export services, use `exports` keyword in the transfer object's specification.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**transfer**# &lt;name> (&lt;entity> &lt;alias>) &#x5B;[purple]##**exports**## &lt;service>, ...] &#x5B;{
-    &#x5B;member] ...
-}]
-----
-
-The example below shows how a transfer object can export services. Users who received the PersonTransfer object can call the delete function.  This function can only be called by the users who have access to the PersonTransfer object.
-
-
-*Example:*
-
-[source,jsl]
-----
-service PersonService(Person person) {
-    function void delete();
-}
-
-service ManagerService {
-    function PersonTransfer[] listPersons();
-}
-
-transfer PersonTransfer(Person person) exports PersonService {
-    field String email reads salesPerson.email;
-}
-
-actor Manager exports ManagerService;
-
-----
-
-[judo-req="true",judo-req-id="REQ-SRV-017"]
-=== Guard
-
-A guard is a boolean expression that must evaluate to true in order to continue the execution. To put it more simply, a guard defines a precondition.
-
-Guards can be defined for
-
-* functions,
-* services and
-* actors.
-
-To add a guard to functions use `guard` as follows. The function guard is evaluated before the function execution. If the function guard evaluates to false, the function is not executed and an error message is thrown.
-
-*Example:*
-
-[source,jsl]
-----
-service PersonService(Person person) {
-    function void delete() guard person.leads!size() == 0;
-}
-----
-
-The example above defines a guard, and the delete function is not executed if that person has a lead.
-
-// TODO: what is the error message?
-
-To add a guard to services use `guard` as follows. The service guard is a shortcut that assigns the same guard to each function. The service guard is evaluated before each function is executed in the service. If the service guard evaluates to false, the function is not executed and an error message is thrown. If the service guard evaluation is true, then the function guard, if any, is evaluated.
-
-*Example:*
-
-[source,jsl]
-----
-service PersonService(Person person) guard person.leads!size() == 0 {
-    function void delete();
-    function Lead[] addLead(Lead lead);
-}
-----
-
-The example above defines a guard for service, and the functions are not executed and an error is thrown if that person has a lead.
-
-// TODO: add error definition to guards if error is intruduced
-
-To add a guard to actors use `guard` as follows. The actor guard is evaluated before each function call to the application. If the actor guard evaluates to false, none of the application function can be executed and an error message is thrown.
-
 ////
-Alternative actor guard execution:
-The actor guard is evaluated when the user is authenticated by the application. If the actor guard evaluates to false, the user cannot call any function of the application.
-////
-
-*Example:*
-
-[source,jsl]
-----
-actor SalesPersonActor(SalesPerson salesPerson)
-    realm "COMPANY"
-    identity salesPerson.email
-    guard salesPerson.leads!size() > 0;
-----
-
-The example above defines a guard for actor, and the salesperson can only invoke the functions if she has at least one lead.
-
 == CRUD annotations
 
 Simple new, create, delete and update functions are provided automatically. We can use `@Factory`, `@Create`, `@Delete` and `@Update` annotations respectively to specify these functions.
@@ -981,7 +884,7 @@ function void myDelete();
 * have no return type
 * have no parameter
 * have no body
-
+////
 
 
 
