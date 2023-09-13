@@ -650,7 +650,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
 
 	@Check
-	def checkQueryAnnottation(AnnotationMark mark) {
+	def checkRequestedAnnottation(AnnotationMark mark) {
 		if (mark.declaration.name.equals("Requested")) {
 			if (mark.eContainer.eContents.exists[e | e instanceof AnnotationMark && (e as AnnotationMark).declaration.name.equals("Embedded")]) {
                 error("@Requested and @Embedded annotations are not allowed to apply at the same target.",
@@ -1118,6 +1118,12 @@ class JslDslValidator extends AbstractJslDslValidator {
                 JsldslPackage::eINSTANCE.transferDataDeclaration_Required,
                 INVALID_DECLARATION)
     	}
+
+    	if (relation.many && relation.referenceType.map === null && relation.isQuery) {
+            error("Requested relation to unmapped list is not allowed.",
+                JsldslPackage::eINSTANCE.transferDataDeclaration_Required,
+                INVALID_DECLARATION)
+    	}
     	
         try {
             if (relation.maps && !TypeInfo.getTargetType(relation).isCompatible(TypeInfo.getTargetType(relation.getterExpr))) {
@@ -1172,6 +1178,13 @@ class JslDslValidator extends AbstractJslDslValidator {
     @Check
     def checkEntityDerived(EntityMemberDeclaration member) {
     	if (!member.calculated) return;
+
+		if (!member.isQuery && member.parameters.size > 0) {
+            error("Entity member with parameter must be requested.",
+                JsldslPackage::eINSTANCE.entityMemberDeclaration_Parameters,
+                INVALID_DECLARATION,
+                JsldslPackage::eINSTANCE.entityMemberDeclaration.name)
+		}
 
         try {
             if (member.getterExpr !== null && !TypeInfo.getTargetType(member).isCompatible(TypeInfo.getTargetType(member.getterExpr))) {

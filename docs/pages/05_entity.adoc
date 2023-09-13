@@ -472,11 +472,9 @@ The fetching strategy determines the timing of fetching entity member values and
 
 By default, the following fetching strategies are applied to entity members:
 
-* compositions and fields with no parameters use embedded fetching
+* fields use embedded fetching
 
 * relations use requested fetching
-
-* calculated members that have parameters use requested fetching
 
 === Fetching annotations
 

@@ -332,7 +332,7 @@ ViewTabsDeclaration returns ViewPanelDeclaration
 ViewGroupDeclaration returns ViewPanelDeclaration
 	: {ViewGroupDeclaration} 
 	  annotations += AnnotationMark*
-	  (-> horizontal ?= KW_HORIZONTAL | -> vertical ?= KW_VERTICAL) Named
+	  (-> horizontal ?= KW_HORIZONTAL | -> vertical ?= KW_VERTICAL) tag = JSLID
 	  modifiers += (VisualModifier | FrameModifier | HorizontalModifier | VerticalModifier | StretchModifier)*
 	  BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END
 	;
@@ -441,7 +441,7 @@ ActorGroupDeclaration
 ActorMenuDeclaration returns ActorAccessDeclaration
 	: {ActorMenuDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_MENU referenceType = [VisibleDeclaration | ModelName] Cardinality? Named reads ?= LTE getterExpr = Expression
+	  -> KW_MENU referenceType = [VisibleDeclaration | ModelName] Cardinality? Named (reads ?= LTE getterExpr = Expression)?
 	  modifiers += (LabelModifier | IconModifier | EnabledModifier | HiddenModifier
 	  			   | ViewChoiceModifier | RowsModifier | DetailModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC

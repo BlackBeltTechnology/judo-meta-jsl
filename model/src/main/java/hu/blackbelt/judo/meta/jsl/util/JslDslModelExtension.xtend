@@ -51,9 +51,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import org.eclipse.emf.ecore.EClassifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.Modifiable
 import hu.blackbelt.judo.meta.jsl.jsldsl.Modifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.VisibleDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.HumanActorDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -377,7 +374,7 @@ class JslDslModelExtension {
     }
 
     def Collection<TransferRelationDeclaration> getAllTransferRelations(ModelDeclaration it) {
-    	return eAllContents.filter[c | c instanceof TransferRelationDeclaration && c.parentContainer(ActorDeclaration) == null].map[e | e as TransferRelationDeclaration].toList
+    	return eAllContents.filter[c | c instanceof TransferRelationDeclaration && c.parentContainer(ActorDeclaration) === null].map[e | e as TransferRelationDeclaration].toList
     }
 
     def Collection<TransferRelationDeclaration> getAllSimpleTransferRelations(ModelDeclaration it) {
@@ -461,23 +458,39 @@ class JslDslModelExtension {
     }
 
 	def isAggregation(TransferRelationDeclaration relation) {
-		if (relation.referenceType.map === null) {
-			return true
-		}
-		
-		if (relation.annotations.exists[a | a.declaration.name.equals("Embedded")]) {
-			return true
-		}
-		
-		return false
+		return !relation.isQuery
 	}
 
 	def isQuery(EntityMemberDeclaration member) {
-		if (member.annotations.exists[a | a.declaration.name.equals("Requested")]) {
+		if (member instanceof EntityFieldDeclaration) {
+			if (member.annotations.exists[a | a.declaration.name.equals("Requested")]) {
+				return true
+			}
+			return false
+		}
+
+		if (member instanceof EntityRelationDeclaration) {
+			if (member.annotations.exists[a | a.declaration.name.equals("Embedded")]) {
+				return false
+			}
 			return true
 		}
-		
-		return false
+	}
+
+	def isQuery(TransferMemberDeclaration member) {
+		if (member instanceof TransferFieldDeclaration) {
+			if (member.annotations.exists[a | a.declaration.name.equals("Requested")]) {
+				return true
+			}
+			return false
+		}
+
+		if (member instanceof TransferRelationDeclaration) {
+			if (member.annotations.exists[a | a.declaration.name.equals("Embedded")]) {
+				return false
+			}
+			return true
+		}
 	}
 
 	def isQueryCall(Feature feature) {

@@ -7,11 +7,13 @@ endif::[]
 :icons: font
 :KW: [purple]##**
 :KWE: **##
-
+:title-align: "right"
+ 
 // TODO: schedule and init
 
 = Transfer model
 :page-toctitle:Transfer model
+
 
 The transfer objects act as a front-facing interface masking the underlying entity model. The transfer object model can hide the complexity and the details of the entity model and provides a simpler interface to the clients of the application. Or it can provide different views for different purposes, allowing changes in functionality without changing the underlying, often rigid data model, which is often created from very different aspects. In addition, the transfer object model also reduces the dependence between the entity model and the outside world.
 
@@ -367,6 +369,35 @@ Understanding the concept and behavior of transfer objects is essential when cre
 
 Unmapped transfer objects are objects used for data transfer but are not associated with any storage mechanism. Consequently, their lifecycle is straightforward, consisting of just one stage: from creation to garbage collection when they are no longer referenced. Here's how the lifecycle of unmapped transfer objects works:
 
+.Unmapped transfer object lifecycle
+[plantuml, target=diagram-uto-lifecycle, format=png, align="center"]
+....
+@startuml lifecycle
+skinparam nodesep 50
+skinparam ranksep 10
+skinparam shadowing false
+
+skinparam padding 2
+skinparam roundCorner 8
+
+skinparam state {
+    FontColor<<White>> white
+    BackgroundColor<<White>> white
+    BorderColor<<White>> white
+
+    BackgroundColor white|#f5eece
+    BorderColor #grey
+    ArrowColor #black
+    FontSize 13
+    FontStyle bold
+}
+
+[*] -right-> Initialized : build
+Initialized -right-> [*]
+
+@enduml
+....
+
 * Once created, these objects are populated with data through their build event handler. More details on this process can be found later.
 
 * After their purpose has been served, and the data has been transferred, unmapped transfer objects often become immediately eligible for garbage collection. When all references to an unmapped transfer object are lost, it becomes eligible for garbage collection.
@@ -379,7 +410,8 @@ Mapped transfer objects are connected to the storage mechanism through entity ma
 
 The following diagram depicts the lifecycle of mapped transfer objects.
 
-[plantuml, target=diagram-classes, format=png]
+.Mapped transfer object lifecycle
+[plantuml, target=diagram-mto-lifecycle, format=png, align="center"]
 ....
 @startuml lifecycle
 skinparam nodesep 50
@@ -505,7 +537,10 @@ The create event occurs when a mapped transfer object is persisted for the first
 
 A create event handler can only be defined for mapped transfer objects.
 
+[NOTE]
+====
 Currently, the body of the create event handler can only be defined in Java.
+====
 
 *Syntax:*
 
@@ -534,8 +569,10 @@ The primary purpose of the fetch event is to retrieve data from persistent stora
 
 A fetch event handler can only be defined for mapped transfer objects.
 
+[NOTE]
+====
 Currently, the body of the fetch event handler can only be defined in Java.
-
+====
 
 *Syntax:*
 
@@ -565,7 +602,10 @@ The primary purpose of the update event is to save data to persistent storage. W
 
 An update event handler can only be defined for mapped transfer objects.
 
+[NOTE]
+====
 Currently, the body of the update event handler can only be defined in Java.
+====
 
 *Syntax:*
 
@@ -594,7 +634,10 @@ The primary purpose of a delete event handler is to respond to the event of dele
 
 A delete event handler can only be defined for mapped transfer objects.
 
+[NOTE]
+====
 Currently, the body of the delete event handler can only be defined in Java.
+====
 
 *Syntax:*
 
