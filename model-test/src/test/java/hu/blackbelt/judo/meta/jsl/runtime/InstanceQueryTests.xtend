@@ -388,6 +388,7 @@ class InstanceQueryTests {
                 relation MyEntity   firstEntity;
                 relation MyEntity[] otherEntities;
                 
+                @Requested
                 field Timestamp queryByTimestamp(
                     Timestamp p1 = `2019-07-18T11:11:12.003+02:00`,
                     Boolean p2 = true
@@ -396,18 +397,21 @@ class InstanceQueryTests {
                     !any()
                     .fldCreated;
                 
+                @Requested
                 field Boolean queryByBoolean(Boolean p1 = false) <=
                     self.otherEntities
                     !filter(e | e.fldBool == p1)
                     !any()
                     .fldBool;
                 
+                @Requested
                 field Date queryByDate(Date p1 = `2019-07-18`) <=
                     self.otherEntities
                     !filter(e | e.fldDate == p1)
                     !any()
                     .fldDate;
                 
+                @Requested
                 field Time queryByTime(
                     Time p1 = `11:11:12`,
                     Date p2 = `2019-07-18`,
@@ -421,12 +425,14 @@ class InstanceQueryTests {
                     !any()
                     .fldTime;
                 
+                @Requested
                 field Long queryByLong(Long p1 = 9999) <=
                     self.otherEntities
                     !filter(e | e.fldLong == p1)
                     !any()
                     .fldLong;
                 
+                @Requested
                 field String queryByString(
                     String p1 = "Lorem ipsum",
                     Decimal p2 = 123.345,
@@ -442,12 +448,14 @@ class InstanceQueryTests {
                     !any()
                     .fldString;
                 
+                @Requested
                 field Decimal queryByDecimal(Decimal p1 = -1526.225) <=
                     self.otherEntities
                     !filter(e | e.fldDecimal == p1)
                     !any()
                     .fldDecimal;
                 
+                @Requested
                 field MyEnum queryByMyEnum(
                     MyEnum p1 = MyEnum#A00,
                     Timestamp p2 = `2019-07-18T11:11:12.003+02:00`

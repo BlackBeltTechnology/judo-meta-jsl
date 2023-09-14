@@ -113,17 +113,17 @@ entity abstract Person extends Customer, User;
 [options="header", cols="1,1,1,1,1"]
 |====================
 |             2+^|Stored               2+^|Calculated
-|               ^|__@Embedded__ ^|__@Query__ ^|__@Embedded__ ^|__@Query__
+|               ^|__@Embedded__ ^|__@Requested__ ^|__@Embedded__ ^|__@Requested__
 |**Primitive**   |[underline]##field##       |field      |[underline]##field <=##	   |field <= +
                                                         field (...) <=
 |**Relation**    |relation    |[underline]##relation##   |relation <= |[underline]##relation <= +
                                                         relation (...) <=##
-|**Composition** |field       |[underline]##field##     ^|--	      ^|--
+|**Composition** |[underline]##field##        |field     ^|--	      ^|--
 |====================
 
 The default behavior (if no annotation is applied) is underlined in the table above.
 
-Note that `@Embedded` and `@Query` annotations cannot be used on the same target at the same time.
+Note that `@Embedded` and `@Requested` annotations cannot be used on the same target at the same time.
 
 === Entity stored primitive field
 
@@ -159,7 +159,7 @@ A composite field is an entity member whose type is an entity.
 [options="header", cols="1,2"]
 |====================
 |Annotation | Meaning
-|@Query     | Do not fetch the composite object(s) together with the entity.
+|@Requested     | Do not fetch the composite object(s) together with the entity.
 |@Embedded  | Fetch the composite object(s) together with the entity.
 |====================
 
@@ -167,7 +167,7 @@ A composite field is an entity member whose type is an entity.
 
 [source,jsl]
 ----
-@Query
+@Requested
 field required Address address;
 ----
 
@@ -193,7 +193,7 @@ Relation is a reference to an other entity or set of entities defined within an 
 [options="header", cols="1,2"]
 |====================
 |Annotation  | Meaning
-|@Query      | Do not fetch the related object(s) with the entity.
+|@Requested      | Do not fetch the related object(s) with the entity.
 |@Embedded   | Fetch the related object(s) together with the entity.
 |====================
 
@@ -226,7 +226,7 @@ Calculated primitives can be read as if they were stored fields, but they have a
 [options="header", cols="1,2"]
 |====================
 |Annotation  | Meaning
-|@Query      | Do not fetch the value together with the entity.
+|@Requested      | Do not fetch the value together with the entity.
 |@Embedded   | Fetch the value together with the entity.
 |====================
 
@@ -253,7 +253,7 @@ Calculated relations can be read as if they were stored relations, but they have
 [options="header", cols="1,2"]
 |====================
 |Annotation  | Meaning
-|@Query      | Do not fetch the related object(s) together with the entity.
+|@Requested      | Do not fetch the related object(s) together with the entity.
 |@Embedded   | Fetch the related object(s) together with the entity. Embedded is not allowed together with argument list.
 |====================
 
@@ -294,18 +294,18 @@ A transfer object is a container for a set of data fields that is transferred be
 
 [subs="quotes"]
 ----
-[purple]#**transfer**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##] &#x5B;{
+[purple]#**transfer**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##] {
     &#x5B;member] ...
-}] [purple]#**;**#
+} [purple]#**;**#
 ----
 
 or
 
 [subs="quotes"]
 ----
-[purple]#**transfer**# &lt;name> &#x5B; [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> ] &#x5B;{
+[purple]#**transfer**# &lt;name> &#x5B; [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> ] {
     &#x5B;member] ...
-}] [purple]#**;**#
+} [purple]#**;**#
 ----
 
 *Example:*
@@ -403,7 +403,7 @@ A transfer object may contain data descriptions called primitive fields. A primi
 [options="header", cols="1,2"]
 |====================
 |Annotation  | Meaning
-|@Query      | Do not fetch value together with the transfer object.
+|@Requested      | Do not fetch value together with the transfer object.
 |@Embedded   | Fetch value together with the transfer object.
 |====================
 
@@ -441,7 +441,7 @@ A transfer object may contain data descriptions called relations. Relation is a 
 [options="header", cols="1,2"]
 |====================
 |Annotation  | Meaning
-|@Query      | Do not fetch the related object(s) together with the transfer object.
+|@Requested      | Do not fetch the related object(s) together with the transfer object.
 |@Embedded   | Fetch the related object(s) together with the transfer object.
 |====================
 
@@ -652,7 +652,7 @@ A view link can represent a relation to an other view.
 [options="header", cols="1,2"]
 |====================
 |Annotation | Meaning
-|@Query     | Do not fetch the related view together with the view.
+|@Requested     | Do not fetch the related view together with the view.
 |@Embedded  | Fetch the related view together with the view.
 |====================
 
@@ -701,7 +701,7 @@ A view table represents collection of rows.
 [options="header", cols="1,2"]
 |====================
 |Annotation | Meaning
-|@Query     | Do not fetch the related rows together with the view.
+|@Requested     | Do not fetch the related rows together with the view.
 |@Embedded  | Fetch the related rows together with the view.
 |====================
 
