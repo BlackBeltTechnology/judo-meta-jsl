@@ -118,6 +118,9 @@ EntityMapDeclaration
 	| KW_MAPS entity = [EntityDeclaration | ModelName] KW_AS Named
 	;
 
+fragment MappedDeclaration
+	: map = EntityMapDeclaration?
+	;
 
 /****************************
  *	Query
@@ -143,7 +146,7 @@ TransferDeclaration
 	: {SimpleTransferDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_TRANSFER Named
-	  map = EntityMapDeclaration?
+	  MappedDeclaration
 	  (SC | BLOCK_START members += TransferMemberDeclaration* BLOCK_END)
 	;
 
@@ -182,6 +185,7 @@ TransferActionDeclaration
 	: annotations += AnnotationMark*
 	  -> KW_ACTION ReturnFragment Named
 	  LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? RP
+	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
 	  SC
 	;
 
@@ -250,7 +254,7 @@ ViewDeclaration returns VisibleDeclaration
 	: {ViewDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_VIEW Named
-	  map = EntityMapDeclaration?
+	  MappedDeclaration
 	  (SC | BLOCK_START members += ViewMemberDeclaration* BLOCK_END)
 	;
 
@@ -342,6 +346,7 @@ ViewActionDeclaration returns TransferActionDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_ACTION ReturnFragment Named
 	  LP (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID)? RP
+	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
 	  modifiers += (VisualModifier | ResourceModifier)*
 	  SC
 	;
@@ -370,7 +375,7 @@ RowDeclaration returns VisibleDeclaration
 	: {RowDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_ROW Named
-	  map = EntityMapDeclaration?
+	  MappedDeclaration
 	  (SC | BLOCK_START (members += RowMemberDeclaration)* BLOCK_END)
 	;
 
@@ -394,7 +399,7 @@ ActorDeclaration returns TransferDeclaration
 	: {ActorDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_ACTOR KW_SYSTEM? Named
-	  map = EntityMapDeclaration?
+	  MappedDeclaration
 	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier)*
 	  (SC | BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END)
 	  | HumanActorDeclaration
@@ -420,7 +425,7 @@ HumanActorDeclaration returns ActorDeclaration
 	: {HumanActorDeclaration}
 	  annotations += AnnotationMark*
 	  KW_ACTOR -> KW_HUMAN Named
-	  map = EntityMapDeclaration?
+	  MappedDeclaration
 	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier)*
 	  (SC | BLOCK_START (members += HumanActorMemberDeclaration)* BLOCK_END)
 	;
@@ -446,6 +451,35 @@ ActorMenuDeclaration returns ActorAccessDeclaration
 	  			   | ViewChoiceModifier | RowsModifier | DetailModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
+
+ 
+/****************************
+ *	Error
+ ****************************/
+
+ErrorDeclaration returns TransferDeclaration
+	: {ErrorDeclaration}
+	  annotations += AnnotationMark*
+	  -> KW_ERROR Named
+	  (SC | BLOCK_START members += ErrorMemberDeclaration* BLOCK_END)
+	;
+
+ErrorMemberDeclaration returns TransferMemberDeclaration
+	: TransferBuildDeclaration
+	| ErrorField
+	;
+
+ErrorField returns TransferFieldDeclaration
+	: {ErrorField}
+	  KW_FIELD required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named SC
+	;
+
+//CreateError
+//	: errorDeclarationType=[ErrorDeclaration | ModelName] (LP (parameters+=ThrowParameter (COMMA parameters+=ThrowParameter)*)? RP)?
+//	;
+//
+//ThrowParameter
+//	: errorFieldType=[ErrorField | LocalName] ASSIGN expession=Literal;
 
 /****************************
  *	Datatype
@@ -721,34 +755,13 @@ NavigationTarget
  // For later use
  // ************************************
  
-ConstraintDeclaration
-	: KW_CONSTRAINT Named expression = Expression (throw = ThrowModifier?) SC
-	;
-
-ThrowModifier
-	: KW_THROW COLON value = CreateError
-	;
- 
-/****************************
- *	Error
- ****************************/
-
-ErrorDeclaration
-	: KW_ERROR Named (KW_EXTENDS extends = [ErrorDeclaration | ModelName])?
-	  (SC | BLOCK_START (fields += ErrorField)* BLOCK_END)
-	;
-
-ErrorField
-	: KW_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named
-	  (ASSIGN defaultExpr = Expression)? SC
-	;
-
-CreateError
-	: errorDeclarationType=[ErrorDeclaration | ModelName] (LP (parameters+=ThrowParameter (COMMA parameters+=ThrowParameter)*)? RP)?
-	;
-
-ThrowParameter
-	: errorFieldType=[ErrorField | LocalName] ASSIGN expession=Literal;
+//ConstraintDeclaration
+//	: KW_CONSTRAINT Named expression = Expression (throw = ThrowModifier?) SC
+//	;
+//
+//ThrowModifier
+//	: KW_THROW COLON value = CreateError
+//	;
 
 
 /****************************
@@ -1008,7 +1021,7 @@ JSLID: ID
 
 	// Declarations
 	| KW_ABSTRACT | KW_AS | KW_EXTENDS | KW_FUNCTION | KW_HUMAN
-	| KW_LAMBDA | KW_MAPS | KW_ON | KW_SYSTEM
+	| KW_LAMBDA | KW_MAPS | KW_ON | KW_SYSTEM | KW_THROWS
 
 
 
@@ -1081,6 +1094,7 @@ terminal KW_SUBMIT:		'submit';
 terminal KW_TABLE:		'table';
 terminal KW_TABS:		'tabs';
 terminal KW_TEXT:		'text';
+terminal KW_THROWS:		'throws';
 terminal KW_UPDATE:		'update';   // no highlight
 terminal KW_VERTICAL:   'vertical';
 

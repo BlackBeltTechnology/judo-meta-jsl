@@ -15,7 +15,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import com.google.inject.Inject;
-import hu.blackbelt.judo.meta.jsl.jsldsl.ConstraintDeclaration
 import java.util.List
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
@@ -322,9 +321,9 @@ class JslDslModelExtension {
         allMembers.filter[d | d instanceof EntityFieldDeclaration && !d.calculated].map[d | d as EntityFieldDeclaration].toList
     }
 
-    def Collection<ConstraintDeclaration> allConstraints(EntityDeclaration it) {
-        allMembers.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
-    }
+//    def Collection<ConstraintDeclaration> allConstraints(EntityDeclaration it) {
+//        allMembers.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
+//    }
 
     def Collection<AnnotationDeclaration> annotationDeclarations(ModelDeclaration it) {
         declarations.filter[d | d instanceof AnnotationDeclaration].map[d | d as AnnotationDeclaration].toList

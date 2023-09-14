@@ -215,11 +215,11 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
             switch obj {
                 ModelDeclaration: return true
+                ErrorDeclaration: return true
                 TypeDeclaration: return true
                 QueryDeclaration: return true
                 FunctionDeclaration: return true
                 LambdaDeclaration: return true
-                ErrorDeclaration: return true
                 AnnotationDeclaration: return true
                 TransferFieldDeclaration: return true
 

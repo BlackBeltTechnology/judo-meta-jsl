@@ -57,10 +57,6 @@ class JsldslDefaultPlantUMLDiagramGenerator {
 
             FontSize 13
 
-            BackgroundColor<< AutoMapped >> white|#f9f4cb
-            HeaderBackgroundColor<< AutoMapped >> #f4f0c7/#f7f0b9
-            FontStyle<< AutoMapped >> italic
-
             BackgroundColor<< Transfer >> white|#f9f4cb
             HeaderBackgroundColor<< Transfer >> #f4f0c7/#f7f0b9
 
@@ -150,22 +146,6 @@ class JsldslDefaultPlantUMLDiagramGenerator {
         annotation @«name?:"none"»
     '''
 
-    def errorExtendsFragment(ErrorDeclaration it)
-    '''«IF extends !== null» extends «extends.name»«ENDIF»'''
-
-    def errorFieldRepsresentation(ErrorField it)
-    '''+«name» : «referenceType.name»'''
-
-    def errorRepresentation(ErrorDeclaration it)
-    '''
-		class «name?:"none"» <<  Error >> «errorExtendsFragment» {
-		    «FOR field : fields»
-		    	«field.errorFieldRepsresentation»
-		    «ENDFOR»
-		}
-		hide «name» empty members
-	'''
-
 
     def entityExtendsFragment(EntityDeclaration it)
     '''«FOR extend : extends BEFORE 'extends ' SEPARATOR ', '»«extend.name»«ENDFOR»'''
@@ -215,14 +195,16 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     def transferStereotypeFragment(TransferDeclaration it)
     '''«IF it instanceof ViewDeclaration» << (V,Transparent) Transfer >> «
         ELSEIF it instanceof RowDeclaration» << (R,Transparent) Transfer >> «
+        ELSEIF it instanceof ErrorDeclaration» << (E,Transparent) Error >> «
         ELSEIF it instanceof TransferDeclaration» << (T,Transparent) Transfer >> «
         ENDIF
     »'''
 
     def transferExternalStereotypeFragment(TransferDeclaration it)
-    '''«IF it instanceof TransferDeclaration» << (T,Transparent) External >> «
-        ELSEIF it instanceof ViewDeclaration» << (V,Transparent) External >> «
+    '''«IF it instanceof ViewDeclaration» << (V,Transparent) External >> «
         ELSEIF it instanceof RowDeclaration» << (R,Transparent) External >> «
+        ELSEIF it instanceof ErrorDeclaration» << (E,Transparent) External >> «
+        ELSEIF it instanceof TransferDeclaration» << (T,Transparent) External >> «
         ENDIF
     »'''
     
