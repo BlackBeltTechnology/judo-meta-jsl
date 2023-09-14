@@ -16,8 +16,12 @@ error MyError {
 	field String msg;
 }
 
-error MyExtendedError extends MyError {
-	field Integer extra = 0;
+error MyExtendedError {
+	field Integer extra;
+	
+	event build {
+		self.extra = 0;
+	}
 }
 
 enum LeadStatus {

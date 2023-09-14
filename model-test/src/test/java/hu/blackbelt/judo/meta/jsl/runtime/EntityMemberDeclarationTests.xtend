@@ -198,6 +198,7 @@ class EntityMemberDeclarationTests {
             entity E {
                 field Integer e;
 
+                @Requested
                 field Integer q(Integer p = 10 + 10) <= E!all()!size();
             }
         '''.parse => [

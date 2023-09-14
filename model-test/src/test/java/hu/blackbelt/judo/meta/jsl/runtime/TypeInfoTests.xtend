@@ -1469,7 +1469,9 @@ class TypeInfoTests {
                 relation Lead[] leadsOver10Static <= staticLeadsOverWithMin(minLeadsOverMin = 10);
                 relation Lead[] leadsOver20Static <= staticLeadsBetween(minLeadsBetween = 20);
 
+                @Requested
                 field Integer leadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
+                @Requested
                 field Integer leadsOverWithMinCount(Integer minLeadsOverMin = 5) <= self.leadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
 
                 field Integer leadsOver10Count <= self.leadsOverWithMinCount(minLeadsOverMin = 10);

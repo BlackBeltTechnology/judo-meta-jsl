@@ -299,14 +299,25 @@ class PrimitiveDefaultValuesTests {
             }
 
             error ErrorFields {
-                field Bool a = true;
-                field Integer b = 3223;
-                field Decimal b2 = 3223.123;
-                field String c = "123";
-                field String c2 = r"123";
-                field Date d = `2020-01-12`;
-                field Time e = `22:45:22`;
-                field Timestamp f = `2020-01-12T12:12:12.000Z`;
+                field Bool a;
+                field Integer b;
+                field Decimal b2;
+                field String c;
+                field String c2;
+                field Date d;
+                field Time e;
+                field Timestamp f;
+                
+                event build {
+                    self.a = true;
+                    self.b = 3223;
+                    self.b2 = 3223.123;
+                    self.c = "123";
+                    self.c2 = r"123";
+                    self.d = `2020-01-12`;
+                    self.e = `22:45:22`;
+                    self.f = `2020-01-12T12:12:12.000Z`;
+                }
             }
 
             entity EntityWithPrimitiveDefaultExpressions {
@@ -319,7 +330,6 @@ class PrimitiveDefaultValuesTests {
                 field Timestamp timestampAttr = Timestamp!now();
                 field Time timeAttr = Time!of(hour = 23, minute = 59, second = 59);
             }
-
         '''.parse => [
             assertNoErrors
         ]
