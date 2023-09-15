@@ -43,7 +43,7 @@ class EntityMemberDeclarationTests {
                 field Boolean b = self.a;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.SELF_NOT_ALLOWED,"Self is not allowed in default expression at 'b'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.SELF_NOT_ALLOWED,"Self is not allowed in default expression at 'b'.")
         ]
     }
 
@@ -132,7 +132,7 @@ class EntityMemberDeclarationTests {
             }
 
         '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
+        	m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.INVALID_DECLARATION)
         ]
     }
 
@@ -198,6 +198,7 @@ class EntityMemberDeclarationTests {
             entity E {
                 field Integer e;
 
+                @Requested
                 field Integer q(Integer p = 10 + 10) <= E!all()!size();
             }
         '''.parse => [

@@ -122,18 +122,18 @@ class AnnotationTests {
     }
 
     @Test
-    def void testAnnotationQueryAndEmbedded() {
+    def void testAnnotationRequestedAndEmbedded() {
         '''
 			model Test;
 			
 			import judo::types;
 			
 			entity E {
-				@Query @Embedded
+				@Requested @Embedded
 				field Integer i <= 1;
 			}
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.annotationMark, JslDslValidator.QUERY_AND_EMBEDDED_TOGETHER)
+            m | m.assertError(JsldslPackage::eINSTANCE.annotationMark, JslDslValidator.REQUESTED_AND_EMBEDDED_TOGETHER)
         ]
     }
 }
