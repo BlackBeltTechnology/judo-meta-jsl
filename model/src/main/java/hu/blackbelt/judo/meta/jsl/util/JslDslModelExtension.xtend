@@ -50,6 +50,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import org.eclipse.emf.ecore.EClassifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.Modifiable
 import hu.blackbelt.judo.meta.jsl.jsldsl.Modifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -461,6 +462,9 @@ class JslDslModelExtension {
 	}
 
 	def isQuery(EntityMemberDeclaration member) {
+		// TODO: allow query if there is no getter
+		if (member.getterExpr === null) return false;
+		
 		if (member instanceof EntityFieldDeclaration) {
 			if (member.annotations.exists[a | a.declaration.name.equals("Requested")]) {
 				return true
@@ -476,7 +480,7 @@ class JslDslModelExtension {
 		}
 	}
 
-	def isQuery(TransferMemberDeclaration member) {
+	def isQuery(TransferDataDeclaration member) {
 		if (member instanceof TransferFieldDeclaration) {
 			if (member.annotations.exists[a | a.declaration.name.equals("Requested")]) {
 				return true

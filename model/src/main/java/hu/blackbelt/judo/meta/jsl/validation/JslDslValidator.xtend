@@ -1119,8 +1119,8 @@ class JslDslValidator extends AbstractJslDslValidator {
                 INVALID_DECLARATION)
     	}
 
-    	if (relation.many && relation.referenceType.map === null && relation.isQuery) {
-            error("Requested relation to unmapped list is not allowed.",
+    	if (relation.referenceType.map === null && relation.isQuery) {
+            error("Requested relation to unmapped transfer object is not allowed.",
                 JsldslPackage::eINSTANCE.transferDataDeclaration_Required,
                 INVALID_DECLARATION)
     	}
