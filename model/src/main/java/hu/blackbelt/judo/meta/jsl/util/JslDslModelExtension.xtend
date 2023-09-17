@@ -51,6 +51,7 @@ import org.eclipse.emf.ecore.EClassifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.Modifiable
 import hu.blackbelt.judo.meta.jsl.jsldsl.Modifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.FetchModifier
 
 @Singleton
 class JslDslModelExtension {
@@ -464,8 +465,12 @@ class JslDslModelExtension {
 	def isQuery(EntityMemberDeclaration member) {
 		// TODO: allow query if there is no getter
 		if (member.getterExpr === null) return false;
+		val FetchModifier fetch = member.getModifier(JsldslPackage::eINSTANCE.fetchModifier) as FetchModifier
 		
 		if (member instanceof EntityFieldDeclaration) {
+			if (fetch !== null && fetch.lazy) {
+				return true
+			}
 			if (member.annotations.exists[a | a.declaration.name.equals("Requested")]) {
 				return true
 			}
@@ -473,6 +478,9 @@ class JslDslModelExtension {
 		}
 
 		if (member instanceof EntityRelationDeclaration) {
+			if (fetch !== null && fetch.eager) {
+				return false
+			}
 			if (member.annotations.exists[a | a.declaration.name.equals("Embedded")]) {
 				return false
 			}
@@ -481,7 +489,12 @@ class JslDslModelExtension {
 	}
 
 	def isQuery(TransferDataDeclaration member) {
+		val FetchModifier fetch = member.getModifier(JsldslPackage::eINSTANCE.fetchModifier) as FetchModifier
+
 		if (member instanceof TransferFieldDeclaration) {
+			if (fetch !== null && fetch.lazy) {
+				return true
+			}
 			if (member.annotations.exists[a | a.declaration.name.equals("Requested")]) {
 				return true
 			}
@@ -489,6 +502,9 @@ class JslDslModelExtension {
 		}
 
 		if (member instanceof TransferRelationDeclaration) {
+			if (fetch !== null && fetch.eager) {
+				return false
+			}
 			if (member.annotations.exists[a | a.declaration.name.equals("Embedded")]) {
 				return false
 			}

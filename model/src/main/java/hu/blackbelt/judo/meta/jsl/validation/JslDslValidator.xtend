@@ -94,6 +94,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferBuildDeclaration
 
+import hu.blackbelt.judo.meta.jsl.jsldsl.FetchModifier
+
 class JslDslValidator extends AbstractJslDslValidator {
 
     protected static val ISSUE_CODE_PREFIX = "hu.blackbelt.judo.meta.jsl.jsldsl."

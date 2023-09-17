@@ -69,6 +69,7 @@ EntityMemberDeclaration
 	  	|
 	  	(LP parameters += QueryParameterDeclaration (COMMA parameters += QueryParameterDeclaration)* RP)? => calculated ?= LTE getterExpr = Expression
 	  )
+	  modifiers += (FetchModifier)*
 	  SC
 	  | EntityRelationDeclaration
 	;
@@ -82,6 +83,7 @@ EntityRelationDeclaration
 	  	|
 	  	(LP parameters += QueryParameterDeclaration (COMMA parameters += QueryParameterDeclaration)* RP)? => calculated ?= LTE getterExpr = Expression
 	  )
+	  modifiers += (FetchModifier)*
 	  SC
 	;
 
@@ -774,6 +776,7 @@ Modifiable
 
 ModifiableDeclaration returns Modifiable
 	: TransferMemberDeclaration
+	| EntityMemberDeclaration
 	| TypeDeclaration
 	;
 
@@ -802,6 +805,7 @@ Modifier
 	| ScaleModifier
 	| MimeTypesModifier
 	| MaxFileSizeModifier
+	| FetchModifier
 
 	| VisualModifier
 	;
@@ -932,6 +936,10 @@ MaxFileSizeModifier
 	: type = KW_MAXFILESIZE COLON numeric = NaturalNumber (measure = (KW_KB | KW_MB | KW_GB | KW_KIB | KW_MIB | KW_GIB))? 
 	;
 
+FetchModifier
+	: type = KW_FETCH COLON (lazy ?= KW_LAZY | eager ?= KW_EAGER)
+	;
+
 /****************************
  *	Literals
  ****************************/
@@ -1032,7 +1040,7 @@ JSLID: ID
 	
 	// Constants
 	| KW_BINARY | KW_BOOLEAN | KW_BOTTOM | KW_CENTER | KW_COLLECTION | KW_CONSTANT | KW_DATE | KW_DECLARATION
-	| KW_LEFT | KW_NUMERIC | KW_RIGHT | KW_STRING | KW_TIME | KW_TIMESTAMP | KW_TOP
+	| KW_EAGER | KW_LAZY | KW_LEFT | KW_NUMERIC | KW_RIGHT | KW_STRING | KW_TIME | KW_TIMESTAMP | KW_TOP
 	| KW_KB | KW_MB | KW_GB | KW_KIB | KW_MIB | KW_GIB
 	
 	// Attributes
@@ -1107,7 +1115,9 @@ terminal KW_COLLECTION:	'collection';
 terminal KW_CONSTANT:	'constant';
 terminal KW_DATE:		'date';
 terminal KW_DECLARATION:'declaration';
+terminal KW_EAGER:      'eager';
 terminal KW_FALSE:		'false';  // not ID
+terminal KW_LAZY:       'lazy';
 terminal KW_LEFT:		'left';
 terminal KW_NUMERIC:	'numeric';
 terminal KW_RIGHT:		'right';

@@ -23,6 +23,7 @@ package hu.blackbelt.judo.meta.jsl.ui.syntaxcoloring;
 import java.util.Set;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.Assignment;
 import org.eclipse.xtext.ParserRule;
 import org.eclipse.xtext.RuleCall;
 import org.eclipse.xtext.TerminalRule;
@@ -49,7 +50,8 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 	
 	static Set<String> operators = Sets.newHashSet("KW_NOT", "KW_IMPLIES", "KW_OR", "KW_XOR", "KW_AND", "KW_DIV", "KW_MOD");
 
-	static Set<String> constants = Sets.newHashSet("KW_BINARY", "KW_BOOLEAN", "KW_BOTTOM", "KW_CENTER", "KW_COLLECTION", "KW_CONSTANT", "KW_DATE", "KW_DECLARATION", "KW_FALSE", "KW_LEFT",
+	static Set<String> constants = Sets.newHashSet("KW_BINARY", "KW_BOOLEAN", "KW_BOTTOM", "KW_CENTER", "KW_COLLECTION", "KW_CONSTANT", "KW_DATE",
+								 "KW_DECLARATION", "KW_EAGER", "KW_FALSE", "KW_LAZY", "KW_LEFT",
     							 "KW_NUMERIC", "KW_RIGHT", "KW_STRING", "KW_TIME", "KW_TIMESTAMP", "KW_TOP", "KW_TRUE", "KW_VOID",
     							 "KW_KB", "KW_MB", "KW_GB", "KW_KIB", "KW_MIB", "KW_GIB");
 
@@ -61,7 +63,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
     							  "KW_IDENTITY", "KW_LABEL", "KW_MAXFILESIZE", "KW_MAXSIZE", "KW_MINSIZE", "KW_MIMETYPE", "KW_OPPOSITE", "KW_OPPOSITEADD",
     							  "KW_PRECISION", "KW_REALM", "KW_REGEX", "KW_REQUIRED", "KW_ROWS", "KW_SCALE", "KW_STRETCH", "KW_THROW", "KW_VALIGN", "KW_WIDTH");
 
-    static Set<String> specials = Sets.newHashSet("KW_CREATE", "KW_DELETE", "KW_UPDATE");
+    static Set<String> specials = Sets.newHashSet("KW_CREATE", "KW_DELETE", "KW_UPDATE", "KW_FETCH");
 
     @Override
     public void provideHighlightingFor(XtextResource resource, IHighlightedPositionAcceptor acceptor, CancelIndicator cancelIndicator) {
@@ -121,9 +123,9 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 
             	if (ruleName.startsWith("KW_")) {
                 	if (specials.contains(ruleName)) {
-                    	if (nodeGElem.eContainer().eContainer() instanceof ParserRule) {
-                    		ParserRule containerRule = (ParserRule)nodeGElem.eContainer().eContainer();
-                    		if (containerRule.getName().endsWith("Modifier")) {
+                    	if (nodeGElem.eContainer() instanceof Assignment) {
+                    		Assignment assignment = (Assignment)nodeGElem.eContainer();
+                    		if (assignment.getFeature().equals("type")) {
 		                    	acceptor.addPosition(node.getOffset(), node.getLength(),
     	                        HighlightingConfiguration.ATTRIBUTE_ID);
     	                        continue;
