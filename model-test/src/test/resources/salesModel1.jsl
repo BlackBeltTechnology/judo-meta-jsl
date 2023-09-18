@@ -19,7 +19,7 @@ error MyError {
 error MyExtendedError {
 	field Integer extra;
 	
-	event build {
+	event initialize {
 		self.extra = 0;
 	}
 }

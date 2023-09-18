@@ -308,7 +308,7 @@ class PrimitiveDefaultValuesTests {
                 field Time e;
                 field Timestamp f;
                 
-                event build {
+                event initialize {
                     self.a = true;
                     self.b = 3223;
                     self.b2 = 3223.123;

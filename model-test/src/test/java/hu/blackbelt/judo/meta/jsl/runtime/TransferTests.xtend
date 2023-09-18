@@ -48,7 +48,7 @@ class TransferTests {
                 field String f;
                 relation T2[] t2;
 
-                event build {
+                event initialize {
                     self.f = "";
                     self.t2 = E1!all();
                 }
@@ -203,7 +203,7 @@ class TransferTests {
             transfer T1(E1 e1) {
                 field String f;
 
-                event build {
+                event initialize {
                     self.f = e1.id;
                 }
             }
@@ -226,7 +226,7 @@ class TransferTests {
             transfer T1(E1 e1) {
                 field String f;
 
-                event build {
+                event initialize {
                     self.f = 1;
                 }
             }
@@ -561,8 +561,8 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				event build;
-				event build;
+				event initialize;
+				event initialize;
 			}
         '''.parse => [
             assertError(JsldslPackage::eINSTANCE.transferBuildDeclaration, JslDslValidator.DUPLICATE_EVENT)

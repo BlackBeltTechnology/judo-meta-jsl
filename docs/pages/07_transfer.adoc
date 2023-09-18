@@ -21,33 +21,12 @@ The main building blocks of the transfer object model are transfer objects and a
 
 == Transfer object
 
-A transfer object is a container for a set of data fields that is transferred between the entity layer and any upper layers (e.g. user interface or external system).
+A transfer object is a container for a set of data fields that is transferred between the entity layer and any upper layers (e.g. user interface or external system). The transfer objects discussed in this sub-chapter are often referred to as "unmapped" transfer objects. This term is used because there are also "mapped" transfer objects, which will be discussed later.
 
 [NOTE]
 ====
 The term "transfer object" is a short version of "transfer object type". The correct term would be "transfer object type". However, to distinguish between the type and the instance, the object is called "instance of a transfer object" or "transfer object instance".
 ====
-
-[NOTE]
-====
-The transfer objects discussed in this sub-chapter are often referred to as "unmapped" transfer objects. This term is used because there are also "mapped" transfer objects, which will be discussed later.
-====
-
-////
-There are two categories of transfer objects:
-
-* unmapped and
-* mapped transfer objects.
-////
-
-// Additionally, transfer objects may contain activities such as internal consistency checking, validation and services.
-
-////
-[judo-req="true",judo-req-id="REQ-SRV-001"]
-=== Unmapped transfer object
-
-Unmapped transfer objects are simple non-persistent objects that carry data between our application and the outside world. The data members of an unmapped transfer object can be set and read at any stage of its life cycle.
-////
 
 Transfer objects are simple non-persistent objects that carry data between our application and the outside world. The data members of a transfer object can be set and read at any stage of its life cycle.
 
@@ -63,8 +42,6 @@ To define an unmapped transfer object, use the `transfer` keyword.
 ----
 
 where the <name> is the name of the transfer object, and its data members are defined between `{` and `}`.
-
-// Possible member definitions are provided in the <<Member>> section.
 
 *Example:*
 
@@ -344,6 +321,26 @@ where the <name> is the name of the action. Information can be passed to actions
 The optional <type> is the output type of the action. If <type> is not specified or replaced by the keyword `void` the action cannot return any data. The <type> can be a single transfer object or a union.
 
 
+*Example:*
+
+[source,jsl]
+----
+transfer ThankYouTransfer {
+	field String message <= "Thank you for your order. Please check other products at";
+}
+
+transfer CouponTransfer {
+    field String code;
+}
+
+transfer CartTransfer maps Customer as customer {
+	// set the status of the order to OrderStatus#ORDERED
+	action ThankYouTransfer order(CouponTransfer coupon);
+}
+----
+
+In the above example, the CartTransfer mapped transfer object has an action called `order`. Its input is a CouponTransfer unmapped transfer object containing the discount coupon code, if any. The `order` action returns a ThankYouTransfer unmapped transfer object.
+
 [judo-req="true",judo-req-id="REQ-SRV-013"]
 === Union
 
@@ -392,13 +389,13 @@ skinparam state {
     FontStyle bold
 }
 
-[*] -right-> Initialized : build
+[*] -right-> Initialized : initialize
 Initialized -right-> [*]
 
 @enduml
 ....
 
-* Once created, these objects are populated with data through their build event handler. More details on this process can be found later.
+* Once created, these objects are populated with data through their initialize event handler. More details on this process can be found later.
 
 * After their purpose has been served, and the data has been transferred, unmapped transfer objects often become immediately eligible for garbage collection. When all references to an unmapped transfer object are lost, it becomes eligible for garbage collection.
 
@@ -437,7 +434,7 @@ state Persisted
 state Modified
 
 state Start <<White>> {
-    [*] -right-> Initialized : build
+    [*] -right-> Initialized : initialize
     state Initialized : Detached state
 }
 
@@ -464,7 +461,7 @@ A mapped transfer object can go through three stages during its lifecycle:
 
 A transition refers to a change in the object's state that occurs as a result of a specific event. Events are shown next to transition arrows on the diagram. The following events can occur to a mapped transfer object:
 
-* The *build* event represents the action of initializing an object, causing it to transition to the initialized state. It sets the initial field values of the object.
+* The *initialize* event represents the action of initializing an object, causing it to transition to the initialized state. It sets the initial field values of the object.
 
 * The *create* event signifies the action of saving an object's state to the storage. It transitions the object from the initialized state to the persisted state.
 
@@ -483,24 +480,22 @@ Event handlers are blocks of code that are designed to respond to specific event
 The following event handlers can be defined for transfer objects.
 
 [judo-req="true",judo-req-id="REQ-SRV-004"]
-=== Build
+=== Initialize
 
-Optionally, a build event handler can be specified for transfer objects. The build event handler is automatically called when a new transfer object is constructed and can be used to set default values of the fields.  Its primary purpose is to set up the initial state and fields of a transfer object when it is first instantiated.
+Optionally, an initialize event handler can be specified for transfer objects. The initialize event handler is automatically called when a new transfer object is constructed and can be used to set default values of the fields.  Its primary purpose is to set up the initial state and fields of a transfer object when it is first instantiated.
 
-A build event handler can be defined both for unmapped and mapped transfer objects.
+An initialize event handler can be defined both for unmapped and mapped transfer objects.
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**event build**# &#x5B;[purple]##**()**##] {
+[purple]#**event initialize**# &#x5B;[purple]##**()**##] {
     &#x5B;&lt;field> = &lt;expression>[purple]#**;**#] ...
 }
 ----
 
-where <field> is a field of the transfer object having the build handler and <expression> is the default value of the field. 
-
-// The expression cannot contain reference to the mapping field.
+where <field> is a field of the transfer object having the initialize handler and <expression> is the default value of the field. The expressions in the initializer must be locally evaluable, that is, they must be static values.
 
 
 *Example:*
@@ -512,7 +507,7 @@ transfer PersonTransfer {
     field required String lastName;
     field String midName;
     
-    event build {
+    event initialize {
         self.firstName = "John";
         self.lastName = "Doe";
         self.midName = "";
@@ -521,15 +516,6 @@ transfer PersonTransfer {
 ----
 
 The example above complements the PersonTransfer example by adding a default value to the `firstName`, `lastName` and `midName` fields.
-
-////
-[NOTE]
-====
-The constructor is not called when a mapped transfer object is produced for existing entity. For example, when a data function looks up entities and returns their associated mapped transfer objects, the constructors for the mapped transfer objects are not called.
-====
-////
-
-// TODO: default must be constant
 
 === Create
 
@@ -660,132 +646,6 @@ transfer PersonTransfer {
 }
 ----
 
-////
-The optional `static` keyword is used to create service that can be invoked without an existing instance of the transfer object. Static methods cannot use any of the fields or derived fields of the transfer object in which they were defined. In other words, static actions use the transfer objects that contain them as an embedding namespace.
-////
-
-
-////
-== CRUD annotations
-
-Simple new, create, delete and update functions are provided automatically. We can use `@Factory`, `@Create`, `@Delete` and `@Update` annotations respectively to specify these functions.
-
-
-[judo-req="true",judo-req-id="REQ-SRV-018"]
-=== Factory
-
-Use `@Factory` annotation on a function to define a function that creates a new transfer object. The function creates the new transfer object as defined by its return type. The new transfer object will not be persisted, only the transfer object is returned. The fields of the newly created transfer object will be set as they are specified in the constructor of the transfer object. See <<Constructor>> chapter.
-
-*Example:*
-
-[source,jsl]
-----
-@Factory
-function InvoiceTransfer myNew();
-----
-
-@Factory annotation can be used only on functions that
-
-* have return type
-* have no parameter
-* have no body
-
-
-[judo-req="true",judo-req-id="REQ-SRV-019"]
-=== Create
-
-Use `@Create` annotation on a function to define a create function. The create function persists the mapped transfer object passed as its argument. The transfer object's mapped entity must not exist. It persists the transfer object by creating a new entity.
-
-The `@Create` annotation persists only the fields of the transfer object that have `maps` expression.
-
-*Example:*
-
-[source,jsl]
-----
-entity Invoice {
-    field String customerName;
-    field String comment;
-}
-
-transfer InvoiceTransfer(Invoice invoice) {
-    field String customerName maps invoice.customerName;
-    field String comment reads invoice.comment;
-}
-
-service InvoiceService {
-    @Create
-    function myCreate(InvoiceTransfer invoiceTransfer);
-}
-----
-
-The above example declares the myCreate function, which creates a new Invoice entity and sets only the entity's customerName field. The comment field is not persisted because the comment field of the transfer object has `reads` instead of `maps`.
-
-@Create annotation can be used only on functions that
-
-* have a mapped transfer object parameter
-* have no return type
-* have no body
-
-
-[judo-req="true",judo-req-id="REQ-SRV-020"]
-=== Update
-
-Use `@Update` annotation on a function to define a new update function. The update function persists the mapped transfer object passed as its argument.  The transfer object's mapped entity must already exist.
-
-The `@Update` annotation persists only the fields of the transfer object that have `maps` expression.
-
-*Example:*
-
-[source,jsl]
-----
-entity Invoice {
-    field String customerName;
-    field String comment;
-}
-
-transfer InvoiceTransfer(Invoice invoice) {
-    field String customerName maps invoice.customerName;
-    field String comment reads invoice.comment;
-}
-
-service InvoiceService {
-    @Update
-    function myUpdate(InvoiceTransfer invoiceTransfer);
-}
-----
-
-The above example declares the myUpdate function, which sets only the entity's customerName field. The comment field is not persisted because the comment field of the transfer object has `reads` instead of `maps`.
-
-@Update annotation can be used only on functions that
-
-* have a mapped transfer object parameter
-* have no return type
-* have no body
-
-
-[judo-req="true",judo-req-id="REQ-SRV-021"]
-=== Delete
-
-Use `@Delete` annotation on a function to define a new delete function. The delete function deletes the entity referenced by its service's mapping field.
-
-*Example:*
-
-[source,jsl]
-----
-@Delete
-function void myDelete();
-----
-
-@Delete annotation can be used only on functions that
-
-* have their embedding export is mapped
-* have no return type
-* have no parameter
-* have no body
-////
-
-
-
 
 ////
 For later use
@@ -817,287 +677,4 @@ transfer Person {
 ----
 
 Constraints defined in transfer objects are not evaluated automatically. To check a transfer object instance against its constraints, use the `validate` command. See commands later.
-////
-
-
-
-
-
-
-
-////
-
-=== Life-cycle actions
-
-Understanding the concept and behavior of transfer objects is essential when creating, updating, saving, deleting, and working with them.
-
-The lifetime of transfer objects is the time that elapses between the creation and destruction of a particular instance. The events that occur during their lifetime are described by the life-cycle process. There are four important types of events in an object's life-cycle:
-
-* Construction
-* Loading
-* Saving
-* Destruction
-
-==== Construction
-
-The first event that can occur in the life-cycle of a transfer object is the construction.
-
-Once a new, uninitialized transfer object is created, the system calls its `construct` action. The construct action is a special action that is used to initialize the newly created instance. This action can be used to set initial values for fields. It is not allowed to return any data from a construct action, however it automatically returns the `self` variable.
-
-A new transfer object is created only when using the `new` command explicitly. If there is no construct action defined for a transfer object, the `new` command cannot be invoked for that transfer object type. See commands later.
-
-Use the `action` and `construct` keywords to specify a construct action within a transfer object.
-
-TBD: we may omit the action keyword.
-
-*Syntax:*
-
-----
-action construct [throws <error1> [, <error2>] ...] [{
-    <script>
-}]
-----
-
-The <script> and the enclosing curly brackets are optional. If they do not exist, the transfer object can be created using the `new` command, but the fields of the transfer object will be undefined.
-
-The `throws` keyword is used to declare a list of errors that may occur during the construct action. This optional error list contains the errors that the action may throw and the caller must be prepared to handle them. If the construct action throws an error, the object will not be created.
-
-TODO: special attention must be paid to errors and rollback!
-TODO: can the rollback be solved in a `transaction` section of script? 
-
-*Example:*
-
-[source,jsl]
-----
-transfer PersonTransfer {
-    field required String firstName
-    field required String lastName
-
-    action construct {
-        self.firstName = "John"
-        self.lastName = "Doe"
-    }
-}
-----
-
-The example above adds a construct action to the PersonTransfer transfer object. It initializes the `firstName` and `lastName` fields after the object has been created.
-
-==== Destruct
-
-TODO: rewrite destruct: https://www.geeksforgeeks.org/destructors-c/
-https://docs.microsoft.com/en-us/cpp/cpp/destructors-cpp?view=msvc-170
-
-The last event that can occur in the life-cycle of a transfer object is the destruction. At the end of the destruction, the transfer object instance is deleted and will no longer be available. All references to the transfer object instance will be undefined.
-
-Before the transfer object instance is deleted, the system calls the `destruct` action. The destruct action is a special action that is used to delete mapped entity or invoke other destruct actions. It is not allowed to return any data from a destruct action.
-
-A transfer object instance is deleted when the `delete` command is invoked. The delete command does not delete automatically all of the transfer object's own fields. Fields with a transfer object type can be deleted by invoking the `delete` command in the destruct action.
-
-If there is no destruct action defined for a transfer object, the `delete` command cannot be invoked for that transfer object type.
-
-Use the `action` and `destruct` keywords to specify a destruct action within a transfer object.
-
-*Syntax:*
-
-----
-action destruct [throws <error1> [, <error2>] ...] {
-    <script>
-}
-----
-
-The <script> and the enclosing curly brackets are optional. If they do not exist, the transfer object can be deleted, but no action is taken other than deleting the instance.
-
-The `throws` keyword is used to declare a list of errors that may occur during the destruct action. This optional error list contains the errors that the action may throw and the caller must be prepared to handle them. If the destruct action throws an error, the object will not be deleted.
-
-TODO: due to the recursive manner of destruction, special attention must be paid to errors and rollback!
-
-*Example:*
-
-[source,jsl]
-----
-transfer AddressTransfer mapped Address as address {
-    field required String line1
-    field String line2
-    field String City
-    field String ZipCode
-
-    action destruct {
-        delete address  // deletes the address entity
-    }
-}
-
-transfer PersonTransfer mapped Person as person {
-    field required String firstName
-    field required String lastName
-    field required AddressTransfer address
-
-    action destruct {
-        delete self.address  // deletes the address field
-        delete person        // deletes the person entity
-    }
-}
-----
-
-The example above adds a destruct action to the PersonTransfer transfer object. It deletes the mapped Person entity instance.
-
-==== Loading
-
-TODO: load reads only domain derived primitive fields, derived transfer objects shall be loaded explicitly
-
-Loading can occur any time in the life-cycle of a transfer object. Loading begins with the evaluation of the derived expressions, and the results of the evaluations are placed in the appropriate derived fields.
-
-Once the derived fields of the transfer object instance are set, the system calls the `load` action. The load action is a special action that is used to set the non-derived fields of the transfer object instance. It is not allowed to return any data from a load action, however it automatically returns the `self` variable. 
-
-Transfer object is loaded when you filter or explicitly use the `load` command. See commands later. If no load action is defined for a transfer object, the `load` command can be called, but it will only load the derived fields, if any.
-
-Use the `action` and `load` keywords to specify a load action within a transfer object.
-
-*Syntax:*
-
-----
-action load [throws <error1> [, <error2>] ...] [{
-    <script>
-}]
-----
-
-The <script> and the enclosing curly brackets are optional. If they do not exist, the transfer object can be loaded, but no action is taken other than loading the derived fields.
-
-The `throws` keyword is used to declare a list of errors that may occur during the load action. This optional error list contains the errors that the action may throw and the caller must be prepared to handle them. If the load action throws an error, the object will exist in an indeterminate state.
-
-*Example:*
-
-[source,jsl]
-----
-transfer PersonTransfer mapped Person as person {
-    field String fullName
-
-    action load {
-        self.fullName = person.firstName + " " + person.lastName
-    }
-}
-----
-
-The example above adds a load action to the PersonTransfer transfer object. It sets the `fullName` field by concatenating the `firstName` and  `lastName` fields of the mapped entity.
-
-==== Save
-
-Saving can occur any time in the life-cycle of a transfer object.
-
-Transfer object is saved only when using the `save` command explicitly. Once the `save` command is invoked, the system calls the `save` action. The save action is a special action that is used to set the fields of the mapped entity according to the status of the transfer object. It is not allowed to return any data from a save action, however it automatically returns the `self` variable. 
-
-If there is no save action defined for a transfer object, the `save` command cannot be invoked for that transfer object type. See commands later.
-
-Use the `action` and `save` keywords to specify a save action within a transfer object.
-
-*Syntax:*
-
-----
-action save [throws <error1> [, <error2>] ...] [{
-    <script>
-}]
-----
-
-The <script> and the enclosing curly brackets are optional. If they do not exist, the transfer object can be saved, but no action is taken at all.
-
-The `throws` keyword is used to declare a list of errors that may occur during the save action. This optional error list contains the errors that the action may throw and the caller must be prepared to handle them. If the save action throws an error, the object will exist in an indeterminate state.
-
-*Example:*
-
-[source,jsl]
-----
-transfer PersonTransfer mapped Person as person {
-    field String firstName
-    field String lastName
-
-    action save {
-        person.firstName = self.firstName
-        person.lastName = self.lastName
-    }
-}
-----
-
-The example above adds a save action to the PersonTransfer transfer object. It sets sets the `firsName` and `lastName` fields of the mapped entity field in accordance with the fields of the transfer object respectively.
-
-TODO: special attention must be paid to errors and rollback!
-
-
-
-=== Inheritance
-
-Inheritance is a mechanism by which more specific transfer objects incorporate structure of a more general transfer object (called parent transfer object).
-
-Transfer objects may inherit fields, derived fields, mapping field, actions and constraints from their parent transfer object. A transfer object and its parent transfer object are in IS-A relation, so a transfer object can appear anywhere in the role of its parent transfer object.
-
-Inherited members of a transfer object, which were defined in the parent behave as if they were defined in the transfer object itself.
-
-A transfer object may be the parent of any number of other transfer objects, but it can have only one parent at most. In other words, the multiple inheritance is not supported between transfer objects.
-
-A transfer object should not be inherited from itself, either directly or indirectly.
-
-A transfer object may override inherited actions, other inherited members (fields, derived fields and mapping field) cannot be overridden with the same name. It is also not allowed to override the mapping field in transfer objects that inherit a mapping field.
-
-*Example:*
-
-[source,jsl]
-----
-transfer IdentifiableTransfer {
-    field required email
-}
-
-transfer PersonTransfer extends IdentifiableTransfer mapped Person as person {
-    derived String firstName = person.firstName
-    derived String lastName = person.lastName
-}
-
-transfer SalesPersonTransfer extends PersonTransfer {
-    derived PersonTransfer manager = person!asType(SalesPerson).manager
-}
-----
-
-In the above example the PersonTransfer inherits the required email field of the IdentifiableTransfer and defines two more derived fields.
-
-The SalesPersonTransfer inherits both email field and the derived fields and, in addition, defines a relation to its manager. Note that mapping is not enabled in SalesPersonTransfer. Thus, the `person` mapping field is casted (using `asType()`) to SalesPerson entity before its manager relation is accessed. 
-
-TBD: mapped entity can be narrowed in children.
-
-==== Override
-
-A transfer object may override inherited actions, including life-cycle actions. Overriding is a mechanism that enables a transfer object to provide different implementation for an action that is already defined in its parent transfer object.
-
-Use the `override` keyword to override a specific action within a transfer object.
-
-*Syntax:*
-
-----
-override <name> {
-    <script>
-}
-----
-
-where the <name> is the name of the action that will have the new <script> implementation.
-
-With the override mechanism the transfer object replaces the implementation of an action that has the same name in the parent transfer object. The <script> of the action that is executed will be determined by the transfer object instance that is used to invoke it. If an instance of a parent transfer object is used to invoke the method, then the <script> in the parent transfer object will be executed, but if an instance of the child transfer object is used to invoke the method, then the <script> in the child transfer object will be executed. In other words, it is the type of the transfer object instance being referred to (not the type of the field or variable) that determines which version of an overridden action will be executed.
-
-*Example:*
-
-[source,jsl]
-----
-transfer PersonTransfer {
-    field required String firstName
-    field required String lastName
-
-    action String getLabel throws GenericError {
-        return self.firstName + " " + self.lastName
-    }
-}
-
-entity SalesPersonTransfer extends PersonTransfer {
-    override getLabel {
-        return self.firstName + " " + self.lastName + " (sales representative)"
-    }
-}
-----
-
-In the example above the `SalesPersonTransfer` overrides the implementation of the `getLabel` method defined in `PersonTransfer`. Note that neither the return value type nor the error list is redefined in the override.
-
 ////

@@ -92,9 +92,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferChoiceModifier
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferBuildDeclaration
-
-import hu.blackbelt.judo.meta.jsl.jsldsl.FetchModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferInitializeDeclaration
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -1649,7 +1647,7 @@ class JslDslValidator extends AbstractJslDslValidator {
                 DUPLICATE_EVENT)
         }
         
-        if (transfer.map === null && !(event instanceof TransferBuildDeclaration)) {
+        if (transfer.map === null && !(event instanceof TransferInitializeDeclaration)) {
             error("Unmapped transfer object cannot have " + event.kind + " event handler.",
                 JsldslPackage::eINSTANCE.transferEventDeclaration.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)

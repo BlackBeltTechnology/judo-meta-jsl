@@ -192,7 +192,7 @@ TransferActionDeclaration
 	;
 
 TransferEventDeclaration
-	: TransferBuildDeclaration
+	: TransferInitializeDeclaration
 	| TransferFetchDeclaration
 	| TransferCreateDeclaration
 	| TransferUpdateDeclaration
@@ -227,10 +227,10 @@ TransferDeleteDeclaration returns TransferEventDeclaration
 	  SC
 	;
 
-TransferBuildDeclaration returns TransferEventDeclaration
-	: {TransferBuildDeclaration}
+TransferInitializeDeclaration returns TransferEventDeclaration
+	: {TransferInitializeDeclaration}
 	  annotations += AnnotationMark*
-	  KW_EVENT -> kind = KW_BUILD (LP RP)?
+	  KW_EVENT -> kind = KW_INITIALIZE (LP RP)?
 	  (SC | BLOCK_START (defaults += TransferDataAssignment)* BLOCK_END)
 	;
 
@@ -467,7 +467,7 @@ ErrorDeclaration returns TransferDeclaration
 	;
 
 ErrorMemberDeclaration returns TransferMemberDeclaration
-	: TransferBuildDeclaration
+	: TransferInitializeDeclaration
 	| ErrorField
 	;
 
@@ -1034,8 +1034,8 @@ JSLID: ID
 
 
 	// Features	
-	| KW_ACCESS | KW_ACTION | KW_BUILD | KW_COLUMN | KW_CONSTRAINT | KW_CREATE | KW_DELETE | KW_EVENT | KW_FIELD
-	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_SUBMIT | KW_TABLE | KW_TABS
+	| KW_ACCESS | KW_ACTION | KW_COLUMN | KW_CONSTRAINT | KW_CREATE | KW_DELETE | KW_EVENT | KW_FIELD
+	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_INITIALIZE | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_SUBMIT | KW_TABLE | KW_TABS
 	| KW_TEXT | KW_UPDATE | KW_VERTICAL
 	
 	// Constants
@@ -1083,7 +1083,6 @@ terminal KW_VIEW:		'view';
 // Features	
 terminal KW_ACCESS:		'access';
 terminal KW_ACTION:		'action';
-terminal KW_BUILD:      'build';   // no highlight
 terminal KW_COLUMN:		'column';
 terminal KW_CONSTRAINT:	'constraint';
 terminal KW_CREATE:		'create';   // no highlight
@@ -1094,6 +1093,7 @@ terminal KW_FETCH:		'fetch';   // no highlight
 terminal KW_GROUP:		'group';
 terminal KW_HORIZONTAL: 'horizontal';
 terminal KW_IDENTIFIER:	'identifier';
+terminal KW_INITIALIZE:	'initialize';   // no highlight
 terminal KW_LINK:		'link';
 terminal KW_LITERAL:	'literal';
 terminal KW_MENU:		'menu';

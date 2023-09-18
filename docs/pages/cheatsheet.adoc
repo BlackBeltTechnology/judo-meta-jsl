@@ -1171,7 +1171,11 @@ view CartView maps Customer as customer {
 	link ProductListView productList text:"Back to shopping";
 	
 	// set the status of the order to OrderStatus#ORDERED
-	action ThankYouView order();
+	action ThankYouView order(CouponView coupon);
+}
+
+view CouponView {
+    field String code;
 }
 
 view ThankYouView {
