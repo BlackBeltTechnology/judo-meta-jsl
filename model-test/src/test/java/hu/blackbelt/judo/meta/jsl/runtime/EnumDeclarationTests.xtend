@@ -322,7 +322,7 @@ class EnumDeclarationTests {
                 field Genre favoredGenre = GenreOther#HOUSE;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'favoredGenre'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'favoredGenre'.")
         ]
     }
 }
