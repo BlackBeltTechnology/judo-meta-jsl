@@ -145,6 +145,7 @@ transfer AddressTransfer {
 }
 
 transfer PersonTransfer {
+    @Embedded
     relation required AddressTransfer address;
 }
 ----
@@ -204,6 +205,8 @@ Mapping configuration is a declarative description of how the fields of a transf
 
 Use the `\<=` or `\<\=>` symbols in the field definitions to define the mapping configuration.
 
+=== Mapped field
+
 *Syntax:*
 
 [subs="quotes"]
@@ -261,7 +264,9 @@ transfer SalesPersonTransfer(SalesPerson salesperson) {
 
 In other words, `\<=` symbol creates a one-way connection between the entity and the transfer fields, where the value of the transfer field takes the value of the expression. And `\<\=>` symbol defines a two-way connection.
 
-So far, expressions returned primitive values. The following example shows a collection field that is mapped to one of the entity's relations. The example defines an additional field for `SalesPersonTransfer`. The field `leads` is defined within SalesPersonTransfer and contains a list of LeadTransfer transfer objects that belong to a particular salesperson.
+=== Mapped relation
+
+So far, expressions returned primitive values. The following example shows a relation that is mapped to one of the entity's relations. The example defines a relation for `SalesPersonTransfer`. The relation `leads` is defined within SalesPersonTransfer and contains a list of LeadTransfer transfer objects that belong to a particular salesperson.
 
 *Example:*
 
@@ -284,7 +289,7 @@ transfer LeadTransfer(Lead lead) {
 
 transfer SalesPersonTransfer(SalesPerson salesperson) {
     field String fullName <= salesperson.firstName + " " + salesperson.lastName;
-    field LeadTransfer[] leads <=> salesperson.leads;
+    relation LeadTransfer[] leads <=> salesperson.leads;
 }
 ----
 
@@ -293,6 +298,7 @@ transfer SalesPersonTransfer(SalesPerson salesperson) {
 An important note, that if the transfer field's type is a transfer object (or a collection of transfer objects) the expression after the `\<=` or `\<=\>` must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
 ====
 
+// TODO: create, delete, update flags
 
 == Action
 
