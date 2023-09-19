@@ -16,7 +16,7 @@ endif::[]
 
 Authentication is the process of verifying a user’s identity and authorization is the process of determining whether an authenticated user has access to a particular resource or service. Authorization is critical for ensuring that only authorized users have access to sensitive data and resources. The following chapters describe JUDO's authentication and authorization process.
 
-An actor represents a generic user of the system and can be used to represent humans or another system.
+An actor represents a generic user of the system and can be used to represent humans or another system. Actors are a special subset of transfer objects. Members of actors can be relations (referred to as access), actions, and event handlers, just like in the case of transfer objects. However, one important difference is that actors do not contain fields.
 
 To define an actor, use the `actor` keyword.
 
@@ -24,19 +24,25 @@ To define an actor, use the `actor` keyword.
 
 [subs="quotes"]
 ----
-[purple]#**actor**# &lt;name> [(&lt;entity> &lt;mapping-field>)]
-    &#x5B;[purple]##**realm**## "&lt;realm>"]
-    &#x5B;[purple]##**claim**## "&lt;claim>"]
-    &#x5B;[purple]##**identity**## &lt;identity>][purple]#**;**#
+[purple]#**actor**# &lt;[purple]##**human**##|[purple]##**system**##> &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
+    &#x5B;[purple]##**realm**## &lt;realm>]
+    &#x5B;[purple]##**claim**## &lt;claim>]
+    &#x5B;[purple]##**identity**## &lt;identity>]
+    &#x5B;[purple]##**guard**## &lt;guard>][purple]
+[purple]##**{**##
+    [member] ...
+[purple]#**}**#
 ----
 
 where the <name> is the name of the actor. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance. The linked entity instance is the persistent representation of the user in the application. If there is no linked entity, the user is not represented in the application. A typical case of not represented user is an anonymous user, who shall not be identified within the application.
 
-The <realm> is the name of the security policy domain attached to the actor. The realm is collection of users who can be authenticated to use the application. The realms and identity management used by JUDO are out of scope of the application. The default realm management application that can be used by a JUDO application is Keycloack, but any OpenID3 compatible identity management application can be easily integrated.
+The <realm> is the name of the security policy domain attached to the actor. The realm is a collection of users who can be authenticated to use the application. The realms and identity management used by JUDO are out of scope of the application. The default realm management application that can be used by a JUDO application is Keycloack, but any OpenID3 compatible identity management application can be easily integrated.
 
 A claim is a name/value pair that contains information about the user. A collection of claims are sent by the realm management application to our application at the time when the user authenticates. The <claim> selects one of the claims, which will be used for user identification in the application.
 
-The <identity> is an expression that selects an identifier field of the mapped <entity>. The type of the field pointed to by <identifier> must be string. The <identity> is used to unambiguously identify the user within the application (e.g. find only one instance of the mapped entity) to define the relationship with the user in the <realm>.
+The <identity> is an expression that selects an identifier field of the mapped <entity>. The type of the field pointed to by <identity> must be string. The <identity> is used to unambiguously identify the user within the application (e.g. find only one instance of the mapped entity) to define the relationship with the user in the <realm>.
+
+The <guard> is a boolean expression that must evaluate to true in order to authenticate the user. To put it more simply, a guard defines a precondition. If the <guard> evaluates to false, the user is not authenticated and an error message is thrown.
 
 // TODO: managed user missing
 
@@ -46,10 +52,14 @@ There is an alternative syntax to define an actor. This alternative is a bit mor
 
 [subs="quotes"]
 ----
-[purple]#**actor**# &lt;name> [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field>
+[purple]#**actor**# &lt;[purple]##**human**##|[purple]##**system**##> &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
     &#x5B;[purple]##**realm**## "&lt;realm>"]
     &#x5B;[purple]##**claim**## "&lt;claim>"]
-    &#x5B;[purple]##**identity**## &lt;identity>][purple]#**;**#
+    &#x5B;[purple]##**identity**## &lt;identity>]
+    &#x5B;[purple]##**guard**## &lt;guard>]
+[purple]##**{**##
+    [member] ...
+[purple]#**}**#
 ----
 
 ====
@@ -68,14 +78,36 @@ actor SalesPersonActor(SalesPerson salesPerson)
 The above example defines an actor named `SalesPersonActor`. The company's sales staff are managed in the "COMPANY" realm. The salespersons' unique identifier is their email address. During authentication, the system selects the instance of the SalesPerson entities whose email field has the same value as the value of the "email" claim.
 
 
-== Exporting services
-
-Exporting is the mechanism that makes the services and their included functions available to external users. Both actors and transfer objects can export services to external users. 
-
 [judo-req="true",judo-req-id="REQ-SRV-015"]
-=== Actor export
+== Access
 
-The actors within the application can be considered the embodiment of external clients who can use the services exported to them. That is, an actor exposes services to the outside world. 
+Authorization is the mechanism responsible for granting external users access to specific transfer objects and their actions. In general terms, authorization is a key mechanism for controlling access rights and permissions.
+
+The actors within the application can be considered the embodiment of external users who can access the transfer objects granted to them. That is, an actor exposes the transfer objects to the outside world.
+
+Access definitions within actors are used to expose the application data model quickly and elegantly. The access can have an expression that will be evaluated when the access is invoked from the outside world. Accesses play the same role as relations in transfer objects.
+
+Use the `access` keyword to specify an access within an actor.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**access**# &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**<=**## &lt;expression>][purple]#**;**#
+----
+
+The access of an actor is the same as the relation of transfer objects. It may be 
+
+*Example:*
+
+[source,jsl]
+----
+// Bad example
+actor system CustomerActor(Customer customer) {
+	access CartTransfer myCart <= customer;
+	access ProductListTransfer products;
+}
+----
 
 Defining an actor with no `exports` would let users to authenticate themselves and log into the application. However, they cannot access any resources (services and data) within our application.
 
