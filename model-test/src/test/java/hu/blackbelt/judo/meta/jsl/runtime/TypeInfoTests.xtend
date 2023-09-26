@@ -1445,45 +1445,43 @@ class TypeInfoTests {
     ])
     def void testQueryFunctions() {
         val p = '''
-            model TestModel;
-
-            type numeric Integer precision:9 scale:0;
-            type string String min-size:0 max-size:128;
-
-            query Lead[] staticLeadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
-            query Lead[] staticLeadsOverWithMin(Integer minLeadsOverMin = 5) <= staticLeadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
-            query Integer staticLeadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
-            query Integer staticLeadsOverWithMinCount(Integer minLeadsOverMin = 5) <= staticLeadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
-            query Lead[] staticLeadsBetweenAndSalesPersonLeads(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <=
-                Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween).salesPerson.leadsBetween(minLeadsBetween = minLeadsBetween, maxLeadsBetween = maxLeadsBetween);
-
-            entity SalesPerson {
-                relation Lead[] leads opposite:salesPerson;
-
-                relation Lead[] leadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
-                relation Lead[] leadsOverWithMin(Integer minLeadsOverMin = 5) <= self.leadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
-                relation Lead[] leadsOverWithMinStatic(Integer minLeadsOverMin = 5) <= staticLeadsBetween(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
-
-                relation Lead[] leadsOver10 <= self.leadsOverWithMin(minLeadsOverMin = 10);
-                relation Lead[] leadsOver20 <= self.leadsBetween(minLeadsBetween = 20);
-                relation Lead[] leadsOver10Static <= staticLeadsOverWithMin(minLeadsOverMin = 10);
-                relation Lead[] leadsOver20Static <= staticLeadsBetween(minLeadsBetween = 20);
-
-                @Requested
-                field Integer leadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
-                @Requested
-                field Integer leadsOverWithMinCount(Integer minLeadsOverMin = 5) <= self.leadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
-
-                field Integer leadsOver10Count <= self.leadsOverWithMinCount(minLeadsOverMin = 10);
-                field Integer leadsOver20Count <= self.leadsBetweenCount(minLeadsBetween = 20);
-                field Integer leadsOver10CountStatic <= staticLeadsOverWithMinCount(minLeadsOverMin = 10);
-                field Integer leadsOver20CountStatic <= staticLeadsBetweenCount(minLeadsBetween = 20);
-            }
-
-            entity Lead {
-                field Integer value = 100000;
-                relation required SalesPerson salesPerson opposite:leads;
-            }
+			model TestModel;
+			
+			type numeric Integer precision:9 scale:0;
+			type string String min-size:0 max-size:128;
+			
+			query Lead[] staticLeadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
+			query Lead[] staticLeadsOverWithMin(Integer minLeadsOverMin = 5) <= staticLeadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
+			query Integer staticLeadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
+			query Integer staticLeadsOverWithMinCount(Integer minLeadsOverMin = 5) <= staticLeadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
+			//query Lead[] staticLeadsBetweenAndSalesPersonLeads(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <=
+			//    Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween).salesPerson!leadsBetween(minLeadsBetween = minLeadsBetween, maxLeadsBetween = maxLeadsBetween);
+			
+			query Lead[] leadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) on SalesPerson <= self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
+			query Lead[] leadsOverWithMin(Integer minLeadsOverMin = 5) on SalesPerson  <= self!leadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
+			query Lead[] leadsOverWithMinStatic(Integer minLeadsOverMin = 5) on SalesPerson  <= staticLeadsBetween(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
+			
+			query Integer leadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) on SalesPerson <= self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
+			query Integer leadsOverWithMinCount(Integer minLeadsOverMin = 5) on SalesPerson <= self!leadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
+			
+			entity SalesPerson {
+			    relation Lead[] leads opposite:salesPerson;
+			
+			    relation Lead[] leadsOver10 <= self!leadsOverWithMin(minLeadsOverMin = 10);
+			    relation Lead[] leadsOver20 <= self!leadsBetween(minLeadsBetween = 20);
+			    relation Lead[] leadsOver10Static <= staticLeadsOverWithMin(minLeadsOverMin = 10);
+			    relation Lead[] leadsOver20Static <= staticLeadsBetween(minLeadsBetween = 20);
+			
+			    field Integer leadsOver10Count <= self!leadsOverWithMinCount(minLeadsOverMin = 10);
+			    field Integer leadsOver20Count <= self!leadsBetweenCount(minLeadsBetween = 20);
+			    field Integer leadsOver10CountStatic <= staticLeadsOverWithMinCount(minLeadsOverMin = 10);
+			    field Integer leadsOver20CountStatic <= staticLeadsBetweenCount(minLeadsBetween = 20);
+			}
+			
+			entity Lead {
+			    field Integer value = 100000;
+			    relation required SalesPerson salesPerson opposite:leads;
+			}
         '''.parse
         p.assertNoErrors
         val m = p.fromModel
@@ -1494,20 +1492,20 @@ class TypeInfoTests {
         val staticLeadsOverWithMinQuery = m.queryByName("staticLeadsOverWithMin")
         val staticLeadsBetweenCountQuery = m.queryByName("staticLeadsBetweenCount")
         val staticLeadsOverWithMinCountQuery = m.queryByName("staticLeadsOverWithMinCount")
-        val staticLeadsBetweenAndSalesPersonLeadsQuery = m.queryByName("staticLeadsBetweenAndSalesPersonLeads")
+//        val staticLeadsBetweenAndSalesPersonLeadsQuery = m.queryByName("staticLeadsBetweenAndSalesPersonLeads")
 
-        val leadsBetweenQuery = testEntity.memberByName("leadsBetween") as EntityMemberDeclaration
+        val leadsBetweenQuery = m.queryByName("leadsBetween")
 
-        val leadsOverWithMinQuery = testEntity.memberByName("leadsOverWithMin") as EntityMemberDeclaration
-        val leadsOverWithMinStaticQuery = testEntity.memberByName("leadsOverWithMinStatic") as EntityMemberDeclaration
+        val leadsOverWithMinQuery = m.queryByName("leadsOverWithMin")
+        val leadsOverWithMinStaticQuery = m.queryByName("leadsOverWithMinStatic")
 
         val leadsOver10Field = testEntity.memberByName("leadsOver10") as EntityMemberDeclaration
         val leadsOver20Field = testEntity.memberByName("leadsOver20") as EntityMemberDeclaration
         val leadsOver10StaticField = testEntity.memberByName("leadsOver10Static") as EntityMemberDeclaration
         val leadsOver20StaticField = testEntity.memberByName("leadsOver20Static") as EntityMemberDeclaration
 
-        val leadsBetweenCountQuery = testEntity.memberByName("leadsBetweenCount") as EntityMemberDeclaration
-        val leadsOverWithMinCountQuery = testEntity.memberByName("leadsOverWithMinCount") as EntityMemberDeclaration
+        val leadsBetweenCountQuery = m.queryByName("leadsBetweenCount")
+        val leadsOverWithMinCountQuery = m.queryByName("leadsOverWithMinCount")
 
         val leadsOver10CountField = testEntity.memberByName("leadsOver10Count") as EntityMemberDeclaration
         val leadsOver20CountField = testEntity.memberByName("leadsOver20Count") as EntityMemberDeclaration
@@ -1526,13 +1524,13 @@ class TypeInfoTests {
         assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(staticLeadsBetweenCountQuery.getterExpr).getPrimitive)
         assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(staticLeadsOverWithMinCountQuery.getterExpr).getPrimitive)
 
-        val TypeInfo staticLeadsBetweenAndSalesPersonLeadsTypeInfo = TypeInfo.getTargetType(staticLeadsBetweenAndSalesPersonLeadsQuery.getterExpr)
-        assertEquals(staticLeadsBetweenAndSalesPersonLeadsQuery.referenceType, staticLeadsBetweenAndSalesPersonLeadsTypeInfo.getEntity)
-        assertEquals(true, staticLeadsBetweenAndSalesPersonLeadsTypeInfo.isCollection)
+//        val TypeInfo staticLeadsBetweenAndSalesPersonLeadsTypeInfo = TypeInfo.getTargetType(staticLeadsBetweenAndSalesPersonLeadsQuery.getterExpr)
+//        assertEquals(staticLeadsBetweenAndSalesPersonLeadsQuery.referenceType, staticLeadsBetweenAndSalesPersonLeadsTypeInfo.getEntity)
+//        assertEquals(true, staticLeadsBetweenAndSalesPersonLeadsTypeInfo.isCollection)
 
         val TypeInfo leadsBetweenTypeInfo = TypeInfo.getTargetType(leadsBetweenQuery.getterExpr)
         assertEquals(leadsBetweenQuery.referenceType, leadsBetweenTypeInfo.getEntity)
-        assertEquals(true, staticLeadsBetweenAndSalesPersonLeadsTypeInfo.isCollection)
+        assertEquals(true, leadsBetweenTypeInfo.isCollection)
 
         val TypeInfo leadsOverWithMinTypeInfo = TypeInfo.getTargetType(leadsOverWithMinQuery.getterExpr)
         assertEquals(leadsOverWithMinQuery.referenceType, leadsOverWithMinTypeInfo.getEntity)

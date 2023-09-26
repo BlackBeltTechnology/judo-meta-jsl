@@ -41,9 +41,10 @@ entity abstract Person {
 
 entity SalesPerson extends Person {
 	relation Lead[] leads opposite:salesPerson;
-	relation Lead[] leadsOver(Integer limit = 100) <= self.leads!filter(lead | lead.value > limit);
-	relation Lead[] leadsOver10 <= self.leadsOver(limit = 10);
 }
+
+query Lead[] leadsOver(Integer limit = 100) on SalesPerson <= self.leads!filter(lead | lead.value > limit);
+query Lead[] leadsOver10() on SalesPerson <= self!leadsOver(limit = 10);
 
 entity Lead {
 	field Integer value = 100000;

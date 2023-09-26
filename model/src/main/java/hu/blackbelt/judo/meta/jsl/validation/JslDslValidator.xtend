@@ -27,14 +27,9 @@ import hu.blackbelt.judo.meta.jsl.runtime.TypeInfo
 import hu.blackbelt.judo.meta.jsl.jsldsl.TernaryOperation
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnaryOperation
 import java.util.Iterator
-import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall
-import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionArgument
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaCall
-import hu.blackbelt.judo.meta.jsl.jsldsl.QueryArgument
-import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.common.util.EList
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration
@@ -45,7 +40,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.MemberReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
 import java.util.ArrayList
 import hu.blackbelt.judo.meta.jsl.jsldsl.Self
-import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationArgument
@@ -93,6 +87,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferChoiceModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferInitializeDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.FetchModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryCall
+import hu.blackbelt.judo.meta.jsl.jsldsl.Argument
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -232,12 +231,15 @@ class JslDslValidator extends AbstractJslDslValidator {
 
         visited.add(expression)
 
-        val Iterator<QueryCall> queryCallIterator = EcoreUtil.getAllContents(expression, true).filter(QueryCall)
-        while (queryCallIterator.hasNext) {
-            val QueryCall queryCall = queryCallIterator.next()
+        val Iterator<FunctionOrQueryCall> functionOrqueryCallIterator = EcoreUtil.getAllContents(expression, true).filter(FunctionOrQueryCall)
+        while (functionOrqueryCallIterator.hasNext) {
+            val FunctionOrQueryCall functionOrQueryCall = functionOrqueryCallIterator.next()
 
-            if (queryCall.declaration !== null && queryCall.declaration.getterExpr !== null) {
-                findExpressionCycle(queryCall.declaration.getterExpr, visited)
+            if (functionOrQueryCall.declaration !== null && functionOrQueryCall.declaration instanceof QueryDeclaration) {
+				val QueryDeclaration query = functionOrQueryCall.declaration as QueryDeclaration
+            	if (query.getterExpr !== null) {
+                	findExpressionCycle(query.getterExpr, visited)
+               	}
             }
         }
 
@@ -394,118 +396,100 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
 
     @Check
-    def checkQueryArgument(QueryArgument argument) {
+    def checkArgument(Argument argument) {
         if (argument.expression !== null && argument.declaration !== null) {
             val TypeInfo exprTypeInfo = TypeInfo.getTargetType(argument.expression);
-            val TypeInfo declarationTypeInfo = TypeInfo.getTargetType(argument.declaration);
 
-            if (!declarationTypeInfo.isCompatible(exprTypeInfo)) {
-                error("Type mismatch. Incompatible query argument at '" + argument.declaration.name + "'.",
-                    JsldslPackage::eINSTANCE.queryArgument_Expression,
-                    TYPE_MISMATCH,
-                    JsldslPackage::eINSTANCE.queryArgument.name)
-            }
+        	if (argument.declaration instanceof FunctionParameterDeclaration && (argument.declaration as FunctionParameterDeclaration).description !== null) {
+            	val TypeInfo declarationTypeInfo = TypeInfo.getTargetType((argument.declaration as FunctionParameterDeclaration).description);
 
-            if (!this.isStaticExpression(argument.expression)) {
-                error("Self is not allowed in query argument expression at '" + argument.declaration.name + "'.",
-                    JsldslPackage::eINSTANCE.queryArgument_Expression,
-                    INVALID_SELF_VARIABLE,
-                    JsldslPackage::eINSTANCE.queryArgument.name)
-            }
+	            if (!declarationTypeInfo.isBaseCompatible(exprTypeInfo)) {
+	                error("Type mismatch. Incompatible function argument at '" + argument.declaration.name + "'.",
+	                    JsldslPackage::eINSTANCE.argument_Expression,
+	                    TYPE_MISMATCH,
+	                    JsldslPackage::eINSTANCE.argument.name)
+	            }
+	
+	            if (declarationTypeInfo.constant && !exprTypeInfo.constant) {
+	                error("Function argument must be constant at '" + argument.declaration.name + "'.",
+	                    JsldslPackage::eINSTANCE.argument_Expression,
+	                    TYPE_MISMATCH,
+	                    JsldslPackage::eINSTANCE.argument.name)
+	            }
+        	}
+        	
+        	if (argument.declaration instanceof QueryParameterDeclaration) {
+            	val TypeInfo declarationTypeInfo = TypeInfo.getTargetType((argument.declaration as QueryParameterDeclaration));
 
-            if (EcoreUtil.getAllContents(argument.expression, true).
-                filter(NavigationBaseDeclarationReference).
-                map[r | r.reference].filter(LambdaVariable).size > 0)
-            {
-                error("Lambda variable is not allowed in query argument expression at '" + argument.declaration.name + "'.",
-                    JsldslPackage::eINSTANCE.queryArgument_Expression,
-                    INVALID_LAMBDA_EXPRESSION,
-                    JsldslPackage::eINSTANCE.queryArgument.name)
-            }
+	            if (!declarationTypeInfo.isCompatible(exprTypeInfo)) {
+	                error("Type mismatch. Incompatible query argument at '" + argument.declaration.name + "'.",
+	                    JsldslPackage::eINSTANCE.argument_Expression,
+	                    TYPE_MISMATCH,
+	                    JsldslPackage::eINSTANCE.argument.name)
+	            }
+	
+	            if (!this.isStaticExpression(argument.expression)) {
+	                error("Self is not allowed in query argument expression at '" + argument.declaration.name + "'.",
+	                    JsldslPackage::eINSTANCE.argument_Expression,
+	                    INVALID_SELF_VARIABLE,
+	                    JsldslPackage::eINSTANCE.argument.name)
+	            }
+	
+	            if (EcoreUtil.getAllContents(argument.expression, true).
+	                filter(NavigationBaseDeclarationReference).
+	                map[r | r.reference].filter(LambdaVariable).size > 0)
+	            {
+	                error("Lambda variable is not allowed in query argument expression at '" + argument.declaration.name + "'.",
+	                    JsldslPackage::eINSTANCE.argument_Expression,
+	                    INVALID_LAMBDA_EXPRESSION,
+	                    JsldslPackage::eINSTANCE.argument.name)
+	            }
+        	}
         }
 
-        val EObject container = argument.eContainer;
-        var EList<QueryArgument> arguments;
+        val FunctionOrQueryCall functionOrQueryCall = argument.eContainer as FunctionOrQueryCall;
 
-        if (container instanceof QueryCall) {
-            arguments = (container as QueryCall).arguments;
-        }
-        
-        if (container instanceof MemberReference) {
-            arguments = (container as MemberReference).arguments;
-        }
-        
-        if (arguments.filter[a | a.declaration.isEqual(argument.declaration)].size > 1) {
-            error("Duplicate query parameter:" + argument.declaration.name,
-                JsldslPackage::eINSTANCE.queryArgument_Declaration,
-                DUPLICATE_PARAMETER,
-                JsldslPackage::eINSTANCE.queryArgument.name)
-        }
-    }
-
-    @Check
-    def checkQueryRequiredArguments(QueryCall queryCall) {
-        val QueryDeclaration queryDeclaration = queryCall.declaration;
-        val Iterator<QueryParameterDeclaration> itr = queryDeclaration.parameters.iterator;
-
-        while (itr.hasNext) {
-            val QueryParameterDeclaration declaration = itr.next;
-
-            if (declaration.getDefault() === null && !queryCall.arguments.exists[a | a.declaration.isEqual(declaration)]) {
-                error("Missing required query parameter:" + declaration.name,
-                    JsldslPackage::eINSTANCE.queryCall_Arguments,
-                    MISSING_REQUIRED_PARAMETER,
-                    JsldslPackage::eINSTANCE.queryCall.name)
-            }
-        }
-    }
-
-    @Check
-    def checkFunctionArgument(FunctionArgument argument) {
-        if (argument.expression !== null && argument.declaration !== null && argument.declaration.description !== null) {
-            val TypeInfo exprTypeInfo = TypeInfo.getTargetType(argument.expression);
-            val TypeInfo declarationTypeInfo = TypeInfo.getTargetType(argument.declaration.description);
-
-            if (!declarationTypeInfo.isBaseCompatible(exprTypeInfo)) {
-                error("Type mismatch. Incompatible function argument at '" + argument.declaration.name + "'.",
-                    JsldslPackage::eINSTANCE.functionArgument_Expression,
-                    TYPE_MISMATCH,
-                    JsldslPackage::eINSTANCE.functionArgument.name)
-            }
-
-            if (declarationTypeInfo.constant && !exprTypeInfo.constant) {
-                error("Function argument must be constant at '" + argument.declaration.name + "'.",
-                    JsldslPackage::eINSTANCE.functionArgument_Expression,
-                    TYPE_MISMATCH,
-                    JsldslPackage::eINSTANCE.functionArgument.name)
-            }
-        }
-
-        val FunctionCall functionCall = argument.eContainer as FunctionCall;
-
-        if (functionCall.arguments.filter[a | a.declaration.isEqual(argument.declaration)].size > 1) {
+        if (functionOrQueryCall.arguments.filter[a | a.declaration.isEqual(argument.declaration)].size > 1) {
             error("Duplicate function parameter:" + argument.declaration.name,
-                JsldslPackage::eINSTANCE.functionArgument_Declaration,
+                JsldslPackage::eINSTANCE.argument_Declaration,
                 DUPLICATE_PARAMETER,
-                JsldslPackage::eINSTANCE.functionArgument.name)
+                JsldslPackage::eINSTANCE.argument.name)
         }
     }
 
     @Check
-    def checkFunctionRequiredArguments(FunctionCall functionCall) {
-        val FunctionDeclaration functionDeclaration = functionCall.declaration;
-        val Iterator<FunctionParameterDeclaration> itr = functionDeclaration.parameters.filter[p | p.isRequired].iterator;
+    def checkRequiredArguments(FunctionOrQueryCall functionOrQueryCall) {
+    	if (functionOrQueryCall.declaration instanceof FunctionDeclaration) {
+	        val FunctionDeclaration functionDeclaration = functionOrQueryCall.declaration as FunctionDeclaration;
+	        val Iterator<FunctionParameterDeclaration> itr = functionDeclaration.parameters.filter[p | p.isRequired].iterator;
+	
+	        while (itr.hasNext) {
+	            val FunctionParameterDeclaration declaration = itr.next;
+	
+	            if (!functionOrQueryCall.arguments.exists[a | a.declaration.isEqual(declaration)]) {
+	                error("Missing required function parameter:" + declaration.name,
+	                    JsldslPackage::eINSTANCE.functionOrQueryCall_Arguments,
+	                    MISSING_REQUIRED_PARAMETER,
+	                    JsldslPackage::eINSTANCE.functionOrQueryCall.name)
+	            }
+	        }
+	    }
 
-        while (itr.hasNext) {
-            val FunctionParameterDeclaration declaration = itr.next;
-
-            if (!functionCall.arguments.exists[a | a.declaration.isEqual(declaration)]) {
-                error("Missing required function parameter:" + declaration.name,
-                    JsldslPackage::eINSTANCE.functionCall_Arguments,
-                    MISSING_REQUIRED_PARAMETER,
-                    JsldslPackage::eINSTANCE.functionCall.name)
-            }
-        }
+    	if (functionOrQueryCall.declaration instanceof QueryDeclaration) {
+	        val QueryDeclaration queryDeclaration = functionOrQueryCall.declaration as QueryDeclaration;
+	        val Iterator<QueryParameterDeclaration> itr = queryDeclaration.parameters.iterator;
+	
+	        while (itr.hasNext) {
+	            val QueryParameterDeclaration declaration = itr.next;
+	
+	            if (declaration.getDefault() === null && !functionOrQueryCall.arguments.exists[a | a.declaration.isEqual(declaration)]) {
+	                error("Missing required query parameter:" + declaration.name,
+	                    JsldslPackage::eINSTANCE.functionOrQueryCall_Arguments,
+	                    MISSING_REQUIRED_PARAMETER,
+	                    JsldslPackage::eINSTANCE.functionOrQueryCall.name)
+	            }
+	        }
+    	}
     }
 
     @Check
@@ -1179,13 +1163,6 @@ class JslDslValidator extends AbstractJslDslValidator {
     def checkEntityDerived(EntityMemberDeclaration member) {
     	if (!member.calculated) return;
 
-		if (!member.isQuery && member.parameters.size > 0) {
-            error("Entity member with parameter must be requested.",
-                JsldslPackage::eINSTANCE.entityMemberDeclaration_Parameters,
-                INVALID_DECLARATION,
-                JsldslPackage::eINSTANCE.entityMemberDeclaration.name)
-		}
-
         try {
             if (member.getterExpr !== null && !TypeInfo.getTargetType(member).isCompatible(TypeInfo.getTargetType(member.getterExpr))) {
                 error("Type mismatch. Derived value expression does not match derived field type at '" + member.name + "'.",
@@ -1722,5 +1699,16 @@ class JslDslValidator extends AbstractJslDslValidator {
                 JsldslPackage::eINSTANCE.entityMemberDeclaration_Default,
                 INVALID_DECLARATION)
     	}
+    }
+    
+    @Check
+    def checkFetch(FetchModifier fetch) {
+		if (fetch.eContainer instanceof EntityMemberDeclaration) {
+			val member = fetch.eContainer as EntityMemberDeclaration
+
+	    	if (member.referenceType instanceof PrimitiveDeclaration && !member.calculated && fetch.lazy) {
+    			error("Stored primitive field is cannot be lazy fetched.", JsldslPackage::eINSTANCE.fetchModifier_Lazy)
+	    	}
+		}    	
     }
 }

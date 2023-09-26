@@ -20,54 +20,54 @@ class TransferTests {
     @Test
     def void testTransferOk() {
         '''
-            model Test;
-
-            import judo::types;
-
-            enum EN {
-                literal1 = 0;
-                literal2 = 1;
-            }
-
-            entity E1 {
-                identifier String id;
-                field Integer f;
-                field EN en;
-            }
-
-            entity E2 {
-                identifier String id;
-                field Integer f;
-            }
-
-            entity E3 extends E2 {
-                field Integer f2;
-            }
-
-            transfer T1 {
-                field String f;
-                relation T2[] t2;
-
-                event initialize {
-                    self.f = "";
-                    self.t2 = E1!all();
-                }
-            }
-
-            transfer T2(E1 e1) {
-                field String f;
-                field Integer f2 <= e1.f;
-                field Integer f3 <=> e1.f;
-                field Integer f4 <= E1!all()!size();
-                field EN en <=> e1.en;
-            }
-
-            transfer T3(E2 e2);
-
-            transfer T4(E3 e3) {
-                field Integer f <= e3.f;
-                field Integer f2 <= e3.f2;
-            }
+			model Test;
+			
+			import judo::types;
+			
+			enum EN {
+			    literal1 = 0;
+			    literal2 = 1;
+			}
+			
+			entity E1 {
+			    identifier String id;
+			    field Integer f;
+			    field EN en;
+			}
+			
+			entity E2 {
+			    identifier String id;
+			    field Integer f;
+			}
+			
+			entity E3 extends E2 {
+			    field Integer f2;
+			}
+			
+			transfer T1 {
+			    field String f;
+			    relation T2[] t2 <= E1!all();
+			
+			    event initialize {
+			        self.f = "";
+			        self.t2 = E1!all();
+			    }
+			}
+			
+			transfer T2(E1 e1) {
+			    field String f;
+			    field Integer f2 <= e1.f;
+			    field Integer f3 <=> e1.f;
+			    field Integer f4 <= E1!all()!size();
+			    field EN en <=> e1.en;
+			}
+			
+			transfer T3(E2 e2);
+			
+			transfer T4(E3 e3) {
+			    field Integer f <= e3.f;
+			    field Integer f2 <= e3.f2;
+			}
 
         '''.parse => [
             assertNoErrors
@@ -565,7 +565,7 @@ class TransferTests {
 				event initialize;
 			}
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferBuildDeclaration, JslDslValidator.DUPLICATE_EVENT)
+            assertError(JsldslPackage::eINSTANCE.transferInitializeDeclaration, JslDslValidator.DUPLICATE_EVENT)
         ]
     }
 

@@ -18,8 +18,7 @@ ModelImportDeclaration
 Declaration
 	: TypeDeclaration
 	| ErrorDeclaration
-	| QueryDeclaration
-	| FunctionDeclaration
+	| FunctionOrQueryDeclaration
 	| LambdaDeclaration
 	| AnnotationDeclaration
 	;
@@ -67,7 +66,7 @@ EntityMemberDeclaration
 	  (
 	  	(default ?= ASSIGN defaultExpr = Expression)?
 	  	|
-	  	(LP parameters += QueryParameterDeclaration (COMMA parameters += QueryParameterDeclaration)* RP)? => calculated ?= LTE getterExpr = Expression
+	  	=> calculated ?= LTE getterExpr = Expression
 	  )
 	  modifiers += (FetchModifier)*
 	  SC
@@ -81,7 +80,7 @@ EntityRelationDeclaration
 	  (
 	  	(default ?= ASSIGN defaultExpr = Expression)? opposite = EntityRelationOpposite?
 	  	|
-	  	(LP parameters += QueryParameterDeclaration (COMMA parameters += QueryParameterDeclaration)* RP)? => calculated ?= LTE getterExpr = Expression
+	  	=> calculated ?= LTE getterExpr = Expression
 	  )
 	  modifiers += (FetchModifier)*
 	  SC
@@ -132,8 +131,14 @@ QueryDeclaration
 	: annotations += AnnotationMark*
 	  -> KW_QUERY (referenceType = [Persistable | ModelName] Cardinality?) Named
 	  (LP (parameters += QueryParameterDeclaration (COMMA parameters += QueryParameterDeclaration)*)? RP)
+	  (KW_ON entity = [EntityDeclaration | ModelName])?
 	  LTE getterExpr = Expression
 	  SC
+	;
+
+ParameterDeclaration
+	: QueryParameterDeclaration
+	| FunctionParameterDeclaration
 	;
 
 QueryParameterDeclaration
@@ -175,10 +180,10 @@ TransferRelationDeclaration
 	  Named
 	  (
 	    reads ?= LTE getterExpr = Expression
-	  	modifiers += (UpdateModifier | DeleteModifier)*
+	  	modifiers += (FetchModifier | UpdateModifier | DeleteModifier)*
 	  	|
 	  	maps ?= MAP getterExpr = Expression
-	    modifiers += (TransferChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	    modifiers += (FetchModifier | TransferChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
       )?
 	  SC
 	;
@@ -295,13 +300,13 @@ ViewLinkDeclaration returns TransferRelationDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_LINK required ?= KW_REQUIRED? referenceType = [ViewDeclaration | ModelName] Named
 	  (
-	  	modifiers += (VisualModifier | TextModifier)*
+	  	modifiers += (FetchModifier | VisualModifier | TextModifier)*
 	    | 
 	    reads ?= LTE getterExpr = Expression
-	  	modifiers += (VisualModifier | TextModifier | UpdateModifier | DeleteModifier)*
+	  	modifiers += (FetchModifier | VisualModifier | TextModifier | UpdateModifier | DeleteModifier)*
 	  	|
 	  	maps ?= MAP getterExpr = Expression
-	    modifiers += (VisualModifier | TextModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	    modifiers += (FetchModifier | VisualModifier | TextModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  )
 	  SC
 	;
@@ -583,7 +588,7 @@ NavigationBase
 	: Self
 	| Parentheses
 	| NavigationBaseDeclarationReference
-	| QueryCall
+	| FunctionOrQueryCall
 	| Literal
 	;
 
@@ -607,38 +612,35 @@ NavigationBaseDeclaration
 	| EntityMapDeclaration
 	;
 
-QueryCall
-	: declaration = [QueryDeclaration | ModelName ] LP (arguments += QueryArgument (COMMA arguments += QueryArgument)*)? RP
-	;
-
 Feature
 	: MemberReference
-	| Call
+	| FeatureCall
+	;
+
+FeatureCall
+	: EXCL (FunctionOrQueryCall | LambdaCall)
 	;
 
 MemberReference
-    : DOT member = [NavigationTarget | LocalName] (LP (arguments += QueryArgument (COMMA arguments += QueryArgument)*)? RP)?
+    : DOT member = [NavigationTarget | LocalName]
     ;
 
-Call
-	: FunctionCall
-	| LambdaCall
+
+FunctionOrQueryDeclaration
+	: FunctionDeclaration
+	| QueryDeclaration
 	;
 
-FunctionCall
-	: EXCL declaration = [FunctionDeclaration | LocalName ] LP (arguments += FunctionArgument (COMMA arguments += FunctionArgument)*)? RP
+FunctionOrQueryCall
+	: declaration = [FunctionOrQueryDeclaration | LocalName ] LP (arguments += Argument (COMMA arguments += Argument)*)? RP
 	;
 
-FunctionArgument
-    : declaration = [FunctionParameterDeclaration | LocalName ] ASSIGN expression = Expression
-    ;
-
-QueryArgument
-    : declaration = [QueryParameterDeclaration | LocalName ] ASSIGN expression = Expression
-    ;
+Argument
+	: declaration = [ParameterDeclaration | LocalName ] ASSIGN expression = Expression
+	;
 
 LambdaCall
-	: EXCL declaration = [LambdaDeclaration | LocalName ] LP variable = LambdaVariable => PIPE lambdaExpression = Expression RP;
+	: declaration = [LambdaDeclaration | LocalName ] LP variable = LambdaVariable => PIPE lambdaExpression = Expression RP;
 
 LambdaVariable
     : {LambdaVariable} Named    	

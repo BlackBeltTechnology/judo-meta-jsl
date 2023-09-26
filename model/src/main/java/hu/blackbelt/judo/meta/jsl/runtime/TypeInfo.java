@@ -5,6 +5,7 @@ import java.util.Arrays;
 import com.google.common.collect.ImmutableMap;
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationParameterType;
+import hu.blackbelt.judo.meta.jsl.jsldsl.Argument;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration;
@@ -18,9 +19,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Expression;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature;
-import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionArgument;
-import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionCall;
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryCall;
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage;
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaCall;
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable;
@@ -32,10 +34,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference;
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget;
 import hu.blackbelt.judo.meta.jsl.jsldsl.NumberLiteral;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ParameterDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Parentheses;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Persistable;
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration;
-import hu.blackbelt.judo.meta.jsl.jsldsl.QueryCall;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.QueryParameterDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.RawStringLiteral;
@@ -50,6 +52,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TypeDescription;
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTextDeclaration;
 import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension;
+
 
 public class TypeInfo {
 	private static JslDslModelExtension modelExtension = new JslDslModelExtension();
@@ -286,6 +289,33 @@ public class TypeInfo {
 		return this.baseType == other.baseType;
 	}
 
+	public boolean isInstanceOf(TypeInfo other) {
+		if (this.baseType == BaseType.UNDEFINED || other.baseType == BaseType.UNDEFINED) {
+			return false;
+		}
+		
+		if (this.isCollection() ^ other.isCollection()) {
+			return false;
+		}
+		
+		if (this.isDeclaration() ^ !other.isDeclaration()) {
+			return false;
+		}
+
+		if (this.baseType == BaseType.ENUM && other.baseType == BaseType.ENUM) {
+			return modelExtension.isEqual(this.type, other.type);
+		}
+		
+		if (this.baseType == BaseType.ENTITY && other.baseType == BaseType.ENTITY)
+		{
+			return modelExtension.isEqual(this.type, other.type)
+					|| modelExtension.getSuperEntityTypes((EntityDeclaration)this.type).stream()
+						.anyMatch(e -> modelExtension.isEqual(e, other.type));
+		}
+
+		return this.baseType == other.baseType;
+	}
+	
 	public boolean isCompatibleCollection(TypeInfo other) {
 		if (this.baseType == BaseType.UNDEFINED || other.baseType == BaseType.UNDEFINED) {
 			return false;
@@ -368,7 +398,7 @@ public class TypeInfo {
 	public static TypeInfo getTargetType(Persistable type) {
 		return new TypeInfo(type, false, true);
 	}
-	
+
 	public static TypeInfo getTargetType(Feature feature) {
 		TypeInfo baseTypeInfo;
 		Navigation navigation = (Navigation) feature.eContainer();
@@ -393,31 +423,41 @@ public class TypeInfo {
 			return typeInfo;
 		}
 		 
-		 else if (feature instanceof FunctionCall) {
-			if (!modelExtension.isResolvedReference(feature, JsldslPackage.FUNCTION_CALL__DECLARATION)) {
+		else if (feature instanceof FunctionOrQueryCall) {
+			if (!modelExtension.isResolvedReference(feature, JsldslPackage.FUNCTION_OR_QUERY_CALL__DECLARATION)) {
 				return baseTypeInfo;
 			}
-			FunctionCall functionCall = (FunctionCall)feature;
-			FunctionDeclaration functionDeclaration = functionCall.getDeclaration();
-			TypeInfo functionReturnTypeInfo = getTargetType(functionDeclaration.getReturnType());
+			FunctionOrQueryCall functionCall = (FunctionOrQueryCall)feature;
+			FunctionOrQueryDeclaration functionOrQueryDeclaration = functionCall.getDeclaration();
 
-			if (functionReturnTypeInfo.isEntity()) {
-				functionReturnTypeInfo.type = baseTypeInfo.type;
-
-				if (functionCall.getArguments().size() > 0) {
-					FunctionArgument argument = functionCall.getArguments().get(0);
-					TypeInfo argumentTypeInfo = TypeInfo.getTargetType(argument.getExpression());
-					
-					if (argumentTypeInfo.isEntity())
-					{
-						functionReturnTypeInfo.type =  argumentTypeInfo.getEntity();
+			if (functionOrQueryDeclaration instanceof FunctionDeclaration) {
+				FunctionDeclaration functionDeclaration = (FunctionDeclaration)functionOrQueryDeclaration;
+				
+				TypeInfo functionReturnTypeInfo = getTargetType(functionDeclaration.getReturnType());
+	
+				if (functionReturnTypeInfo.isEntity()) {
+					functionReturnTypeInfo.type = baseTypeInfo.type;
+	
+					if (functionCall.getArguments().size() > 0) {
+						Argument argument = functionCall.getArguments().get(0);
+						TypeInfo argumentTypeInfo = TypeInfo.getTargetType(argument.getExpression());
+						
+						if (argumentTypeInfo.isEntity())
+						{
+							functionReturnTypeInfo.type =  argumentTypeInfo.getEntity();
+						}
 					}
 				}
-			}
-
-			return functionReturnTypeInfo;
+	
+				return functionReturnTypeInfo;
+		 	} else if (functionOrQueryDeclaration instanceof QueryDeclaration) {
+				QueryDeclaration queryDeclaration = (QueryDeclaration)functionOrQueryDeclaration;
+				return new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isMany(), false);
+		 	}
 			
-		} else if (feature instanceof LambdaCall) {
+		}
+
+		else if (feature instanceof LambdaCall) {
 			if (!modelExtension.isResolvedReference(feature, JsldslPackage.LAMBDA_CALL__DECLARATION)) {
 				return baseTypeInfo;
 			}
@@ -438,7 +478,7 @@ public class TypeInfo {
 		}
 	}
 	
-	public static TypeInfo getTargetType(NavigationBase navigationBase) {
+	private static TypeInfo getTargetType(NavigationBase navigationBase) {
 		if (navigationBase == null) {
 			return new TypeInfo(BaseType.UNDEFINED, false);
 		}
@@ -449,11 +489,19 @@ public class TypeInfo {
 			return getTargetType( (Parentheses) navigationBase);
 		} else if (navigationBase instanceof NavigationBaseDeclarationReference) {
 			return getTargetType( (NavigationBaseDeclarationReference) navigationBase);
-		} else if (navigationBase instanceof QueryCall) {
-			return getTargetType( (QueryCall) navigationBase);
 		} else if (navigationBase instanceof Literal) {
 			return getTargetType( (Literal) navigationBase);
-		}
+		} else if (navigationBase instanceof FunctionOrQueryCall) {
+			if (!modelExtension.isResolvedReference(navigationBase, JsldslPackage.FUNCTION_OR_QUERY_CALL__DECLARATION)) {
+				return new TypeInfo(BaseType.UNDEFINED, false);
+			}
+
+			FunctionOrQueryDeclaration declaration = ((FunctionOrQueryCall) navigationBase).getDeclaration();
+			if (declaration  instanceof QueryDeclaration) {
+				QueryDeclaration queryDeclaration = (QueryDeclaration)declaration;
+				return new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isMany(), false);
+		 	}
+		} 
 
 		throw new IllegalArgumentException("Could not determinate type for navigationBase: " + navigationBase);
 	}
@@ -480,11 +528,6 @@ public class TypeInfo {
 		
 		return typeInfo;
 	}
-		
-	private static TypeInfo getTargetType(QueryCall queryCall) {
-		QueryDeclaration queryDeclaration = queryCall.getDeclaration();
-		return new TypeInfo(queryDeclaration.getReferenceType(), queryDeclaration.isMany(), false);
-	}
 	
 	private static TypeInfo getTargetType(NavigationBaseDeclarationReference navigationBaseDeclarationReference) {
 		TypeInfo typeInfo;
@@ -509,8 +552,18 @@ public class TypeInfo {
 		return typeInfo;
 	}
 	
-	private static TypeInfo getTargetType(Self self) {
+	public static TypeInfo getTargetType(Self self) {
 		TypeInfo typeInfo = new TypeInfo(modelExtension.parentContainer(self, EntityDeclaration.class), false, false);
+		
+		// probably we are in a query
+		if (!typeInfo.isEntity()) {
+			QueryDeclaration query = modelExtension.parentContainer(self, QueryDeclaration.class);
+			
+			if (query != null) {
+				typeInfo = new TypeInfo(query.getEntity(), false, false);
+			}
+		}
+		
 		return typeInfo;
 	}
 	
@@ -604,12 +657,18 @@ public class TypeInfo {
 		return new TypeInfo(functionDeclaration.getReturnType());
 	}
 
-	public static TypeInfo getTargetType(FunctionArgument functionArgument) {
-		if (functionArgument == null) {
+	public static TypeInfo getTargetType(Argument argument) {
+		if (argument == null) {
 			return new TypeInfo(BaseType.UNDEFINED, false);
 		}
 
-		return new TypeInfo(functionArgument.getDeclaration().getDescription());
+		ParameterDeclaration parameter = argument.getDeclaration();
+		
+		if (parameter instanceof FunctionParameterDeclaration) {
+			return new TypeInfo( ((FunctionParameterDeclaration) parameter).getDescription());			
+		}
+
+		return new TypeInfo(BaseType.UNDEFINED, false);
 	}
 
 	private static TypeInfo getTargetType(Parentheses parentheses) {
