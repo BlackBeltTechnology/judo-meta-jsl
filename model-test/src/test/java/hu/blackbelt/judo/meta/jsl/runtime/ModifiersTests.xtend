@@ -42,7 +42,7 @@ class ModifiersTests {
             }
 
         '''.parse => [
-            assertMinSizeTooLargeError("min-size must be less than/equal to max-size", JsldslPackage::eINSTANCE.modifierMinSize)
+            assertMinSizeTooLargeError("min-size must be less than/equal to max-size", JsldslPackage::eINSTANCE.minSizeModifier)
         ]
     }
 
@@ -85,7 +85,7 @@ class ModifiersTests {
             }
 
         '''.parse => [
-            assertMaxSizeNegativeError("max-size must be greater than 0", JsldslPackage::eINSTANCE.modifierMaxSize)
+            assertMaxSizeNegativeError("max-size must be greater than 0", JsldslPackage::eINSTANCE.maxSizeModifier)
         ]
     }
 
@@ -112,7 +112,7 @@ class ModifiersTests {
             }
 
         '''.parse => [
-            assertMaxSizeTooLargeError("max-size must be less than/equal to " + JslDslValidator.MODIFIER_MAX_SIZE_MAX_VALUE, JsldslPackage::eINSTANCE.modifierMaxSize)
+            assertMaxSizeTooLargeError("max-size must be less than/equal to " + JslDslValidator.MODIFIER_MAX_SIZE_MAX_VALUE, JsldslPackage::eINSTANCE.maxSizeModifier)
         ]
     }
 
@@ -146,7 +146,7 @@ class ModifiersTests {
                 field Number1 number;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.modifierPrecision, JslDslValidator.PRECISION_MODIFIER_IS_NEGATIVE, "Precision must be greater than 0")
+            m | m.assertError(JsldslPackage::eINSTANCE.precisionModifier, JslDslValidator.PRECISION_MODIFIER_IS_NEGATIVE, "Precision must be greater than 0")
         ]
     }
 
@@ -173,7 +173,7 @@ class ModifiersTests {
                 field Number1 number;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.modifierPrecision, JslDslValidator.PRECISION_MODIFIER_IS_TOO_LARGE)
+            m | m.assertError(JsldslPackage::eINSTANCE.precisionModifier, JslDslValidator.PRECISION_MODIFIER_IS_TOO_LARGE)
         ]
     }
 
@@ -200,7 +200,7 @@ class ModifiersTests {
                 field Number1 number;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.modifierScale, JslDslValidator.SCALE_MODIFIER_IS_TOO_LARGE, "Scale must be less than the defined precision: 15")
+            m | m.assertError(JsldslPackage::eINSTANCE.scaleModifier, JslDslValidator.SCALE_MODIFIER_IS_TOO_LARGE, "Scale must be less than the defined precision: 15")
         ]
     }
     
@@ -227,7 +227,7 @@ class ModifiersTests {
                 field T1 ent;
             }
         '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.FIELD_TYPE_IS_ABSRTACT_ENTITY, "You cannot use entity named 'T1' as a field type, because it is abstract")
+        	m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.FIELD_TYPE_IS_ABSRTACT_ENTITY, "You cannot use entity named 'T1' as a field type, because it is abstract")
         ]
     }
 

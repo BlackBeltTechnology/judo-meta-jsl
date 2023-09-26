@@ -16,8 +16,12 @@ error MyError {
 	field String msg;
 }
 
-error MyExtendedError extends MyError {
-	field Integer extra = 0;
+error MyExtendedError {
+	field Integer extra;
+	
+	event initialize {
+		self.extra = 0;
+	}
 }
 
 enum LeadStatus {
@@ -36,13 +40,13 @@ entity abstract Person {
 }
 
 query SalesPerson[] allSalesPerson() <= SalesPerson!all();
+query Lead[] leadsOver(Integer limit = 100) on SalesPerson <= self.leads!filter(lead | lead.value > limit);
 
 entity SalesPerson extends Person {
 	relation Lead[] leads opposite:salesPerson;
-	relation Lead[] leadsOver(Integer limit = 100) <= self.leads!filter(lead | lead.value > limit);
 	relation Lead[] allLeads <= self.leads;
 
-	relation Lead[] leadsOver10 <= self.leadsOver(limit = 10);
+	relation Lead[] leadsOver10 <= self!leadsOver(limit = 10);
 	relation SC::Contract[] contracts opposite-add:salesPerson;
 }
 
