@@ -68,7 +68,7 @@ EntityMemberDeclaration
 	  	|
 	  	=> calculated ?= LTE getterExpr = Expression
 	  )
-	  modifiers += (FetchModifier)*
+	  modifiers += (EagerModifier)*
 	  SC
 	  | EntityRelationDeclaration
 	;
@@ -82,7 +82,7 @@ EntityRelationDeclaration
 	  	|
 	  	=> calculated ?= LTE getterExpr = Expression
 	  )
-	  modifiers += (FetchModifier)*
+	  modifiers += (EagerModifier)*
 	  SC
 	;
 
@@ -180,10 +180,10 @@ TransferRelationDeclaration
 	  Named
 	  (
 	    reads ?= LTE getterExpr = Expression
-	  	modifiers += (FetchModifier | UpdateModifier | DeleteModifier)*
+	  	modifiers += (EagerModifier | UpdateModifier | DeleteModifier)*
 	  	|
 	  	maps ?= MAP getterExpr = Expression
-	    modifiers += (FetchModifier | TransferChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	    modifiers += (EagerModifier | TransferChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
       )?
 	  SC
 	;
@@ -300,13 +300,13 @@ ViewLinkDeclaration returns TransferRelationDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_LINK required ?= KW_REQUIRED? referenceType = [ViewDeclaration | ModelName] Named
 	  (
-	  	modifiers += (FetchModifier | VisualModifier | TextModifier)*
+	  	modifiers += (EagerModifier | VisualModifier | TextModifier)*
 	    | 
 	    reads ?= LTE getterExpr = Expression
-	  	modifiers += (FetchModifier | VisualModifier | TextModifier | UpdateModifier | DeleteModifier)*
+	  	modifiers += (EagerModifier | VisualModifier | TextModifier | UpdateModifier | DeleteModifier)*
 	  	|
 	  	maps ?= MAP getterExpr = Expression
-	    modifiers += (FetchModifier | VisualModifier | TextModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	    modifiers += (EagerModifier | VisualModifier | TextModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  )
 	  SC
 	;
@@ -807,7 +807,7 @@ Modifier
 	| ScaleModifier
 	| MimeTypesModifier
 	| MaxFileSizeModifier
-	| FetchModifier
+	| EagerModifier
 
 	| VisualModifier
 	;
@@ -938,8 +938,8 @@ MaxFileSizeModifier
 	: type = KW_MAXFILESIZE COLON numeric = NaturalNumber (measure = (KW_KB | KW_MB | KW_GB | KW_KIB | KW_MIB | KW_GIB))? 
 	;
 
-FetchModifier
-	: type = KW_FETCH COLON (lazy ?= KW_LAZY | eager ?= KW_EAGER)
+EagerModifier
+	: type = KW_EAGER COLON value = BooleanLiteral
 	;
 
 /****************************
@@ -1036,17 +1036,17 @@ JSLID: ID
 
 
 	// Features	
-	| KW_ACCESS | KW_ACTION | KW_COLUMN | KW_CONSTRAINT | KW_CREATE | KW_DELETE | KW_EVENT | KW_FIELD
+	| KW_ACCESS | KW_ACTION | KW_COLUMN | KW_CONSTRAINT | KW_CREATE | KW_DELETE | KW_EVENT | KW_FETCH | KW_FIELD
 	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_INITIALIZE | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_SUBMIT | KW_TABLE | KW_TABS
 	| KW_TEXT | KW_UPDATE | KW_VERTICAL
 	
 	// Constants
 	| KW_BINARY | KW_BOOLEAN | KW_BOTTOM | KW_CENTER | KW_COLLECTION | KW_CONSTANT | KW_DATE | KW_DECLARATION
-	| KW_EAGER | KW_LAZY | KW_LEFT | KW_NUMERIC | KW_RIGHT | KW_STRING | KW_TIME | KW_TIMESTAMP | KW_TOP
+	| KW_LEFT | KW_NUMERIC | KW_RIGHT | KW_STRING | KW_TIME | KW_TIMESTAMP | KW_TOP
 	| KW_KB | KW_MB | KW_GB | KW_KIB | KW_MIB | KW_GIB
 	
 	// Attributes
-	| KW_CHOICES | KW_CLAIM | KW_DETAIL | KW_ENABLED | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
+	| KW_CHOICES | KW_CLAIM | KW_DETAIL | KW_EAGER | KW_ENABLED | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
 	| KW_IDENTITY | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_ROWS | KW_SCALE | KW_STRETCH | KW_THROW
 	| KW_WIDTH  // KW_REQUIRED is missing deliberately !!!!
 	
@@ -1089,9 +1089,10 @@ terminal KW_COLUMN:		'column';
 terminal KW_CONSTRAINT:	'constraint';
 terminal KW_CREATE:		'create';   // no highlight
 terminal KW_DELETE:		'delete';   // no highlight
+terminal KW_EAGER:      'eager';
 terminal KW_EVENT:		'event';
-terminal KW_FIELD:		'field';
 terminal KW_FETCH:		'fetch';   // no highlight
+terminal KW_FIELD:		'field';
 terminal KW_GROUP:		'group';
 terminal KW_HORIZONTAL: 'horizontal';
 terminal KW_IDENTIFIER:	'identifier';
@@ -1117,9 +1118,7 @@ terminal KW_COLLECTION:	'collection';
 terminal KW_CONSTANT:	'constant';
 terminal KW_DATE:		'date';
 terminal KW_DECLARATION:'declaration';
-terminal KW_EAGER:      'eager';
 terminal KW_FALSE:		'false';  // not ID
-terminal KW_LAZY:       'lazy';
 terminal KW_LEFT:		'left';
 terminal KW_NUMERIC:	'numeric';
 terminal KW_RIGHT:		'right';

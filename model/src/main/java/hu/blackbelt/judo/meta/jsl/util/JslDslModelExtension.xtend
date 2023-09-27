@@ -8,6 +8,7 @@ import java.util.ArrayList
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import java.util.LinkedList
 import java.util.HashSet
+import java.util.HashMap
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
@@ -51,7 +52,7 @@ import org.eclipse.emf.ecore.EClassifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.Modifiable
 import hu.blackbelt.judo.meta.jsl.jsldsl.Modifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.FetchModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.EagerModifier
 
 @Singleton
 class JslDslModelExtension {
@@ -406,8 +407,12 @@ class JslDslModelExtension {
         model.declarations.filter[d | d instanceof EnumDeclaration].map[e | e as EnumDeclaration].toList
     }
 
-    def Collection<EnumDeclaration> allQueryDeclarations(ModelDeclaration model) {
-        model.declarations.filter[d | d instanceof QueryDeclaration].map[e | e as EnumDeclaration].toList
+    def Collection<QueryDeclaration> allQueryDeclarations(ModelDeclaration model) {
+        model.declarations.filter[d | d instanceof QueryDeclaration].map[e | e as QueryDeclaration].toList
+    }
+
+    def Collection<ActorDeclaration> allActorDeclarations(ModelDeclaration model) {
+        model.declarations.filter[d | d instanceof ActorDeclaration].map[e | e as ActorDeclaration].toList
     }
 
     def String getStringLiteralValue(StringLiteral it) {
@@ -465,10 +470,11 @@ class JslDslModelExtension {
 	def isQuery(EntityMemberDeclaration member) {
 		// TODO: allow query if there is no getter
 		if (member.getterExpr === null) return false;
-		val FetchModifier fetch = member.getModifier(JsldslPackage::eINSTANCE.fetchModifier) as FetchModifier
+
+		val EagerModifier eager = member.getModifier(JsldslPackage::eINSTANCE.eagerModifier) as EagerModifier
 		
 		if (member instanceof EntityFieldDeclaration) {
-			if (fetch !== null && fetch.lazy) {
+			if (eager !== null && !eager.value.isTrue) {
 				return true
 			}
 			if (member.annotations.exists[a | a.declaration.name.equals("Requested")]) {
@@ -478,7 +484,7 @@ class JslDslModelExtension {
 		}
 
 		if (member instanceof EntityRelationDeclaration) {
-			if (fetch !== null && fetch.eager) {
+			if (eager !== null && eager.value.isTrue) {
 				return false
 			}
 			if (member.annotations.exists[a | a.declaration.name.equals("Embedded")]) {
@@ -489,12 +495,12 @@ class JslDslModelExtension {
 	}
 
 	def isQuery(TransferDataDeclaration member) {
-		val FetchModifier fetch = member.getModifier(JsldslPackage::eINSTANCE.fetchModifier) as FetchModifier
+//		val FetchModifier fetch = member.getModifier(JsldslPackage::eINSTANCE.fetchModifier) as FetchModifier
 
 		if (member instanceof TransferFieldDeclaration) {
-			if (fetch !== null && fetch.lazy) {
-				return true
-			}
+//			if (fetch !== null && fetch.lazy) {
+//				return true
+//			}
 			if (member.annotations.exists[a | a.declaration.name.equals("Requested")]) {
 				return true
 			}
@@ -502,9 +508,9 @@ class JslDslModelExtension {
 		}
 
 		if (member instanceof TransferRelationDeclaration) {
-			if (fetch !== null && fetch.eager) {
-				return false
-			}
+//			if (fetch !== null && fetch.eager) {
+//				return false
+//			}
 			if (member.annotations.exists[a | a.declaration.name.equals("Embedded")]) {
 				return false
 			}
@@ -524,4 +530,18 @@ class JslDslModelExtension {
 	def Modifier getModifier(Modifiable it, EClassifier classifier) {
 		return it.modifiers.findFirst[m | classifier.isInstance(m)]
 	}
+	
+    def Collection<ModelDeclaration> allImportedModelDeclarations(ModelDeclaration model) {
+    	var HashMap<String, ModelDeclaration> models = new HashMap<String, ModelDeclaration>();
+    	model.appendImportedModelDeclarations(models)
+    	return models.values
+    }
+
+    def void appendImportedModelDeclarations(ModelDeclaration model, HashMap<String, ModelDeclaration> models) {
+    	model.imports.filter[i | !models.containsKey(i.model.name)]
+    		.forEach[i |
+    			i.model.fromModel models.put(i.model.name, i.model)
+    			i.model.appendImportedModelDeclarations(models)
+    		]
+    }
 }

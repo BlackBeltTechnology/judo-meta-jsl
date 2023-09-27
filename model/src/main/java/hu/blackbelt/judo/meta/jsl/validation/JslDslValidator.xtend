@@ -87,11 +87,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferChoiceModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferInitializeDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.FetchModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.Argument
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
+import hu.blackbelt.judo.meta.jsl.jsldsl.EagerModifier
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -119,6 +119,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     public static val TYPE_MISMATCH = ISSUE_CODE_PREFIX + "TypeMismatch"
     public static val ENUM_MEMBER_MISSING = ISSUE_CODE_PREFIX + "EnumMemberMissing"
     public static val DUPLICATE_PARAMETER = ISSUE_CODE_PREFIX + "DuplicateParameter"
+    public static val DUPLICATE_ACTOR = ISSUE_CODE_PREFIX + "DuplicateActor"
     public static val MISSING_REQUIRED_PARAMETER = ISSUE_CODE_PREFIX + "MissingRequiredParameter"
     public static val INVALID_LAMBDA_EXPRESSION = ISSUE_CODE_PREFIX + "InvalidLambdaExpression"
     public static val IMPORT_ALIAS_COLLISION = ISSUE_CODE_PREFIX + "ImportAliasCollison"
@@ -131,6 +132,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     public static val INVALID_ANNOTATION = ISSUE_CODE_PREFIX + "InvalidAnnotation"
     public static val INVALID_ANNOTATION_MARK = ISSUE_CODE_PREFIX + "InvalidAnnotationMark"
     public static val DUPLICATE_AUTOMAP = ISSUE_CODE_PREFIX + "DuplicateAutomap"
+    public static val DUPLICATE_ENTITY_QUERY = ISSUE_CODE_PREFIX + "DuplicateEntityQuery"
     public static val INVALID_SERVICE_FUNCTION_CALL = ISSUE_CODE_PREFIX + "InvalidServiceFunctionCall"
     public static val INVALID_FIELD_MAPPING = ISSUE_CODE_PREFIX + "InvalidFieldMapping"
     public static val INVALID_IDENTITY_MAPPING = ISSUE_CODE_PREFIX + "InvalidFieldMapping"
@@ -178,6 +180,44 @@ class JslDslValidator extends AbstractJslDslValidator {
             }
         ]
     }
+
+    // perform this check only on file save
+    @Check(CheckType::NORMAL)
+	def checkDuplicateEntityQuery(QueryDeclaration query) {
+		if (query.entity === null) {
+			return
+		}
+		
+		val ModelDeclaration m = query.eContainer as ModelDeclaration;
+		m.allImportedModelDeclarations
+			.forEach[mx |
+				mx.allQueryDeclarations
+					.filter[q | q.entity === query.entity && q.name.equals(query.name)]
+					.forEach[q |
+			            error("Duplicate query:" + q.fullyQualifiedName,
+			                JsldslPackage::eINSTANCE.named_Name,
+			                DUPLICATE_ENTITY_QUERY,
+			                JsldslPackage::eINSTANCE.named.name)
+					]
+			]
+	}
+
+    // perform this check only on file save
+    @Check(CheckType::NORMAL)
+	def checkDuplicateActor(ActorDeclaration actor) {
+		val ModelDeclaration m = actor.eContainer as ModelDeclaration;
+		m.allImportedModelDeclarations
+			.forEach[mx |
+				mx.allActorDeclarations
+					.filter[a | a.name.equals(actor.name)]
+					.forEach[q |
+			            error("Duplicate actor:" + q.fullyQualifiedName,
+			                JsldslPackage::eINSTANCE.named_Name,
+			                DUPLICATE_ACTOR,
+			                JsldslPackage::eINSTANCE.named.name)
+					]
+			]
+	}
 
     def void findAnnotationCycle(AnnotationDeclaration annotation, ArrayList<AnnotationDeclaration> visited) {
         if (visited.size > 0 && annotation.equals(visited.get(0))) {
@@ -1702,13 +1742,23 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
     
     @Check
-    def checkFetch(FetchModifier fetch) {
-		if (fetch.eContainer instanceof EntityMemberDeclaration) {
-			val member = fetch.eContainer as EntityMemberDeclaration
+    def checkLazy(EagerModifier eager) {
+		if (eager.eContainer instanceof EntityFieldDeclaration) {
+			val field = eager.eContainer as EntityFieldDeclaration
 
-	    	if (member.referenceType instanceof PrimitiveDeclaration && !member.calculated && fetch.lazy) {
-    			error("Stored primitive field is cannot be lazy fetched.", JsldslPackage::eINSTANCE.fetchModifier_Lazy)
+	    	if (field.referenceType instanceof PrimitiveDeclaration && !eager.value.isTrue) {
+    			error("Primitive field must be eager fetched.", JsldslPackage::eINSTANCE.eagerModifier_Value)
 	    	}
-		}    	
+
+	    	if (field.referenceType instanceof EntityDeclaration && eager.value.isTrue) {
+	    		warning("Primitive field is eager fetched by default.", JsldslPackage::eINSTANCE.eagerModifier_Value)
+	    	}
+		}
+		
+		else if (eager.eContainer instanceof EntityRelationDeclaration) {
+	    	if (!eager.value.isTrue) {
+	    		warning("Entity relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier_Value)
+	    	}
+		}
     }
 }
