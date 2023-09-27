@@ -42,7 +42,7 @@ class ParameterTests {
                 field String leftValue = "hello"!left(count = 1, count = 1);
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.functionArgument, JslDslValidator.DUPLICATE_PARAMETER)
+            m | m.assertError(JsldslPackage::eINSTANCE.argument, JslDslValidator.DUPLICATE_PARAMETER)
         ]
     }
 
@@ -71,7 +71,7 @@ class ParameterTests {
                 field String leftValue = "hello"!left();
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.functionCall, JslDslValidator.MISSING_REQUIRED_PARAMETER)
+            m | m.assertError(JsldslPackage::eINSTANCE.functionOrQueryCall, JslDslValidator.MISSING_REQUIRED_PARAMETER)
         ]
     }
 
@@ -99,7 +99,7 @@ class ParameterTests {
                 field String leftValue = "hello"!left(count = "");
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.functionArgument, JslDslValidator.TYPE_MISMATCH,"Type mismatch. Incompatible function argument at 'count'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.argument, JslDslValidator.TYPE_MISMATCH,"Type mismatch. Incompatible function argument at 'count'.")
         ]
     }
 

@@ -51,7 +51,7 @@ class JudoFunctionsProvider {
 	def model() '''
 		model judo::functions;
 		
-		annotation Query entity:relation entity:field transfer:relation transfer:field view:table view:link;
+		annotation Requested entity:relation entity:field transfer:relation transfer:field view:table view:link;
 		annotation Embedded entity:relation entity:field transfer:relation transfer:field view:table view:link;
 		
 		function string asString() on boolean;

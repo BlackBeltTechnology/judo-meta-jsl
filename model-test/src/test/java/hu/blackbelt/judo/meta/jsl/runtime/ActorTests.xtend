@@ -55,7 +55,7 @@ class ActorTests {
                 guard:true
                 identity:E!any().id;
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.actorDeclaration, JslDslValidator.INVALID_IDENTITY_MAPPING)
+            m | m.assertError(JsldslPackage::eINSTANCE.identityModifier, JslDslValidator.INVALID_IDENTITY_MAPPING)
         ]
     }
 
@@ -77,7 +77,7 @@ class ActorTests {
                 guard:true
                 identity:e.id2;
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.actorDeclaration, JslDslValidator.INVALID_IDENTITY_MAPPING)
+            m | m.assertError(JsldslPackage::eINSTANCE.identityModifier, JslDslValidator.INVALID_IDENTITY_MAPPING)
         ]
     }
 
@@ -98,7 +98,7 @@ class ActorTests {
                 guard:true
                 identity:E!any().id;
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.actorDeclaration, JslDslValidator.INVALID_IDENTITY_MAPPING)
+            m | m.assertError(JsldslPackage::eINSTANCE.identityModifier, JslDslValidator.INVALID_IDENTITY_MAPPING)
         ]
     }
     
@@ -124,7 +124,7 @@ class ActorTests {
             	menu VE ve <= E!any();
             };
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.actorMenuDeclaration, JslDslValidator.INVALID_DECLARATION)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
         ]
     }
 
@@ -140,7 +140,7 @@ class ActorTests {
             	group g {};
             };
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.actorGroupDeclaration, JslDslValidator.INVALID_DECLARATION, "Group is not allowed in system actor.")
+            m | m.assertError(JsldslPackage::eINSTANCE.transferDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
         ]
     }
 }
