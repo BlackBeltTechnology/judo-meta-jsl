@@ -295,7 +295,7 @@ transfer SalesPersonTransfer(SalesPerson salesperson) {
 
 [IMPORTANT]
 ====
-An important note, that if the transfer field's type is a transfer object (or a collection of transfer objects) the expression after the `\<=` or `\<=\>` must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
+An important note, that if the transfer field's type is a transfer object (or a collection of transfer objects) the expression after the `\<=` or `\<\=>` must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
 ====
 
 // TODO: create, delete, update flags

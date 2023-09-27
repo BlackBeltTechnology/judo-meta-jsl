@@ -96,6 +96,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EagerModifier
 class JslDslValidator extends AbstractJslDslValidator {
 
     protected static val ISSUE_CODE_PREFIX = "hu.blackbelt.judo.meta.jsl.jsldsl."
+
+    public static val RECOMMENDATION = ISSUE_CODE_PREFIX + "Recommendation"
+
     public static val HIERARCHY_CYCLE = ISSUE_CODE_PREFIX + "HierarchyCycle"
     public static val DUPLICATE_MODEL = ISSUE_CODE_PREFIX + "DuplicateModel"
     public static val OPPOSITE_TYPE_MISMATH = ISSUE_CODE_PREFIX + "OppositeTypeMismatch"
@@ -673,28 +676,6 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-	@Check
-	def checkRequestedAnnottation(AnnotationMark mark) {
-		if (mark.declaration.name.equals("Requested")) {
-			if (mark.eContainer.eContents.exists[e | e instanceof AnnotationMark && (e as AnnotationMark).declaration.name.equals("Embedded")]) {
-                error("@Requested and @Embedded annotations are not allowed to apply at the same target.",
-                    JsldslPackage::eINSTANCE.annotationMark_Declaration,
-                    REQUESTED_AND_EMBEDDED_TOGETHER)
-			}
-		}
-	}
-
-	@Check
-	def checkEmbeddedAnnottation(AnnotationMark mark) {
-		if (mark.declaration.name.equals("Embedded")) {
-			if (mark.eContainer.eContents.exists[e | e instanceof AnnotationMark && (e as AnnotationMark).declaration.name.equals("Requested")]) {
-                error("@Requested and @Embedded annotations are not allowed to apply at the same target.",
-                    JsldslPackage::eINSTANCE.annotationMark_Declaration,
-                    REQUESTED_AND_EMBEDDED_TOGETHER)
-			}
-		}
-	}
-
     @Check
     def checkAssociation(EntityRelationDeclaration relation) {
         // System.out.println("checkAssociationOpposite: " + relation + " opposite: " + relation?.opposite + " type: " + relation?.opposite?.oppositeType)
@@ -1143,12 +1124,6 @@ class JslDslValidator extends AbstractJslDslValidator {
                 INVALID_DECLARATION)
     	}
 
-    	if (relation.referenceType.map === null && relation.isQuery) {
-            error("Requested relation to unmapped transfer object is not allowed.",
-                JsldslPackage::eINSTANCE.transferDataDeclaration_Required,
-                INVALID_DECLARATION)
-    	}
-    	
         try {
             if (relation.maps && !TypeInfo.getTargetType(relation).isCompatible(TypeInfo.getTargetType(relation.getterExpr))) {
                 error("Type mismatch. Mapping expression value does not match relation type at '" + relation.name + "'.",
@@ -1742,7 +1717,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
     
     @Check
-    def checkLazy(EagerModifier eager) {
+    def checkEager(EagerModifier eager) {
 		if (eager.eContainer instanceof EntityFieldDeclaration) {
 			val field = eager.eContainer as EntityFieldDeclaration
 
@@ -1750,15 +1725,38 @@ class JslDslValidator extends AbstractJslDslValidator {
     			error("Primitive field must be eager fetched.", JsldslPackage::eINSTANCE.eagerModifier_Value)
 	    	}
 
-	    	if (field.referenceType instanceof EntityDeclaration && eager.value.isTrue) {
-	    		warning("Primitive field is eager fetched by default.", JsldslPackage::eINSTANCE.eagerModifier_Value)
+	    	else if (eager.value.isTrue) {
+	    		info("Entity field is eager fetched by default.", JsldslPackage::eINSTANCE.eagerModifier_Value, RECOMMENDATION)
 	    	}
 		}
 		
 		else if (eager.eContainer instanceof EntityRelationDeclaration) {
 	    	if (!eager.value.isTrue) {
-	    		warning("Entity relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier_Value)
+	    		info("Entity relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier_Value, RECOMMENDATION)
 	    	}
 		}
+		
+		else if (eager.eContainer instanceof TransferRelationDeclaration) {
+			val relation = eager.eContainer as TransferRelationDeclaration
+ 
+			if ((relation.maps || relation.reads) && !eager.value.isTrue) {
+	    		info("Mapped transfer relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier_Value, RECOMMENDATION)
+			}
+		}    	
     }
+
+    @Check
+    def checkEntityName(EntityDeclaration entity) {
+    	if (entity.name.length > 0 && Character.isLowerCase(entity.name.charAt(0))) {
+	    	info("It is recommended to start entity names with uppercase letter.", JsldslPackage::eINSTANCE.named_Name, RECOMMENDATION)
+    	}
+	}
+
+    @Check
+    def checkEntityMemberName(EntityMemberDeclaration member) {
+    	if (member.name.length > 0 && Character.isUpperCase(member.name.charAt(0))) {
+	    	info("It is recommended to start entity member names with a lowercase letter.", JsldslPackage::eINSTANCE.named_Name, RECOMMENDATION)
+    	}
+	}
+
 }
