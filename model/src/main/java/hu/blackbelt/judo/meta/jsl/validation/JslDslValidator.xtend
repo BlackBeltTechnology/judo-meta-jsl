@@ -130,6 +130,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     public static val INVALID_DECLARATION = ISSUE_CODE_PREFIX + "InvalidDeclaration"
     public static val EXPRESSION_CYCLE = ISSUE_CODE_PREFIX + "ExpressionCycle"
     public static val ANNOTATION_CYCLE = ISSUE_CODE_PREFIX + "AnnotationCycle"
+    public static val REQUIRED_COMPOSITION_CYCLE = ISSUE_CODE_PREFIX + "RequiredFieldCycle"
     public static val SELF_NOT_ALLOWED = ISSUE_CODE_PREFIX + "SelfNotAllowed"
     public static val INVALID_COLLECTION = ISSUE_CODE_PREFIX + "InvalidCollection"
     public static val INVALID_ANNOTATION = ISSUE_CODE_PREFIX + "InvalidAnnotation"
@@ -150,7 +151,6 @@ class JslDslValidator extends AbstractJslDslValidator {
     public static val DUPLICATE_EVENT = ISSUE_CODE_PREFIX + "DuplicateEvent"
     public static val DUPLICATE_SUBMIT = ISSUE_CODE_PREFIX + "DuplicateSubmit"
     public static val FIELD_TYPE_IS_ABSRTACT_ENTITY = ISSUE_CODE_PREFIX + "FieldTypeIsAbstractEntity"
-    public static val REQUESTED_AND_EMBEDDED_TOGETHER = ISSUE_CODE_PREFIX + "RequestedAndEmbeddedTogether"
     public static val DUPLICATE_MODIFIER = ISSUE_CODE_PREFIX + "DuplicateModifier"
 
     public static val MEMBER_NAME_LENGTH_MAX = 128
@@ -195,7 +195,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		m.allImportedModelDeclarations
 			.forEach[mx |
 				mx.allQueryDeclarations
-					.filter[q | q.entity === query.entity && q.name.equals(query.name)]
+					.filter[q | q.entity.isEqual(query.entity) && q.name.equals(query.name)]
 					.forEach[q |
 			            error("Duplicate query:" + q.fullyQualifiedName,
 			                JsldslPackage::eINSTANCE.named_Name,
@@ -262,6 +262,119 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
+    def void findCompositionCycle(EntityFieldDeclaration field, ArrayList<EntityFieldDeclaration> visited) {
+        if (visited.size > 0 && field.equals(visited.get(0))) {
+            throw new IllegalCallerException
+        }
+
+        if (visited.contains(field)) {
+            return
+        }
+
+        visited.add(field)
+        
+        (field.referenceType as EntityDeclaration).members
+        	.filter[m | m.required && m instanceof EntityFieldDeclaration && m.referenceType instanceof EntityDeclaration]
+       		.forEach[m | findCompositionCycle(m as EntityFieldDeclaration, visited)]
+
+        visited.remove(field)
+    }
+
+	@Check
+	def checkCyclicComposition(EntityFieldDeclaration field) {
+		if (!(field.referenceType instanceof EntityDeclaration) || !field.required) {
+			return
+		}
+		
+        var ArrayList<EntityFieldDeclaration> cycle = new ArrayList<EntityFieldDeclaration>()
+        try {
+            findCompositionCycle(field, cycle)
+        } catch (IllegalCallerException e) {
+            error(
+                "Cyclic required field definition at '" + cycle.map[f | f.fullyQualifiedName].join(' -> ') + ' -> ' + field.fullyQualifiedName + "'.",
+                JsldslPackage::eINSTANCE.named_Name,
+                REQUIRED_COMPOSITION_CYCLE,
+                field.name
+            )
+            return
+        }
+	}
+
+    def void findEntityEagerCycle(EntityMemberDeclaration member, ArrayList<EntityMemberDeclaration> visited) {
+        if (visited.size > 0 && member.equals(visited.get(0))) {
+            throw new IllegalCallerException
+        }
+
+        if (visited.contains(member)) {
+            return
+        }
+
+        visited.add(member)
+        
+        (member.referenceType as EntityDeclaration).members
+        	.filter[m | m.referenceType instanceof EntityDeclaration && m.eager]
+       		.forEach[m | findEntityEagerCycle(m, visited)]
+
+        visited.remove(member)
+    }
+
+	@Check
+	def checkCyclicEagerEntity(EntityMemberDeclaration member) {
+		if (!(member.referenceType instanceof EntityDeclaration) || !member.eager) {
+			return
+		}
+		
+        var ArrayList<EntityMemberDeclaration> cycle = new ArrayList<EntityMemberDeclaration>()
+        try {
+            findEntityEagerCycle(member, cycle)
+        } catch (IllegalCallerException e) {
+            error(
+                "Cyclic eager definition at '" + cycle.map[r | r.fullyQualifiedName].join(' -> ') + ' -> ' + member.fullyQualifiedName +"'.",
+                JsldslPackage::eINSTANCE.named_Name,
+                REQUIRED_COMPOSITION_CYCLE,
+                member.name
+            )
+            return
+        }
+	}
+
+    def void findTransferEagerCycle(TransferRelationDeclaration relation, ArrayList<TransferRelationDeclaration> visited) {
+        if (visited.size > 0 && relation.equals(visited.get(0))) {
+            throw new IllegalCallerException
+        }
+
+        if (visited.contains(relation)) {
+            return
+        }
+
+        visited.add(relation)
+        
+        relation.referenceType.members
+        	.filter[m | m instanceof TransferRelationDeclaration && relation.eager]
+       		.forEach[m | findTransferEagerCycle(m as TransferRelationDeclaration, visited)]
+
+        visited.remove(relation)
+    }
+
+	@Check
+	def checkCyclicEagerTransfer(TransferRelationDeclaration relation) {
+		if (!relation.eager) {
+			return
+		}
+		
+        var ArrayList<TransferRelationDeclaration> cycle = new ArrayList<TransferRelationDeclaration>()
+        try {
+            findTransferEagerCycle(relation, cycle)
+        } catch (IllegalCallerException e) {
+            error(
+                "Cyclic eager relation definition at '" + cycle.map[r | r.fullyQualifiedName].join(' -> ') + ' -> ' + relation.fullyQualifiedName +"'.",
+                JsldslPackage::eINSTANCE.named_Name,
+                REQUIRED_COMPOSITION_CYCLE,
+                relation.name
+            )
+            return
+        }
+	}
 
     def void findExpressionCycle(Expression expression, ArrayList<Expression> visited) {
         if (visited.size > 0 && expression.equals(visited.get(0))) {
@@ -812,6 +925,57 @@ class JslDslValidator extends AbstractJslDslValidator {
             )
         }
     }
+
+    @Check
+	def	checkModifierRequired(DataTypeDeclaration dataType) {
+		if (TypeInfo.getTargetType(dataType).isString) {
+			if (dataType.getModifier(JsldslPackage::eINSTANCE.minSizeModifier) === null) {
+	            error("min-size modifier is required",
+	                JsldslPackage::eINSTANCE.named_Name,
+	                INVALID_DECLARATION,
+	                JsldslPackage::eINSTANCE.named.name)
+			}
+
+			if (dataType.getModifier(JsldslPackage::eINSTANCE.maxSizeModifier) === null) {
+	            error("max-size modifier is required",
+	                JsldslPackage::eINSTANCE.named_Name,
+	                INVALID_DECLARATION,
+	                JsldslPackage::eINSTANCE.named.name)
+			}
+		}
+		
+		else if (TypeInfo.getTargetType(dataType).isNumeric) {
+			if (dataType.getModifier(JsldslPackage::eINSTANCE.precisionModifier) === null) {
+	            error("precision modifier is required",
+	                JsldslPackage::eINSTANCE.named_Name,
+	                INVALID_DECLARATION,
+	                JsldslPackage::eINSTANCE.named.name)
+			}
+
+			if (dataType.getModifier(JsldslPackage::eINSTANCE.scaleModifier) === null) {
+	            error("scale modifier is required",
+	                JsldslPackage::eINSTANCE.named_Name,
+	                INVALID_DECLARATION,
+	                JsldslPackage::eINSTANCE.named.name)
+			}
+		}
+
+		else if (TypeInfo.getTargetType(dataType).isBinary) {
+			if (dataType.getModifier(JsldslPackage::eINSTANCE.mimeTypesModifier) === null) {
+	            error("mime-type modifier is required",
+	                JsldslPackage::eINSTANCE.named_Name,
+	                INVALID_DECLARATION,
+	                JsldslPackage::eINSTANCE.named.name)
+			}
+
+			if (dataType.getModifier(JsldslPackage::eINSTANCE.maxFileSizeModifier) === null) {
+	            error("max-file-size modifier is required",
+	                JsldslPackage::eINSTANCE.named_Name,
+	                INVALID_DECLARATION,
+	                JsldslPackage::eINSTANCE.named.name)
+			}
+		}
+	}
 
     @Check
     def checkModifierMinSize(MinSizeModifier minSizeModifier) {

@@ -120,20 +120,4 @@ class AnnotationTests {
             m | m.assertError(JsldslPackage::eINSTANCE.annotationMark, JslDslValidator.INVALID_ANNOTATION)
         ]
     }
-
-    @Test
-    def void testAnnotationRequestedAndEmbedded() {
-        '''
-			model Test;
-			
-			import judo::types;
-			
-			entity E {
-				@Requested @Embedded
-				field Integer i <= 1;
-			}
-        '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.annotationMark, JslDslValidator.REQUESTED_AND_EMBEDDED_TOGETHER)
-        ]
-    }
 }

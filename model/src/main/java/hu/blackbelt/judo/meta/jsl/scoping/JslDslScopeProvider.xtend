@@ -244,7 +244,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
         val entityRelationDeclaration = context.eContainer as EntityRelationDeclaration
 
         if (context.eContainer !== null && entityRelationDeclaration.isResolvedReference(JsldslPackage.ENTITY_MEMBER_DECLARATION__REFERENCE_TYPE)) {
-            getEntityMembers(IScope.NULLSCOPE, entityRelationDeclaration.referenceType as EntityDeclaration, ref, new ArrayList<EntityDeclaration>())
+	        val scope = new AtomicReference<IScope>(getLocalElementsScope(IScope.NULLSCOPE, entityRelationDeclaration.referenceType as EntityDeclaration, ref))
+	        return scope.get
         } else {
             return IScope.NULLSCOPE
         }

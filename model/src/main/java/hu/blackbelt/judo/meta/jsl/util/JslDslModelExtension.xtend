@@ -467,6 +467,21 @@ class JslDslModelExtension {
 		return !relation.isQuery
 	}
 
+	def isEager(EntityMemberDeclaration member) {
+		val EagerModifier eagerModifier = member.getModifier(JsldslPackage::eINSTANCE.eagerModifier) as EagerModifier
+		
+		if (member instanceof EntityFieldDeclaration) {
+			return eagerModifier === null || eagerModifier.value.isTrue
+		} else {
+			return eagerModifier !== null && eagerModifier.value.isTrue
+		}
+	}
+
+	def isEager(TransferRelationDeclaration relation) {
+		val EagerModifier eagerModifier = relation.getModifier(JsldslPackage::eINSTANCE.eagerModifier) as EagerModifier
+		return (relation.reads || relation.maps) && eagerModifier !== null && eagerModifier.value.isTrue
+	}
+
 	def isQuery(EntityMemberDeclaration member) {
 		// TODO: allow query if there is no getter
 		if (member.getterExpr === null) return false;
@@ -534,6 +549,7 @@ class JslDslModelExtension {
     def Collection<ModelDeclaration> allImportedModelDeclarations(ModelDeclaration model) {
     	var HashMap<String, ModelDeclaration> models = new HashMap<String, ModelDeclaration>();
     	model.appendImportedModelDeclarations(models)
+    	models.remove(model.name)
     	return models.values
     }
 
