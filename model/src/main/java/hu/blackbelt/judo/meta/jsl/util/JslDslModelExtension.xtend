@@ -8,6 +8,7 @@ import java.util.ArrayList
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration
 import java.util.LinkedList
 import java.util.HashSet
+import java.util.HashMap
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Declaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
@@ -15,7 +16,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import org.eclipse.emf.ecore.EAttribute
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import com.google.inject.Inject;
-import hu.blackbelt.judo.meta.jsl.jsldsl.ConstraintDeclaration
 import java.util.List
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
@@ -28,7 +28,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeReferenced
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOpposite
 import hu.blackbelt.judo.meta.jsl.jsldsl.RawStringLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.EscapedStringLiteral
-import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierMaxFileSize
 import java.math.BigInteger
 import hu.blackbelt.judo.meta.jsl.jsldsl.support.JslDslModelResourceSupport
 import java.util.stream.Collectors
@@ -40,27 +39,20 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedMemberDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.SingleType
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityCalculatedRelationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTableDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ViewLinkDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
 import hu.blackbelt.judo.meta.jsl.jsldsl.MemberReference
-import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferCreateDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ViewCreateDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.MaxFileSizeModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
+import org.eclipse.emf.ecore.EClassifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.Modifiable
+import hu.blackbelt.judo.meta.jsl.jsldsl.Modifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EagerModifier
 
 @Singleton
 class JslDslModelExtension {
@@ -89,66 +81,6 @@ class JslDslModelExtension {
 		return transfer.eAllContents.filter[c | c instanceof TransferMemberDeclaration].map[e | e as TransferMemberDeclaration].toList
 	}
 
-	def SingleType getReferenceType(EntityMemberDeclaration member) { 
-		if (member instanceof EntityStoredFieldDeclaration) {
-			if ((member as EntityStoredFieldDeclaration).primitiveReferenceType !== null) {
-				return (member as EntityStoredFieldDeclaration).primitiveReferenceType;
-			} if ((member as EntityStoredFieldDeclaration).entityReferenceType !== null) {
-				return (member as EntityStoredFieldDeclaration).entityReferenceType;
-			} else {
-				return (member as EntityStoredFieldDeclaration).singleReferenceType;
-			}
-		} else if (member instanceof EntityStoredRelationDeclaration) {
-			return (member as EntityStoredRelationDeclaration).entityReferenceType;
-		} else if (member instanceof EntityCalculatedFieldDeclaration) {
-			return (member as EntityCalculatedFieldDeclaration).primitiveReferenceType;
-		} else if (member instanceof EntityCalculatedRelationDeclaration) {
-			return (member as EntityCalculatedRelationDeclaration).entityReferenceType;
-		}
-	}
-
-	def TransferDeclaration getReferenceType(TransferRelationDeclaration relation) { 
-		if (relation instanceof ActorMenuDeclaration) {
-			if ((relation as ActorMenuDeclaration).rowReferenceType !== null) {
-				return (relation as ActorMenuDeclaration).rowReferenceType
-			}
-			return (relation as ActorMenuDeclaration).viewReferenceType;
-		} else if (relation instanceof ActorAccessDeclaration) {
-			return (relation as ActorAccessDeclaration).transferReferenceType;
-		} else if (relation instanceof ViewTableDeclaration) {
-			return (relation as ViewTableDeclaration).rowReferenceType;
-		} if (relation instanceof ViewLinkDeclaration) {
-			return (relation as ViewLinkDeclaration).viewReferenceType;
-		} 
-		
-		return relation.simpleTransferReferenceType;
-	}
-
-	def TransferDeclaration getParameterType(TransferCreateDeclaration create) { 
-		if (create instanceof SimpleTransferCreateDeclaration) {
-			return (create as SimpleTransferCreateDeclaration).transferParameterType;
-		} if (create instanceof ViewCreateDeclaration) {
-			return (create as ViewCreateDeclaration).viewParameterType;
-		}
-		
-        throw new IllegalArgumentException("Create modifier:" + create)
-	}
-
-    /*
-    def ModelDeclaration modelDeclaration(EObject obj) {
-        var current = obj
-
-        while (current.eContainer !== null) {
-            current = current.eContainer
-        }
-
-        if (current instanceof ModelDeclaration) {
-            current as ModelDeclaration
-        } else {
-            throw new IllegalAccessException("The root container is not ModelDeclaration: " + obj + "\n Root: " + current)
-        }
-    } */
-
     def Collection<EntityMemberDeclaration> allNamedEntityMemberDeclarations(ModelDeclaration model) {
         val res = new ArrayList<EntityMemberDeclaration>();
 
@@ -158,41 +90,41 @@ class JslDslModelExtension {
         return res
     }
 
-    def getAllOppositeRelations(EntityStoredRelationDeclaration relation) {
+    def getAllOppositeRelations(EntityRelationDeclaration relation) {
         relation.getAllOppositeRelations(null)
     }
 
-    def getValidOppositeRelations(EntityStoredRelationDeclaration relation) {
+    def getValidOppositeRelations(EntityRelationDeclaration relation) {
         relation.getValidOppositeRelations(null)
     }
 
-    def getValidOppositeRelations(EntityStoredRelationDeclaration relation, Boolean single) {
-        (relation.referenceType as EntityDeclaration).getAllRelations(single).filter[r | relation.isSelectableForRelation(r)].toList
+    def getValidOppositeRelations(EntityRelationDeclaration relation, Boolean single) {
+        (relation.referenceType as EntityDeclaration).getAllStoredRelations(single).filter[r | relation.isSelectableForRelation(r)].toList
     }
 
-    def getAllOppositeRelations(EntityStoredRelationDeclaration relation, Boolean single) {
-        (relation.referenceType as EntityDeclaration).getAllRelations(single)
+    def getAllOppositeRelations(EntityRelationDeclaration relation, Boolean single) {
+        (relation.referenceType as EntityDeclaration).getAllStoredRelations(single)
     }
 
-    def Collection<EntityStoredRelationDeclaration> getAllRelations(EntityDeclaration entity) {
-        entity.getAllRelations(null)
+    def Collection<EntityRelationDeclaration> getAllStoredRelations(EntityDeclaration entity) {
+        entity.getAllStoredRelations(null)
     }
 
-    def Collection<EntityStoredRelationDeclaration> getAllRelations(EntityDeclaration entity, Boolean single) {
-        entity.getAllRelations(single, new LinkedList, new LinkedList)
+    def Collection<EntityRelationDeclaration> getAllStoredRelations(EntityDeclaration entity, Boolean single) {
+        entity.getAllStoredRelations(single, new LinkedList, new LinkedList)
     }
 
-    private def Collection<EntityStoredRelationDeclaration> getAllRelations(EntityDeclaration entity, Boolean single, Collection<EntityStoredRelationDeclaration> collected, Collection<EntityDeclaration> visited) {
+    private def Collection<EntityRelationDeclaration> getAllStoredRelations(EntityDeclaration entity, Boolean single, Collection<EntityRelationDeclaration> collected, Collection<EntityDeclaration> visited) {
         if (entity !== null) {
             visited.add(entity)
             collected.addAll(
-                entity.relations
+                entity.storedRelations
                     .filter[r | single === null || (single && !r.isMany) || (!single && r.isMany)]
                     .toList
             )
 
             for (e : entity.extends) {
-                e.getAllRelations(single, collected, visited)
+                e.getAllStoredRelations(single, collected, visited)
             }
         }
         collected
@@ -209,7 +141,9 @@ class JslDslModelExtension {
         return asEntityRelationOppositeReferenced?.oppositeType
     }
 
-    def isSelectableForRelation(EntityStoredRelationDeclaration currentRelation, EntityStoredRelationDeclaration selectableRelation) {    	
+    def isSelectableForRelation(EntityRelationDeclaration currentRelation, EntityRelationDeclaration selectableRelation) {
+    	if (currentRelation.calculated || selectableRelation.calculated) return false
+    	
         if (currentRelation.opposite === null) {
             return false
         }
@@ -217,7 +151,7 @@ class JslDslModelExtension {
         val oppositeEntity = selectableRelation.eContainer as EntityDeclaration
 
         if (opposite.oppositeType === null) {
-            val oppositeEntityAllRelations = oppositeEntity.getAllRelations().toList
+            val oppositeEntityAllRelations = oppositeEntity.getAllStoredRelations().toList
 
             // System.out.println(" --- " + EObjectOrProxy + " --- Rel:  " + opposite.eContainer + " Sib: " + siblings.map[r | r + "=" + r.opposite?.oppositeType].join(", "))
             if (oppositeEntityAllRelations.exists[r | r.opposite?.oppositeType === currentRelation]) {
@@ -342,12 +276,12 @@ class JslDslModelExtension {
         return found;
     }
 
-    def Collection<EntityStoredRelationDeclaration> getRelations(EntityDeclaration it) {
-        members.filter[m | m instanceof EntityStoredRelationDeclaration].map[d | d as EntityStoredRelationDeclaration].toList
+    def Collection<EntityRelationDeclaration> getStoredRelations(EntityDeclaration it) {
+        members.filter[m | m instanceof EntityRelationDeclaration && !m.calculated].map[d | d as EntityRelationDeclaration].toList
     }
 
-    def Collection<EntityCalculatedRelationDeclaration> getCalculatedRelations(EntityDeclaration it) {
-        members.filter[m | m instanceof EntityCalculatedRelationDeclaration].map[d | d as EntityCalculatedRelationDeclaration].toList
+    def Collection<EntityRelationDeclaration> getCalculatedRelations(EntityDeclaration it) {
+        members.filter[m | m instanceof EntityRelationDeclaration && m.calculated].map[d | d as EntityRelationDeclaration].toList
     }
 
     def Collection<EntityDeclaration> entityDeclarations(ModelDeclaration it) {
@@ -370,37 +304,41 @@ class JslDslModelExtension {
         declarations.filter[d | d instanceof ErrorDeclaration].map[d | d as ErrorDeclaration].toList
     }
 
-    def Collection<EntityStoredFieldDeclaration> fields(EntityDeclaration it) {
-        members.filter[d | d instanceof EntityStoredFieldDeclaration].map[d | d as EntityStoredFieldDeclaration].toList
+    def Collection<EntityFieldDeclaration> getFields(EntityDeclaration it) {
+        members.filter[d | d instanceof EntityFieldDeclaration].map[d | d as EntityFieldDeclaration].toList
     }
 
-    def Collection<EntityCalculatedMemberDeclaration> derivedes(EntityDeclaration it) {
-        members.filter[d | d instanceof EntityCalculatedMemberDeclaration].map[d | d as EntityCalculatedMemberDeclaration].toList
+    def Collection<EntityFieldDeclaration> getStoredFields(EntityDeclaration it) {
+        members.filter[d | d instanceof EntityFieldDeclaration && !d.calculated].map[d | d as EntityFieldDeclaration].toList
     }
 
-    def Collection<ConstraintDeclaration> constraints(EntityDeclaration it) {
-        members.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
+    def Collection<EntityMemberDeclaration> getCalculatedMembers(EntityDeclaration it) {
+        members.filter[d | d.calculated].toList
     }
 
-    def Collection<EntityStoredFieldDeclaration> allFields(EntityDeclaration it) {
-        allMembers.filter[d | d instanceof EntityStoredFieldDeclaration].map[d | d as EntityStoredFieldDeclaration].toList
+//    def Collection<ConstraintDeclaration> constraints(EntityDeclaration it) {
+//        members.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
+//    }
+
+    def Collection<EntityFieldDeclaration> getAllStoredFields(EntityDeclaration it) {
+        allMembers.filter[d | d instanceof EntityFieldDeclaration && !d.calculated].map[d | d as EntityFieldDeclaration].toList
     }
 
-    def Collection<ConstraintDeclaration> allConstraints(EntityDeclaration it) {
-        allMembers.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
-    }
+//    def Collection<ConstraintDeclaration> allConstraints(EntityDeclaration it) {
+//        allMembers.filter[d | d instanceof ConstraintDeclaration].map[d | d as ConstraintDeclaration].toList
+//    }
 
     def Collection<AnnotationDeclaration> annotationDeclarations(ModelDeclaration it) {
         declarations.filter[d | d instanceof AnnotationDeclaration].map[d | d as AnnotationDeclaration].toList
     }
     
     def Collection<TransferDeclaration> transferDeclarations(ModelDeclaration it) {
-        declarations.filter[d | d instanceof TransferDeclaration].map[d | d as TransferDeclaration].toList
+        declarations.filter[d | d instanceof TransferDeclaration && !(d instanceof ActorDeclaration)].map[d | d as TransferDeclaration].toList
     }
 
-    def Collection<SimpleTransferDeclaration> simpleTransferDeclarations(ModelDeclaration it) {
-        declarations.filter[d | d instanceof SimpleTransferDeclaration].map[d | d as SimpleTransferDeclaration].toList
-    }
+//    def Collection<SimpleTransferDeclaration> simpleTransferDeclarations(ModelDeclaration it) {
+//        declarations.filter[d | d instanceof SimpleTransferDeclaration].map[d | d as SimpleTransferDeclaration].toList
+//    }
 
     def Collection<ViewDeclaration> viewDeclarations(ModelDeclaration it) {
         declarations.filter[d | d instanceof ViewDeclaration].map[d | d as ViewDeclaration].toList
@@ -422,11 +360,11 @@ class JslDslModelExtension {
         return NodeModelUtils.findActualNodeFor(it)?.getText()
     }
 
-    def Collection<EntityStoredRelationDeclaration> getAllRelations(ModelDeclaration it, boolean singleInstanceOfBidirectional) {
-        val List<EntityStoredRelationDeclaration> relations = new ArrayList()
+    def Collection<EntityRelationDeclaration> getAllStoredRelations(ModelDeclaration it, boolean singleInstanceOfBidirectional) {
+        val List<EntityRelationDeclaration> relations = new ArrayList()
 
         for (entity : entityDeclarations) {
-            for (relation : entity.relations) {
+            for (relation : entity.storedRelations) {
                 if (singleInstanceOfBidirectional && relation.opposite?.oppositeType !== null && !relations.contains(relation.opposite.oppositeType) ||
                     relation.opposite?.oppositeType === null
                 ) {
@@ -438,11 +376,11 @@ class JslDslModelExtension {
     }
 
     def Collection<TransferRelationDeclaration> getAllTransferRelations(ModelDeclaration it) {
-    	return eAllContents.filter[c | c instanceof TransferRelationDeclaration].map[e | e as TransferRelationDeclaration].toList
+    	return eAllContents.filter[c | c instanceof TransferRelationDeclaration && c.parentContainer(ActorDeclaration) === null].map[e | e as TransferRelationDeclaration].toList
     }
 
     def Collection<TransferRelationDeclaration> getAllSimpleTransferRelations(ModelDeclaration it) {
-    	return eAllContents.filter[c | c instanceof TransferRelationDeclaration && c.parentContainer(SimpleTransferDeclaration) !== null].map[e | e as TransferRelationDeclaration].toList
+    	return eAllContents.filter[c | c instanceof TransferRelationDeclaration && c.parentContainer(TransferDeclaration) !== null].map[e | e as TransferRelationDeclaration].toList
     }
 
     def Collection<TransferRelationDeclaration> getAllViewTransferRelations(ModelDeclaration it) {
@@ -453,8 +391,8 @@ class JslDslModelExtension {
     	return eAllContents.filter[c | c instanceof TransferRelationDeclaration && c.parentContainer(ActorDeclaration) !== null].map[e | e as TransferRelationDeclaration].toList
     }
 
-    def Collection<EntityCalculatedRelationDeclaration> getAllCalculatedRelations(ModelDeclaration it, boolean singleInstanceOfBidirectional) {
-        val List<EntityCalculatedRelationDeclaration> relations = new ArrayList()
+    def Collection<EntityRelationDeclaration> getAllCalculatedRelations(ModelDeclaration it, boolean singleInstanceOfBidirectional) {
+        val List<EntityRelationDeclaration> relations = new ArrayList()
 
         for (entity : entityDeclarations) {
             for (relation : entity.calculatedRelations) {
@@ -469,8 +407,12 @@ class JslDslModelExtension {
         model.declarations.filter[d | d instanceof EnumDeclaration].map[e | e as EnumDeclaration].toList
     }
 
-    def Collection<EnumDeclaration> allQueryDeclarations(ModelDeclaration model) {
-        model.declarations.filter[d | d instanceof QueryDeclaration].map[e | e as EnumDeclaration].toList
+    def Collection<QueryDeclaration> allQueryDeclarations(ModelDeclaration model) {
+        model.declarations.filter[d | d instanceof QueryDeclaration].map[e | e as QueryDeclaration].toList
+    }
+
+    def Collection<ActorDeclaration> allActorDeclarations(ModelDeclaration model) {
+        model.declarations.filter[d | d instanceof ActorDeclaration].map[e | e as ActorDeclaration].toList
     }
 
     def String getStringLiteralValue(StringLiteral it) {
@@ -480,7 +422,7 @@ class JslDslModelExtension {
         }
     }
 
-    def BigInteger getMaxFileSizeValue(ModifierMaxFileSize it) {
+    def BigInteger getMaxFileSizeValue(MaxFileSizeModifier it) {
         switch it.measure {
             case "kB": return it.numeric.multiply(BigInteger.valueOf(1000))
             case "MB": return it.numeric.multiply(BigInteger.valueOf(1000 * 1000))
@@ -522,23 +464,73 @@ class JslDslModelExtension {
     }
 
 	def isAggregation(TransferRelationDeclaration relation) {
-		if (relation.referenceType.map === null) {
-			return true
-		}
+		return !relation.isQuery
+	}
+
+	def isEager(EntityMemberDeclaration member) {
+		val EagerModifier eagerModifier = member.getModifier(JsldslPackage::eINSTANCE.eagerModifier) as EagerModifier
 		
-		if (relation.annotations.exists[a | a.declaration.name.equals("Embedded")]) {
-			return true
+		if (member instanceof EntityFieldDeclaration) {
+			return eagerModifier === null || eagerModifier.value.isTrue
+		} else {
+			return eagerModifier !== null && eagerModifier.value.isTrue
 		}
-		
-		return false
+	}
+
+	def isEager(TransferRelationDeclaration relation) {
+		val EagerModifier eagerModifier = relation.getModifier(JsldslPackage::eINSTANCE.eagerModifier) as EagerModifier
+		return (relation.reads || relation.maps) && eagerModifier !== null && eagerModifier.value.isTrue
 	}
 
 	def isQuery(EntityMemberDeclaration member) {
-		if (member.annotations.exists[a | a.declaration.name.equals("Query")]) {
+		// TODO: allow query if there is no getter
+		if (member.getterExpr === null) return false;
+
+		val EagerModifier eager = member.getModifier(JsldslPackage::eINSTANCE.eagerModifier) as EagerModifier
+		
+		if (member instanceof EntityFieldDeclaration) {
+			if (eager !== null && !eager.value.isTrue) {
+				return true
+			}
+			if (member.annotations.exists[a | a.declaration.name.equals("Requested")]) {
+				return true
+			}
+			return false
+		}
+
+		if (member instanceof EntityRelationDeclaration) {
+			if (eager !== null && eager.value.isTrue) {
+				return false
+			}
+			if (member.annotations.exists[a | a.declaration.name.equals("Embedded")]) {
+				return false
+			}
 			return true
 		}
-		
-		return false
+	}
+
+	def isQuery(TransferDataDeclaration member) {
+//		val FetchModifier fetch = member.getModifier(JsldslPackage::eINSTANCE.fetchModifier) as FetchModifier
+
+		if (member instanceof TransferFieldDeclaration) {
+//			if (fetch !== null && fetch.lazy) {
+//				return true
+//			}
+			if (member.annotations.exists[a | a.declaration.name.equals("Requested")]) {
+				return true
+			}
+			return false
+		}
+
+		if (member instanceof TransferRelationDeclaration) {
+//			if (fetch !== null && fetch.eager) {
+//				return false
+//			}
+			if (member.annotations.exists[a | a.declaration.name.equals("Embedded")]) {
+				return false
+			}
+			return true
+		}
 	}
 
 	def isQueryCall(Feature feature) {
@@ -549,4 +541,23 @@ class JslDslModelExtension {
 		
 		return false
 	}
+	
+	def Modifier getModifier(Modifiable it, EClassifier classifier) {
+		return it.modifiers.findFirst[m | classifier.isInstance(m)]
+	}
+	
+    def Collection<ModelDeclaration> allImportedModelDeclarations(ModelDeclaration model) {
+    	var HashMap<String, ModelDeclaration> models = new HashMap<String, ModelDeclaration>();
+    	model.appendImportedModelDeclarations(models)
+    	models.remove(model.name)
+    	return models.values
+    }
+
+    def void appendImportedModelDeclarations(ModelDeclaration model, HashMap<String, ModelDeclaration> models) {
+    	model.imports.filter[i | !models.containsKey(i.model.name)]
+    		.forEach[i |
+    			i.model.fromModel models.put(i.model.name, i.model)
+    			i.model.appendImportedModelDeclarations(models)
+    		]
+    }
 }
