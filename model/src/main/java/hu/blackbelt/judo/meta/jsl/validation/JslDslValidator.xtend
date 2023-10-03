@@ -191,11 +191,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 			return
 		}
 		
+		val TypeInfo queryTypeInfo = TypeInfo.getTargetType(query.entity);
+		
 		val ModelDeclaration m = query.eContainer as ModelDeclaration;
 		m.allImportedModelDeclarations
 			.forEach[mx |
 				mx.allQueryDeclarations
-					.filter[q | q.entity.isEqual(query.entity) && q.name.equals(query.name)]
+					.filter[q | TypeInfo.getTargetType(q.entity).isCompatible(queryTypeInfo) && q.name.equals(query.name)]
 					.forEach[q |
 			            error("Duplicate query:" + q.fullyQualifiedName,
 			                JsldslPackage::eINSTANCE.named_Name,
@@ -262,39 +264,39 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    def void findCompositionCycle(EntityFieldDeclaration field, ArrayList<EntityFieldDeclaration> visited) {
-        if (visited.size > 0 && field.equals(visited.get(0))) {
+    def void findEntityRequiredCycle(EntityMemberDeclaration member, ArrayList<EntityMemberDeclaration> visited) {
+        if (visited.size > 0 && member.equals(visited.get(0))) {
             throw new IllegalCallerException
         }
 
-        if (visited.contains(field)) {
+        if (visited.contains(member)) {
             return
         }
 
-        visited.add(field)
+        visited.add(member)
         
-        (field.referenceType as EntityDeclaration).members
-        	.filter[m | m.required && m instanceof EntityFieldDeclaration && m.referenceType instanceof EntityDeclaration]
-       		.forEach[m | findCompositionCycle(m as EntityFieldDeclaration, visited)]
+        (member.referenceType as EntityDeclaration).allMembers
+        	.filter[m | m.required && m.referenceType instanceof EntityDeclaration]
+       		.forEach[m | findEntityRequiredCycle(m, visited)]
 
-        visited.remove(field)
+        visited.remove(member)
     }
 
 	@Check
-	def checkCyclicComposition(EntityFieldDeclaration field) {
-		if (!(field.referenceType instanceof EntityDeclaration) || !field.required) {
+	def checkCyclicEntityRequired(EntityMemberDeclaration member) {
+		if (!(member.referenceType instanceof EntityDeclaration) || !member.required) {
 			return
 		}
 		
-        var ArrayList<EntityFieldDeclaration> cycle = new ArrayList<EntityFieldDeclaration>()
+        var ArrayList<EntityMemberDeclaration> cycle = new ArrayList<EntityMemberDeclaration>()
         try {
-            findCompositionCycle(field, cycle)
+            findEntityRequiredCycle(member, cycle)
         } catch (IllegalCallerException e) {
             error(
-                "Cyclic required field definition at '" + cycle.map[f | f.fullyQualifiedName].join(' -> ') + ' -> ' + field.fullyQualifiedName + "'.",
+                "Cyclic required member definition at '" + cycle.map[f | f.fullyQualifiedName].join(' -> ') + ' -> ' + member.fullyQualifiedName + "'.",
                 JsldslPackage::eINSTANCE.named_Name,
                 REQUIRED_COMPOSITION_CYCLE,
-                field.name
+                member.name
             )
             return
         }
@@ -311,7 +313,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
         visited.add(member)
         
-        (member.referenceType as EntityDeclaration).members
+        (member.referenceType as EntityDeclaration).allMembers
         	.filter[m | m.referenceType instanceof EntityDeclaration && m.eager]
        		.forEach[m | findEntityEagerCycle(m, visited)]
 
@@ -328,8 +330,8 @@ class JslDslValidator extends AbstractJslDslValidator {
         try {
             findEntityEagerCycle(member, cycle)
         } catch (IllegalCallerException e) {
-            error(
-                "Cyclic eager definition at '" + cycle.map[r | r.fullyQualifiedName].join(' -> ') + ' -> ' + member.fullyQualifiedName +"'.",
+            warning(
+                "Cyclic eager definition at '" + cycle.map[r | r.fullyQualifiedName].join(' -> ') + ' -> ' + member.fullyQualifiedName +"'. It may result in slow performance or endless loops.",
                 JsldslPackage::eINSTANCE.named_Name,
                 REQUIRED_COMPOSITION_CYCLE,
                 member.name
@@ -366,8 +368,8 @@ class JslDslValidator extends AbstractJslDslValidator {
         try {
             findTransferEagerCycle(relation, cycle)
         } catch (IllegalCallerException e) {
-            error(
-                "Cyclic eager relation definition at '" + cycle.map[r | r.fullyQualifiedName].join(' -> ') + ' -> ' + relation.fullyQualifiedName +"'.",
+            warning(
+                "Cyclic eager relation definition at '" + cycle.map[r | r.fullyQualifiedName].join(' -> ') + ' -> ' + relation.fullyQualifiedName +"'. It may result in slow performance or endless loops.",
                 JsldslPackage::eINSTANCE.named_Name,
                 REQUIRED_COMPOSITION_CYCLE,
                 relation.name

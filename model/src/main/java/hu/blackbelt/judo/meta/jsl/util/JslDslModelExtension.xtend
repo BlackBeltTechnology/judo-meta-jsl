@@ -464,7 +464,8 @@ class JslDslModelExtension {
     }
 
 	def isAggregation(TransferRelationDeclaration relation) {
-		return !relation.isQuery
+		if (relation.getterExpr === null) return true;
+		return relation.eager
 	}
 
 	def isEager(EntityMemberDeclaration member) {
@@ -477,66 +478,17 @@ class JslDslModelExtension {
 		}
 	}
 
-	def isEager(TransferRelationDeclaration relation) {
-		val EagerModifier eagerModifier = relation.getModifier(JsldslPackage::eINSTANCE.eagerModifier) as EagerModifier
-		return (relation.reads || relation.maps) && eagerModifier !== null && eagerModifier.value.isTrue
-	}
-
-	def isQuery(EntityMemberDeclaration member) {
-		// TODO: allow query if there is no getter
-		if (member.getterExpr === null) return false;
-
-		val EagerModifier eager = member.getModifier(JsldslPackage::eINSTANCE.eagerModifier) as EagerModifier
-		
-		if (member instanceof EntityFieldDeclaration) {
-			if (eager !== null && !eager.value.isTrue) {
-				return true
-			}
-			if (member.annotations.exists[a | a.declaration.name.equals("Requested")]) {
-				return true
-			}
-			return false
-		}
-
-		if (member instanceof EntityRelationDeclaration) {
-			if (eager !== null && eager.value.isTrue) {
-				return false
-			}
-			if (member.annotations.exists[a | a.declaration.name.equals("Embedded")]) {
-				return false
-			}
-			return true
-		}
-	}
-
-	def isQuery(TransferDataDeclaration member) {
-//		val FetchModifier fetch = member.getModifier(JsldslPackage::eINSTANCE.fetchModifier) as FetchModifier
-
-		if (member instanceof TransferFieldDeclaration) {
-//			if (fetch !== null && fetch.lazy) {
-//				return true
-//			}
-			if (member.annotations.exists[a | a.declaration.name.equals("Requested")]) {
-				return true
-			}
-			return false
-		}
-
-		if (member instanceof TransferRelationDeclaration) {
-//			if (fetch !== null && fetch.eager) {
-//				return false
-//			}
-			if (member.annotations.exists[a | a.declaration.name.equals("Embedded")]) {
-				return false
-			}
-			return true
-		}
+	def isEager(TransferDataDeclaration member) {
+		if (member.getterExpr === null) return false;  // because it has no expression
+		val EagerModifier eagerModifier = member.getModifier(JsldslPackage::eINSTANCE.eagerModifier) as EagerModifier
+		return eagerModifier !== null && eagerModifier.value.isTrue
 	}
 
 	def isQueryCall(Feature feature) {
 		if (feature instanceof MemberReference && (feature as MemberReference).member instanceof EntityMemberDeclaration) {
 			val EntityMemberDeclaration member = (feature as MemberReference).member as EntityMemberDeclaration
-			return member.isQuery
+			if (member.getterExpr === null) return false;
+			return !member.eager
 		}
 		
 		return false
