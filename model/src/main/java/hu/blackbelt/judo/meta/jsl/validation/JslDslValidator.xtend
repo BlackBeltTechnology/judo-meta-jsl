@@ -1925,4 +1925,18 @@ class JslDslValidator extends AbstractJslDslValidator {
     	}
 	}
 
+	@Check
+	def checkMenu(ActorMenuDeclaration menu) {
+		if (menu.referenceType instanceof ViewDeclaration && menu.many) {
+            error("A view type cannot be a collection. Use row type instead.",
+                JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
+                INVALID_DECLARATION)
+		}
+
+		else if (menu.referenceType instanceof RowDeclaration && !menu.many) {
+            error("A row type cannot be a single. Use view type instead.",
+                JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
+                INVALID_DECLARATION)
+		}
+	}
 }
