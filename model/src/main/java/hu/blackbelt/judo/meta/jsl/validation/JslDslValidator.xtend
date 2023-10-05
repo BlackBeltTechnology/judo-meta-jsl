@@ -92,6 +92,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Argument
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
 import hu.blackbelt.judo.meta.jsl.jsldsl.EagerModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.DetailModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.RowsModifier
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -1041,6 +1043,36 @@ class JslDslValidator extends AbstractJslDslValidator {
                 JsldslPackage::eINSTANCE.scaleModifier.name)
         }
     }
+
+	@Check
+	def checkModifierDetail(DetailModifier modifier) {
+		if (!(modifier.eContainer instanceof ActorMenuDeclaration)) {
+			return
+		}
+		
+		val ActorMenuDeclaration menu = modifier.eContainer as ActorMenuDeclaration
+		
+		if (menu.referenceType instanceof ViewDeclaration) {
+            error("Detail modifier cannot be used for View menu.",
+                JsldslPackage::eINSTANCE.detailModifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+	}
+
+	@Check
+	def checkModifierRows(RowsModifier modifier) {
+		if (!(modifier.eContainer instanceof ActorMenuDeclaration)) {
+			return
+		}
+		
+		val ActorMenuDeclaration menu = modifier.eContainer as ActorMenuDeclaration
+		
+		if (menu.referenceType instanceof ViewDeclaration) {
+            error("Rows modifier cannot be used for View menu.",
+                JsldslPackage::eINSTANCE.rowsModifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+	}
 
     @Check
     def checkEnumLiteralMinimum(EnumDeclaration _enum) {
