@@ -20,54 +20,54 @@ class TransferTests {
     @Test
     def void testTransferOk() {
         '''
-            model Test;
-
-            import judo::types;
-
-            enum EN {
-                literal1 = 0;
-                literal2 = 1;
-            }
-
-            entity E1 {
-                identifier String id;
-                field Integer f;
-                field EN en;
-            }
-
-            entity E2 {
-                identifier String id;
-                field Integer f;
-            }
-
-            entity E3 extends E2 {
-                field Integer f2;
-            }
-
-            transfer T1 {
-                field String f;
-                relation T2[] t2;
-
-                constructor {
-                    self.f = "";
-                    self.t2 = E1!all();
-                }
-            }
-
-            transfer T2(E1 e1) {
-                field String f;
-                field Integer f2 <= e1.f;
-                field Integer f3 <=> e1.f;
-                field Integer f4 <= E1!all()!size();
-                field EN en <=> e1.en;
-            }
-
-            transfer T3(E2 e2);
-
-            transfer T4(E3 e3) {
-                field Integer f <= e3.f;
-                field Integer f2 <= e3.f2;
-            }
+			model Test;
+			
+			import judo::types;
+			
+			enum EN {
+			    literal1 = 0;
+			    literal2 = 1;
+			}
+			
+			entity E1 {
+			    identifier String id;
+			    field Integer f;
+			    field EN en;
+			}
+			
+			entity E2 {
+			    identifier String id;
+			    field Integer f;
+			}
+			
+			entity E3 extends E2 {
+			    field Integer f2;
+			}
+			
+			transfer T1 {
+			    field String f;
+			    relation T2[] t2 <= E1!all();
+			
+			    event initialize {
+			        self.f = "";
+			        self.t2 = E1!all();
+			    }
+			}
+			
+			transfer T2(E1 e1) {
+			    field String f;
+			    field Integer f2 <= e1.f;
+			    field Integer f3 <=> e1.f;
+			    field Integer f4 <= E1!all()!size();
+			    field EN en <=> e1.en;
+			}
+			
+			transfer T3(E2 e2);
+			
+			transfer T4(E3 e3) {
+			    field Integer f <= e3.f;
+			    field Integer f2 <= e3.f2;
+			}
 
         '''.parse => [
             assertNoErrors
@@ -185,7 +185,7 @@ class TransferTests {
             transfer T2(E1 e1) {
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
+            m | m.assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, JslDslValidator.INVALID_DECLARATION)
         ]
     }
 
@@ -203,12 +203,12 @@ class TransferTests {
             transfer T1(E1 e1) {
                 field String f;
 
-                constructor {
+                event initialize {
                     self.f = e1.id;
                 }
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferDefault, JslDslValidator.NON_STATIC_EXPRESSION)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferDataAssignment, JslDslValidator.NON_STATIC_EXPRESSION)
         ]
     }
 
@@ -226,12 +226,12 @@ class TransferTests {
             transfer T1(E1 e1) {
                 field String f;
 
-                constructor {
+                event initialize {
                     self.f = 1;
                 }
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferDefault, JslDslValidator.TYPE_MISMATCH)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferDataAssignment, JslDslValidator.TYPE_MISMATCH)
         ]
     }
 
@@ -348,47 +348,6 @@ class TransferTests {
     }
 
     @Test
-    def void testTransferAutomapDuplication() {
-        '''
-            model Test;
-
-            import judo::types;
-
-            entity E1 {
-                identifier String id;
-            }
-
-            transfer A1(E1 e);
-            transfer A2(E1 e);
-        '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferDeclaration, JslDslValidator.DUPLICATE_AUTOMAP)
-        ]
-    }
-
-    @Test
-    def void testTransferMissingAutomap() {
-        '''
-            model Test;
-
-            import judo::types;
-
-            entity E1 {
-                field String f;
-            }
-
-            entity E2 {
-                field E1[] e1list;
-            }
-
-            transfer T1(E1 e1) {};
-
-            transfer T2(E2 e2);
-        '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferDeclaration, JslDslValidator.INVALID_DECLARATION)
-        ]
-    }
-
-    @Test
     def void testTransferUnmappedMaps() {
         '''
             model Test;
@@ -422,10 +381,10 @@ class TransferTests {
             transfer T1 {}
 
             transfer T2 maps E1 as e {
-                relation T1 t1 <=> e.e2;
+                relation T1 t1 <=> e.e2 choices:E1!all();
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_FIELD_MAPPING)
         ]
     }
 
@@ -529,7 +488,7 @@ class TransferTests {
 
             transfer T2(E2 e2);
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, JslDslValidator.INVALID_CHOICES)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
         ]
     }
 
@@ -553,7 +512,7 @@ class TransferTests {
 
             transfer T2(E2 e2);
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, JslDslValidator.INVALID_CHOICES)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
         ]
     }
 
@@ -578,22 +537,22 @@ class TransferTests {
     }
     
     @Test
-    def void testTransferInitializerUnmapped() {
+    def void testTransferFetchUnmapped() {
         '''
             model Test;
 
             import judo::types;
 
             transfer T {
-            	initializer;
+            	event fetch;
             }
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferInitializerDeclaration, JslDslValidator.INVALID_DECLARATION, "Initializer is not allowed in unmapped transfer object.")
+            assertError(JsldslPackage::eINSTANCE.transferFetchDeclaration, JslDslValidator.INVALID_DECLARATION)
         ]
     }
 
     @Test
-    def void testTransferInitializerDuplicated() {
+    def void testTransferBuildDuplicated() {
         '''
 			model Test;
 			
@@ -602,11 +561,11 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				initializer;
-				initializer;
+				event initialize;
+				event initialize;
 			}
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferInitializerDeclaration, JslDslValidator.DUPLICATE_INITIALIZER)
+            assertError(JsldslPackage::eINSTANCE.transferInitializeDeclaration, JslDslValidator.DUPLICATE_EVENT)
         ]
     }
 
@@ -618,10 +577,10 @@ class TransferTests {
             import judo::types;
 
             transfer T {
-            	create;
+            	event create;
             }
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferCreateDeclaration, JslDslValidator.INVALID_DECLARATION, "Create is not allowed in unmapped transfer object.")
+            assertError(JsldslPackage::eINSTANCE.transferCreateDeclaration, JslDslValidator.INVALID_DECLARATION)
         ]
     }
 
@@ -635,11 +594,11 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				create;
-				create;
+				event create;
+				event create;
 			}
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferCreateDeclaration, JslDslValidator.DUPLICATE_CREATE)
+            assertError(JsldslPackage::eINSTANCE.transferCreateDeclaration, JslDslValidator.DUPLICATE_EVENT)
         ]
     }
 
@@ -654,7 +613,7 @@ class TransferTests {
 			entity B {}
 			
 			transfer TA(A a) {
-				create(TB);
+				event create(TB tb);
 			}
 			
 			transfer TB (B b) {}
@@ -674,7 +633,7 @@ class TransferTests {
 			entity B extends A {}
 			
 			transfer TA(A a) {
-				create(TB);
+				event create(TB tb);
 			}
 			
 			transfer TB (B b) {}
@@ -691,10 +650,10 @@ class TransferTests {
             import judo::types;
 
             transfer T {
-            	update;
+            	event update;
             }
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferUpdateDeclaration, JslDslValidator.INVALID_DECLARATION, "Update is not allowed in unmapped transfer object.")
+            assertError(JsldslPackage::eINSTANCE.transferUpdateDeclaration, JslDslValidator.INVALID_DECLARATION)
         ]
     }
 
@@ -708,11 +667,11 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				update;
-				update;
+				event update;
+				event update;
 			}
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferUpdateDeclaration, JslDslValidator.DUPLICATE_UPDATE)
+            assertError(JsldslPackage::eINSTANCE.transferUpdateDeclaration, JslDslValidator.DUPLICATE_EVENT)
         ]
     }
 
@@ -726,7 +685,7 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				update;
+				event update;
 			}
         '''.parse => [
             assertNoErrors
@@ -741,10 +700,10 @@ class TransferTests {
             import judo::types;
 
             transfer T {
-            	delete;
+            	event delete;
             }
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferDeleteDeclaration, JslDslValidator.INVALID_DECLARATION, "Delete is not allowed in unmapped transfer object.")
+            assertError(JsldslPackage::eINSTANCE.transferDeleteDeclaration, JslDslValidator.INVALID_DECLARATION)
         ]
     }
 
@@ -758,11 +717,11 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				delete;
-				delete;
+				event delete;
+				event delete;
 			}
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferDeleteDeclaration, JslDslValidator.DUPLICATE_DELETE)
+            assertError(JsldslPackage::eINSTANCE.transferEventDeclaration, JslDslValidator.DUPLICATE_EVENT)
         ]
     }
 
@@ -776,7 +735,7 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				delete;
+				event delete;
 			}
         '''.parse => [
             assertNoErrors
