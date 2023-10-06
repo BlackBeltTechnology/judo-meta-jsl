@@ -1576,7 +1576,9 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
 
     @Check
-    def checkTransferRelationMaps(TransferRelationDeclaration relation) {
+    def checkTransferChoiceModifier(TransferChoiceModifier modifier) {
+    	val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
+    	
         if (!relation.maps) {
             return
         }
@@ -1584,10 +1586,9 @@ class JslDslValidator extends AbstractJslDslValidator {
         val TransferDeclaration transfer = relation.eContainer as TransferDeclaration
 
         if (transfer.map === null || transfer.map.entity === null) {
-            error("Invalid field mapping. Maps keyword cannot be used in unmapped transfer object.",
-                JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
-                INVALID_FIELD_MAPPING,
-                JsldslPackage::eINSTANCE.transferRelationDeclaration.name)
+            error("Invalid choice modifier. Choice modifier cannot be used in unmapped transfer object.",
+                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
+                INVALID_FIELD_MAPPING)
 
             return;
         }
@@ -1596,20 +1597,18 @@ class JslDslValidator extends AbstractJslDslValidator {
             val TransferDeclaration referenceType = relation.referenceType as TransferDeclaration
 
             if (referenceType.map === null || referenceType.map.entity === null) {
-                error("Invalid field mapping. Maps keyword cannot be used for unmapped field type.",
-                    JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
-                    INVALID_FIELD_MAPPING,
-                    JsldslPackage::eINSTANCE.transferRelationDeclaration.name)
+                error("Invalid choice modifier. Choice modifier cannot be used for unmapped relation type.",
+	                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
+	                INVALID_FIELD_MAPPING)
 
                 return;
             }
         }
 
         if (!(relation.getterExpr instanceof Navigation)) {
-            error("Invalid field mapping. Field mapping must be a navigation.",
-                JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
-                INVALID_FIELD_MAPPING,
-                JsldslPackage::eINSTANCE.transferRelationDeclaration.name)
+            error("Invalid choice modifier. Getter expression must select a stored member of the mapped entity.",
+                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
+                INVALID_FIELD_MAPPING)
 
             return;
         }
@@ -1617,10 +1616,9 @@ class JslDslValidator extends AbstractJslDslValidator {
         val Navigation navigation = relation.getterExpr as Navigation;
 
         if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
-            error("Invalid field mapping. Field mapping must be a navigation.",
-                JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
-                INVALID_FIELD_MAPPING,
-                JsldslPackage::eINSTANCE.transferRelationDeclaration.name)
+            error("Invalid choice modifier. Getter expression must select a stored member of the mapped entity.",
+                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
+                INVALID_FIELD_MAPPING)
 
             return;
         }
@@ -1628,28 +1626,25 @@ class JslDslValidator extends AbstractJslDslValidator {
         val NavigationBaseDeclarationReference navigationBaseDeclarationReference = navigation.base as NavigationBaseDeclarationReference;
 
         if (!(navigationBaseDeclarationReference.reference instanceof EntityMapDeclaration)) {
-            error("Invalid field mapping. Field mapping must be a navigation starting from the mapping field.",
-                JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
-                INVALID_FIELD_MAPPING,
-                JsldslPackage::eINSTANCE.transferRelationDeclaration.name)
+            error("Invalid choice modifier. Getter expression must select a stored member of the mapped entity.",
+                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
+                INVALID_FIELD_MAPPING)
 
             return;
         }
 
         if (navigation.features.size() != 1) {
-            error("Invalid field mapping. Field mapping must select a member of the mapped entity.",
-                JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
-                INVALID_FIELD_MAPPING,
-                JsldslPackage::eINSTANCE.transferRelationDeclaration.name)
+            error("Invalid choice modifier. Getter expression must select a stored member of the mapped entity.",
+                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
+                INVALID_FIELD_MAPPING)
 
             return;
         }
 
         if (!(navigation.features.get(0) instanceof MemberReference)) {
-            error("Invalid field mapping. Field mapping must select a member of the mapped entity.",
-                JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
-                INVALID_FIELD_MAPPING,
-                JsldslPackage::eINSTANCE.transferRelationDeclaration.name)
+            error("Invalid choice modifier. Getter expression must select a stored member of the mapped entity.",
+                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
+                INVALID_FIELD_MAPPING)
 
             return;
         }
@@ -1659,10 +1654,9 @@ class JslDslValidator extends AbstractJslDslValidator {
         if (!(memberReference.member instanceof EntityMemberDeclaration && !(memberReference.member as EntityMemberDeclaration).calculated) &&
             !(memberReference.member instanceof EntityRelationOppositeInjected))
         {
-            error("Invalid field mapping. Field mapping must select a member of the mapped entity.",
-                JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
-                INVALID_FIELD_MAPPING,
-                JsldslPackage::eINSTANCE.transferRelationDeclaration.name)
+            error("Invalid choice modifier. Getter expression must select a stored member of the mapped entity.",
+                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
+                INVALID_FIELD_MAPPING)
 
             return;
         }

@@ -66,9 +66,8 @@ EntityMemberDeclaration
 	  (
 	  	(default ?= ASSIGN defaultExpr = Expression)?
 	  	|
-	  	=> calculated ?= LTE getterExpr = Expression
+	  	=> calculated ?= LTE getterExpr = Expression modifiers += (EagerModifier)*
 	  )
-	  modifiers += (EagerModifier)*
 	  SC
 	  | EntityRelationDeclaration
 	;
@@ -180,7 +179,7 @@ TransferRelationDeclaration
 	  Named
 	  (
 	    reads ?= LTE getterExpr = Expression
-	  	modifiers += (EagerModifier | UpdateModifier | DeleteModifier)*
+	  	modifiers += (EagerModifier | UpdateModifier)*
 	  	|
 	  	maps ?= MAP getterExpr = Expression
 	    modifiers += (EagerModifier | TransferChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
@@ -300,10 +299,10 @@ ViewLinkDeclaration returns TransferRelationDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_LINK required ?= KW_REQUIRED? referenceType = [ViewDeclaration | ModelName] Named
 	  (
-	  	modifiers += (EagerModifier | VisualModifier | TextModifier)*
+	  	modifiers += (VisualModifier | TextModifier)*
 	    | 
 	    reads ?= LTE getterExpr = Expression
-	  	modifiers += (EagerModifier | VisualModifier | TextModifier | UpdateModifier | DeleteModifier)*
+	  	modifiers += (EagerModifier | VisualModifier | TextModifier | UpdateModifier)*
 	  	|
 	  	maps ?= MAP getterExpr = Expression
 	    modifiers += (EagerModifier | VisualModifier | TextModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
@@ -316,13 +315,13 @@ ViewTableDeclaration returns TransferRelationDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
 	  (
-	  	modifiers += (VisualModifier | RowsModifier | DetailModifier)*
+	  	modifiers += (VisualModifier)*
 		|
 		reads ?= LTE getterExpr = Expression
-	  	modifiers += (VisualModifier | RowsModifier | DetailModifier | UpdateModifier | DeleteModifier)*
+	  	modifiers += (EagerModifier | VisualModifier | RowsModifier | DetailModifier | UpdateModifier)*
 		|
 	  	maps ?= MAP getterExpr = Expression
-	  	modifiers += (VisualModifier | RowsModifier | DetailModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  	modifiers += (EagerModifier | VisualModifier | RowsModifier | DetailModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  )  
 	  SC
 	;
@@ -395,7 +394,7 @@ RowColumnDeclaration returns TransferFieldDeclaration
 	: {RowColumnDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_COLUMN referenceType = [PrimitiveDeclaration | ModelName] Named ((maps ?= MAP | reads ?= LTE) getterExpr = Expression)?
-	  modifiers += (LabelModifier | IconModifier | WidthModifier)*
+	  modifiers += (VisualModifier)*
 	  SC
 	;
 
@@ -422,32 +421,15 @@ ActorAccessDeclaration returns TransferRelationDeclaration
 	: {ActorAccessDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_ACCESS referenceType = [TransferDeclaration | ModelName] Cardinality? Named // reads ?= LTE getterExpr = Expression
-//	  modifiers += (CreateModifier | UpdateModifier | DeleteModifier)*
 	  (
 	    reads ?= LTE getterExpr = Expression
-	  	modifiers += (UpdateModifier | DeleteModifier)*
+	  	modifiers += (UpdateModifier)*
 	  	|
 	  	maps ?= MAP getterExpr = Expression
 	    modifiers += (TransferChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
       )?
 	  SC
 	;
-
-//TransferRelationDeclaration
-//	: annotations += AnnotationMark*
-//	  -> KW_RELATION
-//	  required ?= KW_REQUIRED? referenceType = [TransferDeclaration | ModelName] Cardinality?
-//	  Named
-//	  (
-//	    reads ?= LTE getterExpr = Expression
-//	  	modifiers += (EagerModifier | UpdateModifier | DeleteModifier)*
-//	  	|
-//	  	maps ?= MAP getterExpr = Expression
-//	    modifiers += (EagerModifier | TransferChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
-//      )?
-//	  SC
-//	;
-
 
 /****************************
  *	Human
@@ -479,21 +461,18 @@ ActorGroupDeclaration
 ActorMenuDeclaration returns ActorAccessDeclaration
 	: {ActorMenuDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_MENU referenceType = [VisibleDeclaration | ModelName] Cardinality? Named (reads ?= LTE getterExpr = Expression)?
-	  modifiers += (LabelModifier | IconModifier | EnabledModifier | HiddenModifier
-	  			   | ViewChoiceModifier | RowsModifier | DetailModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  -> KW_MENU referenceType = [VisibleDeclaration | ModelName] Cardinality? Named
 	  (
+	  	modifiers += (VisualModifier)*
+		|
 	    reads ?= LTE getterExpr = Expression
-	    modifiers += (LabelModifier | IconModifier | EnabledModifier | HiddenModifier
-	  			   | ViewChoiceModifier | RowsModifier | DetailModifier | CreateModifier | UpdateModifier | DeleteModifier)*
-	  	modifiers += (UpdateModifier | DeleteModifier)*
+	  	modifiers += (VisualModifier | RowsModifier | DetailModifier | UpdateModifier)*
 	  	|
 	  	maps ?= MAP getterExpr = Expression
-	    modifiers += (TransferChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
-      )?
+	    modifiers += (VisualModifier | RowsModifier | DetailModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+      )
 	  SC
 	;
-
  
 /****************************
  *	Error

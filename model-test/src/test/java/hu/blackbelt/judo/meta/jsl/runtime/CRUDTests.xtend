@@ -106,7 +106,7 @@ class CRUDTests {
 			}
 			
 			actor human Actor {
-				menu TA[] talist <= A!all() create:true delete:true update:true;
+				menu TA[] talist <=> A!all() create:true delete:true update:true;
 			}
         '''.parse => [
             assertNoErrors

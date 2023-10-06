@@ -381,10 +381,10 @@ class TransferTests {
             transfer T1 {}
 
             transfer T2 maps E1 as e {
-                relation T1 t1 <=> e.e2;
+                relation T1 t1 <=> e.e2 choices:E1!all();
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_FIELD_MAPPING)
         ]
     }
 
