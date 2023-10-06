@@ -41,7 +41,7 @@ class PrimitiveDefaultValuesTests {
                 field Bool boolAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'boolAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'boolAttr'.")
         ]
     }
 
@@ -68,7 +68,7 @@ class PrimitiveDefaultValuesTests {
                 field String stringAttr = 123;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'stringAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'stringAttr'.")
         ]
     }
 
@@ -95,7 +95,7 @@ class PrimitiveDefaultValuesTests {
                 field Integer intAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'intAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'intAttr'.")
         ]
     }
 
@@ -122,7 +122,7 @@ class PrimitiveDefaultValuesTests {
                 field Decimal decimalAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'decimalAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'decimalAttr'.")
         ]
     }
 
@@ -149,7 +149,7 @@ class PrimitiveDefaultValuesTests {
                 field Date dateAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'dateAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'dateAttr'.")
         ]
     }
 
@@ -176,7 +176,7 @@ class PrimitiveDefaultValuesTests {
                 field Time timeAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'timeAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'timeAttr'.")
         ]
     }
 
@@ -203,7 +203,7 @@ class PrimitiveDefaultValuesTests {
                 field Timestamp timestampAttr = "hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'timestampAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'timestampAttr'.")
         ]
     }
 
@@ -299,14 +299,25 @@ class PrimitiveDefaultValuesTests {
             }
 
             error ErrorFields {
-                field Bool a = true;
-                field Integer b = 3223;
-                field Decimal b2 = 3223.123;
-                field String c = "123";
-                field String c2 = r"123";
-                field Date d = `2020-01-12`;
-                field Time e = `22:45:22`;
-                field Timestamp f = `2020-01-12T12:12:12.000Z`;
+                field Bool a;
+                field Integer b;
+                field Decimal b2;
+                field String c;
+                field String c2;
+                field Date d;
+                field Time e;
+                field Timestamp f;
+                
+                event initialize {
+                    self.a = true;
+                    self.b = 3223;
+                    self.b2 = 3223.123;
+                    self.c = "123";
+                    self.c2 = r"123";
+                    self.d = `2020-01-12`;
+                    self.e = `22:45:22`;
+                    self.f = `2020-01-12T12:12:12.000Z`;
+                }
             }
 
             entity EntityWithPrimitiveDefaultExpressions {
@@ -319,7 +330,6 @@ class PrimitiveDefaultValuesTests {
                 field Timestamp timestampAttr = Timestamp!now();
                 field Time timeAttr = Time!of(hour = 23, minute = 59, second = 59);
             }
-
         '''.parse => [
             assertNoErrors
         ]
