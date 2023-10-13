@@ -16,12 +16,14 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.QueryDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
-import hu.blackbelt.judo.meta.jsl.jsldsl.EntityStoredRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 
 @Singleton
 class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy {
 
     @Inject extension IQualifiedNameProvider
+    @Inject extension JslDslModelExtension
 
     override createEObjectDescriptions(EObject eObject, IAcceptor<IEObjectDescription> acceptor) {
 
@@ -73,13 +75,14 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
                                         )
                                     )
 
-                                    if (m instanceof EntityStoredRelationDeclaration) {
-                                        if ((m as EntityStoredRelationDeclaration).opposite instanceof EntityRelationOppositeInjected) {
-                                            val fqOpposite = (m as EntityStoredRelationDeclaration).opposite.fullyQualifiedName
+                                    if (m instanceof EntityRelationDeclaration && !m.calculated) {
+                                        if ((m as EntityRelationDeclaration).opposite instanceof EntityRelationOppositeInjected) {
+                                            val fqOpposite = (m as EntityRelationDeclaration).opposite.fullyQualifiedName
+                                            
                                             if (fqOpposite !== null) {
                                                 acceptor.accept(
                                                     EObjectDescription::create(
-                                                        fqOpposite, (m as EntityStoredRelationDeclaration).opposite, (m as EntityStoredRelationDeclaration).opposite.indexInfo(m)
+                                                        fqOpposite, (m as EntityRelationDeclaration).opposite, (m as EntityRelationDeclaration).opposite.indexInfo(m)
                                                     )
                                                 )
                                             }
@@ -157,9 +160,9 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
                  }
              }
 
-             EntityStoredRelationDeclaration: {
-                 if ((object as EntityStoredRelationDeclaration).opposite !== null && (object as EntityStoredRelationDeclaration).opposite instanceof EntityRelationOppositeInjected) {
-                     userData.put("oppositeName", ((object as EntityStoredRelationDeclaration).opposite as EntityRelationOppositeInjected).name)
+             EntityRelationDeclaration: {
+                 if ((object as EntityRelationDeclaration).opposite !== null && (object as EntityRelationDeclaration).opposite instanceof EntityRelationOppositeInjected) {
+                     userData.put("oppositeName", ((object as EntityRelationDeclaration).opposite as EntityRelationOppositeInjected).name)
                  }
              }
          }
