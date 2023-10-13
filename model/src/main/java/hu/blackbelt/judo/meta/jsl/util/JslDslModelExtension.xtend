@@ -53,6 +53,13 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Modifiable
 import hu.blackbelt.judo.meta.jsl.jsldsl.Modifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EagerModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.InputModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferChoiceModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget
 
 @Singleton
 class JslDslModelExtension {
@@ -129,6 +136,85 @@ class JslDslModelExtension {
         }
         collected
     }
+
+	def opposite(EntityRelationDeclaration it) {
+		it.getModifier(JsldslPackage::eINSTANCE.entityRelationOpposite) as EntityRelationOpposite
+	}
+
+	def isCalculated(EntityMemberDeclaration it) {
+		it.getterExpr !== null
+	}
+
+	def defaultExpr(EntityMemberDeclaration it) {
+		return (it.getModifier(JsldslPackage::eINSTANCE.defaultModifier) as DefaultModifier)?.expression
+	}
+
+	def isReads(TransferDataDeclaration it) {
+		if (it instanceof TransferFieldDeclaration) {
+			val InputModifier input = it.getModifier(JsldslPackage::eINSTANCE.inputModifier) as InputModifier
+			return it.getterExpr !== null && (input === null || !input.value.isTrue) 
+		}
+
+		else if (it instanceof TransferRelationDeclaration) {
+			val TransferChoiceModifier choice = it.getModifier(JsldslPackage::eINSTANCE.transferChoiceModifier) as TransferChoiceModifier
+			return it.getterExpr !== null && choice === null 
+		}
+	}
+
+	def isMaps(TransferDataDeclaration it) {
+		if (it instanceof TransferRelationDeclaration) {
+			val TransferChoiceModifier choice = it.getModifier(JsldslPackage::eINSTANCE.transferChoiceModifier) as TransferChoiceModifier
+			return it.getterExpr !== null && choice !== null 
+		}
+
+		else if (it instanceof TransferFieldDeclaration) {
+			val InputModifier input = it.getModifier(JsldslPackage::eINSTANCE.inputModifier) as InputModifier
+			return it.getterExpr !== null && (input !== null && input.value.isTrue) 
+		}
+	}
+
+    def NavigationTarget getMappedMember(TransferDataDeclaration member) {
+        if (!(member.getterExpr instanceof Navigation)) {
+            return null;
+        }
+
+        val Navigation navigation = member.getterExpr as Navigation;
+
+        if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
+            return null;
+        }
+
+        val NavigationBaseDeclarationReference navigationBaseDeclarationReference = navigation.base as NavigationBaseDeclarationReference;
+
+        if (!(navigationBaseDeclarationReference.reference instanceof EntityMapDeclaration)) {
+            return null;
+        }
+
+        if (navigation.features.size() != 1) {
+            return null;
+        }
+
+        if (!(navigation.features.get(0) instanceof MemberReference)) {
+            return null;
+        }
+		
+		val NavigationTarget navigationTarget = (navigation.features.get(0) as MemberReference).member
+		
+		if (navigationTarget instanceof EntityRelationOpposite) {
+			return navigationTarget
+		}
+
+		if (navigationTarget instanceof EntityMemberDeclaration) {
+			val EntityMemberDeclaration entityMember = navigationTarget as EntityMemberDeclaration
+			
+			if (!entityMember.calculated) {
+				return navigationTarget
+			}
+		}
+		
+        return null
+    }
+
 
     def asEntityRelationOppositeReferenced(EntityRelationOpposite it) {
         if (it instanceof EntityRelationOppositeReferenced) {
@@ -335,10 +421,6 @@ class JslDslModelExtension {
     def Collection<TransferDeclaration> transferDeclarations(ModelDeclaration it) {
         declarations.filter[d | d instanceof TransferDeclaration && !(d instanceof ActorDeclaration)].map[d | d as TransferDeclaration].toList
     }
-
-//    def Collection<SimpleTransferDeclaration> simpleTransferDeclarations(ModelDeclaration it) {
-//        declarations.filter[d | d instanceof SimpleTransferDeclaration].map[d | d as SimpleTransferDeclaration].toList
-//    }
 
     def Collection<ViewDeclaration> viewDeclarations(ModelDeclaration it) {
         declarations.filter[d | d instanceof ViewDeclaration].map[d | d as ViewDeclaration].toList

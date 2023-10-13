@@ -45,21 +45,16 @@ class TransferTests {
 			}
 			
 			transfer T1 {
-			    field String f;
+			    field String f default:"";
 			    relation T2[] t2 <= E1!all();
-			
-			    event initialize {
-			        self.f = "";
-			        self.t2 = E1!all();
-			    }
 			}
 			
 			transfer T2(E1 e1) {
 			    field String f;
 			    field Integer f2 <= e1.f;
-			    field Integer f3 <=> e1.f;
+			    field Integer f3 <= e1.f input:true;
 			    field Integer f4 <= E1!all()!size();
-			    field EN en <=> e1.en;
+			    field EN en <= e1.en input:true;
 			}
 			
 			transfer T3(E2 e2);
@@ -137,7 +132,7 @@ class TransferTests {
 
             transfer T2(E2 e2) {
                 relation T1 t1r <= e2.e1;
-                relation T1 t1m <=> e2.e1 choices:E1!all();
+                relation T1 t1m <= e2.e1 choices:E1!all();
             }
         '''.parse => [
             assertNoErrors
@@ -157,7 +152,7 @@ class TransferTests {
             }
 
             transfer Mapped maps Entity as e {
-                field Integer mappedIdentifier <=> e.identifier;
+                field Integer mappedIdentifier <= e.identifier input:true;
             }
         '''.parse => [
             assertNoErrors
@@ -201,14 +196,10 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                field String f;
-
-                event initialize {
-                    self.f = e1.id;
-                }
+                field String f default:e1.id;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferDataAssignment, JslDslValidator.NON_STATIC_EXPRESSION)
+            m | m.assertError(JsldslPackage::eINSTANCE.defaultModifier, JslDslValidator.NON_STATIC_EXPRESSION)
         ]
     }
 
@@ -224,14 +215,10 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                field String f;
-
-                event initialize {
-                    self.f = 1;
-                }
+                field String f default:1;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferDataAssignment, JslDslValidator.TYPE_MISMATCH)
+            m | m.assertError(JsldslPackage::eINSTANCE.defaultModifier, JslDslValidator.TYPE_MISMATCH)
         ]
     }
 
@@ -266,7 +253,7 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                field Integer f <=> e1.f;
+                field Integer f <= e1.f input:true;
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
@@ -285,10 +272,10 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                field String f <=> E1!any().f;
+                field String f <= E1!any().f input:true;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
+            m | m.assertError(JsldslPackage::eINSTANCE.inputModifier, JslDslValidator.INVALID_DECLARATION)
         ]
     }
 
@@ -357,10 +344,10 @@ class TransferTests {
             entity E {}
 
             transfer T {
-                field Integer i <=> E!all()!size();
+                field Integer i <= E!all()!size() input:true;
             };
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.INVALID_FIELD_MAPPING,"Invalid field mapping. Maps keyword cannot be used in unmapped transfer object.")
+            m | m.assertError(JsldslPackage::eINSTANCE.inputModifier, JslDslValidator.INVALID_DECLARATION)
         ]
     }
 
@@ -381,10 +368,10 @@ class TransferTests {
             transfer T1 {}
 
             transfer T2 maps E1 as e {
-                relation T1 t1 <=> e.e2 choices:E1!all();
+                relation T1 t1 <= e.e2 choices:E1!all();
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_FIELD_MAPPING)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
         ]
     }
 
@@ -408,7 +395,7 @@ class TransferTests {
                 relation T1 t1 <= e.e2;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, JslDslValidator.TYPE_MISMATCH)
         ]
     }
 
@@ -461,7 +448,7 @@ class TransferTests {
             transfer T1(E1 e1);
 
             transfer T2(E2 e2) {
-                field T1 t1r <=> e2.e0;
+                field T1 t1r <= e2.e0 input:true;
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
@@ -483,7 +470,7 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                relation T2 t2 <=> e1.e2 choices:E2!any();
+                relation T2 t2 <= e1.e2 choices:E2!any();
             }
 
             transfer T2(E2 e2);
@@ -507,7 +494,7 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                relation T2 t2 <=> e1.e2 choices:E2!any();
+                relation T2 t2 <= e1.e2 choices:E2!any();
             }
 
             transfer T2(E2 e2);
@@ -528,8 +515,8 @@ class TransferTests {
             }
 
             transfer T(E e) {
-                field Integer f1 <=> e.f;
-                field Integer f2 <=> e.f;
+                field Integer f1 <= e.f input:true;
+                field Integer f2 <= e.f input:true;
             }
         '''.parse => [
             m | m.assertWarning(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.DUPLICATE_FIELD_MAPPING)

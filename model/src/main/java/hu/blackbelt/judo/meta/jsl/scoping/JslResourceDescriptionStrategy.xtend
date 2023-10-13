@@ -17,11 +17,13 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeInjected
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 
 @Singleton
 class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy {
 
     @Inject extension IQualifiedNameProvider
+    @Inject extension JslDslModelExtension
 
     override createEObjectDescriptions(EObject eObject, IAcceptor<IEObjectDescription> acceptor) {
 
@@ -76,6 +78,7 @@ class JslResourceDescriptionStrategy extends DefaultResourceDescriptionStrategy 
                                     if (m instanceof EntityRelationDeclaration && !m.calculated) {
                                         if ((m as EntityRelationDeclaration).opposite instanceof EntityRelationOppositeInjected) {
                                             val fqOpposite = (m as EntityRelationDeclaration).opposite.fullyQualifiedName
+                                            
                                             if (fqOpposite !== null) {
                                                 acceptor.accept(
                                                     EObjectDescription::create(

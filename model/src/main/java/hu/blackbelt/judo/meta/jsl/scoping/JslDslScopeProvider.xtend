@@ -52,7 +52,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewActionDeclaration
 import org.eclipse.emf.ecore.EClassifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
@@ -65,9 +64,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Argument
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.ParameterDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.FeatureCall
-import hu.blackbelt.judo.meta.jsl.jsldsl.RedirectModifier
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -100,7 +96,6 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
             Argument case ref == JsldslPackage::eINSTANCE.argument_Declaration: return scope.scope_Containments((context.eContainer as FunctionOrQueryCall).declaration, ref)
 
-            TransferDataReference case ref == JsldslPackage::eINSTANCE.transferDataReference_Declaration: return scope.scope_AllContainments(context.eContainer.eContainer.eContainer, ref)
             AnnotationMark case ref == JsldslPackage::eINSTANCE.annotationArgument_Declaration: return scope.scope_Containments(context.declaration, ref)
 
             AnnotationArgument case ref == JsldslPackage::eINSTANCE.annotationArgument_Declaration && context.eContainer instanceof AnnotationMark: return scope.scope_Containments((context.eContainer as AnnotationMark).declaration, ref)
@@ -255,13 +250,13 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
     def getEntityRelationOppositeInjected(IScope parent, EntityDeclaration entity, EReference reference) {
         val scope = new AtomicReference<IScope>(parent)
-        entity.getVisibleEObjectDescriptions(JsldslPackage::eINSTANCE.entityRelationDeclaration)
-            .filter[d | d.getUserData("oppositeName") !== null]
-            .filter[d | entity?.fullyQualifiedName?.toString?.equals(entity?.getResolvedProxy(d)?.referenceTypeFromIndex?.fullyQualifiedName?.toString)]
-//            .filter[d | entity.fullyQualifiedName.toString.equals((entity.getResolvedProxy(d) as EntityRelationDeclaration).referenceType.fullyQualifiedName.toString)]
+
+        entity.getVisibleEObjectDescriptions(JsldslPackage::eINSTANCE.entityRelationOppositeInjected)
+            .filter[d | entity?.fullyQualifiedName?.equals(entity?.getResolvedProxy(d)?.eContainer.referenceTypeFromIndex?.fullyQualifiedName)]
             .forEach[d | {
-                scope.set(getLocalElementsScope(scope.get, entity.getResolvedProxy(d), reference))
+                scope.set(getLocalElementsScope(scope.get, entity.getResolvedProxy(d).eContainer, reference))
             }]
+
         scope.get
 
     }

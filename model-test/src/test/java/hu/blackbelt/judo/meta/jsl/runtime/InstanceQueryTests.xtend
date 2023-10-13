@@ -85,7 +85,7 @@ class InstanceQueryTests {
 			
 			// MyEntity
 			entity MyEntity {
-			    field Timestamp fldCreated = Timestamp!now();
+			    field Timestamp fldCreated default:Timestamp!now();
 			    field Boolean   fldBool;
 			    field Date      fldDate;
 			    field Time      fldTime;
@@ -97,7 +97,7 @@ class InstanceQueryTests {
 			
 			// Parent entity that contains the instance queries
 			entity ParentEntity {
-			    field Timestamp created = Timestamp!now();
+			    field Timestamp created default:Timestamp!now();
 			
 			    // relations
 			    relation MyEntity   firstEntity;
@@ -241,7 +241,7 @@ class InstanceQueryTests {
 			
 			// MyEntity
 			entity MyEntity {
-			    field Timestamp fldCreated = Timestamp!now();
+			    field Timestamp fldCreated default:Timestamp!now();
 			    field Boolean   fldBool;
 			    field Date      fldDate;
 			    field Time      fldTime;
@@ -253,7 +253,7 @@ class InstanceQueryTests {
 			
 			// Parent entity that contains the instance queries
 			entity ParentEntity {
-			    field Timestamp created = Timestamp!now();
+			    field Timestamp created default:Timestamp!now();
 			
 			    // relations
 			    relation MyEntity   firstEntity;
@@ -372,7 +372,7 @@ class InstanceQueryTests {
 			
 			// MyEntity
 			entity MyEntity {
-			    field Timestamp fldCreated = Timestamp!now();
+			    field Timestamp fldCreated default:Timestamp!now();
 			    field Boolean   fldBool;
 			    field Date      fldDate;
 			    field Time      fldTime;
@@ -384,7 +384,7 @@ class InstanceQueryTests {
 			
 			// Parent entity that contains the instance queries
 			entity ParentEntity {
-			    field Timestamp created = Timestamp!now();
+			    field Timestamp created default:Timestamp!now();
 			
 			    // relations
 			    relation MyEntity   firstEntity;

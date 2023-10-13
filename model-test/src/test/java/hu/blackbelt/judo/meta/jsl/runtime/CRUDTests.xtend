@@ -18,31 +18,6 @@ class CRUDTests {
     @Inject extension ValidationTestHelper
 
     @Test
-    def void testCreateOnReadError() {
-        '''
-			model Test;
-			
-			import judo::types;
-			
-			entity A {
-			}
-			
-			entity B {
-				relation A[] alist;
-			}
-			
-			transfer TA(A a) {
-			}
-			
-			transfer TB(B b) {
-				relation TA[] talist <= b.alist create:true;
-			}
-        '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
-        ]
-    }
-
-    @Test
     def void testTransferCrudOk() {
         '''
 			model Test;
@@ -60,7 +35,7 @@ class CRUDTests {
 			}
 			
 			transfer TB(B b) {
-				relation TA[] talist <=> b.alist create:true delete:true update:true;
+				relation TA[] talist <= b.alist choices:A!all() create:true delete:true update:true;
 			}
         '''.parse => [
             assertNoErrors
@@ -88,7 +63,7 @@ class CRUDTests {
 				relation TA[] talist <= b.alist;
 			}
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, JslDslValidator.INVALID_FIELD_MAPPING)
+            assertError(JsldslPackage::eINSTANCE.transferRelationDeclaration, JslDslValidator.TYPE_MISMATCH)
         ]
     }
 
@@ -106,7 +81,7 @@ class CRUDTests {
 			}
 			
 			actor human Actor {
-				menu TA[] talist <=> A!all() create:true delete:true update:true;
+				menu TA[] talist <= A!all() create:true delete:true update:true;
 			}
         '''.parse => [
             assertNoErrors

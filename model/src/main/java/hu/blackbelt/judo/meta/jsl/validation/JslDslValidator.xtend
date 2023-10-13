@@ -79,7 +79,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Modifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.MinSizeModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.ScaleModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataAssignment
 import hu.blackbelt.judo.meta.jsl.jsldsl.IdentityModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferEventDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferChoiceModifier
@@ -94,6 +93,12 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
 import hu.blackbelt.judo.meta.jsl.jsldsl.EagerModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.DetailModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowsModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.InputModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.DeleteModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateModifier
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -249,7 +254,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         visited.remove(annotation)
     }
 
-    @Check
+    @Check(CheckType::NORMAL)
     def checkCyclicAnnotation(AnnotationDeclaration annotation) {
         if (annotation.annotations !== null) {
             try {
@@ -284,7 +289,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         visited.remove(member)
     }
 
-	@Check
+    @Check(CheckType::NORMAL)
 	def checkCyclicEntityRequired(EntityMemberDeclaration member) {
 		if (!(member.referenceType instanceof EntityDeclaration) || !member.required) {
 			return
@@ -322,7 +327,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         visited.remove(member)
     }
 
-	@Check
+    @Check(CheckType::NORMAL)
 	def checkCyclicEagerEntity(EntityMemberDeclaration member) {
 		if (!(member.referenceType instanceof EntityDeclaration) || !member.eager) {
 			return
@@ -360,7 +365,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         visited.remove(relation)
     }
 
-	@Check
+    @Check(CheckType::NORMAL)
 	def checkCyclicEagerTransfer(TransferRelationDeclaration relation) {
 		if (!relation.eager) {
 			return
@@ -416,7 +421,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         visited.remove(expression)
     }
 
-    @Check
+    @Check(CheckType::NORMAL)
     def checkCyclicDerivedExpression(EntityMemberDeclaration member) {
     	if (!member.calculated) return;
     	
@@ -433,7 +438,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
+    @Check(CheckType::NORMAL)
     def checkCyclicStaticQueryExpression(QueryDeclaration query) {
         if (query.getterExpr !== null) {
             try {
@@ -444,23 +449,6 @@ class JslDslValidator extends AbstractJslDslValidator {
                     JsldslPackage::eINSTANCE.queryDeclaration_GetterExpr,
                     EXPRESSION_CYCLE,
                     query.name
-                )
-                return
-            }
-        }
-    }
-
-    @Check
-    def checkSelfInMemberDefaultExpression(EntityMemberDeclaration member) {
-    	if (member.calculated) return;
-    	
-        if (member.defaultExpr !== null) {
-            if (!this.isStaticExpression(member.defaultExpr)) {
-                error(
-                    "Self is not allowed in default expression at '" + member.name + "'.",
-                    JsldslPackage::eINSTANCE.entityMemberDeclaration_DefaultExpr,
-                    SELF_NOT_ALLOWED,
-                    member.name
                 )
                 return
             }
@@ -482,7 +470,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
+    @Check(CheckType::NORMAL)
     def checkInvalidFunctionDeclaration(FunctionDeclaration functionDeclaration) {
         val ModelDeclaration modelDeclaration = functionDeclaration.eContainer as ModelDeclaration
         if (!modelDeclaration.fullyQualifiedName.equals("judo::functions")) {
@@ -493,7 +481,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
+    @Check(CheckType::NORMAL)
     def checkInvalidLambdaDeclaration(LambdaDeclaration lambdaDeclaration) {
         val ModelDeclaration modelDeclaration = lambdaDeclaration.eContainer as ModelDeclaration
         if (!modelDeclaration.fullyQualifiedName.equals("judo::functions")) {
@@ -504,7 +492,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
+    @Check(CheckType::NORMAL)
     def checkImportAlias(ModelImportDeclaration modelImport) {
         if (modelImport.alias !== null) {
             if ((modelImport.eContainer as ModelDeclaration).imports.filter[i | i.model.name.toLowerCase.equals(modelImport.alias.toLowerCase)].size > 0) {
@@ -523,7 +511,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
+    @Check(CheckType::NORMAL)
     def checkSelfImport(ModelImportDeclaration modelImport) {
         //System.out.println("checkSelfImport: " + modelImport.importedNamespace + " " + modelImport.eContainer().fullyQualifiedName.toString("::"))
 
@@ -543,7 +531,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
+    @Check(CheckType::NORMAL)
     def checkHiddenDeclaration(Declaration declaration) {
         for (importDeclaration : (declaration.eContainer as ModelDeclaration).imports.filter[i | i.alias === null]) {
             if (importDeclaration.model.declarations.exists[d | d.name.equals(declaration.name)]) {
@@ -805,9 +793,8 @@ class JslDslValidator extends AbstractJslDslValidator {
             // System.out.println(" -- " + relation + " --- " + relation.opposite?.oppositeType?.opposite?.oppositeType)
             if (relation !== relation.opposite?.oppositeType?.opposite?.oppositeType) {
                 error("The relation's opposite does not match '" + relation.opposite.oppositeType.name + "'.",
-                    JsldslPackage::eINSTANCE.entityRelationDeclaration_Opposite,
-                    OPPOSITE_TYPE_MISMATH,
-                    relation.name)
+                    JsldslPackage::eINSTANCE.entityRelationOpposite.getEStructuralFeature("ID"),
+                    OPPOSITE_TYPE_MISMATH)
             }
         }
 
@@ -819,14 +806,13 @@ class JslDslValidator extends AbstractJslDslValidator {
             if (!relationReferencedBack.empty) {
                 error("The relation does not declare an opposite relation, but the following relations refer to this relation as opposite: " +
                     relationReferencedBack.map[r | "'" + r.eContainer.fullyQualifiedName.toString("::") + "#" + r.name + "'"].join(", "),
-                    JsldslPackage::eINSTANCE.entityRelationDeclaration_Opposite,
-                    OPPOSITE_TYPE_MISMATH,
-                    relation.name)
+                    JsldslPackage::eINSTANCE.entityRelationOpposite.getEStructuralFeature("ID"),
+                    OPPOSITE_TYPE_MISMATH)
             }
         }
     }
 
-    @Check
+    @Check(CheckType::NORMAL)
     def checkCycleInInheritence(EntityDeclaration entity) {
         // System.out.println(" -- " + relation + " --- Referenced back: " + relationReferencedBack.map[r | r.eContainer.fullyQualifiedName + "#" + r.name].join(", "))
 
@@ -1261,45 +1247,97 @@ class JslDslValidator extends AbstractJslDslValidator {
         return retValue;
     }
 
+	@Check
+	def checkDefaultModifier(DefaultModifier modifier) {
+		if (modifier.expression === null) {
+			return
+		}
+		
+		if (modifier.eContainer instanceof EntityMemberDeclaration) {
+			val EntityMemberDeclaration member = modifier.eContainer as EntityMemberDeclaration
+
+	        if (!modifier.expression.isStaticExpression()) {
+	            error("Default expression cannot contain 'self'.",
+	                JsldslPackage::eINSTANCE.defaultModifier_Expression,
+	                SELF_NOT_ALLOWED)
+	        }
+			
+	        if (member.calculated) {
+	            error("Calculated entity member cannot have default value.",
+	                JsldslPackage::eINSTANCE.defaultModifier_Expression,
+	                INVALID_DECLARATION)
+	        }
+
+	    	if (member instanceof EntityFieldDeclaration && member.referenceType instanceof EntityDeclaration) {
+	            error("A composition cannot have default value.",
+	                JsldslPackage::eINSTANCE.defaultModifier_Expression,
+	                INVALID_DECLARATION)
+	    	}
+
+	        if (!TypeInfo.getTargetType(member).isCompatible(TypeInfo.getTargetType(modifier.expression))) {
+	            error("Type mismatch. Default value does not match field type.",
+	                JsldslPackage::eINSTANCE.defaultModifier_Expression,
+	                TYPE_MISMATCH)
+	        }
+		}
+
+		else if (modifier.eContainer instanceof TransferDataDeclaration) {
+			val TransferDataDeclaration member = modifier.eContainer as TransferDataDeclaration
+
+	        if (!modifier.expression.isStaticExpression()) {
+	            error("Default expression cannot contain mapping field.",
+	                JsldslPackage::eINSTANCE.defaultModifier_Expression,
+	                NON_STATIC_EXPRESSION)
+	        }
+			
+			if (member.getterExpr !== null && member.mappedMember === null) {
+	            error("Getter expression must select a stored member of the mapped entity.",
+	                JsldslPackage::eINSTANCE.defaultModifier_Expression,
+	                INVALID_DECLARATION)
+			}
+
+	        if (!TypeInfo.getTargetType(member).isCompatible(TypeInfo.getTargetType(modifier.expression))) {
+	            error("Type mismatch. Default value does not match field type.",
+	                JsldslPackage::eINSTANCE.defaultModifier_Expression,
+	                TYPE_MISMATCH)
+	        }
+		}
+	}
+
+	@Check
+	def checkInputModifier(InputModifier modifier) {
+		val TransferDataDeclaration member = modifier.eContainer as TransferDataDeclaration
+		
+		if (member.getterExpr !== null && member.mappedMember === null) {
+            error("Invalid input modifier. Getter expression must select a stored member of the mapped entity.",
+                JsldslPackage::eINSTANCE.inputModifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+	}
+
     @Check
-    def checkTransferDefault(TransferDataAssignment assignment) {
-        if (assignment.leftValue === null || assignment.rightValue === null) {
-            return
+	def checkTransferChoice(TransferChoiceModifier choice) {
+		var TransferRelationDeclaration relation = choice.eContainer as TransferRelationDeclaration
+		
+        if (!TypeInfo.getTargetType(relation).isCompatibleCollection(TypeInfo.getTargetType(choice.expression))) {
+            error("Invalid choices modifier. Choices must return compatible collection with field type.",
+                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
+                INVALID_CHOICES)
         }
 
-        try {
-            if (assignment.rightValue !== null) {
-                if (!this.isStaticExpression(assignment.rightValue)) {
-                    error(
-                        "Default value expression must be static, it cannot contain mapping field.",
-                        JsldslPackage::eINSTANCE.transferDataAssignment_RightValue,
-                        NON_STATIC_EXPRESSION
-                    )
-                    return
-                }
-            }
+		if (relation.getterExpr !== null && relation.mappedMember === null) {
+            error("Invalid choices modifier. Getter expression must select a stored member of the mapped entity.",
+                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
+                INVALID_CHOICES)
+		}
+	}
 
-            if (!TypeInfo.getTargetType(assignment.leftValue.declaration).isCompatible(TypeInfo.getTargetType(assignment.rightValue))) {
-                error("Type mismatch. Default value does not match field type.",
-                    JsldslPackage::eINSTANCE.transferDataAssignment_RightValue,
-                    TYPE_MISMATCH)
-            }
-        } catch (IllegalArgumentException illegalArgumentException) {
-            return
-        }
-    }
 
     @Check
     def checkTransferField(TransferFieldDeclaration field) {
         try {
-            if (field.maps && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.getterExpr))) {
-                error("Type mismatch. Mapping expression value does not match field type at '" + field.name + "'.",
-                    JsldslPackage::eINSTANCE.transferDataDeclaration_GetterExpr,
-                    TYPE_MISMATCH)
-            }
-
-            if (field.reads && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.getterExpr))) {
-                error("Type mismatch. Read expression value does not match field type at '" + field.name + "'.",
+            if (field.getterExpr !== null && !TypeInfo.getTargetType(field).isCompatible(TypeInfo.getTargetType(field.getterExpr))) {
+                error("Type mismatch. Getter expression value does not match field type at '" + field.name + "'.",
                     JsldslPackage::eINSTANCE.transferDataDeclaration_GetterExpr,
                     TYPE_MISMATCH)
             }
@@ -1323,14 +1361,8 @@ class JslDslValidator extends AbstractJslDslValidator {
     	}
 
         try {
-            if (relation.maps && !TypeInfo.getTargetType(relation).isCompatible(TypeInfo.getTargetType(relation.getterExpr))) {
-                error("Type mismatch. Mapping expression value does not match relation type at '" + relation.name + "'.",
-                    JsldslPackage::eINSTANCE.transferDataDeclaration_GetterExpr,
-                    TYPE_MISMATCH)
-            }
-
-            if (relation.reads && !TypeInfo.getTargetType(relation).isCompatible(TypeInfo.getTargetType(relation.getterExpr))) {
-                error("Type mismatch. Read expression value does not match relation type at '" + relation.name + "'.",
+            if (relation.getterExpr !== null && !TypeInfo.getTargetType(relation).isCompatible(TypeInfo.getTargetType(relation.getterExpr))) {
+                error("Type mismatch. Getter expression value does not match relation type at '" + relation.name + "'.",
                     JsldslPackage::eINSTANCE.transferDataDeclaration_GetterExpr,
                     TYPE_MISMATCH)
             }
@@ -1349,7 +1381,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
             if (member.defaultExpr !== null && !memberType.isCompatible(exprType)) {
                 error("Type mismatch. Default value expression does not match field type at '" + member.name + "'.",
-                    JsldslPackage::eINSTANCE.entityMemberDeclaration_DefaultExpr,
+                    JsldslPackage::eINSTANCE.entityMemberDeclaration.getEStructuralFeature("ID"),
                     TYPE_MISMATCH)
             }
         } catch (IllegalArgumentException illegalArgumentException) {
@@ -1364,7 +1396,7 @@ class JslDslValidator extends AbstractJslDslValidator {
         try {
             if (member.defaultExpr !== null && !TypeInfo.getTargetType(member).isCompatible(TypeInfo.getTargetType(member.defaultExpr))) {
                 error("Type mismatch. Default value expression does not match relation type at '" + member.name + "'.",
-                    JsldslPackage::eINSTANCE.entityMemberDeclaration_DefaultExpr,
+                    JsldslPackage::eINSTANCE.entityMemberDeclaration.getEStructuralFeature("ID"),
                     TYPE_MISMATCH)
             }
         } catch (IllegalArgumentException illegalArgumentException) {
@@ -1441,237 +1473,6 @@ class JslDslValidator extends AbstractJslDslValidator {
                 JsldslPackage::eINSTANCE.guardModifier.name)
         }
     }
-
-    @Check
-    def checkTransferFieldReads(TransferFieldDeclaration field) {
-        if (!field.reads) {
-            return
-        }
-
-        if (field.referenceType !== null && field.referenceType instanceof TransferDeclaration) {
-            val TransferDeclaration referenceType = field.referenceType as TransferDeclaration
-
-            if (referenceType.map === null || referenceType.map.entity === null) {
-                error("Invalid field mapping. Reads keyword cannot be used for unmapped field type.",
-                    JsldslPackage::eINSTANCE.transferFieldDeclaration_ReferenceType,
-                    INVALID_FIELD_MAPPING,
-                    JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
-
-                return;
-            }
-        }
-    }
-
-    @Check
-    def checkTransferRelationReads(TransferRelationDeclaration relation) {
-        if (!relation.reads) {
-            return
-        }
-
-        if (relation.referenceType !== null && relation.referenceType instanceof TransferDeclaration) {
-            val TransferDeclaration referenceType = relation.referenceType as TransferDeclaration
-
-            if (referenceType.map === null || referenceType.map.entity === null) {
-                error("Invalid field mapping. Reads keyword cannot be used for unmapped field type.",
-                    JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
-                    INVALID_FIELD_MAPPING,
-                    JsldslPackage::eINSTANCE.transferRelationDeclaration.name)
-
-                return;
-            }
-        }
-    }
-
-    @Check
-    def checkTransferFieldMaps(TransferFieldDeclaration field) {
-        if (!field.maps) {
-            return
-        }
-
-        val TransferDeclaration transfer = field.eContainer as TransferDeclaration
-
-        if (transfer.map === null || transfer.map.entity === null) {
-            error("Invalid field mapping. Maps keyword cannot be used in unmapped transfer object.",
-                JsldslPackage::eINSTANCE.transferFieldDeclaration_ReferenceType,
-                INVALID_FIELD_MAPPING,
-                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
-
-            return;
-        }
-
-        if (field.referenceType !== null && field.referenceType instanceof TransferDeclaration) {
-            val TransferDeclaration referenceType = field.referenceType as TransferDeclaration
-
-            if (referenceType.map === null || referenceType.map.entity === null) {
-                error("Invalid field mapping. Maps keyword cannot be used for unmapped field type.",
-                    JsldslPackage::eINSTANCE.transferFieldDeclaration_ReferenceType,
-                    INVALID_FIELD_MAPPING,
-                    JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
-
-                return;
-            }
-        }
-
-        if (!(field.getterExpr instanceof Navigation)) {
-            error("Invalid field mapping. Field mapping must be a navigation.",
-                JsldslPackage::eINSTANCE.transferFieldDeclaration_ReferenceType,
-                INVALID_FIELD_MAPPING,
-                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
-
-            return;
-        }
-
-        val Navigation navigation = field.getterExpr as Navigation;
-
-        if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
-            error("Invalid field mapping. Field mapping must be a navigation.",
-                JsldslPackage::eINSTANCE.transferFieldDeclaration_ReferenceType,
-                INVALID_FIELD_MAPPING,
-                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
-
-            return;
-        }
-
-        val NavigationBaseDeclarationReference navigationBaseDeclarationReference = navigation.base as NavigationBaseDeclarationReference;
-
-        if (!(navigationBaseDeclarationReference.reference instanceof EntityMapDeclaration)) {
-            error("Invalid field mapping. Field mapping must be a navigation starting from the mapping field.",
-                JsldslPackage::eINSTANCE.transferFieldDeclaration_ReferenceType,
-                INVALID_FIELD_MAPPING,
-                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
-
-            return;
-        }
-
-        if (navigation.features.size() != 1) {
-            error("Invalid field mapping. Field mapping must select a member of the mapped entity.",
-                JsldslPackage::eINSTANCE.transferFieldDeclaration_ReferenceType,
-                INVALID_FIELD_MAPPING,
-                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
-
-            return;
-        }
-
-        if (!(navigation.features.get(0) instanceof MemberReference)) {
-            error("Invalid field mapping. Field mapping must select a member of the mapped entity.",
-                JsldslPackage::eINSTANCE.transferFieldDeclaration_ReferenceType,
-                INVALID_FIELD_MAPPING,
-                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
-
-            return;
-        }
-
-        val MemberReference memberReference = navigation.features.get(0) as MemberReference;
-
-        if (!(memberReference.member instanceof EntityMemberDeclaration && !(memberReference.member as EntityMemberDeclaration).calculated) &&
-            !(memberReference.member instanceof EntityRelationOppositeInjected))
-        {
-            error("Invalid field mapping. Field mapping must select a member of the mapped entity.",
-                JsldslPackage::eINSTANCE.transferFieldDeclaration_ReferenceType,
-                INVALID_FIELD_MAPPING,
-                JsldslPackage::eINSTANCE.transferFieldDeclaration.name)
-
-            return;
-        }
-    }
-
-    @Check
-    def checkTransferChoiceModifier(TransferChoiceModifier modifier) {
-    	val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
-    	
-        if (!relation.maps) {
-            return
-        }
-
-        val TransferDeclaration transfer = relation.eContainer as TransferDeclaration
-
-        if (transfer.map === null || transfer.map.entity === null) {
-            error("Invalid choice modifier. Choice modifier cannot be used in unmapped transfer object.",
-                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
-                INVALID_FIELD_MAPPING)
-
-            return;
-        }
-
-        if (relation.referenceType !== null && relation.referenceType instanceof TransferDeclaration) {
-            val TransferDeclaration referenceType = relation.referenceType as TransferDeclaration
-
-            if (referenceType.map === null || referenceType.map.entity === null) {
-                error("Invalid choice modifier. Choice modifier cannot be used for unmapped relation type.",
-	                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
-	                INVALID_FIELD_MAPPING)
-
-                return;
-            }
-        }
-
-        if (!(relation.getterExpr instanceof Navigation)) {
-            error("Invalid choice modifier. Getter expression must select a stored member of the mapped entity.",
-                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
-                INVALID_FIELD_MAPPING)
-
-            return;
-        }
-
-        val Navigation navigation = relation.getterExpr as Navigation;
-
-        if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
-            error("Invalid choice modifier. Getter expression must select a stored member of the mapped entity.",
-                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
-                INVALID_FIELD_MAPPING)
-
-            return;
-        }
-
-        val NavigationBaseDeclarationReference navigationBaseDeclarationReference = navigation.base as NavigationBaseDeclarationReference;
-
-        if (!(navigationBaseDeclarationReference.reference instanceof EntityMapDeclaration)) {
-            error("Invalid choice modifier. Getter expression must select a stored member of the mapped entity.",
-                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
-                INVALID_FIELD_MAPPING)
-
-            return;
-        }
-
-        if (navigation.features.size() != 1) {
-            error("Invalid choice modifier. Getter expression must select a stored member of the mapped entity.",
-                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
-                INVALID_FIELD_MAPPING)
-
-            return;
-        }
-
-        if (!(navigation.features.get(0) instanceof MemberReference)) {
-            error("Invalid choice modifier. Getter expression must select a stored member of the mapped entity.",
-                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
-                INVALID_FIELD_MAPPING)
-
-            return;
-        }
-
-        val MemberReference memberReference = navigation.features.get(0) as MemberReference;
-
-        if (!(memberReference.member instanceof EntityMemberDeclaration && !(memberReference.member as EntityMemberDeclaration).calculated) &&
-            !(memberReference.member instanceof EntityRelationOppositeInjected))
-        {
-            error("Invalid choice modifier. Getter expression must select a stored member of the mapped entity.",
-                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
-                INVALID_FIELD_MAPPING)
-
-            return;
-        }
-    }
-
-    @Check
-	def checkTransferChoice(TransferChoiceModifier choice) {
-		var TransferRelationDeclaration relation = choice.eContainer as TransferRelationDeclaration
-		
-        if (!TypeInfo.getTargetType(relation).isCompatibleCollection(TypeInfo.getTargetType(choice.expression))) {
-            error("Type mismatch. Choices must return compatible collection with field type.",
-                JsldslPackage::eINSTANCE.transferChoiceModifier_Expression,
-                INVALID_CHOICES)
-        }
-	}
 
     @Check
     def checkActorIdentity(IdentityModifier identity) {
@@ -1897,13 +1698,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     def checkEntityField(EntityFieldDeclaration field) {
     	if (field.referenceType instanceof EntityDeclaration && field.calculated) {
             error("A composition cannot be calculated.",
-                JsldslPackage::eINSTANCE.entityMemberDeclaration_Calculated,
-                INVALID_DECLARATION)
-    	}
-
-    	if (field.referenceType instanceof EntityDeclaration && field.isDefault) {
-            error("A composition cannot have default value.",
-                JsldslPackage::eINSTANCE.entityMemberDeclaration_Default,
+                JsldslPackage::eINSTANCE.entityMemberDeclaration_GetterExpr,
                 INVALID_DECLARATION)
     	}
     }
@@ -1914,25 +1709,29 @@ class JslDslValidator extends AbstractJslDslValidator {
 			val field = eager.eContainer as EntityFieldDeclaration
 
 	    	if (field.referenceType instanceof PrimitiveDeclaration && !eager.value.isTrue) {
-    			error("Primitive field must be eager fetched.", JsldslPackage::eINSTANCE.eagerModifier_Value)
+    			error("Primitive field must be eager fetched.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"))
 	    	}
 
 	    	else if (eager.value.isTrue) {
-	    		info("Entity field is eager fetched by default.", JsldslPackage::eINSTANCE.eagerModifier_Value, RECOMMENDATION)
+	    		info("Entity field is eager fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
 	    	}
 		}
 		
 		else if (eager.eContainer instanceof EntityRelationDeclaration) {
 	    	if (!eager.value.isTrue) {
-	    		info("Entity relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier_Value, RECOMMENDATION)
+	    		info("Entity relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
 	    	}
 		}
 		
 		else if (eager.eContainer instanceof TransferRelationDeclaration) {
 			val relation = eager.eContainer as TransferRelationDeclaration
- 
+
+			if (relation.getterExpr === null) {
+    			error("Eager modifier needs a getter expression.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"))
+			}
+
 			if ((relation.maps || relation.reads) && !eager.value.isTrue) {
-	    		info("Mapped transfer relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier_Value, RECOMMENDATION)
+	    		info("Mapped transfer relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
 			}
 		}    	
     }
@@ -1962,6 +1761,39 @@ class JslDslValidator extends AbstractJslDslValidator {
 		else if (menu.referenceType instanceof RowDeclaration && !menu.many) {
             error("A row type cannot be a single. Use view type instead.",
                 JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
+                INVALID_DECLARATION)
+		}
+	}
+
+	@Check
+	def checkCreateModifier(CreateModifier modifier) {
+		val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
+		
+		if (relation.referenceType !== null && relation.referenceType.map === null) {
+            error("Invalid create modifier. Create modifier cannot be used for unmapped relation.",
+                JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+	}
+
+	@Check
+	def checkDeleteModifier(DeleteModifier modifier) {
+		val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
+		
+		if (relation.referenceType !== null && relation.referenceType.map === null) {
+            error("Invalid delete modifier. Delete modifier cannot be used for unmapped relation.",
+                JsldslPackage::eINSTANCE.deleteModifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+	}
+
+	@Check
+	def checkUpdateModifier(UpdateModifier modifier) {
+		val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
+		
+		if (relation.referenceType !== null && relation.referenceType.map === null) {
+            error("Invalid update modifier. Update modifier cannot be used for unmapped relation.",
+                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
 		}
 	}

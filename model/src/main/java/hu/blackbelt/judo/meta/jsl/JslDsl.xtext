@@ -63,11 +63,8 @@ EntityMemberDeclaration
 	  annotations += AnnotationMark*
 	  (-> KW_FIELD | -> identifier ?= KW_IDENTIFIER) required ?= KW_REQUIRED? referenceType = [Persistable | ModelName] Cardinality?
 	  Named 
-	  (
-	  	(default ?= ASSIGN defaultExpr = Expression)?
-	  	|
-	  	=> calculated ?= LTE getterExpr = Expression modifiers += (EagerModifier)*
-	  )
+	  (LTE getterExpr = Expression)?
+	  modifiers += (DefaultModifier | EagerModifier)*
 	  SC
 	  | EntityRelationDeclaration
 	;
@@ -76,12 +73,8 @@ EntityRelationDeclaration
 	: annotations += AnnotationMark*
 	  -> KW_RELATION required ?= KW_REQUIRED? referenceType = [EntityDeclaration | ModelName] Cardinality?
 	  Named
-	  (
-	  	(default ?= ASSIGN defaultExpr = Expression)? opposite = EntityRelationOpposite?
-	  	|
-	  	=> calculated ?= LTE getterExpr = Expression
-	  )
-	  modifiers += (EagerModifier)*
+  	  (LTE getterExpr = Expression)?
+  	  modifiers += (DefaultModifier | EagerModifier | EntityRelationOpposite)*
 	  SC
 	;
 
@@ -91,11 +84,11 @@ EntityRelationOpposite
 	;
 
 EntityRelationOppositeInjected
-	: -> KW_OPPOSITEADD COLON Named Cardinality?
+	: -> type = KW_OPPOSITEADD COLON Named Cardinality?
 	;
 
 EntityRelationOppositeReferenced
-	: -> KW_OPPOSITE COLON oppositeType = [EntityRelationDeclaration | LocalName]
+	: -> type = KW_OPPOSITE COLON oppositeType = [EntityRelationDeclaration | LocalName]
 	;
 
 //EntityOperationDeclaration
@@ -167,7 +160,8 @@ TransferDataDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_FIELD
 	  required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
-	  ((reads ?= LTE | maps ?= MAP) getterExpr = Expression)?
+	  (LTE getterExpr = Expression)?
+	  modifiers += (InputModifier | DefaultModifier)*
 	  SC
 	  | TransferRelationDeclaration
 	;
@@ -177,13 +171,8 @@ TransferRelationDeclaration
 	  -> KW_RELATION
 	  required ?= KW_REQUIRED? referenceType = [TransferDeclaration | ModelName] Cardinality?
 	  Named
-	  (
-	    reads ?= LTE getterExpr = Expression
-	  	modifiers += (EagerModifier | UpdateModifier)*
-	  	|
-	  	maps ?= MAP getterExpr = Expression
-	    modifiers += (EagerModifier | TransferChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
-      )?
+	  (LTE getterExpr = Expression)?
+	  modifiers += (DefaultModifier | EagerModifier | TransferChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -235,17 +224,8 @@ TransferInitializeDeclaration returns TransferEventDeclaration
 	: {TransferInitializeDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_EVENT => kind = KW_INITIALIZE (LP RP)?
-	  (SC | BLOCK_START (defaults += TransferDataAssignment)* BLOCK_END)
+	  SC
 	;
-
-TransferDataAssignment
-	: leftValue = TransferDataReference ASSIGN rightValue = Expression SC
-	;
-
-TransferDataReference
-	: 'self' DOT declaration = [TransferDataDeclaration | ModelName]
-	;
-
 
 /****************************
  *	View
@@ -288,9 +268,9 @@ ViewTextDeclaration returns TransferFieldDeclaration
 ViewFieldDeclaration returns TransferFieldDeclaration
 	: {ViewFieldDeclaration} 
 	  annotations += AnnotationMark*
-	  -> KW_FIELD  required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
-	  ((reads ?= LTE | maps ?= MAP) getterExpr = Expression)?
-	  modifiers += VisualModifier*
+	  -> KW_FIELD required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
+	  (LTE getterExpr = Expression)?
+	  modifiers += (InputModifier | DefaultModifier | VisualModifier)*
 	  SC
 	;
 
@@ -298,15 +278,8 @@ ViewLinkDeclaration returns TransferRelationDeclaration
 	: {ViewLinkDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_LINK required ?= KW_REQUIRED? referenceType = [ViewDeclaration | ModelName] Named
-	  (
-	  	modifiers += (VisualModifier | TextModifier)*
-	    | 
-	    reads ?= LTE getterExpr = Expression
-	  	modifiers += (EagerModifier | VisualModifier | TextModifier | UpdateModifier)*
-	  	|
-	  	maps ?= MAP getterExpr = Expression
-	    modifiers += (EagerModifier | VisualModifier | TextModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
-	  )
+	  (LTE getterExpr = Expression)?
+	  modifiers += (DefaultModifier | EagerModifier | VisualModifier | TextModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -314,15 +287,8 @@ ViewTableDeclaration returns TransferRelationDeclaration
 	: {ViewTableDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
-	  (
-	  	modifiers += (VisualModifier)*
-		|
-		reads ?= LTE getterExpr = Expression
-	  	modifiers += (EagerModifier | VisualModifier | RowsModifier | DetailModifier | UpdateModifier)*
-		|
-	  	maps ?= MAP getterExpr = Expression
-	  	modifiers += (EagerModifier | VisualModifier | RowsModifier | DetailModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
-	  )  
+	  (LTE getterExpr = Expression)?
+	  modifiers += (DefaultModifier | EagerModifier | VisualModifier | RowsModifier | DetailModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -393,8 +359,9 @@ RowMemberDeclaration returns TransferMemberDeclaration
 RowColumnDeclaration returns TransferFieldDeclaration
 	: {RowColumnDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_COLUMN referenceType = [PrimitiveDeclaration | ModelName] Named ((maps ?= MAP | reads ?= LTE) getterExpr = Expression)?
-	  modifiers += (VisualModifier)*
+	  -> KW_COLUMN referenceType = [PrimitiveDeclaration | ModelName] Named
+	  (LTE getterExpr = Expression)?
+	  modifiers += (InputModifier | VisualModifier)*
 	  SC
 	;
 
@@ -421,13 +388,8 @@ ActorAccessDeclaration returns TransferRelationDeclaration
 	: {ActorAccessDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_ACCESS referenceType = [TransferDeclaration | ModelName] Cardinality? Named // reads ?= LTE getterExpr = Expression
-	  (
-	    reads ?= LTE getterExpr = Expression
-	  	modifiers += (UpdateModifier)*
-	  	|
-	  	maps ?= MAP getterExpr = Expression
-	    modifiers += (TransferChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
-      )?
+	  (LTE getterExpr = Expression)
+	  modifiers += (TransferChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -462,15 +424,8 @@ ActorMenuDeclaration returns ActorAccessDeclaration
 	: {ActorMenuDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_MENU referenceType = [VisibleDeclaration | ModelName] Cardinality? Named
-	  (
-	  	modifiers += (VisualModifier)*
-		|
-	    reads ?= LTE getterExpr = Expression
-	  	modifiers += (VisualModifier | RowsModifier | DetailModifier | UpdateModifier)*
-	  	|
-	  	maps ?= MAP getterExpr = Expression
-	    modifiers += (VisualModifier | RowsModifier | DetailModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
-      )
+	  (LTE getterExpr = Expression)?
+	  modifiers += (VisualModifier | RowsModifier | DetailModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
  
@@ -492,7 +447,7 @@ ErrorMemberDeclaration returns TransferMemberDeclaration
 
 ErrorField returns TransferFieldDeclaration
 	: {ErrorField}
-	  -> KW_FIELD required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named SC
+	  -> KW_FIELD required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named modifiers += (DefaultModifier)*SC
 	;
 
 //CreateError
@@ -797,7 +752,10 @@ ModifiableDeclaration returns Modifiable
 	;
 
 Modifier
-	: CreateModifier
+	: InputModifier
+	| EntityRelationOpposite
+	| DefaultModifier
+	| CreateModifier
 	| UpdateModifier
 	| DeleteModifier
 	| TransferChoiceModifier
@@ -834,6 +792,13 @@ VisualModifier
 	| WidthModifier
 	;
 
+DefaultModifier
+	: type = KW_DEFAULT COLON expression = Expression
+	;
+
+InputModifier
+	: type = KW_INPUT COLON value = BooleanLiteral
+	;
 
 CreateModifier
 	: type = KW_CREATE COLON value = BooleanLiteral
@@ -1061,8 +1026,8 @@ JSLID: ID
 	| KW_KB | KW_MB | KW_GB | KW_KIB | KW_MIB | KW_GIB
 	
 	// Attributes
-	| KW_CHOICES | KW_CLAIM | KW_DETAIL | KW_EAGER | KW_ENABLED | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
-	| KW_IDENTITY | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_ROWS | KW_SCALE | KW_STRETCH | KW_THROW
+	| KW_CHOICES | KW_CLAIM | KW_DETAIL | KW_EAGER | KW_ENABLED | KW_DEFAULT | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
+	| KW_IDENTITY | KW_INPUT | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_ROWS | KW_SCALE | KW_STRETCH | KW_THROW
 	| KW_WIDTH  // KW_REQUIRED is missing deliberately !!!!
 	
 	// Operators
@@ -1153,6 +1118,7 @@ terminal KW_GIB:		'GiB';
 // Attributes
 terminal KW_CHOICES:	'choices';
 terminal KW_CLAIM:		'claim';
+terminal KW_DEFAULT:	'default';
 terminal KW_DETAIL:		'detail';
 terminal KW_ENABLED:	'enabled';
 terminal KW_FRAME:		'frame';
@@ -1161,6 +1127,7 @@ terminal KW_HIDDEN:		'hidden';
 terminal KW_HALIGN:	    'h-align';
 terminal KW_ICON:		'icon';
 terminal KW_IDENTITY:	'identity';
+terminal KW_INPUT:		'input';
 terminal KW_LABEL:		'label';
 terminal KW_MAXFILESIZE:'max-file-size';
 terminal KW_MAXSIZE:	'max-size';

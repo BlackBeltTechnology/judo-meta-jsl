@@ -40,10 +40,10 @@ class EntityMemberDeclarationTests {
 
             entity A {
                 field Boolean a;
-                field Boolean b = self.a;
+                field Boolean b default:self.a;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.SELF_NOT_ALLOWED,"Self is not allowed in default expression at 'b'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.defaultModifier, JslDslValidator.SELF_NOT_ALLOWED)
         ]
     }
 

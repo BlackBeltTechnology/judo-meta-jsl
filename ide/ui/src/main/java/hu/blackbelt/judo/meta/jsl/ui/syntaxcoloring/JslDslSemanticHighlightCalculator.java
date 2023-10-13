@@ -59,9 +59,10 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
     							"KW_FIELD", "KW_GROUP", "KW_HORIZONTAL", "KW_IDENTIFIER", "KW_LINK", "KW_LITERAL",
     							"KW_MENU", "KW_RELATION", "KW_SUBMIT", "KW_TABLE", "KW_TABS", "KW_TEXT", "KW_THROWS", "KW_VERTICAL");
 
-    static Set<String> attributes = Sets.newHashSet("KW_CHOICES", "KW_CLAIM", "KW_DETAIL", "KW_EAGER", "KW_ENABLED", "KW_FRAME", "KW_GUARD", "KW_HIDDEN", "KW_HALIGN", "KW_ICON",
-    							  "KW_IDENTITY", "KW_LABEL", "KW_MAXFILESIZE", "KW_MAXSIZE", "KW_MINSIZE", "KW_MIMETYPE", "KW_OPPOSITE", "KW_OPPOSITEADD",
-    							  "KW_PRECISION", "KW_REALM", "KW_REDIRECT", "KW_REGEX", "KW_REQUIRED", "KW_ROWS", "KW_SCALE", "KW_STRETCH", "KW_THROW", "KW_VALIGN", "KW_WIDTH");
+    static Set<String> attributes = Sets.newHashSet("KW_CHOICES", "KW_CLAIM", "KW_DEFAULT", "KW_DETAIL", "KW_EAGER", "KW_ENABLED", "KW_FRAME", "KW_GUARD", "KW_HIDDEN",
+    							  "KW_INPUT", "KW_HALIGN", "KW_ICON", "KW_IDENTITY", "KW_LABEL", "KW_MAXFILESIZE", "KW_MAXSIZE", "KW_MINSIZE", "KW_MIMETYPE",
+    							  "KW_OPPOSITE", "KW_OPPOSITEADD", "KW_PRECISION", "KW_REALM", "KW_REDIRECT", "KW_REGEX", "KW_REQUIRED", "KW_ROWS", "KW_SCALE",
+    							  "KW_STRETCH", "KW_THROW", "KW_VALIGN", "KW_WIDTH");
 
     static Set<String> specials = Sets.newHashSet("KW_CREATE", "KW_DELETE", "KW_UPDATE");
 

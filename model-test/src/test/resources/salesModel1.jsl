@@ -17,11 +17,7 @@ error MyError {
 }
 
 error MyExtendedError {
-	field Integer extra;
-	
-	event initialize {
-		self.extra = 0;
-	}
+	field Integer extra default:0;
 }
 
 enum LeadStatus {
@@ -51,7 +47,7 @@ entity SalesPerson extends Person {
 }
 
 entity Lead {
-	field Integer value = 100000;
+	field Integer value default:100000;
 
 	relation required SalesPerson salesPerson opposite:leads;
 	relation SC::Contract contract opposite-add:lead;

@@ -616,7 +616,11 @@ public class TypeInfo {
 	}
 
 	public static TypeInfo getTargetType(TransferRelationDeclaration transferRelationDeclaration) {
-		if (transferRelationDeclaration == null) {
+		if (transferRelationDeclaration == null ||
+			transferRelationDeclaration.getReferenceType() == null ||
+			transferRelationDeclaration.getReferenceType().getMap() == null ||
+			transferRelationDeclaration.getReferenceType().getMap().getEntity() == null)
+		{
 			return new TypeInfo(BaseType.UNDEFINED, false);
 		}
 
