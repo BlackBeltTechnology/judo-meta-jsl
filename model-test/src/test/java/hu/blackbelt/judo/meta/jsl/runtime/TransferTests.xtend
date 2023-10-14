@@ -148,11 +148,11 @@ class TransferTests {
             type numeric Integer precision:3 scale:0;
 
             entity Entity {
-                identifier Integer identifier;
+                identifier Integer id;
             }
 
             transfer Mapped maps Entity as e {
-                field Integer mappedIdentifier <= e.identifier input:true;
+                field Integer mappedIdentifier <= e.id input:true;
             }
         '''.parse => [
             assertNoErrors

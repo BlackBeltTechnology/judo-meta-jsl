@@ -53,9 +53,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Modifiable
 import hu.blackbelt.judo.meta.jsl.jsldsl.Modifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EagerModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.InputModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferChoiceModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
@@ -419,7 +417,7 @@ class JslDslModelExtension {
     }
 
     def Collection<TransferFieldDeclaration> fields(TransferDeclaration it) {
-        members.filter[d | d instanceof TransferFieldDeclaration].map[d | d as TransferFieldDeclaration].toList
+        eAllContents.filter[d | d instanceof TransferFieldDeclaration].map[d | d as TransferFieldDeclaration].toList
     }
 
     def String sourceCode(Expression it) {

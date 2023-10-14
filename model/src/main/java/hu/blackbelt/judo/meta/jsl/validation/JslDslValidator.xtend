@@ -770,8 +770,8 @@ class JslDslValidator extends AbstractJslDslValidator {
             TransferFieldDeclaration:       error = !mark.declaration.targets.exists[t | t.transferField]
             TransferRelationDeclaration:    error = !mark.declaration.targets.exists[t | t.transferRelation]
 
-            TransferEventDeclaration:       error = (!mark.declaration.targets.exists[t | t.transferEvent] && mark.eContainer.eContainer instanceof SimpleTransferDeclaration) ||
-                                                    (!mark.declaration.targets.exists[t | t.viewEvent] && mark.eContainer.eContainer instanceof ViewDeclaration)
+            TransferEventDeclaration:       error = (!mark.declaration.targets.exists[t | t.transferEvent] && mark.parentContainer(TransferDeclaration) instanceof SimpleTransferDeclaration) ||
+                                                    (!mark.declaration.targets.exists[t | t.viewEvent] && mark.parentContainer(TransferDeclaration) instanceof ViewDeclaration)
         }
 
         if (error) {
@@ -1617,8 +1617,8 @@ class JslDslValidator extends AbstractJslDslValidator {
     def checkDuplicateFieldMapping(TransferFieldDeclaration field) {
         if (!field.maps) return;
 
-        val TransferDeclaration transfer = field.eContainer as TransferDeclaration;
-        val NavigationTarget target = getMappedField(field);
+        val TransferDeclaration transfer = field.parentContainer(TransferDeclaration);
+        val NavigationTarget target = getMappedField(field); 
 
         if (target === null) return;
 

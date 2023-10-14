@@ -241,14 +241,16 @@ ViewDeclaration returns VisibleDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_VIEW Named
 	  MappedDeclaration
-	  (SC | BLOCK_START members += ViewMemberDeclaration* BLOCK_END)
+	  (SC | BLOCK_START (members += ViewDirectMemberDeclaration)* BLOCK_END)
 	;
 
+ViewDirectMemberDeclaration returns TransferMemberDeclaration
+	: TransferEventDeclaration
+	| ViewMemberDeclaration
+	;
 
 ViewMemberDeclaration returns TransferMemberDeclaration
-	: TransferEventDeclaration
-
-	| ViewTextDeclaration
+	: ViewTextDeclaration
 	| ViewFieldDeclaration
 	| ViewLinkDeclaration
 	| ViewTableDeclaration
@@ -348,10 +350,10 @@ RowDeclaration returns VisibleDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_ROW Named
 	  MappedDeclaration
-	  (SC | BLOCK_START (members += RowMemberDeclaration)* BLOCK_END)
+	  (SC | BLOCK_START (members += RowDirectMemberDeclaration)* BLOCK_END)
 	;
 
-RowMemberDeclaration returns TransferMemberDeclaration
+RowDirectMemberDeclaration returns TransferMemberDeclaration
 	: TransferEventDeclaration
 	| RowColumnDeclaration
 	;
@@ -375,13 +377,17 @@ ActorDeclaration returns TransferDeclaration
 	  -> KW_ACTOR KW_SYSTEM? Named
 	  MappedDeclaration
 	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier)*
-	  (SC | BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END)
+	  (SC | BLOCK_START (members += ActorDirectMemberDeclaration)* BLOCK_END)
 	  | HumanActorDeclaration
 	;
 
-ActorMemberDeclaration returns TransferMemberDeclaration
+ActorDirectMemberDeclaration returns TransferMemberDeclaration
 	: TransferEventDeclaration
 	| ActorAccessDeclaration
+	;
+
+ActorMemberDeclaration returns TransferMemberDeclaration
+	: ActorAccessDeclaration
 	;
 
 ActorAccessDeclaration returns TransferRelationDeclaration
@@ -403,21 +409,24 @@ HumanActorDeclaration returns ActorDeclaration
 	  KW_ACTOR -> KW_HUMAN Named
 	  MappedDeclaration
 	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier)*
-	  (SC | BLOCK_START (members += HumanActorMemberDeclaration)* BLOCK_END)
+	  (SC | BLOCK_START (members += HumanActorDirectMemberDeclaration)* BLOCK_END)
+	;
+
+HumanActorDirectMemberDeclaration returns TransferMemberDeclaration
+	: TransferEventDeclaration
+	| HumanActorMemberDeclaration
 	;
 
 HumanActorMemberDeclaration returns TransferMemberDeclaration
-	: TransferEventDeclaration
-	| ActorMenuDeclaration
+	: ActorMenuDeclaration
 	| ActorGroupDeclaration
 	;
-
 
 ActorGroupDeclaration
 	: annotations += AnnotationMark*
 	  -> KW_GROUP tag = JSLID
 	  modifiers += (LabelModifier | IconModifier | EnabledModifier | HiddenModifier)*
-	  BLOCK_START (members += ActorMenuDeclaration)* BLOCK_END
+	  BLOCK_START (members += HumanActorMemberDeclaration)* BLOCK_END
 	;
 
 ActorMenuDeclaration returns ActorAccessDeclaration
@@ -1008,17 +1017,16 @@ JSLID: ID
 //  | KW_MODEL | KW_QUERY | KW_ROW | KW_TRANSFER | KW_TYPE | KW_VIEW
 //
 
-	// Temporarily commented out due to static initializer exceeds limit error in Xtext
 	// Declarations
-//	| KW_ABSTRACT | KW_AS | KW_EXTENDS | KW_FUNCTION | KW_HUMAN
-//	| KW_LAMBDA | KW_MAPS | KW_ON | KW_SYSTEM | KW_THROWS
+	| KW_ABSTRACT | KW_AS | KW_EXTENDS | KW_FUNCTION | KW_HUMAN
+	| KW_LAMBDA | KW_MAPS | KW_ON | KW_SYSTEM | KW_THROWS
 
 
-
+	// Temporarily commented out due to static initializer exceeds limit error in Xtext
 	// Features	
-	| KW_ACCESS | KW_ACTION | KW_COLUMN | KW_CONSTRAINT | KW_CREATE | KW_DELETE | KW_EVENT | KW_FETCH | KW_FIELD
-	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_INITIALIZE | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_SUBMIT | KW_TABLE | KW_TABS
-	| KW_TEXT | KW_UPDATE | KW_VERTICAL
+//	| KW_ACCESS | KW_ACTION | KW_COLUMN | KW_CONSTRAINT | KW_CREATE | KW_DELETE | KW_EVENT | KW_FETCH | KW_FIELD
+//	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_INITIALIZE | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_SUBMIT | KW_TABLE | KW_TABS
+//	| KW_TEXT | KW_UPDATE | KW_VERTICAL
 	
 	// Constants
 	| KW_BINARY | KW_BOOLEAN | KW_BOTTOM | KW_CENTER | KW_COLLECTION | KW_CONSTANT | KW_DATE | KW_DECLARATION
