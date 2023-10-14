@@ -231,6 +231,28 @@ class ModifiersTests {
         ]
     }
 
+    @Test
+    def void testChoiceFieldWithContainment() {
+        '''
+			model test;
+
+			entity A {
+				field B b;
+				relation B b1;
+			}
+			
+			entity B {}
+			
+			transfer TA maps A as a {
+				relation TB tbs <= a.b choices:B!all();
+			}
+			
+			transfer TB(B b) {}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
+        ]
+    }
+
     def private void assertMaxSizeTooLargeError(ModelDeclaration modelDeclaration, String error, EClass target) {
         modelDeclaration.assertError(
             target,

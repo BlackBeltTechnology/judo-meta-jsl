@@ -150,27 +150,11 @@ class JslDslModelExtension {
 	}
 
 	def isReads(TransferDataDeclaration it) {
-		if (it instanceof TransferFieldDeclaration) {
-			val InputModifier input = it.getModifier(JsldslPackage::eINSTANCE.inputModifier) as InputModifier
-			return it.getterExpr !== null && (input === null || !input.value.isTrue) 
-		}
-
-		else if (it instanceof TransferRelationDeclaration) {
-			val TransferChoiceModifier choice = it.getModifier(JsldslPackage::eINSTANCE.transferChoiceModifier) as TransferChoiceModifier
-			return it.getterExpr !== null && choice === null 
-		}
+		return it.getterExpr !== null && it.mappedMember === null
 	}
 
 	def isMaps(TransferDataDeclaration it) {
-		if (it instanceof TransferRelationDeclaration) {
-			val TransferChoiceModifier choice = it.getModifier(JsldslPackage::eINSTANCE.transferChoiceModifier) as TransferChoiceModifier
-			return it.getterExpr !== null && choice !== null 
-		}
-
-		else if (it instanceof TransferFieldDeclaration) {
-			val InputModifier input = it.getModifier(JsldslPackage::eINSTANCE.inputModifier) as InputModifier
-			return it.getterExpr !== null && (input !== null && input.value.isTrue) 
-		}
+		return it.getterExpr !== null && it.mappedMember !== null
 	}
 
     def NavigationTarget getMappedMember(TransferDataDeclaration member) {

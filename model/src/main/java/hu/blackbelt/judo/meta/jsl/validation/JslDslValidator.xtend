@@ -1325,8 +1325,16 @@ class JslDslValidator extends AbstractJslDslValidator {
                 INVALID_CHOICES)
         }
 
-		if (relation.getterExpr !== null && relation.mappedMember === null) {
+		val mappedMember = relation.mappedMember;
+
+		if (relation.getterExpr !== null && mappedMember === null) {
             error("Invalid choices modifier. Getter expression must select a stored member of the mapped entity.",
+                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
+                INVALID_CHOICES)
+		}
+
+		if (relation.getterExpr !== null && mappedMember instanceof EntityFieldDeclaration && (mappedMember as EntityFieldDeclaration).referenceType instanceof EntityDeclaration) {
+            error("Invalid choices modifier. Choices modifier is not allowed if getter expression selects an entity containment.",
                 JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
                 INVALID_CHOICES)
 		}
