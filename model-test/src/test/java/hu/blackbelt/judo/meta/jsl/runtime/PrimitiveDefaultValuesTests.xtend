@@ -38,10 +38,10 @@ class PrimitiveDefaultValuesTests {
             type boolean Bool;
 
             entity Test {
-                field Bool boolAttr = "hello";
+                field Bool boolAttr default:"hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'boolAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'boolAttr'.")
         ]
     }
 
@@ -65,10 +65,10 @@ class PrimitiveDefaultValuesTests {
             type string String(min-size = 0, max-size = 128);
 
             entity Test {
-                field String stringAttr = 123;
+                field String stringAttr default:123;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'stringAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'stringAttr'.")
         ]
     }
 
@@ -92,10 +92,10 @@ class PrimitiveDefaultValuesTests {
             type numeric Integer(precision = 9,  scale = 0);
 
             entity Test {
-                field Integer intAttr = "hello";
+                field Integer intAttr default:"hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'intAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'intAttr'.")
         ]
     }
 
@@ -119,10 +119,10 @@ class PrimitiveDefaultValuesTests {
             type numeric Decimal(precision = 9, scale = 3);
 
             entity Test {
-                field Decimal decimalAttr = "hello";
+                field Decimal decimalAttr default:"hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'decimalAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'decimalAttr'.")
         ]
     }
 
@@ -146,10 +146,10 @@ class PrimitiveDefaultValuesTests {
             type date Date;
 
             entity Test {
-                field Date dateAttr = "hello";
+                field Date dateAttr default:"hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'dateAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'dateAttr'.")
         ]
     }
 
@@ -173,10 +173,10 @@ class PrimitiveDefaultValuesTests {
             type time Time;
 
             entity Test {
-                field Time timeAttr = "hello";
+                field Time timeAttr default:"hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'timeAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'timeAttr'.")
         ]
     }
 
@@ -200,10 +200,10 @@ class PrimitiveDefaultValuesTests {
             type timestamp Timestamp;
 
             entity Test {
-                field Timestamp timestampAttr = "hello";
+                field Timestamp timestampAttr default:"hello";
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'timestampAttr'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'timestampAttr'.")
         ]
     }
 
@@ -248,78 +248,77 @@ class PrimitiveDefaultValuesTests {
             type string PhoneNumber min-size:0 max-size:32 regex:"^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$";   // escape sequencing does not work in regexp!!!!
 
             entity TestIdentifiers {
-                identifier Bool a = true;
-                identifier Integer b = 3223;
-                identifier Decimal b2 = 3223.123;
-                identifier String c = "123";
-                identifier String c2 = r"123";
-                identifier Date d = `2020-01-12`;
-                identifier Time e = `22:45:22`;
-                identifier Timestamp f = `2020-01-12T12:12:12.000Z`;
+                identifier Bool a default:true;
+                identifier Integer b default:3223;
+                identifier Decimal b2 default:3223.123;
+                identifier String c default:"123";
+                identifier String c2 default:r"123";
+                identifier Date d default:`2020-01-12`;
+                identifier Time e default:`22:45:22`;
+                identifier Timestamp f default:`2020-01-12T12:12:12.000Z`;
             }
 
             entity TestFields {
-                field Bool a = true;
-                field Integer b = 3223;
-                field Decimal b2 = 3223.123;
-                field String c = "123";
-                field String c2 = r"123";
-                field Date d = `2020-01-12`;
-                field Time timeHM = `11:11`;
-                field Time timeHM1 = Time!of(hour = 11, minute = 11);
-                field Time timeHMS = `11:11:11`;
-                field Time timeHMS1 = Time!of(hour = 11, minute = 11, second = 11);
-                field Time timeHMSF = `11:11:11.111`;
-                field Time timeHMSF1 = Time!of(hour = 11, minute = 11, second = 11, millisecond = 111);
-                field Time timeHMSF2 = Time!of(hour = 11, minute = 11, millisecond = 111);
-                field Time timeFromMillisecond = Time!fromMilliseconds(milliseconds = 999999);
-                field Integer timeAsMillisecond = `11:11:11.111`!asMilliseconds();
-                field Timestamp timestamp = `2023-03-21T11:11`;
-                field Timestamp timestamp1 = `2023-03-21T11:11Z`;
-                field Timestamp timestamp2 = `2023-03-21T11:11+05`;
-                field Timestamp timestamp3 = `2023-03-21T11:11-05`;
-                field Timestamp timestamp4 = `2023-03-21T11:11+05:05`;
-                field Timestamp timestamp5 = `2023-03-21T11:11-05:05`;
-                field Timestamp timestamp6 = `2023-03-21T11:11:11`;
-                field Timestamp timestamp7 = `2023-03-21T11:11:11Z`;
-                field Timestamp timestamp8 = `2023-03-21T11:11:11+05`;
-                field Timestamp timestamp9 = `2023-03-21T11:11:11-05`;
-                field Timestamp timestamp10 = `2023-03-21T11:11:11+05:05`;
-                field Timestamp timestamp11 = `2023-03-21T11:11:11-05:05`;
-                field Timestamp timestamp12 = `2023-03-21T11:11:11.111`;
-                field Timestamp timestamp13 = `2023-03-21T11:11:11.111Z`;
-                field Timestamp timestamp14 = `2023-03-21T11:11:11.111+05`;
-                field Timestamp timestamp15 = `2023-03-21T11:11:11.111-05`;
-                field Timestamp timestamp16 = `2023-03-21T11:11:11.111+05:05`;
-                field Timestamp timestamp17 = `2023-03-21T11:11:11.111-05:05`;
-                field Timestamp timestamp18 = Timestamp!of(date = `2023-03-21`);
-                field Timestamp timestamp19 = Timestamp!of(date = `2023-03-21`, time = `11:11`);
-                field Timestamp timestamp20 = Timestamp!of(date = `2023-03-21`, time = `11:11:11`);
-                field Timestamp timestamp21 = Timestamp!of(date = `2023-03-21`, time = `11:11:11.111`);
+                field Bool a default:true;
+                field Integer b default:3223;
+                field Decimal b2 default:3223.123;
+                field String c default:"123";
+                field String c2 default:r"123";
+                field Date d default:`2020-01-12`;
+                field Time timeHM default:`11:11`;
+                field Time timeHM1 default:Time!of(hour = 11, minute = 11);
+                field Time timeHMS default:`11:11:11`;
+                field Time timeHMS1 default:Time!of(hour = 11, minute = 11, second = 11);
+                field Time timeHMSF default:`11:11:11.111`;
+                field Time timeHMSF1 default:Time!of(hour = 11, minute = 11, second = 11, millisecond = 111);
+                field Time timeHMSF2 default:Time!of(hour = 11, minute = 11, millisecond = 111);
+                field Time timeFromMillisecond default:Time!fromMilliseconds(milliseconds = 999999);
+                field Integer timeAsMillisecond default:`11:11:11.111`!asMilliseconds();
+                field Timestamp timestamp default:`2023-03-21T11:11`;
+                field Timestamp timestamp1 default:`2023-03-21T11:11Z`;
+                field Timestamp timestamp2 default:`2023-03-21T11:11+05`;
+                field Timestamp timestamp3 default:`2023-03-21T11:11-05`;
+                field Timestamp timestamp4 default:`2023-03-21T11:11+05:05`;
+                field Timestamp timestamp5 default:`2023-03-21T11:11-05:05`;
+                field Timestamp timestamp6 default:`2023-03-21T11:11:11`;
+                field Timestamp timestamp7 default:`2023-03-21T11:11:11Z`;
+                field Timestamp timestamp8 default:`2023-03-21T11:11:11+05`;
+                field Timestamp timestamp9 default:`2023-03-21T11:11:11-05`;
+                field Timestamp timestamp10 default:`2023-03-21T11:11:11+05:05`;
+                field Timestamp timestamp11 default:`2023-03-21T11:11:11-05:05`;
+                field Timestamp timestamp12 default:`2023-03-21T11:11:11.111`;
+                field Timestamp timestamp13 default:`2023-03-21T11:11:11.111Z`;
+                field Timestamp timestamp14 default:`2023-03-21T11:11:11.111+05`;
+                field Timestamp timestamp15 default:`2023-03-21T11:11:11.111-05`;
+                field Timestamp timestamp16 default:`2023-03-21T11:11:11.111+05:05`;
+                field Timestamp timestamp17 default:`2023-03-21T11:11:11.111-05:05`;
+                field Timestamp timestamp18 default:Timestamp!of(date = `2023-03-21`);
+                field Timestamp timestamp19 default:Timestamp!of(date = `2023-03-21`, time = `11:11`);
+                field Timestamp timestamp20 default:Timestamp!of(date = `2023-03-21`, time = `11:11:11`);
+                field Timestamp timestamp21 default:Timestamp!of(date = `2023-03-21`, time = `11:11:11.111`);
             }
 
             error ErrorFields {
-                field Bool a = true;
-                field Integer b = 3223;
-                field Decimal b2 = 3223.123;
-                field String c = "123";
-                field String c2 = r"123";
-                field Date d = `2020-01-12`;
-                field Time e = `22:45:22`;
-                field Timestamp f = `2020-01-12T12:12:12.000Z`;
+                field Bool a default:true;
+                field Integer b default:3223;
+                field Decimal b2 default:3223.123;
+                field String c default:"123";
+                field String c2 default:r"123";
+                field Date d default:`2020-01-12`;
+                field Time e default:`22:45:22`;
+                field Timestamp f default:`2020-01-12T12:12:12.000Z`;
             }
 
             entity EntityWithPrimitiveDefaultExpressions {
-                field Integer integerAttr = 1.23!round();
-                field Decimal scaledAttr = 2.9!abs();
-                field String stringAttr = true!asString();
-                field PhoneNumber regexAttr = "+36-1-123-123";
-                field Bool boolAttr = 2 > -1;
-                field Date dateAttr = Date!now();
-                field Timestamp timestampAttr = Timestamp!now();
-                field Time timeAttr = Time!of(hour = 23, minute = 59, second = 59);
+                field Integer integerAttr default:1.23!round();
+                field Decimal scaledAttr default:2.9!abs();
+                field String stringAttr default:true!asString();
+                field PhoneNumber regexAttr default:"+36-1-123-123";
+                field Bool boolAttr default:2 > -1;
+                field Date dateAttr default:Date!now();
+                field Timestamp timestampAttr default:Timestamp!now();
+                field Time timeAttr default:Time!of(hour = 23, minute = 59, second = 59);
             }
-
         '''.parse => [
             assertNoErrors
         ]
