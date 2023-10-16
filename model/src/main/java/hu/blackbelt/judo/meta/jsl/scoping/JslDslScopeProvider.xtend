@@ -155,7 +155,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
                 switch obj {
                     EntityMemberDeclaration: return !(navigationTypeInfo.isCollection && TypeInfo.getTargetType(obj).isPrimitive)
-                    EntityRelationOppositeInjected: return !navigationTypeInfo.getEntity.isEqual(obj.eContainer.eContainer)
+                    EntityRelationOppositeInjected: return !navigationTypeInfo.isCollection
                     FunctionDeclaration: return obj.baseType !== null && navigationTypeInfo.isBaseCompatible(TypeInfo.getTargetType(obj.baseType))
                     LambdaDeclaration: return navigationTypeInfo.isCollection()
                     QueryDeclaration: return navigationTypeInfo.isInstanceOf(TypeInfo.getTargetType(obj.entity))
