@@ -64,6 +64,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Argument
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.ParameterDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -101,6 +102,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
             AnnotationArgument case ref == JsldslPackage::eINSTANCE.annotationArgument_Declaration && context.eContainer instanceof AnnotationMark: return scope.scope_Containments((context.eContainer as AnnotationMark).declaration, ref)
 
 			EntityRelationDeclaration case ref == JsldslPackage::eINSTANCE.entityMemberDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.entityDeclaration)
+			EntityFieldDeclaration case ref == JsldslPackage::eINSTANCE.entityMemberDeclaration_ReferenceType && context.identifier: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.primitiveDeclaration)
 
 			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
 			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)

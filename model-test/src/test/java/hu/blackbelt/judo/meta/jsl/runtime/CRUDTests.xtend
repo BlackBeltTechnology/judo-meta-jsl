@@ -80,7 +80,7 @@ class CRUDTests {
 			row TA(A a) {
 			}
 			
-			actor human Actor {
+			actor Actor {
 				menu TA[] talist <= A!all() create:true delete:true update:true;
 			}
         '''.parse => [

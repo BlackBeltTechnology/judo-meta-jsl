@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.Assignment;
-import org.eclipse.xtext.ParserRule;
 import org.eclipse.xtext.RuleCall;
 import org.eclipse.xtext.TerminalRule;
 import org.eclipse.xtext.ide.editor.syntaxcoloring.IHighlightedPositionAcceptor;
@@ -45,8 +44,8 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 			                   "NEQ", "EQ", "GTE", "LTE", "MAP", "PLUS", "MINUS", "MUL", "DIV", "EXP", "EXCL", "PIPE");
 
 	static Set<String> declarartions = Sets.newHashSet("KW_ABSTRACT", "KW_ACTOR", "KW_ANNOTATION", "KW_AS", "KW_ENTITY", "KW_ENUM", "KW_ERROR",
-								 "KW_EXTENDS", "KW_FUNCTION", "KW_HUMAN", "KW_IMPORT", "KW_LAMBDA", "KW_MAPS", "KW_MODEL", "KW_ON",
-								 "KW_QUERY", "KW_ROW", "KW_SYSTEM", "KW_TRANSFER", "KW_TYPE", "KW_VIEW");
+								 "KW_EXTENDS", "KW_FUNCTION", "KW_IMPORT", "KW_LAMBDA", "KW_MAPS", "KW_MODEL", "KW_ON",
+								 "KW_QUERY", "KW_ROW", "KW_TRANSFER", "KW_TYPE", "KW_VIEW");
 	
 	static Set<String> operators = Sets.newHashSet("KW_NOT", "KW_IMPLIES", "KW_OR", "KW_XOR", "KW_AND", "KW_DIV", "KW_MOD");
 

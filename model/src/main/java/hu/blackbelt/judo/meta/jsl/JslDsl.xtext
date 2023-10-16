@@ -374,59 +374,37 @@ RowColumnDeclaration returns TransferFieldDeclaration
 ActorDeclaration returns TransferDeclaration
 	: {ActorDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_ACTOR KW_SYSTEM? Named
+	  KW_ACTOR Named
 	  MappedDeclaration
 	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier)*
-	  (SC | BLOCK_START (members += ActorDirectMemberDeclaration)* BLOCK_END)
-	  | HumanActorDeclaration
-	;
-
-ActorDirectMemberDeclaration returns TransferMemberDeclaration
-	: TransferEventDeclaration
-	| ActorAccessDeclaration
+	  (SC | BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END)
 	;
 
 ActorMemberDeclaration returns TransferMemberDeclaration
-	: ActorAccessDeclaration
+	: TransferEventDeclaration
+	| ActorAccessDeclaration
+	| ActorGroupMemberDeclaration
+	;
+
+ActorGroupMemberDeclaration returns TransferMemberDeclaration
+	: ActorMenuDeclaration
+	| ActorGroupDeclaration
 	;
 
 ActorAccessDeclaration returns TransferRelationDeclaration
 	: {ActorAccessDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_ACCESS referenceType = [TransferDeclaration | ModelName] Cardinality? Named // reads ?= LTE getterExpr = Expression
-	  (LTE getterExpr = Expression)
+	  (LTE getterExpr = Expression)?
 	  modifiers += (TransferChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
-	;
-
-/****************************
- *	Human
- ****************************/
-
-HumanActorDeclaration returns ActorDeclaration
-	: {HumanActorDeclaration}
-	  annotations += AnnotationMark*
-	  KW_ACTOR -> KW_HUMAN Named
-	  MappedDeclaration
-	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier)*
-	  (SC | BLOCK_START (members += HumanActorDirectMemberDeclaration)* BLOCK_END)
-	;
-
-HumanActorDirectMemberDeclaration returns TransferMemberDeclaration
-	: TransferEventDeclaration
-	| HumanActorMemberDeclaration
-	;
-
-HumanActorMemberDeclaration returns TransferMemberDeclaration
-	: ActorMenuDeclaration
-	| ActorGroupDeclaration
 	;
 
 ActorGroupDeclaration
 	: annotations += AnnotationMark*
 	  -> KW_GROUP tag = JSLID
 	  modifiers += (LabelModifier | IconModifier | EnabledModifier | HiddenModifier)*
-	  BLOCK_START (members += HumanActorMemberDeclaration)* BLOCK_END
+	  BLOCK_START (members += ActorGroupMemberDeclaration)* BLOCK_END
 	;
 
 ActorMenuDeclaration returns ActorAccessDeclaration
@@ -1017,16 +995,15 @@ JSLID: ID
 //  | KW_MODEL | KW_QUERY | KW_ROW | KW_TRANSFER | KW_TYPE | KW_VIEW
 //
 
-	// Declarations
-	| KW_ABSTRACT | KW_AS | KW_EXTENDS | KW_FUNCTION | KW_HUMAN
-	| KW_LAMBDA | KW_MAPS | KW_ON | KW_SYSTEM | KW_THROWS
-
-
 	// Temporarily commented out due to static initializer exceeds limit error in Xtext
+	// Declarations
+//	| KW_ABSTRACT | KW_AS | KW_EXTENDS | KW_FUNCTION
+//	| KW_LAMBDA | KW_MAPS | KW_ON | KW_THROWS
+
 	// Features	
-//	| KW_ACCESS | KW_ACTION | KW_COLUMN | KW_CONSTRAINT | KW_CREATE | KW_DELETE | KW_EVENT | KW_FETCH | KW_FIELD
-//	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_INITIALIZE | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_SUBMIT | KW_TABLE | KW_TABS
-//	| KW_TEXT | KW_UPDATE | KW_VERTICAL
+	| KW_ACCESS | KW_ACTION | KW_COLUMN | KW_CONSTRAINT | KW_CREATE | KW_DELETE | KW_EVENT | KW_FETCH | KW_FIELD
+	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_INITIALIZE | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_SUBMIT | KW_TABLE | KW_TABS
+	| KW_TEXT | KW_UPDATE | KW_VERTICAL
 	
 	// Constants
 	| KW_BINARY | KW_BOOLEAN | KW_BOTTOM | KW_CENTER | KW_COLLECTION | KW_CONSTANT | KW_DATE | KW_DECLARATION
@@ -1057,7 +1034,6 @@ terminal KW_ENUM:		'enum';
 terminal KW_ERROR:		'error';
 terminal KW_EXTENDS:	'extends';
 terminal KW_FUNCTION:	'function';
-terminal KW_HUMAN:		'human';
 terminal KW_IMPORT:		'import';
 terminal KW_LAMBDA:		'lambda';
 terminal KW_MAPS:		'maps';
@@ -1065,7 +1041,6 @@ terminal KW_MODEL:		'model';
 terminal KW_ON:			'on';
 terminal KW_QUERY:		'query';
 terminal KW_ROW:		'row';
-terminal KW_SYSTEM:		'system';
 terminal KW_TRANSFER:	'transfer';
 terminal KW_TYPE:		'type';
 terminal KW_VIEW:		'view';

@@ -28,7 +28,7 @@ class ActorTests {
                 identifier String id;
             }
 
-            actor human A(E e)
+            actor A(E e)
                 claim:"claim"
                 realm:"realm"
                 guard:true
@@ -49,7 +49,7 @@ class ActorTests {
                 identifier String id;
             }
 
-            actor human A(E e)
+            actor A(E e)
                 claim:"claim"
                 realm:"realm"
                 guard:true
@@ -71,7 +71,7 @@ class ActorTests {
                 field String id2 <= self.id;
             }
 
-            actor system A(E e)
+            actor A(E e)
                 claim:"claim"
                 realm:"realm"
                 guard:true
@@ -92,7 +92,7 @@ class ActorTests {
                 identifier Integer id;
             }
 
-            actor human A(E e)
+            actor A(E e)
                 claim:"claim"
                 realm:"realm"
                 guard:true
@@ -103,44 +103,22 @@ class ActorTests {
     }
     
     @Test
-    def void testSystemActorMenuError() {
-        '''
-            model Test;
-
-            import judo::types;
-
-            entity E {
-                identifier String id;
-            }
-
-            view VE(E e) {}
-
-            actor system A(E e)
-                claim:"claim"
-                realm:"realm"
-                guard:true
-                identity:e.id
-            {
-            	menu VE ve <= E!any();
-            };
-        '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
-        ]
-    }
-
-    @Test
     def void testSystemActorGroupError() {
         '''
-            model Test;
-
-            import judo::types;
-
-            actor system A
-            {
-            	group g {};
-            };
+			model Test;
+			
+			import judo::types;
+			
+			transfer T {}
+			
+			actor A
+			{
+				group g {
+					access T t;
+				}
+			}
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
+            m | m.assertError(JsldslPackage::eINSTANCE.actorAccessDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
         ]
     }
 }
