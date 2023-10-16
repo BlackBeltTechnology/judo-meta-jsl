@@ -28,7 +28,7 @@ class ActorTests {
                 identifier String id;
             }
 
-            actor human A(E e)
+            actor A(E e)
                 claim:"claim"
                 realm:"realm"
                 guard:true
@@ -49,13 +49,13 @@ class ActorTests {
                 identifier String id;
             }
 
-            actor human A(E e)
+            actor A(E e)
                 claim:"claim"
                 realm:"realm"
                 guard:true
                 identity:E!any().id;
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.actorDeclaration, JslDslValidator.INVALID_IDENTITY_MAPPING)
+            m | m.assertError(JsldslPackage::eINSTANCE.identityModifier, JslDslValidator.INVALID_IDENTITY_MAPPING)
         ]
     }
 
@@ -71,13 +71,13 @@ class ActorTests {
                 field String id2 <= self.id;
             }
 
-            actor system A(E e)
+            actor A(E e)
                 claim:"claim"
                 realm:"realm"
                 guard:true
                 identity:e.id2;
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.actorDeclaration, JslDslValidator.INVALID_IDENTITY_MAPPING)
+            m | m.assertError(JsldslPackage::eINSTANCE.identityModifier, JslDslValidator.INVALID_IDENTITY_MAPPING)
         ]
     }
 
@@ -92,55 +92,33 @@ class ActorTests {
                 identifier Integer id;
             }
 
-            actor human A(E e)
+            actor A(E e)
                 claim:"claim"
                 realm:"realm"
                 guard:true
                 identity:E!any().id;
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.actorDeclaration, JslDslValidator.INVALID_IDENTITY_MAPPING)
+            m | m.assertError(JsldslPackage::eINSTANCE.identityModifier, JslDslValidator.INVALID_IDENTITY_MAPPING)
         ]
     }
     
     @Test
-    def void testSystemActorMenuError() {
-        '''
-            model Test;
-
-            import judo::types;
-
-            entity E {
-                identifier String id;
-            }
-
-            view VE(E e) {}
-
-            actor system A(E e)
-                claim:"claim"
-                realm:"realm"
-                guard:true
-                identity:e.id
-            {
-            	menu VE ve <= E!any();
-            };
-        '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.actorMenuDeclaration, JslDslValidator.INVALID_DECLARATION)
-        ]
-    }
-
-    @Test
     def void testSystemActorGroupError() {
         '''
-            model Test;
-
-            import judo::types;
-
-            actor system A
-            {
-            	group g {};
-            };
+			model Test;
+			
+			import judo::types;
+			
+			transfer T {}
+			
+			actor A
+			{
+				group g {
+					access T t;
+				}
+			}
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.actorGroupDeclaration, JslDslValidator.INVALID_DECLARATION, "Group is not allowed in system actor.")
+            m | m.assertError(JsldslPackage::eINSTANCE.actorAccessDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
         ]
     }
 }
