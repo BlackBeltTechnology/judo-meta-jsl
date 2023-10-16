@@ -61,7 +61,8 @@ class StaticQueryTests {
         "REQ-EXPR-022"
     ])
     def void testStaticQueriesWithConstantDefaultValues() {
-        '''model modelTC018;
+        '''
+           model modelTC018;
 
            // Decimal
            type numeric Decimal precision:13 scale:4;
@@ -84,7 +85,7 @@ class StaticQueryTests {
 
            // MyEntity
            entity MyEntity {
-               field Timestamp fldCreated = Timestamp!now();
+               field Timestamp fldCreated default:Timestamp!now();
                field Boolean   fldBool;
                field Date      fldDate;
                field Time      fldTime;
@@ -96,7 +97,7 @@ class StaticQueryTests {
 
            // Entity for the results of queries
            entity Snapshot {
-               field Timestamp created = Timestamp!now();
+               field Timestamp created default:Timestamp!now();
 
                // relations
                relation MyEntity[] defEntities; // = setOfMyEntities();
@@ -304,7 +305,8 @@ class StaticQueryTests {
         "REQ-EXPR-022"
     ])
     def void testStaticQueriesWithoutParameters() {
-        '''model modelTC014;
+        '''
+            model modelTC014;
 
             import judo::types;
 
@@ -333,14 +335,14 @@ class StaticQueryTests {
 
             // Entity for the results of queries
             entity Snapshot1 {
-                field Boolean   fldBool      = anyMyEntityFBool();
-                field Date      fldDate      = anyMyEntityFDate();
-                field Time      fldTime      = anyMyEntityFTime();
-                field Timestamp fldTimestamp = anyMyEntityFTimestamp();
-                field Long      fldLong      = anyMyEntityFLong();
-                field String    fldString    = anyMyEntityFString();
-                field Decimal   fldDecimal   = anyMyEntityFDecimal();
-                field MyEnum    fldEnum      = anyMyEntityFEnum();
+                field Boolean   fldBool      default:anyMyEntityFBool();
+                field Date      fldDate      default:anyMyEntityFDate();
+                field Time      fldTime      default:anyMyEntityFTime();
+                field Timestamp fldTimestamp default:anyMyEntityFTimestamp();
+                field Long      fldLong      default:anyMyEntityFLong();
+                field String    fldString    default:anyMyEntityFString();
+                field Decimal   fldDecimal   default:anyMyEntityFDecimal();
+                field MyEnum    fldEnum      default:anyMyEntityFEnum();
             }
 
             // static queries
@@ -402,7 +404,8 @@ class StaticQueryTests {
         "REQ-EXPR-022"
     ])
     def void testStaticQueriesWithDefaultValues() {
-        '''model modelTC016;
+        '''
+            model modelTC016;
 
             import judo::types;
 
