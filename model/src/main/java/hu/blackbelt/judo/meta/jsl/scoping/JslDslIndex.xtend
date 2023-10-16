@@ -7,7 +7,6 @@ import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider
 import hu.blackbelt.judo.meta.jsl.jsldsl.JsldslPackage
 import org.eclipse.xtext.resource.IContainer
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
-import org.eclipse.xtext.naming.IQualifiedNameProvider
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
 import org.eclipse.emf.ecore.resource.Resource
 import java.util.Map
@@ -18,8 +17,6 @@ class JslDslIndex {
     @Inject ResourceDescriptionsProvider rdp
 
     @Inject IContainer$Manager cm
-
-    @Inject extension IQualifiedNameProvider
 
     // Returns all ModelDeclaration
     def getAllModelDelcaration(EObject context) {
@@ -84,7 +81,10 @@ class JslDslIndex {
     }
 
     def getEObjectDescription(EObject o) {
-        o.getVisibleEObjectDescriptions.findFirst[d | d.qualifiedName.toString.equals(o.fullyQualifiedName.toString)]
+    	for (container : o.getVisibleContainers) {
+    		var descr = container.getExportedObjectsByObject(o).head
+    		if (descr !== null) return descr
+    	}
     }
 
     def getEObjectDescriptionByName(EObject o, String fullyQualifiedName) {
