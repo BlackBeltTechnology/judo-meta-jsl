@@ -206,7 +206,7 @@ class EnumDeclarationTests {
                 field Bool   f6 <= self.f1 >= self.f2;
                 field Bool   f7 <= self.f1 == self.f2;
                 field Bool   f8 <= self.f1 != self.f2;
-                field String f9 <= self.f1!asString();
+                field String f9 <= self.f1.asString();
             }
         '''.parse => [
             assertNoErrors

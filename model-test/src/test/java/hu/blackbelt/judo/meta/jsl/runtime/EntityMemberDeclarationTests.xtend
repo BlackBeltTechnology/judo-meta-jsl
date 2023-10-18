@@ -199,7 +199,7 @@ class EntityMemberDeclarationTests {
                 field Integer e;
             }
             
-            query Integer q(Integer p = 10 + 10) on E <= E!all()!size();
+            query Integer q(Integer p = 10 + 10) on E <= E.all().size();
         '''.parse => [
             assertNoErrors
         ]
@@ -219,7 +219,7 @@ class EntityMemberDeclarationTests {
             entity E {
                 field Integer e;
 
-                query Integer q(Integer p = self.e) => E!all()!size();
+                query Integer q(Integer p = self.e) => E.all().size();
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.queryParameterDeclaration, JslDslValidator.SELF_NOT_ALLOWED,"Self is not allowed in parameter default expression at 'p'.")
@@ -240,7 +240,7 @@ class EntityMemberDeclarationTests {
             entity E {
                 field Integer e;
 
-                query Integer q(Integer p = 10, Integer q = p) => E!all()!size();
+                query Integer q(Integer p = 10, Integer q = p) => E.all().size();
             }
         '''.parse.assertError(
             JsldslPackage::eINSTANCE.navigationBaseDeclarationReference,

@@ -46,14 +46,14 @@ class TransferTests {
 			
 			transfer T1 {
 			    field String f default:"";
-			    relation T2[] t2 <= E1!all();
+			    relation T2[] t2 <= E1.all();
 			}
 			
 			transfer T2(E1 e1) {
 			    field String f;
 			    field Integer f2 <= e1.f;
 			    field Integer f3 <= e1.f input:true;
-			    field Integer f4 <= E1!all()!size();
+			    field Integer f4 <= E1.all().size();
 			    field EN en <= e1.en input:true;
 			}
 			
@@ -79,7 +79,7 @@ class TransferTests {
             entity E {}
 
             transfer T {
-                field Integer i <= E!all()!size();
+                field Integer i <= E.all().size();
             };
         '''.parse => [
             assertNoErrors
@@ -132,7 +132,7 @@ class TransferTests {
 
             transfer T2(E2 e2) {
                 relation T1 t1r <= e2.e1;
-                relation T1 t1m <= e2.e1 choices:E1!all();
+                relation T1 t1m <= e2.e1 choices:E1.all();
             }
         '''.parse => [
             assertNoErrors
@@ -272,7 +272,7 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                field String f <= E1!any().f input:true;
+                field String f <= E1.any().f input:true;
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.inputModifier, JslDslValidator.INVALID_DECLARATION)
@@ -344,7 +344,7 @@ class TransferTests {
             entity E {}
 
             transfer T {
-                field Integer i <= E!all()!size() input:true;
+                field Integer i <= E.all().size() input:true;
             };
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.inputModifier, JslDslValidator.INVALID_DECLARATION)
@@ -368,7 +368,7 @@ class TransferTests {
             transfer T1 {}
 
             transfer T2 maps E1 as e {
-                relation T1 t1 <= e.e2 choices:E1!all();
+                relation T1 t1 <= e.e2 choices:E1.all();
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
@@ -470,7 +470,7 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                relation T2 t2 <= e1.e2 choices:E2!any();
+                relation T2 t2 <= e1.e2 choices:E2.any();
             }
 
             transfer T2(E2 e2);
@@ -494,7 +494,7 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                relation T2 t2 <= e1.e2 choices:E2!any();
+                relation T2 t2 <= e1.e2 choices:E2.any();
             }
 
             transfer T2(E2 e2);

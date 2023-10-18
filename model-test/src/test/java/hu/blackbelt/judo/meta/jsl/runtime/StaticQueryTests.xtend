@@ -85,7 +85,7 @@ class StaticQueryTests {
 
            // MyEntity
            entity MyEntity {
-               field Timestamp fldCreated default:Timestamp!now();
+               field Timestamp fldCreated default:Timestamp.now();
                field Boolean   fldBool;
                field Date      fldDate;
                field Time      fldTime;
@@ -97,43 +97,43 @@ class StaticQueryTests {
 
            // Entity for the results of queries
            entity Snapshot {
-               field Timestamp created default:Timestamp!now();
+               field Timestamp created default:Timestamp.now();
 
                // relations
                relation MyEntity[] defEntities; // = setOfMyEntities();
            }
 
            query MyEntity[] queryByTimestamp(Timestamp p1 = `2019-07-18T11:11:12.003+02:00`) <=
-               MyEntity!all()
-               !filter(e | e.fldCreated <= p1);
+               MyEntity.all()
+               .filter(e | e.fldCreated <= p1);
 
            query MyEntity[] queryByBoolean(Boolean p1 = false) <=
-               MyEntity!all()
-               !filter(e | e.fldBool == p1);
+               MyEntity.all()
+               .filter(e | e.fldBool == p1);
 
            query MyEntity[] queryByDate(Date p1 = `2019-07-18`) <=
-               MyEntity!all()
-               !filter(e | e.fldDate == p1);
+               MyEntity.all()
+               .filter(e | e.fldDate == p1);
 
            query MyEntity[] queryByTime(Time p1 = `11:11:12`) <=
-               MyEntity!all()
-               !filter(e | e.fldTime == p1);
+               MyEntity.all()
+               .filter(e | e.fldTime == p1);
 
            query MyEntity[] queryByLong(Long p1 = 9999) <=
-               MyEntity!all()
-               !filter(e | e.fldLong == p1);
+               MyEntity.all()
+               .filter(e | e.fldLong == p1);
 
            query MyEntity[] queryByString(String p1 = "Lorem ipsum") <=
-               MyEntity!all()
-               !filter(e | e.fldString == p1);
+               MyEntity.all()
+               .filter(e | e.fldString == p1);
 
            query MyEntity[] queryByDecimal(Decimal p1 = -1526.225) <=
-               MyEntity!all()
-               !filter(e | e.fldDecimal == p1);
+               MyEntity.all()
+               .filter(e | e.fldDecimal == p1);
 
            query MyEntity[] queryByMyEnum(MyEnum p1 = MyEnum#A00) <=
-               MyEntity!all()
-               !filter(e | e.fldEnum == p1);
+               MyEntity.all()
+               .filter(e | e.fldEnum == p1);
         '''.parse => [
             assertNoErrors
         ]
@@ -202,7 +202,7 @@ class StaticQueryTests {
 
            // MyEntity
            entity MyEntity {
-               field Timestamp fldCreated = Timestamp!now();
+               field Timestamp fldCreated = Timestamp.now();
                field Boolean   fldBool;
                field Date      fldDate;
                field Time      fldTime;
@@ -214,51 +214,51 @@ class StaticQueryTests {
 
            // Entity for the results of queries
            entity Snapshot {
-               field Timestamp created = Timestamp!now();
+               field Timestamp created = Timestamp.now();
 
                // relations
                relation MyEntity[] defEntities; // = setOfMyEntities();
            }
 
            query MyEntity[] queryByTimestamp(
-               Timestamp p1 = Timestamp!now()
-           ) => MyEntity!all()
-                !filter(e | e.fldCreated <= p1);
+               Timestamp p1 = Timestamp.now()
+           ) => MyEntity.all()
+                .filter(e | e.fldCreated <= p1);
 
            query MyEntity[] queryByBoolean(
                Boolean p1 = (1 >= 2)
-           ) => MyEntity!all()
-                !filter(e | e.fldBool == p1);
+           ) => MyEntity.all()
+                .filter(e | e.fldBool == p1);
 
            query MyEntity[] queryByDate(
-               Date p1 = Date!now()
-           ) => MyEntity!all()
-                !filter(e | e.fldDate == p1);
+               Date p1 = Date.now()
+           ) => MyEntity.all()
+                .filter(e | e.fldDate == p1);
 
            query MyEntity[] queryByTime(
-               Time p1 = Time!now()
-           ) => MyEntity!all()
-                !filter(e | e.fldTime == p1);
+               Time p1 = Time.now()
+           ) => MyEntity.all()
+                .filter(e | e.fldTime == p1);
 
            query MyEntity[] queryByLong(
                Long p1 = (1 + 2)
-           ) => MyEntity!all()
-                !filter(e | e.fldLong == p1);
+           ) => MyEntity.all()
+                .filter(e | e.fldLong == p1);
 
            query MyEntity[] queryByString(
-               String p1 = "Lorem ipsum"!left(count = 2)
-           ) => MyEntity!all()
-                !filter(e | e.fldString == p1);
+               String p1 = "Lorem ipsum".left(count = 2)
+           ) => MyEntity.all()
+                .filter(e | e.fldString == p1);
 
            query MyEntity[] queryByDecimal(
-               Decimal p1 = (-1526.225)!round(scale = 2)
-           ) => MyEntity!all()
-                !filter(e | e.fldDecimal == p1);
+               Decimal p1 = (-1526.225).round(scale = 2)
+           ) => MyEntity.all()
+                .filter(e | e.fldDecimal == p1);
 
            query MyEntity[] queryByMyEnum(
                MyEnum p1 = (1 <= 2 ? MyEnum#A00 : MyEnum#A03)
-           ) => MyEntity!all()
-                !filter(e | e.fldEnum == p1);
+           ) => MyEntity.all()
+                .filter(e | e.fldEnum == p1);
         '''.parse => [
             assertNoErrors
         ]
@@ -346,15 +346,15 @@ class StaticQueryTests {
             }
 
             // static queries
-            query Boolean   anyMyEntityFBool()      <= MyEntity!all()!any().fldBool;
-            query Date      anyMyEntityFDate()      <= MyEntity!all()!any().fldDate;
-            query Time      anyMyEntityFTime()      <= MyEntity!all()!any().fldTime;
-            query Timestamp anyMyEntityFTimestamp() <= MyEntity!all()!any().fldTimestamp;
-            query Long      anyMyEntityFLong()      <= MyEntity!all()!any().fldLong;
-            query String    anyMyEntityFString()    <= MyEntity!all()!any().fldString;
-            query Decimal   anyMyEntityFDecimal()   <= MyEntity!all()!any().fldDecimal;
-            query MyEnum    anyMyEntityFEnum()      <= MyEntity!all()!any().fldEnum;
-            query MyEntity[] listOfMyEntities()     <= MyEntity!all();
+            query Boolean   anyMyEntityFBool()      <= MyEntity.all().any().fldBool;
+            query Date      anyMyEntityFDate()      <= MyEntity.all().any().fldDate;
+            query Time      anyMyEntityFTime()      <= MyEntity.all().any().fldTime;
+            query Timestamp anyMyEntityFTimestamp() <= MyEntity.all().any().fldTimestamp;
+            query Long      anyMyEntityFLong()      <= MyEntity.all().any().fldLong;
+            query String    anyMyEntityFString()    <= MyEntity.all().any().fldString;
+            query Decimal   anyMyEntityFDecimal()   <= MyEntity.all().any().fldDecimal;
+            query MyEnum    anyMyEntityFEnum()      <= MyEntity.all().any().fldEnum;
+            query MyEntity[] listOfMyEntities()     <= MyEntity.all();
         '''.parse => [
             assertNoErrors
         ]
@@ -422,7 +422,7 @@ class StaticQueryTests {
 
             // MyEntity
             entity MyEntity {
-                field Timestamp fldCreated = Timestamp!now();
+                field Timestamp fldCreated = Timestamp.now();
                 field Boolean   fldBool;
                 field Date      fldDate;
                 field Time      fldTime;
@@ -435,7 +435,7 @@ class StaticQueryTests {
 
             // Entity for the results of queries
             entity Snapshot1 {
-                field Timestamp created = Timestamp!now();
+                field Timestamp created = Timestamp.now();
 
                 // fields
                 field MyEntity fMyEntity001 = anyMyEntity001();
@@ -452,33 +452,33 @@ class StaticQueryTests {
 
             // static queries
             query MyEntity anyMyEntity001(
-                Timestamp p1 = Timestamp!now()!plus(days = -7),
+                Timestamp p1 = Timestamp.now().plus(days = -7),
                 Boolean p2 = true,
                 Long p3 = 13
-            ) <= MyEntity!all()
-                 !filter(e | p1 <= e.fldCreated and p2 == e.fldBool and p3 <= e.fldLong)
-                 !any();
+            ) <= MyEntity.all()
+                 .filter(e | p1 <= e.fldCreated and p2 == e.fldBool and p3 <= e.fldLong)
+                 .any();
 
             query MyEntity anyMyEntity002(
-                Date p1 = Timestamp!now()!date(),
-                Time p2 = Timestamp!now()!time(),
+                Date p1 = Timestamp.now().date(),
+                Time p2 = Timestamp.now().time(),
                 String p3 = "Lorem ipsum"
-            ) <= MyEntity!all()
-                 !filter(e | p1 == e.fldDate and p2 <= e.Time and p3 != e.fldString)
-                 !any();
+            ) <= MyEntity.all()
+                 .filter(e | p1 == e.fldDate and p2 <= e.Time and p3 .= e.fldString)
+                 .any();
 
             query MyEntity anyMyEntity003(
                 Decimal p1 = 999999999.9999,
                 MyEnum p2 = MyEnum#A00,
                 Boolean p3 = false
-            ) <= MyEntity!all()
-                 !filter(e | p1 <= e.fldDecimal and e.fldEnum >= p2 or p3 == e.fldBool)
-                 !any();
+            ) <= MyEntity.all()
+                 .filter(e | p1 <= e.fldDecimal and e.fldEnum >= p2 or p3 == e.fldBool)
+                 .any();
 
             query MyEntity[] setOfMyEntities(
                 MyEnum p1 = MyEnum#A03
-            ) <= MyEntity!all()
-                 !filter(e | p1 == e.fldEnum and e.fldCreated <= Timestamp!now())
+            ) <= MyEntity.all()
+                 .filter(e | p1 == e.fldEnum and e.fldCreated <= Timestamp.now())
         '''.parse => [
             assertNoErrors
         ]

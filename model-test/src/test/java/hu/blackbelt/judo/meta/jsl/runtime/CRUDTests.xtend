@@ -35,7 +35,7 @@ class CRUDTests {
 			}
 			
 			transfer TB(B b) {
-				relation TA[] talist <= b.alist choices:A!all() create:true delete:true update:true;
+				relation TA[] talist <= b.alist choices:A.all() create:true delete:true update:true;
 			}
         '''.parse => [
             assertNoErrors
@@ -81,7 +81,7 @@ class CRUDTests {
 			}
 			
 			actor Actor {
-				menu TA[] talist <= A!all() create:true delete:true update:true;
+				menu TA[] talist <= A.all() create:true delete:true update:true;
 			}
         '''.parse => [
             assertNoErrors

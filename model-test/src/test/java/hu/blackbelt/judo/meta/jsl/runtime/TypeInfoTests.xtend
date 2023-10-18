@@ -267,7 +267,7 @@ class TypeInfoTests {
 
 
             entity Test {
-                relation T1 t1sd <= T1!all()!any();
+                relation T1 t1sd <= T1.all().any();
             }
         '''.parse
         p.assertNoErrors
@@ -497,25 +497,25 @@ class TypeInfoTests {
 
 
             entity Test {
-                field String left <= "Test"!left(count = 1);
-                field String right <= "Test"!right(count = 1);
-                field Integer position <= "Test"!position(substring = "es");
-                field String substring <= "Test"!substring(count = 1, offset = 2);
-                field String lower <= "Test"!lower();
-                field String upper <= "Test"!upper();
-                field String lowerCase <= "Test"!lower();
-                field String upperCase <= "Test"!upper();
-                field String capitalize <= "Test"!capitalize();
-                field Boolean matches <= "Test"!matches(pattern = r".*es.*");
-                field Boolean like <= "Test"!like(pattern = "%es%");
-                field Boolean ilike <= "Test"!ilike(pattern = "%es%");
-                field String replace <= "Test"!replace(oldstring = "es", newstring = "ee");
-                field String trim <= "Test"!trim();
-                field String ltrim <= "Test"!ltrim();
-                field String rtrim <= "Test"!rtrim();
-                field String lpad <= "Test"!lpad(size = 10, padstring = "--");
-                field String rpad <= "Test"!rpad(size = 10, padstring = "--");
-                field Integer size <= "Test"!size();
+                field String left <= "Test".left(count = 1);
+                field String right <= "Test".right(count = 1);
+                field Integer position <= "Test".position(substring = "es");
+                field String substring <= "Test".substring(count = 1, offset = 2);
+                field String lower <= "Test".lower();
+                field String upper <= "Test".upper();
+                field String lowerCase <= "Test".lower();
+                field String upperCase <= "Test".upper();
+                field String capitalize <= "Test".capitalize();
+                field Boolean matches <= "Test".matches(pattern = r".*es.*");
+                field Boolean like <= "Test".like(pattern = "%es%");
+                field Boolean ilike <= "Test".ilike(pattern = "%es%");
+                field String replace <= "Test".replace(oldstring = "es", newstring = "ee");
+                field String trim <= "Test".trim();
+                field String ltrim <= "Test".ltrim();
+                field String rtrim <= "Test".rtrim();
+                field String lpad <= "Test".lpad(size = 10, padstring = "--");
+                field String rpad <= "Test".rpad(size = 10, padstring = "--");
+                field Integer size <= "Test".size();
             }
         '''.parse
         p.assertNoErrors
@@ -605,12 +605,12 @@ class TypeInfoTests {
             type boolean Boolean;
 
             entity Test {
-                field Integer numeric <= Integer!getVariable(category = "ENV", key = "NUMERIC");
-                field Date date <= Date!getVariable(category = "ENV", key = "DATE");
-                field Timestamp timestamp <= Timestamp!getVariable(category = "ENV", key = "TIMESTAMP");
-                field Time time <= Time!getVariable(category = "ENV", key = "TIME");
-                field String string <= String!getVariable(category = "ENV", key = "STRING");
-                field Boolean boolean <= Boolean!getVariable(category = "ENV", key = "BOOLEAN");
+                field Integer numeric <= Integer.getVariable(category = "ENV", key = "NUMERIC");
+                field Date date <= Date.getVariable(category = "ENV", key = "DATE");
+                field Timestamp timestamp <= Timestamp.getVariable(category = "ENV", key = "TIMESTAMP");
+                field Time time <= Time.getVariable(category = "ENV", key = "TIME");
+                field String string <= String.getVariable(category = "ENV", key = "STRING");
+                field Boolean boolean <= Boolean.getVariable(category = "ENV", key = "BOOLEAN");
             }
         '''.parse
         p.assertNoErrors
@@ -660,9 +660,9 @@ class TypeInfoTests {
             type time Time;
 
             entity Test {
-                field Date date <= Date!now();
-                field Timestamp timestamp <= Timestamp!now();
-                field Time time <= Time!now();
+                field Date date <= Date.now();
+                field Timestamp timestamp <= Timestamp.now();
+                field Time time <= Time.now();
             }
         '''.parse
         p.assertNoErrors
@@ -712,12 +712,12 @@ class TypeInfoTests {
             type boolean Boolean;
 
             entity Test {
-                field Boolean numeric <= Integer!getVariable(category = "ENV", key = "NUMERIC")!isDefined();
-                field Boolean date <= Date!getVariable(category = "ENV", key = "DATE")!isDefined();
-                field Boolean timestamp <= Timestamp!getVariable(category = "ENV", key = "TIMESTAMP")!isDefined();
-                field Boolean time <= Time!getVariable(category = "ENV", key = "TIME")!isDefined();
-                field Boolean string <= String!getVariable(category = "ENV", key = "STRING")!isDefined();
-                field Boolean boolean <= Boolean!getVariable(category = "ENV", key = "BOOLEAN")!isDefined();
+                field Boolean numeric <= Integer.getVariable(category = "ENV", key = "NUMERIC").isDefined();
+                field Boolean date <= Date.getVariable(category = "ENV", key = "DATE").isDefined();
+                field Boolean timestamp <= Timestamp.getVariable(category = "ENV", key = "TIMESTAMP").isDefined();
+                field Boolean time <= Time.getVariable(category = "ENV", key = "TIME").isDefined();
+                field Boolean string <= String.getVariable(category = "ENV", key = "STRING").isDefined();
+                field Boolean boolean <= Boolean.getVariable(category = "ENV", key = "BOOLEAN").isDefined();
             }
         '''.parse
         p.assertNoErrors
@@ -772,12 +772,12 @@ class TypeInfoTests {
             type boolean Boolean;
 
             entity Test {
-                field Boolean numeric <= 12!isUndefined();
-                field Boolean date <= `2022-01-01`!isUndefined();
-                field Boolean timestamp <= `2022-01-01T12:00:00Z`!isUndefined();
-                field Boolean time <= `12:00:00`!isUndefined();
-                field Boolean string <= "Test"!isUndefined();
-                field Boolean boolean <= true!isUndefined();
+                field Boolean numeric <= 12.isUndefined();
+                field Boolean date <= `2022-01-01`.isUndefined();
+                field Boolean timestamp <= `2022-01-01T12:00:00Z`.isUndefined();
+                field Boolean time <= `12:00:00`.isUndefined();
+                field Boolean string <= "Test".isUndefined();
+                field Boolean boolean <= true.isUndefined();
             }
         '''.parse
         p.assertNoErrors
@@ -839,7 +839,7 @@ class TypeInfoTests {
 
             entity Test {
                 relation T1[] t1s;
-                field Integer size <= self.t1s!size();
+                field Integer size <= self.t1s.size();
 
             }
         '''.parse
@@ -885,12 +885,12 @@ class TypeInfoTests {
             type boolean Boolean;
 
             entity Test {
-                field Integer numeric <= 12!orElse(value = 11);
-                field Date date <= `2022-01-01`!orElse(value = `2022-01-01`);
-                field Timestamp timestamp <= `2022-01-01T12:00:00Z`!orElse(value = `2023-01-01T12:00:00Z`);
-                field Time time <= `12:00:00`!orElse(value = `13:00:00`);
-                field String string <= "Test"!orElse(value = "Test2");
-                field Boolean boolean <= true!orElse(value = false);
+                field Integer numeric <= 12.orElse(value = 11);
+                field Date date <= `2022-01-01`.orElse(value = `2022-01-01`);
+                field Timestamp timestamp <= `2022-01-01T12:00:00Z`.orElse(value = `2023-01-01T12:00:00Z`);
+                field Time time <= `12:00:00`.orElse(value = `13:00:00`);
+                field String string <= "Test".orElse(value = "Test2");
+                field Boolean boolean <= true.orElse(value = false);
             }
         '''.parse
         p.assertNoErrors
@@ -935,10 +935,10 @@ class TypeInfoTests {
             type numeric Decimal precision:9 scale:2;
 
             entity Test {
-                field Decimal floor <= 12!floor();
-                field Decimal ceil <= 12!ceil();
-                field Decimal abs <= 12!abs();
-                field Decimal round <= 12!round(scale = 2);
+                field Decimal floor <= 12.floor();
+                field Decimal ceil <= 12.ceil();
+                field Decimal abs <= 12.abs();
+                field Decimal round <= 12.round(scale = 2);
             }
         '''.parse
         p.assertNoErrors
@@ -994,11 +994,11 @@ class TypeInfoTests {
             type boolean Boolean;
 
             entity Test {
-                field String numeric <= 12!asString();
-                field String date <= `2022-01-01`!asString();
-                field String timestamp <= `2022-01-01T12:00:00Z`!asString();
-                field String time <= `12:00:00`!asString();
-                field String boolean <= true!asString();
+                field String numeric <= 12.asString();
+                field String date <= `2022-01-01`.asString();
+                field String timestamp <= `2022-01-01T12:00:00Z`.asString();
+                field String time <= `12:00:00`.asString();
+                field String boolean <= true.asString();
             }
         '''.parse
         p.assertNoErrors
@@ -1044,12 +1044,12 @@ class TypeInfoTests {
             type numeric Integer precision:9 scale:0;
 
             entity Test {
-                field Integer year <= `2022-01-01`!year();
-                field Integer month <= `2022-01-01`!month();
-                field Integer day <= `2022-01-01`!day();
-                field Integer dayOfWeek <= `2022-01-01`!dayOfWeek();
-                field Integer dayOfYear <= `2022-01-01`!dayOfYear();
-                field Date date <= Date!of(year = 2022, month = 1, day = 1);
+                field Integer year <= `2022-01-01`.year();
+                field Integer month <= `2022-01-01`.month();
+                field Integer day <= `2022-01-01`.day();
+                field Integer dayOfWeek <= `2022-01-01`.dayOfWeek();
+                field Integer dayOfYear <= `2022-01-01`.dayOfYear();
+                field Date date <= Date.of(year = 2022, month = 1, day = 1);
             }
         '''.parse
         p.assertNoErrors
@@ -1098,10 +1098,10 @@ class TypeInfoTests {
             type numeric Integer precision:9 scale:0;
 
             entity Test {
-                field Integer hour <= `12:00:00`!hour();
-                field Integer minute <= `12:00:00`!minute();
-                field Integer second <= `12:00:00`!second();
-                field Time time <= Time!of(hour = 12, minute = 2, second = 23);
+                field Integer hour <= `12:00:00`.hour();
+                field Integer minute <= `12:00:00`.minute();
+                field Integer second <= `12:00:00`.second();
+                field Time time <= Time.of(hour = 12, minute = 2, second = 23);
             }
         '''.parse
         p.assertNoErrors
@@ -1149,12 +1149,12 @@ class TypeInfoTests {
             type numeric Integer precision:10 scale:0;
 
             entity Test {
-                field Date date <= `2022-01-01T12:00:00Z`!date();
-                field Time time <= `2022-01-01T12:00:00Z`!time();
-                field Integer asMilliseconds <= `2022-01-01T12:00:00Z`!asMilliseconds();
-                field Timestamp fromMilliseconds <= Timestamp!fromMilliseconds(milliseconds = 12);
-                field Timestamp timestamp <= Timestamp!of(date = Date!of(year = 2022, month = 1, day = 1), time = Time!of(hour = 12, minute = 2, second = 23));
-                field Timestamp plus <= `2022-01-01T12:00:00Z`!plus(years = 1, months = -1, days = 0, hours = 12, minutes = 11, seconds = 1, milliseconds = 12);
+                field Date date <= `2022-01-01T12:00:00Z`.date();
+                field Time time <= `2022-01-01T12:00:00Z`.time();
+                field Integer asMilliseconds <= `2022-01-01T12:00:00Z`.asMilliseconds();
+                field Timestamp fromMilliseconds <= Timestamp.fromMilliseconds(milliseconds = 12);
+                field Timestamp timestamp <= Timestamp.of(date = Date.of(year = 2022, month = 1, day = 1), time = Time.of(hour = 12, minute = 2, second = 23));
+                field Timestamp plus <= `2022-01-01T12:00:00Z`.plus(years = 1, months = -1, days = 0, hours = 12, minutes = 11, seconds = 1, milliseconds = 12);
 
             }
         '''.parse
@@ -1216,11 +1216,11 @@ class TypeInfoTests {
                 field T2 t2;
                 field T2[] t2s;
 
-                field Boolean typeOf <= self.t1!typeOf(entityType = T1);
-                field Boolean kindOf <= self.t1!kindOf(entityType = T1);
-                relation Test container <= self.t1!container(entityType = Test);
-                relation T1 asType <= self.t2!asType(entityType = T1);
-                field Boolean memberOf <= self.t2!memberOf(instances = self.t2s);
+                field Boolean typeOf <= self.t1.typeOf(entityType = T1);
+                field Boolean kindOf <= self.t1.kindOf(entityType = T1);
+                relation Test container <= self.t1.container(entityType = Test);
+                relation T1 asType <= self.t2.asType(entityType = T1);
+                field Boolean memberOf <= self.t2.memberOf(instances = self.t2s);
 
             }
         '''.parse
@@ -1291,12 +1291,12 @@ class TypeInfoTests {
                 field T1[] t1s;
                 field T1 t1;
 
-                relation T1[] head <= self.t1s!first(t | t.name);
-                relation T1[] tail <= self.t1s!last(t | t.name);
-                relation T1 any <= self.t1s!any();
-                field Integer size <= self.t1s!size();
-                field Boolean contains <= self.t1s!contains(instance = self.t1);
-                relation T1[] asCollection <= self.t1s!asCollection(entityType = T1);
+                relation T1[] head <= self.t1s.first(t | t.name);
+                relation T1[] tail <= self.t1s.last(t | t.name);
+                relation T1 any <= self.t1s.any();
+                field Integer size <= self.t1s.size();
+                field Boolean contains <= self.t1s.contains(instance = self.t1);
+                relation T1[] asCollection <= self.t1s.asCollection(entityType = T1);
             }
         '''.parse
         p.assertNoErrors
@@ -1373,16 +1373,16 @@ class TypeInfoTests {
                 field T1[] t1s;
                 field T1 t1;
 
-                relation T1[] filter <= self.t1s!filter(t | t.name == "Test");
-                field Boolean anyTrue <= self.t1s!anyTrue(t | t.name == "Test");
-                field Boolean allTrue <= self.t1s!allTrue(t | t.name == "Test");
-                field Boolean anyFalse <= self.t1s!anyFalse(t | t.name == "Test");
-                field Boolean allFalse <= self.t1s!allFalse(t | t.name == "Test");
+                relation T1[] filter <= self.t1s.filter(t | t.name == "Test");
+                field Boolean anyTrue <= self.t1s.anyTrue(t | t.name == "Test");
+                field Boolean allTrue <= self.t1s.allTrue(t | t.name == "Test");
+                field Boolean anyFalse <= self.t1s.anyFalse(t | t.name == "Test");
+                field Boolean allFalse <= self.t1s.allFalse(t | t.name == "Test");
 
-                field Decimal min <= self.t1s!min(t | t.price);
-                field Decimal max <= self.t1s!max(t | t.price);
-                field Decimal avg <= self.t1s!avg(t | t.price);
-                field Decimal sum <= self.t1s!sum(t | t.price);
+                field Decimal min <= self.t1s.min(t | t.price);
+                field Decimal max <= self.t1s.max(t | t.price);
+                field Decimal avg <= self.t1s.avg(t | t.price);
+                field Decimal sum <= self.t1s.sum(t | t.price);
             }
         '''.parse
         p.assertNoErrors
@@ -1450,30 +1450,30 @@ class TypeInfoTests {
 			type numeric Integer precision:9 scale:0;
 			type string String min-size:0 max-size:128;
 			
-			query Lead[] staticLeadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
+			query Lead[] staticLeadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= Lead.all().filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
 			query Lead[] staticLeadsOverWithMin(Integer minLeadsOverMin = 5) <= staticLeadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
-			query Integer staticLeadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
+			query Integer staticLeadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <= Lead.all().filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween).size();
 			query Integer staticLeadsOverWithMinCount(Integer minLeadsOverMin = 5) <= staticLeadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
 			//query Lead[] staticLeadsBetweenAndSalesPersonLeads(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) <=
-			//    Lead!all()!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween).salesPerson!leadsBetween(minLeadsBetween = minLeadsBetween, maxLeadsBetween = maxLeadsBetween);
+			//    Lead.all().filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween).salesPerson.leadsBetween(minLeadsBetween = minLeadsBetween, maxLeadsBetween = maxLeadsBetween);
 			
-			query Lead[] leadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) on SalesPerson <= self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
-			query Lead[] leadsOverWithMin(Integer minLeadsOverMin = 5) on SalesPerson  <= self!leadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
+			query Lead[] leadsBetween(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) on SalesPerson <= self.leads.filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween);
+			query Lead[] leadsOverWithMin(Integer minLeadsOverMin = 5) on SalesPerson  <= self.leadsBetween(minLeadsBetween = minLeadsOverMin , maxLeadsBetween = 100);
 			query Lead[] leadsOverWithMinStatic(Integer minLeadsOverMin = 5) on SalesPerson  <= staticLeadsBetween(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
 			
-			query Integer leadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) on SalesPerson <= self.leads!filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween)!size();
-			query Integer leadsOverWithMinCount(Integer minLeadsOverMin = 5) on SalesPerson <= self!leadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
+			query Integer leadsBetweenCount(Integer minLeadsBetween = 1, Integer maxLeadsBetween = 50) on SalesPerson <= self.leads.filter(lead | lead.value > minLeadsBetween and lead.value < maxLeadsBetween).size();
+			query Integer leadsOverWithMinCount(Integer minLeadsOverMin = 5) on SalesPerson <= self.leadsBetweenCount(minLeadsBetween = minLeadsOverMin, maxLeadsBetween = 100);
 			
 			entity SalesPerson {
 			    relation Lead[] leads opposite:salesPerson;
 			
-			    relation Lead[] leadsOver10 <= self!leadsOverWithMin(minLeadsOverMin = 10);
-			    relation Lead[] leadsOver20 <= self!leadsBetween(minLeadsBetween = 20);
+			    relation Lead[] leadsOver10 <= self.leadsOverWithMin(minLeadsOverMin = 10);
+			    relation Lead[] leadsOver20 <= self.leadsBetween(minLeadsBetween = 20);
 			    relation Lead[] leadsOver10Static <= staticLeadsOverWithMin(minLeadsOverMin = 10);
 			    relation Lead[] leadsOver20Static <= staticLeadsBetween(minLeadsBetween = 20);
 			
-			    field Integer leadsOver10Count <= self!leadsOverWithMinCount(minLeadsOverMin = 10);
-			    field Integer leadsOver20Count <= self!leadsBetweenCount(minLeadsBetween = 20);
+			    field Integer leadsOver10Count <= self.leadsOverWithMinCount(minLeadsOverMin = 10);
+			    field Integer leadsOver20Count <= self.leadsBetweenCount(minLeadsBetween = 20);
 			    field Integer leadsOver10CountStatic <= staticLeadsOverWithMinCount(minLeadsOverMin = 10);
 			    field Integer leadsOver20CountStatic <= staticLeadsBetweenCount(minLeadsBetween = 20);
 			}

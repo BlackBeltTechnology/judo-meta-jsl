@@ -85,7 +85,7 @@ class InstanceQueryTests {
 			
 			// MyEntity
 			entity MyEntity {
-			    field Timestamp fldCreated default:Timestamp!now();
+			    field Timestamp fldCreated default:Timestamp.now();
 			    field Boolean   fldBool;
 			    field Date      fldDate;
 			    field Time      fldTime;
@@ -97,77 +97,77 @@ class InstanceQueryTests {
 			
 			// Parent entity that contains the instance queries
 			entity ParentEntity {
-			    field Timestamp created default:Timestamp!now();
+			    field Timestamp created default:Timestamp.now();
 			
 			    // relations
 			    relation MyEntity   firstEntity;
 			    relation MyEntity[] otherEntities;
 			        
-			    relation MyEntity derivedByTimestamp1 <= self!queryByTimestamp();
-			    relation MyEntity derivedByTimestamp2 <= self!queryByTimestamp(p1 = `2023-07-18T11:11:12.003-02:00`);
+			    relation MyEntity derivedByTimestamp1 <= self.queryByTimestamp();
+			    relation MyEntity derivedByTimestamp2 <= self.queryByTimestamp(p1 = `2023-07-18T11:11:12.003-02:00`);
 			    
-			    relation MyEntity derivedByBoolean1 <= self!queryByBoolean();
-			    relation MyEntity derivedByBoolean2 <= self!queryByBoolean(p1 = true);
+			    relation MyEntity derivedByBoolean1 <= self.queryByBoolean();
+			    relation MyEntity derivedByBoolean2 <= self.queryByBoolean(p1 = true);
 			    
-			    relation MyEntity derivedByDate1 <= self!queryByDate();
-			    relation MyEntity derivedByDate2 <= self!queryByDate(p1 = `2019-07-18`);
+			    relation MyEntity derivedByDate1 <= self.queryByDate();
+			    relation MyEntity derivedByDate2 <= self.queryByDate(p1 = `2019-07-18`);
 			    
-			    relation MyEntity derivedByTime1 <= self!queryByTime();
-			    relation MyEntity derivedByTime2 <= self!queryByTime(p1 = `11:11:12`);
+			    relation MyEntity derivedByTime1 <= self.queryByTime();
+			    relation MyEntity derivedByTime2 <= self.queryByTime(p1 = `11:11:12`);
 			    
-			    relation MyEntity derivedByLong1 <= self!queryByLong();
-			    relation MyEntity derivedByLong2 <= self!queryByLong(p1 = 9999);
+			    relation MyEntity derivedByLong1 <= self.queryByLong();
+			    relation MyEntity derivedByLong2 <= self.queryByLong(p1 = 9999);
 			    
-			    relation MyEntity derivedByString1 <= self!queryByString();
-			    relation MyEntity derivedByString2 <= self!queryByString(p1 = "Lorem ipsum");
+			    relation MyEntity derivedByString1 <= self.queryByString();
+			    relation MyEntity derivedByString2 <= self.queryByString(p1 = "Lorem ipsum");
 			    
-			    relation MyEntity derivedByDecimal1 <= self!queryByDecimal();
-			    relation MyEntity derivedByDecimal2 <= self!queryByDecimal(p1 = -1526.225);
+			    relation MyEntity derivedByDecimal1 <= self.queryByDecimal();
+			    relation MyEntity derivedByDecimal2 <= self.queryByDecimal(p1 = -1526.225);
 			    
-			    relation MyEntity derivedByEnum1 <= self!queryByMyEnum();
-			    relation MyEntity derivedByEnum2 <= self!queryByMyEnum(p1 = MyEnum#A00); 
+			    relation MyEntity derivedByEnum1 <= self.queryByMyEnum();
+			    relation MyEntity derivedByEnum2 <= self.queryByMyEnum(p1 = MyEnum#A00); 
 			
 			}
 			
 			query MyEntity queryByTimestamp(Timestamp p1 = `2019-07-18T11:11:12.003+02:00`) on ParentEntity <=
 			    self.otherEntities
-			    !filter(e | e.fldCreated <= p1)
-			    !any();
+			    .filter(e | e.fldCreated <= p1)
+			    .any();
 			
 			query MyEntity queryByBoolean(Boolean p1 = false) on ParentEntity  <=
 			    self.otherEntities
-			    !filter(e | e.fldBool == p1)
-			    !any();
+			    .filter(e | e.fldBool == p1)
+			    .any();
 			
 			query MyEntity queryByDate(Date p1 = `2019-07-18`) on ParentEntity  <=
 			    self.otherEntities
-			    !filter(e | e.fldDate == p1)
-			    !any();
+			    .filter(e | e.fldDate == p1)
+			    .any();
 			
 			query MyEntity queryByTime(Time p1 = `11:11:12`) on ParentEntity  <=
 			    self.otherEntities
-			    !filter(e | e.fldTime == p1)
-			    !any();
+			    .filter(e | e.fldTime == p1)
+			    .any();
 			
 			query MyEntity queryByLong(Long p1 = 9999) on ParentEntity  <=
 			    self.otherEntities
-			    !filter(e | e.fldLong == p1)
-			    !any();
+			    .filter(e | e.fldLong == p1)
+			    .any();
 			
 			query MyEntity queryByString(String p1 = "Lorem ipsum") on ParentEntity  <=
 			    self.otherEntities
-			    !filter(e | e.fldString == p1)
-			    !any();
+			    .filter(e | e.fldString == p1)
+			    .any();
 			
 			query MyEntity queryByDecimal(Decimal p1 = -1526.225) on ParentEntity  <=
 			    self.otherEntities
-			    !filter(e | e.fldDecimal == p1)
-			    !any();
+			    .filter(e | e.fldDecimal == p1)
+			    .any();
 			
 			query MyEntity queryByMyEnum(MyEnum p1 = MyEnum#A00) on ParentEntity  <=
 			    self.otherEntities
-			    !filter(e | e.fldEnum == p1)
-			    !any();
+			    .filter(e | e.fldEnum == p1)
+			    .any();
         '''.parse => [
             assertNoErrors
         ]
@@ -241,7 +241,7 @@ class InstanceQueryTests {
 			
 			// MyEntity
 			entity MyEntity {
-			    field Timestamp fldCreated default:Timestamp!now();
+			    field Timestamp fldCreated default:Timestamp.now();
 			    field Boolean   fldBool;
 			    field Date      fldDate;
 			    field Time      fldTime;
@@ -253,18 +253,18 @@ class InstanceQueryTests {
 			
 			// Parent entity that contains the instance queries
 			entity ParentEntity {
-			    field Timestamp created default:Timestamp!now();
+			    field Timestamp created default:Timestamp.now();
 			
 			    // relations
 			    relation MyEntity   firstEntity;
 			    relation MyEntity[] otherEntities;         
 			    
-			    relation MyEntity derived001 <= self!queryWithMoreParam001();
-			    relation MyEntity derived002 <= self!queryWithMoreParam002();
-			    relation MyEntity derived003 <= self!queryWithMoreParam003();
-			    relation MyEntity derived004 <= self!queryWithMoreParam001(p2 = false);
-			    relation MyEntity derived005 <= self!queryWithMoreParam002(p3 = "AAA", p1 = `2023-01-01`);
-			    relation MyEntity derived006 <= self!queryWithMoreParam003(p1 = -10, p3 = true, p2 = MyEnum#A02);
+			    relation MyEntity derived001 <= self.queryWithMoreParam001();
+			    relation MyEntity derived002 <= self.queryWithMoreParam002();
+			    relation MyEntity derived003 <= self.queryWithMoreParam003();
+			    relation MyEntity derived004 <= self.queryWithMoreParam001(p2 = false);
+			    relation MyEntity derived005 <= self.queryWithMoreParam002(p3 = "AAA", p1 = `2023-01-01`);
+			    relation MyEntity derived006 <= self.queryWithMoreParam003(p1 = -10, p3 = true, p2 = MyEnum#A02);
 			    
 			    // relations
 			    //relation MyEntity[] defEntities => self.setOfMyEntities();
@@ -277,29 +277,29 @@ class InstanceQueryTests {
 			    Boolean p2 = true,
 			    Long p3 = 13
 			) on ParentEntity <= self.otherEntities
-			     !filter(e | p1 <= e.fldCreated and p2 == e.fldBool and p3 <= e.fldLong)
-			     !any();
+			     .filter(e | p1 <= e.fldCreated and p2 == e.fldBool and p3 <= e.fldLong)
+			     .any();
 			     
 			query MyEntity queryWithMoreParam002(
 			    Date p1 = `2019-07-18`,
 			    Time p2 = `11:11:12`,
 			    String p3 = "Lorem ipsum"
 			) on ParentEntity  <= self.otherEntities
-			     !filter(e | p1 == e.fldDate and p2 <= e.fldTime and p3 != e.fldString)
-			     !any();
+			     .filter(e | p1 == e.fldDate and p2 <= e.fldTime and p3 != e.fldString)
+			     .any();
 			
 			query MyEntity queryWithMoreParam003(
 			    Decimal p1 = 999999999.9999,
 			    MyEnum p2 = MyEnum#A00,
 			    Boolean p3 = false
 			) on ParentEntity  <= self.otherEntities
-			     !filter(e | p1 <= e.fldDecimal and e.fldEnum >= p2 or p3 == e.fldBool)
-			     !any();
+			     .filter(e | p1 <= e.fldDecimal and e.fldEnum >= p2 or p3 == e.fldBool)
+			     .any();
 			
 			query MyEntity[] setOfMyEntities(
 			    MyEnum p1 = MyEnum#A03
 			) on ParentEntity  <= self.otherEntities
-			     !filter(e | p1 == e.fldEnum and e.fldCreated <= Timestamp!now());
+			     .filter(e | p1 == e.fldEnum and e.fldCreated <= Timestamp.now());
          '''.parse => [
             assertNoErrors
         ]
@@ -372,7 +372,7 @@ class InstanceQueryTests {
 			
 			// MyEntity
 			entity MyEntity {
-			    field Timestamp fldCreated default:Timestamp!now();
+			    field Timestamp fldCreated default:Timestamp.now();
 			    field Boolean   fldBool;
 			    field Date      fldDate;
 			    field Time      fldTime;
@@ -384,56 +384,56 @@ class InstanceQueryTests {
 			
 			// Parent entity that contains the instance queries
 			entity ParentEntity {
-			    field Timestamp created default:Timestamp!now();
+			    field Timestamp created default:Timestamp.now();
 			
 			    // relations
 			    relation MyEntity   firstEntity;
 			    relation MyEntity[] otherEntities;
 			    
 			    
-			    field Timestamp derivedByTimestamp1 <= self!queryByTimestamp();
-			    field Timestamp derivedByTimestamp2 <= self!queryByTimestamp(p1 = `2023-07-18T11:11:12.003-02:00`);
+			    field Timestamp derivedByTimestamp1 <= self.queryByTimestamp();
+			    field Timestamp derivedByTimestamp2 <= self.queryByTimestamp(p1 = `2023-07-18T11:11:12.003-02:00`);
 			    
-			    field Boolean derivedByBoolean1 <= self!queryByBoolean();
-			    field Boolean derivedByBoolean2 <= self!queryByBoolean(p1 = true);
+			    field Boolean derivedByBoolean1 <= self.queryByBoolean();
+			    field Boolean derivedByBoolean2 <= self.queryByBoolean(p1 = true);
 			    
-			    field Date derivedByDate1 <= self!queryByDate();
-			    field Date derivedByDate2 <= self!queryByDate(p1 = `2019-07-18`);
+			    field Date derivedByDate1 <= self.queryByDate();
+			    field Date derivedByDate2 <= self.queryByDate(p1 = `2019-07-18`);
 			    
-			    field Time derivedByTime1 <= self!queryByTime();
-			    field Time derivedByTime3 <= self!queryByTime(p3 = MyEnum#A00 ,p1 = `11:11:12`);
+			    field Time derivedByTime1 <= self.queryByTime();
+			    field Time derivedByTime3 <= self.queryByTime(p3 = MyEnum#A00 ,p1 = `11:11:12`);
 			    
-			    field Long derivedByLong1 <= self!queryByLong();
-			    field Long derivedByLong2 <= self!queryByLong(p1 = 9999);
+			    field Long derivedByLong1 <= self.queryByLong();
+			    field Long derivedByLong2 <= self.queryByLong(p1 = 9999);
 			    
-			    field String derivedByString1 <= self!queryByString();
-			    field String derivedByString4 <= self!queryByString(p1 = "Lorem ipsum", p2 = 345.678, p3 = 456, p4 = MyEnum#A03);
+			    field String derivedByString1 <= self.queryByString();
+			    field String derivedByString4 <= self.queryByString(p1 = "Lorem ipsum", p2 = 345.678, p3 = 456, p4 = MyEnum#A03);
 			    
-			    field Decimal derivedByDecimal1 <= self!queryByDecimal();
-			    field Decimal derivedByDecimal2 <= self!queryByDecimal(p1 = -1526.225);
+			    field Decimal derivedByDecimal1 <= self.queryByDecimal();
+			    field Decimal derivedByDecimal2 <= self.queryByDecimal(p1 = -1526.225);
 			    
-			    field MyEnum derivedByEnum1 <= self!queryByMyEnum();
-			    field MyEnum derivedByEnum2 <= self!queryByMyEnum(p1 = MyEnum#A00);
+			    field MyEnum derivedByEnum1 <= self.queryByMyEnum();
+			    field MyEnum derivedByEnum2 <= self.queryByMyEnum(p1 = MyEnum#A00);
 			}
 			
 			query Timestamp queryByTimestamp(
 			    Timestamp p1 = `2019-07-18T11:11:12.003+02:00`,
 			    Boolean p2 = true
 			)  on ParentEntity <= self.otherEntities
-			    !filter(e | e.fldCreated <= p1 and e.fldBool == p2)
-			    !any()
+			    .filter(e | e.fldCreated <= p1 and e.fldBool == p2)
+			    .any()
 			    .fldCreated;
 			
 			query Boolean queryByBoolean(Boolean p1 = false)  on ParentEntity <=
 			    self.otherEntities
-			    !filter(e | e.fldBool == p1)
-			    !any()
+			    .filter(e | e.fldBool == p1)
+			    .any()
 			    .fldBool;
 			
 			query Date queryByDate(Date p1 = `2019-07-18`) on ParentEntity  <=
 			    self.otherEntities
-			    !filter(e | e.fldDate == p1)
-			    !any()
+			    .filter(e | e.fldDate == p1)
+			    .any()
 			    .fldDate;
 			
 			query Time queryByTime(
@@ -441,18 +441,18 @@ class InstanceQueryTests {
 			    Date p2 = `2019-07-18`,
 			    MyEnum p3 = MyEnum#A03
 			) on ParentEntity  <= self.otherEntities
-			    !filter(
+			    .filter(
 			        e | e.fldTime == p1 and
 			        e.fldDate == p2 and
 			        e.fldEnum == p3
 			    )
-			    !any()
+			    .any()
 			    .fldTime;
 			
 			query Long queryByLong(Long p1 = 9999) on ParentEntity  <=
 			    self.otherEntities
-			    !filter(e | e.fldLong == p1)
-			    !any()
+			    .filter(e | e.fldLong == p1)
+			    .any()
 			    .fldLong;
 			
 			query String queryByString(
@@ -461,27 +461,27 @@ class InstanceQueryTests {
 			    Long p3 = 998,
 			    MyEnum p4 = MyEnum#A01
 			)  on ParentEntity <= self.otherEntities
-			    !filter(
+			    .filter(
 			        e | e.fldString == p1 and
 			        e.fldDecimal == p2 and
 			        e.fldLong == p3 and
 			        e.fldEnum == p4
 			    )
-			    !any()
+			    .any()
 			    .fldString;
 			
 			query Decimal queryByDecimal(Decimal p1 = -1526.225) on ParentEntity  <=
 			    self.otherEntities
-			    !filter(e | e.fldDecimal == p1)
-			    !any()
+			    .filter(e | e.fldDecimal == p1)
+			    .any()
 			    .fldDecimal;
 			
 			query MyEnum queryByMyEnum(
 			    MyEnum p1 = MyEnum#A00,
 			    Timestamp p2 = `2019-07-18T11:11:12.003+02:00`
 			) on ParentEntity <= self.otherEntities
-			    !filter(e | e.fldEnum == p1 and e.fldCreated <= p2)
-			    !any()
+			    .filter(e | e.fldEnum == p1 and e.fldCreated <= p2)
+			    .any()
 			    .fldEnum;
         '''.parse => [
             assertNoErrors

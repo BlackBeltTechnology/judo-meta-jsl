@@ -245,7 +245,7 @@ class PrimitiveDefaultValuesTests {
             type date Date;
             type time Time;
             type timestamp Timestamp;
-            type string PhoneNumber min-size:0 max-size:32 regex:"^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$";   // escape sequencing does not work in regexp!!!!
+            type string PhoneNumber min-size:0 max-size:32 regex:"^(\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}$";   // escape sequencing does not work in regexp....
 
             entity TestIdentifiers {
                 identifier Bool a default:true;
@@ -266,14 +266,14 @@ class PrimitiveDefaultValuesTests {
                 field String c2 default:r"123";
                 field Date d default:`2020-01-12`;
                 field Time timeHM default:`11:11`;
-                field Time timeHM1 default:Time!of(hour = 11, minute = 11);
+                field Time timeHM1 default:Time.of(hour = 11, minute = 11);
                 field Time timeHMS default:`11:11:11`;
-                field Time timeHMS1 default:Time!of(hour = 11, minute = 11, second = 11);
+                field Time timeHMS1 default:Time.of(hour = 11, minute = 11, second = 11);
                 field Time timeHMSF default:`11:11:11.111`;
-                field Time timeHMSF1 default:Time!of(hour = 11, minute = 11, second = 11, millisecond = 111);
-                field Time timeHMSF2 default:Time!of(hour = 11, minute = 11, millisecond = 111);
-                field Time timeFromMillisecond default:Time!fromMilliseconds(milliseconds = 999999);
-                field Integer timeAsMillisecond default:`11:11:11.111`!asMilliseconds();
+                field Time timeHMSF1 default:Time.of(hour = 11, minute = 11, second = 11, millisecond = 111);
+                field Time timeHMSF2 default:Time.of(hour = 11, minute = 11, millisecond = 111);
+                field Time timeFromMillisecond default:Time.fromMilliseconds(milliseconds = 999999);
+                field Integer timeAsMillisecond default:`11:11:11.111`.asMilliseconds();
                 field Timestamp timestamp default:`2023-03-21T11:11`;
                 field Timestamp timestamp1 default:`2023-03-21T11:11Z`;
                 field Timestamp timestamp2 default:`2023-03-21T11:11+05`;
@@ -292,10 +292,10 @@ class PrimitiveDefaultValuesTests {
                 field Timestamp timestamp15 default:`2023-03-21T11:11:11.111-05`;
                 field Timestamp timestamp16 default:`2023-03-21T11:11:11.111+05:05`;
                 field Timestamp timestamp17 default:`2023-03-21T11:11:11.111-05:05`;
-                field Timestamp timestamp18 default:Timestamp!of(date = `2023-03-21`);
-                field Timestamp timestamp19 default:Timestamp!of(date = `2023-03-21`, time = `11:11`);
-                field Timestamp timestamp20 default:Timestamp!of(date = `2023-03-21`, time = `11:11:11`);
-                field Timestamp timestamp21 default:Timestamp!of(date = `2023-03-21`, time = `11:11:11.111`);
+                field Timestamp timestamp18 default:Timestamp.of(date = `2023-03-21`);
+                field Timestamp timestamp19 default:Timestamp.of(date = `2023-03-21`, time = `11:11`);
+                field Timestamp timestamp20 default:Timestamp.of(date = `2023-03-21`, time = `11:11:11`);
+                field Timestamp timestamp21 default:Timestamp.of(date = `2023-03-21`, time = `11:11:11.111`);
             }
 
             error ErrorFields {
@@ -310,14 +310,14 @@ class PrimitiveDefaultValuesTests {
             }
 
             entity EntityWithPrimitiveDefaultExpressions {
-                field Integer integerAttr default:1.23!round();
-                field Decimal scaledAttr default:2.9!abs();
-                field String stringAttr default:true!asString();
+                field Integer integerAttr default:1.23.round();
+                field Decimal scaledAttr default:2.9.abs();
+                field String stringAttr default:true.asString();
                 field PhoneNumber regexAttr default:"+36-1-123-123";
                 field Bool boolAttr default:2 > -1;
-                field Date dateAttr default:Date!now();
-                field Timestamp timestampAttr default:Timestamp!now();
-                field Time timeAttr default:Time!of(hour = 23, minute = 59, second = 59);
+                field Date dateAttr default:Date.now();
+                field Timestamp timestampAttr default:Timestamp.now();
+                field Time timeAttr default:Time.of(hour = 23, minute = 59, second = 59);
             }
         '''.parse => [
             assertNoErrors

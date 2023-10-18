@@ -53,7 +53,7 @@ class ActorTests {
                 claim:"claim"
                 realm:"realm"
                 guard:true
-                identity:E!any().id;
+                identity:E.any().id;
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.identityModifier, JslDslValidator.INVALID_IDENTITY_MAPPING)
         ]
@@ -96,7 +96,7 @@ class ActorTests {
                 claim:"claim"
                 realm:"realm"
                 guard:true
-                identity:E!any().id;
+                identity:E.any().id;
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.identityModifier, JslDslValidator.INVALID_IDENTITY_MAPPING)
         ]

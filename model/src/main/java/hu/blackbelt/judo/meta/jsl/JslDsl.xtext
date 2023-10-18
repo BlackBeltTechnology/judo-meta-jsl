@@ -537,7 +537,7 @@ UnaryOperation returns Expression
     ;
 
 Navigation returns Expression
-	: {Navigation} base = NavigationBase (features += Feature)*
+	: {Navigation} base = NavigationBase (=> DOT features += Feature)*
 	;
 
 NavigationBase
@@ -574,11 +574,12 @@ Feature
 	;
 
 FeatureCall
-	: EXCL (FunctionOrQueryCall | LambdaCall)
+	: FunctionOrQueryCall
+	| LambdaCall
 	;
 
 MemberReference
-    : DOT member = [NavigationTarget | LocalName]
+    : member = [NavigationTarget | LocalName]
     ;
 
 
@@ -588,7 +589,7 @@ FunctionOrQueryDeclaration
 	;
 
 FunctionOrQueryCall
-	: declaration = [FunctionOrQueryDeclaration | LocalName ] LP (arguments += Argument (COMMA arguments += Argument)*)? RP
+	: declaration = [FunctionOrQueryDeclaration | LocalName ] -> LP (arguments += Argument (COMMA arguments += Argument)*)? RP
 	;
 
 Argument
@@ -596,7 +597,7 @@ Argument
 	;
 
 LambdaCall
-	: declaration = [LambdaDeclaration | LocalName ] LP variable = LambdaVariable => PIPE lambdaExpression = Expression RP;
+	: declaration = [LambdaDeclaration | LocalName ] LP variable = LambdaVariable -> PIPE lambdaExpression = Expression RP;
 
 LambdaVariable
     : {LambdaVariable} Named    	
@@ -967,7 +968,7 @@ fragment ReturnFragment
 	;
 
 DecimalNumber returns ecore::EBigDecimal
-	: DECIMAL
+	: NUMBER DOT NUMBER
 	;
 
 NaturalNumber returns ecore::EBigInteger
@@ -1016,7 +1017,7 @@ JSLID: ID
 	| KW_WIDTH  // KW_REQUIRED is missing deliberately !!!!
 	
 	// Operators
-	| KW_IMPLIES | KW_OR | KW_XOR | KW_AND | KW_DIV | KW_MOD
+//	| KW_IMPLIES | KW_OR | KW_XOR | KW_AND | KW_DIV | KW_MOD
 	;
 
 
@@ -1193,10 +1194,6 @@ terminal TIME
 
 terminal DATE
 	: '`' DIGIT+ '-' DIGIT DIGIT '-' DIGIT DIGIT '`'
-	;
-
-terminal DECIMAL
-	: NUMBER '.' NUMBER
 	;
 
 terminal NUMBER

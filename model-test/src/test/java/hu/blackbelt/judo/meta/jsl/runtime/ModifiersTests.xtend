@@ -244,7 +244,7 @@ class ModifiersTests {
 			entity B {}
 			
 			transfer TA maps A as a {
-				relation TB tbs <= a.b choices:B!all();
+				relation TB tbs <= a.b choices:B.all();
 			}
 			
 			transfer TB(B b) {}

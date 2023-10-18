@@ -72,11 +72,11 @@ class CyclicExpressionTests {
 
             type boolean Boolean;
 
-            query Boolean staticQuery() <= A!any().c;
+            query Boolean staticQuery() <= A.any().c;
 
             entity A {
                 field Boolean q <= staticQuery();
-                field Boolean a <= self.q();
+                field Boolean a <= self.q;
                 field Boolean b <= self.a;
                 field Boolean c <= self.b;
             }
