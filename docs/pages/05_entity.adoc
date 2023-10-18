@@ -115,7 +115,7 @@ Use the `field` keyword to specify a primitive field within an entity.
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>][purple]#**;**#
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive and <name> is the referable name of the primitive field.
@@ -137,7 +137,7 @@ entity Person {
     field required String firstName;
     field required String lastName;
     field String midName;
-    field Title title = Title#MX;
+    field Title title default:Title#MX;
 }
 ----
 
@@ -154,14 +154,14 @@ Use the `identifier` keyword to specify a unique field within an entity.
 
 [subs="quotes"]
 ----
-[purple]#**identifier**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>][purple]#**;**#
+[purple]#**identifier**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive and <name> is the referable name of the identifier. Any primitive type can be used as an identifier, except primitives of binary base type.
 
 The keyword `required` means that the value of the identifier must be specified, so the value is not allowed to be undefined.
 
-Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the identifier is set according to the default value expression. See xref:06_expression.adoc[] later.
+Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the identifier is set according to the default value expression. See xref:06_expression.adoc[Expression] later.
 
 [NOTE]
 ====
@@ -233,7 +233,7 @@ Use the `relation` keyword to specify a relation between two entities. The synta
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>[purple]#**;**#
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 where <entity> is the name of an entity to which the relation is targeted. The <name> is used to identify the relation within the entity, it is commonly referred to as role name.
@@ -241,6 +241,8 @@ where <entity> is the name of an entity to which the relation is targeted. The <
 The optional `[]` behind the <entity> indicates that the relation is a collection rather than a single reference to one <entity> instance. In other words, the cardinality of the relation is a collection.
 
 The keyword `required` means that the value of the relation must be specified, so the value is not allowed to be undefined. Each newly created entity instance must set this field. The keyword `required` is not allowed for collections.
+
+Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the field is set according to the default value expression. See xref:06_expression.adoc[Expression] later.
 
 *Example:*
 
@@ -361,14 +363,7 @@ The optional `[]` indicates that the composite field stores a list of entity ins
 
 The keyword `required` means that the value of the field must be specified, so the value is not allowed to be undefined. Each newly created entity instance must set this field. The keyword `required` is not allowed for collections.
 
-////
-Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the field is set according to the default value expression. See <<Expression>> later.
-
-[NOTE]
-====
-The `self` variable cannot be used in default expressions. 
-====
-////
+Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the field is set according to the default value expression. See xref:06_expression.adoc[Expression] later. Note that using the default value of the composition copies the entities specified in the default expression.
 
 *Example:*
 
@@ -398,7 +393,7 @@ Use the `field` or `relation` keywords along with the `\<=` symbol to specify a 
 
 [subs="quotes"]
 ----
-[purple]#**field**# &lt;primitive> &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;parameter> &#x5B;[purple]##**=**## &lt;value>][purple]##,## ...[purple]##**)**##] [purple]##**<=**## &lt;expression>[purple]#**;**#
+[purple]#**field**# &lt;primitive> &lt;name> [purple]##**<=**## &lt;expression>[purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive, and <name> is the referable name of the calculated field, or
@@ -407,7 +402,7 @@ where <primitive> is the name of a domain model primitive, and <name> is the ref
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;parameter> &#x5B;[purple]##**=**## &lt;value>][purple]##**,**## ...[purple]##**)**##] [purple]##**<=**## &lt;expression>[purple]#**;**#
+[purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**<=**## &lt;expression>[purple]#**;**#
 ----
 
 where the <entity> is the name of an entity, and <name> is the referable name of the calculated relation. The optional `[]` indicates that the calculated relation returns a collection rather than a single reference to one <entity>.
@@ -443,44 +438,25 @@ entity Customer extends User, Person {
 
 In the second example, the calculated relation `undeliveredOrders` returns all orders that have not yet been delivered but have been ordered by the customer.
 
-The optional comma separated list in the calculated member definition is the parameter list of the getter <expression>. The parameters can be used in the <expression>. <primitive> is the type of parameter which can be a domain model primitive only. <parameter> is the name of the parameter. An optional default <value> can be specified for the parameters. Default values are used when the calculated member is evaluated with one or more missing arguments.
-
-*Example:*
-
-----
-entity SalesPerson {
-	relation Lead[] leads;
-	
-	relation Lead[] leadsBetween(Integer min = 0, Integer max = 100) <=
-	    self.leads!filter(l | l.value > min and  l.value < max);
-}
-
-entity Lead {
-    field Integer value;
-}
-----
-
-The example above shows the calculated relation `leadsBetween`, which has two parameters (`min` and `max`). It returns the leads of a salesperson with a value between `min` and `max`. If no arguments are specified when executing `leadsBetween`, the calculated relation returns leads between 0 and 100. For more details about expressions, see the chapter <<Expression>>.
-
 == Fetching strategy
 
 The fetching strategy determines the timing of fetching entity member values and related entities from persistent storage. There are two ways available for fetching values and related entities.
 
-* *Embedded fetching* is a technique where values are fetched at the same time as the owner entity is retrieved from persistent storage. Its name refers to the fact that the value is embedded into the owner entity. This approach can be beneficial when dealing with simple getter expressions and only a few related objects, as it helps eliminate the need for additional fetches and improves the application's performance. In other terminologies, this strategy is also referred to as 'eager'.
+* *Eager fetching* is a technique where values are fetched at the same time as the owner entity is retrieved from persistent storage. In other words, the value is embedded into the owner entity. This approach can be beneficial when dealing with simple getter expressions and only a few related objects, as it helps eliminate the need for additional fetches and improves the application's performance.
 
-* *Requested fetching* is a technique where values are *not* fetched at the same time as the owner entity is retrieved from persistent storage. Instead, they are retrieved only when requested for the first time. Its name refers to the fact that the value is calculated and retrieved upon request. This approach ensures that values are loaded from persistent storage only as they are needed. In other terminologies, this strategy is also referred to as 'lazy'.
+* *Lazy fetching* is a technique where values are *not* fetched at the same time as the owner entity is retrieved from persistent storage. Instead, they are retrieved only when requested for the first time. In other words, the value is calculated and retrieved upon request. This approach ensures that values are loaded from persistent storage only as they are needed.
 
 By default, the following fetching strategies are applied to entity members:
 
-* fields use embedded fetching
+* fields use eager fetching
 
-* relations use requested fetching
+* relations use lazy fetching
 
-=== Fetching annotations
+=== Fetching modifier
 
-The default fetching strategy of the entity members can be altered by applying annotations. It is important to note that applying fetching annotations does not modify the business logic, but significantly impacts the performance of the application.
+The default fetching strategy of the entity members can be altered by applying the `eager` modifier. It is important to note that applying `eager` modifier does not modify the business logic, but significantly impacts the performance of the application.
 
-To apply the requested fetching strategy on an entity member, use the `@Requested` annotation.
+To apply the eager fetching strategy on an entity member, use the `eager` modifier with `true` value. To apply the lazy fetching strategy on an entity member, use the `eager` modifier with `false` value.
 
 *Example:*
 
@@ -489,26 +465,22 @@ To apply the requested fetching strategy on an entity member, use the `@Requeste
 entity Order {
 	field OrderItem[] orderItems;
 
-    @Requested
-	field Integer price <= self.orderItems!sum(item | item.price);
+	field Integer price <= self.orderItems!sum(item | item.price) eager:false;
 }
 ----
 
 In the above example, the `price` field will not be calculated and loaded when the order entity is fetched. Instead, it will be calculated only when a read request is made for the price of the order.
 
-To apply the embedded fetching strategy on an entity member, use the `@Embedded` annotation.
+In the second example, the Order entity instances referenced by the `orders` relation will be fetched together with the Customer entity instance.
 
 *Example:*
 
 [source,jsl]
 ----
-entity abstract Customer {
-    @Embedded
-	relation Order[] orders opposite:customer;
+entity Customer {
+	relation Order[] orders eager:true;
 }
 ----
-
-In the above example, the `orders` relation will be loaded when the order entity is fetched. 
 
 [judo-req="true",judo-req-id="REQ-ENT-009"]
 [judo-req="true",judo-req-id="REQ-ENT-011"]
@@ -516,13 +488,24 @@ In the above example, the `orders` relation will be loaded when the order entity
 
 A query is a request that retrieves a primitive or entities. Each query has a return type, a name and a query expression, which is used to calculate the return value.
 
-Use the `query` keyword to specify a query.
+There are two types of queries
+
+* _static query_ and
+* _instance query_
+
+
+[judo-req="true",judo-req-id="REQ-ENT-011"]
+=== Static query
+
+Static queries are executed within the scope of the model, and not in the scope of an entity. Since static queries do not operate on entity scope, static queries cannot use `self` variable in their expression.
+
+Use the `query` keyword to specify a static query.
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**query**# &lt;primitive> &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;parameter> &#x5B;[purple]##**=**## &lt;value>][purple]##,## ...[purple]##**)**##] [purple]##**<=**## &lt;expression>[purple]#**;**#
+[purple]#**query**# &lt;primitive> &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;parameter> &#x5B;[purple]##**=**## &lt;value>][purple]##,## ...][purple]##**)**## [purple]##**<=**## &lt;expression>[purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive that will be returned, and <name> is the referable name of the query, or
@@ -531,7 +514,7 @@ where <primitive> is the name of a domain model primitive that will be returned,
 
 [subs="quotes"]
 ----
-[purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;parameter> &#x5B;[purple]##**=**## &lt;value>][purple]##**,**## ...[purple]##**)**##] [purple]##**<=**## &lt;expression>[purple]#**;**#
+[purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;parameter> &#x5B;[purple]##**=**## &lt;value>][purple]##**,**## ...][purple]##**)**## [purple]##**<=**## &lt;expression>[purple]#**;**#
 ----
 
 where the <entity> is the name of an entity that will be returned, and <name> is the referable name of the query. The optional `[]` indicates that the query returns a list of <entity> instances rather than a single reference to one <entity>.
@@ -549,15 +532,75 @@ The optional comma separated list in the query definition is the parameter list 
 
 [source,jsl]
 ----
-entity Customer {
-	relation Order[] orders opposite customer;
-}
-
 query Order[] ordersBetween(Integer min = 0, Integer max = 100) <=
     Order!filter(o | o.price > min and  o.price < max);
 ----
 
 The example above shows the query `ordersBetween`, which has two parameters (`min` and `max`). It returns the orders from all orders in the application with a price between `min` and `max`.
+
+This is an example of calling a static query:
+
+*Example:*
+
+[source,jsl]
+----
+entity Customer {
+	relation Order[] allOrdersFrom100to2000 <= ordersBetween(min = 1000, max = 2000);
+}
+----
+
+
+[judo-req="true",judo-req-id="REQ-ENT-010"]
+=== Instance query
+
+Static queries are executed within the scope of an entity. The entity on which the query is executed can be named "self" in the query expression.
+
+The syntax of the instance query declaration is the same as the syntax of the static query declaration with the addition of an `on` keyword.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**query**# &lt;primitive> &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;parameter> &#x5B;[purple]##**=**## &lt;value>][purple]##,## ...][purple]##**)**## [purple]##**on**## &lt;entity> [purple]##**<=**## &lt;expression>[purple]#**;**#
+----
+
+or
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;parameter> &#x5B;[purple]##**=**## &lt;value>][purple]##**,**## ...][purple]##**)**## [purple]##**on**## &lt;entity> [purple]##**<=**## &lt;expression>[purple]#**;**#
+----
+
+where the <entity> is the name of an entity that can be referred with the `self` variable.
+
+*Example:*
+
+[source,jsl]
+----
+query Order[] ordersBetween(Integer min = 0, Integer max = 100) on Customer <=
+    self.orders!filter(o | o.price > min and  o.price < max);
+----
+
+The example above shows the query `ordersBetween`, which has two arguments (`min` and `max`). It returns the orders of a customer with a price between `min` and `max`. If no arguments are specified when executing `ordersBetween`, the query returns orders between 0 and 100. For more details about expressions, see the chapter xref:06_expression.adoc[Expression].
+
+An instance query can be performed on an entity instance by prefixing the instance query name with the `!` character. This is an example of calling an instance query.
+
+*Example:*
+
+[source,jsl]
+----
+entity Customer {
+	relation Order[] orders;
+	relation Order[] ordersFrom100to2000 <= self!ordersBetween(min = 1000, max = 2000);
+}
+----
+
+[NOTE]
+====
+Note the difference between the instance and the static query examples. The instance query uses the `self` variable as the starting point for navigation. It collects all the orders belonging to the given customer and then runs the filter condition. In case of the static query example, the starting point of the static query is all the orders stored in the application. Then the static query also runs the filter condition to select the orders between the two price limits.
+====
 
 [judo-req="true",judo-req-id="REQ-ENT-012"]
 == Inheritance

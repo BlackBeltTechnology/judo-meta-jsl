@@ -1155,7 +1155,6 @@ terminal NEQ:   '!=';
 terminal EQ:    '==';
 terminal GTE:   '>=';
 terminal LTE:   '<=';
-terminal MAP:   '<=>';
 terminal PLUS:  '+';
 terminal MINUS: '-';
 terminal MUL:   '*';

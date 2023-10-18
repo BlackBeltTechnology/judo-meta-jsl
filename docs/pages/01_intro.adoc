@@ -87,7 +87,7 @@ entity Enterprise extends Customer {
 }
 
 entity Order {
-	field required OrderStatus status = OrderStatus#OPEN;
+	field required OrderStatus status default:OrderStatus#OPEN;
 	field OrderItem[] orderItems;
 	relation required Customer customer opposite:orders;
 	field Integer price <= self.orderItems!sum(item | item.price);

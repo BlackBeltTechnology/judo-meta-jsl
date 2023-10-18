@@ -59,8 +59,8 @@ model shop;
 type string String min-size:0 max-size:128;
 
 entity Person {
-    field required String firstName = "";
-    field required String lastName = "";;;;;
+    field required String firstName default:"";
+    field required String lastName default:"";;;;;
     field String fullName <=
         self.firstName + " " + self.lastName;
 };
@@ -82,12 +82,15 @@ This is the list of reserved keywords in the JSL.
 
 [cols="1,1,1"]
 |====================
-|`actor`       |`import`   | `transfer`
-|`annotation`  |`model`    | `true`
-|`entity`      |`not`      | `type`
-|`enum`        |`query`    | `view`
-|`error`       |`required` | `void`
-|`false`       |`row`      |
+|`abstract`     |`function` |`required`
+|`actor`        |`import`   |`row`
+|`annotation`   |`lambda`   |`throws`
+|`as`           |`maps`     |`transfer`
+|`entity`       |`model`    |`true`
+|`enum`         |`not`      |`type`
+|`error`        |`on`       |`view`
+|`extends`      |`query`    |`void`
+|`false`        |           |
 |====================
 
 [judo-req="true",judo-req-id="REQ-SYNT-004"]
