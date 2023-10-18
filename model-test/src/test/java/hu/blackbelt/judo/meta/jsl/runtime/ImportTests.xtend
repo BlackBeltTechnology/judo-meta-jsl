@@ -342,9 +342,9 @@ class ImportTests {
 
         a.assertNoErrors
         b.assertError(
-            JsldslPackage::eINSTANCE.entityStoredFieldDeclaration,
+            JsldslPackage::eINSTANCE.entityFieldDeclaration,
             "org.eclipse.xtext.diagnostics.Diagnostic.Linking",
-            "Couldn't resolve reference to SingleType 'A::String'."
+            "Couldn't resolve reference to Persistable 'A::String'."
         )
     }
 

@@ -17,7 +17,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 
 @Singleton
 class JudoTypesProvider {
-
+	static List<IEObjectDescription> descriptions;
+	static List<IEObjectDescription> judoTypes;
+	
     @Inject IResourceDescription.Manager mgr;
     @Inject Injector injector
 
@@ -35,8 +37,12 @@ class JudoTypesProvider {
 
 
     def List<IEObjectDescription> getDescriptions() {
-        val IResourceDescription resourceDescription = mgr.getResourceDescription(getResource());
-        resourceDescription.getExportedObjects().toList;
+    	if (descriptions === null) {
+	        val IResourceDescription resourceDescription = mgr.getResourceDescription(getResource());
+	        descriptions = resourceDescription.getExportedObjects().toList;
+        }
+        
+        return descriptions 
     }
 
     def IScope getScope(IScope parentScope, EReference reference, Predicate<IEObjectDescription> filter) {
@@ -48,6 +54,13 @@ class JudoTypesProvider {
         }
         return new SimpleScope(parentScope, judoTypes, false);
     }
+
+	def IScope getScope(IScope parentScope) {
+		if (judoTypes === null) {
+			judoTypes = getDescriptions().filter[f | !(f.EObjectOrProxy instanceof ModelDeclaration)].toList
+		}
+		return new SimpleScope(parentScope, judoTypes, false);	
+	}
 
     def IScope getModelDeclarationScope(IScope parentScope) {
         var judoTypes = getDescriptions().filter[f | f.EObjectOrProxy instanceof ModelDeclaration].toList

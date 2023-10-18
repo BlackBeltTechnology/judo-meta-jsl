@@ -39,10 +39,10 @@ class ParameterTests {
             type string String min-size:0 max-size:100;
 
             entity Test {
-                field String leftValue = "hello"!left(count = 1, count = 1);
+                field String leftValue default:"hello"!left(count = 1, count = 1);
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.functionArgument, JslDslValidator.DUPLICATE_PARAMETER)
+            m | m.assertError(JsldslPackage::eINSTANCE.argument, JslDslValidator.DUPLICATE_PARAMETER)
         ]
     }
 
@@ -68,10 +68,10 @@ class ParameterTests {
             type string String(min-size = 0, max-size = 100);
 
             entity Test {
-                field String leftValue = "hello"!left();
+                field String leftValue default:"hello"!left();
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.functionCall, JslDslValidator.MISSING_REQUIRED_PARAMETER)
+            m | m.assertError(JsldslPackage::eINSTANCE.functionOrQueryCall, JslDslValidator.MISSING_REQUIRED_PARAMETER)
         ]
     }
 
@@ -96,10 +96,10 @@ class ParameterTests {
             type string String(min-size = 0, max-size = 100);
 
             entity Test {
-                field String leftValue = "hello"!left(count = "");
+                field String leftValue default:"hello"!left(count = "");
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.functionArgument, JslDslValidator.TYPE_MISMATCH,"Type mismatch. Incompatible function argument at 'count'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.argument, JslDslValidator.TYPE_MISMATCH,"Type mismatch. Incompatible function argument at 'count'.")
         ]
     }
 
@@ -129,7 +129,7 @@ class ParameterTests {
 
             entity Test {
                 field Binary binary;
-                field Test[] head = Test!all()!first(t | t.binary);
+                field Test[] head default:Test!all()!first(t | t.binary);
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.lambdaCall, JslDslValidator.INVALID_LAMBDA_EXPRESSION)
