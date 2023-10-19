@@ -217,7 +217,7 @@ To add a guard to functions use `guard` as follows. The function guard is evalua
 [source,jsl]
 ----
 service PersonService(Person person) {
-    function void delete() guard person.leads!size() == 0;
+    function void delete() guard person.leads.size() == 0;
 }
 ----
 
@@ -231,7 +231,7 @@ To add a guard to services use `guard` as follows. The service guard is a shortc
 
 [source,jsl]
 ----
-service PersonService(Person person) guard person.leads!size() == 0 {
+service PersonService(Person person) guard person.leads.size() == 0 {
     function void delete();
     function Lead[] addLead(Lead lead);
 }
@@ -255,7 +255,7 @@ The actor guard is evaluated when the user is authenticated by the application. 
 actor SalesPersonActor(SalesPerson salesPerson)
     realm "COMPANY"
     identity salesPerson.email
-    guard salesPerson.leads!size() > 0;
+    guard salesPerson.leads.size() > 0;
 ----
 
 The example above defines a guard for actor, and the salesperson can only invoke the functions if she has at least one lead.

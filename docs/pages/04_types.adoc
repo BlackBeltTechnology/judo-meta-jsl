@@ -465,7 +465,7 @@ Arithmetic operators are not available for the date type. If you want to perform
 
 [source,jsl]
 ----
-Timestamp!of(date = `2021-02-28`)!plus(days = 7)!date()
+Timestamp.of(date = `2021-02-28`).plus(days = 7).date()
 ----
 
 ====
@@ -542,7 +542,7 @@ Arithmetic operators are not available for the time type. If you want to perform
 
 [source,jsl]
 ----
-Timestamp!of(date = `2021-02-28`, time = `18:59:00`)!plus(hours = 6)!time()
+Timestamp.of(date = `2021-02-28`, time = `18:59:00`).plus(hours = 6).time()
 ----
 ====
 

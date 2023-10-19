@@ -170,7 +170,7 @@ entity Person {
     field required String lastName;
     field String midName = "";
     
-    constraint self.firstName!size() + self.lastName!size() > 4
+    constraint self.firstName.size() + self.lastName.size() > 4
     onerror NameIsTooShort(name = self.firstName + " " + self.lastName);
 }
 ----

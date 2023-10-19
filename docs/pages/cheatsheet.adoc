@@ -261,7 +261,7 @@ Calculated relations can be read as if they were stored relations, but they have
 
 [source,jsl]
 ----
-relation Order cart <= self.orders!filter(o | o.status == OrderStatus#OPEN)!any();
+relation Order cart <= self.orders.filter(o | o.status == OrderStatus#OPEN).any();
 ----
 
 == Query
@@ -280,9 +280,9 @@ A query is a request within the scope of the model that retrieves a primitive or
 [source,jsl]
 ----
 query Integer NumOfCustomers(String country) <=
-        Customer!
-        all()!
-        filter(c | c.address.country == country)!
+        Customer.
+        all().
+        filter(c | c.address.country == country).
         size();
 ----
 
@@ -314,7 +314,7 @@ or
 ----
 transfer ProductTransfer(Product product) {
 	field String name <= product.name;
-	field String price <= product.price!asString() + " HUF";
+	field String price <= product.price.asString() + " HUF";
 }
 ----
 
@@ -709,7 +709,7 @@ A view table represents collection of rows.
 
 [source,jsl]
 ----
-table ProductRow[] products <= Product!all();
+table ProductRow[] products <= Product.all();
 ----
 
 === View text
@@ -773,7 +773,7 @@ text message <= "Thank you for your order.";
 [source,jsl]
 ----
 vertical head {
-	field String price <= product.price!asString() + " HUF";
+	field String price <= product.price.asString() + " HUF";
 	field String name <= product.name;
 }
 ----
@@ -899,7 +899,7 @@ or
 ----
 row ProductRow(Product product) {
 	column String name <= product.name;
-	column String price <= product.price!asString() + " HUF";
+	column String price <= product.price.asString() + " HUF";
 }
 ----
 
@@ -930,7 +930,7 @@ A primitive field that can store only a single primitive value and is displayed 
 
 [source,jsl]
 ----
-column String price <= product.price!asString() + " HUF";
+column String price <= product.price.asString() + " HUF";
 ----
 
 == Actor
@@ -941,7 +941,7 @@ An actor represents a generic user of the system and can be used to represent hu
 
 [subs="quotes"]
 ----
-[purple]#**actor**# &lt;[purple]##**human**##|[purple]##**system**##> &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
+[purple]#**actor**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
 &#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ...
 &#x5B;[purple]##**{**##
     &#x5B;member] ...
@@ -952,7 +952,7 @@ or
 
 [subs="quotes"]
 ----
-[purple]#**actor**# &lt;[purple]##**human**##|[purple]##**system**##> &lt;name> &#x5B; [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> ]
+[purple]#**actor**# &lt;name> &#x5B; [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> ]
 &#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ...
 &#x5B;[purple]##**{**##
     &#x5B;member] ...
@@ -972,7 +972,7 @@ or
 
 [source,jsl]
 ----
-actor human CustomerActor(Customer customer) {
+actor CustomerActor(Customer customer) {
 	menu CartView myCart <= customer label:"My cart";
 	menu ProductListView products label:"Products";
 }
@@ -1106,13 +1106,13 @@ entity User {
 entity abstract Customer {
     field required Address address;
 	relation Order[] orders opposite:customer;
-	relation Order cart <= self.orders!filter(o | o.status == OrderStatus#OPEN)!any();
+	relation Order cart <= self.orders.filter(o | o.status == OrderStatus#OPEN).any();
 }
 
 query Integer NumOfCustomers(String country) <=
-		Customer!
-		all()!
-		filter(c | c.address.country == country)!
+		Customer.
+		all().
+		filter(c | c.address.country == country).
 		size();
 
 entity Person extends Customer, User {
@@ -1126,10 +1126,10 @@ entity Enterprise extends Customer {
 }
 
 entity Order {
-	field required OrderStatus status = OrderStatus#OPEN;
+	field required OrderStatus status default:OrderStatus#OPEN;
 	field OrderItem[] orderItems;
 	relation required Customer customer opposite:orders;
-	field Integer price <= self.orderItems!sum(item | item.price);
+	field Integer price <= self.orderItems.sum(item | item.price);
 }
 
 entity OrderItem {
@@ -1145,22 +1145,18 @@ entity Product {
 }
 
 view ProductListView {
-	table ProductRow[] products <= Product!all();
+	table ProductRow[] products <= Product.all();
 }
 
 row ProductRow(Product product) {
 	column String name <= product.name;
-	column String price <= product.price!asString() + " HUF";
+	column String price <= product.price.asString() + " HUF";
 }
 
 view ProductView(Product product) {
 	vertical head {
-		field String price <= product.price!asString() + " HUF";
-		field String name <= product.name;
-	}
-
-	constructor {
-		self.name = "";
+		field String price <= product.price.asString() + " HUF";
+		field String name <= product.name default:"";
 	}
 }
 
@@ -1189,7 +1185,7 @@ row OrderItemRow(OrderItem item) {
 	column Integer price <= item.price;
 }
 
-actor human CustomerActor(Customer customer) {
+actor CustomerActor(Customer customer) {
 	menu CartView myCart <= customer label:"My cart";
 	menu ProductListView products label:"Products";
 }

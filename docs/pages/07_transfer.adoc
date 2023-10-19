@@ -145,7 +145,6 @@ transfer AddressTransfer {
 }
 
 transfer PersonTransfer {
-    @Embedded
     relation required AddressTransfer address;
 }
 ----
@@ -189,7 +188,7 @@ entity Person {
 }
 
 transfer PersonTransfer(Person person) {
-    field String name <=> person.name;
+    field String name <= person.name;
 }
 ----
 
@@ -203,7 +202,7 @@ The value of the mapping field (`person` in the example above) can be undefined 
 
 Mapping configuration is a declarative description of how the fields of a transfer object read and/or write specific fields of the entity mapped by the transfer object. Mapping configuration can only be used for mapped transfer objects.
 
-Use the `\<=` or `\<\=>` symbols in the field definitions to define the mapping configuration.
+Use the `\<=` symbol in the field definitions to define the mapping configuration.
 
 === Mapped field
 
@@ -211,14 +210,14 @@ Use the `\<=` or `\<\=>` symbols in the field definitions to define the mapping 
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;([purple]##**<=**##|[purple]##**<=>**##) &lt;expression>];
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>];
 ----
 
 where <primitive> is the name of a domain model primitive, or
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;([purple]##**<=**##|[purple]##**<=>**##) &lt;expression>];
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**<=**## &lt;expression>];
 ----
 
 If the `\<=` symbol is used, the value of the transfer field will be set to the value of the expression specified after `\<=`. 
@@ -243,9 +242,7 @@ In the example above, transfer field value is set by concatenating the `firstNam
 The <expression> is used whenever a transfer object or a collection of transfer objects are fetched from the persistent storage.
 ////
 
-If the `\<\=>` symbol is used, in addition to setting the value of the transfer field, it writes the value of the transfer field to the entity field when the mapped entity instance is updated with the transfer object instance.
-
-While `\<=` symbol can be followed by any expression, the expression behind `\<\=>` symbol can only point to one field of the mapped entity.
+If the expression after the `\<=` symbol is a direct member selection of the mapped entity, in addition to setting the value of the transfer field, it writes the value of the transfer field to the entity field when the mapped entity instance is updated with the transfer object instance. Direct member selection is a one step navigation as it is shown in the example below.
 
 *Example:*
 
@@ -257,12 +254,12 @@ entity SalesPerson {
 }
 
 transfer SalesPersonTransfer(SalesPerson salesperson) {
-    field String firstName <=> salesperson.firstName;
-    field String lastName <=> salesperson.lastName;
+    field String firstName <= salesperson.firstName;
+    field String lastName <= salesperson.lastName;
 }
 ----
 
-In other words, `\<=` symbol creates a one-way connection between the entity and the transfer fields, where the value of the transfer field takes the value of the expression. And `\<\=>` symbol defines a two-way connection.
+In other words, the `\<=` symbol creates a read-only connection between the entity and the transfer fields, where the value of the transfer field takes the value of the expression. However, if the expression is a direct member selection after the `\<=` symbol, it defines a read-write connection.
 
 === Mapped relation
 
@@ -289,13 +286,13 @@ transfer LeadTransfer(Lead lead) {
 
 transfer SalesPersonTransfer(SalesPerson salesperson) {
     field String fullName <= salesperson.firstName + " " + salesperson.lastName;
-    relation LeadTransfer[] leads <=> salesperson.leads;
+    relation LeadTransfer[] leads <= salesperson.leads;
 }
 ----
 
 [IMPORTANT]
 ====
-An important note, that if the transfer field's type is a transfer object (or a collection of transfer objects) the expression after the `\<=` or `\<\=>` must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
+An important note, that if the transfer field's type is a transfer object (or a collection of transfer objects) the expression after the `\<=` must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
 ====
 
 // TODO: create, delete, update flags

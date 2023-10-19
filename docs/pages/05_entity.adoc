@@ -432,7 +432,7 @@ The example above defines two stored fields and a calculated member. The name of
 ----
 entity Customer extends User, Person {
 	relation Order[] undeliveredOrders <=
-		self.orders!filter(order | order.status != OrderStatus#PAID);
+		self.orders.filter(order | order.status != OrderStatus#PAID);
 }
 ----
 
@@ -465,7 +465,7 @@ To apply the eager fetching strategy on an entity member, use the `eager` modifi
 entity Order {
 	field OrderItem[] orderItems;
 
-	field Integer price <= self.orderItems!sum(item | item.price) eager:false;
+	field Integer price <= self.orderItems.sum(item | item.price) eager:false;
 }
 ----
 
@@ -533,7 +533,7 @@ The optional comma separated list in the query definition is the parameter list 
 [source,jsl]
 ----
 query Order[] ordersBetween(Integer min = 0, Integer max = 100) <=
-    Order!filter(o | o.price > min and  o.price < max);
+    Order.all().filter(o | o.price > min and  o.price < max);
 ----
 
 The example above shows the query `ordersBetween`, which has two parameters (`min` and `max`). It returns the orders from all orders in the application with a price between `min` and `max`.
@@ -580,12 +580,12 @@ where the <entity> is the name of an entity that can be referred with the `self`
 [source,jsl]
 ----
 query Order[] ordersBetween(Integer min = 0, Integer max = 100) on Customer <=
-    self.orders!filter(o | o.price > min and  o.price < max);
+    self.orders.filter(o | o.price > min and  o.price < max);
 ----
 
 The example above shows the query `ordersBetween`, which has two arguments (`min` and `max`). It returns the orders of a customer with a price between `min` and `max`. If no arguments are specified when executing `ordersBetween`, the query returns orders between 0 and 100. For more details about expressions, see the chapter xref:06_expression.adoc[Expression].
 
-An instance query can be performed on an entity instance by prefixing the instance query name with the `!` character. This is an example of calling an instance query.
+An instance query can be performed on an entity instance by prefixing the instance query name with the `.` character. This is an example of calling an instance query.
 
 *Example:*
 
@@ -593,7 +593,7 @@ An instance query can be performed on an entity instance by prefixing the instan
 ----
 entity Customer {
 	relation Order[] orders;
-	relation Order[] ordersFrom100to2000 <= self!ordersBetween(min = 1000, max = 2000);
+	relation Order[] ordersFrom100to2000 <= self.ordersBetween(min = 1000, max = 2000);
 }
 ----
 
