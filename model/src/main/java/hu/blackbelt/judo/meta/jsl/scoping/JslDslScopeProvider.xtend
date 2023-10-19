@@ -149,7 +149,18 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     def scope_Navigation(IScope scope, EReference ref, TypeInfo navigationTypeInfo) {
         var IScope navigationScope
 
-        if (navigationTypeInfo.isEntity) {
+        if (navigationTypeInfo.isEntity && navigationTypeInfo.declaration) {
+            navigationScope = new FilteringScope(scope, [desc | {
+                val obj = desc.EObjectOrProxy
+
+                switch obj {
+                    FunctionDeclaration: return obj.baseType !== null && navigationTypeInfo.isBaseCompatible(TypeInfo.getTargetType(obj.baseType)) && TypeInfo.getTargetType(obj.baseType).declaration
+                }
+
+                return false
+            }]);
+        }
+        else if (navigationTypeInfo.isEntity && !navigationTypeInfo.declaration) {
             navigationScope = this.getEntityMembers(scope, navigationTypeInfo.getEntity, ref, new ArrayList<EntityDeclaration>())
 
             navigationScope = new FilteringScope(navigationScope, [desc | {
@@ -208,22 +219,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
                 ModelDeclaration: return true
                 ErrorDeclaration: return true
                 TypeDeclaration: return true
-                FunctionDeclaration: {
-                	if (context.eContainingFeature.name.equals("features") ||
-                	   (ref == JsldslPackage::eINSTANCE.functionOrQueryCall_Declaration && context instanceof Navigation)
-                	) {
-                		return true
-                	}
-                	return false
-				}
-                QueryDeclaration: {
-                	if (context.eContainingFeature.name.equals("features") ||
-                	   (ref == JsldslPackage::eINSTANCE.functionOrQueryCall_Declaration && context instanceof Navigation)
-                	) {
-                		return obj.entity !== null
-                	}
-                	return obj.entity === null
-                }
+                FunctionDeclaration: return context instanceof FunctionOrQueryCall || context instanceof Navigation
+                QueryDeclaration: return obj.entity === null || context instanceof FunctionOrQueryCall || context instanceof Navigation
                 LambdaDeclaration: return true
                 AnnotationDeclaration: return true
                 TransferFieldDeclaration: return true

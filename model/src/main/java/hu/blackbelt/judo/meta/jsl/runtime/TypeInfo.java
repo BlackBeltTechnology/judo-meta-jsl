@@ -290,30 +290,21 @@ public class TypeInfo {
 	}
 
 	public boolean isInstanceOf(TypeInfo other) {
+		if (!other.isEntity() || !other.isDeclaration() || other.isCollection()) {
+			return false;
+		}
+		
+		if (!this.isEntity() || this.isDeclaration() || this.isCollection()) {
+			return false;
+		}
+		
 		if (this.baseType == BaseType.UNDEFINED || other.baseType == BaseType.UNDEFINED) {
 			return false;
 		}
-		
-		if (this.isCollection() ^ other.isCollection()) {
-			return false;
-		}
-		
-		if (this.isDeclaration() ^ !other.isDeclaration()) {
-			return false;
-		}
 
-		if (this.baseType == BaseType.ENUM && other.baseType == BaseType.ENUM) {
-			return modelExtension.isEqual(this.type, other.type);
-		}
-		
-		if (this.baseType == BaseType.ENTITY && other.baseType == BaseType.ENTITY)
-		{
-			return modelExtension.isEqual(this.type, other.type)
-					|| modelExtension.getSuperEntityTypes((EntityDeclaration)this.type).stream()
-						.anyMatch(e -> modelExtension.isEqual(e, other.type));
-		}
-
-		return this.baseType == other.baseType;
+		return modelExtension.isEqual(this.type, other.type)
+				|| modelExtension.getSuperEntityTypes((EntityDeclaration)this.type).stream()
+				.anyMatch(e -> modelExtension.isEqual(e, other.type));
 	}
 	
 	public boolean isCompatibleCollection(TypeInfo other) {
