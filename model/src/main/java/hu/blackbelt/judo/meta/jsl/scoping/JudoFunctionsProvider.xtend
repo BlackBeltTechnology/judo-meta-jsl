@@ -15,6 +15,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration
 
 @Singleton
 class JudoFunctionsProvider {
+	static List<IEObjectDescription> descriptions;
+	static List<IEObjectDescription> judoFunctions;
 	
 	@Inject IResourceDescription.Manager mgr;
 	@Inject Injector injector
@@ -34,12 +36,18 @@ class JudoFunctionsProvider {
 
 
 	def List<IEObjectDescription> getDescriptions() {
-		val IResourceDescription resourceDescription = mgr.getResourceDescription(getResource());
-		resourceDescription.getExportedObjects().toList;
+		if (descriptions === null) {
+			val IResourceDescription resourceDescription = mgr.getResourceDescription(getResource());
+			descriptions = resourceDescription.getExportedObjects().toList;
+		}
+		
+		return descriptions
 	}
 
 	def IScope getScope(IScope parentScope) {
-		var judoFunctions = getDescriptions().filter[f | !(f.EObjectOrProxy instanceof ModelDeclaration)].toList
+		if (judoFunctions === null) {
+			judoFunctions = getDescriptions().filter[f | !(f.EObjectOrProxy instanceof ModelDeclaration)].toList
+		}
 		return new SimpleScope(parentScope, judoFunctions, false);	
 	}
 
@@ -50,9 +58,6 @@ class JudoFunctionsProvider {
 	 	
 	def model() '''
 		model judo::functions;
-		
-		annotation Query entity:relation entity:field transfer:relation transfer:field view:table view:link;
-		annotation Embedded entity:relation entity:field transfer:relation transfer:field view:table view:link;
 		
 		function string asString() on boolean;
 		function string asString() on enum;

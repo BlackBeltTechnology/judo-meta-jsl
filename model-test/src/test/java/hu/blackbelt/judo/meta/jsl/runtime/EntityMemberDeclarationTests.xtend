@@ -40,10 +40,10 @@ class EntityMemberDeclarationTests {
 
             entity A {
                 field Boolean a;
-                field Boolean b = self.a;
+                field Boolean b default:self.a;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.SELF_NOT_ALLOWED,"Self is not allowed in default expression at 'b'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.defaultModifier, JslDslValidator.SELF_NOT_ALLOWED)
         ]
     }
 
@@ -132,7 +132,7 @@ class EntityMemberDeclarationTests {
             }
 
         '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
+        	m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.INVALID_DECLARATION)
         ]
     }
 
@@ -197,9 +197,9 @@ class EntityMemberDeclarationTests {
 
             entity E {
                 field Integer e;
-
-                field Integer q(Integer p = 10 + 10) <= E!all()!size();
             }
+            
+            query Integer q(Integer p = 10 + 10) on E <= E.all().size();
         '''.parse => [
             assertNoErrors
         ]
@@ -219,7 +219,7 @@ class EntityMemberDeclarationTests {
             entity E {
                 field Integer e;
 
-                query Integer q(Integer p = self.e) => E!all()!size();
+                query Integer q(Integer p = self.e) => E.all().size();
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.queryParameterDeclaration, JslDslValidator.SELF_NOT_ALLOWED,"Self is not allowed in parameter default expression at 'p'.")
@@ -240,7 +240,7 @@ class EntityMemberDeclarationTests {
             entity E {
                 field Integer e;
 
-                query Integer q(Integer p = 10, Integer q = p) => E!all()!size();
+                query Integer q(Integer p = 10, Integer q = p) => E.all().size();
             }
         '''.parse.assertError(
             JsldslPackage::eINSTANCE.navigationBaseDeclarationReference,

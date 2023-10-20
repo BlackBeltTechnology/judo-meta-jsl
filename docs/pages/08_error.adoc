@@ -1,0 +1,183 @@
+ifndef::env-site,env-github[]
+include::../_attributes.adoc[]
+endif::[]
+// Metadata
+:judo-reqprefix: REQ-ENT
+// Settings
+:idprefix:
+:idseparator: -
+:icons: font
+:KW: [purple]##**
+:KWE: **##
+
+= Error
+:page-toctitle:Error
+
+
+[NOTE]
+====
+In the current release, error definitions are not used in JSL. However, the Java API can use error definitions.
+====
+
+An error is an event that occurs during the execution of an application. If an error occurs within the application, it interrupts the normal process of program instructions, and the application must create an error description object to pass it to the external caller.
+
+Error descriptors can only contain fields of domain primitive type. Errors are usually kept simple, often only offering a few number of fields that allow information about the error to be extracted by handlers for the error.
+
+To define an error, use the `error` keyword.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**error**# &lt;name> [purple]#**{**#
+    [field] ...
+[purple]#**}**#
+----
+
+where the <name> is the name of the error, and the error fields are defined between `{` and `}`.
+
+*Example:*
+
+----
+error GenericError {
+}
+----
+
+The example above defines an error named GenericError. This error has no fields.
+
+An error may contain data descriptions called fields. A field has an associated domain type that must be a domain model primitive. Fields cannot store multiple primitive values (that is, lists, sets), but only a single primitive value.
+
+Use the `field` keyword to specify a field within an error.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**field**# &lt;primitive> &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
+----
+
+////
+[subs="quotes"]
+----
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>]
+----
+////
+
+where <primitive> is the name of a domain model primitive, and <name> is the referable name of the field.
+
+////
+The keyword `required` means that the value of the field must be specified, so the value is not allowed to be UNDEFINED. Each newly created error instance must set this field.
+////
+
+Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the error is created, and the field is set according to the default value expression. See <<Expression>> later.
+
+[NOTE]
+====
+The `self` variable cannot be used in default expressions. 
+====
+
+*Example:*
+----
+error PersonNotFound {
+    field String email;
+}
+----
+
+The example above defines an error named PersonNotFound. This error has only one field. `email` is a string that contains an email address that doesn't match any person's email address.
+
+////
+----
+error PersonNotFound {
+    field required String email
+}
+----
+
+The example above defines an error named PersonNotFound. This error has only one field. `email` is a required string that contains an email address that doesn't match any person's email address.
+////
+
+////
+Errors can be inherited from each other using the keyword `extends`. Inheritance of errors is the same mechanism as inheritance of entities. However, errors can only have one parent. To learn more about inheritance, read the chapter on inheriting entities.
+
+*Example:*
+----
+error GenericError {
+    field Integer code;
+}
+
+error PersonNotFound extends GenericError {
+    field String email;
+}
+----
+////
+
+////
+----
+error GenericError {
+    field required Integer code
+}
+
+error PersonNotFound extends GenericError {
+    field required String email
+}
+----
+
+The example above shows an error inheritance. The `PersonNotFound` error inherits the numeric value `code` from the parent named `GenericError`.
+
+////
+
+////
+== Constraints and validators
+
+// next release
+
+A constraints and validators represent some restriction related to an entity (which owns them). Both are specified by a logical expression that must be evaluated to true or false and satisfied (i.e. evaluated to true) by the correct use of the system. One entity may have multiple constraints and validators that must be satisfied.
+
+There are two important differences between constraints and validators:
+
+* moment of evaluation and
+* elements that can be used in their logical expression.
+
+The moment of evaluation differs as follows. Constraints are automatically evaluated after the business logic service is completed (i.e. when the system returns the result to the external caller). In contrast, validators are not evaluated automatically, you must use the `validate` command on the entity to evaluate all its validators.
+
+The other difference is the logical expression, where constraints cannot refer to derived fields and relations. In other words, constraint can only refer to primitive and composite fields in their logical expression.
+
+Use the `constraint` keyword to specify a constraint on an entity.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**constraint**# &lt;expression> [purple]#**onerror**# &lt;error> [purple]#**(**#&#x5B;&lt;field> [purple]##**=**## &lt;value>][purple]##**,**##...[purple]#**)**#
+----
+
+Use the `validator` keyword to specify a validator on an entity.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**validator**# &lt;expression> [purple]#**onerror**# &lt;error> [purple]#**(**#&#x5B;&lt;field> [purple]##**=**## &lt;value>][purple]##**,**##...[purple]#**)**#
+----
+
+where <expression> is a logical expression that is evaluated and <error> is the error that will be thrown in case of the false evaluation, with its field assignments in parentheses.
+
+*Example:*
+
+----
+error NameIsTooShort {
+    field required String name;
+}
+
+entity Person {
+    field required String firstName;
+    field required String lastName;
+    field String midName = "";
+    
+    constraint self.firstName.size() + self.lastName.size() > 4
+    onerror NameIsTooShort(name = self.firstName + " " + self.lastName);
+}
+----
+
+The example above checks if a person's full name is longer than four characters. If not, it throws an error with the person's full name in its `name` field.
+
+////
