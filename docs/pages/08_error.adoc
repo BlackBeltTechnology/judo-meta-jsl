@@ -29,7 +29,7 @@ To define an error, use the `error` keyword.
 
 [subs="quotes"]
 ----
-[purple]#**error**# &lt;name> &#x5B;[purple]##**extends**## &lt;error>] [purple]#**{**#
+[purple]#**error**# &lt;name> [purple]#**{**#
     [field] ...
 [purple]#**}**#
 ----
@@ -53,7 +53,7 @@ Use the `field` keyword to specify a field within an error.
 
 [subs="quotes"]
 ----
-[purple]#**field**# &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>] [purple]#**;**#
+[purple]#**field**# &lt;primitive> &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 ////
@@ -95,6 +95,7 @@ error PersonNotFound {
 The example above defines an error named PersonNotFound. This error has only one field. `email` is a required string that contains an email address that doesn't match any person's email address.
 ////
 
+////
 Errors can be inherited from each other using the keyword `extends`. Inheritance of errors is the same mechanism as inheritance of entities. However, errors can only have one parent. To learn more about inheritance, read the chapter on inheriting entities.
 
 *Example:*
@@ -108,6 +109,8 @@ error PersonNotFound extends GenericError {
 }
 ----
 ////
+
+////
 ----
 error GenericError {
     field required Integer code
@@ -117,12 +120,12 @@ error PersonNotFound extends GenericError {
     field required String email
 }
 ----
-////
 
 The example above shows an error inheritance. The `PersonNotFound` error inherits the numeric value `code` from the parent named `GenericError`.
 
 ////
 
+////
 == Constraints and validators
 
 // next release

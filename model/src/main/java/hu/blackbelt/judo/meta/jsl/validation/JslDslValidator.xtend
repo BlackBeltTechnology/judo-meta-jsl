@@ -129,6 +129,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     public static val TYPE_MISMATCH = ISSUE_CODE_PREFIX + "TypeMismatch"
     public static val ENUM_MEMBER_MISSING = ISSUE_CODE_PREFIX + "EnumMemberMissing"
     public static val DUPLICATE_PARAMETER = ISSUE_CODE_PREFIX + "DuplicateParameter"
+    public static val DUPLICATE_ERROR_THROW = ISSUE_CODE_PREFIX + "DuplicateErrorThrow"
     public static val DUPLICATE_ACTOR = ISSUE_CODE_PREFIX + "DuplicateActor"
     public static val MISSING_REQUIRED_PARAMETER = ISSUE_CODE_PREFIX + "MissingRequiredParameter"
     public static val INVALID_LAMBDA_EXPRESSION = ISSUE_CODE_PREFIX + "InvalidLambdaExpression"
@@ -1804,5 +1805,17 @@ class JslDslValidator extends AbstractJslDslValidator {
                 JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
 		}
+	}
+	
+	@Check
+	def checkTransferAction(TransferActionDeclaration action) {
+		action.errors.forEach[e |
+			if (action.errors.filter[other | other.isEqual(e)].size > 1) {
+	            error("Duplicate error throws:" + e.name,
+	                JsldslPackage::eINSTANCE.transferActionDeclaration.getEStructuralFeature("ID"),
+	                DUPLICATE_ERROR_THROW,
+	                e.name)
+			}
+		]
 	}
 }
