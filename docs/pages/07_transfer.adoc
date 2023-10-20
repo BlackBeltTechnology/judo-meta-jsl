@@ -365,6 +365,7 @@ where the <name> is the name of the action. Information can be passed to actions
 
 The optional <type> is the output type of the action. If <type> is not specified or replaced by the keyword `void` the action cannot return any data. The <type> can be a single transfer object or a union.
 
+The optional `throws` keyword must be followed by one ore more <error> names separated by commas. The list of errors declares which errors can be thrown from the action. See more about errors in xref:08_error.adoc[Error] chapter.
 
 *Example:*
 
