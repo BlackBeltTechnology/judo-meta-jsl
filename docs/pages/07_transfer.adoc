@@ -70,12 +70,14 @@ Use the `field` keyword to specify a field within a transfer object.
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name>[purple]#**;**#
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive and the <name> is the referable name of the field.
 
 The `required` keyword means that the value of the field cannot be undefined at the time the object is validated. When the transfer object is validated it will report fields that are required and having the value of UNDEFINED. The timing of validation is not discussed in this document. Validation can be called at any time from Java or script execution, or it can be called by the architecture (e.g. before the execution of a service).
+
+Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the transfer object is created, and the field is set according to the default value expression. See xref:06_expression.adoc[Expression] later.
 
 // See the validate command.
 
@@ -108,7 +110,7 @@ Use the `relation` keyword to specify a relation between two transfer objects.
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name>[purple]#**;**#
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 where <transfer> is the name of a transfer object to which the relation is targeted. The <name> is used to identify the relation within the owner, it is commonly referred to as role name.
@@ -118,6 +120,8 @@ The optional `[]` behind the <transfer> indicates that the relation is a collect
 The `required` keyword means that the value of the relation cannot be undefined at the time the object is validated. When the transfer object is validated it will report relations that are required and having the value of UNDEFINED. The timing of validation is not discussed in this document. Validation can be called at any time from Java or script execution, or it can be called by the architecture (e.g. before the execution of a service).
 
 The keyword `required` is not allowed for collections.
+
+Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the transfer object is created, and the relation is set according to the default value expression. See xref:06_expression.adoc[Expression] later.
 
 *Example:*
 
@@ -170,12 +174,24 @@ To define a mapped transfer object, use the `transfer` keyword and specify an en
 
 [subs="quotes"]
 ----
-[purple]#**transfer**# &lt;name> (&lt;entity> &lt;mapping-field>) {
+[purple]#**transfer**# &lt;name> [purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**## {
     &#x5B;field] ...
 }
 ----
 
 where the <name> is the name of the transfer object, and the member fields are defined between `{` and `}`. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance.
+
+[NOTE]
+====
+There is an alternative syntax to define a mapped transfer object. This alternative is a bit more expressive, although it may be too verbose.
+
+[subs="quotes"]
+----
+[purple]#**transfer**# &lt;name> [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> &#x5B;{
+    &#x5B;[purple]##**field**##] ...
+}]
+----
+====
 
 The example below shows a mapped transfer object.
 
@@ -242,7 +258,7 @@ In the example above, transfer field value is set by concatenating the `firstNam
 The <expression> is used whenever a transfer object or a collection of transfer objects are fetched from the persistent storage.
 ////
 
-If the expression after the `\<=` symbol is a direct member selection of the mapped entity, in addition to setting the value of the transfer field, it writes the value of the transfer field to the entity field when the mapped entity instance is updated with the transfer object instance. Direct member selection is a one step navigation as it is shown in the example below.
+If the expression after the `\<=` symbol is a direct member selection of the mapped entity, in addition to setting the value of the transfer field, it writes the value of the transfer field to the entity field when the transfer object field changes. Direct member selection is a one step navigation as it is shown in the example below.
 
 *Example:*
 
@@ -295,6 +311,32 @@ transfer SalesPersonTransfer(SalesPerson salesperson) {
 An important note, that if the transfer field's type is a transfer object (or a collection of transfer objects) the expression after the `\<=` must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
 ====
 
+Similar to transfer fields, if the expression after the `\<=` symbol is a direct relation/composite selection of the mapped entity, in addition to setting the value of the transfer relation, it updates the entity relation when the transfer relation changes  (adds or removes entity instances to the entity relation).
+
+=== Fetching modifier
+
+Only in the case of mapped transfer relations, the fetching strategy of the related transfer objects can be specified. Possible fetching strategies are the same as those seen in xref:05_entity.adoc[Entity] chapter.
+
+* *Eager fetching* is a technique where related objects are fetched at the same time as the owner transfer object is retrieved from persistent storage.
+
+* *Lazy fetching* is a technique where related objects are *not* fetched at the same time as the owner transfer object is retrieved from persistent storage.
+
+By default, the the fetching strategy of mapped relations is lazy.
+
+The default lazy fetching strategy of the transfer relation can be altered by applying the `eager` modifier. To apply the eager fetching strategy on a transfer relation, use the `eager` modifier with `true` value.
+
+In the example below, the TransferOrder instances referenced by the `orders` mapped relation will be fetched together with the TransferCustomer instance.
+
+*Example:*
+
+[source,jsl]
+----
+transfer TransferCustomer(Customer customer) {
+	relation TransferOrder[] orders <= customer.orders eager:true;
+}
+----
+
+
 // TODO: create, delete, update flags
 
 == Action
@@ -319,7 +361,7 @@ Use the `action` keyword to specify an action within a transfer object.
 [purple]#**action**# &#x5B;&lt;type>|&lt;union>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**## &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...][purple]#**;**#
 ----
 
-where the <name> is the name of the action. Information can be passed to actions through parameters, which act as variables within the action. A <parameter> is specified after the action name within parentheses and consists of the name of a transfer object and a parameter name. An action can have at most one parameter.
+where the <name> is the name of the action. Information can be passed to actions through a parameter, which acts as variable within the action. A <parameter> is specified after the action name within parentheses and consists of the name of a transfer object and a parameter name. An action can have at most one parameter.
 
 The optional <type> is the output type of the action. If <type> is not specified or replaced by the keyword `void` the action cannot return any data. The <type> can be a single transfer object or a union.
 
@@ -398,7 +440,7 @@ Initialized -right-> [*]
 @enduml
 ....
 
-* Once created, these objects are populated with data through their initialize event handler. More details on this process can be found later.
+* Once created, these objects are populated with data through their initialize event handler. More details on this event can be found later.
 
 * After their purpose has been served, and the data has been transferred, unmapped transfer objects often become immediately eligible for garbage collection. When all references to an unmapped transfer object are lost, it becomes eligible for garbage collection.
 
@@ -474,7 +516,7 @@ A transition refers to a change in the object's state that occurs as a result of
 
 * The *update* event is associated with saving the modifications made to a transfer object. It causes the object to transition from the modified state back to the persisted state, reflecting that the changes have been persisted.
 
-* The *delete* event is used to indicate the removal or deletion of an object. It results in the object transitioning to an end state and being removed from the persistent storage entirely.
+* The *delete* event is used to indicate the removal or deletion of an object. It results in the object transitioning to an end state and its mapped entity being removed from the persistent storage entirely.
 
 == Event handlers
 
@@ -487,19 +529,21 @@ The following event handlers can be defined for transfer objects.
 
 Optionally, an initialize event handler can be specified for transfer objects. The initialize event handler is automatically called when a new transfer object is constructed and can be used to set default values of the fields.  Its primary purpose is to set up the initial state and fields of a transfer object when it is first instantiated.
 
+Although the initialize event handler is where transfer fields and relations can be set, the field's default value is always set before the initializer is called.
+
 An initialize event handler can be defined both for unmapped and mapped transfer objects.
+
+[NOTE]
+====
+Currently, the body of the initialize event handler can only be defined in Java.
+====
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**event initialize**# &#x5B;[purple]##**()**##] {
-    &#x5B;&lt;field> = &lt;expression>[purple]#**;**#] ...
-}
+[purple]#**event initialize**# &#x5B;[purple]##**()**##][purple]##**;**##
 ----
-
-where <field> is a field of the transfer object having the initialize handler and <expression> is the default value of the field. The expressions in the initializer must be locally evaluable, that is, they must be static values.
-
 
 *Example:*
 
@@ -510,15 +554,9 @@ transfer PersonTransfer {
     field required String lastName;
     field String midName;
     
-    event initialize {
-        self.firstName = "John";
-        self.lastName = "Doe";
-        self.midName = "";
-    }
+    event initialize;
 }
 ----
-
-The example above complements the PersonTransfer example by adding a default value to the `firstName`, `lastName` and `midName` fields.
 
 === Create
 
