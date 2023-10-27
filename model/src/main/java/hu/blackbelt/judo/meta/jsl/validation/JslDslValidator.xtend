@@ -1718,7 +1718,9 @@ class JslDslValidator extends AbstractJslDslValidator {
 			val field = eager.eContainer as EntityFieldDeclaration
 
 	    	if (field.referenceType instanceof PrimitiveDeclaration && !field.calculated && !eager.value.isTrue) {
-    			error("Primitive non-calculated field must be eager fetched.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"))
+    			error("Primitive non-calculated field must be eager fetched.",
+    				JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"),
+    				INVALID_DECLARATION)
 	    	}
 
 	    	else if (eager.value.isTrue) {
@@ -1736,7 +1738,9 @@ class JslDslValidator extends AbstractJslDslValidator {
 			val relation = eager.eContainer as TransferRelationDeclaration
 
 			if (relation.getterExpr === null) {
-    			error("Eager modifier needs a getter expression.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"))
+    			error("Eager modifier needs a getter expression.",
+    				JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"),
+    				INVALID_DECLARATION)
 			}
 
 			if ((relation.maps || relation.reads) && !eager.value.isTrue) {
