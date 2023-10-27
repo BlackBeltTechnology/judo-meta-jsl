@@ -80,6 +80,7 @@ public class JslTerminalConverters extends DefaultTerminalConverters {
 	
 	  		@Override
 	  		public String toString(String value) throws ValueConverterException {
+	  			if (value.trim().length() == 0) return null;
 	  			return delegate.toString(value);
 	  		}  		
 	  	};
