@@ -1721,8 +1721,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     			error("Primitive non-calculated field must be eager fetched.",
     				JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"),
     				INVALID_DECLARATION)
-	    	}
-
+            }
 	    	else if (eager.value.isTrue) {
 	    		info("Entity field is eager fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
 	    	}
