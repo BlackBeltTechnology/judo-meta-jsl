@@ -920,7 +920,8 @@ There are no binary functions.
 |======================================================================
 |`[purple]#**asString()**# : string`
 |Enumeration literal as string.
-|Example: `OrderStatus#OPEN.asString()` is `"OPEN"`
+|Example:
+|`OrderStatus#OPEN.asString()` is `"OPEN"`
 |======================================================================
 
 [judo-req="true",judo-req-id="REQ-EXPR-021"]
@@ -1008,6 +1009,7 @@ Makes sense in JCL only.
 |======================================================================
 |`[purple]#**front(**#<variable> [purple]##**\|**## <expression>[purple]##**)**## : collection`
 |Sorts the given collection in ascending order according to the field selected by <expression>, then returns the collection containing all of the non-last elements. If there is more than one element in the last place, all elements in the last place are omitted from the result. The <expression> must navigate to a primitive type field. Note that currently <expression> can only select the immediate field of the iterator variable, multi-step navigation is not allowed. More information about iterators in the <<Iterator functions>> chapter.
+| Example:
 |`self.orderItems.product.front(item \| item.price)` returns all products in the order, except the highest priced products.
 |======================================================================
 
@@ -1039,6 +1041,7 @@ Makes sense in JCL only.
 |======================================================================
 |`[purple]#**size()**# : numeric`
 |Returns the number of elements of a collection.
+| Example:
 |`self.orderItems.size()` returns the number of the items in the order.
 |======================================================================
 

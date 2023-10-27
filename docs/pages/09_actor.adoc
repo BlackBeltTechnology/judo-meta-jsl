@@ -11,12 +11,12 @@ endif::[]
 // TODO: schedule and init
 
 [judo-req="true",judo-req-id="REQ-SRV-014"]
-= Actor
+= Access control
 :page-toctitle:Actor
 
 Authentication is the process of verifying a user’s identity and authorization is the process of determining whether an authenticated user has access to a particular resource or service. Authorization is critical for ensuring that only authorized users have access to sensitive data and resources. The following chapters describe JUDO's authentication and authorization process.
 
-An actor represents a generic user of the system and can be used to represent humans or another system. Actors are a special subset of transfer objects. Members of actors can be relations (referred to as access), actions, and event handlers, just like in the case of transfer objects. However, one important difference is that actors do not contain fields.
+An actor represents a generic user of the system and can be used to represent humans or another system. Actors are a special subset of transfer objects. Members of actors can be relations (referred to as access), and event handlers, just like in the case of transfer objects. However, one important difference is that actors do not contain fields and actions.
 
 To define an actor, use the `actor` keyword.
 
@@ -24,7 +24,7 @@ To define an actor, use the `actor` keyword.
 
 [subs="quotes"]
 ----
-[purple]#**actor**# &lt;[purple]##**human**##|[purple]##**system**##> &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
+[purple]#**actor**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
     &#x5B;[purple]##**realm**## &lt;realm>]
     &#x5B;[purple]##**claim**## &lt;claim>]
     &#x5B;[purple]##**identity**## &lt;identity>]
@@ -52,7 +52,7 @@ There is an alternative syntax to define an actor. This alternative is a bit mor
 
 [subs="quotes"]
 ----
-[purple]#**actor**# &lt;[purple]##**human**##|[purple]##**system**##> &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
+[purple]#**actor**# &lt;name> &#x5B;[purple]##**maps**## &lt;entity> [purple]#**as**# &lt;mapping-field>]
     &#x5B;[purple]##**realm**## "&lt;realm>"]
     &#x5B;[purple]##**claim**## "&lt;claim>"]
     &#x5B;[purple]##**identity**## &lt;identity>]
@@ -79,6 +79,7 @@ The above example defines an actor named `SalesPersonActor`. The company's sales
 
 
 [judo-req="true",judo-req-id="REQ-SRV-015"]
+[judo-req="true",judo-req-id="REQ-SRV-016"]
 == Access
 
 Authorization is the mechanism responsible for granting external users access to specific transfer objects and their actions. In general terms, authorization is a key mechanism for controlling access rights and permissions.
@@ -102,151 +103,29 @@ The access of an actor is the same as the relation of transfer objects. It may b
 
 [source,jsl]
 ----
-// Bad example
-actor system CustomerActor(Customer customer) {
+actor CustomerActor(Customer customer) {
 	access CartTransfer myCart <= customer;
-	access ProductListTransfer products;
+	access ProductTransfer[] products <= Product.all();
 }
 ----
 
-Defining an actor with no `exports` would let users to authenticate themselves and log into the application. However, they cannot access any resources (services and data) within our application.
+In addition to actors, transfer objects can also provide access to other transfer objects. For instance, if a transfer object represents a customer, it allows access to the customer's current orders and order history.
 
-The actor object can grant permission to services containing functions by exporting them. After exporting services, the user can call all the functions in the service.
+The security mechanism in JUDO can be understood as a logical permission graph that defines how external users can access resources in the application. In this graph, the nodes represent actors and transfer objects, while the edges represent the relationships and actions.
 
-To authorize actors to use services, use `exports` in the actor specification.
+At the starting point of this permission graph is the actor, which represents the external user. When a user gains access to transfer objects offered by an actor, they obtain instances of these transfer objects. Once the user has a new transfer object instance, they can then access transfer objects made available by that specific transfer object (and so on). The initial entry point to the permission graph is the actor representing the external user, enabling traversal through relations to access transfer object instances. Consequently, a hierarchical chain of permissions is established as the user can navigate to various transfer object instances. As a result, transfer objects that cannot be reached from the actor remain unavailable to external users.
 
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**actor**# &lt;name> [(&lt;entity> &lt;mapping-field>)] &#x5B;[purple]##**exports**## &lt;service>, ...]
-    &#x5B;[purple]##**realm**## "&lt;realm>"]
-    &#x5B;[purple]##**claim**## "&lt;claim>"]
-    &#x5B;[purple]##**identity**## &lt;identity>][purple]#**;**#
-----
-
-where the `exports` keyword is followed by a comma-separated list of services.
-
-The actor can export only unmapped services or mapped services that are linked to the same type (or subtype) of entity to which the actor is linked. 
-
-*Example:*
-
-[source,jsl]
-----
-entity Person {
-    field String email;
-}
-
-transfer PersonTransfer(Person person) {
-    field String email reads salesPerson.email;
-}
-
-service ManagerService {
-    function PersonTransfer create();
-}
-
-actor Manager exports ManagerService;
-----
-
-The example above allows the manager to create a new person. To grant permissions to external users, we first need to define entities, transfer objects and services. The Manager actor in this application has no realm or identity, meaning this actor is an anonymous actor. Anonymous actors are publicly available, anyone who knows the URL of the Manager actor interface can invoke the create function. This way, the Manager actor is given access to the ManagerExport's create function, with which the user can create a PersonTransfer.
-
-[judo-req="true",judo-req-id="REQ-SRV-016"]
-=== Transfer object export
-
-Besides the actors, the transfer objects can also grant access to service functions by exporting services. For example, if a transfer object represents a customer, its exported services might include the ability to edit the customer's information, place orders, and view order history.
-
-JUDO's security mechanism can be thought of as a logical permission graph that defines the access of external users to resources within the application. The nodes of the permission graph are the actors and instances of the transfer objects. The edges of the graph are the exported service functions.
-
-At the entry point of the permission graph is the actor, which represents the external user, who can access service functions exported by the actor.
-
-Calling the functions exported by the actor, the user receives transfer object instances returned by the functions. Once the user gets a new transfer object instance, they can call the service functions exported by that transfer object (and so on). The entry point to the permission graph is the actor, which represents the external user and allows traversing (by calling functions) to transfer object instances. From each transfer object instance the user can further traverse to other transfer object instances, creating a recursive hierarchy of permissions. As a result of the above, functions exported by transfer objects that cannot be traversed from any actor will not be available to external users.
+The comprehensive authorization mechanism can be established by carefully configuring relationships with transfer objects. It's essential to note that if an external user has already obtained a transfer object instance, they are thereby authorized to access transfer object instances connected through the relationships of that initially obtained transfer object.
 
 JUDO's security mechanism also includes a number of built-in security features, such as encryption and secure communication protocols, to ensure the privacy and security of the data being exchanged between external users and the application.
-
-The complete authorization mechanism can be defined by carefully provisioning services to actors and transfer objects. Always be aware of that if a transfer object instance has already been received by an external user, then they are authorized to call the service functions exported by the transfer object.
-
-To export services, use `exports` keyword in the transfer object's specification.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**transfer**# &lt;name> (&lt;entity> &lt;alias>) &#x5B;[purple]##**exports**## &lt;service>, ...] &#x5B;{
-    &#x5B;member] ...
-}]
-----
-
-The example below shows how a transfer object can export services. Users who received the PersonTransfer object can call the delete function.  This function can only be called by the users who have access to the PersonTransfer object.
-
-
-*Example:*
-
-[source,jsl]
-----
-service PersonService(Person person) {
-    function void delete();
-}
-
-service ManagerService {
-    function PersonTransfer[] listPersons();
-}
-
-transfer PersonTransfer(Person person) exports PersonService {
-    field String email reads salesPerson.email;
-}
-
-actor Manager exports ManagerService;
-
-----
 
 [judo-req="true",judo-req-id="REQ-SRV-017"]
 === Guard
 
-A guard is a boolean expression that must evaluate to true in order to continue the execution. To put it more simply, a guard defines a precondition.
+Guards can be defined for actors. A guard is a boolean expression that must evaluate to true in order to continue the execution. To put it more simply, a guard defines a precondition.
 
-Guards can be defined for
+To add a guard to actors use `guard` as follows. The actor guard is evaluated before each request to the application. If the actor guard evaluates to false, none of the transfer objects are available and an error message is thrown.
 
-* functions,
-* services and
-* actors.
-
-To add a guard to functions use `guard` as follows. The function guard is evaluated before the function execution. If the function guard evaluates to false, the function is not executed and an error message is thrown.
-
-*Example:*
-
-[source,jsl]
-----
-service PersonService(Person person) {
-    function void delete() guard person.leads.size() == 0;
-}
-----
-
-The example above defines a guard, and the delete function is not executed if that person has a lead.
-
-// TODO: what is the error message?
-
-To add a guard to services use `guard` as follows. The service guard is a shortcut that assigns the same guard to each function. The service guard is evaluated before each function is executed in the service. If the service guard evaluates to false, the function is not executed and an error message is thrown. If the service guard evaluation is true, then the function guard, if any, is evaluated.
-
-*Example:*
-
-[source,jsl]
-----
-service PersonService(Person person) guard person.leads.size() == 0 {
-    function void delete();
-    function Lead[] addLead(Lead lead);
-}
-----
-
-The example above defines a guard for service, and the functions are not executed and an error is thrown if that person has a lead.
-
-// TODO: add error definition to guards if error is intruduced
-
-To add a guard to actors use `guard` as follows. The actor guard is evaluated before each function call to the application. If the actor guard evaluates to false, none of the application function can be executed and an error message is thrown.
-
-////
-Alternative actor guard execution:
-The actor guard is evaluated when the user is authenticated by the application. If the actor guard evaluates to false, the user cannot call any function of the application.
-////
 
 *Example:*
 
@@ -259,3 +138,88 @@ actor SalesPersonActor(SalesPerson salesPerson)
 ----
 
 The example above defines a guard for actor, and the salesperson can only invoke the functions if she has at least one lead.
+
+== Permission modifiers
+
+Up until now, we've discussed access to transfer objects, which essentially means the permission to read those objects. However, it's important to note that permission control can extend beyond just reading. We have the flexibility to enhance the rights of access by incorporating additional permissions in the form of modifiers:
+
+* **Create**: This permission allows the creation of new objects. Users with create permission can generate new transfer object instances within the system. For example, a user with create permission might be able to create new customer accounts or add new products to a catalog.
+
+* **Delete**: The delete permission permits the removal or deletion of objects. Users with delete permission can eliminate existing transfer object instances from the system. For instance, this might involve deleting customer accounts or removing products from a catalog.
+
+* **Update**: Update permission grants users the ability to modify or edit existing transfer objects. Users with this permission can make changes to the fields of transfer objects. For example, a user with update permission could edit a customer's contact information or change the status of an order.
+
+By incorporating these create, delete, and update modifiers into the actor accesses and the relationships, we can provide more extensive and more fine-tuned rights to users. This means that in addition to reading, users can also create, modify, or delete data, depending on the permissions granted to them.
+
+The following example demonstrates how an admin user within the system can be granted specific permissions to create, delete, or update customer instances:
+
+*Example:*
+
+[source,jsl]
+----
+actor AdminActor(Admin admin) {
+	access CustomerTransfer[] users <= Customer.all()
+	    create:true
+	    delete:true
+	    update:true;
+}
+----
+
+In this code snippet, we define the AdminActor as an actor representing an admin user. This actor is given access to CustomerTransfer objects. Within this context, the create, update, and delete modifiers are utilized. These modifiers are boolean values, which means they can be set to either `true` or `false`. If their value is set to `true`, it signifies that the permission is granted to the admin user, allowing them to create, update, and delete customer instances. Conversely, if the value is `false` or the modifier is missing the respective permission is not granted.
+
+In the same manner, permissions can also be incorporated into relationships between transfer objects:
+
+*Example:*
+
+[source,jsl]
+----
+transfer CustomerTransfer(Customer customer) {
+    relation OrderTransfer[] orders <= customer.orders
+        create:true
+        delete:true
+        update:true;
+}
+----
+
+This second example showcases how permissions can be extended to the relationships of transfer objects. Here, we define a CustomerTransfer object with a relationship to OrderTransfer objects. Once again, we employ the create, update, and delete modifiers. These modifiers dictate whether the user who has obtained a CustomerTransfer object is permitted to create, delete, or update the customer's associated orders. If the modifiers are set to `true`, the user can perform these actions, otherwise not.
+
+This approach provides precise control over what actions users, particularly admins, can undertake concerning specific objects and their associated objects. It enhances the system's security and flexibility by allowing the fine-tuning of access permissions.
+
+== Input modifier
+
+Permission modifiers provide users with the ability to modify, delete, or create objects. However, when a user is granted permission to modify an object, the question arises as to which fields and relationships of the given object can be altered.
+
+By default, every field of a transfer object is set to read-only. To allow changes to a specific field of a transfer object, the input modifier should be utilized. Fields that lack the input modifier set to `true` are off-limits for user modifications.
+
+*Example:*
+
+[source,jsl]
+----
+transfer PersonTransfer(Person person) {
+	field String firstName <= person.firstName input:true;
+	field String lastName <= person.lastName input:true;
+	field String email <= person.email;
+}
+----
+
+In the provided example, a user with update permission can modify the first and last name of the person if necessary. However, the email address remains a read-only field, even if the update permission is granted. This restriction also holds true for the create permission.
+
+This approach allows for fine-grained control over which fields of an object can be modified, ensuring data integrity and security while permitting necessary changes when required.
+
+== Choices modifier
+
+By default, relations between transfer objects are configured as read-only, similar to fields. However, when you need to allow modifications to these relations, you have two options. One way to modify relations is by using the create and delete permissions, while the other is by adding or removing transfer object instances employing the choices modifier.
+
+The choices modifier enables you to specify which instances can be added to or removed from the relation. Instances not listed in the choices won't be allowed to be added. If you want to allow the addition of any instances, you can use choices as shown in this example:
+
+*Example:*
+
+[source,jsl]
+----
+transfer ProductTransfer(Product product) {
+	relation ProductTransfer[] recommendations <= product.recommendations
+	    choices:Product.all();
+}
+----
+
+In this example, the choices modifier is set to Product.all(), which means any product instance can be added to the `recommendations` relation.

@@ -469,7 +469,7 @@ entity Order {
 }
 ----
 
-In the above example, the `price` field will not be calculated and loaded when the order entity is fetched. Instead, it will be calculated only when a read request is made for the price of the order.
+In the above example, the `price` field will not be calculated and loaded when the order entity is fetched. Instead, it will be calculated only when a read request is made for the price of the order. Please note that for non-calculated primitive fields, only eager fetching is permitted.
 
 In the second example, the Order entity instances referenced by the `orders` relation will be fetched together with the Customer entity instance.
 
@@ -553,7 +553,7 @@ entity Customer {
 [judo-req="true",judo-req-id="REQ-ENT-010"]
 === Instance query
 
-Static queries are executed within the scope of an entity. The entity on which the query is executed can be named "self" in the query expression.
+Instance queries are executed within the scope of an entity. The entity on which the query is executed can be named "self" in the query expression.
 
 The syntax of the instance query declaration is the same as the syntax of the static query declaration with the addition of an `on` keyword.
 
