@@ -1,0 +1,722 @@
+ifndef::env-site,env-github[]
+include::../_attributes.adoc[]
+endif::[]
+// Settings
+:idprefix:
+:idseparator: -
+:icons: font
+:KW: [purple]##**
+:KWE: **##
+:title-align: "right"
+ 
+// TODO: schedule and init
+
+= Transfer model
+:page-toctitle:Transfer model
+
+
+The transfer objects act as a front-facing interface masking the underlying entity model. The transfer object model can hide the complexity and the details of the entity model and provides a simpler interface to the clients of the application. Or it can provide different views for different purposes, allowing changes in functionality without changing the underlying, often rigid data model, which is often created from very different aspects. In addition, the transfer object model also reduces the dependence between the entity model and the outside world.
+
+The main building blocks of the transfer object model are transfer objects and actors. The following chapters describe these building blocks in detail.
+
+== Transfer object
+
+A transfer object is a container for a set of data fields that is transferred between the entity layer and any upper layers (e.g. user interface or external system). The transfer objects discussed in this sub-chapter are often referred to as "unmapped" transfer objects. This term is used because there are also "mapped" transfer objects, which will be discussed later.
+
+[NOTE]
+====
+The term "transfer object" is a short version of "transfer object type". The correct term would be "transfer object type". However, to distinguish between the type and the instance, the object is called "instance of a transfer object" or "transfer object instance".
+====
+
+Transfer objects are simple non-persistent objects that carry data between our application and the outside world. The data members of a transfer object can be set and read at any stage of its life cycle.
+
+To define an unmapped transfer object, use the `transfer` keyword.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**transfer**# &lt;name> {
+    &#x5B;member] ...
+}
+----
+
+where the <name> is the name of the transfer object, and its data members are defined between `{` and `}`.
+
+*Example:*
+
+[source,jsl]
+----
+transfer PersonTransfer {
+}
+----
+
+The above example declares the transfer object `PersonTransfer` with no members.
+
+
+[judo-req="true",judo-req-id="REQ-SRV-003"]
+=== Field
+
+A transfer object may contain data members called fields. A field has an associated primitive domain type, in other words, the field is a typed element. Fields cannot store multiple primitive values (that is, collection), but only a single primitive value.
+
+[NOTE]
+====
+If you want to have a collection of primitives, use a wrapper transfer object with just one primitive field, and use a relation to the collection of wrappers to store a collection of primitive values.
+====
+
+Use the `field` keyword to specify a field within a transfer object.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
+----
+
+where <primitive> is the name of a domain model primitive and the <name> is the referable name of the field.
+
+The `required` keyword means that the value of the field cannot be undefined at the time the object is validated. When the transfer object is validated it will report fields that are required and having the value of UNDEFINED. The timing of validation is not discussed in this document. Validation can be called at any time from Java or script execution, or it can be called by the architecture (e.g. before the execution of a service).
+
+Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the transfer object is created, and the field is set according to the default value expression. See xref:06_expression.adoc[Expression] later.
+
+// See the validate command.
+
+*Example:*
+
+[source,jsl]
+----
+transfer PersonTransfer {
+    field required String firstName;
+    field required String lastName;
+    field String midName;
+}
+----
+
+The example above defines a transfer object named PersonTransfer. This transfer object has three fields. `firstName` and `lastName` are two required strings, and `midName` is an optional string.
+
+// read-only fields?
+
+=== Relation
+
+A relation is a reference defined between two transfer objects. The concept closely resembles the relation concept described in xref:05_entity.adoc[Relations] section of entities. The transfer object instance that holds the reference is considered the owner of the relation. As the owner, it has access to the instance being referred to by the reference.
+
+Relations can be not only references to a single instance, but also collections. If the relation is a collection, the owner can access a set of instances at the same time.
+
+Relations between transfer objects are inherently unidirectional. A relation can only be navigated in one direction: from the owner to the target of the relation. Navigation means that, at run-time, the owner of the relation gets the instance(s) of the target of the relation.
+
+Use the `relation` keyword to specify a relation between two transfer objects.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
+----
+
+where <transfer> is the name of a transfer object to which the relation is targeted. The <name> is used to identify the relation within the owner, it is commonly referred to as role name.
+
+The optional `[]` behind the <transfer> indicates that the relation is a collection rather than a single reference to one <transfer> instance. In other words, the cardinality of the relation is a collection.
+
+The `required` keyword means that the value of the relation cannot be undefined at the time the object is validated. When the transfer object is validated it will report relations that are required and having the value of UNDEFINED. The timing of validation is not discussed in this document. Validation can be called at any time from Java or script execution, or it can be called by the architecture (e.g. before the execution of a service).
+
+The keyword `required` is not allowed for collections.
+
+Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the transfer object is created, and the relation is set according to the default value expression. See xref:06_expression.adoc[Expression] later.
+
+*Example:*
+
+[source,jsl]
+----
+transfer CustomerTransfer {
+	relation OrderTransfer[] orders;
+}
+
+transfer OrderTransfer {
+}
+----
+
+The example above defines a relation. `orders` is defined within CustomerTransfer transfer object and refers to a list of OrderTransfer transfer object instances that belong to a particular customer. 
+
+*Example:*
+
+[source,jsl]
+----
+transfer AddressTransfer {
+    field required String line1;
+    field String line2;
+    field String City;
+    field String ZipCode;
+}
+
+transfer PersonTransfer {
+    relation required AddressTransfer address;
+}
+----
+
+The second example defines the AddressTransfer transfer object with its fields, and each PersonTransfer instance must have an AddressTransfer.
+
+
+[judo-req="true",judo-req-id="REQ-SRV-002"]
+== Mapped transfer object
+
+Data transformation between entities and transfer objects is a tedious and error-prone task. Mapped transfer objects are intended to facilitate this work and also carry data between our application and the outside world, but they can be linked to a specific entity instance. The link between the mapped transfer object instance and the entity instance is represented by a specific field of the mapped transfer object, called mapping field.
+
+[IMPORTANT]
+====
+Understanding the concept of a *mapping field* is extremely important as you continue reading this document. The name "mapping field" comes from its role. In practice, the mapping field is a field in the mapped transfer object. This is a reference to the entity instance to which the transfer object is linked. This reference can be read at any time like any other field of the transfer object. An important consequence of the above is that the name of the mapping field cannot be used as a field name in the mapped transfer object.
+====
+
+Mapping is a configuration approach that copies entity field values to transfer object fields and vice versa in a pre-defined way, see more in <<Mapping configuration>> chapter.
+
+To define a mapped transfer object, use the `transfer` keyword and specify an entity type as a parameter.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**transfer**# &lt;name> [purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**## {
+    &#x5B;field] ...
+}
+----
+
+where the <name> is the name of the transfer object, and the member fields are defined between `{` and `}`. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance.
+
+[NOTE]
+====
+There is an alternative syntax to define a mapped transfer object. This alternative is a bit more expressive, although it may be too verbose.
+
+[subs="quotes"]
+----
+[purple]#**transfer**# &lt;name> [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> &#x5B;{
+    &#x5B;[purple]##**field**##] ...
+}]
+----
+====
+
+The example below shows a mapped transfer object.
+
+*Example:*
+
+[source,jsl]
+----
+entity Person {
+    field String name;
+}
+
+transfer PersonTransfer(Person person) {
+    field String name <= person.name;
+}
+----
+
+The transfer object `PersonTransfer` is mapped to the `Person` entity. A particular instance of the Person entity is accessible as `person` within the scope of the PersonTransfer transfer object. The `person` field is a field of type `Person`, which is the mapping field.
+
+The value of the mapping field (`person` in the example above) can be undefined (e.g. the mapping field is not required). In some PersonTransfer instances, the mapping field may refer to a particular Person entity instance, and in others it may be undefined.
+
+
+[judo-req="true",judo-req-id="REQ-SRV-005"]
+=== Mapping configuration
+
+Mapping configuration is a declarative description of how the fields of a transfer object read and/or write specific fields of the entity mapped by the transfer object. Mapping configuration can only be used for mapped transfer objects.
+
+Use the `\<=` symbol in the field definitions to define the mapping configuration.
+
+=== Mapped field
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>];
+----
+
+where <primitive> is the name of a domain model primitive, or
+
+[subs="quotes"]
+----
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**<=**## &lt;expression>];
+----
+
+If the `\<=` symbol is used, the value of the transfer field will be set to the value of the expression specified after `\<=`. 
+
+*Example:*
+
+[source,jsl]
+----
+entity SalesPerson {
+    field String firstName;
+    field String lastName;
+}
+
+transfer SalesPersonTransfer(SalesPerson salesperson) {
+    field String fullName <= salesperson.firstName + " " + salesperson.lastName;
+}
+----
+
+In the example above, transfer field value is set by concatenating the `firstName` and `lastName` fields of SalesPerson entity with a space in the middle. Note the `salesperson` reference in the expression which refers to the mapping field.
+
+////
+The <expression> is used whenever a transfer object or a collection of transfer objects are fetched from the persistent storage.
+////
+
+If the expression after the `\<=` symbol is a direct member selection of the mapped entity, in addition to setting the value of the transfer field, it writes the value of the transfer field to the entity field when the transfer object field changes. Direct member selection is a one step navigation as it is shown in the example below.
+
+*Example:*
+
+[source,jsl]
+----
+entity SalesPerson {
+    field String firstName;
+    field String lastName;
+}
+
+transfer SalesPersonTransfer(SalesPerson salesperson) {
+    field String firstName <= salesperson.firstName;
+    field String lastName <= salesperson.lastName;
+}
+----
+
+In other words, the `\<=` symbol creates a read-only connection between the entity and the transfer fields, where the value of the transfer field takes the value of the expression. However, if the expression is a direct member selection after the `\<=` symbol, it defines a read-write connection.
+
+=== Mapped relation
+
+So far, expressions returned primitive values. The following example shows a relation that is mapped to one of the entity's relations. The example defines a relation for `SalesPersonTransfer`. The relation `leads` is defined within SalesPersonTransfer and contains a list of LeadTransfer transfer objects that belong to a particular salesperson.
+
+*Example:*
+
+[source,jsl]
+----
+entity SalesPerson {
+    field String firstName;
+    field String lastName;
+    
+	relation Lead[] leads;
+}
+
+entity Lead {
+    field Integer value;
+}
+
+transfer LeadTransfer(Lead lead) {
+    field Integer value <= lead.value;
+}
+
+transfer SalesPersonTransfer(SalesPerson salesperson) {
+    field String fullName <= salesperson.firstName + " " + salesperson.lastName;
+    relation LeadTransfer[] leads <= salesperson.leads;
+}
+----
+
+[IMPORTANT]
+====
+An important note, that if the transfer field's type is a transfer object (or a collection of transfer objects) the expression after the `\<=` must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
+====
+
+Similar to transfer fields, if the expression after the `\<=` symbol is a direct relation/composite selection of the mapped entity, in addition to setting the value of the transfer relation, it updates the entity relation when the transfer relation changes  (adds or removes entity instances to the entity relation).
+
+=== Fetching modifier
+
+Only in the case of mapped transfer relations, the fetching strategy of the related transfer objects can be specified. Possible fetching strategies are the same as those seen in xref:05_entity.adoc[Entity] chapter.
+
+* *Eager fetching* is a technique where related objects are fetched at the same time as the owner transfer object is retrieved from persistent storage.
+
+* *Lazy fetching* is a technique where related objects are *not* fetched at the same time as the owner transfer object is retrieved from persistent storage.
+
+By default, the the fetching strategy of mapped relations is lazy.
+
+The default lazy fetching strategy of the transfer relation can be altered by applying the `eager` modifier. To apply the eager fetching strategy on a transfer relation, use the `eager` modifier with `true` value.
+
+In the example below, the TransferOrder instances referenced by the `orders` mapped relation will be fetched together with the TransferCustomer instance.
+
+*Example:*
+
+[source,jsl]
+----
+transfer TransferCustomer(Customer customer) {
+	relation TransferOrder[] orders <= customer.orders eager:true;
+}
+----
+
+
+// TODO: create, delete, update flags
+
+== Action
+
+Actions, also known as methods or member functions, define the operations that a transfer object can perform.
+
+The action has a body, which is the piece of code (script) that is executed when the action is invoked. Actions, in this context, encapsulate the behavior of an object. Actions can perform a wide range of tasks, from simple calculations to complex operations including creating, updating or deleting data or other real-time communications, and they can interact with the transfer object's fields and relations.
+
+[NOTE]
+====
+Currently, the action body can only be specified in Java.
+====
+
+The action may return a computed value to its caller (its return value). This value is often referred to as output. In addition to the output, an action may also return different type of errors. The definition of errors is discussed in chapter Errors.
+
+Use the `action` keyword to specify an action within a transfer object.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**action**# &#x5B;&lt;type>|&lt;union>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**## &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...][purple]#**;**#
+----
+
+where the <name> is the name of the action. Information can be passed to actions through a parameter, which acts as variable within the action. A <parameter> is specified after the action name within parentheses and consists of the name of a transfer object and a parameter name. An action can have at most one parameter.
+
+The optional <type> is the output type of the action. If <type> is not specified or replaced by the keyword `void` the action cannot return any data. The <type> can be a single transfer object or a union.
+
+The optional `throws` keyword must be followed by one ore more <error> names separated by commas. The list of errors declares which errors can be thrown from the action. See more about errors in xref:08_error.adoc[Error] chapter.
+
+*Example:*
+
+[source,jsl]
+----
+transfer ThankYouTransfer {
+	field String message <= "Thank you for your order. Please check other products at";
+}
+
+transfer CouponTransfer {
+    field String code;
+}
+
+transfer CartTransfer maps Customer as customer {
+	// set the status of the order to OrderStatus#ORDERED
+	action ThankYouTransfer order(CouponTransfer coupon);
+}
+----
+
+In the above example, the CartTransfer mapped transfer object has an action called `order`. Its input is a CouponTransfer unmapped transfer object containing the discount coupon code, if any. The `order` action returns a ThankYouTransfer unmapped transfer object.
+
+[judo-req="true",judo-req-id="REQ-SRV-013"]
+=== Union
+
+A union is a special return type to hold different type of transfer objects. Unions can be defined at the point of use, namely as the return type of functions. A union must have at least two members, but only one member can exist at any given time.
+
+Unions cannot be organized into a collection.
+
+*Example:*
+
+[source,jsl]
+----
+action <SalesPersonTransfer|DeveloperTransfer> getEmployee();
+----
+
+In the example above, the `getEmployee` function may return a SalesPersonTransfer or a DeveloperTransfer transfer object. Within the body of the function, it can be decided whether a SalesPersonTransfer or DeveloperTransfer object is returned.
+
+
+== Lifecycle
+
+Understanding the concept and behavior of transfer objects is essential when creating, updating, saving, deleting, and working with them. The lifetime of transfer objects is the time that elapses between the creation and destruction of a particular instance. The events that occur during their lifetime are described by the lifecycle process. 
+
+=== Unmapped transfer object lifecycle
+
+Unmapped transfer objects are objects used for data transfer but are not associated with any storage mechanism. Consequently, their lifecycle is straightforward, consisting of just one stage: from creation to garbage collection when they are no longer referenced. Here's how the lifecycle of unmapped transfer objects works:
+
+.Unmapped transfer object lifecycle
+[plantuml, target=diagram-uto-lifecycle, format=png, align="center"]
+....
+@startuml lifecycle
+skinparam nodesep 50
+skinparam ranksep 10
+skinparam shadowing false
+
+skinparam padding 2
+skinparam roundCorner 8
+
+skinparam state {
+    FontColor<<White>> white
+    BackgroundColor<<White>> white
+    BorderColor<<White>> white
+
+    BackgroundColor white|#f5eece
+    BorderColor #grey
+    ArrowColor #black
+    FontSize 13
+    FontStyle bold
+}
+
+[*] -right-> Initialized : initialize
+Initialized -right-> [*]
+
+@enduml
+....
+
+* Once created, these objects are populated with data through their initialize event handler. More details on this event can be found later.
+
+* After their purpose has been served, and the data has been transferred, unmapped transfer objects often become immediately eligible for garbage collection. When all references to an unmapped transfer object are lost, it becomes eligible for garbage collection.
+
+Their simple lifecycle reflects their role as transient objects used for communication between different parts of the software, with an emphasis on efficiency and minimal memory usage. Garbage collection ensures that these objects are cleaned up when they are no longer needed, contributing to effective memory resource management.
+
+=== Mapped transfer object lifecycle
+
+Mapped transfer objects are connected to the storage mechanism through entity mapping. As a result, their lifecycle is more complicated than the lifecycle of unmapped transfer objects.
+
+The following diagram depicts the lifecycle of mapped transfer objects.
+
+.Mapped transfer object lifecycle
+[plantuml, target=diagram-mto-lifecycle, format=png, align="center"]
+....
+@startuml lifecycle
+skinparam nodesep 50
+skinparam ranksep 10
+skinparam shadowing false
+
+skinparam padding 2
+skinparam roundCorner 8
+
+skinparam state {
+    FontColor<<White>> white
+    BackgroundColor<<White>> white
+    BorderColor<<White>> white
+
+    BackgroundColor white|#f5eece
+    BorderColor #grey
+    ArrowColor #black
+    FontSize 13
+    FontStyle bold
+}
+
+state Persisted
+state Modified
+
+state Start <<White>> {
+    [*] -right-> Initialized : initialize
+    state Initialized : Detached state
+}
+
+
+[*] -down-> Persisted : fetch
+Initialized -right-> Persisted : create
+Persisted ---> Modified : set
+Modified ---> Persisted : update
+Modified ---> Persisted : fetch
+Persisted -right-> [*] : delete
+
+Modified: Detached state
+
+@enduml
+....
+
+A mapped transfer object can go through three stages during its lifecycle:
+
+* *Initialized:* This is where the object begins its lifecycle. In this state, the object's fields have their default values. The object has not yet been persisted, so its mapping field is undefined. Since the fields of the mapped transfer object do not match the fields of the mapping entity (as it does not yet exist), we refer to this as a detached state.
+
+* *Persisted:* This state represents an object in a persisted or saved state, indicating that its fields are stored in the mapping entity. The mapped transfer object has already been persisted, so its mapping field is defined.
+
+* *Modified:* The Modified state represents an object that has been altered, but the modifications have not yet been saved to the fields of the mapping entity. The mapping entity already exists, so the mapped transfer object's mapping field is defined. Since the fields of the mapped transfer object do not match the fields of the mapping entity, we also refer to this as a detached state.
+
+A transition refers to a change in the object's state that occurs as a result of a specific event. Events are shown next to transition arrows on the diagram. The following events can occur to a mapped transfer object:
+
+* The *initialize* event represents the action of initializing an object, causing it to transition to the initialized state. It sets the initial field values of the object.
+
+* The *create* event signifies the action of saving an object's state to the storage. It transitions the object from the initialized state to the persisted state.
+
+* The *fetch* event indicates the retrieval of data from the persistent storage. It transitions the object into the persisted state where it holds the fetched data.
+
+* The *set* event represents an action where the mapped transfer object's fields modified. This leads to a transition from the persisted state to the modified state, indicating that changes have been made but not yet saved.
+
+* The *update* event is associated with saving the modifications made to a transfer object. It causes the object to transition from the modified state back to the persisted state, reflecting that the changes have been persisted.
+
+* The *delete* event is used to indicate the removal or deletion of an object. It results in the object transitioning to an end state and its mapped entity being removed from the persistent storage entirely.
+
+== Event handlers
+
+Event handlers are blocks of code that are designed to respond to specific events. Their primary purpose is to define how the system should react when particular events occur. The list of events that may occur can be found in the lifecycle description of transfer objects.
+
+The following event handlers can be defined for transfer objects.
+
+[judo-req="true",judo-req-id="REQ-SRV-004"]
+=== Initialize
+
+Optionally, an initialize event handler can be specified for transfer objects. The initialize event handler is automatically called when a new transfer object is constructed and can be used to set default values of the fields.  Its primary purpose is to set up the initial state and fields of a transfer object when it is first instantiated.
+
+Although the initialize event handler is where transfer fields and relations can be set, the field's default value is always set before the initializer is called.
+
+An initialize event handler can be defined both for unmapped and mapped transfer objects.
+
+[NOTE]
+====
+Currently, the body of the initialize event handler can only be defined in Java.
+====
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**event initialize**# &#x5B;[purple]##**()**##][purple]##**;**##
+----
+
+*Example:*
+
+[source,jsl]
+----
+transfer PersonTransfer {
+    field required String firstName;
+    field required String lastName;
+    field String midName;
+    
+    event initialize;
+}
+----
+
+=== Create
+
+The create event occurs when a mapped transfer object is persisted for the first time. Before the call of the create event handler, the mapping entity is created and its fields are set according to the field values of the transfer object.
+
+A create event handler can only be defined for mapped transfer objects.
+
+[NOTE]
+====
+Currently, the body of the create event handler can only be defined in Java.
+====
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**event create**# &#x5B;[purple]##**(**##&lt;transfer> &lt;name>[purple]##**)**##][purple]##**;**##
+----
+
+
+*Example:*
+
+[source,jsl]
+----
+transfer PersonTransfer {
+    field required String firstName;
+    field required String lastName;
+    field String midName;
+    
+    event create;
+}
+----
+
+=== Fetch
+
+The primary purpose of the fetch event is to retrieve data from persistent storage. When the fetch event occurs, the field values of the mapping entity are copied to the fields of the mapped transfer object. After the fetch is complete, the fetch event handler is invoked to perform additional settings.
+
+A fetch event handler can only be defined for mapped transfer objects.
+
+[NOTE]
+====
+Currently, the body of the fetch event handler can only be defined in Java.
+====
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**event fetch**# &#x5B;[purple]##**()**##][purple]##**;**##
+----
+
+The creation event handler can optionally accept a transfer object parameter. The field values of this parameter can be utilized when the transfer object is saved for the first time. This parameter enables differentiation between the creation and update parameters of the transfer object.
+
+*Example:*
+
+[source,jsl]
+----
+transfer PersonTransfer {
+    field required String firstName;
+    field required String lastName;
+    field String midName;
+    
+    event fetch;
+}
+----
+
+=== Update
+
+The primary purpose of the update event is to save data to persistent storage. When the update event occurs, the field values of the mapped transfer object are copied to the fields of the mapping entity. After the update is completed, the update event handler is invoked to perform additional configuration or settings.
+
+An update event handler can only be defined for mapped transfer objects.
+
+[NOTE]
+====
+Currently, the body of the update event handler can only be defined in Java.
+====
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**event update**# &#x5B;[purple]##**()**##][purple]##**;**##
+----
+
+
+*Example:*
+
+[source,jsl]
+----
+transfer PersonTransfer {
+    field required String firstName;
+    field required String lastName;
+    field String midName;
+    
+    event update;
+}
+----
+
+=== Delete
+
+The primary purpose of a delete event handler is to respond to the event of deleting transfer objects. When the delete event occurs, the delete event handler is first invoked. Once the delete event handler has completed its job, the mapping entity is deleted.
+
+A delete event handler can only be defined for mapped transfer objects.
+
+[NOTE]
+====
+Currently, the body of the delete event handler can only be defined in Java.
+====
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**event delete**# &#x5B;[purple]##**()**##][purple]##**;**##
+----
+
+
+*Example:*
+
+[source,jsl]
+----
+transfer PersonTransfer {
+    field required String firstName;
+    field required String lastName;
+    field String midName;
+    
+    event delete;
+}
+----
+
+
+////
+For later use
+
+== Constraint
+
+A constraint represents some restriction related to a transfer object. A constraint is specified by a logical expression which must evaluate to a true or false. Constraint must be satisfied (i.e. evaluated to true) by a correct use of the system.
+
+One transfer object may contain multiple constraints that must be satisfied. The order in which the multiple constraints are evaluated is the same as the order in which the constraints in the jsl file are declared.
+
+Use the `constraint` keyword to specify a restriction on a transfer object. The syntax of constraint is the same as it is defined at entities.
+
+*Example:*
+
+[source,jsl]
+----
+error NameIsTooShort {
+    field required String name
+}
+
+transfer Person {
+    field required String firstName
+    field required String lastName
+    field String midName = ""
+    
+    constraint self.firstName!length() + self.lastName!length() > 4 \
+    onerror NameIsTooShort(name = self.firstName + " " + self.lastName)
+}
+----
+
+Constraints defined in transfer objects are not evaluated automatically. To check a transfer object instance against its constraints, use the `validate` command. See commands later.
+////
