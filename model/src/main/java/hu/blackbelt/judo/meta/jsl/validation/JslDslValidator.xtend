@@ -1717,8 +1717,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 		if (eager.eContainer instanceof EntityFieldDeclaration) {
 			val field = eager.eContainer as EntityFieldDeclaration
 
-	    	if (field.referenceType instanceof PrimitiveDeclaration && !field.calculated && !eager.value.isTrue) {
-    			error("Primitive non-calculated field must be eager fetched.",
+	    	if (field.referenceType instanceof PrimitiveDeclaration) {
+    			error("Eager modifier cannot be applied to primitive field.",
     				JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"),
     				INVALID_DECLARATION)
             }

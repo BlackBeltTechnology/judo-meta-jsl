@@ -30,7 +30,7 @@ class EagerModifierTests {
             }
 
         '''.parse => [
-            assertError(JsldslPackage::eINSTANCE.eagerModifier, JslDslValidator.INVALID_DECLARATION, "Primitive non-calculated field must be eager fetched.")
+            assertError(JsldslPackage::eINSTANCE.eagerModifier, JslDslValidator.INVALID_DECLARATION)
         ]
     }
 
@@ -46,7 +46,7 @@ class EagerModifierTests {
             }
 
         '''.parse => [
-            assertNoErrors
+            assertError(JsldslPackage::eINSTANCE.eagerModifier, JslDslValidator.INVALID_DECLARATION)
         ]
     }
 
