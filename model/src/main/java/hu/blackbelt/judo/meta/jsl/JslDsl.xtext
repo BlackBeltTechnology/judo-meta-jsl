@@ -363,7 +363,7 @@ RowColumnDeclaration returns TransferFieldDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_COLUMN referenceType = [PrimitiveDeclaration | ModelName] Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (InputModifier | VisualModifier)*
+	  modifiers += (VisualModifier)*
 	  SC
 	;
 
