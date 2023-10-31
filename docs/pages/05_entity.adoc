@@ -10,14 +10,14 @@ endif::[]
 :KW: [purple]##**
 :KWE: **##
 
-= Entity
-:page-toctitle:Entity
+= Entity model
+:page-toctitle:Entity model
 
-Data model is the core part of the domain model that captures the real-world entities and the rules that determine how data can be created, changed, and deleted.
+Entity (or data) model is the core part of the domain model that captures the real-world entities and the rules that determine how data can be created, changed, and deleted.
 
 The persistent data of a domain model is described in the form of entity types. Actual data is stored by creating instances of entity types.
 
-An entity type (or shortly an entity) may have stored primitives and relations, derived fields and queries that are referred to as members of an entity.
+An entity type (or shortly an entity) may have stored primitives and relations, calculated fields and calculated relations that are referred to as members of an entity.
 
 [NOTE]
 ====
@@ -31,7 +31,7 @@ Entities represent persistent data, independent of the underlying data storage m
 ////
 
 [judo-req="true",judo-req-id="REQ-ENT-001"]
-== Entity definition
+== Entity
 
 To define an entity, use the `entity` keyword.
 
@@ -68,7 +68,7 @@ entity abstract Customer {
 
 
 [judo-req="true",judo-req-id="REQ-ENT-002"]
-== Primitive fields
+== Primitive field
 
 An entity instance can store primitive values in its fields.  A field can be interpreted as a container in a specific entity instance where data values can be stored (e.g. numbers or text values like "red" or "blue").
 
@@ -115,7 +115,7 @@ Use the `field` keyword to specify a primitive field within an entity.
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>] [purple]#**;**#
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive and <name> is the referable name of the primitive field.
@@ -137,7 +137,7 @@ entity Person {
     field required String firstName;
     field required String lastName;
     field String midName;
-    field Title title = Title#MX;
+    field Title title default:Title#MX;
 }
 ----
 
@@ -154,14 +154,14 @@ Use the `identifier` keyword to specify a unique field within an entity.
 
 [subs="quotes"]
 ----
-[purple]#**identifier**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>] [purple]#**;**#
+[purple]#**identifier**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive and <name> is the referable name of the identifier. Any primitive type can be used as an identifier, except primitives of binary base type.
 
 The keyword `required` means that the value of the identifier must be specified, so the value is not allowed to be undefined.
 
-Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the identifier is set according to the default value expression. See xref:06_expression.adoc[] later.
+Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the identifier is set according to the default value expression. See xref:06_expression.adoc[Expression] later.
 
 [NOTE]
 ====
@@ -233,7 +233,7 @@ Use the `relation` keyword to specify a relation between two entities. The synta
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]#**;**#
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 where <entity> is the name of an entity to which the relation is targeted. The <name> is used to identify the relation within the entity, it is commonly referred to as role name.
@@ -241,6 +241,8 @@ where <entity> is the name of an entity to which the relation is targeted. The <
 The optional `[]` behind the <entity> indicates that the relation is a collection rather than a single reference to one <entity> instance. In other words, the cardinality of the relation is a collection.
 
 The keyword `required` means that the value of the relation must be specified, so the value is not allowed to be undefined. Each newly created entity instance must set this field. The keyword `required` is not allowed for collections.
+
+Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the field is set according to the default value expression. See xref:06_expression.adoc[Expression] later.
 
 *Example:*
 
@@ -268,7 +270,7 @@ The syntax of the bidirectional relation is an extension of unidirectional synta
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite**## &lt;opposite> [purple]#**;**#
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite:**##&lt;opposite>[purple]#**;**#
 ----
 
 The `opposite` keyword is used to link two relations into a bidirectional relation. The `opposite` keyword must be used on both sides of the bidirectional relation.
@@ -280,11 +282,11 @@ Both ends of a bidirectional relation cannot be required at the same time.
 [source,jsl]
 ----
 entity Customer {
-	relation Order[] orders opposite customer;
+	relation Order[] orders opposite:customer;
 }
 
 entity Order {
-	relation required Customer customer opposite orders;
+	relation required Customer customer opposite:orders;
 }
 ----
 
@@ -294,7 +296,7 @@ Another form of bidirectional relationship declaration is as follows.
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite-add**## &lt;opposite>&#x5B;[purple]##**[]**##] [purple]#**;**#
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite-add:**##&lt;opposite>&#x5B;[purple]##**[]**##][purple]#**;**#
 ----
 
 The `opposite-add` keyword with a simple <opposite> is used to create a bidirectional relation and inject the opposite relation to an already defined entity without changing the original definition of the entity.
@@ -310,7 +312,7 @@ The example below defines a bidirectional relation. Defining the `product` relat
 [source,jsl]
 ----
 entity OrderItem {
-	relation required Product product opposite-add orderItems[];
+	relation required Product product opposite-add:orderItems[];
 }
 
 entity Product {
@@ -322,11 +324,11 @@ The model in the above example is equivalent to the following example.
 [source,jsl]
 ----
 entity OrderItem {
-	relation required Product product opposite orderItems;
+	relation required Product product opposite:orderItems;
 }
 
 entity Product {
-    relation OrderItem orderItems[] opposite product;
+    relation OrderItem orderItems[] opposite:product;
 }
 ----
 
@@ -352,7 +354,7 @@ Use the `field` keyword to specify a composite field within an entity.
 ////
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]#**;**#
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 where <entity> is the name of an entity and <name> is the referable name of the composition.
@@ -361,14 +363,7 @@ The optional `[]` indicates that the composite field stores a list of entity ins
 
 The keyword `required` means that the value of the field must be specified, so the value is not allowed to be undefined. Each newly created entity instance must set this field. The keyword `required` is not allowed for collections.
 
-////
-Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the field is set according to the default value expression. See <<Expression>> later.
-
-[NOTE]
-====
-The `self` variable cannot be used in default expressions. 
-====
-////
+Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the field is set according to the default value expression. See xref:06_expression.adoc[Expression] later. Note that using the default value of the composition copies the entities specified in the default expression.
 
 *Example:*
 
@@ -388,92 +383,116 @@ entity Customer {
 The example defines the Address entity with its primitive fields, and each Customer instance must have exactly one composite Address.
 
 [judo-req="true",judo-req-id="REQ-ENT-008"]
-== Derived members
+== Calculated members
 
-Derived members provide a flexible mechanism to read their value. The value of a derived member cannot be set, in other words derived members are read only. However, derived members can be read as if they are stored fields, but they have a special expression called getter expression. The getter expression is used to return the value of the derived member.
+Calculated members provide a flexible mechanism to read their value. The value of a calculated member cannot be set, in other words calculated members are read only. However, calculated members can be read as if they are stored members, but they have a special expression called getter expression. The getter expression is used to return the value of the calculated member.
 
-Use the `derived` keyword to specify a derived member within an entity.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**derived**# &lt;primitive> &lt;name> [purple]##**=>**## &lt;getter> [purple]#**;**#
-----
-
-where <primitive> is the name of a domain model primitive, and <name> is the referable name of the derived field, or
+Use the `field` or `relation` keywords along with the `\<=` symbol to specify a calculated member within an entity.
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**derived**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**=>**## &lt;getter> [purple]#**;**#
+[purple]#**field**# &lt;primitive> &lt;name> [purple]##**<=**## &lt;expression>[purple]#**;**#
 ----
 
-where the <entity> is the name of an entity, and <name> is the referable name of the derived member. The optional `[]` indicates that the derived member returns a collection rather than a single reference to one <entity>.
+where <primitive> is the name of a domain model primitive, and <name> is the referable name of the calculated field, or
 
-The <getter> expression returns the value of the derived member whenever it is evaluated. The moment of evaluation needs explanation. Derived fields that return a primitive value are evaluated immediately when the owner entity is referenced. However, if a derived returns an entity reference or collection, its derived expression is only evaluated during navigation.
+*Syntax:*
 
-See xref:06_expression.adoc[Expression] later.
+[subs="quotes"]
+----
+[purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**<=**## &lt;expression>[purple]#**;**#
+----
+
+where the <entity> is the name of an entity, and <name> is the referable name of the calculated relation. The optional `[]` indicates that the calculated relation returns a collection rather than a single reference to one <entity>.
+
+The getter <expression> returns the value of the calculated member. See xref:06_expression.adoc[Expression] later.
 
 [NOTE]
 ====
-Note that the derived members use the arrow operator (\=>) instead of the assignment operator (=) to define the getter expression.
+Note that the calculated members use the `\<=` symbol instead of the assignment operator (=) to define the getter expression.
 ====
 
 *Example:*
 
-[source,jsl]
 ----
 entity Person {
     field required String firstName;
     field required String lastName;
 
-	derived	String fullName => self.firstName + " " + self.lastName;
+	field String fullName <= self.firstName + " " + self.lastName;
 }
 ----
 
-The example above defines two stored fields and a derived member. The name of the derived member is `fullName` and its value is calculated by concatenating the `firstName` and `lastName` with a space in the middle. Note the `self` keyword in the getter expression which refers to the current Person instance.
+The example above defines two stored fields and a calculated member. The name of the calculated member is `fullName` and its value is calculated by concatenating the `firstName` and `lastName` with a space in the middle. Note the `self` keyword in the getter expression which refers to the current Person instance.
+
+*Example:*
+
+----
+entity Customer extends User, Person {
+	relation Order[] undeliveredOrders <=
+		self.orders.filter(order | order.status != OrderStatus#PAID);
+}
+----
+
+In the second example, the calculated relation `undeliveredOrders` returns all orders that have not yet been delivered but have been ordered by the customer.
+
+== Fetching strategy
+
+The fetching strategy determines the timing of fetching related entities from persistent storage. There are two ways available for related entities.
+
+* *Eager fetching* is a technique where related entities are fetched at the same time as the owner entity is retrieved from persistent storage. In other words, the related entities are embedded into the owner entity. This approach can be beneficial when dealing with simple getter expressions and only a few related objects, as it helps eliminate the need for additional fetches and improves the application's performance.
+
+* *Lazy fetching* is a technique where related entities are *not* fetched at the same time as the owner entity is retrieved from persistent storage. Instead, they are retrieved only when requested for the first time. In other words, the value is calculated and retrieved upon request. This approach ensures that related entities are loaded from persistent storage only as they are needed.
+
+By default, related entities are retrieved using a lazy fetching strategy.
+
+=== Fetching modifier
+
+The default fetching strategy of the entity relations and compositions can be altered by applying the `eager` modifier. It is important to note that applying `eager` modifier does not modify the business logic, but significantly impacts the performance of the application.
+
+To apply the eager fetching strategy on an entity relation or composition, use the `eager` modifier with `true` value. To apply the lazy fetching strategy on an entity relation or composition, use the `eager` modifier with `false` value.
 
 *Example:*
 
 [source,jsl]
 ----
-entity Customer extends User, Person {
-	derived Order[] undeliveredOrders =>
-		self.orders!filter(order | order.status != OrderStatus#PAID);
+entity Customer {
+	relation Order[] orders eager:true;
 }
 ----
 
-In the second example, the derived member `undeliveredOrders` returns all orders that have not yet been delivered but have been ordered by the customer.
+In the above example, the instances of the `orders` relation will be loaded when the order entity is fetched. In other words, the Order entity instances referenced by the `orders` relation will be fetched together with the Customer entity instance.
+
+The eager fetching strategy can also be applied to calculated relations.
+
+Please note that the fetching strategy modifier is not applicable for primitive fields. Instead, use primitive return type instance queries. See <<Instance query>> chapter later.
 
 [judo-req="true",judo-req-id="REQ-ENT-009"]
+[judo-req="true",judo-req-id="REQ-ENT-011"]
 == Query
 
 A query is a request that retrieves a primitive or entities. Each query has a return type, a name and a query expression, which is used to calculate the return value.
 
-There are two main differences between queries and derived members.
-
-* queries can have arguments, and
-* queries are never evaluated automatically, their return values will only be calculated when the query is invoked.
-
 There are two types of queries
 
-* _instance query_ and
-* _static query_
+* _static query_ and
+* _instance query_
 
-[judo-req="true",judo-req-id="REQ-ENT-010"]
-=== Instance query
 
-Instance queries are declared within an entity. The entity that contains the query can be referred to as `self` in the query expression.
+[judo-req="true",judo-req-id="REQ-ENT-011"]
+=== Static query
 
-Use the `query` keyword to specify a query within an entity.
+Static queries are executed within the scope of the model, and not in the scope of an entity. Since static queries do not operate on entity scope, static queries cannot use `self` variable in their expression.
+
+Use the `query` keyword to specify a static query.
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**query**# &lt;primitive> &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...][purple]##**)**## [purple]##**=>**## &lt;expression> [purple]#**;**#
+[purple]#**query**# &lt;primitive> &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;parameter> &#x5B;[purple]##**=**## &lt;value>][purple]##,## ...][purple]##**)**## [purple]##**<=**## &lt;expression>[purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive that will be returned, and <name> is the referable name of the query, or
@@ -482,7 +501,7 @@ where <primitive> is the name of a domain model primitive that will be returned,
 
 [subs="quotes"]
 ----
-[purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> &#x5B;[purple]##**=**## &lt;default>][purple]##**,**## ...][purple]##**)**## [purple]##**=>**## &lt;expression> [purple]#**;**#
+[purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;parameter> &#x5B;[purple]##**=**## &lt;value>][purple]##**,**## ...][purple]##**)**## [purple]##**<=**## &lt;expression>[purple]#**;**#
 ----
 
 where the <entity> is the name of an entity that will be returned, and <name> is the referable name of the query. The optional `[]` indicates that the query returns a list of <entity> instances rather than a single reference to one <entity>.
@@ -491,51 +510,83 @@ The <expression> calculates the return value of the query whenever it is request
 
 [NOTE]
 ====
-Note that queries do not use the assignment operator (=) but the arrow operator (\=>) to set the value.
+Note that queries do not use the assignment operator (=) but the (\<=) symbol to set the value.
 ====
 
-The optional comma separated list is the arguments of the <expression>. The arguments can be used in the <expression>. <primitive> is the type of argument which can be a domain model primitive only. <argument> is the name of the argument.
+The optional comma separated list in the query definition is the parameter list of the <expression>. The parameters can be used in the <expression>. <primitive> is the type of parameter which can be a domain model primitive only. <parameter> is the name of the parameter. An optional default <value> can be specified for the parameters. Default values are used when the calculated member is evaluated with one or more missing arguments.
 
-Arguments can be declared with optional <default> values. The default values are used when the query is executed by one or more missing arguments. The default value is an expression, but `self` cannot be used in default expressions.
+*Example:*
+
+[source,jsl]
+----
+query Order[] ordersBetween(Integer min = 0, Integer max = 100) <=
+    Order.all().filter(o | o.price > min and  o.price < max);
+----
+
+The example above shows the query `ordersBetween`, which has two parameters (`min` and `max`). It returns the orders from all orders in the application with a price between `min` and `max`.
+
+This is an example of calling a static query:
 
 *Example:*
 
 [source,jsl]
 ----
 entity Customer {
-	relation Order[] orders opposite customer;
-
-	query Order[] ordersBetween(Integer min = 0, Integer max = 100) =>
-	    self.orders!filter(o | o.price > min and  o.price < max);
+	relation Order[] allOrdersFrom100to2000 <= ordersBetween(min = 1000, max = 2000);
 }
+----
+
+
+[judo-req="true",judo-req-id="REQ-ENT-010"]
+=== Instance query
+
+Instance queries are executed within the scope of an entity. The entity on which the query is executed can be named "self" in the query expression.
+
+The syntax of the instance query declaration is the same as the syntax of the static query declaration with the addition of an `on` keyword.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**query**# &lt;primitive> &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;parameter> &#x5B;[purple]##**=**## &lt;value>][purple]##,## ...][purple]##**)**## [purple]##**on**## &lt;entity> [purple]##**<=**## &lt;expression>[purple]#**;**#
+----
+
+or
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**query**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;parameter> &#x5B;[purple]##**=**## &lt;value>][purple]##**,**## ...][purple]##**)**## [purple]##**on**## &lt;entity> [purple]##**<=**## &lt;expression>[purple]#**;**#
+----
+
+where the <entity> is the name of an entity that can be referred with the `self` variable.
+
+*Example:*
+
+[source,jsl]
+----
+query Order[] ordersBetween(Integer min = 0, Integer max = 100) on Customer <=
+    self.orders.filter(o | o.price > min and  o.price < max);
 ----
 
 The example above shows the query `ordersBetween`, which has two arguments (`min` and `max`). It returns the orders of a customer with a price between `min` and `max`. If no arguments are specified when executing `ordersBetween`, the query returns orders between 0 and 100. For more details about expressions, see the chapter xref:06_expression.adoc[Expression].
 
-[judo-req="true",judo-req-id="REQ-ENT-011"]
-=== Static query
-
-Static queries are very similar to instance queries, but static queries are within the scope of the model, not the scope of the entity. Thus, static queries cannot use `self` variable.
-
-The syntax of the static query declaration is the same as the syntax of the instance query declaration.
+An instance query can be performed on an entity instance by prefixing the instance query name with the `.` character. This is an example of calling an instance query.
 
 *Example:*
 
 [source,jsl]
 ----
 entity Customer {
-	relation Order[] orders opposite customer;
+	relation Order[] orders;
+	relation Order[] ordersFrom100to2000 <= self.ordersBetween(min = 1000, max = 2000);
 }
-
-query Order[] ordersBetween(Integer min = 0, Integer max = 100) =>
-    Order!filter(o | o.price > min and  o.price < max);
 ----
-
-The example above shows the static query `ordersBetween`, which has two arguments (`min` and `max`). It returns the orders from all orders in the application with a price between `min` and `max`.
 
 [NOTE]
 ====
-Note the difference between the instance and the static query examples. The instance query uses the `self` variable as the starting point for navigation. It collects all the orders belonging to the given customer and then runs the filter condition. In the second example, the starting point of the static query is all the orders stored in the application. Then the static query also runs the filter condition to select the orders between the two price limits.
+Note the difference between the instance and the static query examples. The instance query uses the `self` variable as the starting point for navigation. It collects all the orders belonging to the given customer and then runs the filter condition. In case of the static query example, the starting point of the static query is all the orders stored in the application. Then the static query also runs the filter condition to select the orders between the two price limits.
 ====
 
 [judo-req="true",judo-req-id="REQ-ENT-012"]
@@ -543,7 +594,7 @@ Note the difference between the instance and the static query examples. The inst
 
 Inheritance is a mechanism by which more specific entities incorporate structure of the more general entities (called parent entities).
 
-Entities may inherit identifiers, stored fields, derived fields, relations and entity constraints from their parent entities. An entity and its parent entity are in IS-A relation, the entity can replace its parent entity anywhere.
+Entities may inherit identifiers, stored fields, calculated fields, relations and entity constraints from their parent entities. An entity and its parent entity are in IS-A relation, the entity can replace its parent entity anywhere.
 
 Inherited members of an entity which were defined in the parent behave as if they were defined in the entity itself.
 
