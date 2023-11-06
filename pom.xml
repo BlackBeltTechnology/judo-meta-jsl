@@ -77,15 +77,15 @@
 		<!--suppress UnresolvedMavenProperty -->
 		<logback-test-config>${maven.multiModuleProjectDirectory}/logback-test.xml</logback-test-config>
 
-        <tycho-version>4.0.2</tycho-version>
+        <tycho-version>4.0.3</tycho-version>
 
-        <emf-genmodel-generator-version>1.1.1.20230911_125256_b2d4aa28_develop</emf-genmodel-generator-version>
-        <judo-genmodel-generator-version>1.1.2.20230912_040620_52c20fcb_develop</judo-genmodel-generator-version>
+        <emf-genmodel-generator-version>1.1.1.20231106_134254_e2894a12_feature_JNG_5272_FixGenModelGenerator</emf-genmodel-generator-version>
+        <judo-genmodel-generator-version>1.1.2.20231106_134559_9e364efb_feature_JNG_5272_FixGenModelGenerator</judo-genmodel-generator-version>
         <judo-epp-common-version>4.29.0.20230922_122205_4ad6b77f_develop</judo-epp-common-version>
         <judo-misc-p2-version>1.0.0</judo-misc-p2-version>
 
         <xtext-version>2.31.0</xtext-version>
-        <emf-mwe2-launch-version>2.14.0</emf-mwe2-launch-version>
+        <emf-mwe2-launch-version>2.15.0</emf-mwe2-launch-version>
         <slf4j-version>2.0.7</slf4j-version>
 
         <surefire-version>3.0.0</surefire-version>
@@ -797,7 +797,7 @@
 			<dependency>
 				<groupId>fr.jmini.ecentral</groupId>
 				<artifactId>eclipse-platform-dependencies</artifactId>
-				<version>4.18</version>
+				<version>4.25</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
