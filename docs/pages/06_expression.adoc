@@ -559,7 +559,7 @@ There are two wildcards used in the <pattern>:
 
 The percent sign represents zero, one, or multiple numbers or characters. The underscore represents a single number or character. These symbols can be used in combinations.
 |Examples:
-|`"apple".like(pattern = "%PL_")` is `true`
+|`"apple".ilike(pattern = "%PL_")` is `true`
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -974,7 +974,7 @@ Makes sense in JCL only.
 |`[purple]#**memberOf(instances = **#<instances>[purple]##**)**## : boolean`
 |Indicates if the <instances> collection contains the given instance.
 |Example:
-|`self.memberOf(shop::Enterprise.orders.orderItems.product)` within a product, it checks whether it has ever been ordered by any enterprise. For the model, see the xref:01_intro.adoc[Introduction] chapter.
+|`self.memberOf(instances = shop::Enterprise.orders.orderItems.product)` within a product, it checks whether it has ever been ordered by any enterprise. For the model, see the xref:01_intro.adoc[Introduction] chapter.
 |======================================================================
 
 [judo-req="true",judo-req-id="REQ-EXPR-022"]

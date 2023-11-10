@@ -403,14 +403,13 @@ action <SalesPersonTransfer|DeveloperTransfer> getEmployee();
 
 In the example above, the `getEmployee` function may return a SalesPersonTransfer or a DeveloperTransfer transfer object. Within the body of the function, it can be decided whether a SalesPersonTransfer or DeveloperTransfer object is returned.
 
-
 == Lifecycle
 
-Understanding the concept and behavior of transfer objects is essential when creating, updating, saving, deleting, and working with them. The lifetime of transfer objects is the time that elapses between the creation and destruction of a particular instance. The events that occur during their lifetime are described by the lifecycle process. 
+Understanding the concept and behavior of transfer objects is essential when creating, updating, saving, deleting, and working with them. The lifetime of transfer objects is the time that elapses between the creation and destruction of a particular instance. The events that occur during their lifetime are described by the lifecycle process.
 
 === Unmapped transfer object lifecycle
 
-Unmapped transfer objects are objects used for data transfer but are not associated with any storage mechanism. Consequently, their lifecycle is straightforward, consisting of just one stage: from creation to garbage collection when they are no longer referenced. Here's how the lifecycle of unmapped transfer objects works:
+Unmapped transfer objects are objects used for data transfer but are not associated with any storage mechanism. Consequently, their lifecycle is straightforward, consisting of just one stage: from creation to elimination when they are no longer referenced. Here's how the lifecycle of unmapped transfer objects works:
 
 .Unmapped transfer object lifecycle
 [plantuml, target=diagram-uto-lifecycle, format=png, align="center"]
@@ -550,7 +549,7 @@ Currently, the body of the initialize event handler can only be defined in Java.
 
 [source,jsl]
 ----
-transfer PersonTransfer {
+transfer PersonTransfer(Person person) {
     field required String firstName;
     field required String lastName;
     field String midName;
@@ -577,12 +576,13 @@ Currently, the body of the create event handler can only be defined in Java.
 [purple]#**event create**# &#x5B;[purple]##**(**##&lt;transfer> &lt;name>[purple]##**)**##][purple]##**;**##
 ----
 
+The create event handler can optionally accept a transfer object parameter. The field values of this parameter can be utilized when the transfer object is saved for the first time. This parameter enables differentiation between the creation and update parameters of the transfer object.
 
 *Example:*
 
 [source,jsl]
 ----
-transfer PersonTransfer {
+transfer PersonTransfer(Person person) {
     field required String firstName;
     field required String lastName;
     field String midName;
@@ -609,13 +609,11 @@ Currently, the body of the fetch event handler can only be defined in Java.
 [purple]#**event fetch**# &#x5B;[purple]##**()**##][purple]##**;**##
 ----
 
-The creation event handler can optionally accept a transfer object parameter. The field values of this parameter can be utilized when the transfer object is saved for the first time. This parameter enables differentiation between the creation and update parameters of the transfer object.
-
 *Example:*
 
 [source,jsl]
 ----
-transfer PersonTransfer {
+transfer PersonTransfer(Person person) {
     field required String firstName;
     field required String lastName;
     field String midName;
@@ -647,7 +645,7 @@ Currently, the body of the update event handler can only be defined in Java.
 
 [source,jsl]
 ----
-transfer PersonTransfer {
+transfer PersonTransfer(Person person) {
     field required String firstName;
     field required String lastName;
     field String midName;
@@ -679,7 +677,7 @@ Currently, the body of the delete event handler can only be defined in Java.
 
 [source,jsl]
 ----
-transfer PersonTransfer {
+transfer PersonTransfer(Person person) {
     field required String firstName;
     field required String lastName;
     field String midName;

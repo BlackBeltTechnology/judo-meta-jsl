@@ -440,7 +440,7 @@ In the second example, the calculated relation `undeliveredOrders` returns all o
 
 == Fetching strategy
 
-The fetching strategy determines the timing of fetching related entities from persistent storage. There are two ways available for related entities.
+The fetching strategy determines the timing of fetching related entities from persistent storage. The entities in the compositions and in the relationships are collectively called related entities. There are two ways available for related entities.
 
 * *Eager fetching* is a technique where related entities are fetched at the same time as the owner entity is retrieved from persistent storage. In other words, the related entities are embedded into the owner entity. This approach can be beneficial when dealing with simple getter expressions and only a few related objects, as it helps eliminate the need for additional fetches and improves the application's performance.
 
@@ -532,7 +532,7 @@ This is an example of calling a static query:
 [source,jsl]
 ----
 entity Customer {
-	relation Order[] allOrdersFrom100to2000 <= ordersBetween(min = 1000, max = 2000);
+	relation Order[] allOrdersFrom1000to2000 <= ordersBetween(min = 1000, max = 2000);
 }
 ----
 
@@ -580,7 +580,7 @@ An instance query can be performed on an entity instance by prefixing the instan
 ----
 entity Customer {
 	relation Order[] orders;
-	relation Order[] ordersFrom100to2000 <= self.ordersBetween(min = 1000, max = 2000);
+	relation Order[] ordersFrom1000to2000 <= self.ordersBetween(min = 1000, max = 2000);
 }
 ----
 

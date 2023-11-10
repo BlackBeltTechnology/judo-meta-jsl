@@ -183,6 +183,11 @@ transfer CustomerTransfer(Customer customer) {
 
 This second example showcases how permissions can be extended to the relationships of transfer objects. Here, we define a CustomerTransfer object with a relationship to OrderTransfer objects. Once again, we employ the create, update, and delete modifiers. These modifiers dictate whether the user who has obtained a CustomerTransfer object is permitted to create, delete, or update the customer's associated orders. If the modifiers are set to `true`, the user can perform these actions, otherwise not.
 
+[IMPORTANT] 
+==== 
+It is important to note that it is not enough to set the `create` or `delete` permission modifiers to `true` to allow the creation and deletion of related objects. The `update` modifier of the relation's container transfer object must also be set to `true`. The reason is quite obvious, when we add or remove an object of a relation, we also change the container object.
+==== 
+
 This approach provides precise control over what actions users, particularly admins, can undertake concerning specific objects and their associated objects. It enhances the system's security and flexibility by allowing the fine-tuning of access permissions.
 
 == Input modifier
