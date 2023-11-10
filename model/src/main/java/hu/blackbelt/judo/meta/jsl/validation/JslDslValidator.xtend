@@ -534,6 +534,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 
     @Check(CheckType::NORMAL)
     def checkHiddenDeclaration(Declaration declaration) {
+    	if (!(declaration.eContainer instanceof ModelDeclaration)) return;
+    	
         for (importDeclaration : (declaration.eContainer as ModelDeclaration).imports.filter[i | i.alias === null]) {
             if (importDeclaration.model.declarations.exists[d | d.name.equals(declaration.name)]) {
                 warning("Declaration possibly hides other declaration in import '" + importDeclaration.model.name + "'",
@@ -895,6 +897,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 
     @Check
     def checkForDuplicateNameForDeclaration(Declaration declaration) {
+    	if (!(declaration.eContainer instanceof ModelDeclaration)) return;
+    	
         if (declaration instanceof FunctionDeclaration) return;
         if (declaration instanceof LambdaDeclaration) return;
 
