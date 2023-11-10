@@ -49,8 +49,8 @@ class NameDuplicationDetectionTests {
             }
 
         '''.parse => [
-            assertDuplicateMemberName("Duplicate member declaration: 'b'", JsldslPackage::eINSTANCE.entityStoredFieldDeclaration)
-            assertDuplicateMemberName("Duplicate member declaration: 'b'", JsldslPackage::eINSTANCE.entityStoredRelationDeclaration)
+            assertDuplicateMemberName("Duplicate member declaration: 'b'", JsldslPackage::eINSTANCE.entityFieldDeclaration)
+            assertDuplicateMemberName("Duplicate member declaration: 'b'", JsldslPackage::eINSTANCE.entityRelationDeclaration)
         ]
     }
 
@@ -81,7 +81,7 @@ class NameDuplicationDetectionTests {
                 field String name;
             }
         '''.parse => [
-            assertOppositeMismatchError("Duplicate member declaration: 'name'", JsldslPackage::eINSTANCE.entityStoredFieldDeclaration)
+            assertOppositeMismatchError("Duplicate member declaration: 'name'", JsldslPackage::eINSTANCE.entityFieldDeclaration)
         ]
     }
 
