@@ -403,7 +403,7 @@ class NamedTests {
                  query Time xTime() => `12:23:56.1`;
              }
 
-             query Ent1[] xAllEnt1() => Ent1!all();
+             query Ent1[] xAllEnt1() => Ent1.all();
              '''.parse => [
                   assertFirstLowSecondUpperNamedError("xBool")
                   assertFirstLowSecondUpperNamedError("xString")

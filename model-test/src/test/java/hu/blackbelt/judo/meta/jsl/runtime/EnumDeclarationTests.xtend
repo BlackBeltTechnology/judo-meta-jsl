@@ -198,15 +198,15 @@ class EnumDeclarationTests {
             }
 
             entity E1 {
-                field TestLiteral f1 = TestLiteral#AA00;
-                field TestLiteral f2 = TestLiteral#Aaa01;
+                field TestLiteral f1 default:TestLiteral#AA00;
+                field TestLiteral f2 default:TestLiteral#Aaa01;
                 field Bool   f3 <= self.f1 < self.f2;
                 field Bool   f4 <= self.f1 <= self.f2;
                 field Bool   f5 <= self.f1 > self.f2;
                 field Bool   f6 <= self.f1 >= self.f2;
                 field Bool   f7 <= self.f1 == self.f2;
                 field Bool   f8 <= self.f1 != self.f2;
-                field String f9 <= self.f1!asString();
+                field String f9 <= self.f1.asString();
             }
         '''.parse => [
             assertNoErrors
@@ -319,10 +319,10 @@ class EnumDeclarationTests {
             }
 
             entity Person {
-                field Genre favoredGenre = GenreOther#HOUSE;
+                field Genre favoredGenre default:GenreOther#HOUSE;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityStoredFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'favoredGenre'.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.TYPE_MISMATCH, "Type mismatch. Default value expression does not match field type at 'favoredGenre'.")
         ]
     }
 }
