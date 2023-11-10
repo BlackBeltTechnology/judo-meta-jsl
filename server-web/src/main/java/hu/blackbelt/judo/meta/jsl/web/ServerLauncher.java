@@ -24,34 +24,54 @@ package hu.blackbelt.judo.meta.jsl.web;
  */
 
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jetty.annotations.AnnotationConfiguration;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.webapp.*;
-
 import java.net.InetSocketAddress;
-
+import org.eclipse.jetty.annotations.AnnotationConfiguration;
+import org.eclipse.jetty.rewrite.handler.RewriteHandler;
+import org.eclipse.jetty.rewrite.handler.RewriteRegexRule;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.eclipse.jetty.webapp.Configuration;
+import org.eclipse.jetty.webapp.MetaInfConfiguration;
+import org.eclipse.jetty.webapp.WebAppConfiguration;
+import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.webapp.WebInfConfiguration;
+import org.eclipse.jetty.webapp.WebXmlConfiguration;
 /**
  * This program starts an HTTP server for testing the web integration of your DSL.
  * Just execute it and point a web browser to http://localhost:8080/
  */
 @Slf4j
 public class ServerLauncher {
+
     public static void main(String[] args) {
         Server server = new Server(new InetSocketAddress("localhost", 8080));
-        WebAppContext ctx = new WebAppContext();
-        ctx.setResourceBase("WebRoot");
-        ctx.setWelcomeFiles(new String[] {"index.html"});
-        ctx.setContextPath("/");
-        ctx.setConfigurations(new Configuration[] {
-            new AnnotationConfiguration(),
-            new WebXmlConfiguration(),
-            new WebInfConfiguration(),
-            new MetaInfConfiguration()
-        });
-        ctx.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN,
-            ".*/hu\\.blackbelt\\.judo\\.meta\\.jsl\\.web/.*,.*\\.jar");
-        ctx.setInitParameter("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
-        server.setHandler(ctx);
+        RewriteHandler rewriteHandler = new RewriteHandler();
+        server.setHandler(rewriteHandler);
+        RewriteRegexRule rule = new RewriteRegexRule();
+        rule.setRegex("/xtext/@xtext-version-placeholder@/(.*)");
+        rule.setReplacement("/xtext/$1");
+        rule.setTerminating(false);
+        rewriteHandler.addRule(rule);
+        HandlerList handlerList = new HandlerList();
+        ResourceHandler resourceHandler1 = new ResourceHandler();
+        resourceHandler1.setResourceBase("src/main/webapp");
+        resourceHandler1.setWelcomeFiles(new String[] { "index.html" });
+        ResourceHandler resourceHandler2 = new ResourceHandler();
+        resourceHandler2.setResourceBase("../org.eclipse.xtext.web/src/main/css");
+        WebAppContext webAppContext = new WebAppContext();
+        webAppContext.setResourceBase("../org.eclipse.xtext.web/src/main/js");
+        webAppContext.setContextPath("/");
+        webAppContext.setConfigurations(new Configuration[] { new AnnotationConfiguration(), new WebXmlConfiguration(),
+                new WebInfConfiguration(), new MetaInfConfiguration(), new WebAppConfiguration() });
+        webAppContext.setAttribute(MetaInfConfiguration.CONTAINER_JAR_PATTERN,
+                ".*/hu\\.blackbelt\\.judo\\.meta\\.jsl\\.web/.*,.*/org\\.eclipse\\.xtext\\.web.*,.*/org.webjars.*");
+
+        handlerList.setHandlers(new Handler[] { resourceHandler1, resourceHandler2, webAppContext });
+        rewriteHandler.setHandler(handlerList);
         try {
             server.start();
             log.info("Server started " + server.getURI() + "...");
@@ -68,10 +88,9 @@ public class ServerLauncher {
                                     "Console input is not available. In order to stop the server, you need to cancel process manually.");
                         }
                     } catch (Exception e) {
-                        log.warn("Server stop failed", e);
+                        log.warn(e.getMessage());
                     }
                 }
-
             }.start();
             server.join();
         } catch (Exception exception) {
