@@ -619,15 +619,6 @@ public class TypeInfo {
 		return new TypeInfo(entityDeclaration, transferRelationDeclaration.isMany(), false);
 	}
 	
-//	public static TypeInfo getTargetType(ActorAccessDeclaration access) {
-//		if (access == null || modelExtension.getReferenceType(access).getMap() == null) {
-//			return new TypeInfo(BaseType.UNDEFINED, false);
-//		}
-//
-//		EntityDeclaration entityDeclaration = modelExtension.getReferenceType(access).getMap().getEntity();
-//		return new TypeInfo(entityDeclaration, access.isMany(), false);
-//	}
-	
 	public static TypeInfo getTargetType(EntityMemberDeclaration entityMemberDeclaration) {
 		if (entityMemberDeclaration == null) {
 			return new TypeInfo(BaseType.UNDEFINED, false);
