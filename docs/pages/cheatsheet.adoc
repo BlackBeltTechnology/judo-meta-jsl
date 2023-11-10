@@ -13,6 +13,8 @@ endif::[]
 
 = Cheatsheet
 
+// TODO: enum is missing
+
 == Model
 
 Every model file must start with the definition of the model name.
@@ -22,7 +24,7 @@ The `model` keyword is used to start a model definition.
 
 [subs="quotes"]
 ----
-[purple]#**model**# &lt;name> [purple]#**;**#
+[purple]#**model**# &lt;name>[purple]#**;**#
 ----
 
 *Example:*
@@ -45,7 +47,7 @@ The `import` keyword is used to access elements of another model in the current 
 
 [subs="quotes"]
 ----
-[purple]#**import**# &lt;model> &#x5B;[purple]##**as**## &lt;alias>] [purple]#**;**#
+[purple]#**import**# &lt;model> &#x5B;[purple]##**as**## &lt;alias>][purple]#**;**#
 ----
 
 *Example:*
@@ -72,7 +74,7 @@ The primitive data types in the model must be specified with the `type` keyword.
 
 [subs="quotes"]
 ----
-[purple]#**type**# &lt;basetype> &lt;name> &#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
+[purple]#**type**# &lt;basetype> &lt;name> &#x5B;&lt;parameter name>[purple]#**:**#&lt;parameter value>] ... [purple]#**;**#
 ----
 
 *Example:*
@@ -96,9 +98,9 @@ The persistent data of a model is described in the form of entity types.
 
 [subs="quotes"]
 ----
-[purple]#**entity**# &#x5B;[purple]##**abstract**##] &lt;name> &#x5B;[purple]##**extends**## &lt;entity>[purple]##**,**## ...] &#x5B; [purple]##**{**##
+[purple]#**entity**# &#x5B;[purple]##**abstract**##] &lt;name> &#x5B;[purple]##**extends**## &lt;entity>[purple]##**,**## ...] &#x5B;[purple]##**{**##
     [member] ...
-[purple]#**}**# ] [purple]#**;**#
+[purple]#**}**#][purple]#**;**#
 ----
 
 *Example:*
@@ -108,23 +110,6 @@ The persistent data of a model is described in the form of entity types.
 entity abstract Person extends Customer, User;
 ----
 
-=== Summary of entity members
-
-[options="header", cols="1,1,1,1,1"]
-|====================
-|             2+^|Stored               2+^|Calculated
-|               ^|__@Embedded__ ^|__@Query__ ^|__@Embedded__ ^|__@Query__
-|**Primitive**   |[underline]##field##       |field      |[underline]##field <=##	   |field <= +
-                                                        field (...) <=
-|**Relation**    |relation    |[underline]##relation##   |relation <= |[underline]##relation <= +
-                                                        relation (...) <=##
-|**Composition** |field       |[underline]##field##     ^|--	      ^|--
-|====================
-
-The default behavior (if no annotation is applied) is underlined in the table above.
-
-Note that `@Embedded` and `@Query` annotations cannot be used on the same target at the same time.
-
 === Entity stored primitive field
 
 An entity instance can store primitive values in its fields.
@@ -133,14 +118,21 @@ An entity instance can store primitive values in its fields.
 
 [subs="quotes"]
 ----
-([purple]#**field**#|[purple]#**identifier**#) &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**=**## &lt;default>] [purple]#**;**#
+([purple]#**field**#|[purple]#**identifier**#) &#x5B;[purple]##**required**##] &lt;primitive> &lt;name>
+    &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
+
+[options="header", cols="1,1,2"]
+|====================
+|Parameter name | Parameter type                      | Meaning
+|default        | expression returns primitive value  | The default value of the field.
+|====================
 
 *Example:*
 
 [source,jsl]
 ----
-field required String name = "John Doe";
+field required String name default:"John Doe";
 ----
 
 === Entity stored composition
@@ -151,29 +143,27 @@ A composite field is an entity member whose type is an entity.
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]#**;**#
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
 ----
 
-*Annotations:*
-
-[options="header", cols="1,2"]
+[options="header", cols="1,1,2"]
 |====================
-|Annotation | Meaning
-|@Query     | Do not fetch the composite object(s) together with the entity.
-|@Embedded  | Fetch the composite object(s) together with the entity.
+|Parameter name | Parameter type               | Meaning
+|default        | expression returns entities  | The default value of the field.
+|eager          | boolean literal              | If the fetching strategy is eager or lazy.
 |====================
 
 *Example:*
 
 [source,jsl]
 ----
-@Query
-field required Address address;
+field required Address address eager:true;
 ----
 
 [source,jsl]
 ----
-@Embedded
 field Address[] addresses;
 ----
 
@@ -185,24 +175,26 @@ Relation is a reference to an other entity or set of entities defined within an 
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**=**## &lt;default>]  &#x5B; [purple]##**opposite**## [purple]##**:**## &lt;opposite> | [purple]##**opposite-add**## [purple]##**:**## &lt;opposite>&#x5B;[purple]##**[]**##] ] [purple]#**;**#
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**opposite:**##&lt;opposite> | [purple]##**opposite-add:**##&lt;opposite>&#x5B;[purple]##**[]**##]]
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
 ----
 
-*Annotations:*
-
-[options="header", cols="1,2"]
+[options="header", cols="1,1,2"]
 |====================
-|Annotation  | Meaning
-|@Query      | Do not fetch the related object(s) with the entity.
-|@Embedded   | Fetch the related object(s) together with the entity.
+|Parameter name | Parameter type               | Meaning
+|default        | expression returns entities  | The default value of the field.
+|opposite       | relation name                | Create a bidirectional relation.
+|opposite-add   | relation name                | Create a bidirectional relation with injection.
+|eager          | boolean literal              | If the fetching strategy is eager or lazy.
 |====================
 
 *Example:*
 
 [source,jsl]
 ----
-@Embedded
-relation Order[] orders opposite:customer;
+relation Order[] orders opposite:customer eager:true;
 ----
 
 [source,jsl]
@@ -218,17 +210,8 @@ Calculated primitives can be read as if they were stored fields, but they have a
 
 [subs="quotes"]
 ----
-[purple]#**field**# &lt;primitive> &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...[purple]##**)**##] [purple]##**<=**## &lt;expression> [purple]#**;**#
+[purple]#**field**# &lt;primitive> &lt;name> [purple]##**<=**## &lt;expression>[purple]#**;**#
 ----
-
-*Annotations:*
-
-[options="header", cols="1,2"]
-|====================
-|Annotation  | Meaning
-|@Query      | Do not fetch the value together with the entity.
-|@Embedded   | Fetch the value together with the entity.
-|====================
 
 *Example:*
 
@@ -245,23 +228,21 @@ Calculated relations can be read as if they were stored relations, but they have
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**(**##&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...[purple]##**)**##] [purple]##**<=**## &lt;expression> [purple]#**;**#
+[purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**<=**## &lt;expression>
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
 ----
 
-*Annotations:*
-
-[options="header", cols="1,2"]
+[options="header", cols="1,1,2"]
 |====================
-|Annotation  | Meaning
-|@Query      | Do not fetch the related object(s) together with the entity.
-|@Embedded   | Fetch the related object(s) together with the entity. Embedded is not allowed together with argument list.
+|Parameter name | Parameter type               | Meaning
+|eager          | boolean literal              | If the fetching strategy is eager or lazy.
 |====================
 
 *Example:*
 
 [source,jsl]
 ----
-relation Order cart <= self.orders!filter(o | o.status == OrderStatus#OPEN)!any();
+relation Order cart <= self.orders.filter(o | o.status == OrderStatus#OPEN).any();
 ----
 
 == Query
@@ -272,7 +253,7 @@ A query is a request within the scope of the model that retrieves a primitive or
 
 [subs="quotes"]
 ----
-[purple]#**query**# (&lt;primitive>|&lt;entity>&#x5B;[purple]##**[]**##]) &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...][purple]##**)**## [purple]##**<=**## &lt;expression> [purple]#**;**#
+[purple]#**query**# (&lt;primitive>|&lt;entity>&#x5B;[purple]##**[]**##]) &lt;name> &#x5B;[purple]##**on**## &lt;owner>] [purple]##**(**##&#x5B;&lt;primitive> &lt;argument> [purple]##**=**## &lt;default>[purple]##,## ...][purple]##**)**## [purple]##**<=**## &lt;expression>[purple]#**;**#
 ----
 
 *Example:*
@@ -280,10 +261,16 @@ A query is a request within the scope of the model that retrieves a primitive or
 [source,jsl]
 ----
 query Integer NumOfCustomers(String country) <=
-        Customer!
-        all()!
-        filter(c | c.address.country == country)!
+        Customer.
+        all().
+        filter(c | c.address.country == country).
         size();
+----
+
+[source,jsl]
+----
+query Order[] ordersBetween(Integer min = 0, Integer max = 100) on Customer <=
+    self.orders.filter(o | o.price > min and  o.price < max);
 ----
 
 == Transfer
@@ -294,18 +281,18 @@ A transfer object is a container for a set of data fields that is transferred be
 
 [subs="quotes"]
 ----
-[purple]#**transfer**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##] &#x5B;{
+[purple]#**transfer**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##] {
     &#x5B;member] ...
-}] [purple]#**;**#
+} [purple]#**;**#
 ----
 
 or
 
 [subs="quotes"]
 ----
-[purple]#**transfer**# &lt;name> &#x5B; [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> ] &#x5B;{
+[purple]#**transfer**# &lt;name> &#x5B; [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> ] {
     &#x5B;member] ...
-}] [purple]#**;**#
+} [purple]#**;**#
 ----
 
 *Example:*
@@ -314,77 +301,72 @@ or
 ----
 transfer ProductTransfer(Product product) {
 	field String name <= product.name;
-	field String price <= product.price!asString() + " HUF";
+	field String price <= product.price.asString() + " HUF";
 }
 ----
 
-=== Transfer constructor
+=== Initialize event
 
-The constructor is automatically called when a new transfer object is created and can be used to set default values of the fields.
+The initializer is automatically called when a new transfer object is created and can be used to set default values of the fields.
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**constructor**# {
-    &#x5B;&lt;field> = &lt;expression>[purple]#**;**#] ...
-}
+[purple]#**event initialize**# &#x5B;[purple]##**()**##][purple]##**;**##
 ----
 
 *Example:*
 
 [source,jsl]
 ----
-constructor {
-	self.name = "";
+transfer PersonTransfer {
+    event initialize;
 }
 ----
 
-////
-//For later use 
-=== Transfer initializer
+=== Create event
 
-The initializer is automatically called after the constructor is called or after the transfer object fetching. It can be used to set the values of the transient fields.
+The create event handler is automatically called when a mapped transfer object is persisted for the first time.
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**initializer**# [purple]#**;**#
+[purple]#**event create**# &#x5B;[purple]##**(**##&lt;transfer> &lt;name>[purple]##**)**##][purple]##**;**##
 ----
-////
 
-=== Transfer create
+=== Fetch event
 
-The create operation is called to save a new transfer object by overriding the default behaviour. It can be used to create the mapped entity.
+The fetch event handler is automatically called when a transfer object is retrieved from persistent storage. 
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**create**# &#x5B;[purple]##**(**##&lt;parameter>[purple]##**)**##] [purple]#**;**#
+[purple]#**event fetch**#[purple]##**;**##
 ----
 
-=== Transfer update
+=== Update event
 
-The update operation is called to save changes for an existing transfer object by overriding the default behaviour. It can be used to update the mapped entity.
+The update event handler is automatically called when a transfer object is persisted. 
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**update**# [purple]#**;**#
+[purple]#**event update**#[purple]##**;**##
 ----
 
-=== Transfer delete
+=== Delete event
 
-The delete operation is called to delete an existing transfer object by overriding the default behaviour. The delete operation is used to delete the mapped entity or invoke other destruct actions.
+The delete event handler is automatically called when a transfer object is deleted. 
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**delete**# [purple]#**;**#
+[purple]#**event delete**#[purple]##**;**##
 ----
 
 === Transfer primitive field
@@ -395,18 +377,17 @@ A transfer object may contain data descriptions called primitive fields. A primi
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;([purple]##**<=**##|[purple]##**<=>**##) &lt;expression>] [purple]#**;**#
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**input:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
-*Annotations:*
-
-[options="header", cols="1,2"]
+[options="header", cols="1,1,2"]
 |====================
-|Annotation  | Meaning
-|@Query      | Do not fetch value together with the transfer object.
-|@Embedded   | Fetch value together with the transfer object.
+|Parameter name | Parameter type                     | Meaning
+|input          | boolean literal                    | If the field is used for conveying a value into the system.
+|default        | expression returns primitive value | The default value of the field.
 |====================
-
 
 *Example:*
 
@@ -423,33 +404,31 @@ A transfer object may contain data descriptions called relations. Relation is a 
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;([purple]##**<=**##|[purple]##**<=>**##) &lt;expression>]
-&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
+[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**choices:**##&lt;choices>]
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
 ----
 
 [options="header", cols="1,1,2"]
 |====================
 |Parameter name | Parameter type               | Meaning
-|choices        | expression returns transfers | The possible list of transfers to add.
+|eager          | boolean literal              | If the fetching strategy is eager or lazy.
+|choices        | expression returns entities  | The possible list of transfers to add.
+|default        | expression returns entities  | The default list of transfers.
 |create         | boolean literal              | If create is allowed on this relation.
 |update         | boolean literal              | If update is allowed on this relation.
 |delete         | boolean literal              | If delete is allowed on this relation.
-|====================
-
-*Annotations:*
-
-[options="header", cols="1,2"]
-|====================
-|Annotation  | Meaning
-|@Query      | Do not fetch the related object(s) together with the transfer object.
-|@Embedded   | Fetch the related object(s) together with the transfer object.
 |====================
 
 *Example:*
 
 [source,jsl]
 ----
-relation OrderItemTransfer[] items <= customer.cart.orderItems;
+relation OrderItemTransfer[] items <= customer.cart.orderItems delete:true;
 ----
 
 === Transfer action
@@ -516,74 +495,25 @@ view CartView maps Customer as customer {
 }
 ----
 
-=== View constructor
+=== Initialize event
 
-The constructor is automatically called when a new view is created and can be used to set default values of the fields.
+See <<Initialize event>> of transfer.
 
-*Syntax:*
+=== Create event
 
-[subs="quotes"]
-----
-[purple]#**constructor**# {
-    &#x5B;&lt;field> = &lt;expression>[purple]#**;**#] ...
-}
-----
+See <<Create event>> of transfer.
 
-*Example:*
+=== Fetch event
 
-[source,jsl]
-----
-constructor {
-	self.name = "";
-}
-----
+See <<Fetch event>> of transfer.
 
-////
-//For later use 
-=== View initializer
+=== Update event
 
-The initializer is automatically called after the constructor is called or after the view fetching. It can be used to set the values of the transient fields.
+See <<Update event>> of transfer.
 
-*Syntax:*
+=== Delete event
 
-[subs="quotes"]
-----
-[purple]#**initializer**# [purple]#**;**#
-----
-////
-
-=== View create
-
-The create operation is called to save a new view by overriding the default behaviour. It can be used to create the mapped entity.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**create**# &#x5B;[purple]##**(**##&lt;parameter>[purple]##**)**##] [purple]#**;**#
-----
-
-=== View update
-
-The update operation is called to save changes for an existing view by overriding the default behaviour. It can be used to update the mapped entity.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**update**# [purple]#**;**#
-----
-
-=== View delete
-
-The delete operation is called to delete an existing view by overriding the default behaviour. The delete operation is used to delete the mapped entity or invoke other destruct actions.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**delete**# [purple]#**;**#
-----
+See <<Delete event>> of transfer.
 
 === View primitive field
 
@@ -593,8 +523,14 @@ A view primitive field can represent a single primitive value on the view.
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;([purple]##**<=**##|[purple]##**<=>**##) &lt;expression>]
-&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
+[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**input:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 [options="header", cols="1,1,2"]
@@ -605,6 +541,8 @@ A view primitive field can represent a single primitive value on the view.
 |enabled        | boolean expression    | If the field is enabled for editing.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field.
+|input          | boolean literal                    | If the field is used for conveying a value into the system.
+|default        | expression returns primitive value | The default value of the field.
 |====================
 
 *Example:*
@@ -622,8 +560,19 @@ A view link can represent a relation to an other view.
 
 [subs="quotes"]
 ----
-[purple]#**link**# &#x5B;[purple]##**required**##] &lt;view> &lt;name> &#x5B;([purple]##**<=**##|[purple]##**<=>**##) &lt;expression>]
-&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
+[purple]#**link**# &#x5B;[purple]##**required**##] &lt;view> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**text:**##&lt;text>]
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**choices:**##&lt;choices>]
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
 ----
 
 [options="header", cols="1,1,2"]
@@ -634,26 +583,13 @@ A view link can represent a relation to an other view.
 |enabled        | boolean expression    | If the field is enabled for editing.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field.
-|====================
-
-[options="header", cols="1,1,2"]
-|====================
-|Parameter name | Parameter type        | Meaning
-|choices        | Row declaration + expression  | The possible values for selection.
-|create         | View declaration      | The view to show for creating new element.
-|text           | string expression     | The textual representation of the link.
+|eager          | boolean literal              | If the fetching strategy is eager or lazy.
+|choices        | Row declaration + expression | The possible values for selection.
+|default        | expression returns entity    | The default value.
+|text           | string expression            | The textual representation of the link.
 |create         | boolean literal              | If create is allowed on this relation.
 |update         | boolean literal              | If update is allowed on this relation.
 |delete         | boolean literal              | If delete is allowed on this relation.
-|====================
-
-*Annotations:*
-
-[options="header", cols="1,2"]
-|====================
-|Annotation | Meaning
-|@Query     | Do not fetch the related view together with the view.
-|@Embedded  | Fetch the related view together with the view.
 |====================
 
 *Example:*
@@ -671,8 +607,20 @@ A view table represents collection of rows.
 
 [subs="quotes"]
 ----
-[purple]#**table**# &lt;row>[purple]##**[]**## &lt;name> &#x5B;([purple]##**<=**##|[purple]##**<=>**##) &lt;expression>]
-&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
+[purple]#**table**# &lt;row>[purple]##**[]**## &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**choices:**##&lt;choices>]
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**detail:**##&lt;detail>]
+    &#x5B;[purple]##**rows:**##&lt;rows>]
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
 ----
 
 [options="header", cols="1,1,2"]
@@ -683,33 +631,21 @@ A view table represents collection of rows.
 |enabled        | boolean expression    | If the field is enabled for editing.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field.
-|====================
-
-[options="header", cols="1,1,2"]
-|====================
-|Parameter name | Parameter type        | Meaning
-|choices        | Row declaration + expression  | The possible values for selection.
-|create         | View declaration      | The view to show for creating new element.
+|eager          | boolean literal              | If the fetching strategy is eager or lazy.
+|choices        | Row declaration + expression | The possible values for selection.
+|default        | expression returns entities    | The default rows.
+|detail         | view name             | The view that shows the details of a row.
 |rows           | Numeric literal       | The number of rows shown in the table.
 |create         | boolean literal              | If create is allowed on this relation.
 |update         | boolean literal              | If update is allowed on this relation.
 |delete         | boolean literal              | If delete is allowed on this relation.
 |====================
 
-*Annotations:*
-
-[options="header", cols="1,2"]
-|====================
-|Annotation | Meaning
-|@Query     | Do not fetch the related rows together with the view.
-|@Embedded  | Fetch the related rows together with the view.
-|====================
-
 *Example:*
 
 [source,jsl]
 ----
-table ProductRow[] products <= Product!all();
+table ProductRow[] products <= Product.all();
 ----
 
 === View text
@@ -719,7 +655,10 @@ table ProductRow[] products <= Product!all();
 [subs="quotes"]
 ----
 [purple]#**text**# &lt;name> [purple]##**<=**## &lt;expression>
-&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>][purple]##**;**##
 ----
 
 [options="header", cols="1,1,2"]
@@ -744,9 +683,19 @@ text message <= "Thank you for your order.";
 
 [subs="quotes"]
 ----
-([purple]#**horizontal**#|[purple]#**vertical**#) &lt;name> &#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]##**{**##
+([purple]#**horizontal**#|[purple]#**vertical**#) &lt;name>
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**frame:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**h-align:**##([purple]##**left**##|[purple]##**right**##|[purple]##**center**##)]
+    &#x5B;[purple]##**v-align:**##([purple]##**top**##|[purple]##**bottom**##|[purple]##**center**##)]
+    &#x5B;[purple]##**stretch:**##([purple]##**true**##|[purple]##**false**##)]
+[purple]##**{**##
     [member] ...
-[purple]#**}**# [purple]#**;**#
+[purple]#**}**#[purple]##**;**##
 ----
 
 [options="header", cols="1,1,2"]
@@ -757,11 +706,6 @@ text message <= "Thank you for your order.";
 |enabled        | boolean expression    | If the field is enabled for editing.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field.
-|====================
-
-[options="header", cols="1,1,2"]
-|====================
-|Parameter name | Parameter type            | Meaning
 |frame          | boolean literal           | If the group is surrounded by a frame.
 |h-align        | `left`, `right`, `center` | The horizontal location of elements inside the group. 
 |v-align        | `top`, `bottom`, `center` | The vertical location of elements inside the group.
@@ -773,7 +717,7 @@ text message <= "Thank you for your order.";
 [source,jsl]
 ----
 vertical head {
-	field String price <= product.price!asString() + " HUF";
+	field String price <= product.price.asString() + " HUF";
 	field String name <= product.name;
 }
 ----
@@ -784,9 +728,17 @@ vertical head {
 
 [subs="quotes"]
 ----
-[purple]#**tabs**# &lt;name> &#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]##**{**##
+[purple]#**tabs**# &lt;name>
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**frame:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**stretch:**##([purple]##**true**##|[purple]##**false**##)]
+[purple]##**{**##
     [group] ...
-[purple]#**}**# [purple]#**;**#
+[purple]#**}**#[purple]##**;**##
 ----
 
 [options="header", cols="1,1,2"]
@@ -797,11 +749,6 @@ vertical head {
 |enabled        | boolean expression    | If the field is enabled for editing.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field.
-|====================
-
-[options="header", cols="1,1,2"]
-|====================
-|Parameter name | Parameter type        | Meaning
 |frame          | boolean literal       | If the tabs are surrounded by a frame.
 |stretch        | boolean literal       | If the tabs fill the available space.
 |====================
@@ -815,8 +762,13 @@ The action is a piece of code (currently Java implementation) that is executed w
 [subs="quotes"]
 ----
 [purple]#**action**# &#x5B;&lt;view>|&lt;union>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**##
-&#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...]
-&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
+    &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...]
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**resource:**##&lt;resource>][purple]##**;**##
 ----
 
 [options="header", cols="1,1,2"]
@@ -827,11 +779,6 @@ The action is a piece of code (currently Java implementation) that is executed w
 |enabled        | boolean expression    | If the field is enabled for execution.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field.
-|====================
-
-[options="header", cols="1,1,2"]
-|====================
-|Parameter name | Parameter type        | Meaning
 |resource       | access name           | The name of an access where the returned transfer object is available.
 |====================
 
@@ -879,18 +826,20 @@ A row is a transfer object that also defines the visual representation of data a
 
 [subs="quotes"]
 ----
-[purple]#**row**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##] &#x5B; [purple]#**detail**# [purple]#**:**# &lt;view> ] &#x5B;{
+[purple]#**row**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
+&#x5B;{
     &#x5B;member] ...
-}] [purple]#**;**#
+}] [purple]##**;**##
 ----
 
 or
 
 [subs="quotes"]
 ----
-[purple]#**row**# &lt;name> &#x5B; [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> ]  &#x5B; [purple]#**detail**# [purple]#**:**# &lt;view> ] &#x5B;{
+[purple]#**row**# &lt;name> &#x5B;[purple]##**maps**## &lt;entity> [purple]#**as**# &lt;mapping-field>]
+{
     &#x5B;member] ...
-}] [purple]#**;**#
+}][purple]##**;**##
 ----
 
 *Example:*
@@ -899,13 +848,13 @@ or
 ----
 row ProductRow(Product product) {
 	column String name <= product.name;
-	column String price <= product.price!asString() + " HUF";
+	column String price <= product.price.asString() + " HUF";
 }
 ----
 
 === Row column
 
-_Should we rename column to cell??_
+// _Should we rename column to cell??_
 
 A primitive field that can store only a single primitive value and is displayed as a row cell.
 
@@ -914,7 +863,10 @@ A primitive field that can store only a single primitive value and is displayed 
 [subs="quotes"]
 ----
 [purple]#**column**# &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
-&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>][purple]##**;**##
 ----
 
 [options="header", cols="1,1,2"]
@@ -930,7 +882,7 @@ A primitive field that can store only a single primitive value and is displayed 
 
 [source,jsl]
 ----
-column String price <= product.price!asString() + " HUF";
+column String price <= product.price.asString() + " HUF";
 ----
 
 == Actor
@@ -941,22 +893,28 @@ An actor represents a generic user of the system and can be used to represent hu
 
 [subs="quotes"]
 ----
-[purple]#**actor**# &lt;[purple]##**human**##|[purple]##**system**##> &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
-&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ...
+[purple]#**actor**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
+    &#x5B;[purple]##**realm:**##&lt;realm>]
+    &#x5B;[purple]##**claim:**##&lt;claim>]
+    &#x5B;[purple]##**identity:**##&lt;identity>]
+    &#x5B;[purple]##**guard:**##&lt;guard>]
 &#x5B;[purple]##**{**##
     &#x5B;member] ...
-[purple]##**}**##] [purple]#**;**#
+[purple]##**}**##][purple]##**;**##
 ----
 
 or 
 
 [subs="quotes"]
 ----
-[purple]#**actor**# &lt;[purple]##**human**##|[purple]##**system**##> &lt;name> &#x5B; [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> ]
-&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ...
+[purple]#**actor**# &lt;name> &#x5B; [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> ]
+    &#x5B;[purple]##**realm:**##&lt;realm>]
+    &#x5B;[purple]##**claim:**##&lt;claim>]
+    &#x5B;[purple]##**identity:**##&lt;identity>]
+    &#x5B;[purple]##**guard:**##&lt;guard>]
 &#x5B;[purple]##**{**##
     &#x5B;member] ...
-[purple]##**}**##] [purple]#**;**#
+[purple]##**}**##][purple]##**;**##
 ----
 
 [options="header", cols="1,1,2"]
@@ -972,7 +930,7 @@ or
 
 [source,jsl]
 ----
-actor human CustomerActor(Customer customer) {
+actor CustomerActor(Customer customer) {
 	menu CartView myCart <= customer label:"My cart";
 	menu ProductListView products label:"Products";
 }
@@ -986,7 +944,11 @@ Access exposes an entity or collection of entities to the user represented by th
 
 [subs="quotes"]
 ----
-[purple]#**access**# &lt;transfer|view|row>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**<=**## &lt;expression> [purple]#**;**#
+[purple]#**access**# &lt;transfer|view|row>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**<=**## &lt;expression>
+    &#x5B;[purple]##**choices:**##&lt;choices>]
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
 ----
 
 [options="header", cols="1,1,2"]
@@ -1005,9 +967,14 @@ A group can contain only menu elements.
 
 [subs="quotes"]
 ----
-[purple]#**group**# &lt;name> &#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]##**{**##
+[purple]#**group**# &lt;name>
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+[purple]##**{**##
     [member] ...
-[purple]#**}**# [purple]#**;**#
+[purple]#**}**#[purple]##**;**##
 ----
 
 [options="header", cols="1,1,2"]
@@ -1028,7 +995,10 @@ Single menu is a visually represented access for human actors that provides an e
 [subs="quotes"]
 ----
 [purple]#**menu**# &lt;view> &lt;name> [purple]##**<=**## &lt;expression>
-&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>][purple]##**;**##
 ----
 
 [options="header", cols="1,1,2"]
@@ -1054,7 +1024,15 @@ Table menu is a visually represented access for human actors that provides a col
 [subs="quotes"]
 ----
 [purple]#**menu**# &lt;row>[purple]##**[]**## &lt;name> [purple]##**<=**## &lt;expression>
-&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**choices:**##&lt;choices>]
+    &#x5B;[purple]##**rows:**##&lt;rows>]
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)][purple]##**;**##
 ----
 
 [options="header", cols="1,1,2"]
@@ -1064,16 +1042,11 @@ Table menu is a visually represented access for human actors that provides a col
 |icon           | string literal        | the name of the icon to show for the menu.
 |enabled        | boolean expression    | If the menu is enabled to the user.
 |hidden         | boolean expression    | If the menu is shown to the user.
-|====================
-
-[options="header", cols="1,1,2"]
-|====================
-|Parameter name | Parameter type        | Meaning
 |choices        | Row declaration + expression  | The possible values for selection.
+|rows           | Numeric literal       | The number of rows shown in the table.
 |create         | boolean literal       | If create is allowed on this table.
 |update         | boolean literal       | If update is allowed on this table.
 |delete         | boolean literal       | If delete is allowed on this table.
-|rows           | Numeric literal       | The number of rows shown in the table.
 |====================
 
 
@@ -1106,13 +1079,13 @@ entity User {
 entity abstract Customer {
     field required Address address;
 	relation Order[] orders opposite:customer;
-	relation Order cart <= self.orders!filter(o | o.status == OrderStatus#OPEN)!any();
+	relation Order cart <= self.orders.filter(o | o.status == OrderStatus#OPEN).any();
 }
 
 query Integer NumOfCustomers(String country) <=
-		Customer!
-		all()!
-		filter(c | c.address.country == country)!
+		Customer.
+		all().
+		filter(c | c.address.country == country).
 		size();
 
 entity Person extends Customer, User {
@@ -1126,10 +1099,10 @@ entity Enterprise extends Customer {
 }
 
 entity Order {
-	field required OrderStatus status = OrderStatus#OPEN;
+	field required OrderStatus status default:OrderStatus#OPEN;
 	field OrderItem[] orderItems;
 	relation required Customer customer opposite:orders;
-	field Integer price <= self.orderItems!sum(item | item.price);
+	field Integer price <= self.orderItems.sum(item | item.price);
 }
 
 entity OrderItem {
@@ -1145,22 +1118,18 @@ entity Product {
 }
 
 view ProductListView {
-	table ProductRow[] products <= Product!all();
+	table ProductRow[] products <= Product.all();
 }
 
 row ProductRow(Product product) {
 	column String name <= product.name;
-	column String price <= product.price!asString() + " HUF";
+	column String price <= product.price.asString() + " HUF";
 }
 
 view ProductView(Product product) {
 	vertical head {
-		field String price <= product.price!asString() + " HUF";
-		field String name <= product.name;
-	}
-
-	constructor {
-		self.name = "";
+		field String price <= product.price.asString() + " HUF";
+		field String name <= product.name default:"";
 	}
 }
 
@@ -1171,7 +1140,11 @@ view CartView maps Customer as customer {
 	link ProductListView productList text:"Back to shopping";
 	
 	// set the status of the order to OrderStatus#ORDERED
-	action ThankYouView order();
+	action ThankYouView order(CouponView coupon);
+}
+
+view CouponView {
+    field String code;
 }
 
 view ThankYouView {
@@ -1185,7 +1158,7 @@ row OrderItemRow(OrderItem item) {
 	column Integer price <= item.price;
 }
 
-actor human CustomerActor(Customer customer) {
+actor CustomerActor(Customer customer) {
 	menu CartView myCart <= customer label:"My cart";
 	menu ProductListView products label:"Products";
 }
