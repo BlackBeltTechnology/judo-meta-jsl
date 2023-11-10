@@ -8,8 +8,6 @@ import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider
 import hu.blackbelt.judo.meta.jsl.scoping.JslDslImportedNamespaceAwareLocalSocpeProvider
 import hu.blackbelt.judo.meta.jsl.scoping.JslResourceDescriptionStrategy
 import org.eclipse.xtext.resource.IDefaultResourceDescriptionStrategy
-import org.eclipse.xtext.naming.IQualifiedNameProvider
-import hu.blackbelt.judo.meta.jsl.scoping.JslDslQualifiedNameProvider
 import hu.blackbelt.judo.meta.jsl.scoping.JslDslQualifiedNameConverter
 import org.eclipse.xtext.naming.IQualifiedNameConverter
 import org.eclipse.xtext.parser.antlr.ISyntaxErrorMessageProvider
@@ -41,10 +39,6 @@ class JslDslRuntimeModule extends AbstractJslDslRuntimeModule {
 
     def Class<? extends IDefaultResourceDescriptionStrategy> bindIDefaultResourceDescriptionStrategy() {
         JslResourceDescriptionStrategy;
-    }
-
-    override Class<? extends IQualifiedNameProvider> bindIQualifiedNameProvider() {
-        JslDslQualifiedNameProvider;
     }
 
 //    override Class<? extends IQualifiedNameConverter> bindIQualifiedNameConverter() {

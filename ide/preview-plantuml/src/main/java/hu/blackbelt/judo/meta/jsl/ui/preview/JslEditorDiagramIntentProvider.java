@@ -72,6 +72,9 @@ public class JslEditorDiagramIntentProvider extends AbstractDiagramIntentProvide
             final IEditorInput editorInput = ((IEditorPart) context.getWorkbenchPart()).getEditorInput();
             XtextDocument document = (XtextDocument) editor.getDocumentProvider().getDocument(editorInput);
             ModelDeclaration model = document.readOnly(modelExtractor);
+            
+            if (model == null) return null;
+            
             JsldslDefaultPlantUMLDiagramGenerator generator =
                     IResourceServiceProvider.Registry.INSTANCE
                     .getResourceServiceProvider(model.eResource().getURI()).get(JsldslDefaultPlantUMLDiagramGenerator.class);
