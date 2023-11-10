@@ -52,7 +52,7 @@ model shop;
 
 import judo::types;
 
-type string Email(min-size = 0, max-size = 64, regex = r"^\w+@\w+(\.\w+)+$");
+type string Email min-size:0 max-size:64 regex:r"^\w+@\w+(\.\w+)+$";
 
 enum OrderStatus {
 	OPEN = 1;
@@ -68,17 +68,18 @@ entity Address {
 
 entity User {
 	identifier required Email email;
-} 
+}
 
 entity abstract Customer {
     field required Address address;
-	relation Order[] orders opposite customer;
+	relation Order[] orders opposite:customer;
 }
+
 
 entity Person extends Customer, User {
 	field required String firstName;
 	field required String lastName;
-	derived	String fullName => self.firstName + " " + self.lastName;
+	field String fullName <= self.firstName + " " + self.lastName;
 }
 
 entity Enterprise extends Customer {
@@ -86,17 +87,17 @@ entity Enterprise extends Customer {
 }
 
 entity Order {
-	field required OrderStatus status = OrderStatus#OPEN;
+	field required OrderStatus status default:OrderStatus#OPEN;
 	field OrderItem[] orderItems;
-	relation required Customer customer opposite orders;
-	derived Integer price => self.orderItems!sum(item | item.price);
+	relation required Customer customer opposite:orders;
+	field Integer price <= self.orderItems.sum(item | item.price);
 }
 
 entity OrderItem {
-	relation required Product product opposite-add orderItems[];
+	relation required Product product opposite-add:orderItems[];
 	field required Integer amount;
-	derived	String productName => self.product.name;
-	derived Integer price => self.amount * self.product.price;
+	field String productName <= self.product.name;
+	field Integer price <= self.amount * self.product.price;
 }
 
 entity Product {
@@ -105,18 +106,14 @@ entity Product {
 }
 ----
 
-// diagram should be updated
-
 [plantuml, target=diagram-classes, format=png]
 ....
 @startuml shop
-'!pragma layout smetana
-'left to right direction
+allow_mixing
 
 skinparam nodesep 150
 skinparam ranksep 90
 
-hide circle
 hide stereotype
 
 skinparam padding 2
@@ -124,95 +121,108 @@ skinparam roundCorner 8
 skinparam linetype ortho
 
 skinparam class {
-	BackgroundColor #moccasin
-	BorderColor #grey
-	ArrowColor #black
+    BackgroundColor #moccasin
+    BorderColor #grey
+    ArrowColor #black
 
-	FontSize 13
-	'FontStyle bold
+    FontSize 13
 
-	BackgroundColor<< Abstract >> white|#cfe3e8
-	HeaderBackgroundColor<< Abstract >> #cee2e6/#bed8df
-	FontStyle<< Abstract >> italic
+    BackgroundColor<< AutoMapped >> white|#f9f4cb
+    HeaderBackgroundColor<< AutoMapped >> #f4f0c7/#f7f0b9
+    FontStyle<< AutoMapped >> italic
 
-	BackgroundColor<< Entity >> white|#cfe3e8
-	HeaderBackgroundColor<< Entity >> #cee2e6/#bed8df
+    BackgroundColor<< Transfer >> white|#f9f4cb
+    HeaderBackgroundColor<< Transfer >> #f4f0c7/#f7f0b9
 
-	BackgroundColor<< Enumeration >> white|#d6e6c8
-	HeaderBackgroundColor<< Enumeration >> #d6e6c8/#c8e0be
+    BackgroundColor<< MappedService >> white|#d4e5c9
+    HeaderBackgroundColor<< MappedService >> #d1e0c5/#c9dcbb
+    FontStyle<< MappedService >> italic
 
-	BackgroundColor<< Error >> white|#e69987
-	HeaderBackgroundColor<< Error >> #d69080
-	FontStyle<< Error >> normal
+    BackgroundColor<< Service >> white|#d4e5c9
+    HeaderBackgroundColor<< Service >> #d1e0c5/#c9dcbb
 
-	BackgroundColor<< numeric >> white|#d6e6c8
-	HeaderBackgroundColor<< numeric >> #d6e6c8/#c8e0be
+    BackgroundColor<< MappedActor >> white|#dddddd
+    HeaderBackgroundColor<< MappedActor >> #dddddd/#dddddd
+    FontStyle<< MappedActor >> italic
 
-	BackgroundColor<< string >> white|#d6e6c8
-	HeaderBackgroundColor<< string >> #d6e6c8/#c8e0be
+    BackgroundColor<< Actor >> white|#dddddd
+    HeaderBackgroundColor<< Actor >> #dddddd/#dddddd
 
-	BackgroundColor<< date >> white|#d6e6c8
-	HeaderBackgroundColor<< date >> #d6e6c8/#c8e0be
+    BackgroundColor<< Abstract >> white|#cfe3e8
+    HeaderBackgroundColor<< Abstract >> #cee2e6/#bed8df
+    FontStyle<< Abstract >> italic
 
-	BackgroundColor<< timestamp >> white|#d6e6c8
-	HeaderBackgroundColor<< timestamp >> #d6e6c8/#c8e0be
+    BackgroundColor<< Entity >> white|#cfe3e8
+    HeaderBackgroundColor<< Entity >> #cee2e6/#bed8df
 
-	BackgroundColor<< time >> white|#d6e6c8
-	HeaderBackgroundColor<< time >> #d6e6c8/#c8e0be
+    BackgroundColor<< Enumeration >> white|#d6e6c8
+    HeaderBackgroundColor<< Enumeration >> #d6e6c8/#c8e0be
 
-	BackgroundColor<< binary >> white|#d6e6c8
-	HeaderBackgroundColor<< binary >> #d6e6c8/#c8e0be
+    BackgroundColor<< Error >> white|#e69987
+    HeaderBackgroundColor<< Error >> #d69080
+    FontStyle<< Error >> normal
 
-	BackgroundColor<< boolean >> white|#d6e6c8
-	HeaderBackgroundColor<< boolean >> #d6e6c8/#c8e0be
+    BackgroundColor<< numeric >> white|#d6e6c8
+    HeaderBackgroundColor<< numeric >> #d6e6c8/#c8e0be
 
-	BackgroundColor<< External >> white|#efefef
-	HeaderBackgroundColor<< External >> #dedede/#d7d7d7
-	FontColor<< External >> #7f7f7f
-	AttributeFontColor<< External >> #7f7f7f		
+    BackgroundColor<< string >> white|#d6e6c8
+    HeaderBackgroundColor<< string >> #d6e6c8/#c8e0be
+
+    BackgroundColor<< date >> white|#d6e6c8
+    HeaderBackgroundColor<< date >> #d6e6c8/#c8e0be
+
+    BackgroundColor<< timestamp >> white|#d6e6c8
+    HeaderBackgroundColor<< timestamp >> #d6e6c8/#c8e0be
+
+    BackgroundColor<< time >> white|#d6e6c8
+    HeaderBackgroundColor<< time >> #d6e6c8/#c8e0be
+
+    BackgroundColor<< binary >> white|#d6e6c8
+    HeaderBackgroundColor<< binary >> #d6e6c8/#c8e0be
+
+    BackgroundColor<< boolean >> white|#d6e6c8
+    HeaderBackgroundColor<< boolean >> #d6e6c8/#c8e0be
+
+    BackgroundColor<< External >> white|#efefef
+    HeaderBackgroundColor<< External >> #dedede/#d7d7d7
+    FontColor<< External >> #7f7f7f
+    AttributeFontColor<< External >> #7f7f7f
 }
 
-skinparam package<<DataTypes>> {
-	borderColor Transparent
-	backgroundColor Transparent
-	fontColor Transparent
-	stereotypeFontColor Transparent
-}	
-
 package shop {
-	class Address << Entity >> {
-		+<b>street</b> : String
-		+<b>city</b> : String
-		+country : String
-	}
-	class User << Entity >> {
-		+<u><b>email</b></u> : Email
-	}
-	class Customer << Abstract >>  {
-		+<b>address</b> : Address
-	}
-	class Person << Entity >> {
-		+<b>firstName</b> : String
-		+<b>lastName</b> : String
-		~<i>fullName</i> : String
-	}
-	class Enterprise << Entity >> {
-		+<b>name</b> : String
-	}
-	class Order << Entity >> {
-		+<b>status</b> : OrderStatus
-		+orderItems : OrderItem[0..*]
-		~<i>price</i> : Integer
-	}
-	class OrderItem << Entity >> {
-		+<b>amount</b> : Integer
-		~<i>productName</i> : String
-		~<i>price</i> : Integer
-	}
-	class Product << Entity >> {
-		+<b>price</b> : Integer
-		+<u><b>name</b></u> : String
-	}
+    class Address << (E,Transparent) Entity >> {
+    <&pencil> <b>street</b> : String
+    <&pencil> <b>city</b> : String
+    <&pencil> country : String
+    }
+    class User << (E,Transparent) Entity >> {
+    <&key> <b>email</b> : Email
+    }
+    class Customer << (A,Transparent) Abstract >>  {
+    <&pencil> <b>address</b> : Address
+    }
+    class Person << (E,Transparent) Entity >> {
+    <&pencil> <b>firstName</b> : String
+    <&pencil> <b>lastName</b> : String
+    <U+00A0><U+00A0><U+00A0><U+00A0>fullName : String
+    }
+    class Enterprise << (E,Transparent) Entity >> {
+    <&pencil> <b>name</b> : String
+    }
+    class Order << (E,Transparent) Entity >> {
+    <&pencil> <b>status</b> : OrderStatus
+    <&pencil> orderItems : OrderItem[0..*]
+    <U+00A0><U+00A0><U+00A0><U+00A0>price : Integer
+    }
+    class OrderItem << (E,Transparent) Entity >> {
+    <&pencil> <b>amount</b> : Integer
+    <U+00A0><U+00A0><U+00A0><U+00A0>productName : String
+    <U+00A0><U+00A0><U+00A0><U+00A0>price : Integer
+    }
+    class Product << (E,Transparent) Entity >> {
+    <&key> <b>name</b> : String
+    <&pencil> <b>price</b> : Integer
+    }
 
 	Customer  "customer\n[1..1]" -right-   "orders\n[0..*]" Order
 	OrderItem  "orderItems\n[0..*] " --   "product\n[1..1]" Product
