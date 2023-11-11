@@ -82,7 +82,7 @@
         <emf-genmodel-generator-version>1.1.1.20231106_151954_7fd1b3f5_develop</emf-genmodel-generator-version>
         <judo-genmodel-generator-version>1.1.2.20231107_041037_4b4570ca_develop</judo-genmodel-generator-version>
         <judo-epp-common-version>4.29.0.20230922_122205_4ad6b77f_develop</judo-epp-common-version>
-        <judo-misc-p2-version>1.0.1.20230816_141434_406d64b3_develop</judo-misc-p2-version>
+        <judo-misc-p2-version>1.0.0</judo-misc-p2-version>
 
         <xtext-version>2.31.0</xtext-version>
         <emf-mwe2-launch-version>2.15.0</emf-mwe2-launch-version>
