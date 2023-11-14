@@ -178,7 +178,7 @@ TransferRelationDeclaration
 
 TransferActionDeclaration
 	: annotations += AnnotationMark*
-	  -> KW_ACTION ReturnFragment Named
+	  static ?= KW_STATIC? -> KW_ACTION ReturnFragment Named
 	  LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? RP
 	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
 	  SC
@@ -328,7 +328,7 @@ ViewGroupDeclaration returns ViewPanelDeclaration
 ViewActionDeclaration returns TransferActionDeclaration
 	: {ViewActionDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_ACTION ReturnFragment Named
+	  static ?= KW_STATIC? -> KW_ACTION ReturnFragment Named
 	  LP (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID)? RP
 	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
 	  modifiers += (VisualModifier | RedirectModifier)*
@@ -1013,8 +1013,8 @@ JSLID: ID
 
 	// Features	
 	| KW_ACCESS | KW_ACTION | KW_AFTER | KW_BEFORE | KW_COLUMN | KW_CONSTRAINT | KW_CREATE | KW_DELETE | KW_EVENT | KW_FETCH | KW_FIELD
-	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_INITIALIZE | KW_INSTEAD | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_SUBMIT | KW_TABLE | KW_TABS
-	| KW_TEXT | KW_UPDATE | KW_VERTICAL
+	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_INITIALIZE | KW_INSTEAD | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_STATIC
+	| KW_SUBMIT | KW_TABLE | KW_TABS | KW_TEXT | KW_UPDATE | KW_VERTICAL
 	
 	// Constants
 	| KW_BINARY | KW_BOOLEAN | KW_BOTTOM | KW_CENTER | KW_COLLECTION | KW_CONSTANT | KW_DATE | KW_DECLARATION
@@ -1078,6 +1078,7 @@ terminal KW_LINK:		'link';
 terminal KW_LITERAL:	'literal';
 terminal KW_MENU:		'menu';
 terminal KW_RELATION:	'relation';
+terminal KW_STATIC:		'static';
 terminal KW_SUBMIT:		'submit';
 terminal KW_TABLE:		'table';
 terminal KW_TABS:		'tabs';
