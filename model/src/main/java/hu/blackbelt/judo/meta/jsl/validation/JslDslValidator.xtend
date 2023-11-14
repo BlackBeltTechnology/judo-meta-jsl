@@ -1639,7 +1639,10 @@ class JslDslValidator extends AbstractJslDslValidator {
     def checkTransferEvent(TransferEventDeclaration event) {
         val TransferDeclaration transfer = event.eContainer as TransferDeclaration;
 
-        if (transfer.members.filter[m | m.getClass().equals(event.getClass())].size > 1) {
+        if (transfer.members.filter[m | m instanceof TransferEventDeclaration]
+        	.map[m | m as TransferEventDeclaration]
+        	.filter[e | e.getClass().equals(event.getClass()) && ((e.before && event.before) || (e.after && event.after) || (e.instead && event.instead))].size > 1)
+        {
             error("Duplicate event declaration in transfer '" + transfer.name + "'.",
                 JsldslPackage::eINSTANCE.transferEventDeclaration.getEStructuralFeature("ID"),
                 DUPLICATE_EVENT)
@@ -1655,6 +1658,12 @@ class JslDslValidator extends AbstractJslDslValidator {
     @Check
     def checkTransferCreate(TransferCreateDeclaration declaration) {
         val TransferDeclaration transfer = declaration.eContainer as TransferDeclaration;
+
+		if ((declaration.before || declaration.after) && declaration.parameterType !== null) {
+            error("Before and after create event handler cannot have parameter.",
+                JsldslPackage::eINSTANCE.transferCreateDeclaration_ParamaterName,
+                INVALID_DECLARATION)
+		}
 
 		if (declaration.parameterType !== null) {
 			if (declaration.parameterType.map === null ||

@@ -195,35 +195,45 @@ TransferEventDeclaration
 TransferFetchDeclaration returns TransferEventDeclaration
 	: {TransferFetchDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_EVENT => kind = KW_FETCH (LP RP)?
+	  -> KW_EVENT
+	  (before ?= KW_BEFORE | after ?= KW_AFTER | instead ?= KW_INSTEAD)
+	  => kind = KW_FETCH Named (LP RP)?
 	  SC
 	;
 
 TransferCreateDeclaration returns TransferEventDeclaration
 	: {TransferCreateDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_EVENT => kind = KW_CREATE (LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? RP)?
+	  -> KW_EVENT
+	  (before ?= KW_BEFORE | after ?= KW_AFTER | instead ?= KW_INSTEAD)
+	  => kind = KW_CREATE Named (LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? RP)?
 	  SC
 	;
 
 TransferUpdateDeclaration returns TransferEventDeclaration
 	: {TransferUpdateDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_EVENT => kind = KW_UPDATE (LP RP)?
+	  -> KW_EVENT
+	  (before ?= KW_BEFORE | after ?= KW_AFTER | instead ?= KW_INSTEAD)
+	  => kind = KW_UPDATE Named (LP RP)?
 	  SC
 	;
 
 TransferDeleteDeclaration returns TransferEventDeclaration
 	: {TransferDeleteDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_EVENT => kind = KW_DELETE (LP RP)?
+	  -> KW_EVENT
+	  (before ?= KW_BEFORE | after ?= KW_AFTER | instead ?= KW_INSTEAD)
+	  => kind = KW_DELETE Named (LP RP)?
 	  SC
 	;
 
 TransferInitializeDeclaration returns TransferEventDeclaration
 	: {TransferInitializeDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_EVENT => kind = KW_INITIALIZE (LP RP)?
+	  -> KW_EVENT
+	  (before ?= KW_BEFORE | after ?= KW_AFTER | instead ?= KW_INSTEAD)
+	  => kind = KW_INITIALIZE Named (LP RP)?
 	  SC
 	;
 
@@ -1002,8 +1012,8 @@ JSLID: ID
 //	| KW_LAMBDA | KW_MAPS | KW_ON | KW_THROWS
 
 	// Features	
-	| KW_ACCESS | KW_ACTION | KW_COLUMN | KW_CONSTRAINT | KW_CREATE | KW_DELETE | KW_EVENT | KW_FETCH | KW_FIELD
-	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_INITIALIZE | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_SUBMIT | KW_TABLE | KW_TABS
+	| KW_ACCESS | KW_ACTION | KW_AFTER | KW_BEFORE | KW_COLUMN | KW_CONSTRAINT | KW_CREATE | KW_DELETE | KW_EVENT | KW_FETCH | KW_FIELD
+	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_INITIALIZE | KW_INSTEAD | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_SUBMIT | KW_TABLE | KW_TABS
 	| KW_TEXT | KW_UPDATE | KW_VERTICAL
 	
 	// Constants
@@ -1049,6 +1059,8 @@ terminal KW_VIEW:		'view';
 // Features	
 terminal KW_ACCESS:		'access';
 terminal KW_ACTION:		'action';
+terminal KW_AFTER:		'after';
+terminal KW_BEFORE:		'before';
 terminal KW_COLUMN:		'column';
 terminal KW_CONSTRAINT:	'constraint';
 terminal KW_CREATE:		'create';   // no highlight
@@ -1061,6 +1073,7 @@ terminal KW_GROUP:		'group';
 terminal KW_HORIZONTAL: 'horizontal';
 terminal KW_IDENTIFIER:	'identifier';
 terminal KW_INITIALIZE:	'initialize';   // no highlight
+terminal KW_INSTEAD:	'instead';
 terminal KW_LINK:		'link';
 terminal KW_LITERAL:	'literal';
 terminal KW_MENU:		'menu';
