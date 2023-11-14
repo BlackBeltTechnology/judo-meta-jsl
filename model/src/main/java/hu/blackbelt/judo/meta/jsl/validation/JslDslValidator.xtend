@@ -1705,6 +1705,12 @@ class JslDslValidator extends AbstractJslDslValidator {
                 JsldslPackage::eINSTANCE.entityMemberDeclaration_Required,
                 INVALID_DECLARATION)
     	}
+    	
+    	if (member.required && member.calculated) {
+            error("A calculated member cannot be required.",
+                JsldslPackage::eINSTANCE.entityMemberDeclaration_Required,
+                INVALID_DECLARATION)
+    	}
 	}
 
     @Check
