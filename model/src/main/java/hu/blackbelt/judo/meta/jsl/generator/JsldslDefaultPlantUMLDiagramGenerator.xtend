@@ -29,6 +29,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.RowDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.DiagramDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.DiagramGroupDeclaration
 
 @Singleton
 class JsldslDefaultPlantUMLDiagramGenerator {
@@ -36,7 +38,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     @Inject extension JslDslModelExtension
 
     def defaultStyle() '''
-        top to bottom direction
+        'top to bottom direction
 
         skinparam nodesep 50
         skinparam ranksep 100
@@ -56,66 +58,7 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             ArrowColor #black
 
             FontSize 13
-
-            BackgroundColor<< Transfer >> white|#f9f4cb
-            HeaderBackgroundColor<< Transfer >> #f4f0c7/#f7f0b9
-
-            BackgroundColor<< MappedService >> white|#d4e5c9
-            HeaderBackgroundColor<< MappedService >> #d1e0c5/#c9dcbb
-            FontStyle<< MappedService >> italic
-
-            BackgroundColor<< Service >> white|#d4e5c9
-            HeaderBackgroundColor<< Service >> #d1e0c5/#c9dcbb
-
-            BackgroundColor<< MappedActor >> white|#dddddd
-            HeaderBackgroundColor<< MappedActor >> #dddddd/#dddddd
-            FontStyle<< MappedActor >> italic
-
-            BackgroundColor<< Actor >> white|#dddddd
-            HeaderBackgroundColor<< Actor >> #dddddd/#dddddd
-
-            BackgroundColor<< Abstract >> white|#cfe3e8
-            HeaderBackgroundColor<< Abstract >> #cee2e6/#bed8df
-            FontStyle<< Abstract >> italic
-
-            BackgroundColor<< Entity >> white|#cfe3e8
-            HeaderBackgroundColor<< Entity >> #cee2e6/#bed8df
-«««            FontColor<< Entity >> white
-
-            BackgroundColor<< Enumeration >> white|#d6e6c8
-            HeaderBackgroundColor<< Enumeration >> #d6e6c8/#c8e0be
-
-            BackgroundColor<< Error >> white|#e69987
-            HeaderBackgroundColor<< Error >> #d69080
-            FontStyle<< Error >> normal
-
-            BackgroundColor<< numeric >> white|#d6e6c8
-            HeaderBackgroundColor<< numeric >> #d6e6c8/#c8e0be
-
-            BackgroundColor<< string >> white|#d6e6c8
-            HeaderBackgroundColor<< string >> #d6e6c8/#c8e0be
-
-            BackgroundColor<< date >> white|#d6e6c8
-            HeaderBackgroundColor<< date >> #d6e6c8/#c8e0be
-
-            BackgroundColor<< timestamp >> white|#d6e6c8
-            HeaderBackgroundColor<< timestamp >> #d6e6c8/#c8e0be
-
-            BackgroundColor<< time >> white|#d6e6c8
-            HeaderBackgroundColor<< time >> #d6e6c8/#c8e0be
-
-            BackgroundColor<< binary >> white|#d6e6c8
-            HeaderBackgroundColor<< binary >> #d6e6c8/#c8e0be
-
-            BackgroundColor<< boolean >> white|#d6e6c8
-            HeaderBackgroundColor<< boolean >> #d6e6c8/#c8e0be
-
-            BackgroundColor<< External >> white|#efefef
-            HeaderBackgroundColor<< External >> #dedede/#d7d7d7
-            FontColor<< External >> #7f7f7f
-            AttributeFontColor<< External >> #7f7f7f
         }
-
     '''
 
     def cardinalityRepresentation(EntityRelationDeclaration it)
@@ -153,83 +96,72 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     def entityStereotypeFragment(EntityDeclaration it)
     '''«IF isAbstract» << (A,Transparent) Abstract >> «ELSE» << (E,Transparent) Entity >>«ENDIF»'''
 
-    def entityFieldCardinalityFragment(EntityFieldDeclaration it)
-    '''«IF isMany»[0..*]«ENDIF»'''
-
-    def entityFieldModifierFragment(EntityFieldDeclaration it)
-    '''«IF isIdentifier»<&key>«ELSE»<&pencil>«ENDIF»'''
-
-    def entityFieldNameFragment(EntityFieldDeclaration it)
-    '''«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»'''
-
     def entityRelationNameFragment(EntityRelationDeclaration it)
     '''«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»'''
-
-    def entityFieldRepresentation(EntityFieldDeclaration it)
-    '''«entityFieldModifierFragment» «entityFieldNameFragment» : «it.parentContainer(ModelDeclaration).getExternalName(referenceType)»«entityFieldCardinalityFragment»'''
 
     def entityRelationRepresentation(EntityRelationDeclaration it)
     '''<&pencil> «entityRelationNameFragment» : «it.parentContainer(ModelDeclaration).getExternalName(referenceType)»«cardinalityRepresentation»'''
 
-    def entityDerivedRepresentation(EntityMemberDeclaration it)
-    '''<U+00A0><U+00A0><U+00A0><U+00A0>«name» : «it.parentContainer(ModelDeclaration).getExternalName(referenceType)»«IF isMany»[0..*]«ENDIF»'''
+    def entityFieldModifierFragment(EntityFieldDeclaration it)
+    '''«IF isIdentifier»<&key>«ELSEIF isCalculated»<U+00A0><U+00A0><U+00A0>«ELSE»<&pencil>«ENDIF»'''
 
+    def entityFieldNameFragment(EntityFieldDeclaration it)
+    '''«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»'''
 
-    def entityRepresentation(EntityDeclaration it)
+    def entityFieldRepresentation(EntityFieldDeclaration it)
+    '''«entityFieldModifierFragment» «entityFieldNameFragment» : «it.parentContainer(ModelDeclaration).getExternalName(referenceType)»«IF isMany»[0..*]«ENDIF»'''
+
+	def entityBackgroundColors(boolean external)
+    '''«IF external»#back:white|efefef;header:dedede|d7d7d7«ELSE»#back:white|cfe3e8;header:cee2e6|bed8df«ENDIF»'''
+
+    def entityRepresentation(EntityDeclaration it, ModelDeclaration model, boolean external, boolean showAttr)
     '''
-		class «name?:"none"»«entityStereotypeFragment» {
-		    «FOR field : it.fields»
-		    	«IF field.calculated»
-		    		«field.entityDerivedRepresentation»
-		    	«ENDIF»
-		    	«IF !field.calculated»
+		class «model.getExternalName(it)»«entityStereotypeFragment» «entityBackgroundColors(external)» {
+			«IF showAttr»
+			    «FOR field : it.fields»
 		    		«field.entityFieldRepresentation»
-		    	«ENDIF»
-		    «ENDFOR»
+			    «ENDFOR»
+		    «ENDIF»
 		}
 	'''
     
+    def transferStereotypeFragment(TransferDeclaration it)
+    '''«IF it instanceof ViewDeclaration» << (V,Transparent) >> «
+        ELSEIF it instanceof RowDeclaration» << (R,Transparent) >> «
+        ELSEIF it instanceof ErrorDeclaration» << (E,Transparent) >> «
+        ELSEIF it instanceof TransferDeclaration» << (T,Transparent) >> «
+        ENDIF
+    »'''
+
     def transferFieldModifierFragment(TransferFieldDeclaration it)
     '''«IF it.reads»<&caret-left>«ELSEIF it.maps»<&caret-right>«ELSE»<U+00A0><U+00A0><U+00A0>«ENDIF»'''
 
-    def transferStereotypeFragment(TransferDeclaration it)
-    '''«IF it instanceof ViewDeclaration» << (V,Transparent) Transfer >> «
-        ELSEIF it instanceof RowDeclaration» << (R,Transparent) Transfer >> «
-        ELSEIF it instanceof ErrorDeclaration» << (E,Transparent) Error >> «
-        ELSEIF it instanceof TransferDeclaration» << (T,Transparent) Transfer >> «
-        ENDIF
-    »'''
-
-    def transferExternalStereotypeFragment(TransferDeclaration it)
-    '''«IF it instanceof ViewDeclaration» << (V,Transparent) External >> «
-        ELSEIF it instanceof RowDeclaration» << (R,Transparent) External >> «
-        ELSEIF it instanceof ErrorDeclaration» << (E,Transparent) External >> «
-        ELSEIF it instanceof TransferDeclaration» << (T,Transparent) External >> «
-        ENDIF
-    »'''
-    
     def transferFieldNameFragment(TransferFieldDeclaration it)
     '''«IF isRequired»<b>«ENDIF»«name»«IF isRequired»</b>«ENDIF»'''
     
     def transferFieldRepresentation(TransferFieldDeclaration it)
-    '''«transferFieldModifierFragment»«transferFieldNameFragment» : «it.parentContainer(ModelDeclaration).getExternalName(referenceType)»
-	'''
+    '''«transferFieldModifierFragment» «transferFieldNameFragment» : «it.parentContainer(ModelDeclaration).getExternalName(referenceType)»'''
 
-    def transferRepresentation(TransferDeclaration it)
+	def transferBackgroundColors(boolean external)
+    '''«IF external»#back:white|efefef;header:dedede|d7d7d7«ELSE»#back:white|f9f4cb;header:f4f0c7|f7f0b9«ENDIF»'''
+
+    def transferRepresentation(TransferDeclaration it, ModelDeclaration model, boolean external, boolean showAttr)
     '''
-        class «name?:"none"»«transferStereotypeFragment» {
-            «FOR field : it.fields»
-                «field.transferFieldRepresentation»
-            «ENDFOR»
+        class «model.getExternalName(it)»«transferStereotypeFragment» «transferBackgroundColors(external)» {
+			«IF showAttr»
+	            «FOR field : it.fields»
+	                «field.transferFieldRepresentation»
+	            «ENDFOR»
+		    «ENDIF»
         }
     '''
         
     def actorStereotypeFragment(ActorDeclaration it)
     '''«IF map !== null» << MappedActor >> «ELSE» << Actor >>«ENDIF»'''
     
-    def actorRepresentation(ActorDeclaration it)
+    def actorRepresentation(ActorDeclaration it, ModelDeclaration model, String prefix)
     '''
-           actor «name?:"none"»
+           actor :«model.getExternalName(it)»: «IF !prefix.empty»as «prefix».«name»«ENDIF»
     '''
 
     def entityExtends(EntityDeclaration it)
@@ -260,9 +192,9 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     }
 
     def entityStoredRelationRepresentation(EntityRelationDeclaration it, ModelDeclaration base)
-    '''« base.getExternalName(eContainer as EntityDeclaration)» «
+    ''' «base.getExternalName(eContainer as EntityDeclaration)»  «
         IF opposite !== null» «opposite.entityRelationOppositeRepresentation» «ELSE» --> «ENDIF
-        » "«name»\n«cardinalityRepresentation»" «base.getExternalName(referenceType as EntityDeclaration)»'''
+        » "«name»\n«cardinalityRepresentation» " «base.getExternalName(referenceType as EntityDeclaration)»'''
 
     def entityCalculatedRelationRepresentation(EntityRelationDeclaration it, ModelDeclaration base)
     '''«IF referenceType !== null
@@ -273,6 +205,26 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '''«IF referenceType !== null
     	»« base.getExternalName(it.parentContainer(TransferDeclaration))» -«IF it.parentContainer(TransferDeclaration) instanceof ActorDeclaration»right«ENDIF»-> "«name»  \n«cardinalityRepresentation»  " «base.getExternalName(referenceType)»
 	   «ENDIF»'''
+
+    def diagramRepresentation(ModelDeclaration model, DiagramDeclaration diagram, DiagramDeclaration group)
+	    '''
+	    	«IF group instanceof DiagramGroupDeclaration»together«ELSE»package «diagram.name»«ENDIF» {
+	    		«FOR show : group.diagramShowDeclarations»
+			        «FOR cls : show.showClassDeclarations(model)»
+			        	«IF cls instanceof EntityDeclaration»
+			            	«(cls as EntityDeclaration).entityRepresentation(model, false, show.diagramShowFields)»
+			        	«ELSEIF cls instanceof ActorDeclaration»
+							«(cls as ActorDeclaration).actorRepresentation(model, diagram.name)»
+			        	«ELSEIF cls instanceof TransferDeclaration»
+							«(cls as TransferDeclaration).transferRepresentation(model, false, show.diagramShowFields)»
+			        	«ENDIF»
+			        «ENDFOR»
+		        «ENDFOR»
+		        «FOR grp : group.diagramGroupDeclarations»
+		            «model.diagramRepresentation(diagram, grp)»
+		        «ENDFOR»
+			}
+	    '''
 
     def generate(ModelDeclaration it, String style) '''
     @startuml «name?:"none"»
@@ -287,82 +239,80 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '!pragma layout smetana
     «IF style === null || style.blank»«defaultStyle»«ELSE»«style»«ENDIF»
 
-    package «name» {
-	
-	together {
-		together {
-			«FOR transfer : transferDeclarations»
-				«transfer.transferRepresentation»
-		    «ENDFOR»
-	
-«««			«FOR transfer : viewDeclarations»
-«««				«transfer.transferRepresentation»
-«««			«ENDFOR»
-	
-«««	    	«FOR transfer : rowDeclarations»
-«««	            «transfer.transferRepresentation»
+«««    package «name» {
+«««	
+«««	together {
+«««		together {
+«««			«FOR transfer : transferDeclarations»
+«««				«transfer.transferRepresentation(false, true)»
+«««		    «ENDFOR»
+«««	
+«««	        «FOR transfer : getExternalReferencedTransfers»
+«««				«transfer.transferRepresentation(true, false)»
 «««	        «ENDFOR»
-	
-	        «FOR transfer : getExternalReferencedTransfers»
-	            class «getExternalName(transfer)» <«transfer.parentContainer(ModelDeclaration)?.name»> «transfer.transferExternalStereotypeFragment»
-	        «ENDFOR»
-	
-	        «FOR relation : allTransferRelations»
-	            «relation.transferRelationRepresentation(it)»
-	        «ENDFOR»
-	
-«««	        «FOR relation : allViewTransferRelations»
+«««	
+«««	        «FOR relation : allTransferRelations»
 «««	            «relation.transferRelationRepresentation(it)»
 «««	        «ENDFOR»
-	    }
-	
-	    together {
-	        «FOR entity : entityDeclarations»
-	            «entity.entityRepresentation»
-	        «ENDFOR»
-	
-	        «FOR entity : getExternalReferencedEntities»
-	            class «getExternalName(entity)» <«entity.parentContainer(ModelDeclaration)?.name»> << (E, Transparent) External >>
-	        «ENDFOR»
-	
-	        «FOR entity : entityDeclarations»
-	            «entity.entityExtends»
-	        «ENDFOR»
-	
-	        «FOR relation : getAllStoredRelations(true)»
-	            «relation.entityStoredRelationRepresentation(it)»
-	        «ENDFOR»
-	
-	        «FOR relation : getAllCalculatedRelations(true)»
-	            «relation.entityCalculatedRelationRepresentation(it)»
-	        «ENDFOR»
-	
-	        «FOR external : getExternalReferencedEntities»
-	            «FOR relation : external.storedRelations»
-	                «IF relation.opposite instanceof EntityRelationOppositeInjected && relation.referenceType?.parentContainer(ModelDeclaration)?.name === it.name»
-	                    «relation.entityStoredRelationRepresentation(it)»
-	                «ENDIF»
-	            «ENDFOR»
-	        «ENDFOR»
-	
-	    }
-	}
+«««	    }
+«««	
+«««	    together {
+«««	        «FOR entity : entityDeclarations»
+«««	            «entity.entityRepresentation(false, true)»
+«««	        «ENDFOR»
+«««	
+«««	        «FOR entity : getExternalReferencedEntities»
+«««	            «entity.entityRepresentation(true, false)»
+«««	        «ENDFOR»
+«««	
+«««	        «FOR entity : entityDeclarations»
+«««	            «entity.entityExtends»
+«««	        «ENDFOR»
+«««	
+«««	        «FOR relation : getAllStoredRelations(true)»
+«««	            «relation.entityStoredRelationRepresentation(it)»
+«««	        «ENDFOR»
+«««	
+«««	        «FOR relation : getAllCalculatedRelations(true)»
+«««	            «relation.entityCalculatedRelationRepresentation(it)»
+«««	        «ENDFOR»
+«««	
+«««	        «FOR external : getExternalReferencedEntities»
+«««	            «FOR relation : external.storedRelations»
+«««					«IF relation.opposite instanceof EntityRelationOppositeInjected && relation.referenceType?.parentContainer(ModelDeclaration)?.name === it.name»
+«««					«relation.entityStoredRelationRepresentation(it)»
+«««					«ENDIF»
+«««	            «ENDFOR»
+«««	        «ENDFOR»
+«««	    }
+«««	}
+«««
+«««	together {
+«««     	«FOR actor : actorDeclarations»
+«««	        «actor.actorRepresentation("")»
+«««	    «ENDFOR»
+«««	}
+«««
+«««    «FOR relation : allActorTransferRelations»
+«««        «relation.transferRelationRepresentation(it)»
+«««    «ENDFOR»
+«««
+«««    «FOR transfer : transferDeclarations»
+«««        «transfer.transferMaps(it)»
+«««    «ENDFOR»
+«««
+««« 	«FOR actor : actorDeclarations»
+«««        «actor.transferMaps(it)»
+«««    «ENDFOR»
+«««	}
 
-	together {
-     	«FOR actor : actorDeclarations»
-	        «actor.actorRepresentation»
-	    «ENDFOR»
-	}
-
-    «FOR relation : allActorTransferRelations»
-        «relation.transferRelationRepresentation(it)»
+ 	«FOR diagram : diagramDeclarations»
+        «diagramRepresentation(diagram, diagram)»
+        
+		«FOR relation : diagram.getDiagramRelations(it)»
+			«relation.entityStoredRelationRepresentation(it)»
+		«ENDFOR»
     «ENDFOR»
-
-    «FOR transfer : transferDeclarations»
-        «transfer.transferMaps(it)»
-    «ENDFOR»
-
-	}
     @enduml
     '''
 
@@ -405,29 +355,5 @@ class JsldslDefaultPlantUMLDiagramGenerator {
             }
         }
         externalTransfers
-    }
-
-    def String getExternalName(ModelDeclaration it, EObject object) {
-    	if (!(object instanceof Named)) {
-    		return "<none>";
-    	}
-    	
-    	val Named named = object as Named;
-    	
-        if (named.parentContainer(ModelDeclaration) === null) {
-            return named.name
-        }
-
-        if (it.name !== named?.parentContainer(ModelDeclaration).name) {
-            val importList = imports.filter[i | i.model.name.equals(named.parentContainer(ModelDeclaration)?.name)]
-                .map[i | i.alias !== null ? i.alias + "::" + named.name : named.name]
-            if (importList !== null && importList.size > 0) {
-                return importList.get(0)
-            } else {
-                return named.name
-            }
-        } else {
-            return named.name
-        }
     }
 }

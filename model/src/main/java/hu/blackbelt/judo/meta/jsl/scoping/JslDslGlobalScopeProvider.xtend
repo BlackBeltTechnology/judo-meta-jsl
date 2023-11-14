@@ -22,6 +22,7 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
     @Inject extension JslDslModelExtension
     @Inject JudoTypesProvider judoTypesProvider
     @Inject JudoFunctionsProvider judoFunctionsProvider
+    @Inject JudoMetaProvider judoMetaProvider
 
     override IScope getScope(Resource resource, EReference reference, Predicate<IEObjectDescription> filter) {
 //         System.out.println("JslDslGlobalScopeProvider.getScope Res: " + resource + "Ref: " + reference);
@@ -31,7 +32,8 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 
         if (JsldslPackage::eINSTANCE.modelImportDeclaration_Model == reference) {
             var IScope scope = judoFunctionsProvider.getModelDeclarationScope(super.getScope(resource, reference, filter))
-            return judoTypesProvider.getModelDeclarationScope(scope);
+            scope = judoTypesProvider.getModelDeclarationScope(scope);
+            return judoMetaProvider.getModelDeclarationScope(scope);
         }
 
         val overridedFilter = new Predicate<IEObjectDescription>() {
@@ -60,7 +62,8 @@ class JslDslGlobalScopeProvider extends DefaultGlobalScopeProvider {
 
         var IScope typeScope = judoTypesProvider.getScope(super.getScope(resource, reference, overridedFilter), reference, overridedFilter)
         var IScope functionsScope = judoFunctionsProvider.getScope(typeScope)
-        return functionsScope
+        var IScope metaScope = judoMetaProvider.getScope(functionsScope)
+        return metaScope
     }
 
     def typeOnly(IScope parent, Class<?> type) {

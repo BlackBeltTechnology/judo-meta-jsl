@@ -18,7 +18,7 @@ class JslDslImportedNamespaceAwareLocalSocpeProvider extends ImportedNamespaceAw
     @Inject extension JslDslIndex
 
     override protected getImplicitImports(boolean ignoreCase) {
-        newArrayList(new ImportNormalizer(QualifiedName.create("judo","functions"), true, ignoreCase))
+        newArrayList(new ImportNormalizer(QualifiedName.create("judo","functions"), true, ignoreCase), new ImportNormalizer(QualifiedName.create("judo","meta"), true, ignoreCase))
     }
 
     override protected List<ImportNormalizer> internalGetImportedNamespaceResolvers(EObject context, boolean ignoreCase) {

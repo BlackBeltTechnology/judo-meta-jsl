@@ -65,6 +65,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Argument
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.ParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.DiagramDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -83,6 +85,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 //        printParents(context)
 
         var IScope scope = delegateGetScope(context, ref);
+
+        scope = this.scope_FilterByDiagram(scope, ref, context);
         scope = this.scope_FilterByReferenceType(scope, ref);
         scope = this.scope_FilterByVisibility(scope, ref, context);
 
@@ -208,6 +212,30 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     def scope_FilterByReferenceType(IScope scope, EReference ref) {
         return new FilteringScope(scope, [desc | {
             return ref.EReferenceType.isInstance(desc.EObjectOrProxy);
+        }]);
+    }
+	
+    def scope_FilterByDiagram(IScope scope, EReference ref, EObject context) {
+		return new FilteringScope(scope, [desc | {
+			val obj = desc.EObjectOrProxy
+						
+			if (obj.parentContainer(ModelDeclaration) === null) return true;
+			if (context instanceof EntityDeclaration) return true
+			if (context instanceof EntityMemberDeclaration) return true
+			
+			if (context.parentContainer(DiagramDeclaration) !== null) {
+                switch obj {
+                	EntityDeclaration: return (obj.parentContainer(ModelDeclaration) as ModelDeclaration).name.equals("judo::meta")
+                	QueryDeclaration: return false
+                	PrimitiveDeclaration: return false
+				}
+			}
+			
+            switch obj {
+            	TypeDeclaration: return !(obj.parentContainer(ModelDeclaration) as ModelDeclaration).name.equals("judo::meta")
+			}				
+
+            return true
         }]);
     }
 

@@ -17,10 +17,10 @@ ModelImportDeclaration
 
 Declaration
 	: TypeDeclaration
-	| ErrorDeclaration
 	| FunctionOrQueryDeclaration
 	| LambdaDeclaration
 	| AnnotationDeclaration
+	| DiagramDeclaration
 	;
 
 Persistable 
@@ -44,6 +44,7 @@ ClassDeclaration
 	| ViewDeclaration
 	| RowDeclaration
 	| ActorDeclaration
+	| ErrorDeclaration
 	;
 
 /****************************
@@ -481,7 +482,15 @@ EnumLiteral
     : annotations += AnnotationMark*
       Named -> ASSIGN value = NaturalNumber SC
     ;
-	
+
+/****************************
+ *	Meta
+ ***************************/
+
+MetaFilter
+	: Navigation
+	;
+
 /****************************
  *	Expression
  ***************************/
@@ -726,6 +735,38 @@ NavigationTarget
 
 
 /****************************
+ *	Diagrams
+ ****************************/
+
+DiagramDeclaration
+	: KW_DIAGRAM Named
+	  (SC | BLOCK_START members += DiagramMemberDeclaration* BLOCK_END)
+	;
+
+DiagramMemberDeclaration
+	: DiagramGroupDeclaration
+	| DiagramShowDeclaration
+	;
+
+DiagramGroupDeclaration returns DiagramDeclaration
+	: {DiagramGroupDeclaration}
+	  KW_GROUP
+	  (SC | BLOCK_START members += DiagramMemberDeclaration* BLOCK_END)
+	;
+
+DiagramShowDeclaration
+	: 'show' filter = Navigation
+	   modifiers += (FieldsModifier | RelationsModifier)*
+	   SC
+	;
+
+//DiagramShowDeclaration
+//	: 'show' (all ?= MUL | entity ?= KW_ENTITY | transfer ?= KW_TRANSFER | view ?= KW_VIEW | actor ?= KW_ACTOR)
+//	   modifiers += (FilterModifier | FieldsModifier | RelationsModifier)*
+//	   SC
+//	;
+
+/****************************
  *	Modifiers
  ****************************/
 
@@ -737,6 +778,7 @@ ModifiableDeclaration returns Modifiable
 	: TransferMemberDeclaration
 	| EntityMemberDeclaration
 	| TypeDeclaration
+	| DiagramShowDeclaration
 	;
 
 Modifier
@@ -768,6 +810,10 @@ Modifier
 	| MimeTypesModifier
 	| MaxFileSizeModifier
 	| EagerModifier
+	
+	| FilterModifier
+	| FieldsModifier
+	| RelationsModifier
 
 	| VisualModifier
 	;
@@ -909,6 +955,18 @@ EagerModifier
 	: type = KW_EAGER COLON value = BooleanLiteral
 	;
 
+FilterModifier
+	: type = KW_FILTER COLON value = StringLiteral
+	;
+
+FieldsModifier
+	: type = KW_FIELDS COLON value = BooleanLiteral
+	;
+
+RelationsModifier
+	: type = KW_RELATIONS COLON value = BooleanLiteral
+	;
+
 /****************************
  *	Literals
  ****************************/
@@ -984,7 +1042,7 @@ LocalName
     ;
 
 ModelName
-	: JSLID SUBID*
+	: JSLID ('::' ID)*
     ;
 
 // JSLID: ID ;
@@ -994,7 +1052,8 @@ JSLID: ID
 //	// Declarations not allowed to use
 //	| KW_ACTOR | KW_ANNOTATION | KW_ENTITY | KW_ENUM | KW_ERROR |  KW_IMPORT
 //  | KW_MODEL | KW_QUERY | KW_ROW | KW_TRANSFER | KW_TYPE | KW_VIEW
-//
+	| KW_TYPE
+
 
 	// Temporarily commented out due to static initializer exceeds limit error in Xtext
 	// Declarations
@@ -1012,8 +1071,8 @@ JSLID: ID
 	| KW_KB | KW_MB | KW_GB | KW_KIB | KW_MIB | KW_GIB
 	
 	// Attributes
-	| KW_CHOICES | KW_CLAIM | KW_DETAIL | KW_EAGER | KW_ENABLED | KW_DEFAULT | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
-	| KW_IDENTITY | KW_INPUT | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_ROWS | KW_SCALE | KW_STRETCH | KW_THROW
+	| KW_CHOICES | KW_CLAIM | KW_DEFAULT | KW_DETAIL | KW_EAGER | KW_ENABLED | KW_FIELDS | KW_FILTER | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
+	| KW_IDENTITY | KW_INPUT | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_RELATIONS | KW_REGEX | KW_ROWS | KW_SCALE | KW_STRETCH | KW_THROW
 	| KW_WIDTH  // KW_REQUIRED is missing deliberately !!!!
 	
 	// Operators
@@ -1030,6 +1089,7 @@ terminal KW_ABSTRACT:	'abstract';
 terminal KW_ACTOR:		'actor';
 terminal KW_ANNOTATION:	'annotation';
 terminal KW_AS:			'as';
+terminal KW_DIAGRAM:	'diagram';
 terminal KW_ENTITY:		'entity';
 terminal KW_ENUM:		'enum';
 terminal KW_ERROR:		'error';
@@ -1105,6 +1165,8 @@ terminal KW_CLAIM:		'claim';
 terminal KW_DEFAULT:	'default';
 terminal KW_DETAIL:		'detail';
 terminal KW_ENABLED:	'enabled';
+terminal KW_FIELDS: 	'fields';
+terminal KW_FILTER:		'filter';
 terminal KW_FRAME:		'frame';
 terminal KW_GUARD:		'guard';
 terminal KW_HIDDEN:		'hidden';
@@ -1123,6 +1185,7 @@ terminal KW_PRECISION:	'precision';
 terminal KW_REALM:		'realm';
 terminal KW_REDIRECT:	'redirect';
 terminal KW_REGEX:		'regex';
+terminal KW_RELATIONS: 	'relations';
 terminal KW_REQUIRED:	'required';  // not ID
 terminal KW_ROWS:		'rows';
 terminal KW_SCALE:		'scale';
@@ -1139,30 +1202,6 @@ terminal KW_XOR:		'xor';
 terminal KW_AND:		'and';
 terminal KW_DIV:		'div';
 terminal KW_MOD:		'mod';
-
-terminal LP:    '(';
-terminal RP:    ')';
-terminal DOT:   '.';
-terminal COMMA: ',';
-terminal LB:    '[';
-terminal RB:    ']';
-terminal LRB:   '[]';
-terminal ASSIGN:'=';
-terminal LT:    '<';
-terminal GT:    '>';
-terminal QM:    '?';
-terminal COLON: ':';
-terminal NEQ:   '!=';
-terminal EQ:    '==';
-terminal GTE:   '>=';
-terminal LTE:   '<=';
-terminal PLUS:  '+';
-terminal MINUS: '-';
-terminal MUL:   '*';
-terminal DIV:   '/';
-terminal EXP:   '^';
-terminal EXCL:  '!';
-terminal PIPE:  '|';
 
 terminal BLOCK_START
 	: '{'
@@ -1200,9 +1239,9 @@ terminal NUMBER
 	: DIGIT+
 	;
 
-terminal SUBID
-	: ('::' ID)
-	;
+//terminal SUBID
+//	: ('::' ID)
+//	;
 
 terminal ID
 	: ALPHABET (ALPHABET | DIGIT)* | '`' ALPHABET (ALPHABET | DIGIT)* '`'
@@ -1223,6 +1262,29 @@ terminal ML_COMMENT
 terminal SL_COMMENT
 	: '//' !(NEWLINE)*
 	;
+
+terminal NEQ:   '!=';
+terminal EQ:    '==';
+terminal GTE:   '>=';
+terminal LTE:   '<=';
+terminal LP:    '(';
+terminal RP:    ')';
+terminal DOT:   '.';
+terminal COMMA: ',';
+terminal LB:    '[';
+terminal RB:    ']';
+terminal LRB:   '[]';
+terminal LT:    '<';
+terminal GT:    '>';
+terminal QM:    '?';
+terminal COLON: ':';
+terminal ASSIGN:'=';
+terminal PLUS:  '+';
+terminal MINUS: '-';
+terminal MUL:   '*';
+terminal DIV:   '/';
+terminal EXP:   '^';
+terminal PIPE:  '|';
 
 terminal SC
 	: (';' WS?)+

@@ -58,6 +58,14 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget
+import hu.blackbelt.judo.meta.jsl.jsldsl.DiagramDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.DiagramShowDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.FilterModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.FieldsModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.ClassDeclaration
+import java.util.Map
+import java.util.Set
+import hu.blackbelt.judo.meta.jsl.jsldsl.RelationsModifier
 
 @Singleton
 class JslDslModelExtension {
@@ -416,6 +424,120 @@ class JslDslModelExtension {
         declarations.filter[d | d instanceof ActorDeclaration].map[d | d as ActorDeclaration].toList
     }
 
+    def Collection<DiagramDeclaration> diagramDeclarations(ModelDeclaration it) {
+        declarations.filter[d | d instanceof DiagramDeclaration].map[d | d as DiagramDeclaration].toList
+    }
+
+    def boolean diagramShowFields(DiagramShowDeclaration show) {
+		val FieldsModifier fields = show.getModifier(JsldslPackage::eINSTANCE.fieldsModifier) as FieldsModifier;
+		return fields === null || fields.value.isTrue
+    }
+
+    def Collection<DiagramShowDeclaration> diagramShowDeclarations(DiagramDeclaration it) {
+        members.filter[m | m instanceof DiagramShowDeclaration].map[d | d as DiagramShowDeclaration].toList
+    }
+
+	def Collection<ClassDeclaration> filterClasses(DiagramShowDeclaration show, ModelDeclaration model, EClassifier classifier) {
+    	var Collection<ClassDeclaration> result = new ArrayList<ClassDeclaration>;
+		val FilterModifier filter = show.getModifier(JsldslPackage::eINSTANCE.filterModifier) as FilterModifier;
+
+		val String pattern = filter !== null ? "^" + filter.value.value.toString.toLowerCase.replace("*", "([a-z0-9]*)").replace("?", "([a-z0-9])") + "$" : "^([a-z0-9:]*)$";
+
+		for (cls: model.declarations
+						.filter[c | c.eClass === classifier]
+						.filter[c | c.fullyQualifiedName.toString('::').toLowerCase.matches(pattern) || c.name.toLowerCase.matches(pattern)]
+						.map[c | c as ClassDeclaration].toList)
+		{
+			result.add(cls);
+		}
+		
+		for (i: model.imports) {
+			val ModelDeclaration m = i.model;
+			val String alias = i.alias !== null ? i.alias + "::" : ""
+			
+			for (cls: m.declarations
+							.filter[c | c.eClass === classifier]
+							.filter[c | c.fullyQualifiedName.toString('::').toLowerCase.matches(pattern) || (alias + c.name).toLowerCase.matches(pattern)]
+							.map[c | c as ClassDeclaration].toList)
+			{
+				result.add(cls);
+			}
+		}
+		
+		return result
+	}
+
+    def Collection<ClassDeclaration> showClassDeclarations(DiagramShowDeclaration show, ModelDeclaration model) {
+    	var Collection<ClassDeclaration> result = new ArrayList<ClassDeclaration>;
+
+//		if (show.entity || show.all) {
+//			result.addAll(show.filterClasses(model, JsldslPackage::eINSTANCE.entityDeclaration))
+//		}
+//
+//		if (show.transfer || show.all) {
+//			result.addAll(show.filterClasses(model, JsldslPackage::eINSTANCE.simpleTransferDeclaration))
+//		}
+//
+//		if (show.view || show.all) {
+//			result.addAll(show.filterClasses(model, JsldslPackage::eINSTANCE.viewDeclaration))
+//			result.addAll(show.filterClasses(model, JsldslPackage::eINSTANCE.rowDeclaration))
+//		}
+//
+//		if (show.actor || show.all) {
+//			result.addAll(show.filterClasses(model, JsldslPackage::eINSTANCE.actorDeclaration))
+//		}
+		
+//		else {
+//			if (show.declaration instanceof EntityDeclaration)
+//				result.add(show.declaration as EntityDeclaration);
+//		}
+
+		return result
+    }
+
+	def Map<String, ClassDeclaration> getDiagramClasses(DiagramDeclaration diagram, ModelDeclaration model, boolean withRelations) {
+		var Map<String, ClassDeclaration> result = new HashMap<String, ClassDeclaration>;
+		
+		for (show: diagram.diagramShowDeclarations) {
+			for (cls: show.showClassDeclarations(model)) {
+				if (withRelations) {
+					val RelationsModifier relations = show.getModifier(JsldslPackage::eINSTANCE.relationsModifier) as RelationsModifier
+					if (relations === null || relations.value.isTrue) result.put(model.getExternalName(cls), cls)
+				} else {
+					result.put(model.getExternalName(cls), cls)
+				}
+			}
+		}
+
+		for (grp: diagram.diagramGroupDeclarations) {
+			result.putAll(grp.getDiagramClasses(model, withRelations))
+		}
+
+		return result
+	}
+
+	def Set<EntityRelationDeclaration> getDiagramRelations(DiagramDeclaration diagram, ModelDeclaration model) {
+		var Set<EntityRelationDeclaration> result = new HashSet<EntityRelationDeclaration>;
+		var Map<String, ClassDeclaration> fromClasses = diagram.getDiagramClasses(model, true);
+		var Map<String, ClassDeclaration> toClasses = diagram.getDiagramClasses(model, false);
+		
+		for (name: fromClasses.filter[k,v| v instanceof EntityDeclaration].keySet) {
+			val EntityDeclaration entity = fromClasses.get(name) as EntityDeclaration
+			
+			for (relation : entity.members.filter[m | m instanceof EntityRelationDeclaration].map[m | m as EntityRelationDeclaration]) {
+				if (toClasses.containsValue(relation.referenceType)) {
+					result.add(relation)
+				}
+			}
+		}
+		
+		return result
+	}
+
+    def Collection<DiagramDeclaration> diagramGroupDeclarations(DiagramDeclaration it) {
+    	members.filter[m | m instanceof DiagramDeclaration].map[m | m as DiagramDeclaration].toList
+    }
+
     def Collection<TransferFieldDeclaration> fields(TransferDeclaration it) {
         eAllContents.filter[d | d instanceof TransferFieldDeclaration].map[d | d as TransferFieldDeclaration].toList
     }
@@ -575,5 +697,29 @@ class JslDslModelExtension {
     			i.model.fromModel models.put(i.model.name, i.model)
     			i.model.appendImportedModelDeclarations(models)
     		]
+    }
+    
+    def String getExternalName(ModelDeclaration it, EObject object) {
+    	if (!(object instanceof Named)) {
+    		return "<none>";
+    	}
+    	
+    	val Named named = object as Named;
+    	
+        if (named.parentContainer(ModelDeclaration) === null) {
+            return named.name
+        }
+
+        if (it.name !== named?.parentContainer(ModelDeclaration).name) {
+            val importList = imports.filter[i | i.model.name.equals(named.parentContainer(ModelDeclaration)?.name)]
+                .map[i | i.alias !== null ? i.alias + "::" + named.name : named.name]
+            if (importList !== null && importList.size > 0) {
+                return importList.get(0)
+            } else {
+                return named.name
+            }
+        } else {
+            return named.name
+        }
     }
 }
