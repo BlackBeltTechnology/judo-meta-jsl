@@ -31,6 +31,7 @@ Persistable
 TypeDeclaration
 	: PrimitiveDeclaration
 	| ClassDeclaration
+	| UnionDeclaration
 	;
 
 PrimitiveDeclaration
@@ -178,7 +179,7 @@ TransferRelationDeclaration
 
 TransferActionDeclaration
 	: annotations += AnnotationMark*
-	  static ?= KW_STATIC? -> KW_ACTION ReturnFragment Named
+	  -> KW_ACTION static ?= KW_STATIC? (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
 	  LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? RP
 	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
 	  SC
@@ -328,7 +329,7 @@ ViewGroupDeclaration returns ViewPanelDeclaration
 ViewActionDeclaration returns TransferActionDeclaration
 	: {ViewActionDeclaration}
 	  annotations += AnnotationMark*
-	  static ?= KW_STATIC? -> KW_ACTION ReturnFragment Named
+	  -> KW_ACTION static ?= KW_STATIC? (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
 	  LP (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID)? RP
 	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
 	  modifiers += (VisualModifier | RedirectModifier)*
@@ -384,7 +385,7 @@ RowColumnDeclaration returns TransferFieldDeclaration
 ActorDeclaration returns TransferDeclaration
 	: {ActorDeclaration}
 	  annotations += AnnotationMark*
-	  KW_ACTOR Named
+	  KW_ACTOR human ?= KW_HUMAN? Named
 	  MappedDeclaration
 	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier)*
 	  (SC | BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END)
@@ -424,6 +425,26 @@ ActorMenuDeclaration returns ActorAccessDeclaration
 	  (LTE getterExpr = Expression)?
 	  modifiers += (VisualModifier | RowsModifier | DetailModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
+	;
+
+/****************************
+ *	Union
+ ****************************/
+
+UnionOrTransferDeclaration
+	: UnionDeclaration
+	| TransferDeclaration
+	;
+
+UnionDeclaration
+ 	: annotations += AnnotationMark*
+	  -> KW_UNION Named
+	  LT members += [UnionMemberDeclaration | ModelName] (PIPE members += [UnionMemberDeclaration | ModelName])* GT
+	  SC
+ 	;
+
+UnionMemberDeclaration
+	: TransferDeclaration
 	;
  
 /****************************
@@ -971,12 +992,6 @@ fragment Cardinality
     : many ?= LRB
     ;
 
-fragment ReturnFragment
-	: KW_VOID?
-	| referenceTypes += [TransferDeclaration | ModelName]
-	| LT referenceTypes += [TransferDeclaration | ModelName] (PIPE referenceTypes += [TransferDeclaration | ModelName])* GT
-	;
-
 DecimalNumber returns ecore::EBigDecimal
 	: NUMBER DOT NUMBER
 	;
@@ -1003,7 +1018,7 @@ JSLID: ID
 
 //	// Declarations not allowed to use
 //	| KW_ACTOR | KW_ANNOTATION | KW_ENTITY | KW_ENUM | KW_ERROR |  KW_IMPORT
-//  | KW_MODEL | KW_QUERY | KW_ROW | KW_TRANSFER | KW_TYPE | KW_VIEW
+//  | KW_MODEL | KW_QUERY | KW_ROW | KW_TRANSFER | KW_TYPE | KW_UNION | KW_VIEW
 //
 
 	// Temporarily commented out due to static initializer exceeds limit error in Xtext
@@ -1013,7 +1028,7 @@ JSLID: ID
 
 	// Features	
 	| KW_ACCESS | KW_ACTION | KW_AFTER | KW_BEFORE | KW_COLUMN | KW_CONSTRAINT | KW_CREATE | KW_DELETE | KW_EVENT | KW_FETCH | KW_FIELD
-	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_INITIALIZE | KW_INSTEAD | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION | KW_STATIC
+	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_INITIALIZE | KW_INSTEAD | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION
 	| KW_SUBMIT | KW_TABLE | KW_TABS | KW_TEXT | KW_UPDATE | KW_VERTICAL
 	
 	// Constants
@@ -1024,7 +1039,7 @@ JSLID: ID
 	// Attributes
 	| KW_CHOICES | KW_CLAIM | KW_DETAIL | KW_EAGER | KW_ENABLED | KW_DEFAULT | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
 	| KW_IDENTITY | KW_INPUT | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_ROWS | KW_SCALE | KW_STRETCH | KW_THROW
-	| KW_WIDTH  // KW_REQUIRED is missing deliberately !!!!
+	| KW_WIDTH
 	
 	// Operators
 //	| KW_IMPLIES | KW_OR | KW_XOR | KW_AND | KW_DIV | KW_MOD
@@ -1054,6 +1069,7 @@ terminal KW_QUERY:		'query';
 terminal KW_ROW:		'row';
 terminal KW_TRANSFER:	'transfer';
 terminal KW_TYPE:		'type';
+terminal KW_UNION:		'union';
 terminal KW_VIEW:		'view';
 
 // Features	
@@ -1071,6 +1087,7 @@ terminal KW_FETCH:		'fetch';   // no highlight
 terminal KW_FIELD:		'field';
 terminal KW_GROUP:		'group';
 terminal KW_HORIZONTAL: 'horizontal';
+terminal KW_HUMAN: 		'human';
 terminal KW_IDENTIFIER:	'identifier';
 terminal KW_INITIALIZE:	'initialize';   // no highlight
 terminal KW_INSTEAD:	'instead';
@@ -1078,7 +1095,7 @@ terminal KW_LINK:		'link';
 terminal KW_LITERAL:	'literal';
 terminal KW_MENU:		'menu';
 terminal KW_RELATION:	'relation';
-terminal KW_STATIC:		'static';
+terminal KW_STATIC:		'static';  // not ID
 terminal KW_SUBMIT:		'submit';
 terminal KW_TABLE:		'table';
 terminal KW_TABS:		'tabs';
