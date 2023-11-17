@@ -390,18 +390,27 @@ In the above example, the CartTransfer mapped transfer object has an action call
 [judo-req="true",judo-req-id="REQ-SRV-013"]
 === Union
 
-A union is a special return type to hold different type of transfer objects. Unions can be defined at the point of use, namely as the return type of functions. A union must have at least two members, but only one member can exist at any given time.
+A union is a type to hold different type of transfer objects. Unions can be used only as the return type of actions. A union must have at least two members, but only one member can exist at any given time.
 
 Unions cannot be organized into a collection.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**union**# &lt;name> [purple]##**<**## &lt;transfer1>[purple]##** | **##&lt;transfer2> &#x5B;[purple]##**| **##&lt;transfer3> ]...[purple]#**>;**#
+----
+
+where the <name> is the name of the union. Between `<` and `>` is a list of transfer objects saparated by the pipe character (`|`).
 
 *Example:*
 
 [source,jsl]
 ----
-action <SalesPersonTransfer|DeveloperTransfer> getEmployee();
+union Employee <SalesPersonTransfer|DeveloperTransfer>;
 ----
 
-In the example above, the `getEmployee` function may return a SalesPersonTransfer or a DeveloperTransfer transfer object. Within the body of the function, it can be decided whether a SalesPersonTransfer or DeveloperTransfer object is returned.
+In the example above, we define the `Employee` union, which contains either a SalesPersonTransfer or a DeveloperTransfer transfer object. Within the body of an action that returns `Employee`, it can be decided whether a `SalesPersonTransfer` or a `DeveloperTransfer` object is returned.
 
 == Lifecycle
 
@@ -522,6 +531,14 @@ A transition refers to a change in the object's state that occurs as a result of
 
 Event handlers are blocks of code that are designed to respond to specific events. Their primary purpose is to define how the system should react when particular events occur. The list of events that may occur can be found in the lifecycle description of transfer objects.
 
+Event handlers can be used to customize the behavior of the application by executing code before, after, or instead of the default event handling mechanism.
+
+* Before-event handlers run before the default event handler and are useful for setting up conditions or performing validations.
+
+* After-event handlers execute after the default event handler has completed its task. They are suitable for cleanup, logging, or triggering additional actions.
+
+* Instead-of-event handlers replace the default event handler with custom code, allowing complete control over event processing.
+
 The following event handlers can be defined for transfer objects.
 
 [judo-req="true",judo-req-id="REQ-SRV-004"]
@@ -542,7 +559,7 @@ Currently, the body of the initialize event handler can only be defined in Java.
 
 [subs="quotes"]
 ----
-[purple]#**event initialize**# &#x5B;[purple]##**()**##][purple]##**;**##
+[purple]#**event**# ([purple]#**before**#|[purple]#**after**#|[purple]#**instead**#) [purple]#**initialize**# &lt;name>&#x5B;[purple]##**()**##][purple]##**;**##
 ----
 
 *Example:*
@@ -573,7 +590,14 @@ Currently, the body of the create event handler can only be defined in Java.
 
 [subs="quotes"]
 ----
-[purple]#**event create**# &#x5B;[purple]##**(**##&lt;transfer> &lt;name>[purple]##**)**##][purple]##**;**##
+[purple]#**event**# ([purple]#**before**#|[purple]#**after**#) [purple]#**initialize**# &lt;name>&#x5B;[purple]##**()**##][purple]##**;**##
+----
+
+or
+
+[subs="quotes"]
+----
+[purple]#**event instead create**# &lt;name>&#x5B;[purple]##**(**##&lt;transfer> &lt;parameter>[purple]##**)**##][purple]##**;**##
 ----
 
 The create event handler can optionally accept a transfer object parameter. The field values of this parameter can be utilized when the transfer object is saved for the first time. This parameter enables differentiation between the creation and update parameters of the transfer object.
@@ -606,7 +630,7 @@ Currently, the body of the fetch event handler can only be defined in Java.
 
 [subs="quotes"]
 ----
-[purple]#**event fetch**# &#x5B;[purple]##**()**##][purple]##**;**##
+[purple]#**event**# ([purple]#**before**#|[purple]#**after**#|[purple]#**instead**#) [purple]#**fetch**# &lt;name>&#x5B;[purple]##**()**##][purple]##**;**##
 ----
 
 *Example:*
@@ -637,7 +661,7 @@ Currently, the body of the update event handler can only be defined in Java.
 
 [subs="quotes"]
 ----
-[purple]#**event update**# &#x5B;[purple]##**()**##][purple]##**;**##
+[purple]#**event**# ([purple]#**before**#|[purple]#**after**#|[purple]#**instead**#) [purple]#**update**# &lt;name>&#x5B;[purple]##**()**##][purple]##**;**##
 ----
 
 
@@ -669,7 +693,7 @@ Currently, the body of the delete event handler can only be defined in Java.
 
 [subs="quotes"]
 ----
-[purple]#**event delete**# &#x5B;[purple]##**()**##][purple]##**;**##
+[purple]#**event**# ([purple]#**before**#|[purple]#**after**#|[purple]#**instead**#) [purple]#**delete**# &lt;name>&#x5B;[purple]##**()**##][purple]##**;**##
 ----
 
 
