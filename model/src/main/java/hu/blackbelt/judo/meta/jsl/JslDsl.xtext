@@ -1087,7 +1087,7 @@ terminal KW_FETCH:		'fetch';   // no highlight
 terminal KW_FIELD:		'field';
 terminal KW_GROUP:		'group';
 terminal KW_HORIZONTAL: 'horizontal';
-terminal KW_HUMAN: 		'human';
+terminal KW_HUMAN: 		'human';   // not ID
 terminal KW_IDENTIFIER:	'identifier';
 terminal KW_INITIALIZE:	'initialize';   // no highlight
 terminal KW_INSTEAD:	'instead';
