@@ -99,6 +99,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.InputModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.DeleteModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.UnionMemberDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UnionDeclaration
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -1639,7 +1641,10 @@ class JslDslValidator extends AbstractJslDslValidator {
     def checkTransferEvent(TransferEventDeclaration event) {
         val TransferDeclaration transfer = event.eContainer as TransferDeclaration;
 
-        if (transfer.members.filter[m | m.getClass().equals(event.getClass())].size > 1) {
+        if (transfer.members.filter[m | m instanceof TransferEventDeclaration]
+        	.map[m | m as TransferEventDeclaration]
+        	.filter[e | e.getClass().equals(event.getClass()) && ((e.before && event.before) || (e.after && event.after) || (e.instead && event.instead))].size > 1)
+        {
             error("Duplicate event declaration in transfer '" + transfer.name + "'.",
                 JsldslPackage::eINSTANCE.transferEventDeclaration.getEStructuralFeature("ID"),
                 DUPLICATE_EVENT)
@@ -1655,6 +1660,12 @@ class JslDslValidator extends AbstractJslDslValidator {
     @Check
     def checkTransferCreate(TransferCreateDeclaration declaration) {
         val TransferDeclaration transfer = declaration.eContainer as TransferDeclaration;
+
+		if ((declaration.before || declaration.after) && declaration.parameterType !== null) {
+            error("Before and after create event handler cannot have parameter.",
+                JsldslPackage::eINSTANCE.transferCreateDeclaration_ParamaterName,
+                INVALID_DECLARATION)
+		}
 
 		if (declaration.parameterType !== null) {
 			if (declaration.parameterType.map === null ||
@@ -1702,6 +1713,12 @@ class JslDslValidator extends AbstractJslDslValidator {
 
     	if (member.many && member.required) {
             error("A collection cannot be required.",
+                JsldslPackage::eINSTANCE.entityMemberDeclaration_Required,
+                INVALID_DECLARATION)
+    	}
+    	
+    	if (member.required && member.calculated) {
+            error("A calculated member cannot be required.",
                 JsldslPackage::eINSTANCE.entityMemberDeclaration_Required,
                 INVALID_DECLARATION)
     	}
@@ -1768,6 +1785,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkMenu(ActorMenuDeclaration menu) {
+		val ActorDeclaration actor = menu.parentContainer(ActorDeclaration)
+		
+		if (!actor.human) {
+            error("A menu must defined in human actor. Use 'human' keyword in actor declaration.",
+                JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
+                INVALID_DECLARATION)
+		}
+		
 		if (menu.referenceType instanceof ViewDeclaration && menu.many) {
             error("A view type cannot be a collection. Use row type instead.",
                 JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
@@ -1824,5 +1849,26 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                e.name)
 			}
 		]
+	}
+	
+	@Check
+	def checkUnion(UnionDeclaration union) {
+		val UnionMemberDeclaration firstMember = union.members.get(0)
+
+		if (firstMember === null) return;
+		
+		for (member : union.members) {
+			if (!member.eClass.equals(firstMember.eClass)) {
+	            error("Union can contain either only views or only transfer objects.",
+	                JsldslPackage::eINSTANCE.unionDeclaration.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+			
+			if (union.members.filter[m | m.isEqual(member)].size > 1) {
+	            error("Duplicate union member:" + member.fullyQualifiedName,
+	                JsldslPackage::eINSTANCE.unionDeclaration.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+		}
 	}
 }
