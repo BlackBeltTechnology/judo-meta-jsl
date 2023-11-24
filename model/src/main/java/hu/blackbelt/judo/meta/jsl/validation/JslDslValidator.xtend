@@ -101,6 +101,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DeleteModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnionMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.GenericExpressionModifier
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -1869,6 +1870,42 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                JsldslPackage::eINSTANCE.unionDeclaration.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
 			}
+		}
+	}
+	
+	@Check
+	def checkGenericExpressionModifier(GenericExpressionModifier modifier) {
+		val declaration = modifier.declaration
+		
+		if (!declaration.many && modifier.values.size > 1) {
+            error("Modifier value cannot be a list.",
+                JsldslPackage::eINSTANCE.genericExpressionModifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+		
+		for (value: modifier.values) {
+			val TypeInfo exprTypeInfo = TypeInfo.getTargetType(value);
+			
+//			if (declaration.boolean && !exprTypeInfo.boolean) {
+//	            error("Modifier value must be boolean.",
+//	                JsldslPackage::eINSTANCE.genericExpressionModifier.getEStructuralFeature("ID"),
+//	                INVALID_DECLARATION)
+//			}
+//			else if (declaration.numeric && !exprTypeInfo.numeric) {
+//	            error("Modifier value must be numeric.",
+//	                JsldslPackage::eINSTANCE.genericExpressionModifier.getEStructuralFeature("ID"),
+//	                INVALID_DECLARATION)
+//			}
+//			else if (declaration.string && !exprTypeInfo.string) {
+//	            error("Modifier value must be string.",
+//	                JsldslPackage::eINSTANCE.genericExpressionModifier.getEStructuralFeature("ID"),
+//	                INVALID_DECLARATION)
+//			}
+//			else if (!exprTypeInfo.isCompatible(declaration.declaration)) {
+//	            error("Modifier value must be enumeration literal.",
+//	                JsldslPackage::eINSTANCE.genericExpressionModifier.getEStructuralFeature("ID"),
+//	                INVALID_DECLARATION)
+//			}
 		}
 	}
 }

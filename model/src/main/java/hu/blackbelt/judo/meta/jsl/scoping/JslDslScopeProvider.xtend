@@ -66,6 +66,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.ParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.GenericExpressionModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModifierDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -86,6 +88,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
         var IScope scope = delegateGetScope(context, ref);
         scope = this.scope_FilterByReferenceType(scope, ref);
         scope = this.scope_FilterByVisibility(scope, ref, context);
+
+		if (ref == JsldslPackage::eINSTANCE.genericExpressionModifier_Declaration) return this.scope_GenericModifier(scope, context)
 
         switch context {
             EntityRelationOppositeReferenced case ref == JsldslPackage::eINSTANCE.entityRelationOppositeReferenced_OppositeType: return context.scope_EntityRelationOppositeReferenced_oppositeType(ref)
@@ -126,11 +130,26 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 			UnionDeclaration case ref == JsldslPackage::eINSTANCE.unionDeclaration_Members: return this.scope_UnionMember(scope)
 
+//			GenericExpressionModifier case ref == JsldslPackage::eINSTANCE.genericExpressionModifier_Declaration: return context.scope_GenericExpressionModifier_declaration(ref)
+
             Navigation: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
         }
 
         return scope
     }
+
+	def scope_GenericModifier(IScope scope, EObject context) {
+        return new FilteringScope(scope, [desc | {
+            val obj = desc.EObjectOrProxy
+			val owner = context instanceof GenericExpressionModifier ? context.eContainer : context
+			
+			switch (owner) {
+				EntityFieldDeclaration: return obj instanceof ModifierDeclaration && (obj as ModifierDeclaration).targets.exists[t | t.entityField]
+			}
+
+            return false
+        }]);
+	}
 
 	def scope_UnionMember(IScope scope) {
         return new FilteringScope(scope, [desc | {
@@ -269,6 +288,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
                 AnnotationDeclaration: return true
                 TransferFieldDeclaration: return true
                 ActorMenuDeclaration: return true
+
+				ModifierDeclaration: return true
 
                 LambdaVariable: return context.parentContainer(LambdaCall).isEqual(obj.eContainer)
                 ParameterDeclaration: return context.parentContainer(ParameterDeclaration) === null && (context.isEqual(obj.eContainer) || EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)])

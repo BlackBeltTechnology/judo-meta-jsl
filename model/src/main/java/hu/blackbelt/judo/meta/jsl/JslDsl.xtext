@@ -21,6 +21,7 @@ Declaration
 	| FunctionOrQueryDeclaration
 	| LambdaDeclaration
 	| AnnotationDeclaration
+	| ModifierDeclaration
 	;
 
 Persistable 
@@ -65,7 +66,8 @@ EntityMemberDeclaration
 	  (-> KW_FIELD | -> identifier ?= KW_IDENTIFIER) required ?= KW_REQUIRED? referenceType = [Persistable | ModelName] Cardinality?
 	  Named 
 	  (LTE getterExpr = Expression)?
-	  modifiers += (DefaultModifier | EagerModifier)*
+//	  modifiers += (DefaultModifier | EagerModifier | GenericExpressionModifier)*
+	  gmodifiers += (GenericExpressionModifier)*
 	  SC
 	  | EntityRelationDeclaration
 	;
@@ -801,6 +803,8 @@ Modifier
 	| EagerModifier
 
 	| VisualModifier
+	
+//	| GenericExpressionModifier
 	;
 
 VisualModifier
@@ -940,6 +944,35 @@ EagerModifier
 	: type = KW_EAGER COLON value = BooleanLiteral
 	;
 
+GenericExpressionModifier
+	: declaration = [ModifierDeclaration | ModelName]
+	  COLON (values += Expression | LB values += Expression (COMMA values += Expression)+ RB)
+	;
+
+// expression
+
+// string literal	=> string constant
+// natural literal	=> natural constant
+
+// boolean literal	=> enum (true, false)
+// special literal	=> enum (x, y, z)
+
+// identifier
+// mime-type		=> list of string constant
+
+// view				=> meta
+// entity relation	=> meta
+// actor access		=> meta
+
+ModifierDeclaration
+//	: 'modifier' (boolean ?= KW_BOOLEAN | string ?= KW_STRING | numeric ?= KW_NUMERIC | expression ?= 'expression') Cardinality?
+	: 'modifier' constant ?= KW_CONSTANT expression = Expression Cardinality?
+	  Named
+	  KW_ON targets += AnnotationTarget* SC
+	;
+
+
+
 /****************************
  *	Literals
  ****************************/
@@ -1038,7 +1071,7 @@ JSLID: ID
 	
 	// Attributes
 	| KW_CHOICES | KW_CLAIM | KW_DETAIL | KW_EAGER | KW_ENABLED | KW_DEFAULT | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
-	| KW_IDENTITY | KW_INPUT | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_ROWS | KW_SCALE | KW_STRETCH | KW_THROW
+	| KW_IDENTITY | KW_INPUT | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_ROWS | KW_SCALE | KW_STRETCH
 	| KW_WIDTH
 	
 	// Operators
@@ -1095,6 +1128,7 @@ terminal KW_LINK:		'link';
 terminal KW_LITERAL:	'literal';
 terminal KW_MENU:		'menu';
 terminal KW_RELATION:	'relation';
+terminal KW_REQUIRED:	'required'; // not ID
 terminal KW_STATIC:		'static';  // not ID
 terminal KW_SUBMIT:		'submit';
 terminal KW_TABLE:		'table';
@@ -1131,36 +1165,35 @@ terminal KW_MIB:		'MiB';
 terminal KW_GIB:		'GiB';
 
 // Attributes
-terminal KW_CHOICES:	'choices';
-terminal KW_CLAIM:		'claim';
-terminal KW_DEFAULT:	'default';
-terminal KW_DETAIL:		'detail';
-terminal KW_ENABLED:	'enabled';
-terminal KW_FRAME:		'frame';
-terminal KW_GUARD:		'guard';
-terminal KW_HIDDEN:		'hidden';
-terminal KW_HALIGN:	    'h-align';
-terminal KW_ICON:		'icon';
-terminal KW_IDENTITY:	'identity';
-terminal KW_INPUT:		'input';
-terminal KW_LABEL:		'label';
-terminal KW_MAXFILESIZE:'max-file-size';
-terminal KW_MAXSIZE:	'max-size';
-terminal KW_MINSIZE:	'min-size';
-terminal KW_MIMETYPE:	'mime-type';
-terminal KW_OPPOSITE:	'opposite';
-terminal KW_OPPOSITEADD:'opposite-add';
-terminal KW_PRECISION:	'precision';
-terminal KW_REALM:		'realm';
-terminal KW_REDIRECT:	'redirect';
-terminal KW_REGEX:		'regex';
-terminal KW_REQUIRED:	'required';  // not ID
-terminal KW_ROWS:		'rows';
-terminal KW_SCALE:		'scale';
-terminal KW_STRETCH:	'stretch';
-terminal KW_THROW:		'throw';
-terminal KW_VALIGN:		'v-align';
-terminal KW_WIDTH:		'width';
+terminal KW_CHOICES:	'choices';			// expression
+terminal KW_CLAIM:		'claim';			// string literal
+terminal KW_DEFAULT:	'default';			// expression
+terminal KW_DETAIL:		'detail';			// view
+terminal KW_ENABLED:	'enabled';			// expression
+terminal KW_FRAME:		'frame';			// boolean literal
+terminal KW_GUARD:		'guard';			// expression
+terminal KW_HIDDEN:		'hidden';			// expression
+terminal KW_HALIGN:	    'h-align';			// special literal
+terminal KW_ICON:		'icon';				// string literal
+terminal KW_IDENTITY:	'identity';			// expression
+terminal KW_INPUT:		'input';			// boolean literal
+terminal KW_LABEL:		'label';			// string literal
+terminal KW_MAXFILESIZE:'max-file-size';	// natural literal
+terminal KW_MAXSIZE:	'max-size';			// natural literal
+terminal KW_MINSIZE:	'min-size';			// natural literal
+terminal KW_MIMETYPE:	'mime-type';		// mime-type
+terminal KW_OPPOSITE:	'opposite';			// entity relation
+terminal KW_OPPOSITEADD:'opposite-add';		// identifier
+terminal KW_PRECISION:	'precision';		// natural literal
+terminal KW_REALM:		'realm';			// string literal
+terminal KW_REDIRECT:	'redirect';			// actor access
+terminal KW_REGEX:		'regex';			// string literal
+terminal KW_ROWS:		'rows';				// natural literal
+terminal KW_SCALE:		'scale';			// natural literal
+terminal KW_STRETCH:	'stretch';			// boolean literal
+terminal KW_VALIGN:		'v-align';			// special literal
+terminal KW_WIDTH:		'width';			// natural literal
+
 
 // Operators
 terminal KW_NOT:        'not';  // not ID
