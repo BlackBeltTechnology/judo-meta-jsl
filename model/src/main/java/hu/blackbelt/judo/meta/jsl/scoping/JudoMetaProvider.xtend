@@ -59,7 +59,12 @@ class JudoMetaProvider {
     def model() '''
 		model judo::meta;
 		
-		type string JudoMetaString min-size:0 max-size:4000;
+		type boolean boolean;
+		type date date;
+		type time time;
+		type timestamp timestamp;
+		type numeric integer precision:9 scale:0;
+		type string string min-size:0 max-size:4000;
 		
 		enum BaseType {
 			string = 1;
@@ -67,7 +72,7 @@ class JudoMetaProvider {
 		}
 		
 		entity Named {
-			field required JudoMetaString name;
+			field required string name;
 		}
 		
 		entity Type extends Named {

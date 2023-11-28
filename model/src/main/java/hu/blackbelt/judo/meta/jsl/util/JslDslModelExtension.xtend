@@ -66,6 +66,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ClassDeclaration
 import java.util.Map
 import java.util.Set
 import hu.blackbelt.judo.meta.jsl.jsldsl.RelationsModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -721,5 +722,9 @@ class JslDslModelExtension {
         } else {
             return named.name
         }
+    }
+
+    def boolean isJudoMeta(EObject object) {
+    	return !object.eIsProxy && object.parentContainer(ModelDeclaration).name.equals("judo::meta")
     }
 }

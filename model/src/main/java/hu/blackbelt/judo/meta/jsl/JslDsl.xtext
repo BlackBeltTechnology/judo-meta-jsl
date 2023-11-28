@@ -484,14 +484,6 @@ EnumLiteral
     ;
 
 /****************************
- *	Meta
- ***************************/
-
-MetaFilter
-	: Navigation
-	;
-
-/****************************
  *	Expression
  ***************************/
 
@@ -733,6 +725,13 @@ NavigationTarget
 //	: KW_THROW COLON value = CreateError
 //	;
 
+/****************************
+ *	MetaScope
+ ****************************/
+
+MetaScope
+	: DiagramDeclaration
+	;
 
 /****************************
  *	Diagrams
@@ -755,7 +754,7 @@ DiagramGroupDeclaration returns DiagramDeclaration
 	;
 
 DiagramShowDeclaration
-	: 'show' filter = Navigation
+	: 'show' filter = Expression
 	   modifiers += (FieldsModifier | RelationsModifier)*
 	   SC
 	;
