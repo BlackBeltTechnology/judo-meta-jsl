@@ -438,35 +438,35 @@ class JslDslModelExtension {
         members.filter[m | m instanceof DiagramShowDeclaration].map[d | d as DiagramShowDeclaration].toList
     }
 
-	def Collection<ClassDeclaration> filterClasses(DiagramShowDeclaration show, ModelDeclaration model, EClassifier classifier) {
-    	var Collection<ClassDeclaration> result = new ArrayList<ClassDeclaration>;
-		val FilterModifier filter = show.getModifier(JsldslPackage::eINSTANCE.filterModifier) as FilterModifier;
-
-		val String pattern = filter !== null ? "^" + filter.value.value.toString.toLowerCase.replace("*", "([a-z0-9]*)").replace("?", "([a-z0-9])") + "$" : "^([a-z0-9:]*)$";
-
-		for (cls: model.declarations
-						.filter[c | c.eClass === classifier]
-						.filter[c | c.fullyQualifiedName.toString('::').toLowerCase.matches(pattern) || c.name.toLowerCase.matches(pattern)]
-						.map[c | c as ClassDeclaration].toList)
-		{
-			result.add(cls);
-		}
-		
-		for (i: model.imports) {
-			val ModelDeclaration m = i.model;
-			val String alias = i.alias !== null ? i.alias + "::" : ""
-			
-			for (cls: m.declarations
-							.filter[c | c.eClass === classifier]
-							.filter[c | c.fullyQualifiedName.toString('::').toLowerCase.matches(pattern) || (alias + c.name).toLowerCase.matches(pattern)]
-							.map[c | c as ClassDeclaration].toList)
-			{
-				result.add(cls);
-			}
-		}
-		
-		return result
-	}
+//	def Collection<ClassDeclaration> filterClasses(DiagramShowDeclaration show, ModelDeclaration model, EClassifier classifier) {
+//    	var Collection<ClassDeclaration> result = new ArrayList<ClassDeclaration>;
+//		val FilterModifier filter = show.getModifier(JsldslPackage::eINSTANCE.filterModifier) as FilterModifier;
+//
+//		val String pattern = filter !== null ? "^" + filter.value.value.toString.toLowerCase.replace("*", "([a-z0-9]*)").replace("?", "([a-z0-9])") + "$" : "^([a-z0-9:]*)$";
+//
+//		for (cls: model.declarations
+//						.filter[c | c.eClass === classifier]
+//						.filter[c | c.fullyQualifiedName.toString('::').toLowerCase.matches(pattern) || c.name.toLowerCase.matches(pattern)]
+//						.map[c | c as ClassDeclaration].toList)
+//		{
+//			result.add(cls);
+//		}
+//		
+//		for (i: model.imports) {
+//			val ModelDeclaration m = i.model;
+//			val String alias = i.alias !== null ? i.alias + "::" : ""
+//			
+//			for (cls: m.declarations
+//							.filter[c | c.eClass === classifier]
+//							.filter[c | c.fullyQualifiedName.toString('::').toLowerCase.matches(pattern) || (alias + c.name).toLowerCase.matches(pattern)]
+//							.map[c | c as ClassDeclaration].toList)
+//			{
+//				result.add(cls);
+//			}
+//		}
+//		
+//		return result
+//	}
 
     def Collection<ClassDeclaration> showClassDeclarations(DiagramShowDeclaration show, ModelDeclaration model) {
     	var Collection<ClassDeclaration> result = new ArrayList<ClassDeclaration>;

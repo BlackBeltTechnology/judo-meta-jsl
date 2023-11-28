@@ -59,7 +59,7 @@ public class JslParser {
 
     private static final Logger log = LoggerFactory.getLogger(JslParser.class);
 
-    public static Set<String> INTERNAL_IMPORTS = ImmutableSet.of("judo::types", "judo::functions");
+    public static Set<String> INTERNAL_IMPORTS = ImmutableSet.of("judo::types", "judo::functions", "judo::meta");
 
     public static final String JSLSCRIPT_CONTENT_TYPE = "jsl";
     private static Injector injectorInstance;

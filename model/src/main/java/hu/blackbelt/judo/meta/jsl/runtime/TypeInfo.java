@@ -10,6 +10,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation;
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral;
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.DateLiteral;
+import hu.blackbelt.judo.meta.jsl.jsldsl.DiagramShowDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration;
@@ -160,7 +161,7 @@ public class TypeInfo {
 
 	private TypeInfo(Persistable type, boolean isCollection, boolean isDeclarartion) {
 		this.modifier = isDeclarartion ? TypeModifier.DECLARATION : this.modifier;
-
+		
 		if (type instanceof DataTypeDeclaration) {
 			this.type = type;
 			this.baseType = getBaseType(((DataTypeDeclaration) type).getPrimitive());
@@ -544,18 +545,22 @@ public class TypeInfo {
 	}
 	
 	public static TypeInfo getTargetType(Self self) {
-		TypeInfo typeInfo = new TypeInfo(modelExtension.parentContainer(self, EntityDeclaration.class), false, false);
-		
-		// probably we are in a query
-		if (!typeInfo.isEntity()) {
-			QueryDeclaration query = modelExtension.parentContainer(self, QueryDeclaration.class);
-			
-			if (query != null) {
-				typeInfo = new TypeInfo(query.getEntity(), false, false);
-			}
+		EntityDeclaration entity = modelExtension.parentContainer(self, EntityDeclaration.class);
+		if (entity != null) {
+			return new TypeInfo(entity, false, false);
 		}
 		
-		return typeInfo;
+		QueryDeclaration query = modelExtension.parentContainer(self, QueryDeclaration.class);
+		if (query != null) {
+			return new TypeInfo(query.getEntity(), false, false);
+		}
+
+		DiagramShowDeclaration show = modelExtension.parentContainer(self, DiagramShowDeclaration.class);
+		if (show != null) {
+			return new TypeInfo(show.getDeclaration() , false, false);
+		}
+		
+		return null;
 	}
 	
 	private static TypeInfo getTargetType(NavigationTarget navigationTarget) {

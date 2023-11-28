@@ -217,10 +217,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     def scope_FilterByMetaScope(IScope scope, EReference ref, EObject context) {
 		return new FilteringScope(scope, [desc | {
 			val obj = desc.EObjectOrProxy
-
-			if (context instanceof EntityDeclaration) return true
 			
-			if (context.parentContainer(MetaScope) !== null) {
+			if (context.parentContainer(MetaScope) !== null || context.isJudoMeta) {
                 switch obj {
                 	EntityDeclaration: return obj.isJudoMeta
                 	PrimitiveDeclaration: return obj.isJudoMeta

@@ -754,8 +754,8 @@ DiagramGroupDeclaration returns DiagramDeclaration
 	;
 
 DiagramShowDeclaration
-	: 'show' filter = Expression
-	   modifiers += (FieldsModifier | RelationsModifier)*
+	: 'show' declaration = [EntityDeclaration | ModelName]
+	   modifiers += (FilterModifier | FieldsModifier | RelationsModifier)*
 	   SC
 	;
 
@@ -955,7 +955,7 @@ EagerModifier
 	;
 
 FilterModifier
-	: type = KW_FILTER COLON value = StringLiteral
+	: type = KW_FILTER COLON value = Expression
 	;
 
 FieldsModifier
