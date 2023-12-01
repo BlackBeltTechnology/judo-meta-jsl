@@ -99,6 +99,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.InputModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.DeleteModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.MetaScope
+import hu.blackbelt.judo.meta.jsl.jsldsl.FilterModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.DiagramShowDeclaration
+import java.util.stream.Stream
+import java.util.Collection
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -1824,5 +1829,21 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                e.name)
 			}
 		]
+	}
+	
+	@Check
+	def testEvalMeta(FilterModifier filter) {
+		val DiagramShowDeclaration show = filter.eContainer as DiagramShowDeclaration
+		val ModelDeclaration m = show.parentContainer(ModelDeclaration);
+		
+		var Collection<ModelDeclaration> models = m.modelDeclarations
+		
+		for (mx: models) {
+			mx.declarations.stream
+				.forEach[d |
+					if (d instanceof EntityDeclaration)
+						System.out.println("meta expression result:" + filter.value.evalMeta(d))
+				]
+		}
 	}
 }

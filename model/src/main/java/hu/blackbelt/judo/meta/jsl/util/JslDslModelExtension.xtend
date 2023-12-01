@@ -67,6 +67,32 @@ import java.util.Map
 import java.util.Set
 import hu.blackbelt.judo.meta.jsl.jsldsl.RelationsModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.BinaryOperation
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBase
+import hu.blackbelt.judo.meta.jsl.jsldsl.Literal
+import hu.blackbelt.judo.meta.jsl.jsldsl.NumberLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.IntegerLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.DecimalLiteral
+import java.math.BigDecimal
+import hu.blackbelt.judo.meta.jsl.jsldsl.UnaryOperation
+import hu.blackbelt.judo.meta.jsl.jsldsl.Parentheses
+import hu.blackbelt.judo.meta.jsl.jsldsl.Self
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryCall
+import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryDeclaration
+import static org.mockito.Mockito.inOrder
+import org.eclipse.emf.ecore.EClass
+import org.eclipse.emf.ecore.EStructuralFeature
+import org.eclipse.emf.ecore.EReference
+import org.eclipse.emf.common.util.EList
+import org.eclipse.emf.ecore.util.EObjectContainmentEList
+import org.eclipse.emf.ecore.util.EObjectEList
+import org.eclipse.emf.common.util.UniqueEList
+import java.util.Arrays
+import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaCall
 
 @Singleton
 class JslDslModelExtension {
@@ -361,6 +387,15 @@ class JslDslModelExtension {
         members.filter[m | m instanceof EntityRelationDeclaration && m.calculated].map[d | d as EntityRelationDeclaration].toList
     }
 
+    def Collection<ModelDeclaration> modelDeclarations(ModelDeclaration it) {
+    	var Collection<ModelDeclaration> result = new ArrayList<ModelDeclaration>()
+    	
+    	for (i: it.imports) result.add(i.model)
+    	result.add(it)
+
+    	return result
+    }
+
     def Collection<EntityDeclaration> entityDeclarations(ModelDeclaration it) {
         declarations.filter[d | d instanceof EntityDeclaration].map[d | d as EntityDeclaration].toList
     }
@@ -598,6 +633,10 @@ class JslDslModelExtension {
         model.declarations.filter[d | d instanceof QueryDeclaration].map[e | e as QueryDeclaration].toList
     }
 
+    def Collection<EntityDeclaration> allEntityDeclarations(ModelDeclaration model) {
+        model.declarations.filter[d | d instanceof EntityDeclaration].map[e | e as EntityDeclaration].toList
+    }
+
     def Collection<ActorDeclaration> allActorDeclarations(ModelDeclaration model) {
         model.declarations.filter[d | d instanceof ActorDeclaration].map[e | e as ActorDeclaration].toList
     }
@@ -727,4 +766,230 @@ class JslDslModelExtension {
     def boolean isJudoMeta(EObject object) {
     	return !object.eIsProxy && object.parentContainer(ModelDeclaration).name.equals("judo::meta")
     }
+
+/******************
+ * META evaluation
+ ******************/
+
+	def Object evalMeta(Expression it, Object base) {
+		switch it {
+			BinaryOperation: return it.evalMeta(base)
+			UnaryOperation: return it.evalMeta(base)
+			Navigation: return it.evalMeta(base)
+		}
+	}
+
+	def Object evalMeta(BinaryOperation it, Object base) {
+		val Object leftObject = it.leftOperand.evalMeta(base)
+		val Object rightObject = it.rightOperand.evalMeta(base)
+		
+		if (leftObject === null || rightObject === null) return null
+		
+		if (leftObject instanceof Boolean && rightObject instanceof Boolean) {
+			val left = leftObject as Boolean
+			val right = rightObject as Boolean
+
+			switch it.operator.toLowerCase {
+				case "==": return left == right
+				case "!=": return left != right
+				case "and": return left && right
+				case "or": return left || right
+				case "xor": return (left && !right) || (!left && right)
+				case "implies": return left ? right : true
+			}
+		}
+		
+		if (leftObject instanceof BigDecimal && rightObject instanceof BigDecimal) {
+			val left = leftObject as BigDecimal
+			val right = rightObject as BigDecimal
+
+			switch it.operator.toLowerCase {
+				case "==": return left == right
+				case "!=": return left != right
+				case "<": return left < right
+				case ">": return left > right
+				case "<=": return left <= right
+				case ">=": return left >= right
+
+				case "*": return left.multiply(right)
+				case "/": return left.divide(right)
+				case "+": return left.add(right)
+				case "-": return left.subtract(right)
+				case "div": return new BigDecimal(left.toBigInteger.divide(right.toBigInteger))
+				case "mod": return new BigDecimal(left.toBigInteger.mod(right.toBigInteger))
+				case "^": return left.pow(right.intValue)
+			}
+		}
+
+		if (leftObject instanceof String && rightObject instanceof String) {
+			val left = leftObject as String
+			val right = rightObject as String
+
+			switch it.operator.toLowerCase {
+				case "==": return left.equals(right)
+				case "!=": return !left.equals(right)
+				case "<": return left < right
+				case ">": return left > right
+				case "<=": return left <= right
+				case ">=": return left >= right
+			}
+		}
+		
+		return true
+	}
+
+	def Object evalMeta(UnaryOperation it, Object base) {
+		return !(it.operand.evalMeta(base) as Boolean)
+	}
+
+	def Object evalMeta(Navigation it, Object base) {
+		if (base instanceof Set) {
+			var Set<Object> result = new HashSet<Object>
+			for (b: base) {
+				var tmp = it.evalMeta(b)
+				tmp instanceof Set ? result.addAll(tmp) : result.add(tmp)
+			}
+			return result
+		}
+
+		var Object result = it.base.evalMeta(base)
+
+		for (feature: it.features) {
+			result = feature.evalMeta(result)
+		}
+
+		return result
+	}
+
+	def Object evalMeta(Feature it, Object base) {
+		if (it instanceof MemberReference) {
+			if (base instanceof Set) {
+				var Set<Object> result = new HashSet<Object>
+				for (b: base) {
+					var tmp = it.evalMeta(b)
+					tmp instanceof Set ? result.addAll(tmp) : result.add(tmp)
+				}
+				return result
+			}
+
+			return it.member.evalMeta(base)
+		}
+
+		if (it instanceof FunctionOrQueryCall) {
+			return it.evalMeta(base)
+		}
+		
+		if (it instanceof LambdaCall) {
+			return it.evalMeta(base)
+		}
+	}
+
+	def Object evalMeta(LambdaCall it, Object base) {
+		if (base === null) return null
+
+		switch it.declaration.name {
+			case "filter": return (base as Collection<Object>).filter[b | it.lambdaExpression.evalMeta(b) as Boolean].toSet
+		}
+	}
+
+	def Object evalMeta(FunctionOrQueryCall it, Object base) {
+		switch it.declaration.name {
+			case "isDefined": return base !== null
+			case "isUndefined": return base === null
+			case "orElse": return base !== null ? base : it.arguments.get(0).expression.evalMeta(base)
+		}
+		
+		if (base === null) return null
+		 
+		switch it.declaration.name {
+			case "asString": return base.toString
+			
+			case "size": return new BigDecimal(base instanceof String ? base.length : (base as Collection<EObject>).size)
+			case "any": return (base as Collection<EObject>).head
+			case "all": return base
+			
+			case "matches": return (base as String).matches(it.arguments.get(0).expression.evalMeta(base).toString)
+			case "left": return (base as String).substring(0, Math.min((base as String).length(), Math.max(0, (it.arguments.get(0).expression.evalMeta(base) as BigDecimal).intValue)))
+			case "right": return (base as String).substring((base as String).length() - Math.min((base as String).length(), Math.max(0, (it.arguments.get(0).expression.evalMeta(base) as BigDecimal).intValue)))
+			case "position": return new BigDecimal((base as String).indexOf(it.arguments.get(0).expression.evalMeta(base).toString) + 1)
+			case "lower": return (base as String).toLowerCase
+			case "upper": return (base as String).toUpperCase
+			case "trim": return (base as String).trim
+			case "ltrim": return (base as String).replaceAll("^\\s+", "")
+			case "rtrim": return (base as String).replaceAll("\\s+$", "")
+		}
+	}
+
+	def Object evalMeta(FunctionOrQueryDeclaration it, Object base) {
+		switch it {
+			FunctionDeclaration: return it.evalMeta(base)
+		}
+	}
+
+	def Object evalMeta(NavigationTarget it, Object base) {
+		switch it {
+			EntityFieldDeclaration: return it.evalMeta(base)
+			EntityRelationDeclaration: return it.evalMeta(base)
+		}
+	}
+	
+	def Object evalMeta(EntityFieldDeclaration it, Object base) {
+		if (base === null) return null
+		
+		if (it.name.equals("name")) {
+			var EObject eobject = base as EObject
+			return eobject.eGet(eobject.eClass.EAllAttributes.findFirst[a | a.name.equals(it.name)])
+		}
+
+		if (it.name.equals("type")) {
+			switch base {
+				EntityFieldDeclaration: return "Type#" + (base.referenceType as PrimitiveDeclaration).name.toLowerCase
+				TransferFieldDeclaration: return "Type#" + (base.referenceType as PrimitiveDeclaration).name.toLowerCase
+			}
+		}
+	}
+
+	def Object evalMeta(EntityRelationDeclaration it, Object base) {
+		if (base === null) return null
+		
+		if (it.name.equals("target")) {
+			switch base {
+				EntityRelationDeclaration: return base.referenceType
+			}
+		}
+		
+		if (it.name.equals("fields")) {
+			switch base {
+				EntityDeclaration: return base.members.filter[m | m instanceof EntityFieldDeclaration].toSet
+				TransferDeclaration: return base.members.filter[m | m instanceof TransferFieldDeclaration].toSet
+			}
+		}
+
+		if (it.name.equals("relations")) {
+			switch base {
+				EntityDeclaration: return base.members.filter[m | m instanceof EntityRelationDeclaration].toSet
+				TransferDeclaration: return base.members.filter[m | m instanceof TransferRelationDeclaration].toSet
+			}
+		}
+	}
+
+	def Object evalMeta(NavigationBase it, Object base) {
+		switch it {
+			Literal: return it.evalMeta
+			Parentheses: return it.expression.evalMeta(base)
+			Self: return base
+		}
+		
+		return base
+	}
+
+	def Object evalMeta(Literal it) {
+		switch it {
+			BooleanLiteral: return it.isTrue
+			StringLiteral: return it.value
+			IntegerLiteral: return new BigDecimal(it.minus ? it.value.negate : it.value)
+			DecimalLiteral: return it.minus ? it.value.negate : it.value
+			EnumLiteralReference: return it.enumDeclaration.name + "#" + it.enumLiteral.name
+		}
+	}
 }

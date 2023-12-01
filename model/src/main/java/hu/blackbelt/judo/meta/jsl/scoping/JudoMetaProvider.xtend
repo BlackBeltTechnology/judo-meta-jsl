@@ -59,52 +59,61 @@ class JudoMetaProvider {
     def model() '''
 		model judo::meta;
 		
-		type boolean boolean;
-		type date date;
-		type time time;
-		type timestamp timestamp;
-		type numeric integer precision:9 scale:0;
-		type string string min-size:0 max-size:4000;
+		type string String min-size:0 max-size:4000;
 		
-		enum BaseType {
+		enum Type {
 			string = 1;
 			boolean = 2;
+			date = 3;
+			time = 4;
+			timestamp = 5;
+			numeric = 6;
+			`entity` = 7;
 		}
 		
-		entity Named {
-			field required string name;
+		enum TransferKind {
+			simple = 1;
+			`view` = 2;
+			`row` = 3;
+			`column` = 4;
+			`actor` = 5;
 		}
 		
-		entity Type extends Named {
-			field BaseType base;
+		entity EntityField {
+			field String name;
+			field Type type;
+			relation Entity target;
 		}
 		
-		entity Field extends Named {
+		entity EntityRelation {
+			field String name;
+			relation Entity target;
+		}
+		
+		entity Entity {
+			field String name;
+			relation Entity[] supertypes; 
+			relation Entity[] subtypes;
+			relation EntityField[] fields;
+			relation EntityRelation[] relations;
+		}
+		
+		entity TransferField {
+			field String name;
 			field Type type;
 		}
 		
-		entity Class extends Named {
-			field Field[] fields;
-			field Relation[] relations;
+		entity TransferRelation {
+			field String name;
+			relation Transfer target;
 		}
 		
-		entity Relation extends Named {
-			relation required Class reference;
-		}
-		
-		entity Entity extends Class {
-			relation Entity[] supertypes;
-			relation Entity[] subtypes;
-		}
-		
-		entity Transfer extends Class {
+		entity Transfer {
+			field String name;
+			field TransferKind kind;
 			relation Entity map;
-		}
-		
-		entity View extends Transfer {
-		}
-		
-		entity Actor extends Transfer {
+			relation TransferField[] fields;
+			relation TransferRelation[] relations;
 		}
     '''
 
