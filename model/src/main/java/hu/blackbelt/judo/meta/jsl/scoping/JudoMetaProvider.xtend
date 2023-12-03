@@ -68,11 +68,12 @@ class JudoMetaProvider {
 			time = 4;
 			timestamp = 5;
 			numeric = 6;
-			`entity` = 7;
+			`enum` = 7
+			`entity` = 8;
 		}
 		
 		enum TransferKind {
-			simple = 1;
+			`transfer` = 1;
 			`view` = 2;
 			`row` = 3;
 			`column` = 4;
@@ -92,8 +93,7 @@ class JudoMetaProvider {
 		
 		entity Entity {
 			field String name;
-			relation Entity[] supertypes; 
-			relation Entity[] subtypes;
+			relation Entity[] extends; 
 			relation EntityField[] fields;
 			relation EntityRelation[] relations;
 		}
@@ -114,6 +114,12 @@ class JudoMetaProvider {
 			relation Entity map;
 			relation TransferField[] fields;
 			relation TransferRelation[] relations;
+		}
+
+		entity Model {
+			field String name;
+			relation Entity[] entities; 	
+			relation Transfer[] transfers; 	
 		}
     '''
 

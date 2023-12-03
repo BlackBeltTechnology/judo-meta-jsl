@@ -93,6 +93,9 @@ import java.util.Arrays
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumLiteralReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaCall
+import hu.blackbelt.judo.meta.jsl.jsldsl.RowColumnDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
 
 @Singleton
 class JslDslModelExtension {
@@ -445,7 +448,8 @@ class JslDslModelExtension {
     }
     
     def Collection<TransferDeclaration> transferDeclarations(ModelDeclaration it) {
-        declarations.filter[d | d instanceof TransferDeclaration && !(d instanceof ActorDeclaration)].map[d | d as TransferDeclaration].toList
+//        declarations.filter[d | d instanceof TransferDeclaration && !(d instanceof ActorDeclaration)].map[d | d as TransferDeclaration].toList
+        declarations.filter[d | d instanceof TransferDeclaration].map[d | d as TransferDeclaration].toList
     }
 
     def Collection<ViewDeclaration> viewDeclarations(ModelDeclaration it) {
@@ -635,6 +639,10 @@ class JslDslModelExtension {
 
     def Collection<EntityDeclaration> allEntityDeclarations(ModelDeclaration model) {
         model.declarations.filter[d | d instanceof EntityDeclaration].map[e | e as EntityDeclaration].toList
+    }
+
+    def Collection<TransferDeclaration> allTransferDeclarations(ModelDeclaration model) {
+        model.declarations.filter[d | d instanceof TransferDeclaration].map[e | e as TransferDeclaration].toList
     }
 
     def Collection<ActorDeclaration> allActorDeclarations(ModelDeclaration model) {
@@ -847,7 +855,7 @@ class JslDslModelExtension {
 			var Set<Object> result = new HashSet<Object>
 			for (b: base) {
 				var tmp = it.evalMeta(b)
-				tmp instanceof Set ? result.addAll(tmp) : result.add(tmp)
+				tmp instanceof Set ? result.addAll(tmp) : if (tmp !== null) result.add(tmp)
 			}
 			return result
 		}
@@ -862,25 +870,20 @@ class JslDslModelExtension {
 	}
 
 	def Object evalMeta(Feature it, Object base) {
-		if (it instanceof MemberReference) {
-			if (base instanceof Set) {
-				var Set<Object> result = new HashSet<Object>
-				for (b: base) {
-					var tmp = it.evalMeta(b)
-					tmp instanceof Set ? result.addAll(tmp) : result.add(tmp)
-				}
-				return result
-			}
-
-			return it.member.evalMeta(base)
-		}
-
-		if (it instanceof FunctionOrQueryCall) {
-			return it.evalMeta(base)
-		}
+		if (it instanceof FunctionOrQueryCall) return it.evalMeta(base)
 		
-		if (it instanceof LambdaCall) {
-			return it.evalMeta(base)
+		if (base instanceof Set) {
+			var Set<Object> result = new HashSet<Object>
+			for (b: base) {
+				var tmp = it.evalMeta(b)
+				tmp instanceof Set ? result.addAll(tmp) : if (tmp !== null) result.add(tmp)
+			}
+			return result
+		}
+
+		switch it {
+			MemberReference: return it.member.evalMeta(base)
+			LambdaCall: it.evalMeta(base)
 		}
 	}
 
@@ -888,7 +891,7 @@ class JslDslModelExtension {
 		if (base === null) return null
 
 		switch it.declaration.name {
-			case "filter": return (base as Collection<Object>).filter[b | it.lambdaExpression.evalMeta(b) as Boolean].toSet
+			case "filter": return it.lambdaExpression.evalMeta(base) as Boolean ? base : null
 		}
 	}
 
@@ -900,7 +903,15 @@ class JslDslModelExtension {
 		}
 		
 		if (base === null) return null
-		 
+
+		if (base instanceof EntityDeclaration) {
+			if (base.name.toLowerCase.equals("entity") && it.declaration.name.equals("any")) return it.parentContainer(ModelDeclaration).entityDeclarations.head
+			if (base.name.toLowerCase.equals("entity") && it.declaration.name.equals("all")) return it.parentContainer(ModelDeclaration).entityDeclarations.toSet
+
+			if (base.name.toLowerCase.equals("transfer") && it.declaration.name.equals("any")) return it.parentContainer(ModelDeclaration).transferDeclarations.head
+			if (base.name.toLowerCase.equals("transfer") && it.declaration.name.equals("all")) return it.parentContainer(ModelDeclaration).transferDeclarations.toSet
+		}
+		
 		switch it.declaration.name {
 			case "asString": return base.toString
 			
@@ -917,7 +928,19 @@ class JslDslModelExtension {
 			case "trim": return (base as String).trim
 			case "ltrim": return (base as String).replaceAll("^\\s+", "")
 			case "rtrim": return (base as String).replaceAll("\\s+$", "")
+			
+			case "container": return (base as EObject).eContainer.equalMeta(it.arguments.get(0).expression.evalMeta(null) as EntityDeclaration) ? (base as EObject).eContainer : null
 		}
+	}
+
+	def boolean equalMeta(EObject object, EntityDeclaration metaObject) {
+		switch object {
+			ModelDeclaration: return metaObject.name.equalsIgnoreCase("model")
+			EntityDeclaration: return metaObject.name.equalsIgnoreCase("entity")
+			TransferDeclaration: return metaObject.name.equalsIgnoreCase("transfer")
+		}
+
+		return false
 	}
 
 	def Object evalMeta(FunctionOrQueryDeclaration it, Object base) {
@@ -935,41 +958,42 @@ class JslDslModelExtension {
 	
 	def Object evalMeta(EntityFieldDeclaration it, Object base) {
 		if (base === null) return null
-		
-		if (it.name.equals("name")) {
-			var EObject eobject = base as EObject
-			return eobject.eGet(eobject.eClass.EAllAttributes.findFirst[a | a.name.equals(it.name)])
-		}
 
-		if (it.name.equals("type")) {
-			switch base {
-				EntityFieldDeclaration: return "Type#" + (base.referenceType as PrimitiveDeclaration).name.toLowerCase
-				TransferFieldDeclaration: return "Type#" + (base.referenceType as PrimitiveDeclaration).name.toLowerCase
-			}
+		if (it.name.equals("name")) return (base as EObject).eGet((base as EObject).eClass.EAllAttributes.findFirst[a | a.name.equals(it.name)])
+
+		switch base {
+			EntityFieldDeclaration case it.name.equals("type"):
+				return "Type#" + (base.referenceType instanceof DataTypeDeclaration ? (base.referenceType as DataTypeDeclaration).primitive.toLowerCase : "enum")
+			EntityFieldDeclaration case it.name.equals("target"): return base.referenceType
+
+			TransferFieldDeclaration case it.name.equals("type"):
+				return "Type#" + (base.referenceType instanceof DataTypeDeclaration ? (base.referenceType as DataTypeDeclaration).primitive.toLowerCase : "enum")
+			TransferFieldDeclaration case it.name.equals("target"): return base.referenceType
+
+			TransferDeclaration case it.name.equals("kind") && base instanceof ActorDeclaration: return "TransferKind#actor"
+			TransferDeclaration case it.name.equals("kind") && base instanceof ViewDeclaration: return "TransferKind#view"
+			TransferDeclaration case it.name.equals("kind") && base instanceof RowDeclaration: return "TransferKind#row"
+			TransferDeclaration case it.name.equals("kind") && base instanceof RowColumnDeclaration: return "TransferKind#column"
+			TransferDeclaration case it.name.equals("kind"): return "TransferKind#transfer"
 		}
 	}
 
 	def Object evalMeta(EntityRelationDeclaration it, Object base) {
 		if (base === null) return null
-		
-		if (it.name.equals("target")) {
-			switch base {
-				EntityRelationDeclaration: return base.referenceType
-			}
-		}
-		
-		if (it.name.equals("fields")) {
-			switch base {
-				EntityDeclaration: return base.members.filter[m | m instanceof EntityFieldDeclaration].toSet
-				TransferDeclaration: return base.members.filter[m | m instanceof TransferFieldDeclaration].toSet
-			}
-		}
 
-		if (it.name.equals("relations")) {
-			switch base {
-				EntityDeclaration: return base.members.filter[m | m instanceof EntityRelationDeclaration].toSet
-				TransferDeclaration: return base.members.filter[m | m instanceof TransferRelationDeclaration].toSet
-			}
+		switch base {
+			EntityDeclaration case it.name.equals("fields"): return base.members.filter[m | m instanceof EntityFieldDeclaration].toSet
+			EntityDeclaration case it.name.equals("relations"): return base.members.filter[m | m instanceof EntityRelationDeclaration].toSet
+			EntityDeclaration case it.name.equals("extends"): return base.extends.toSet
+			EntityRelationDeclaration case it.name.equals("target"): return base.referenceType
+
+			TransferDeclaration case it.name.equals("fields"): return base.members.filter[m | m instanceof TransferFieldDeclaration].toSet
+			TransferDeclaration case it.name.equals("relations"): return base.members.filter[m | m instanceof TransferRelationDeclaration].toSet
+			TransferDeclaration case it.name.equals("map"): return base.map.entity
+			TransferRelationDeclaration case it.name.equals("target"): return base.referenceType
+			
+			ModelDeclaration case it.name.equals("entities"): return base.allEntityDeclarations.toSet
+			ModelDeclaration case it.name.equals("transfers"): return base.allTransferDeclarations.toSet
 		}
 	}
 
@@ -978,9 +1002,17 @@ class JslDslModelExtension {
 			Literal: return it.evalMeta
 			Parentheses: return it.expression.evalMeta(base)
 			Self: return base
+			NavigationBaseDeclarationReference: return it.reference.evalMeta(base)
 		}
 		
 		return base
+	}
+
+	def Object evalMeta(NavigationBaseDeclaration it, Object base) {
+		switch (it) {
+			EntityDeclaration: return it
+			LambdaVariable: return base
+		}
 	}
 
 	def Object evalMeta(Literal it) {

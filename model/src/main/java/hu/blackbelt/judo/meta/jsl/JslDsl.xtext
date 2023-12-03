@@ -480,7 +480,7 @@ EnumDeclaration
 
 EnumLiteral
     : annotations += AnnotationMark*
-      Named -> ASSIGN value = NaturalNumber SC
+      name = EnumLiteralName -> ASSIGN value = NaturalNumber SC
     ;
 
 /****************************
@@ -1034,6 +1034,7 @@ NaturalNumber returns ecore::EBigInteger
 
 EnumLiteralName
 	: JSLID
+//	| KW_ACTOR | KW_ENTITY | KW_TRANSFER | KW_VIEW
     ;
 
 LocalName
@@ -1048,9 +1049,9 @@ ModelName
 
 JSLID: ID
 
-//	// Declarations not allowed to use
+	// Declarations not allowed to use
 //	| KW_ACTOR | KW_ANNOTATION | KW_ENTITY | KW_ENUM | KW_ERROR |  KW_IMPORT
-//  | KW_MODEL | KW_QUERY | KW_ROW | KW_TRANSFER | KW_TYPE | KW_VIEW
+//	| KW_MODEL | KW_QUERY | KW_ROW | KW_TRANSFER | KW_TYPE | KW_VIEW
 	| KW_TYPE
 
 
