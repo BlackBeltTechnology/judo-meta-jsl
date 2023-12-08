@@ -6,7 +6,7 @@ export const theme = 'vs-dark';
 export const modelFileName = 'example.jsl';
 export const websocketPort = 30001;
 export const languageConfigurationPath = './grammar/language-configuration.json';
-export const grammarPath = './grammar/jsl.tmLanguage.json';
+export const grammarPath = './grammar/jsl.tmLanguage';
 export const grammars: { [scopeName: string]: JSLScopeNameInfo } = {
   'source.jsl': {
     language: languageId,
