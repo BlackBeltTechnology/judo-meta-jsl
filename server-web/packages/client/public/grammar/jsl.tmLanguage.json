@@ -1,0 +1,2221 @@
+{
+  "fileTypes": [
+    "jsl"
+  ],
+  "keyEquivalent": "^~J",
+  "name": "JSL",
+  "patterns": [
+    {
+      "include": "#code"
+    }
+  ],
+  "repository": {
+    "code": {
+      "patterns": [
+        {
+          "include": "#entity-block"
+        },
+        {
+          "include": "#transfer-block"
+        },
+        {
+          "include": "#view-block"
+        },
+        {
+          "include": "#row-block"
+        },
+        {
+          "include": "#actor-block"
+        },
+        {
+          "include": "#enum-block"
+        },
+        {
+          "include": "#model"
+        },
+        {
+          "include": "#import"
+        },
+        {
+          "include": "#annotations"
+        },
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#keywords"
+        },
+        {
+          "include": "#types"
+        },
+        {
+          "include": "#membersNotInEntity"
+        },
+        {
+          "include": "#lambdaExpression"
+        },
+        {
+          "include": "#literals"
+        },
+        {
+          "include": "#terminal-signal"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "match": "\\b(self)\\b",
+          "name": "keyword.control.jsl"
+        },
+        {
+          "match": "\\?|:",
+          "name": "keyword.control.ternary.jsl"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "match": "==|!=|<=|>=|<|>",
+          "name": "keyword.operator.comparison.jsl"
+        },
+        {
+          "match": "=",
+          "name": "keyword.operator.assignment.jsl"
+        },
+        {
+          "match": "\\-|\\+|\\*|\\/|div|mod",
+          "name": "keyword.operator.arithmetic.jsl"
+        },
+        {
+          "match": "not|and|or|implies",
+          "name": "keyword.operator.logical.jsl"
+        },
+        {
+          "match": ";",
+          "name": "keyword.control.jsl"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "begin": "\\s*(type)\\b\\s*",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.class.jsl"
+            }
+          },
+          "end": ";",
+          "endCaptures": {
+            "0": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "name": "meta.type.typeDeclaration.jsl",
+          "patterns": [
+            {
+              "include": "#primitives"
+            },
+            {
+              "include": "#parameter-pair"
+            }
+          ]
+        }
+      ]
+    },
+    "parameter-pair": {
+      "patterns": [
+        {
+          "match": "(\\w+(-\\w+)*)\\s*(:)",
+          "captures": {
+            "1": {
+              "name": "variable.parameter.typeDeclaration.jsl"
+            },
+            "3": {
+              "name": "storage.type.function.arrow.jsl"
+            }
+          }
+        },
+        {
+          "include": "#literals"
+        },
+        {
+          "include": "#TypeWithModelName"
+        }
+      ]
+    },
+    "model": {
+      "patterns": [
+        {
+          "begin": "\\b(model)\\b ",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": ";",
+          "endCaptures": {
+            "0": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "name": "meta.model.modelDeclaration.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameInModelDeclaration"
+            }
+          ]
+        }
+      ]
+    },
+    "import": {
+      "patterns": [
+        {
+          "begin": "\\b(import)\\b ",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": ";",
+          "endCaptures": {
+            "0": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "name": "meta.import.importLibreries.jsl",
+          "patterns": [
+            {
+              "match": "(\\w+)(::)",
+              "captures": {
+                "1": {
+                  "name": "support.class.namespaceName.jsl"
+                },
+                "2": {
+                  "name": "keyword.control.jsl"
+                }
+              }
+            },
+            {
+              "begin": "\\w+",
+              "beginCaptures": {
+                "0": {
+                  "name": "support.class.namespaceName.jsl"
+                }
+              },
+              "end": "(?=;)",
+              "patterns": [
+                {
+                  "begin": "as",
+                  "beginCaptures": {
+                    "0": {
+                      "name": "keyword.control.jsl"
+                    }
+                  },
+                  "end": "(?=;)",
+                  "patterns": [
+                    {
+                      "begin": "\\w+",
+                      "beginCaptures": {
+                        "0": {
+                          "name": "support.variable.alliasName.jsl"
+                        }
+                      },
+                      "end": "(?=;)"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "annotations": {
+      "patterns": [
+        {
+          "begin": "(@[^ (]+)(\\()",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.annotation.jsl"
+            },
+            "2": {
+              "name": "punctuation.definition.annotation.begin.jsl"
+            }
+          },
+          "end": "(\\))",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.definition.annotation.end.jsl"
+            }
+          },
+          "name": "meta.declaration.annotation.jsl",
+          "patterns": [
+            {
+              "captures": {
+                "1": {
+                  "name": "constant.other.key.jsl"
+                },
+                "2": {
+                  "name": "keyword.operator.assignment.jsl"
+                }
+              },
+              "match": "(\\w*)\\s*(=)"
+            },
+            {
+              "include": "#expressions"
+            },
+            {
+              "match": ",",
+              "name": "punctuation.separator.property.jsl"
+            }
+          ]
+        },
+        {
+          "match": "@\\w*",
+          "name": "storage.type.annotation.jsl"
+        }
+      ]
+    },
+    "primitives": {
+      "patterns": [
+        {
+          "match": "\\b(boolean|binary|string|numeric|date|time|timestamp)\\b\\s+(\\w+)?",
+          "captures": {
+            "1": {
+              "name": "storage.types.primitives.jsl"
+            },
+            "2": {
+              "name": "entity.name.type.typeName.jsl"
+            }
+          }
+        }
+      ]
+    },
+    "membersInEntity": {
+      "patterns": [
+        {
+          "begin": "\\b(identifier)\\b(\\s+required)?",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            },
+            "2": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": "(?=;)",
+          "name": "meta.entityFieldOrIdentifierMemberDeclarationScope.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameInIdentifier"
+            }
+          ]
+        },
+        {
+          "begin": "\\b(field)\\b(\\s+required)?",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            },
+            "2": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": "(?=;)",
+          "name": "meta.entityFieldMemberDeclarationScope.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameInField"
+            }
+          ]
+        },
+        {
+          "begin": "\\b(relation)\\b(\\s+required)?",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            },
+            "2": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": "(?=;)",
+          "name": "meta.entityRelationMemberDeclarationScope.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameInRelation"
+            }
+          ]
+        }
+      ]
+    },
+    "membersNotInEntity": {
+      "patterns": [
+        {
+          "begin": "\\b(query)\\b",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.function.jsl"
+            }
+          },
+          "end": "(?=;)",
+          "name": "meta.entityQueryMemberDeclarationScope.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameSpace"
+            },
+            {
+              "begin": "(\\w+)(\\[\\])?",
+              "beginCaptures": {
+                "1": {
+                  "name": "support.class.typeName.jsl"
+                },
+                "2": {
+                  "name": "keyword.control.jsl"
+                }
+              },
+              "end": "(?=;)",
+              "patterns": [
+                {
+                  "include": "#parametersInQuery"
+                },
+                {
+                  "include": "#lambdaExpression"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "parametersInQuery": {
+      "patterns": [
+        {
+          "begin": "\\(",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.section.parameter.begin.jsl"
+            }
+          },
+          "end": "(?=\\))",
+          "name": "meta.paramters.in.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameInParameters"
+            }
+          ]
+        }
+      ]
+    },
+    "lambdaExpression": {
+      "patterns": [
+        {
+          "begin": "<=",
+          "beginCaptures": {
+            "0": {
+              "name": "storage.type.function.arrow.jsl"
+            }
+          },
+          "name": "meta.meta.lambdaExpressionBody.in.jsl.jsl",
+          "end": "(?=;)",
+          "patterns": [
+            {
+              "include": "#expressions"
+            }
+          ]
+        }
+      ]
+    },
+    "defaultValueExpression": {
+      "patterns": [
+        {
+          "begin": "=",
+          "beginCaptures": {
+            "0": {
+              "name": "keyword.operator.assignment.jsl"
+            }
+          },
+          "name": "meta.meta.defaultValueExpressionBody.in.jsl.jsl",
+          "end": "(?=;)",
+          "patterns": [
+            {
+              "include": "#expressions"
+            }
+          ]
+        }
+      ]
+    },
+    "terminal-signal": {
+      "patterns": [
+        {
+          "match": ";",
+          "name": "keyword.control.jsl"
+        }
+      ]
+    },
+    "literals": {
+      "patterns": [
+        {
+          "match": "\\b(?i:(0[0-7]+)L?)",
+          "name": "constans.numberic.octal.jsl"
+        },
+        {
+          "match": "\\b(?i:(\\\\d+\\\\.\\\\d*(e[\\\\-\\\\+]?\\\\d+)?))(?=[^a-zA-Z_])",
+          "name": "constans.numberic.float.jsl"
+        },
+        {
+          "match": "(?<=[^0-9a-zA-Z_])(?i:(\\\\.\\\\d+(e[\\\\-\\\\+]?\\\\d+)?))",
+          "name": "constans.numberic.float.jsl"
+        },
+        {
+          "match": "\\b(?i:(\\\\d+e[\\\\-\\\\+]?\\\\d+))",
+          "name": "constans.numberic.float.jsl"
+        },
+        {
+          "match": "\\b(?i:([1-9]+[0-9]*|0)L)",
+          "name": "constant.numeric.integer.long.decimal.jsl"
+        },
+        {
+          "match": "\\b([1-9]+[0-9]*|0)",
+          "name": "constant.numeric.integer.decimal.jsl"
+        },
+        {
+          "begin": "\\\"",
+          "end": "\\\"",
+          "name": "string.quoted.double.states"
+        },
+        {
+          "begin": "\\`",
+          "end": "\\`",
+          "name": "string.quoted.double.states"
+        },
+        {
+          "match": "\\b\\\\b",
+          "name": "constant.numeric.integer.decimal.jsl"
+        },
+        {
+          "match": "\\w+\\#(\\w+)",
+          "captures": {
+            "1": {
+              "name": "variable.other.enummember"
+            }
+          }
+        }
+      ]
+    },
+    "enum-block": {
+      "patterns": [
+        {
+          "begin": "(enum)\\s+(\\w+)\\s*",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.types.class.jsl"
+            },
+            "2": {
+              "name": "entity.name.type.enum.jsl"
+            }
+          },
+          "name": "meta.entity.jsl",
+          "end": "}",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.section.enum.end.jsl"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#enum-block-body"
+            }
+          ]
+        }
+      ]
+    },
+    "enum-block-body": {
+      "patterns": [
+        {
+          "begin": "{",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.section.enum.begin.jsl"
+            }
+          },
+          "end": "(?=})",
+          "name": "meta.enitity.body.java",
+          "patterns": [
+            {
+              "match": "(\\w+)\\s*=",
+              "captures": {
+                "1": {
+                  "name": "variable.other.enummember"
+                },
+                "2": {
+                  "name": "keyword.operator.assignment.jsl"
+                }
+              }
+            },
+            {
+              "include": "#literals"
+            },
+            {
+              "include": "#terminal-signal"
+            }
+          ]
+        }
+      ]
+    },
+    "entity-block": {
+      "patterns": [
+        {
+          "begin": "\\b(entity)\\b(\\s+abstract)?\\s+(\\w+)\\s*",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.types.class.jsl"
+            },
+            "2": {
+              "name": "keyword.control.jsl"
+            },
+            "3": {
+              "name": "entity.name.type.entityName.jsl"
+            }
+          },
+          "name": "meta.entity.jsl",
+          "end": "(})|(;)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.section.entity.end.jsl"
+            },
+            "2": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "patterns": [
+            {
+              "begin": "extends",
+              "beginCaptures": {
+                "0": {
+                  "name": "storage.modifier.extends.jsl"
+                }
+              },
+              "end": "(?={|;)",
+              "name": "meta.definition.entity.inherited.classes.end.jsl",
+              "patterns": [
+                {
+                  "include": "#entity-inheretend"
+                },
+                {
+                  "include": "#comments"
+                }
+              ]
+            },
+            {
+              "begin": "{",
+              "beginCaptures": {
+                "0": {
+                  "name": "punctuation.section.entity.begin.jsl"
+                }
+              },
+              "end": "(?=})",
+              "name": "meta.enitity.body.java",
+              "patterns": [
+                {
+                  "include": "#entity-body"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "entity-body": {
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#keywords"
+        },
+        {
+          "include": "#types"
+        },
+        {
+          "include": "#annotations"
+        },
+        {
+          "include": "#membersInEntity"
+        },
+        {
+          "include": "#lambdaExpression"
+        },
+        {
+          "include": "#literals"
+        },
+        {
+          "include": "#terminal-signal"
+        }
+      ]
+    },
+    "transfer-block": {
+      "patterns": [
+        {
+          "begin": "\\b(transfer)\\b\\s+(\\w+)?\\s*",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.types.class.jsl"
+            },
+            "2": {
+              "name": "entity.name.type.transferName.jsl"
+            }
+          },
+          "name": "meta.tranfer.jsl",
+          "end": "(})|(;)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.section.entity.end.jsl"
+            },
+            "2": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#modifiersRulesForTransferAndView"
+            },
+            {
+              "begin": "{",
+              "beginCaptures": {
+                "0": {
+                  "name": "punctuation.section.transfer.body.begin.jsl"
+                }
+              },
+              "end": "(?=})",
+              "endCaptures": {
+                "0": {
+                  "name": "punctuation.section.transfer.body.end.jsl"
+                }
+              },
+              "name": "meta.transfer.body.java",
+              "patterns": [
+                {
+                  "include": "#transfer-body"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "modifiersRulesForTransferAndView": {
+      "patterns": [
+        {
+          "begin": "\\(",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.section.mappedElement.begin.jsl"
+            }
+          },
+          "end": "(?=\\))",
+          "name": "meta.mappedElement.in.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameInParameters"
+            }
+          ]
+        },
+        {
+          "begin": "maps",
+          "beginCaptures": {
+            "0": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": "(?=;|{)",
+          "name": "meta.mappedElement.in.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameSpace"
+            },
+            {
+              "begin": "\\w+",
+              "beginCaptures": {
+                "0": {
+                  "name": "support.class.namespaceName.jsl"
+                }
+              },
+              "end": "(?={|;)",
+              "patterns": [
+                {
+                  "begin": "as",
+                  "beginCaptures": {
+                    "0": {
+                      "name": "keyword.control.jsl"
+                    }
+                  },
+                  "end": "(?={|;)",
+                  "patterns": [
+                    {
+                      "begin": "\\w+",
+                      "beginCaptures": {
+                        "0": {
+                          "name": "support.variable.alliasName.jsl"
+                        }
+                      },
+                      "end": "(?={|;)"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "transfer-body": {
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#keywords"
+        },
+        {
+          "include": "#membersInTransfer"
+        },
+        {
+          "include": "#literals"
+        },
+        {
+          "include": "#terminal-signal"
+        },
+        {
+          "include": "#annotations"
+        }
+      ]
+    },
+    "membersInTransfer": {
+      "patterns": [
+        {
+          "begin": "\\b(field|relation)\\b(\\s+required)?",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            },
+            "2": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": ";",
+          "endCaptures": {
+            "0": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "name": "meta.transferFieldAndRelationMemberDeclarationScope.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameSpace"
+            },
+            {
+              "begin": "(\\w+)(\\[\\])?(\\s+\\w+)?",
+              "beginCaptures": {
+                "1": {
+                  "name": "support.class.transferName.jsl"
+                },
+                "2": {
+                  "name": "keyword.control.jsl"
+                },
+                "3": {
+                  "name": "variable.other.jsl"
+                }
+              },
+              "end": "(?=;)",
+              "patterns": [
+                {
+                  "begin": "(<=>|<=)",
+                  "beginCaptures": {
+                    "1": {
+                      "name": "keyword.control.jsl"
+                    }
+                  },
+                  "name": "meta.transferReadsAndMapsFieldAndRelation.jsl",
+                  "end": "(?=;|{)",
+                  "patterns": [
+                    {
+                      "include": "#expressions"
+                    },
+                    {
+                      "include": "#choices"
+                    }
+                  ]
+                },
+                {
+                  "include": "#choices"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "include": "#constructor-destrtuctor"
+        },
+        {
+          "begin": "\\b(submit|action)\\b",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": ";",
+          "endCaptures": {
+            "0": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "name": "meta.transferSubmitAndActionMemberDeclarationScope.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameSpace"
+            },
+            {
+              "begin": "(\\w+)(\\[\\])?(\\s+\\w+)?",
+              "beginCaptures": {
+                "1": {
+                  "name": "support.class.typeName.jsl"
+                },
+                "2": {
+                  "name": "keyword.control.jsl"
+                },
+                "3": {
+                  "name": "variable.other.jsl"
+                }
+              },
+              "end": "(?=;)",
+              "patterns": [
+                {
+                  "include": "#parametersInQuery"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "choices": {
+      "patterns": [
+        {
+          "begin": "\\b(choices)\\s*(:)",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            },
+            "2": {
+              "name": "storage.type.function.arrow.jsl"
+            }
+          },
+          "end": "(?=;|{)",
+          "patterns": [
+            {
+              "include": "#expressions"
+            }
+          ]
+        }
+      ]
+    },
+    "guard": {
+      "patterns": [
+        {
+          "begin": "guard",
+          "beginCaptures": {
+            "0": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": "(?=;|{)",
+          "patterns": [
+            {
+              "include": "#expressions"
+            }
+          ]
+        }
+      ]
+    },
+    "view-block": {
+      "patterns": [
+        {
+          "begin": "\\b(view)\\b\\s+(\\w+)?\\s*",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.types.class.jsl"
+            },
+            "2": {
+              "name": "entity.name.type.transferName.jsl"
+            }
+          },
+          "name": "meta.tranfer.jsl",
+          "end": "(})|(;)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.section.entity.end.jsl"
+            },
+            "2": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#modifiersRulesForTransferAndView"
+            },
+            {
+              "begin": "{",
+              "beginCaptures": {
+                "0": {
+                  "name": "punctuation.section.transfer.body.begin.jsl"
+                }
+              },
+              "end": "(?=})",
+              "endCaptures": {
+                "0": {
+                  "name": "punctuation.section.transfer.body.end.jsl"
+                }
+              },
+              "name": "meta.transfer.body.java",
+              "patterns": [
+                {
+                  "include": "#view-body"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "view-body": {
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#keywords"
+        },
+        {
+          "include": "#membersInView"
+        },
+        {
+          "include": "#literals"
+        },
+        {
+          "include": "#terminal-signal"
+        },
+        {
+          "include": "#annotations"
+        }
+      ]
+    },
+    "membersInView": {
+      "patterns": [
+        {
+          "include": "#constructor-destrtuctor"
+        },
+        {
+          "begin": "\\b(text)\\b(\\s+\\w+)?",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": ";",
+          "endCaptures": {
+            "0": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "name": "meta.viewTextMemberDeclarationScope.jsl",
+          "patterns": [
+            {
+              "patterns": [
+                {
+                  "begin": "(<=)",
+                  "beginCaptures": {
+                    "1": {
+                      "name": "keyword.control.jsl"
+                    }
+                  },
+                  "name": "meta.transferReadsFieldAndRelation.jsl",
+                  "end": "(?=;)",
+                  "patterns": [
+                    {
+                      "include": "#expressions"
+                    },
+                    {
+                      "include": "#parameter-pair"
+                    }
+                  ]
+                },
+                {
+                  "include": "#parameter-pair"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "begin": "\\b(field|link)\\b(\\s+required\\b)?",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            },
+            "2": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": ";",
+          "endCaptures": {
+            "0": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "name": "meta.viewTextMemberDeclarationScope.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameSpace"
+            },
+            {
+              "begin": "(\\w+)(\\s+\\w+)?",
+              "beginCaptures": {
+                "1": {
+                  "name": "support.class.namespaceName.jsl"
+                },
+                "2": {
+                  "name": "variable.other.jsl"
+                }
+              },
+              "end": "(?={|;)",
+              "patterns": [
+                {
+                  "begin": "(<=>|<=)",
+                  "beginCaptures": {
+                    "1": {
+                      "name": "keyword.control.jsl"
+                    }
+                  },
+                  "name": "meta.viewMapsOrReadFieldAndLinkScope.jsl",
+                  "end": "(?=;)",
+                  "patterns": [
+                    {
+                      "include": "#expressions"
+                    },
+                    {
+                      "include": "#parameter-pair"
+                    }
+                  ]
+                },
+                {
+                  "include": "#parameter-pair"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "begin": "\\b(table)\\b",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": ";",
+          "endCaptures": {
+            "0": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "name": "meta.viewTextMemberDeclarationScope.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameSpace"
+            },
+            {
+              "begin": "(\\w+)(\\[\\])?(\\s+\\w+)?",
+              "beginCaptures": {
+                "1": {
+                  "name": "support.class.typeName.jsl"
+                },
+                "2": {
+                  "name": "keyword.control.jsl"
+                },
+                "3": {
+                  "name": "variable.other.jsl"
+                }
+              },
+              "end": "(?={|;)",
+              "patterns": [
+                {
+                  "begin": "(<==>|<=)",
+                  "beginCaptures": {
+                    "1": {
+                      "name": "keyword.control.jsl"
+                    }
+                  },
+                  "name": "meta.viewMapsOrReadFieldAndLinkScope.jsl",
+                  "end": "(?=;)",
+                  "patterns": [
+                    {
+                      "include": "#expressions"
+                    },
+                    {
+                      "include": "#parameter-pair"
+                    }
+                  ]
+                },
+                {
+                  "include": "#parameter-pair"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "begin": "\\b(submit|action)\\b",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": ";",
+          "endCaptures": {
+            "0": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "name": "meta.transferSubmitAndActionMemberDeclarationScope.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameSpace"
+            },
+            {
+              "begin": "(\\w+)(\\[\\])?(\\s+\\w+)?",
+              "beginCaptures": {
+                "1": {
+                  "name": "support.class.typeName.jsl"
+                },
+                "2": {
+                  "name": "keyword.control.jsl"
+                },
+                "3": {
+                  "name": "variable.other.jsl"
+                }
+              },
+              "end": "(?=;)",
+              "patterns": [
+                {
+                  "include": "#parametersInQuery"
+                },
+                {
+                  "include": "#parameter-pair"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "include": "#group"
+        },
+        {
+          "include": "#tabs"
+        }
+      ]
+    },
+    "group": {
+      "patterns": [
+        {
+          "begin": "\\b(group)\\b(\\s+\\w+)?",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": "}",
+          "name": "meta.viewGroupDeclarationScope.jsl",
+          "patterns": [
+            {
+              "include": "#parameter-pair"
+            },
+            {
+              "begin": "{",
+              "beginCaptures": {
+                "0": {
+                  "name": "punctuation.section.enum.begin.jsl"
+                }
+              },
+              "end": "(?=})",
+              "name": "meta.group.body.java",
+              "patterns": [
+                {
+                  "include": "#view-body"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "tabs": {
+      "patterns": [
+        {
+          "begin": "\\b(tabs)\\b(\\s+\\w+)?",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": "}",
+          "name": "meta.ConstructorDeclarationScope.jsl",
+          "patterns": [
+            {
+              "include": "#parameter-pair"
+            },
+            {
+              "begin": "{",
+              "beginCaptures": {
+                "0": {
+                  "name": "punctuation.section.enum.begin.jsl"
+                }
+              },
+              "end": "(?=})",
+              "name": "meta.group.body.java",
+              "patterns": [
+                {
+                  "include": "#group"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "constructor-destrtuctor": {
+      "patterns": [
+        {
+          "begin": "\\b(constructor)\\b",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": "}",
+          "name": "meta.ConstructorDeclarationScope.jsl",
+          "patterns": [
+            {
+              "begin": "((self).)?(\\w+)\\s*(=)",
+              "beginCaptures": {
+                "2": {
+                  "name": "keyword.control.jsl"
+                },
+                "4": {
+                  "name": "keyword.operator.assignment.jsl"
+                }
+              },
+              "end": ";",
+              "endCaptures": {
+                "0": {
+                  "name": "keyword.control.jsl"
+                }
+              },
+              "name": "meta.ConstructorFieldDeclaration.jsl",
+              "patterns": [
+                {
+                  "include": "#expressions"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "begin": "\\b(destructor|initializer)\\b",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": "}",
+          "name": "meta.DeconstructorAndiInitializerDeclarationScope.jsl"
+        }
+      ]
+    },
+    "row-block": {
+      "patterns": [
+        {
+          "begin": "\\b(row)\\b\\s+(\\w+)?\\s*",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.types.class.jsl"
+            },
+            "2": {
+              "name": "entity.name.type.rowName.jsl"
+            }
+          },
+          "name": "meta.tranfer.jsl",
+          "end": "(})|(;)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.section.entity.end.jsl"
+            },
+            "2": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#modifiersRulesForRow"
+            },
+            {
+              "begin": "{",
+              "beginCaptures": {
+                "0": {
+                  "name": "punctuation.section.transfer.body.begin.jsl"
+                }
+              },
+              "end": "(?=})",
+              "endCaptures": {
+                "0": {
+                  "name": "punctuation.section.transfer.body.end.jsl"
+                }
+              },
+              "name": "meta.transfer.body.java",
+              "patterns": [
+                {
+                  "include": "#comments"
+                },
+                {
+                  "include": "#keywords"
+                },
+                {
+                  "begin": "\\b(column)\\b",
+                  "beginCaptures": {
+                    "1": {
+                      "name": "keyword.control.jsl"
+                    },
+                    "2": {
+                      "name": "keyword.control.jsl"
+                    }
+                  },
+                  "end": ";",
+                  "endCaptures": {
+                    "0": {
+                      "name": "keyword.control.jsl"
+                    }
+                  },
+                  "name": "meta.viewTextMemberDeclarationScope.jsl",
+                  "patterns": [
+                    {
+                      "include": "#modelNameSpace"
+                    },
+                    {
+                      "begin": "(\\w+)(\\s+\\w+)?",
+                      "beginCaptures": {
+                        "1": {
+                          "name": "support.class.namespaceName.jsl"
+                        },
+                        "2": {
+                          "name": "variable.other.jsl"
+                        }
+                      },
+                      "end": "(?={|;)",
+                      "patterns": [
+                        {
+                          "begin": "(<=>|<=)",
+                          "beginCaptures": {
+                            "1": {
+                              "name": "keyword.control.jsl"
+                            }
+                          },
+                          "name": "meta.viewMapsOrReadFieldAndLinkScope.jsl",
+                          "end": "(?=;)",
+                          "patterns": [
+                            {
+                              "include": "#expressions"
+                            },
+                            {
+                              "include": "#parameter-pair"
+                            }
+                          ]
+                        },
+                        {
+                          "include": "#parameter-pair"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "include": "#literals"
+                },
+                {
+                  "include": "#terminal-signal"
+                },
+                {
+                  "include": "#annotations"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "modifiersRulesForRow": {
+      "patterns": [
+        {
+          "begin": "\\(",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.section.mappedElement.begin.jsl"
+            }
+          },
+          "end": "(?=\\))",
+          "name": "meta.mappedElement.in.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameInParameters"
+            }
+          ]
+        },
+        {
+          "begin": "maps",
+          "beginCaptures": {
+            "0": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": "(?=;|{)",
+          "name": "meta.mappedElement.in.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameSpace"
+            },
+            {
+              "begin": "\\w+",
+              "beginCaptures": {
+                "0": {
+                  "name": "support.class.namespaceName.jsl"
+                }
+              },
+              "end": "(?={|;)",
+              "patterns": [
+                {
+                  "begin": "as",
+                  "beginCaptures": {
+                    "0": {
+                      "name": "keyword.control.jsl"
+                    }
+                  },
+                  "end": "(?={|;)",
+                  "patterns": [
+                    {
+                      "begin": "\\w+",
+                      "beginCaptures": {
+                        "0": {
+                          "name": "support.variable.alliasName.jsl"
+                        }
+                      },
+                      "end": "(?={|;)",
+                      "pattern": [
+                        {
+                          "include": "#parameter-pair"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "include": "#parameter-pair"
+        }
+      ]
+    },
+    "actor-block": {
+      "patterns": [
+        {
+          "begin": "(actor)(\\s+human|system)?(\\s+\\w+)?\\s*",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.types.class.jsl"
+            },
+            "2": {
+              "name": "keyword.control.jsl"
+            },
+            "3": {
+              "name": "entity.name.type.actorName.jsl"
+            }
+          },
+          "name": "meta.tranfer.jsl",
+          "end": "(})|(;)",
+          "endCaptures": {
+            "0": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#modifiersInActor"
+            }
+          ]
+        }
+      ]
+    },
+    "modifiersInActor": {
+      "patterns": [
+        {
+          "begin": "\\(",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.section.mappedElement.begin.jsl"
+            }
+          },
+          "end": "(?=\\))",
+          "name": "meta.mappedElement.in.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameInParameters"
+            }
+          ]
+        },
+        {
+          "begin": "maps",
+          "beginCaptures": {
+            "0": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": "(?=;|{)",
+          "name": "meta.mappedElement.in.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameSpace"
+            },
+            {
+              "begin": "\\w+",
+              "beginCaptures": {
+                "0": {
+                  "name": "support.class.namespaceName.jsl"
+                }
+              },
+              "end": "(?={|;)",
+              "patterns": [
+                {
+                  "begin": "as",
+                  "beginCaptures": {
+                    "0": {
+                      "name": "keyword.control.jsl"
+                    }
+                  },
+                  "end": "(?={|;)",
+                  "patterns": [
+                    {
+                      "begin": "\\w+",
+                      "beginCaptures": {
+                        "0": {
+                          "name": "support.variable.alliasName.jsl"
+                        }
+                      },
+                      "end": "(?={|;)",
+                      "patterns": [
+                        {
+                          "include": "#parameter-pair-actor"
+                        },
+                        {
+                          "include": "#actorBody"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "include": "#parameter-pair-actor"
+        },
+        {
+          "include": "#actorBody"
+        }
+      ]
+    },
+    "actorBody": {
+      "patterns": [
+        {
+          "begin": "{",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.section.actor.body.begin.jsl"
+            }
+          },
+          "end": "(?=})",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.section.actor.body.end.jsl"
+            }
+          },
+          "name": "meta.actor.body.java",
+          "patterns": [
+            {
+              "begin": "\\b(group)\\b(\\s+\\w+)?",
+              "beginCaptures": {
+                "1": {
+                  "name": "keyword.control.jsl"
+                }
+              },
+              "end": "}",
+              "name": "meta.actorGroupMemberDeclarationScope.jsl",
+              "patterns": [
+                {
+                  "include": "#parameter-pair"
+                },
+                {
+                  "begin": "{",
+                  "beginCaptures": {
+                    "0": {
+                      "name": "punctuation.section.enum.begin.jsl"
+                    }
+                  },
+                  "end": "(?=})",
+                  "name": "meta.group.body.java",
+                  "patterns": [
+                    {
+                      "include": "#actor-menu"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "begin": "\\b(acces)\\b",
+              "beginCaptures": {
+                "1": {
+                  "name": "keyword.control.jsl"
+                }
+              },
+              "end": ";",
+              "endCaptures": {
+                "0": {
+                  "name": "keyword.control.jsl"
+                }
+              },
+              "name": "meta.actorAccesMemberDeclarationScope.jsl",
+              "patterns": [
+                {
+                  "include": "#modelNameSpace"
+                },
+                {
+                  "begin": "(\\w+)(\\[\\])?(\\s+\\w+)?",
+                  "beginCaptures": {
+                    "1": {
+                      "name": "support.class.typeName.jsl"
+                    },
+                    "2": {
+                      "name": "keyword.control.jsl"
+                    },
+                    "3": {
+                      "name": "variable.other.jsl"
+                    }
+                  },
+                  "end": "(?=;)",
+                  "patterns": [
+                    {
+                      "begin": "(<=)",
+                      "beginCaptures": {
+                        "1": {
+                          "name": "keyword.control.jsl"
+                        }
+                      },
+                      "name": "meta.actorGetterExpressionMemberDeclarationScope.jsl",
+                      "end": "(?=;)",
+                      "patterns": [
+                        {
+                          "include": "#expressions"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "include": "#actor-menu"
+            }
+          ]
+        }
+      ]
+    },
+    "actor-menu": {
+      "patterns": [
+        {
+          "begin": "\\b(menu)\\b",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": ";",
+          "endCaptures": {
+            "0": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "name": "meta.actorMenuMemberDeclarationScope.jsl",
+          "patterns": [
+            {
+              "include": "#modelNameSpace"
+            },
+            {
+              "begin": "(\\w+)(\\[\\])?(\\s+\\w+)?",
+              "beginCaptures": {
+                "1": {
+                  "name": "support.class.typeName.jsl"
+                },
+                "2": {
+                  "name": "keyword.control.jsl"
+                },
+                "3": {
+                  "name": "variable.other.jsl"
+                }
+              },
+              "end": "(?=;)",
+              "patterns": [
+                {
+                  "begin": "(<=)",
+                  "beginCaptures": {
+                    "1": {
+                      "name": "keyword.control.jsl"
+                    }
+                  },
+                  "name": "meta.actorGetterExpressionMemberDeclarationScope.jsl",
+                  "end": "(?=;)",
+                  "patterns": [
+                    {
+                      "include": "#expressions"
+                    },
+                    {
+                      "include": "#parameter-pair"
+                    }
+                  ]
+                },
+                {
+                  "include": "#parameter-pair"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "expressions": {
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#lambdaExpression"
+        },
+        {
+          "include": "#literals"
+        },
+        {
+          "include": "#terminal-signal"
+        },
+        {
+          "include": "#operators"
+        },
+        {
+          "include": "#keywords"
+        },
+        {
+          "include": "#modelName"
+        }
+      ]
+    },
+    "entity-inheretend": {
+      "patterns": [
+        {
+          "include": "#modelNameSpace"
+        },
+        {
+          "match": "(\\w+)\\s*\\,",
+          "captures": {
+            "1": {
+              "name": "entity.other.inherited-class.inheritendEntityName.jsl"
+            }
+          }
+        },
+        {
+          "begin": "\\w+",
+          "beginCaptures": {
+            "0": {
+              "name": "entity.other.inherited-class.inheritendEntityName.jsl"
+            }
+          },
+          "end": "(?={|;)",
+          "patterns": [
+            {
+              "include": "#comments"
+            }
+          ]
+        }
+      ]
+    },
+    "comments": {
+      "patterns": [
+        {
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.comment.jsl"
+            }
+          },
+          "match": "/\\*\\*/",
+          "name": "comment.block.empty.jsl"
+        },
+        {
+          "include": "#comments-inline"
+        }
+      ]
+    },
+    "parameter-pair-actor": {
+      "patterns": [
+        {
+          "match": "(realm|claim)\\s*(:)\\s*(\\\".*\\\")",
+          "captures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            },
+            "2": {
+              "name": "storage.type.function.arrow.jsl"
+            },
+            "3": {
+              "name": "string.quoted.double.states"
+            }
+          }
+        },
+        {
+          "match": "(identity|guard)\\s*(:)",
+          "captures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            },
+            "2": {
+              "name": "storage.type.function.arrow.jsl"
+            }
+          }
+        },
+        {
+          "include": "#expression"
+        }
+      ]
+    },
+    "comments-inline": {
+      "patterns": [
+        {
+          "begin": "/\\*",
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.comment.jsl"
+            }
+          },
+          "end": "\\*/",
+          "name": "comment.block.jsl"
+        },
+        {
+          "begin": "(^[ \\t]+)?(?=//)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.whitespace.comment.leading.jsl"
+            }
+          },
+          "end": "(?!\\G)",
+          "patterns": [
+            {
+              "begin": "//",
+              "beginCaptures": {
+                "0": {
+                  "name": "punctuation.definition.comment.jsl"
+                }
+              },
+              "end": "\\n",
+              "name": "comment.line.double-slash.jsl"
+            }
+          ]
+        }
+      ]
+    },
+    "modelName": {
+      "patterns": [
+        {
+          "begin": "(\\w+)(::)",
+          "beginCaptures": {
+            "1": {
+              "name": "support.class.namespaceName.jsl"
+            },
+            "2": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": "((\\w+)(?=[^:]))",
+          "endCaptures": {
+            "1": {
+              "name": "support.class.entityName.jsl"
+            }
+          },
+          "patterns": [
+            {
+              "name": "(\\w+)(::)",
+              "captures": {
+                "1": {
+                  "name": "support.class.namespaceName.jsl"
+                },
+                "2": {
+                  "name": "keyword.control.jsl"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "modelNameInModelDeclaration": {
+      "patterns": [
+        {
+          "include": "#modelNameSpace"
+        },
+        {
+          "begin": "\\w+",
+          "beginCaptures": {
+            "0": {
+              "name": "support.class.namespaceName.jsl"
+            }
+          },
+          "end": "(?=;)"
+        }
+      ]
+    },
+    "modelNameInIdentifier": {
+      "patterns": [
+        {
+          "include": "#modelNameSpace"
+        },
+        {
+          "begin": "(\\w+)(\\[\\])?(\\s+\\w+)?",
+          "beginCaptures": {
+            "1": {
+              "name": "support.class.typeName.jsl"
+            },
+            "2": {
+              "name": "keyword.control.jsl"
+            },
+            "3": {
+              "name": "variable.other.jsl"
+            }
+          },
+          "end": "(?=;)",
+          "patterns": [
+            {
+              "include": "#defaultValueExpression"
+            }
+          ]
+        }
+      ]
+    },
+    "modelNameInField": {
+      "patterns": [
+        {
+          "include": "#modelNameSpace"
+        },
+        {
+          "begin": "(\\w+)(\\[\\])?(\\s+\\w+)?",
+          "beginCaptures": {
+            "1": {
+              "name": "support.class.typeName.jsl"
+            },
+            "2": {
+              "name": "keyword.control.jsl"
+            },
+            "3": {
+              "name": "variable.other.jsl"
+            }
+          },
+          "end": "(?=;)",
+          "patterns": [
+            {
+              "include": "#parametersInQuery"
+            },
+            {
+              "include": "#lambdaExpression"
+            },
+            {
+              "include": "#defaultValueExpression"
+            }
+          ]
+        }
+      ]
+    },
+    "modelNameInRelation": {
+      "patterns": [
+        {
+          "include": "#modelNameSpace"
+        },
+        {
+          "begin": "(\\w+)(\\[\\])?(\\s+\\w+)?",
+          "beginCaptures": {
+            "1": {
+              "name": "support.class.typeName.jsl"
+            },
+            "2": {
+              "name": "keyword.control.jsl"
+            },
+            "3": {
+              "name": "variable.other.jsl"
+            }
+          },
+          "end": "(?=;)",
+          "patterns": [
+            {
+              "include": "#parametersInQuery"
+            },
+            {
+              "include": "#lambdaExpression"
+            },
+            {
+              "begin": "=",
+              "beginCaptures": {
+                "0": {
+                  "name": "keyword.operator.assignment.jsl"
+                }
+              },
+              "name": "meta.meta.defaultValueExpressionBody.in.jsl.jsl",
+              "end": "(?=;)",
+              "patterns": [
+                {
+                  "include": "#expressions"
+                },
+                {
+                  "include": "#oppositeAndOppositeAdd"
+                }
+              ]
+            },
+            {
+              "include": "#oppositeAndOppositeAdd"
+            }
+          ]
+        }
+      ]
+    },
+    "oppositeAndOppositeAdd": {
+      "patterns": [
+        {
+          "begin": "\\b(opposite-add|opposite)\\s*(:)",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.jsl"
+            },
+            "2": {
+              "name": "storage.type.function.arrow.jsl"
+            }
+          },
+          "end": "(?=;)"
+        }
+      ]
+    },
+    "modelNameInParameters": {
+      "patterns": [
+        {
+          "include": "#modelNameSpace"
+        },
+        {
+          "begin": "(\\w+)",
+          "beginCaptures": {
+            "1": {
+              "name": "support.class.typeName.jsl"
+            }
+          },
+          "end": "(?=\\,)|(?=\\))",
+          "patterns": [
+            {
+              "match": "(\\w+)\\s*=",
+              "captures": {
+                "1": {
+                  "name": "variable.parameter.typeDeclaration.jsl"
+                }
+              }
+            },
+            {
+              "include": "#literals"
+            }
+          ]
+        }
+      ]
+    },
+    "modelNameSpace": {
+      "patterns": [
+        {
+          "match": "(\\w+)(::)",
+          "captures": {
+            "1": {
+              "name": "support.class.namespaceName.jsl"
+            },
+            "2": {
+              "name": "keyword.control.jsl"
+            }
+          }
+        }
+      ]
+    },
+    "TypeWithModelName": {
+      "patterns": [
+        {
+          "begin": "(\\w+)(::)",
+          "beginCaptures": {
+            "1": {
+              "name": "support.class.typeName.jsl"
+            },
+            "2": {
+              "name": "keyword.control.jsl"
+            }
+          },
+          "end": "(\\w+)",
+          "endCaptures": {
+            "1": {
+              "name": "support.class.typeName.jsl"
+            }
+          },
+          "name": "meta.TypeWithModelNameScope.jsl",
+          "patterns": [
+            {
+              "match": "(\\w+)(::)",
+              "captures": {
+                "1": {
+                  "name": "support.class.namespaceName.jsl"
+                },
+                "2": {
+                  "name": "keyword.control.jsl"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "match": "([A-Z]\\w+)[^:]",
+          "captures": {
+            "1": {
+              "name": "support.class.namespaceName.jsl"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "scopeName": "source.jsl",
+  "uuid": "9E6E7290-F2E8-4D58-97E2-08CBBB3EB7E8"
+}

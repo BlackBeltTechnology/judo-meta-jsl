@@ -1,0 +1,40 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "module": "src/index.ts",
+  "scripts": {
+    "dev": "NODE_OPTIONS=--experimental-import-meta-resolve vite --config vite.config.ts",
+    "build": "tsc --noEmit && vite --config vite.config.ts build",
+    "postinstall": "monaco-treemending",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@codingame/monaco-editor-treemended": "^1.83.14",
+    "@codingame/monaco-vscode-api": "^1.83.14",
+    "@codingame/monaco-vscode-configuration-service-override": "^1.83.12",
+    "@codingame/monaco-vscode-files-service-override": "^1.83.12",
+    "@codingame/monaco-vscode-textmate-service-override": "^1.83.12",
+    "@codingame/monaco-vscode-theme-defaults-default-extension": "^1.83.12",
+    "@codingame/monaco-vscode-theme-service-override": "^1.83.12",
+    "monaco-editor": "^0.44.0",
+    "monaco-editor-workers": "^0.44.0",
+    "monaco-languageclient": "^7.1.0",
+    "vscode": "npm:@codingame/monaco-vscode-api@^1.83.12",
+    "vscode-languageclient": "^9.0.1",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.0.0",
+    "vscode-ws-jsonrpc": "^3.1.0"
+  },
+  "devDependencies": {
+    "@codingame/monaco-vscode-rollup-vsix-plugin": "^1.83.14",
+    "@rollup/pluginutils": "^5.1.0",
+    "@types/vscode": "^1.84.2",
+    "typescript": "^5.3.2",
+    "vite": "^5.0.4"
+  }
+}
