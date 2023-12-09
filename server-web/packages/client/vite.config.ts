@@ -1,10 +1,26 @@
 import { defineConfig } from 'vite';
 import { readFileSync } from 'node:fs';
 import { pathToFileURL, fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
+  base: './',
+  assetsInclude: ['**/*.wasm'],
   build: {
     target: 'esnext',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vscode': ['vscode'],
+          'monaco-languageclient': ['monaco-languageclient'],
+          'monaco-editor-workers': ['monaco-editor-workers'],
+          'vscode-oniguruma': ['vscode-oniguruma'],
+          'jszip': ['jszip'],
+        },
+      },
+    },
   },
   optimizeDeps: {
     esbuildOptions: {

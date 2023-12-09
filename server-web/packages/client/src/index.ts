@@ -16,7 +16,6 @@ import {
   RegisteredMemoryFile,
 } from '@codingame/monaco-vscode-files-service-override';
 import { Uri } from 'vscode';
-import { buildWorkerDefinition } from 'monaco-editor-workers';
 import { loadWASM } from 'vscode-oniguruma';
 import {
   extension,
@@ -31,12 +30,8 @@ import {
 import { createUrl } from './utils';
 import { createWebSocket } from './websocket-integration';
 import { createEncodedTokensProvider } from './textmate-support';
-
-buildWorkerDefinition(
-  '../../../node_modules/monaco-editor-workers/dist/workers/',
-  new URL('', window.location.href).href,
-  false,
-);
+import _onigWasm from 'vscode-oniguruma/release/onig.wasm?url';
+import './useWorker';
 
 const content = await (await fetch(`./${modelFileName}`)).text();
 const languageConfiguration: monaco.languages.LanguageConfiguration = await (
@@ -45,8 +40,7 @@ const languageConfiguration: monaco.languages.LanguageConfiguration = await (
 
 // Taken from https://github.com/microsoft/vscode/blob/829230a5a83768a3494ebbc61144e7cde9105c73/src/vs/workbench/services/textMate/browser/textMateService.ts#L33-L40
 async function loadVSCodeOnigurumaWASM(): Promise<Response | ArrayBuffer> {
-  // const response = await fetch('/node_modules/vscode-oniguruma/release/onig.wasm');
-  const response = await fetch('https://unpkg.com/vscode-oniguruma@2.0.1/release/onig.wasm');
+  const response = await fetch(_onigWasm);
   const contentType = response.headers.get('content-type');
   if (contentType === 'application/wasm') {
     return response;
