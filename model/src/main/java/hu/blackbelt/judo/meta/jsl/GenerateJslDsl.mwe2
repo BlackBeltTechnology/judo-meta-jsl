@@ -46,10 +46,7 @@ Workflow {
 				}
 				web = {
 					overwriteSrc = true
-					assets = "${rootPath}/server-web/src/main/webapp"
-					enabled = true
-					name = "hu.blackbelt.judo.meta.jsl.server.web"
-					root = "${rootPath}/server-web"
+					enabled = false
 				}
 			}
 			code = {
