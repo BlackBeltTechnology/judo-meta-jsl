@@ -58,6 +58,12 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget
+import hu.blackbelt.judo.meta.jsl.jsldsl.RequiredModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.AbstractModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferEventDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.OnModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.HumanModifier
 
 @Singleton
 class JslDslModelExtension {
@@ -420,6 +426,10 @@ class JslDslModelExtension {
         eAllContents.filter[d | d instanceof TransferFieldDeclaration].map[d | d as TransferFieldDeclaration].toList
     }
 
+    def Collection<TransferRelationDeclaration> relations(TransferDeclaration it) {
+        eAllContents.filter[d | d instanceof TransferRelationDeclaration].map[d | d as TransferRelationDeclaration].toList
+    }
+
     def String sourceCode(Expression it) {
         return NodeModelUtils.findActualNodeFor(it)?.getText()
     }
@@ -576,4 +586,65 @@ class JslDslModelExtension {
     			i.model.appendImportedModelDeclarations(models)
     		]
     }
+    
+    def BooleanLiteral getAsBooleanLiteral(Expression expr) {
+    	if (expr === null) return null
+    	
+    	if (!(expr instanceof Navigation)) return null
+    	val Navigation navigation = expr as Navigation
+
+    	if (navigation.base === null) return null
+		if (!(navigation.base instanceof BooleanLiteral)) return null 
+    	
+    	return navigation.base as BooleanLiteral
+    }
+    
+    def boolean isRequired(EntityMemberDeclaration it) {
+    	val RequiredModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.requiredModifier) as RequiredModifier
+    	if (modifier === null) return false
+
+		if (modifier.expression === null) return true
+    	
+    	val BooleanLiteral literal = modifier.expression.asBooleanLiteral
+    	if (literal === null) return false
+
+    	return literal.isIsTrue
+    }
+
+    def boolean isRequired(TransferMemberDeclaration it) {
+    	val RequiredModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.requiredModifier) as RequiredModifier
+    	if (modifier === null || modifier.expression === null) return false
+
+		if (modifier.expression === null) return true
+
+    	val BooleanLiteral literal = modifier.expression.asBooleanLiteral
+    	if (literal === null) return false
+
+    	return literal.isIsTrue
+    }
+
+    def boolean isAbstract(EntityDeclaration it) {
+    	val AbstractModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.abstractModifier) as AbstractModifier
+    	return modifier !== null && (modifier.value === null || modifier.value.isIsTrue)
+	}    	
+
+    def boolean isAfter(TransferEventDeclaration it) {
+    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
+    	return modifier !== null && modifier.after
+	}    	
+
+    def boolean isBefore(TransferEventDeclaration it) {
+    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
+    	return modifier !== null && modifier.before
+	}    	
+
+    def boolean isInstead(TransferEventDeclaration it) {
+    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
+    	return modifier === null
+	}    	
+
+    def boolean isHuman(ActorDeclaration it) {
+    	val HumanModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.humanModifier) as HumanModifier
+    	return modifier !== null && (modifier.value === null || modifier.value.isIsTrue)
+	}    	
 }

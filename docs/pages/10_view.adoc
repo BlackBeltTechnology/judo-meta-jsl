@@ -24,7 +24,7 @@ A View is a transfer object that defines the visual presentation of data. It ser
 
 [subs="quotes"]
 ----
-[purple]#**view**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##] &#x5B;{
+[purple]#**view**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##] &#x5B;[purple]##**dialog:**##([purple]##**true**##|[purple]##**false**##)] &#x5B;{
     &#x5B;member] ...
 }] [purple]#**;**#
 ----
@@ -33,7 +33,7 @@ or
 
 [subs="quotes"]
 ----
-[purple]#**view**# &lt;name> &#x5B; [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> ] &#x5B;{
+[purple]#**view**# &lt;name> &#x5B;[purple]##**maps**## &lt;entity> [purple]#**as**# &lt;mapping-field>] &#x5B;[purple]##**dialog:**##([purple]##**true**##|[purple]##**false**##)] &#x5B;{
     &#x5B;member] ...
 }] [purple]#**;**#
 ----
@@ -41,6 +41,13 @@ or
 The view syntax is used to define a visual representation of data. It begins with the keyword `view` followed by the chosen <name> for the view. Optionally, you can specify the entity it is associated with using (entity mapping-field).
 
 Inside the curly braces `{` and `}`, you can specify various components or members of the view, such as fields, actions, or other elements that contribute to its functionality. These components collectively define the visual interface and behavior of the view.
+
+[options="header", cols="1,1,2"]
+|====================
+|Parameter name | Parameter type        | Meaning
+|dialog         | boolean literal       | If the view is shown in a pop-up dialog window.
+|====================
+
 
 A view typically consists of various fields and interactive elements arranged in a structured layout. You can arrange different types of fields, such as text boxes, checkboxes, radio buttons, drop-down lists, and buttons, to allow users to enter data or make selections.
 
@@ -97,13 +104,14 @@ A view primitive field can represent a single primitive value on the view.
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+[purple]##**field**## &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
     &#x5B;[purple]##**label:**##&lt;label>]
     &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**required:**##&lt;required>]
     &#x5B;[purple]##**enabled:**##&lt;enabled>]
     &#x5B;[purple]##**hidden:**##&lt;hidden>]
     &#x5B;[purple]##**width:**##&lt;width>]
-    &#x5B;[purple]##**input:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**lines:**##&lt;lines>]
     &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
@@ -114,12 +122,13 @@ Since the view field is also a transfer field, the basic syntax is the same as t
 |Parameter name | Parameter type        | Meaning
 |label          | string literal        | The label to show for the field.
 |icon           | string literal        | The name of the icon to show for the field. Possible icon names can be found here: https://pictogrammers.com/library/mdi/
-|enabled        | boolean expression    | If the field is enabled for editing. A value of "true" takes effect only if the input modifier is true.
+|required       | boolean expression    | If the field is required to fill by the user. A value of "true" takes effect only if the enabled modifier is true.
+|enabled        | boolean expression    | If the field is enabled for editing.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field. Possible values are 1, 2, 3, 4, 6 and 12.
 
 The 12-column grid system is a fundamental design concept widely adopted in web development, offering a versatile and systematic approach to organizing and structuring visual elements on screens. Based on the concept of dividing a webpage into twelve columns, the system provides an invisible grid that serves as a guide for layout design. Its technical strength lies in the inherent flexibility derived from the number 12, which is divisible by 1, 2, 3, 4, and 6, enabling designers to create a variety of layouts.
-|input          | boolean literal                    | If the field is used for conveying a value into the system.
+|lines          | numeric literal | The height of the field expressed in number of text lines. Can only be used if <primitive> is a string.
 |default        | expression returns primitive value | The default value of the field.
 |====================
 
@@ -141,16 +150,17 @@ A view link is a visual component in a user interface that symbolizes a connecti
 
 [subs="quotes"]
 ----
-[purple]#**link**# &#x5B;[purple]##**required**##] &lt;view> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+[purple]#**link**# &lt;view> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
     &#x5B;[purple]##**label:**##&lt;label>]
     &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**required:**##&lt;required>]
     &#x5B;[purple]##**enabled:**##&lt;enabled>]
     &#x5B;[purple]##**hidden:**##&lt;hidden>]
     &#x5B;[purple]##**width:**##&lt;width>]
-    &#x5B;[purple]##**text:**##&lt;text>]
     &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**choices:**##&lt;choices>]
     &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**text:**##&lt;text>]
     &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
@@ -162,18 +172,19 @@ Since the view link is also a single transfer relation, the basic syntax is the 
 [options="header", cols="1,1,2"]
 |====================
 |Parameter name | Parameter type        | Meaning
-|label          | string literal        | The label to show for the field.
-|icon           | string literal        | The name of the icon to show for the field.
-|enabled        | boolean expression    | If the field is enabled for editing.
-|hidden         | boolean expression    | If the field is shown to the user.
-|width          | numeric literal       | The logical width of the field.
+|label          | string literal        | The label to show for the link.
+|icon           | string literal        | The name of the icon to show for the link.
+|required       | boolean expression    | If the link is required to fill by the user. A value of "true" takes effect only if the enabled modifier is true.
+|enabled        | boolean expression    | If the link is enabled for editing.
+|hidden         | boolean expression    | If the link is shown to the user.
+|width          | numeric literal       | The logical width of the link.
 |eager          | boolean literal              | If the fetching strategy is eager or lazy.
-|choices        | Row declaration + expression | The possible values for selection.
+|choices        | Row declaration + expression | The possible values for selection. The choices modifier takes effect only if the enabled modifier is true.
 |default        | expression returns entity    | The default value.
 |text           | string expression            | The textual representation of the link.
-|create         | boolean literal              | If create is allowed on this relation.
-|update         | boolean literal              | If update is allowed on this relation.
-|delete         | boolean literal              | If delete is allowed on this relation.
+|create         | boolean literal              | If create is allowed into this link.
+|update         | boolean literal              | If update is allowed for the target of the link.
+|delete         | boolean literal              | If delete is allowed for the target of this link.
 |====================
 
 *Example:*
@@ -200,7 +211,6 @@ A view table is a graphical representation within a user interface that displays
     &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**choices:**##&lt;choices>]
     &#x5B;[purple]##**default:**##&lt;default>]
-    &#x5B;[purple]##**detail:**##&lt;detail>]
     &#x5B;[purple]##**rows:**##&lt;rows>]
     &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
@@ -210,19 +220,18 @@ A view table is a graphical representation within a user interface that displays
 [options="header", cols="1,1,2"]
 |====================
 |Parameter name | Parameter type        | Meaning
-|label          | string literal        | The label to show for the field.
-|icon           | string literal        | The name of the icon to show for the field.
-|enabled        | boolean expression    | If the field is enabled for editing.
-|hidden         | boolean expression    | If the field is shown to the user.
-|width          | numeric literal       | The logical width of the field.
-|eager          | boolean literal              | If the fetching strategy is eager or lazy.
-|choices        | Row declaration + expression | The possible values for selection.
+|label          | string literal        | The label to show for the table.
+|icon           | string literal        | The name of the icon to show for the table.
+|enabled        | boolean expression    | If the table is enabled for editing.
+|hidden         | boolean expression    | If the table is shown to the user.
+|width          | numeric literal       | The logical width of the table.
+|eager          | boolean literal       | If the fetching strategy is eager or lazy.
+|choices        | row declaration + expression | The possible values for selection. The choices modifier takes effect only if the enabled modifier is true.
 |default        | expression returns entities    | The default rows.
-|detail         | view name             | The view that shows the details of a row.
-|rows           | Numeric literal       | The number of rows shown in the table.
-|create         | boolean literal              | If create is allowed on this relation.
-|update         | boolean literal              | If update is allowed on this relation.
-|delete         | boolean literal              | If delete is allowed on this relation.
+|rows           | numeric literal       | The number of rows shown in the table.
+|create         | boolean literal              | If create is allowed into this table.
+|update         | boolean literal              | If update is allowed for the members of the table.
+|delete         | boolean literal              | If delete is allowed from this table.
 |====================
 
 *Example:*
@@ -341,6 +350,8 @@ vertical head {
 
 The action is a piece of code (currently Java implementation) that is executed when the action is invoked. An action may receive input as defined in its parameter.
 
+An action is represented by a clickable button in the screen.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -436,9 +447,7 @@ row ProductRow(Product product) {
 }
 ----
 
-=== Row column
-
-// _Should we rename column to cell??_
+=== Row field
 
 A primitive field that can store only a single primitive value and is displayed as a row cell.
 
@@ -446,7 +455,7 @@ A primitive field that can store only a single primitive value and is displayed 
 
 [subs="quotes"]
 ----
-[purple]#**column**# &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+[purple]#**field**# &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
     &#x5B;[purple]##**label:**##&lt;label>]
     &#x5B;[purple]##**icon:**##&lt;icon>]
     &#x5B;[purple]##**hidden:**##&lt;hidden>]
@@ -456,8 +465,8 @@ A primitive field that can store only a single primitive value and is displayed 
 [options="header", cols="1,1,2"]
 |====================
 |Parameter name | Parameter type        | Meaning
-|label          | string literal        | The label to show for the column.
-|icon           | string literal        | The name of the icon to show for the column.
+|label          | string literal        | The label to show for the column in the header row.
+|icon           | string literal        | The name of the icon to show for the column in the header row.
 |hidden         | boolean expression    | If the column is shown to the user.
 |width          | numeric literal       | The logical width of the column.
 |====================
@@ -466,5 +475,39 @@ A primitive field that can store only a single primitive value and is displayed 
 
 [source,jsl]
 ----
-column String price <= product.price.asString() + " HUF";
+field String price <= product.price.asString() + " HUF";
 ----
+
+=== Row action
+
+Row action serves the same purpose as <<View action>> within a view.
+
+A row action is represented by a clickable menu item in the last column of the table.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**action**# &#x5B;&lt;view>|&lt;union>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**##
+    &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...]
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**resource:**##&lt;resource>]
+    &#x5B;[purple]##**bulk:**##([purple]##**true**##|[purple]##**false**##)][purple]##**;**##
+----
+
+
+[options="header", cols="1,1,2"]
+|====================
+|Parameter name | Parameter type        | Meaning
+|label          | string literal        | The label to show for the action.
+|icon           | string literal        | The name of the icon to show for the action.
+|enabled        | boolean expression    | If the action is enabled for execution.
+|hidden         | boolean expression    | If the action is shown to the user.
+|width          | numeric literal       | The logical width of the button.
+|resource       | access name           | The name of an access where the returned transfer object is available.
+|bulk           | boolean literal       | Bulk is the ability to perform an action on multiple selected rows simultaneously.
+|====================
