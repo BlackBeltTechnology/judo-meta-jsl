@@ -887,7 +887,7 @@ RowsModifier
 	;
 
 ViewChoiceModifier returns TransferChoiceModifier
-	: type = KW_CHOICES COLON rows = [RowDeclaration | ModelName] LP expression = Expression RP
+	: type = KW_CHOICES COLON rows = [RowDeclaration | ModelName] LRB LP expression = Expression RP
 	;
 
 TextModifier

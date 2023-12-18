@@ -64,6 +64,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.AbstractModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferEventDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.OnModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.HumanModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.StaticModifier
 
 @Singleton
 class JslDslModelExtension {
@@ -645,6 +647,11 @@ class JslDslModelExtension {
 
     def boolean isHuman(ActorDeclaration it) {
     	val HumanModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.humanModifier) as HumanModifier
+    	return modifier !== null && (modifier.value === null || modifier.value.isIsTrue)
+	}    	
+
+    def boolean isStatic(TransferActionDeclaration it) {
+    	val StaticModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.staticModifier) as StaticModifier
     	return modifier !== null && (modifier.value === null || modifier.value.isIsTrue)
 	}    	
 }

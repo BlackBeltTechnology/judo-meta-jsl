@@ -1313,21 +1313,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 
     @Check
 	def checkTransferChoice(TransferChoiceModifier choice) {
-		var TransferRelationDeclaration relation = choice.eContainer as TransferRelationDeclaration
-		
-        if (!TypeInfo.getTargetType(relation).isCompatibleCollection(TypeInfo.getTargetType(choice.expression))) {
-            error("Invalid choices modifier. Choices must return compatible collection with field type.",
-                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
-                INVALID_CHOICES)
-        }
-
-		val mappedMember = relation.mappedMember;
-
-		if (relation.getterExpr !== null && mappedMember === null) {
-            error("Invalid choices modifier. Relation is read only. Change the relation expression.",
-                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
-                INVALID_CHOICES)
-
 		if (choice.rows !== null) {
 			if (choice.rows.map === null) {
 	            error("Invalid choices modifier. Row reference must be mapped.",
@@ -1893,6 +1878,7 @@ class JslDslValidator extends AbstractJslDslValidator {
             error("Invalid create modifier. Relation is read only. Change the relation expression.",
                 JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
                 INVALID_CHOICES)
+		}
 
 		if (relation.referenceType !== null && relation.referenceType.map !== null) {
 			if (!relation.referenceType.members.exists[m | m instanceof TransferCreateDeclaration && (m as TransferCreateDeclaration).instead]) {
