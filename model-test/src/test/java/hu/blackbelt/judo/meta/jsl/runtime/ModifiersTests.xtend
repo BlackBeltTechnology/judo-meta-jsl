@@ -267,7 +267,7 @@ class ModifiersTests {
 			}
 			
 			transfer TA maps A as a {
-				action void myaction(TB input) choices:B.all();
+				action void myaction(TB input choices:B.all());
 			}
         '''.parse => [
             assertNoErrors
@@ -288,7 +288,7 @@ class ModifiersTests {
 			}
 			
 			transfer TA maps A as a {
-				action void myaction(TB input) choices:B.all();
+				action void myaction(TB input choices:B.all());
 			}
         '''.parse => [
         	m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
@@ -398,7 +398,7 @@ class ModifiersTests {
 			}
 			
 			view VA maps A as a {
-				action void myaction(VB input) choices:RB[](B.all());
+				action void myaction(VB input choices:RB[](B.all()));
 			}
         '''.parse => [
             assertNoErrors
@@ -446,7 +446,7 @@ class ModifiersTests {
 			}
 			
 			view VA maps A as a {
-				action void myaction(VB input) choices:RB[](B.all());
+				action void myaction(VB input choices:RB[](B.all()));
 			}
         '''.parse => [
         	m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
@@ -470,7 +470,7 @@ class ModifiersTests {
 			}
 			
 			view VA maps A as a {
-				action void myaction(VB input) choices:RB[](B.all());
+				action void myaction(VB input choices:B.all());
 			}
         '''.parse => [
         	m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
