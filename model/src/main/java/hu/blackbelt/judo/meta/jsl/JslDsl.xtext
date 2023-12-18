@@ -182,6 +182,7 @@ TransferActionDeclaration
 	  -> KW_ACTION static ?= KW_STATIC? (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
 	  LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? RP
 	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
+	  modifiers += (TransferChoiceModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -332,7 +333,7 @@ ViewActionDeclaration returns TransferActionDeclaration
 	  -> KW_ACTION static ?= KW_STATIC? (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
 	  LP (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID)? RP
 	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
-	  modifiers += (VisualModifier | RedirectModifier)*
+	  modifiers += (VisualModifier | RedirectModifier | ViewChoiceModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 

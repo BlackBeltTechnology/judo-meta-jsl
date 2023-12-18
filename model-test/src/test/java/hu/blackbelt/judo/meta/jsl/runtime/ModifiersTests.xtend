@@ -253,6 +253,331 @@ class ModifiersTests {
         ]
     }
 
+    @Test
+    def void testTransferActionChoice() {
+        '''
+			model test;
+
+			entity A {
+			}
+			
+			entity B {}
+
+			transfer TB(B b) {
+			}
+			
+			transfer TA maps A as a {
+				action void myaction(TB input) choices:B.all();
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+    @Test
+    def void testTransferActionChoiceWithUnmappedInput() {
+        '''
+			model test;
+
+			entity A {
+			}
+			
+			entity B {}
+
+			transfer TB {
+			}
+			
+			transfer TA maps A as a {
+				action void myaction(TB input) choices:B.all();
+			}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
+        ]
+    }
+
+    @Test
+    def void testTransferActionChoiceMissing() {
+        '''
+			model test;
+
+			entity A {
+			}
+			
+			entity B {}
+
+			transfer TB(B b) {
+			}
+			
+			transfer TA maps A as a {
+				action void myaction(TB input);
+			}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.transferActionDeclaration, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
+    @Test
+    def void testTransferActionUpdateDelete() {
+        '''
+			model test;
+
+			entity A {
+			}
+			
+			entity B {}
+
+			transfer TB(B b) {
+				event instead update update();
+				event instead delete delete();
+			}
+			
+			transfer TA maps A as a {
+				action TB myaction() update:true delete:true;
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+    @Test
+    def void testTransferActionUpdateEventMissing() {
+        '''
+			model test;
+
+			entity A {
+			}
+			
+			entity B {}
+
+			transfer TB(B b) {
+			}
+			
+			transfer TA maps A as a {
+				action TB myaction() update:true;
+			}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.updateModifier, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
+    @Test
+    def void testTransferActionDeleteEventMissing() {
+        '''
+			model test;
+
+			entity A {
+			}
+			
+			entity B {}
+
+			transfer TB(B b) {
+			}
+			
+			transfer TA maps A as a {
+				action TB myaction() delete:true;
+			}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.deleteModifier, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
+    @Test
+    def void testViewChoiceRow() {
+        '''
+			model test;
+
+			entity A {
+			}
+			
+			entity B {}
+
+			row RB(B b) {
+			}
+
+			view VB(B b) {
+			}
+			
+			view VA maps A as a {
+				action void myaction(VB input) choices:RB[](B.all());
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+    @Test
+    def void testViewChoiceRowMissing() {
+        '''
+			model test;
+
+			entity A {
+			}
+			
+			entity B {}
+
+			row RB(B b) {
+			}
+
+			view VB(B b) {
+			}
+			
+			view VA maps A as a {
+				action void myaction(VB input);
+			}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.viewActionDeclaration, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
+    @Test
+    def void testViewChoiceRowUnmapped() {
+        '''
+			model test;
+
+			entity A {
+			}
+			
+			entity B {}
+
+			row RB {
+			}
+
+			view VB(B b) {
+			}
+			
+			view VA maps A as a {
+				action void myaction(VB input) choices:RB[](B.all());
+			}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
+        ]
+    }
+
+    @Test
+    def void testViewChoiceRowUnmatching() {
+        '''
+			model test;
+
+			entity A {
+			}
+			
+			entity B {}
+
+			row RB(A a) {
+			}
+
+			view VB(B b) {
+			}
+			
+			view VA maps A as a {
+				action void myaction(VB input) choices:RB[](B.all());
+			}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
+        ]
+    }
+
+    @Test
+    def void testTransferRelationCRUD() {
+        '''
+			model test;
+
+			entity A {
+			}
+			
+			entity B {
+				relation A[] alist;
+			}
+
+			transfer TA maps A as a {
+				event instead create create();
+				event instead delete delete();
+				event instead update update();
+			}
+
+			transfer TB(B b) {
+				relation TA[] talist <= b.alist create:true delete:true update:true;
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+    @Test
+    def void testTransferRelationCRUDCreateEventMissing() {
+        '''
+			model test;
+
+			entity A {
+			}
+			
+			entity B {
+				relation A[] alist;
+			}
+
+			transfer TA maps A as a {
+				event instead delete delete();
+				event instead update update();
+			}
+
+			transfer TB(B b) {
+				relation TA[] talist <= b.alist create:true delete:true update:true;
+			}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.createModifier, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
+    @Test
+    def void testTransferRelationCRUDDeleteEventMissing() {
+        '''
+			model test;
+
+			entity A {
+			}
+			
+			entity B {
+				relation A[] alist;
+			}
+
+			transfer TA maps A as a {
+				event instead create create();
+				event instead update update();
+			}
+
+			transfer TB(B b) {
+				relation TA[] talist <= b.alist create:true delete:true update:true;
+			}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.deleteModifier, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
+    @Test
+    def void testTransferRelationCRUDUpdateEventMissing() {
+        '''
+			model test;
+
+			entity A {
+			}
+			
+			entity B {
+				relation A[] alist;
+			}
+
+			transfer TA maps A as a {
+				event instead create create();
+				event instead delete delete();
+			}
+
+			transfer TB(B b) {
+				relation TA[] talist <= b.alist create:true delete:true update:true;
+			}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.updateModifier, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
     def private void assertMaxSizeTooLargeError(ModelDeclaration modelDeclaration, String error, EClass target) {
         modelDeclaration.assertError(
             target,
