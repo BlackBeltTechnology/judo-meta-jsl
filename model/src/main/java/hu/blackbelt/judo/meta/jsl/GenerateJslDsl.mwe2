@@ -12,8 +12,8 @@ var javaGenPath = "model/src/main/xtext-gen"
 
 Workflow {
 	
-	    // Generate UI content assistant and validators
-		component = XtextGenerator {
+    // Generate UI content assistant and validators
+	component = XtextGenerator {
 		configuration = {
 			project = JslXtextProjectConfig {
 			    mavenLayout = true
@@ -46,9 +46,7 @@ Workflow {
 				}
 				web = {
 					overwriteSrc = true
-					enabled = true
-					name = "hu.blackbelt.judo.meta.jsl.server.web"
-					root = "${rootPath}/server-web"
+					enabled = false
 				}
 			}
 			code = {
@@ -90,6 +88,7 @@ Workflow {
     		fragment = builder.BuilderIntegrationFragment2 auto-inject {}
 		}
 	}	
+
 	
 	// Generate runtime
 	component = XtextGenerator {

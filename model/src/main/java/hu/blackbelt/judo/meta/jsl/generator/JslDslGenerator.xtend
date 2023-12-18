@@ -25,8 +25,8 @@ class JslDslGenerator extends AbstractGenerator {
             val parts = uri.split("/")
             val filename = parts.get(parts.length-1).replace(".jsl", ".plantuml")
 
-            fsa.generateFile(filename,
-                plantUmlGenerator.generate(resource.allContents.findFirst[m | m instanceof ModelDeclaration] as ModelDeclaration, null));
+            //fsa.generateFile(filename,
+            //    plantUmlGenerator.generate(resource.allContents.findFirst[m | m instanceof ModelDeclaration] as ModelDeclaration, null));
 
     }
 }

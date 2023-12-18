@@ -3,9 +3,14 @@
  */
 package hu.blackbelt.judo.meta.jsl.ide
 
+import org.eclipse.xtext.ide.editor.contentassist.IdeContentProposalProvider
 
 /**
  * Use this class to register ide components.
  */
 class JslDslIdeModule extends AbstractJslDslIdeModule {
+	
+	def Class<? extends IdeContentProposalProvider> bindIdeContentProposalProvider() {
+    	JslDslIdeContentProposalProvider
+	}
 }
