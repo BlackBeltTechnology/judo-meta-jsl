@@ -488,7 +488,7 @@ class JslDslModelExtension {
 
     def BigInteger getMaxFileSizeValue(MaxFileSizeModifier it) {
         switch it.measure {
-            case "kB": return it.numeric.multiply(BigInteger.valueOf(1000))
+            case "KB": return it.numeric.multiply(BigInteger.valueOf(1000))
             case "MB": return it.numeric.multiply(BigInteger.valueOf(1000 * 1000))
             case "GB": return it.numeric.multiply(BigInteger.valueOf(1000 * 1000 * 1000))
 
