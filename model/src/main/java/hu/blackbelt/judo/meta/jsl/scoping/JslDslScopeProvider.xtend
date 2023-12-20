@@ -67,6 +67,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.RowActionDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -107,9 +108,11 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			EntityFieldDeclaration case ref == JsldslPackage::eINSTANCE.entityMemberDeclaration_ReferenceType && context.identifier: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.primitiveDeclaration)
 
 			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
+			RowActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
 			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
 			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_ViewOrUnion(scope)
+			RowActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_ViewOrUnion(scope)
 			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_SimpleTransferOrUnion(scope)
 			ViewDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_ViewOrUnion(scope)
 			SimpleTransferDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_SimpleTransferOrUnion(scope)

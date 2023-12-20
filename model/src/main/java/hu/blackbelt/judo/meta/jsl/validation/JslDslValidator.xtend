@@ -1788,13 +1788,13 @@ class JslDslValidator extends AbstractJslDslValidator {
     				JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"),
     				INVALID_DECLARATION)
             }
-	    	else if (eager.value.isTrue) {
+	    	else if (eager.value === null || eager.value.isTrue) {
 	    		info("Entity field is eager fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
 	    	}
 		}
 		
 		else if (eager.eContainer instanceof EntityRelationDeclaration) {
-	    	if (!eager.value.isTrue) {
+	    	if (eager.value !== null && !eager.value.isTrue) {
 	    		info("Entity relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
 	    	}
 		}
@@ -1808,7 +1808,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     				INVALID_DECLARATION)
 			}
 
-			if ((relation.maps || relation.reads) && !eager.value.isTrue) {
+			if ((relation.maps || relation.reads) && (eager.value !== null && !eager.value.isTrue)) {
 	    		info("Mapped transfer relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
 			}
 		}    	

@@ -405,9 +405,9 @@ RowActionDeclaration returns TransferActionDeclaration
 	: {RowActionDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_ACTION (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
-	  LP (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID)? RP
+	  LP (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID modifiers += ViewChoiceModifier?)? RP
 	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
-	  modifiers += (EnabledModifier | StaticModifier | VisualModifier | BulkModifier | RedirectModifier)*
+	  modifiers += (EnabledModifier | StaticModifier | VisualModifier | BulkModifier | RedirectModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 

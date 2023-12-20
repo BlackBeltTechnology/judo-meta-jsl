@@ -39,7 +39,9 @@ To define an entity, use the `entity` keyword.
 
 [subs="quotes"]
 ----
-[purple]#**entity**# &#x5B;[purple]##**abstract**##] &lt;name> &#x5B;[purple]##**extends**## &lt;entity>[purple]##**,**## ...] [purple]##**{**##
+[purple]#**entity**# &lt;name> &#x5B;[purple]##**extends**## &lt;entity>[purple]##**,**## ...] 
+    &#x5B;[purple]##**abstract:**##([purple]##**true**##|[purple]##**false**##)]
+[purple]##**{**##
     [member] ...
 [purple]#**}**#
 ----
@@ -62,7 +64,7 @@ An entity can be defined as an abstract using the keyword `abstract`. An abstrac
 
 [source,jsl]
 ----
-entity abstract Customer {
+entity Customer abstract {
 }
 ----
 
@@ -115,7 +117,9 @@ Use the `field` keyword to specify a primitive field within an entity.
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
+[purple]#**field**# &lt;primitive> &lt;name>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive and <name> is the referable name of the primitive field.
@@ -134,8 +138,8 @@ The `self` variable cannot be used in default expressions.
 [source,jsl]
 ----
 entity Person {
-    field required String firstName;
-    field required String lastName;
+    field String firstName required;
+    field String lastName required:true;
     field String midName;
     field Title title default:Title#MX;
 }
@@ -154,7 +158,9 @@ Use the `identifier` keyword to specify a unique field within an entity.
 
 [subs="quotes"]
 ----
-[purple]#**identifier**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
+[purple]#**identifier**# &lt;primitive> &lt;name>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive and <name> is the referable name of the identifier. Any primitive type can be used as an identifier, except primitives of binary base type.
@@ -173,7 +179,7 @@ The `self` variable cannot be used in default expressions.
 [source,jsl]
 ----
 entity User {
-    identifier required String email;
+    identifier String email required;
 }
 ----
 
@@ -233,7 +239,9 @@ Use the `relation` keyword to specify a relation between two entities. The synta
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
+[purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 where <entity> is the name of an entity to which the relation is targeted. The <name> is used to identify the relation within the entity, it is commonly referred to as role name.
@@ -253,7 +261,7 @@ entity Customer {
 }
 
 entity Order {
-	relation required Customer;
+	relation Customer required;
 }
 ----
 
@@ -270,7 +278,9 @@ The syntax of the bidirectional relation is an extension of unidirectional synta
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite:**##&lt;opposite>[purple]#**;**#
+[purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    [purple]##**opposite:**##&lt;opposite>[purple]#**;**#
 ----
 
 The `opposite` keyword is used to link two relations into a bidirectional relation. The `opposite` keyword must be used on both sides of the bidirectional relation.
@@ -286,7 +296,7 @@ entity Customer {
 }
 
 entity Order {
-	relation required Customer customer opposite:orders;
+	relation Customer customer required opposite:orders;
 }
 ----
 
@@ -296,7 +306,9 @@ Another form of bidirectional relationship declaration is as follows.
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite-add:**##&lt;opposite>&#x5B;[purple]##**[]**##][purple]#**;**#
+[purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    [purple]##**opposite-add:**##&lt;opposite>&#x5B;[purple]##**[]**##][purple]#**;**#
 ----
 
 The `opposite-add` keyword with a simple <opposite> is used to create a bidirectional relation and inject the opposite relation to an already defined entity without changing the original definition of the entity.
@@ -312,7 +324,7 @@ The example below defines a bidirectional relation. Defining the `product` relat
 [source,jsl]
 ----
 entity OrderItem {
-	relation required Product product opposite-add:orderItems[];
+	relation Product product required opposite-add:orderItems[];
 }
 
 entity Product {
@@ -324,7 +336,7 @@ The model in the above example is equivalent to the following example.
 [source,jsl]
 ----
 entity OrderItem {
-	relation required Product product opposite:orderItems;
+	relation Product product required opposite:orderItems;
 }
 
 entity Product {
@@ -354,7 +366,9 @@ Use the `field` keyword to specify a composite field within an entity.
 ////
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
+[purple]#**field**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> 
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 where <entity> is the name of an entity and <name> is the referable name of the composition.
@@ -370,13 +384,13 @@ Optionally, a <default> value can be specified as an expression. The <default> v
 [source,jsl]
 ----
 entity Address {
-    field required String line;
-    field required String city;
-    field required country;
+    field String line required;
+    field String city required;
+    field String country required;
 }
 
 entity Customer {
-    field required Address address;
+    field Address address required;
 }
 ----
 
@@ -423,8 +437,8 @@ Note that the `required` keyword cannot be used for calculated members.
 
 ----
 entity Person {
-    field required String firstName;
-    field required String lastName;
+    field String firstName required;
+    field String lastName required;
 
 	field String fullName <= self.firstName + " " + self.lastName;
 }
@@ -613,13 +627,13 @@ The `extends` keyword in the entity declaration indicates that an entity is inhe
 
 [source,jsl]
 ----
-entity abstract Customer {
-    field required Address address;
-	relation Order[] orders opposite customer;
+entity Customer abstract {
+    field Address address required;
+	relation Order[] orders opposite:customer;
 }
 
 entity Enterprise extends Customer {
-	field required String name;
+	field String name required;
 }
 ----
 
@@ -630,17 +644,17 @@ In the above example the Enterprise entity inherits the field and the relation o
 [source,jsl]
 ----
 entity User {
-	identifier required Email email;
+	identifier Email email required;
 } 
 
-entity abstract Customer {
-    field required Address address;
-	relation Order[] orders opposite customer;
+entity Customer abstract {
+    field Address address required;
+	relation Order[] orders opposite:customer;
 }
 
 entity Person extends Customer, User {
-	field required String firstName;
-	field required String lastName;
+	field String firstName required;
+	field String lastName required;
 }
 ----
 
