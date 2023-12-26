@@ -58,6 +58,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget
+import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateModifier
 
 @Singleton
 class JslDslModelExtension {
@@ -148,11 +149,13 @@ class JslDslModelExtension {
 	}
 
 	def isReads(TransferDataDeclaration it) {
-		return it.getterExpr !== null && it.mappedMember === null
+		val UpdateModifier updateModifier = it.getModifier(JsldslPackage::eINSTANCE.updateModifier) as UpdateModifier
+		return updateModifier === null || !(updateModifier.isTrue || updateModifier.isAuto)
 	}
 
 	def isMaps(TransferDataDeclaration it) {
-		return it.getterExpr !== null && it.mappedMember !== null
+		val UpdateModifier updateModifier = it.getModifier(JsldslPackage::eINSTANCE.updateModifier) as UpdateModifier
+		return updateModifier !== null && updateModifier.isAuto
 	}
 
     def NavigationTarget getMappedMember(TransferDataDeclaration member) {
@@ -536,16 +539,16 @@ class JslDslModelExtension {
 		val EagerModifier eagerModifier = member.getModifier(JsldslPackage::eINSTANCE.eagerModifier) as EagerModifier
 		
 		if (member instanceof EntityFieldDeclaration) {
-			return eagerModifier === null || eagerModifier.value.isTrue
+			return eagerModifier === null || eagerModifier.isTrue
 		} else {
-			return eagerModifier !== null && eagerModifier.value.isTrue
+			return eagerModifier !== null && eagerModifier.isTrue
 		}
 	}
 
 	def isEager(TransferDataDeclaration member) {
 		if (member.getterExpr === null) return false;  // because it has no expression
 		val EagerModifier eagerModifier = member.getModifier(JsldslPackage::eINSTANCE.eagerModifier) as EagerModifier
-		return eagerModifier !== null && eagerModifier.value.isTrue
+		return eagerModifier !== null && eagerModifier.isTrue
 	}
 
 	def isQueryCall(Feature feature) {

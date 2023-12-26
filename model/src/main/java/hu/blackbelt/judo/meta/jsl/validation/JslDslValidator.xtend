@@ -95,7 +95,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DetailModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowsModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.InputModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.DeleteModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateModifier
@@ -1313,17 +1312,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 	}
 
-	@Check
-	def checkInputModifier(InputModifier modifier) {
-		val TransferDataDeclaration member = modifier.eContainer as TransferDataDeclaration
-		
-		if (member.getterExpr !== null && member.mappedMember === null) {
-            error("Invalid input modifier. Getter expression must select a stored member of the mapped entity.",
-                JsldslPackage::eINSTANCE.inputModifier.getEStructuralFeature("ID"),
-                INVALID_DECLARATION)
-		}
-	}
-
     @Check
 	def checkTransferChoice(TransferChoiceModifier choice) {
 		if (choice.rows !== null) {
@@ -1775,13 +1763,13 @@ class JslDslValidator extends AbstractJslDslValidator {
     				JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"),
     				INVALID_DECLARATION)
             }
-	    	else if (eager.value.isTrue) {
+	    	else if (eager.isTrue) {
 	    		info("Entity field is eager fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
 	    	}
 		}
 		
 		else if (eager.eContainer instanceof EntityRelationDeclaration) {
-	    	if (!eager.value.isTrue) {
+	    	if (!eager.isTrue) {
 	    		info("Entity relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
 	    	}
 		}
@@ -1795,7 +1783,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     				INVALID_DECLARATION)
 			}
 
-			if ((relation.maps || relation.reads) && !eager.value.isTrue) {
+			if ((relation.maps || relation.reads) && !eager.isTrue) {
 	    		info("Mapped transfer relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
 			}
 		}    	
@@ -1840,6 +1828,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkCreateModifier(CreateModifier modifier) {
+		if (!modifier.isTrue) return;
+
 		val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
 		
 		if (relation.referenceType !== null && relation.referenceType.map === null) {
@@ -1859,6 +1849,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkDeleteModifier(DeleteModifier modifier) {
+		if (!modifier.isTrue) return;
+
 		if (modifier.eContainer instanceof TransferRelationDeclaration) {
 			val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
 			
@@ -1871,7 +1863,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			if (relation.referenceType !== null && relation.referenceType.map !== null) {
 				if (!relation.referenceType.members.exists[m | m instanceof TransferDeleteDeclaration && (m as TransferDeleteDeclaration).instead]) {
 		            error("Invalid delete modifier. Target transfer object must have delete instead event.",
-		                JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
+		                JsldslPackage::eINSTANCE.deleteModifier.getEStructuralFeature("ID"),
 		                INVALID_DECLARATION)
 				}
 			}
@@ -1882,14 +1874,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 			
 			if (action.^return === null || !(action.^return instanceof TransferDeclaration) || (action.^return as TransferDeclaration).map === null) {
 	            error("Invalid delete modifier. Delete modifier cannot be used for unmapped return type.",
-	                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
+	                JsldslPackage::eINSTANCE.deleteModifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
 			}
 
 			if (action.^return !== null && (action.^return instanceof TransferDeclaration) && (action.^return as TransferDeclaration).map !== null) {
 				if (!(action.^return as TransferDeclaration).members.exists[m | m instanceof TransferDeleteDeclaration && (m as TransferDeleteDeclaration).instead]) {
 		            error("Invalid delete modifier. Target transfer object must have delete instead event.",
-		                JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
+		                JsldslPackage::eINSTANCE.deleteModifier.getEStructuralFeature("ID"),
 		                INVALID_DECLARATION)
 				}
 			}
@@ -1898,8 +1890,28 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkUpdateModifier(UpdateModifier modifier) {
-		if (modifier.eContainer instanceof TransferRelationDeclaration) {
+		if (!modifier.isTrue && !modifier.isAuto) return;
+		
+		if (modifier.eContainer instanceof TransferFieldDeclaration) {
+			val TransferDataDeclaration field = modifier.eContainer as TransferDataDeclaration
+
+			if (modifier.isAuto && (field.getterExpr === null || field.mappedMember === null)) {
+	            error("Invalid update modifier. In case of automatic update the getter expression must select a stored member of the mapped entity.",
+	                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+		}
+		
+		else if (modifier.eContainer instanceof TransferRelationDeclaration) {
+			System.out.println("modifier.eContainer instanceof TransferRelationDeclaration")
+			
 			val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
+			
+			if (modifier.isAuto) {
+	            error("Invalid update modifier. Automatic update modifier can be used for transfer field declaration only.",
+	                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
 			
 			if (relation.referenceType !== null && relation.referenceType.map === null) {
 	            error("Invalid update modifier. Update modifier cannot be used for unmapped relation.",
@@ -1910,7 +1922,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			if (relation.referenceType !== null && relation.referenceType.map !== null) {
 				if (!relation.referenceType.members.exists[m | m instanceof TransferUpdateDeclaration && (m as TransferUpdateDeclaration).instead]) {
 		            error("Invalid update modifier. Target transfer object must have update instead event.",
-		                JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
+		                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
 		                INVALID_DECLARATION)
 				}
 			}
@@ -1918,6 +1930,12 @@ class JslDslValidator extends AbstractJslDslValidator {
 		
 		else if (modifier.eContainer instanceof TransferActionDeclaration) {
 			val TransferActionDeclaration action = modifier.eContainer as TransferActionDeclaration
+			
+			if (modifier.isAuto) {
+	            error("Invalid update modifier. Automatic update modifier can be used for transfer field declaration only.",
+	                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
 			
 			if (action.^return === null || !(action.^return instanceof TransferDeclaration) || (action.^return as TransferDeclaration).map === null) {
 	            error("Invalid update modifier. Update modifier cannot be used for unmapped return type.",
@@ -1928,7 +1946,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			if (action.^return !== null && (action.^return instanceof TransferDeclaration) && (action.^return as TransferDeclaration).map !== null) {
 				if (!(action.^return as TransferDeclaration).members.exists[m | m instanceof TransferUpdateDeclaration && (m as TransferUpdateDeclaration).instead]) {
 		            error("Invalid update modifier. Target transfer object must have update instead event.",
-		                JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
+		                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
 		                INVALID_DECLARATION)
 				}
 			}

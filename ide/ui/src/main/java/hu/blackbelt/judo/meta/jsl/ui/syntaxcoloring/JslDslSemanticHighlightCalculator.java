@@ -49,7 +49,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 	
 	static Set<String> operators = Sets.newHashSet("KW_NOT", "KW_IMPLIES", "KW_OR", "KW_XOR", "KW_AND", "KW_DIV", "KW_MOD");
 
-	static Set<String> constants = Sets.newHashSet("KW_BINARY", "KW_BOOLEAN", "KW_BOTTOM", "KW_CENTER", "KW_COLLECTION", "KW_CONSTANT", "KW_DATE",
+	static Set<String> constants = Sets.newHashSet("KW_AUTO", "KW_BINARY", "KW_BOOLEAN", "KW_BOTTOM", "KW_CENTER", "KW_COLLECTION", "KW_CONSTANT", "KW_DATE",
 								 "KW_DECLARATION", "KW_FALSE", "KW_LEFT",
     							 "KW_NUMERIC", "KW_RIGHT", "KW_STRING", "KW_TIME", "KW_TIMESTAMP", "KW_TOP", "KW_TRUE", "KW_VOID",
     							 "KW_KB", "KW_MB", "KW_GB", "KW_KIB", "KW_MIB", "KW_GIB");
@@ -59,7 +59,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
     							"KW_MENU", "KW_RELATION", "KW_STATIC", "KW_SUBMIT", "KW_TABLE", "KW_TABS", "KW_TEXT", "KW_THROWS", "KW_VERTICAL");
 
     static Set<String> attributes = Sets.newHashSet("KW_CHOICES", "KW_CLAIM", "KW_DEFAULT", "KW_DETAIL", "KW_EAGER", "KW_ENABLED", "KW_FRAME", "KW_GUARD", "KW_HIDDEN",
-    							  "KW_INPUT", "KW_HALIGN", "KW_ICON", "KW_IDENTITY", "KW_LABEL", "KW_MAXFILESIZE", "KW_MAXSIZE", "KW_MINSIZE", "KW_MIMETYPE",
+    							  "KW_HALIGN", "KW_ICON", "KW_IDENTITY", "KW_LABEL", "KW_MAXFILESIZE", "KW_MAXSIZE", "KW_MINSIZE", "KW_MIMETYPE",
     							  "KW_OPPOSITE", "KW_OPPOSITEADD", "KW_PRECISION", "KW_REALM", "KW_REDIRECT", "KW_REGEX", "KW_REQUIRED", "KW_ROWS", "KW_SCALE",
     							  "KW_STRETCH", "KW_THROW", "KW_VALIGN", "KW_WIDTH");
 
