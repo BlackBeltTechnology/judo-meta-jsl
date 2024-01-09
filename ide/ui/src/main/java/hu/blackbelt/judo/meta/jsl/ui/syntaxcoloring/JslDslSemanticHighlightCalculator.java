@@ -43,27 +43,26 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 			                   "LP", "RP", "DOT", "COMMA", "LB", "RB", "LRB", "ASSIGN", "LT", "GT", "QM", "COLON",
 			                   "NEQ", "EQ", "GTE", "LTE", "MAP", "PLUS", "MINUS", "MUL", "DIV", "EXP", "EXCL", "PIPE");
 
-	static Set<String> declarartions = Sets.newHashSet("KW_ABSTRACT", "KW_ACTOR", "KW_ANNOTATION", "KW_AS", "KW_ENTITY", "KW_ENUM", "KW_ERROR",
-								 "KW_EXTENDS", "KW_FUNCTION", "KW_HUMAN", "KW_IMPORT", "KW_LAMBDA", "KW_MAPS", "KW_MODEL", "KW_ON",
-								 "KW_QUERY", "KW_ROW", "KW_TRANSFER", "KW_TYPE", "KW_UNION", "KW_VIEW");
+	static Set<String> declarartions = Sets.newHashSet("KW_ACTOR", "KW_ANNOTATION", "KW_AS", "KW_ENTITY", "KW_ENUM", "KW_ERROR",
+								"KW_EXTENDS", "KW_FUNCTION", "KW_HUMAN", "KW_IMPORT", "KW_LAMBDA", "KW_MAPS", "KW_MODEL", "KW_ON",
+								"KW_QUERY", "KW_ROW", "KW_TRANSFER", "KW_TYPE", "KW_UNION", "KW_VIEW");
 	
 	static Set<String> operators = Sets.newHashSet("KW_NOT", "KW_IMPLIES", "KW_OR", "KW_XOR", "KW_AND", "KW_DIV", "KW_MOD");
 
-	static Set<String> constants = Sets.newHashSet("KW_AUTO", "KW_BINARY", "KW_BOOLEAN", "KW_BOTTOM", "KW_CENTER", "KW_COLLECTION", "KW_CONSTANT", "KW_DATE",
-								 "KW_DECLARATION", "KW_FALSE", "KW_LEFT",
-    							 "KW_NUMERIC", "KW_RIGHT", "KW_STRING", "KW_TIME", "KW_TIMESTAMP", "KW_TOP", "KW_TRUE", "KW_VOID",
-    							 "KW_KB", "KW_MB", "KW_GB", "KW_KIB", "KW_MIB", "KW_GIB");
+	static Set<String> constants = Sets.newHashSet("KW_AFTER", "KW_AUTO", "KW_BEFORE", "KW_BINARY", "KW_BOOLEAN", "KW_BOTTOM", "KW_CENTER", "KW_COLLECTION", 
+								"KW_CONSTANT", "KW_CREATE", "KW_DATE", "KW_DELETE", "KW_DECLARATION", "KW_FALSE", "KW_FETCH", "KW_HORIZONTAL", "KW_INITIALIZE",
+								"KW_LEFT", "KW_NUMERIC", "KW_RIGHT", "KW_STRING", "KW_TIME", "KW_TIMESTAMP", "KW_TOP", "KW_TRUE", "KW_UPDATE", "KW_VERTICAL",
+								"KW_VOID", "KW_KB", "KW_MB", "KW_GB", "KW_KIB", "KW_MIB", "KW_GIB");
 
-    static Set<String> features = Sets.newHashSet("KW_ACCESS", "KW_ACTION", "KW_AFTER", "KW_BEFORE", "KW_COLUMN", "KW_CONSTRAINT", "KW_EVENT",
-    							"KW_FIELD", "KW_GROUP", "KW_HORIZONTAL", "KW_IDENTIFIER", "KW_INSTEAD", "KW_LINK", "KW_LITERAL",
-    							"KW_MENU", "KW_RELATION", "KW_STATIC", "KW_SUBMIT", "KW_TABLE", "KW_TABS", "KW_TEXT", "KW_THROWS", "KW_VERTICAL");
+    static Set<String> features = Sets.newHashSet("KW_ACCESS", "KW_ACTION", "KW_ACTIONS", "KW_COLUMN", "KW_CONSTRAINT", "KW_EVENT",
+    							"KW_FIELD", "KW_GROUP", "KW_IDENTIFIER", "KW_LINK", "KW_LITERAL",
+    							"KW_MENU", "KW_RELATION", "KW_SUBMIT", "KW_TABLE", "KW_TABS", "KW_TEXT", "KW_THROWS");
 
-    static Set<String> attributes = Sets.newHashSet("KW_CHOICES", "KW_CLAIM", "KW_DEFAULT", "KW_DETAIL", "KW_EAGER", "KW_ENABLED", "KW_FRAME", "KW_GUARD", "KW_HIDDEN",
-    							  "KW_HALIGN", "KW_ICON", "KW_IDENTITY", "KW_LABEL", "KW_MAXFILESIZE", "KW_MAXSIZE", "KW_MINSIZE", "KW_MIMETYPE",
-    							  "KW_OPPOSITE", "KW_OPPOSITEADD", "KW_PRECISION", "KW_REALM", "KW_REDIRECT", "KW_REGEX", "KW_REQUIRED", "KW_ROWS", "KW_SCALE",
-    							  "KW_STRETCH", "KW_THROW", "KW_VALIGN", "KW_WIDTH");
-
-    static Set<String> specials = Sets.newHashSet("KW_CREATE", "KW_DELETE", "KW_UPDATE");
+    static Set<String> attributes = Sets.newHashSet("KW_ABSTRACT", "KW_BULK", "KW_CHOICES", "KW_CLAIM", "KW_CREATE", "KW_DEFAULT", "KW_DETAIL",
+    		 					"KW_DELETE", "KW_DIALOG", "KW_EAGER", "KW_ENABLED", "KW_FRAME", "KW_GUARD", "KW_HIDDEN",
+    							"KW_HALIGN", "KW_HUMAN", "KW_ICON", "KW_IDENTITY", "KW_LABEL", "KW_LINES", "KW_MAXFILESIZE", "KW_MAXSIZE", "KW_MINSIZE", "KW_MIMETYPE", "KW_ON",
+    							"KW_OPPOSITE", "KW_OPPOSITEADD", "KW_ORIENTATION", "KW_PRECISION", "KW_REALM", "KW_REDIRECT", "KW_REGEX", "KW_REQUIRED",
+    							"KW_ROWS", "KW_SCALE", "KW_STATIC", "KW_STRETCH", "KW_TIMING", "KW_TEXT", "KW_THROW",  "KW_UPDATE", "KW_VALIGN", "KW_WIDTH");
 
     @Override
     public void provideHighlightingFor(XtextResource resource, IHighlightedPositionAcceptor acceptor, CancelIndicator cancelIndicator) {
@@ -122,7 +121,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
                 }
 
             	if (ruleName.startsWith("KW_")) {
-                	if (specials.contains(ruleName)) {
+                	if (attributes.contains(ruleName)) {
                     	if (nodeGElem.eContainer() instanceof Assignment) {
                     		Assignment assignment = (Assignment)nodeGElem.eContainer();
                     		if (assignment.getFeature().equals("type")) {
@@ -131,7 +130,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
     	                        continue;
                     		}
                     	}
-                    }
+                	}
 
                 	if (operators.contains(ruleName)) {
                     	acceptor.addPosition(node.getOffset(), node.getLength(),
@@ -154,12 +153,6 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
                 	if (features.contains(ruleName)) {
                     	acceptor.addPosition(node.getOffset(), node.getLength(),
                         HighlightingConfiguration.FEATURE_ID);
-                        continue;
-                	}
-
-                	if (attributes.contains(ruleName)) {
-                    	acceptor.addPosition(node.getOffset(), node.getLength(),
-                        HighlightingConfiguration.ATTRIBUTE_ID);
                         continue;
                 	}
             	}
