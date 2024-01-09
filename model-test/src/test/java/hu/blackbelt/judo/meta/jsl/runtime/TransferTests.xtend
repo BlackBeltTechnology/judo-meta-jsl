@@ -253,7 +253,7 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                field Integer f <= e1.f input:true;
+                field Integer f <= e1.f update:auto;
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
@@ -448,7 +448,7 @@ class TransferTests {
             transfer T1(E1 e1);
 
             transfer T2(E2 e2) {
-                field T1 t1r <= e2.e0 input:true;
+                field T1 t1r <= e2.e0 update:auto;
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)

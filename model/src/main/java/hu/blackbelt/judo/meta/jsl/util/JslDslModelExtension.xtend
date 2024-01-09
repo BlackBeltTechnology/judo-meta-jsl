@@ -59,6 +59,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget
 import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.DeleteModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferChoiceModifier
 
 @Singleton
 class JslDslModelExtension {
@@ -149,11 +152,19 @@ class JslDslModelExtension {
 	}
 
 	def isReads(TransferDataDeclaration it) {
-		val UpdateModifier updateModifier = it.getModifier(JsldslPackage::eINSTANCE.updateModifier) as UpdateModifier
-		return updateModifier === null || !(updateModifier.isTrue || updateModifier.isAuto)
+		return it.getterExpr !== null && !it.maps
 	}
 
 	def isMaps(TransferDataDeclaration it) {
+		if (it.getterExpr === null) return false
+		
+		if (it instanceof TransferRelationDeclaration) {
+			val CreateModifier createModifier = it.getModifier(JsldslPackage::eINSTANCE.createModifier) as CreateModifier
+			val TransferChoiceModifier choiceModifier = it.getModifier(JsldslPackage::eINSTANCE.transferChoiceModifier) as TransferChoiceModifier
+			
+			return (createModifier !== null && createModifier.isTrue) || choiceModifier !== null
+		}
+		
 		val UpdateModifier updateModifier = it.getModifier(JsldslPackage::eINSTANCE.updateModifier) as UpdateModifier
 		return updateModifier !== null && updateModifier.isAuto
 	}

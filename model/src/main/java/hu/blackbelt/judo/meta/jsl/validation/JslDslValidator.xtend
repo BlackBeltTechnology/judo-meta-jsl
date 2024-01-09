@@ -1783,8 +1783,8 @@ class JslDslValidator extends AbstractJslDslValidator {
     				INVALID_DECLARATION)
 			}
 
-			if ((relation.maps || relation.reads) && !eager.isTrue) {
-	    		info("Mapped transfer relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
+			if (!eager.isTrue) {
+	    		info("Transfer relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
 			}
 		}    	
     }
@@ -1903,8 +1903,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 		
 		else if (modifier.eContainer instanceof TransferRelationDeclaration) {
-			System.out.println("modifier.eContainer instanceof TransferRelationDeclaration")
-			
 			val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
 			
 			if (modifier.isAuto) {
