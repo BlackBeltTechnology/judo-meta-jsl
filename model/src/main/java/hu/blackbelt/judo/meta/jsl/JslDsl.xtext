@@ -162,7 +162,7 @@ TransferDataDeclaration
 	  -> KW_FIELD
 	  required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (InputModifier | DefaultModifier)*
+	  modifiers += (UpdateModifier | DefaultModifier)*
 	  SC
 	  | TransferRelationDeclaration
 	;
@@ -284,7 +284,7 @@ ViewFieldDeclaration returns TransferFieldDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_FIELD required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (InputModifier | DefaultModifier | VisualModifier)*
+	  modifiers += (UpdateModifier | DefaultModifier | VisualModifier)*
 	  SC
 	;
 
@@ -772,8 +772,7 @@ ModifiableDeclaration returns Modifiable
 	;
 
 Modifier
-	: InputModifier
-	| EntityRelationOpposite
+	: EntityRelationOpposite
 	| DefaultModifier
 	| CreateModifier
 	| UpdateModifier
@@ -816,20 +815,16 @@ DefaultModifier
 	: type = KW_DEFAULT COLON expression = Expression
 	;
 
-InputModifier
-	: type = KW_INPUT COLON value = BooleanLiteral
-	;
-
 CreateModifier
-	: type = KW_CREATE COLON value = BooleanLiteral
+	: type = KW_CREATE COLON (KW_FALSE | true?=KW_TRUE)
 	;
 
 UpdateModifier
-	: type = KW_UPDATE COLON value = BooleanLiteral
+	: type = KW_UPDATE COLON (KW_FALSE | true?=KW_TRUE | auto?=KW_AUTO)
 	;
 
 DeleteModifier
-	: type = KW_DELETE COLON value = BooleanLiteral
+	: type = KW_DELETE COLON (KW_FALSE | true?=KW_TRUE)
 	;
 
 TransferChoiceModifier
@@ -938,7 +933,7 @@ MaxFileSizeModifier
 	;
 
 EagerModifier
-	: type = KW_EAGER COLON value = BooleanLiteral
+	: type = KW_EAGER COLON (KW_FALSE | true?=KW_TRUE)
 	;
 
 /****************************
@@ -954,7 +949,7 @@ Literal
 	;
 
 BooleanLiteral
-	: {BooleanLiteral} (KW_FALSE | isTrue?=KW_TRUE)
+	: {BooleanLiteral} (KW_FALSE | true?=KW_TRUE)
 	;
 
 NumberLiteral
@@ -1039,7 +1034,7 @@ JSLID: ID
 	
 	// Attributes
 	| KW_CHOICES | KW_CLAIM | KW_DETAIL | KW_EAGER | KW_ENABLED | KW_DEFAULT | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
-	| KW_IDENTITY | KW_INPUT | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_ROWS | KW_SCALE | KW_STRETCH | KW_THROW
+	| KW_IDENTITY | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_ROWS | KW_SCALE | KW_STRETCH | KW_THROW
 	| KW_WIDTH
 	
 	// Operators
@@ -1106,6 +1101,7 @@ terminal KW_UPDATE:		'update';   // no highlight
 terminal KW_VERTICAL:   'vertical';
 
 // Constants
+terminal KW_AUTO:		'auto';
 terminal KW_BINARY:		'binary';
 terminal KW_BOOLEAN:	'boolean';
 terminal KW_BOTTOM:		'bottom';
@@ -1143,7 +1139,6 @@ terminal KW_HIDDEN:		'hidden';
 terminal KW_HALIGN:	    'h-align';
 terminal KW_ICON:		'icon';
 terminal KW_IDENTITY:	'identity';
-terminal KW_INPUT:		'input';
 terminal KW_LABEL:		'label';
 terminal KW_MAXFILESIZE:'max-file-size';
 terminal KW_MAXSIZE:	'max-size';
