@@ -1681,11 +1681,12 @@ class JslDslValidator extends AbstractJslDslValidator {
         val TransferDeclaration transfer = field.parentContainer(TransferDeclaration);
         val NavigationTarget target = getMappedField(field); 
 
-        if (target === null || field.getModifier(JsldslPackage::eINSTANCE.enabledModifier) === null) return;
+        if (target === null || field.getModifier(JsldslPackage::eINSTANCE.updateModifier) === null) return;
 
         if (transfer.members.filter[m | m instanceof TransferFieldDeclaration &&
         	                            target === getMappedField(m as TransferFieldDeclaration) &&
-        	                            m.getModifier(JsldslPackage::eINSTANCE.enabledModifier) !== null].size > 1)
+        	                            m.getModifier(JsldslPackage::eINSTANCE.updateModifier) !== null &&
+        	                            (m.getModifier(JsldslPackage::eINSTANCE.updateModifier) as UpdateModifier).isAuto].size > 1)
         {
             warning("More than one editable transfer field is associated with the same entity field.",
                 JsldslPackage::eINSTANCE.named_Name,

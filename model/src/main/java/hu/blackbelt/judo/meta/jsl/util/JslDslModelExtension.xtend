@@ -624,24 +624,24 @@ class JslDslModelExtension {
     	val BooleanLiteral literal = modifier.expression.asBooleanLiteral
     	if (literal === null) return false
 
-    	return literal.isIsTrue
+    	return literal.isTrue
     }
 
     def boolean isRequired(TransferMemberDeclaration it) {
     	val RequiredModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.requiredModifier) as RequiredModifier
-    	if (modifier === null || modifier.expression === null) return false
+    	if (modifier === null) return false
 
 		if (modifier.expression === null) return true
 
     	val BooleanLiteral literal = modifier.expression.asBooleanLiteral
     	if (literal === null) return false
 
-    	return literal.isIsTrue
+    	return literal.isTrue
     }
 
     def boolean isAbstract(EntityDeclaration it) {
     	val AbstractModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.abstractModifier) as AbstractModifier
-    	return modifier !== null && (modifier.value === null || modifier.value.isIsTrue)
+    	return modifier !== null && !modifier.isFalse
 	}    	
 
     def boolean isAfter(TransferEventDeclaration it) {
@@ -661,11 +661,11 @@ class JslDslModelExtension {
 
     def boolean isHuman(ActorDeclaration it) {
     	val HumanModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.humanModifier) as HumanModifier
-    	return modifier !== null && (modifier.value === null || modifier.value.isIsTrue)
+    	return modifier !== null && !modifier.isFalse
 	}    	
 
     def boolean isStatic(TransferActionDeclaration it) {
     	val StaticModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.staticModifier) as StaticModifier
-    	return modifier !== null && (modifier.value === null || modifier.value.isIsTrue)
+    	return modifier !== null && !modifier.isFalse
 	}    	
 }
