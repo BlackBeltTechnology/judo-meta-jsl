@@ -163,7 +163,7 @@ TransferDataDeclaration
 	  -> KW_FIELD
 	  referenceType = [PrimitiveDeclaration | ModelName] Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (EnabledModifier | DefaultModifier | RequiredModifier)*
+	  modifiers += (EnabledModifier | UpdateModifier | DefaultModifier | RequiredModifier)*
 	  SC
 	  | TransferRelationDeclaration
 	;
@@ -287,7 +287,7 @@ ViewFieldDeclaration returns TransferFieldDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (DefaultModifier | RequiredModifier | EnabledModifier | VisualModifier | LinesModifier)*
+	  modifiers += (UpdateModifier | DefaultModifier | RequiredModifier | EnabledModifier | VisualModifier | LinesModifier)*
 	  SC
 	;
 
@@ -863,15 +863,15 @@ RequiredModifier
 	;
 
 CreateModifier
-	: type = KW_CREATE (COLON value = BooleanLiteral)?
+	: type = KW_CREATE (COLON (KW_FALSE | true?=KW_TRUE))?
 	;
 
 UpdateModifier
-	: type = KW_UPDATE (COLON value = BooleanLiteral)?
+	: type = KW_UPDATE (COLON (KW_FALSE | true?=KW_TRUE | auto?=KW_AUTO))?
 	;
 
 DeleteModifier
-	: type = KW_DELETE (COLON value = BooleanLiteral)?
+	: type = KW_DELETE (COLON (KW_FALSE | true?=KW_TRUE))?
 	;
 
 TransferChoiceModifier
@@ -983,23 +983,23 @@ MaxFileSizeModifier
 	;
 
 EagerModifier
-	: type = KW_EAGER (COLON value = BooleanLiteral)?
+	: type = KW_EAGER (COLON (KW_FALSE | true?=KW_TRUE))?
 	;
 
 BulkModifier
-	: type = KW_BULK (COLON value = BooleanLiteral)?
+	: type = KW_BULK (COLON (KW_FALSE | true?=KW_TRUE))?
 	;
 
 DialogModifier
-	: type = KW_DIALOG (COLON value = BooleanLiteral)?
+	: type = KW_DIALOG (COLON (KW_FALSE | true?=KW_TRUE))?
 	;
 
 StaticModifier
-	: type = KW_STATIC (COLON value = BooleanLiteral)?
+	: type = KW_STATIC (COLON (KW_FALSE | true?=KW_TRUE))?
 	;
 
 AbstractModifier
-	: type = KW_ABSTRACT (COLON value = BooleanLiteral)?
+	: type = KW_ABSTRACT (COLON (KW_FALSE | true?=KW_TRUE))?
 	;
 
 OnModifier
@@ -1011,7 +1011,7 @@ OrientationModifier
 	;
 
 HumanModifier
-	: type = KW_HUMAN (COLON value = BooleanLiteral)?
+	: type = KW_HUMAN (COLON (KW_FALSE | true?=KW_TRUE))?
 	;
 
 /****************************
@@ -1027,7 +1027,7 @@ Literal
 	;
 
 BooleanLiteral
-	: {BooleanLiteral} (KW_FALSE | isTrue?=KW_TRUE)
+	: {BooleanLiteral} (KW_FALSE | true?=KW_TRUE)
 	;
 
 NumberLiteral
@@ -1174,6 +1174,7 @@ terminal KW_UPDATE:		'update';   // no highlight
 // Constants
 terminal KW_AFTER:		'after';
 terminal KW_BEFORE:		'before';
+terminal KW_AUTO:		'auto';
 terminal KW_BINARY:		'binary';
 terminal KW_BOOLEAN:	'boolean';
 terminal KW_BOTTOM:		'bottom';
