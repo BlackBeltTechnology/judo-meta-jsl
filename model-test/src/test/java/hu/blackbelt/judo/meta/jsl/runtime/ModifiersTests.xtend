@@ -220,7 +220,7 @@ class ModifiersTests {
         '''
             model test;
 
-            entity abstract T1 {
+            entity T1 abstract {
             }
             
             entity Test {
@@ -327,8 +327,8 @@ class ModifiersTests {
 			entity B {}
 
 			transfer TB(B b) {
-				event instead update update();
-				event instead delete delete();
+				event update `update`();
+				event delete `delete`();
 			}
 			
 			transfer TA maps A as a {
@@ -490,9 +490,9 @@ class ModifiersTests {
 			}
 
 			transfer TA maps A as a {
-				event instead create create();
-				event instead delete delete();
-				event instead update update();
+				event create `create`();
+				event delete `delete`();
+				event update `update`();
 			}
 
 			transfer TB(B b) {
@@ -516,8 +516,8 @@ class ModifiersTests {
 			}
 
 			transfer TA maps A as a {
-				event instead delete delete();
-				event instead update update();
+				event delete edelete();
+				event update eupdate();
 			}
 
 			transfer TB(B b) {
@@ -541,8 +541,8 @@ class ModifiersTests {
 			}
 
 			transfer TA maps A as a {
-				event instead create create();
-				event instead update update();
+				event instead ecreate();
+				event instead eupdate();
 			}
 
 			transfer TB(B b) {
@@ -566,8 +566,8 @@ class ModifiersTests {
 			}
 
 			transfer TA maps A as a {
-				event instead create create();
-				event instead delete delete();
+				event instead ecreate();
+				event instead edelete();
 			}
 
 			transfer TB(B b) {
