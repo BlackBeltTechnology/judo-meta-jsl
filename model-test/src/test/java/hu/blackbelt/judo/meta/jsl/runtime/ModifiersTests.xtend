@@ -516,8 +516,8 @@ class ModifiersTests {
 			}
 
 			transfer TA maps A as a {
-				event instead delete delete();
-				event instead update update();
+				event delete edelete();
+				event update eupdate();
 			}
 
 			transfer TB(B b) {
@@ -541,8 +541,8 @@ class ModifiersTests {
 			}
 
 			transfer TA maps A as a {
-				event instead create create();
-				event instead update update();
+				event instead ecreate();
+				event instead eupdate();
 			}
 
 			transfer TB(B b) {
@@ -566,8 +566,8 @@ class ModifiersTests {
 			}
 
 			transfer TA maps A as a {
-				event instead create create();
-				event instead delete delete();
+				event instead ecreate();
+				event instead edelete();
 			}
 
 			transfer TB(B b) {

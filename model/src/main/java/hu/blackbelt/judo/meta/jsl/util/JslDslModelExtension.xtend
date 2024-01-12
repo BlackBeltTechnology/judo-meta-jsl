@@ -68,8 +68,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.StaticModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.DeleteModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferChoiceModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -164,13 +164,15 @@ class JslDslModelExtension {
 	}
 
 	def isMaps(TransferDataDeclaration it) {
-		if (it.getterExpr === null) return false
+		if (it.getMappedMember === null) return false
 		
 		if (it instanceof TransferRelationDeclaration) {
-			val CreateModifier createModifier = it.getModifier(JsldslPackage::eINSTANCE.createModifier) as CreateModifier
-			val TransferChoiceModifier choiceModifier = it.getModifier(JsldslPackage::eINSTANCE.transferChoiceModifier) as TransferChoiceModifier
+			if (it.getModifier(JsldslPackage::eINSTANCE.transferChoiceModifier) !== null) return true
 			
-			return (createModifier !== null && createModifier.isTrue) || choiceModifier !== null
+			val CreateModifier createModifier = it.getModifier(JsldslPackage::eINSTANCE.createModifier) as CreateModifier
+			if (createModifier !== null) return !createModifier.isFalse
+
+			return it.referenceType.members.exists[m | m instanceof TransferCreateDeclaration]
 		}
 		
 		val UpdateModifier updateModifier = it.getModifier(JsldslPackage::eINSTANCE.updateModifier) as UpdateModifier
