@@ -137,7 +137,7 @@ jobs:
           -Dmaven.test.skip=true \
           deploy
 
-      # Phase 2 - Deploy to P2 - develop
+      # Phase 2 - Deploy to P2 - version
       - name: 🎁 Release P2 - version (parallel uoload)
         run: |-
           export BASE_URL=https://nexus.judo.technology/repository/p2-judong/judo-meta-jsl/${{ steps.version.outputs.version }}
@@ -165,9 +165,9 @@ jobs:
 
       # Phase 2 - Deploy to P2 - develop
       - name: 🎁 Release P2 - develop (parallel uoload)
-#        if:           ${{ always() &&
-#          (startsWith(github.head_ref, 'develop') || github.ref == 'refs/heads/develop') &&
-#          job.status == 'success' }}
+        if: ${{ always() &&
+          (startsWith(github.head_ref, 'develop') || github.ref == 'refs/heads/develop') &&
+          job.status == 'success' }}
         run: |-
           export BASE_URL=https://nexus.judo.technology/repository/p2-judong/judo-meta-jsl/develop
           curl -X DELETE --insecure \
