@@ -174,14 +174,14 @@ TransferRelationDeclaration
 	  referenceType = [TransferDeclaration | ModelName] Cardinality?
 	  Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (DefaultModifier | EagerModifier | RequiredModifier | EnabledModifier | TransferChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  modifiers += (DefaultModifier | EagerModifier | RequiredModifier | EnabledModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
 TransferActionDeclaration
 	: annotations += AnnotationMark*
 	  -> KW_ACTION (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
-	  LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID modifiers += TransferChoiceModifier?)? RP
+	  LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID modifiers += (ChoiceModifier  | SelectorModifier)*)? RP
 	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
 	  modifiers += (EnabledModifier | StaticModifier | UpdateModifier | DeleteModifier)*
 	  SC
@@ -244,12 +244,7 @@ TransferInitializeDeclaration returns TransferEventDeclaration
  *	View
  ****************************/
 
-VisibleDeclaration returns TransferDeclaration
-	: ViewDeclaration
-	| RowDeclaration
-	;
-
-ViewDeclaration returns VisibleDeclaration
+ViewDeclaration returns TransferDeclaration
 	: {ViewDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_VIEW Named
@@ -296,7 +291,7 @@ ViewLinkDeclaration returns TransferRelationDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_LINK referenceType = [ViewDeclaration | ModelName] Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (DefaultModifier | EagerModifier | RequiredModifier | EnabledModifier | VisualModifier | TextModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  modifiers += (DefaultModifier | EagerModifier | RequiredModifier | EnabledModifier | VisualModifier | TextModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -305,7 +300,7 @@ ViewTableDeclaration returns TransferRelationDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (DefaultModifier | EagerModifier | EnabledModifier | VisualModifier | RowsModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  modifiers += (DefaultModifier | EagerModifier | EnabledModifier | VisualModifier | RowsModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -334,7 +329,7 @@ ViewActionDeclaration returns TransferActionDeclaration
 	: {ViewActionDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_ACTION (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
-	  LP (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID modifiers += ViewChoiceModifier?)? RP
+	  LP (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID modifiers += (ChoiceModifier | SelectorModifier)*)? RP
 	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
 	  modifiers += (EnabledModifier | StaticModifier | VisualModifier | RedirectModifier | UpdateModifier | DeleteModifier)*
 	  SC
@@ -368,7 +363,7 @@ ViewActionsDeclaration
  *	Row
  ****************************/
 
-RowDeclaration returns VisibleDeclaration
+RowDeclaration returns TransferDeclaration
 	: {RowDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_ROW Named
@@ -405,7 +400,7 @@ RowActionDeclaration returns TransferActionDeclaration
 	: {RowActionDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_ACTION (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
-	  LP (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID modifiers += ViewChoiceModifier?)? RP
+	  LP (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID modifiers += (ChoiceModifier | SelectorModifier)*)? RP
 	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
 	  modifiers += (EnabledModifier | StaticModifier | VisualModifier | BulkModifier | RedirectModifier | UpdateModifier | DeleteModifier)*
 	  SC
@@ -427,13 +422,15 @@ ActorDeclaration returns TransferDeclaration
 ActorMemberDeclaration returns TransferMemberDeclaration
 	: TransferEventDeclaration
 	| ActorAccessDeclaration
-	| ActorMenuDeclaration
+	| ActorLinkDeclaration
+	| ActorTableDeclaration
 	| ActorGroupDeclaration
 	;
 
 ActorGroupMemberDeclaration returns TransferMemberDeclaration
 	: ActorAccessDeclaration
-	| ActorMenuDeclaration
+	| ActorLinkDeclaration
+	| ActorTableDeclaration
 	| ActorGroupDeclaration
 	;
 
@@ -442,7 +439,7 @@ ActorAccessDeclaration returns TransferRelationDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_ACCESS referenceType = [TransferDeclaration | ModelName] Cardinality? Named // reads ?= LTE getterExpr = Expression
 	  (LTE getterExpr = Expression)?
-	  modifiers += (TransferChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  modifiers += (ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -453,12 +450,21 @@ ActorGroupDeclaration
 	  BLOCK_START (members += ActorGroupMemberDeclaration)* BLOCK_END
 	;
 
-ActorMenuDeclaration returns ActorAccessDeclaration
-	: {ActorMenuDeclaration}
+ActorLinkDeclaration returns ViewLinkDeclaration
+	: {ActorLinkDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_MENU referenceType = [VisibleDeclaration | ModelName] Cardinality? Named
+	  -> KW_LINK referenceType = [ViewDeclaration | ModelName] Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (EnabledModifier | VisualModifier | RowsModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  modifiers += (DefaultModifier | EagerModifier | RequiredModifier | EnabledModifier | VisualModifier | TextModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  SC
+	;
+
+ActorTableDeclaration returns ViewTableDeclaration
+	: {ActorTableDeclaration}
+	  annotations += AnnotationMark*
+	  -> KW_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
+	  (LTE getterExpr = Expression)?
+	  modifiers += (DefaultModifier | EagerModifier | EnabledModifier | VisualModifier | RowsModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -744,7 +750,8 @@ AnnotationTarget
 	| KW_TRANSFER COLON transferRelation ?= KW_RELATION
 
 	| KW_ACTOR COLON actorGroup ?= KW_GROUP
-	| KW_ACTOR COLON actorMenu ?= KW_MENU
+	| KW_ACTOR COLON actorLink ?= KW_LINK
+	| KW_ACTOR COLON actorTable ?= KW_TABLE
 	| KW_ACTOR COLON actorAccess ?= KW_ACCESS
 
 	| KW_VIEW COLON viewAction ?= KW_ACTION
@@ -812,10 +819,10 @@ Modifier
 	| CreateModifier
 	| UpdateModifier
 	| DeleteModifier
-	| TransferChoiceModifier
+	| ChoiceModifier
 	| RedirectModifier
 	| RowsModifier
-	| ViewChoiceModifier
+	| SelectorModifier
 	| TextModifier
 	| DetailModifier
 	| RealmModifier
@@ -874,7 +881,7 @@ DeleteModifier
 	: type = KW_DELETE (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
-TransferChoiceModifier
+ChoiceModifier
 	: type = KW_CHOICES COLON expression = Expression
 	;
 
@@ -886,8 +893,8 @@ RowsModifier
 	: type = KW_ROWS COLON value = NaturalNumber
 	;
 
-ViewChoiceModifier returns TransferChoiceModifier
-	: type = KW_CHOICES COLON rows = [RowDeclaration | ModelName] LRB LP expression = Expression RP
+SelectorModifier
+	: type = KW_SELECTOR COLON transfer = [TransferDeclaration | ModelName]
 	;
 
 TextModifier
@@ -1112,8 +1119,8 @@ JSLID: ID
 	
 	// Attributes
 	| KW_BULK | KW_CHOICES | KW_CLAIM | KW_DETAIL | KW_EAGER | KW_ENABLED | KW_DEFAULT | KW_DIALOG | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
-	| KW_IDENTITY | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_REQUIRED | KW_ROWS | KW_SCALE | KW_STATIC | KW_STRETCH | KW_THROW
-	| KW_TIMING | KW_WIDTH
+	| KW_IDENTITY | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_REQUIRED | KW_ROWS | KW_SELECTOR | KW_SCALE | KW_STATIC
+	| KW_STRETCH | KW_THROW | KW_TIMING | KW_WIDTH
 	
 	// Operators
 //	| KW_IMPLIES | KW_OR | KW_XOR | KW_AND | KW_DIV | KW_MOD
@@ -1233,6 +1240,7 @@ terminal KW_REDIRECT:	'redirect';
 terminal KW_REGEX:		'regex';
 terminal KW_REQUIRED:	'required';
 terminal KW_ROWS:		'rows';
+terminal KW_SELECTOR:	'selector';
 terminal KW_SCALE:		'scale';
 terminal KW_STATIC:		'static';
 terminal KW_STRETCH:	'stretch';

@@ -68,7 +68,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.StaticModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferChoiceModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 
 @Singleton
@@ -167,7 +166,7 @@ class JslDslModelExtension {
 		if (it.getMappedMember === null) return false
 		
 		if (it instanceof TransferRelationDeclaration) {
-			if (it.getModifier(JsldslPackage::eINSTANCE.transferChoiceModifier) !== null) return true
+			if (it.getModifier(JsldslPackage::eINSTANCE.choiceModifier) !== null) return true
 			
 			val CreateModifier createModifier = it.getModifier(JsldslPackage::eINSTANCE.createModifier) as CreateModifier
 			if (createModifier !== null) return !createModifier.isFalse
