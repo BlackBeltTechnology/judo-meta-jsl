@@ -371,7 +371,7 @@ class TransferTests {
                 relation T1 t1 <= e.e2 choices:E1.all();
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
+            m | m.assertError(JsldslPackage::eINSTANCE.choiceModifier, JslDslValidator.INVALID_CHOICES)
         ]
     }
 
@@ -475,7 +475,7 @@ class TransferTests {
 
             transfer T2(E2 e2);
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
+            m | m.assertError(JsldslPackage::eINSTANCE.choiceModifier, JslDslValidator.INVALID_CHOICES)
         ]
     }
 
@@ -499,7 +499,7 @@ class TransferTests {
 
             transfer T2(E2 e2);
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
+            m | m.assertError(JsldslPackage::eINSTANCE.choiceModifier, JslDslValidator.INVALID_CHOICES)
         ]
     }
 

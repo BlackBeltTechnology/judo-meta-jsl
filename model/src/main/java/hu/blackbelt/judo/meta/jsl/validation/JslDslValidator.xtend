@@ -1839,13 +1839,13 @@ class JslDslValidator extends AbstractJslDslValidator {
     				JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"),
     				INVALID_DECLARATION)
             }
-	    	else if (eager.isTrue) {
+	    	else if (!eager.isFalse) {
 	    		info("Entity field is eager fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
 	    	}
 		}
 		
 		else if (eager.eContainer instanceof EntityRelationDeclaration) {
-	    	if (!eager.isTrue) {
+	    	if (eager.isFalse) {
 	    		info("Entity relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
 	    	}
 		}
@@ -1859,7 +1859,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     				INVALID_DECLARATION)
 			}
 			
-			if (!eager.isTrue) {
+			if (eager.isFalse) {
 	    		info("Transfer relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
 			}
 		}    	
@@ -1914,7 +1914,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkCreateModifier(CreateModifier modifier) {
-		if (!modifier.isTrue) return;
+		if (modifier.isFalse) return;
 
 		val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
 		
@@ -1943,7 +1943,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkDeleteModifier(DeleteModifier modifier) {
-		if (!modifier.isTrue) return;
+		if (modifier.isFalse) return;
 
 		if (modifier.eContainer instanceof TransferRelationDeclaration) {
 			val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
@@ -1984,7 +1984,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkUpdateModifier(UpdateModifier modifier) {
-		if (!modifier.isTrue && !modifier.isAuto) return;
+		if (modifier.isFalse) return;
 		
 		if (modifier.eContainer instanceof TransferFieldDeclaration) {
 			val TransferDataDeclaration field = modifier.eContainer as TransferDataDeclaration

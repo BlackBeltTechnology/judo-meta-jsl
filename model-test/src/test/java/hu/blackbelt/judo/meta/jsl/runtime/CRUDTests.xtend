@@ -87,7 +87,7 @@ class CRUDTests {
 			}
 			
 			actor Actor human {
-				menu TA[] talist <= A.all() delete update;
+				table TA[] talist <= A.all() delete update;
 			}
         '''.parse => [
             assertNoErrors

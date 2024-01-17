@@ -249,7 +249,7 @@ class ModifiersTests {
 			
 			transfer TB(B b) {}
         '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
+        	m | m.assertError(JsldslPackage::eINSTANCE.choiceModifier, JslDslValidator.INVALID_CHOICES)
         ]
     }
 
@@ -291,7 +291,7 @@ class ModifiersTests {
 				action void myaction(TB input choices:B.all());
 			}
         '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
+        	m | m.assertError(JsldslPackage::eINSTANCE.choiceModifier, JslDslValidator.INVALID_CHOICES)
         ]
     }
 
@@ -398,7 +398,7 @@ class ModifiersTests {
 			}
 			
 			view VA maps A as a {
-				action void myaction(VB input choices:RB[](B.all()));
+				action void myaction(VB input choices:B.all() selector:RB);
 			}
         '''.parse => [
             assertNoErrors
@@ -449,7 +449,7 @@ class ModifiersTests {
 				action void myaction(VB input choices:RB[](B.all()));
 			}
         '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
+        	m | m.assertError(JsldslPackage::eINSTANCE.choiceModifier, JslDslValidator.INVALID_CHOICES)
         ]
     }
 
@@ -470,10 +470,10 @@ class ModifiersTests {
 			}
 			
 			view VA maps A as a {
-				action void myaction(VB input choices:B.all());
+				action void myaction(VB input choices:A.all());
 			}
         '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
+        	m | m.assertError(JsldslPackage::eINSTANCE.choiceModifier, JslDslValidator.INVALID_CHOICES)
         ]
     }
 

@@ -563,16 +563,16 @@ class JslDslModelExtension {
 		val EagerModifier eagerModifier = member.getModifier(JsldslPackage::eINSTANCE.eagerModifier) as EagerModifier
 		
 		if (member instanceof EntityFieldDeclaration) {
-			return eagerModifier === null || eagerModifier.isTrue
+			return eagerModifier === null || !eagerModifier.isFalse
 		} else {
-			return eagerModifier !== null && eagerModifier.isTrue
+			return eagerModifier !== null && !eagerModifier.isFalse
 		}
 	}
 
 	def isEager(TransferDataDeclaration member) {
 		if (member.getterExpr === null) return false;  // because it has no expression
 		val EagerModifier eagerModifier = member.getModifier(JsldslPackage::eINSTANCE.eagerModifier) as EagerModifier
-		return eagerModifier !== null && eagerModifier.isTrue
+		return eagerModifier !== null && !eagerModifier.isFalse
 	}
 
 	def isQueryCall(Feature feature) {
@@ -625,7 +625,7 @@ class JslDslModelExtension {
     	val BooleanLiteral literal = modifier.expression.asBooleanLiteral
     	if (literal === null) return false
 
-    	return literal.isTrue
+    	return !literal.isFalse
     }
 
     def boolean isRequired(TransferMemberDeclaration it) {
@@ -637,7 +637,7 @@ class JslDslModelExtension {
     	val BooleanLiteral literal = modifier.expression.asBooleanLiteral
     	if (literal === null) return false
 
-    	return literal.isTrue
+    	return !literal.isFalse
     }
 
     def boolean isAbstract(EntityDeclaration it) {
