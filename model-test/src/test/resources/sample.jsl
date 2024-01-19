@@ -24,7 +24,7 @@ enum LeadStatus {
 	PROJECT = 2;
 }
 
-entity abstract Person {
+entity Person abstract {
 	field String firstName;
 	field String lastName;
 	// TODO JNG-3772 CreateExpressions are not supported yet JNG-3772
@@ -45,13 +45,13 @@ query Lead[] leadsOver10() on SalesPerson <= self.leadsOver(limit = 10);
 entity Lead {
 	field Integer value default:100000;
 
-	relation required SalesPerson salesPerson opposite:leads;
+	relation SalesPerson salesPerson required opposite:leads;
 
 	// constraint valueLessThan10 self.value > 10 onerror MyError(code = 10, msg = "Error message");
 }
 
 entity Customer {
-	identifier required String name;
+	identifier String name required;
 
 	relation Lead[] lead opposite-add:customer;
 }
