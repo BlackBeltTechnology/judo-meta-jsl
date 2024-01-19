@@ -229,12 +229,7 @@ Use the `\<=` symbol in the field definitions to define the mapping configuratio
 [purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>];
 ----
 
-where <primitive> is the name of a domain model primitive, or
-
-[subs="quotes"]
-----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**<=**## &lt;expression>];
-----
+where <primitive> is the name of a domain model primitive.
 
 If the `\<=` symbol is used, the value of the transfer field will be set to the value of the expression specified after `\<=`. 
 
