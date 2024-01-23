@@ -1917,8 +1917,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 		if (modifier.isFalse) return;
 
 		val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
-		
-		if (relation.referenceType !== null && relation.referenceType.map === null) {
+
+		if (!relation.isMaps && !relation.isReads) {
             error("Invalid create modifier. Create modifier cannot be used for unmapped relation.",
                 JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
@@ -1948,7 +1948,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		if (modifier.eContainer instanceof TransferRelationDeclaration) {
 			val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
 			
-			if (relation.referenceType !== null && relation.referenceType.map === null) {
+			if (!relation.isMaps && !relation.isReads) {
 	            error("Invalid delete modifier. Delete modifier cannot be used for unmapped relation.",
 	                JsldslPackage::eINSTANCE.deleteModifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
@@ -1981,7 +1981,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 		}
 	}
-
+	
 	@Check
 	def checkUpdateModifier(UpdateModifier modifier) {
 		if (modifier.isFalse) return;
@@ -2005,7 +2005,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                INVALID_DECLARATION)
 			}
 			
-			if (relation.referenceType !== null && relation.referenceType.map === null) {
+			if (!relation.isMaps && !relation.isReads) {
 	            error("Invalid update modifier. Update modifier cannot be used for unmapped relation.",
 	                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
