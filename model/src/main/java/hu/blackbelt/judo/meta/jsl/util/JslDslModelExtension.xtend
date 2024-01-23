@@ -58,10 +58,17 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclarationReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget
+import hu.blackbelt.judo.meta.jsl.jsldsl.RequiredModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral
+import hu.blackbelt.judo.meta.jsl.jsldsl.AbstractModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferEventDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.OnModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.HumanModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.StaticModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.DeleteModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferChoiceModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -156,13 +163,15 @@ class JslDslModelExtension {
 	}
 
 	def isMaps(TransferDataDeclaration it) {
-		if (it.getterExpr === null) return false
+		if (it.getMappedMember === null) return false
 		
 		if (it instanceof TransferRelationDeclaration) {
-			val CreateModifier createModifier = it.getModifier(JsldslPackage::eINSTANCE.createModifier) as CreateModifier
-			val TransferChoiceModifier choiceModifier = it.getModifier(JsldslPackage::eINSTANCE.transferChoiceModifier) as TransferChoiceModifier
+			if (it.getModifier(JsldslPackage::eINSTANCE.choiceModifier) !== null) return true
 			
-			return (createModifier !== null && createModifier.isTrue) || choiceModifier !== null
+			val CreateModifier createModifier = it.getModifier(JsldslPackage::eINSTANCE.createModifier) as CreateModifier
+			if (createModifier !== null) return !createModifier.isFalse
+
+			return it.referenceType.members.exists[m | m instanceof TransferCreateDeclaration]
 		}
 		
 		val UpdateModifier updateModifier = it.getModifier(JsldslPackage::eINSTANCE.updateModifier) as UpdateModifier
@@ -434,6 +443,10 @@ class JslDslModelExtension {
         eAllContents.filter[d | d instanceof TransferFieldDeclaration].map[d | d as TransferFieldDeclaration].toList
     }
 
+    def Collection<TransferRelationDeclaration> relations(TransferDeclaration it) {
+        eAllContents.filter[d | d instanceof TransferRelationDeclaration].map[d | d as TransferRelationDeclaration].toList
+    }
+
     def String sourceCode(Expression it) {
         return NodeModelUtils.findActualNodeFor(it)?.getText()
     }
@@ -550,16 +563,16 @@ class JslDslModelExtension {
 		val EagerModifier eagerModifier = member.getModifier(JsldslPackage::eINSTANCE.eagerModifier) as EagerModifier
 		
 		if (member instanceof EntityFieldDeclaration) {
-			return eagerModifier === null || eagerModifier.isTrue
+			return eagerModifier === null || !eagerModifier.isFalse
 		} else {
-			return eagerModifier !== null && eagerModifier.isTrue
+			return eagerModifier !== null && !eagerModifier.isFalse
 		}
 	}
 
 	def isEager(TransferDataDeclaration member) {
 		if (member.getterExpr === null) return false;  // because it has no expression
 		val EagerModifier eagerModifier = member.getModifier(JsldslPackage::eINSTANCE.eagerModifier) as EagerModifier
-		return eagerModifier !== null && eagerModifier.isTrue
+		return eagerModifier !== null && !eagerModifier.isFalse
 	}
 
 	def isQueryCall(Feature feature) {
@@ -590,4 +603,70 @@ class JslDslModelExtension {
     			i.model.appendImportedModelDeclarations(models)
     		]
     }
+    
+    def BooleanLiteral getAsBooleanLiteral(Expression expr) {
+    	if (expr === null) return null
+    	
+    	if (!(expr instanceof Navigation)) return null
+    	val Navigation navigation = expr as Navigation
+
+    	if (navigation.base === null) return null
+		if (!(navigation.base instanceof BooleanLiteral)) return null 
+    	
+    	return navigation.base as BooleanLiteral
+    }
+    
+    def boolean isRequired(EntityMemberDeclaration it) {
+    	val RequiredModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.requiredModifier) as RequiredModifier
+    	if (modifier === null) return false
+
+		if (modifier.expression === null) return true
+    	
+    	val BooleanLiteral literal = modifier.expression.asBooleanLiteral
+    	if (literal === null) return false
+
+    	return !literal.isFalse
+    }
+
+    def boolean isRequired(TransferMemberDeclaration it) {
+    	val RequiredModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.requiredModifier) as RequiredModifier
+    	if (modifier === null) return false
+
+		if (modifier.expression === null) return true
+
+    	val BooleanLiteral literal = modifier.expression.asBooleanLiteral
+    	if (literal === null) return false
+
+    	return !literal.isFalse
+    }
+
+    def boolean isAbstract(EntityDeclaration it) {
+    	val AbstractModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.abstractModifier) as AbstractModifier
+    	return modifier !== null && !modifier.isFalse
+	}    	
+
+    def boolean isAfter(TransferEventDeclaration it) {
+    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
+    	return modifier !== null && modifier.after
+	}    	
+
+    def boolean isBefore(TransferEventDeclaration it) {
+    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
+    	return modifier !== null && modifier.before
+	}    	
+
+    def boolean isInstead(TransferEventDeclaration it) {
+    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
+    	return modifier === null
+	}    	
+
+    def boolean isHuman(ActorDeclaration it) {
+    	val HumanModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.humanModifier) as HumanModifier
+    	return modifier !== null && !modifier.isFalse
+	}    	
+
+    def boolean isStatic(TransferActionDeclaration it) {
+    	val StaticModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.staticModifier) as StaticModifier
+    	return modifier !== null && !modifier.isFalse
+	}    	
 }

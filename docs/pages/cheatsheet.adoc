@@ -74,7 +74,7 @@ The primitive data types in the model must be specified with the `type` keyword.
 
 [subs="quotes"]
 ----
-[purple]#**type**# &lt;basetype> &lt;name> &#x5B;&lt;parameter name>[purple]#**:**#&lt;parameter value>] ... [purple]#**;**#
+[purple]#**type**# &lt;basetype> &lt;name> &#x5B;&lt;modifier name>[purple]#**:**#&lt;modifier value>] ... [purple]#**;**#
 ----
 
 *Example:*
@@ -98,16 +98,18 @@ The persistent data of a model is described in the form of entity types.
 
 [subs="quotes"]
 ----
-[purple]#**entity**# &#x5B;[purple]##**abstract**##] &lt;name> &#x5B;[purple]##**extends**## &lt;entity>[purple]##**,**## ...] &#x5B;[purple]##**{**##
+[purple]#**entity**# &lt;name> &#x5B;[purple]##**extends**## &lt;entity>[purple]##**,**## ...] 
+    &#x5B;[purple]##**abstract:**##([purple]##**true**##|[purple]##**false**##)]
+[purple]##**{**##
     [member] ...
-[purple]#**}**#][purple]#**;**#
+[purple]#**}**#
 ----
 
 *Example:*
 
 [source,jsl]
 ----
-entity abstract Person extends Customer, User;
+entity Person extends Customer, User abstract;
 ----
 
 === Entity stored primitive field
@@ -118,13 +120,15 @@ An entity instance can store primitive values in its fields.
 
 [subs="quotes"]
 ----
-([purple]#**field**#|[purple]#**identifier**#) &#x5B;[purple]##**required**##] &lt;primitive> &lt;name>
+([purple]#**field**#|[purple]#**identifier**#) &lt;primitive> &lt;name>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type                      | Meaning
+|Modifier name  | Modifier type                       | Meaning
+|required       | boolean literal                     | If he field value must be specified.
 |default        | expression returns primitive value  | The default value of the field.
 |====================
 
@@ -132,7 +136,7 @@ An entity instance can store primitive values in its fields.
 
 [source,jsl]
 ----
-field required String name default:"John Doe";
+field String name required default:"John Doe";
 ----
 
 === Entity stored composition
@@ -144,22 +148,22 @@ A composite field is an entity member whose type is an entity.
 [subs="quotes"]
 ----
 [purple]#**field**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
-    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
 ----
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type               | Meaning
-|default        | expression returns entities  | The default value of the field.
-|eager          | boolean literal              | If the fetching strategy is eager or lazy.
+|Modifier name  | Modifier type     | Meaning
+|required       | boolean literal   | If the field value must be specified.
+|eager          | boolean literal   | If the fetching strategy is eager.
 |====================
 
 *Example:*
 
 [source,jsl]
 ----
-field required Address address eager:true;
+field Address address required eager;
 ----
 
 [source,jsl]
@@ -175,7 +179,8 @@ Relation is a reference to an other entity or set of entities defined within an 
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
+[purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**default:**##&lt;default>]
     &#x5B;[purple]##**opposite:**##&lt;opposite> | [purple]##**opposite-add:**##&lt;opposite>&#x5B;[purple]##**[]**##]]
     &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
@@ -183,23 +188,24 @@ Relation is a reference to an other entity or set of entities defined within an 
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type               | Meaning
-|default        | expression returns entities  | The default value of the field.
-|opposite       | relation name                | Create a bidirectional relation.
-|opposite-add   | relation name                | Create a bidirectional relation with injection.
-|eager          | boolean literal              | If the fetching strategy is eager or lazy.
+|Modifier name  | Modifier type               | Meaning
+|required       | boolean literal             | If the relation value must be specified, the modifier cannot be used for collections.
+|default        | expression returns entities | The default value of the field.
+|opposite       | relation name               | Create a bidirectional relation.
+|opposite-add   | relation name               | Create a bidirectional relation with injection.
+|eager          | boolean literal             | If the fetching strategy is eager.
 |====================
 
 *Example:*
 
 [source,jsl]
 ----
-relation Order[] orders opposite:customer eager:true;
+relation Order[] orders eager opposite:customer;
 ----
 
 [source,jsl]
 ----
-relation required Product product opposite-add:orderItems[];
+relation Product product required opposite-add:orderItems[];
 ----
 
 === Entity calculated primitive
@@ -234,8 +240,8 @@ Calculated relations can be read as if they were stored relations, but they have
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type               | Meaning
-|eager          | boolean literal              | If the fetching strategy is eager or lazy.
+|Modifier name | Modifier type               | Meaning
+|eager          | boolean literal              | If the fetching strategy is eager.
 |====================
 
 *Example:*
@@ -261,8 +267,7 @@ A query is a request within the scope of the model that retrieves a primitive or
 [source,jsl]
 ----
 query Integer NumOfCustomers(String country) <=
-        Customer.
-        all().
+        Customer.all().
         filter(c | c.address.country == country).
         size();
 ----
@@ -391,7 +396,7 @@ A transfer object may contain data descriptions called primitive fields. A primi
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type                     | Meaning
+|Modifier name | Modifier type                     | Meaning
 |input          | boolean literal                    | If the field is used for conveying a value into the system.
 |default        | expression returns primitive value | The default value of the field.
 |====================
@@ -422,8 +427,8 @@ A transfer object may contain data descriptions called relations. Relation is a 
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type               | Meaning
-|eager          | boolean literal              | If the fetching strategy is eager or lazy.
+|Modifier name | Modifier type               | Meaning
+|eager          | boolean literal              | If the fetching strategy is eager.
 |choices        | expression returns entities  | The possible list of transfers to add.
 |default        | expression returns entities  | The default list of transfers.
 |create         | boolean literal              | If create is allowed on this relation.
@@ -542,7 +547,7 @@ A view primitive field can represent a single primitive value on the view.
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type        | Meaning
+|Modifier name | Modifier type        | Meaning
 |label          | string literal        | The label to show for the field.
 |icon           | string literal        | The name of the icon to show for the field.
 |enabled        | boolean expression    | If the field is enabled for editing.
@@ -584,13 +589,13 @@ A view link can represent a relation to an other view.
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type        | Meaning
+|Modifier name | Modifier type        | Meaning
 |label          | string literal        | The label to show for the field.
 |icon           | string literal        | The name of the icon to show for the field.
 |enabled        | boolean expression    | If the field is enabled for editing.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field.
-|eager          | boolean literal              | If the fetching strategy is eager or lazy.
+|eager          | boolean literal              | If the fetching strategy is eager.
 |choices        | Row declaration + expression | The possible values for selection.
 |default        | expression returns entity    | The default value.
 |text           | string expression            | The textual representation of the link.
@@ -632,13 +637,13 @@ A view table represents collection of rows.
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type        | Meaning
+|Modifier name | Modifier type        | Meaning
 |label          | string literal        | The label to show for the field.
 |icon           | string literal        | The name of the icon to show for the field.
 |enabled        | boolean expression    | If the field is enabled for editing.
 |hidden         | boolean expression    | If the field is shown to the user.
 |width          | numeric literal       | The logical width of the field.
-|eager          | boolean literal              | If the fetching strategy is eager or lazy.
+|eager          | boolean literal              | If the fetching strategy is eager.
 |choices        | Row declaration + expression | The possible values for selection.
 |default        | expression returns entities    | The default rows.
 |detail         | view name             | The view that shows the details of a row.
@@ -670,7 +675,7 @@ table ProductRow[] products <= Product.all();
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type        | Meaning
+|Modifier name | Modifier type        | Meaning
 |label          | string literal        | The label to show for the field.
 |icon           | string literal        | The name of the icon to show for the field.
 |hidden         | boolean expression    | If the field is shown to the user.
@@ -707,7 +712,7 @@ text message <= "Thank you for your order.";
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type        | Meaning
+|Modifier name | Modifier type        | Meaning
 |label          | string literal        | The label to show for the field.
 |icon           | string literal        | The name of the icon to show for the field.
 |enabled        | boolean expression    | If the field is enabled for editing.
@@ -750,7 +755,7 @@ vertical head {
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type        | Meaning
+|Modifier name | Modifier type        | Meaning
 |label          | string literal        | The label to show for the field.
 |icon           | string literal        | The name of the icon to show for the field.
 |enabled        | boolean expression    | If the field is enabled for editing.
@@ -780,7 +785,7 @@ The action is a piece of code (currently Java implementation) that is executed w
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type        | Meaning
+|Modifier name | Modifier type        | Meaning
 |label          | string literal        | The label to show for the field.
 |icon           | string literal        | The name of the icon to show for the field.
 |enabled        | boolean expression    | If the field is enabled for execution.
@@ -810,7 +815,7 @@ action ThankYouView order();
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type        | Meaning
+|Modifier name | Modifier type        | Meaning
 |label          | string literal        | The label to show for the field.
 |icon           | string literal        | The name of the icon to show for the field.
 |enabled        | boolean expression    | If the field is enabled for execution.
@@ -820,7 +825,7 @@ action ThankYouView order();
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type        | Meaning
+|Modifier name | Modifier type        | Meaning
 |resource       | access name           | The name of an access where the returned transfer object is available.
 |====================
 ////
@@ -878,7 +883,7 @@ A primitive field that can store only a single primitive value and is displayed 
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type        | Meaning
+|Modifier name | Modifier type        | Meaning
 |label          | string literal        | The label to show for the column.
 |icon           | string literal        | The name of the icon to show for the column.
 |hidden         | boolean expression    | If the column is shown to the user.
@@ -926,7 +931,7 @@ or
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type        | Meaning
+|Modifier name | Modifier type        | Meaning
 |realm          | string literal        | The name of the realm.
 |claim          | string literal        | The name of the claim.
 |identity       | attribute selection expression    | The attribute of the mapped entity that serves as the identifier against the claim.
@@ -960,7 +965,7 @@ Access exposes an entity or collection of entities to the user represented by th
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type        | Meaning
+|Modifier name | Modifier type        | Meaning
 |create         | boolean literal       | If create is allowed on this access.
 |update         | boolean literal       | If update is allowed on this access.
 |delete         | boolean literal       | If delete is allowed on this access.
@@ -986,7 +991,7 @@ A group can contain only menu elements.
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type        | Meaning
+|Modifier name | Modifier type        | Meaning
 |label          | string literal        | The label to show for the menu group.
 |icon           | string literal        | The name of the icon to show for the menu group.
 |enabled        | boolean expression    | If the menu group is enabled to the user.
@@ -1010,7 +1015,7 @@ Single menu is a visually represented access for human actors that provides an e
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type        | Meaning
+|Modifier name | Modifier type        | Meaning
 |label          | string literal        | The label to show for the menu.
 |icon           | string literal        | the name of the icon to show for the menu.
 |enabled        | boolean expression    | If the menu is enabled to the user.
@@ -1044,7 +1049,7 @@ Table menu is a visually represented access for human actors that provides a col
 
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type        | Meaning
+|Modifier name | Modifier type        | Meaning
 |label          | string literal        | The label to show for the menu.
 |icon           | string literal        | the name of the icon to show for the menu.
 |enabled        | boolean expression    | If the menu is enabled to the user.
