@@ -1322,12 +1322,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 				}
 			}
 	
-			if (mappedMember === null) {
-	            error("Invalid selector modifier. Transfer relation must be mapped directly to an entity relation.",
-	                JsldslPackage::eINSTANCE.selectorModifier.getEStructuralFeature("ID"),
-	                INVALID_SELECTOR)
-			}
-	
 			if (selector.transfer.map === null) {
 	            error("Invalid selector modifier. Selector transfer reference must be mapped.",
 	                JsldslPackage::eINSTANCE.selectorModifier.getEStructuralFeature("ID"),
