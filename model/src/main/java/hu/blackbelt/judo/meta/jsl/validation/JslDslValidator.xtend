@@ -1387,7 +1387,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	
 			val mappedMember = relation.mappedMember;
 	
-			if (mappedMember === null) {
+			if (mappedMember === null && relation.getterExpr !== null) {
 	            error("Invalid choices modifier. Transfer relation must be mapped directly to an entity relation.",
 	                JsldslPackage::eINSTANCE.choiceModifier.getEStructuralFeature("ID"),
 	                INVALID_CHOICES)
@@ -1918,7 +1918,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 		val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
 
-		if (!relation.isMaps && !relation.isReads) {
+		if (relation.getterExpr === null) {
             error("Invalid create modifier. Create modifier cannot be used for unmapped relation.",
                 JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
@@ -1948,7 +1948,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		if (modifier.eContainer instanceof TransferRelationDeclaration) {
 			val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
 			
-			if (!relation.isMaps && !relation.isReads) {
+			if (relation.getterExpr === null) {
 	            error("Invalid delete modifier. Delete modifier cannot be used for unmapped relation.",
 	                JsldslPackage::eINSTANCE.deleteModifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
@@ -2005,7 +2005,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                INVALID_DECLARATION)
 			}
 			
-			if (!relation.isMaps && !relation.isReads) {
+			if (relation.getterExpr === null) {
 	            error("Invalid update modifier. Update modifier cannot be used for unmapped relation.",
 	                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
