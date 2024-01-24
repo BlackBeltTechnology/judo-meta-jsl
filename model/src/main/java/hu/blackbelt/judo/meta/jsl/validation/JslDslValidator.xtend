@@ -1298,6 +1298,12 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                JsldslPackage::eINSTANCE.defaultModifier_Expression,
 	                TYPE_MISMATCH)
 	        }
+	        
+	        if (modifier.eContainer instanceof TransferRelationDeclaration && member.mappedMember instanceof EntityFieldDeclaration) {
+	            error("The mapped entity field is a containment. Containments cannot have default value.",
+	                JsldslPackage::eINSTANCE.defaultModifier_Expression,
+	                INVALID_DECLARATION)
+	        }
 		}
 	}
 
@@ -1305,7 +1311,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkSelector(SelectorModifier selector) {
 		if (selector.eContainer instanceof TransferRelationDeclaration) {
 			val TransferRelationDeclaration relation = selector.eContainer as TransferRelationDeclaration
-			val mappedMember = relation.mappedMember;
 	
 			if (relation instanceof ViewLinkDeclaration || relation instanceof ViewTableDeclaration)
 			{
