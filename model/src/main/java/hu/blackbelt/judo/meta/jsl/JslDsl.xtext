@@ -874,7 +874,7 @@ CreateModifier
 	;
 
 UpdateModifier
-	: type = KW_UPDATE (COLON (false?=KW_FALSE | true?=KW_TRUE | auto?=KW_AUTO))?
+	: type = KW_UPDATE (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
 DeleteModifier
@@ -1181,7 +1181,6 @@ terminal KW_UPDATE:		'update';   // no highlight
 // Constants
 terminal KW_AFTER:		'after';
 terminal KW_BEFORE:		'before';
-terminal KW_AUTO:		'auto';
 terminal KW_BINARY:		'binary';
 terminal KW_BOOLEAN:	'boolean';
 terminal KW_BOTTOM:		'bottom';

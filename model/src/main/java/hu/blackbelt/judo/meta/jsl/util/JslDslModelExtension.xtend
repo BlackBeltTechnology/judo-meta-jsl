@@ -169,13 +169,11 @@ class JslDslModelExtension {
 			if (it.getModifier(JsldslPackage::eINSTANCE.choiceModifier) !== null) return true
 			
 			val CreateModifier createModifier = it.getModifier(JsldslPackage::eINSTANCE.createModifier) as CreateModifier
-			if (createModifier !== null) return !createModifier.isFalse
-
-			return it.referenceType.members.exists[m | m instanceof TransferCreateDeclaration]
+			return createModifier !== null && !createModifier.isFalse
 		}
 		
 		val UpdateModifier updateModifier = it.getModifier(JsldslPackage::eINSTANCE.updateModifier) as UpdateModifier
-		return updateModifier !== null && updateModifier.isAuto
+		return updateModifier !== null && !updateModifier.isFalse
 	}
 
     def NavigationTarget getMappedMember(TransferDataDeclaration member) {

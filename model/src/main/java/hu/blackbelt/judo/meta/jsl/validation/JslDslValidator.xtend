@@ -1693,14 +1693,14 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    def NavigationTarget getMappedField(TransferFieldDeclaration field) {
-        if (!field.maps) return null;
+    def NavigationTarget getMappedTarget(TransferDataDeclaration member) {
+        if (!member.maps) return null;
 
-        if (!(field.getterExpr instanceof Navigation)) {
+        if (!(member.getterExpr instanceof Navigation)) {
             return null;
         }
 
-        val Navigation navigation = field.getterExpr as Navigation;
+        val Navigation navigation = member.getterExpr as Navigation;
 
         if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
             return null;
@@ -1724,20 +1724,19 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
 
     @Check
-    def checkDuplicateFieldMapping(TransferFieldDeclaration field) {
-        if (!field.maps) return;
+    def checkDuplicateMemberMapping(TransferDataDeclaration member) {
+        if (!member.maps) return;
 
-        val TransferDeclaration transfer = field.parentContainer(TransferDeclaration);
-        val NavigationTarget target = getMappedField(field); 
+        val TransferDeclaration transfer = member.parentContainer(TransferDeclaration);
+        val NavigationTarget target = getMappedTarget(member); 
 
-        if (target === null || field.getModifier(JsldslPackage::eINSTANCE.updateModifier) === null) return;
+		if (!member.isMaps) return;
 
-        if (transfer.members.filter[m | m instanceof TransferFieldDeclaration &&
-        	                            target === getMappedField(m as TransferFieldDeclaration) &&
-        	                            m.getModifier(JsldslPackage::eINSTANCE.updateModifier) !== null &&
-        	                            (m.getModifier(JsldslPackage::eINSTANCE.updateModifier) as UpdateModifier).isAuto].size > 1)
+        if (transfer.members.filter[m | m instanceof TransferDataDeclaration &&
+        	                            target === getMappedTarget(m as TransferDataDeclaration) &&
+        	                            (m as TransferDataDeclaration) .isMaps].size > 1)
         {
-            warning("More than one editable transfer field is associated with the same entity field.",
+            warning("More than one editable transfer member is associated with the same entity member.",
                 JsldslPackage::eINSTANCE.named_Name,
                 DUPLICATE_FIELD_MAPPING,
                 JsldslPackage::eINSTANCE.named.name)
@@ -1988,7 +1987,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		if (modifier.eContainer instanceof TransferFieldDeclaration) {
 			val TransferDataDeclaration field = modifier.eContainer as TransferDataDeclaration
 
-			if (modifier.isAuto && (field.getterExpr === null || field.mappedMember === null)) {
+			if ((modifier !== null && !modifier.isFalse) && field.mappedMember === null) {
 	            error("Invalid update modifier. In case of automatic update the getter expression must select a stored member of the mapped entity.",
 	                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
@@ -1997,12 +1996,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 		
 		else if (modifier.eContainer instanceof TransferRelationDeclaration) {
 			val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
-			
-			if (modifier.isAuto) {
-	            error("Invalid update modifier. Automatic update modifier can be used for transfer field declaration only.",
-	                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
-	                INVALID_DECLARATION)
-			}
 			
 			if (relation.getterExpr === null) {
 	            error("Invalid update modifier. Update modifier cannot be used for unmapped relation.",
@@ -2021,12 +2014,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 		
 		else if (modifier.eContainer instanceof TransferActionDeclaration) {
 			val TransferActionDeclaration action = modifier.eContainer as TransferActionDeclaration
-			
-			if (modifier.isAuto) {
-	            error("Invalid update modifier. Automatic update modifier can be used for transfer field declaration only.",
-	                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
-	                INVALID_DECLARATION)
-			}
 			
 			if (action.^return === null || !(action.^return instanceof TransferDeclaration) || (action.^return as TransferDeclaration).map === null) {
 	            error("Invalid update modifier. Update modifier cannot be used for unmapped return type.",
