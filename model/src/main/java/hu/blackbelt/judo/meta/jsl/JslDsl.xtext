@@ -54,28 +54,29 @@ ClassDeclaration
 EntityDeclaration
 	: {EntityDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_ENTITY abstract ?= KW_ABSTRACT? Named
+	  -> KW_ENTITY Named
 	  (KW_EXTENDS extends += [EntityDeclaration | ModelName] (COMMA extends += [EntityDeclaration | ModelName])*)?
+	  modifiers += (AbstractModifier)*
 	  (SC | BLOCK_START members += EntityMemberDeclaration* BLOCK_END)
 	;
 
 EntityMemberDeclaration
 	: {EntityFieldDeclaration}
 	  annotations += AnnotationMark*
-	  (-> KW_FIELD | -> identifier ?= KW_IDENTIFIER) required ?= KW_REQUIRED? referenceType = [Persistable | ModelName] Cardinality?
+	  (-> KW_FIELD | -> identifier ?= KW_IDENTIFIER) referenceType = [Persistable | ModelName] Cardinality?
 	  Named 
 	  (LTE getterExpr = Expression)?
-	  modifiers += (DefaultModifier | EagerModifier)*
+	  modifiers += (DefaultModifier | EagerModifier | RequiredModifier)*
 	  SC
 	  | EntityRelationDeclaration
 	;
 
 EntityRelationDeclaration
 	: annotations += AnnotationMark*
-	  -> KW_RELATION required ?= KW_REQUIRED? referenceType = [EntityDeclaration | ModelName] Cardinality?
+	  -> KW_RELATION referenceType = [EntityDeclaration | ModelName] Cardinality?
 	  Named
   	  (LTE getterExpr = Expression)?
-  	  modifiers += (DefaultModifier | EagerModifier | EntityRelationOpposite)*
+  	  modifiers += (DefaultModifier | EagerModifier | RequiredModifier | EntityRelationOpposite)*
 	  SC
 	;
 
@@ -160,9 +161,9 @@ TransferDataDeclaration
 	: {TransferFieldDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_FIELD
-	  required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
+	  referenceType = [PrimitiveDeclaration | ModelName] Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (UpdateModifier | DefaultModifier)*
+	  modifiers += (EnabledModifier | UpdateModifier | DefaultModifier | RequiredModifier)*
 	  SC
 	  | TransferRelationDeclaration
 	;
@@ -170,19 +171,19 @@ TransferDataDeclaration
 TransferRelationDeclaration
 	: annotations += AnnotationMark*
 	  -> KW_RELATION
-	  required ?= KW_REQUIRED? referenceType = [TransferDeclaration | ModelName] Cardinality?
+	  referenceType = [TransferDeclaration | ModelName] Cardinality?
 	  Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (DefaultModifier | EagerModifier | TransferChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  modifiers += (DefaultModifier | EagerModifier | RequiredModifier | EnabledModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
 TransferActionDeclaration
 	: annotations += AnnotationMark*
-	  -> KW_ACTION static ?= KW_STATIC? (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
-	  LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID modifiers += TransferChoiceModifier?)? RP
+	  -> KW_ACTION (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
+	  LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID modifiers += (ChoiceModifier  | SelectorModifier)*)? RP
 	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
-	  modifiers += (UpdateModifier | DeleteModifier)*
+	  modifiers += (EnabledModifier | StaticModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -198,8 +199,8 @@ TransferFetchDeclaration returns TransferEventDeclaration
 	: {TransferFetchDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_EVENT
-	  (before ?= KW_BEFORE | after ?= KW_AFTER | instead ?= KW_INSTEAD)
 	  => kind = KW_FETCH Named (LP RP)?
+	  modifiers += (OnModifier)*
 	  SC
 	;
 
@@ -207,8 +208,8 @@ TransferCreateDeclaration returns TransferEventDeclaration
 	: {TransferCreateDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_EVENT
-	  (before ?= KW_BEFORE | after ?= KW_AFTER | instead ?= KW_INSTEAD)
 	  => kind = KW_CREATE Named (LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? RP)?
+	  modifiers += (OnModifier)*
 	  SC
 	;
 
@@ -216,8 +217,8 @@ TransferUpdateDeclaration returns TransferEventDeclaration
 	: {TransferUpdateDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_EVENT
-	  (before ?= KW_BEFORE | after ?= KW_AFTER | instead ?= KW_INSTEAD)
 	  => kind = KW_UPDATE Named (LP RP)?
+	  modifiers += (OnModifier)*
 	  SC
 	;
 
@@ -225,8 +226,8 @@ TransferDeleteDeclaration returns TransferEventDeclaration
 	: {TransferDeleteDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_EVENT
-	  (before ?= KW_BEFORE | after ?= KW_AFTER | instead ?= KW_INSTEAD)
 	  => kind = KW_DELETE Named (LP RP)?
+	  modifiers += (OnModifier)*
 	  SC
 	;
 
@@ -234,8 +235,8 @@ TransferInitializeDeclaration returns TransferEventDeclaration
 	: {TransferInitializeDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_EVENT
-	  (before ?= KW_BEFORE | after ?= KW_AFTER | instead ?= KW_INSTEAD)
 	  => kind = KW_INITIALIZE Named (LP RP)?
+	  modifiers += (OnModifier)*
 	  SC
 	;
 
@@ -243,16 +244,12 @@ TransferInitializeDeclaration returns TransferEventDeclaration
  *	View
  ****************************/
 
-VisibleDeclaration returns TransferDeclaration
-	: ViewDeclaration
-	| RowDeclaration
-	;
-
-ViewDeclaration returns VisibleDeclaration
+ViewDeclaration returns TransferDeclaration
 	: {ViewDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_VIEW Named
 	  MappedDeclaration
+	  modifiers += (DialogModifier)*
 	  (SC | BLOCK_START (members += ViewDirectMemberDeclaration)* BLOCK_END)
 	;
 
@@ -269,12 +266,13 @@ ViewMemberDeclaration returns TransferMemberDeclaration
 	| ViewPanelDeclaration
 
 	| ViewActionDeclaration
+	| ViewActionsDeclaration
 	;
 
 ViewTextDeclaration returns TransferFieldDeclaration
 	: {ViewTextDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_TEXT Named reads ?= LTE getterExpr = Expression
+	  -> KW_TEXT Named (reads ?= LTE getterExpr = Expression)?
 	  modifiers += VisualModifier*
 	  SC
 	;
@@ -282,18 +280,18 @@ ViewTextDeclaration returns TransferFieldDeclaration
 ViewFieldDeclaration returns TransferFieldDeclaration
 	: {ViewFieldDeclaration} 
 	  annotations += AnnotationMark*
-	  -> KW_FIELD required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named
+	  -> KW_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (UpdateModifier | DefaultModifier | VisualModifier)*
+	  modifiers += (UpdateModifier | DefaultModifier | RequiredModifier | EnabledModifier | VisualModifier | LinesModifier)*
 	  SC
 	;
 
 ViewLinkDeclaration returns TransferRelationDeclaration
 	: {ViewLinkDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_LINK required ?= KW_REQUIRED? referenceType = [ViewDeclaration | ModelName] Named
+	  -> KW_LINK referenceType = [ViewDeclaration | ModelName] Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (DefaultModifier | EagerModifier | VisualModifier | TextModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  modifiers += (DefaultModifier | EagerModifier | RequiredModifier | EnabledModifier | VisualModifier | TextModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -302,7 +300,7 @@ ViewTableDeclaration returns TransferRelationDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (DefaultModifier | EagerModifier | VisualModifier | RowsModifier | DetailModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  modifiers += (DefaultModifier | EagerModifier | EnabledModifier | VisualModifier | RowsModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -322,19 +320,27 @@ ViewTabsDeclaration returns ViewPanelDeclaration
 ViewGroupDeclaration returns ViewPanelDeclaration
 	: {ViewGroupDeclaration} 
 	  annotations += AnnotationMark*
-	  (-> horizontal ?= KW_HORIZONTAL | -> vertical ?= KW_VERTICAL) tag = JSLID
-	  modifiers += (VisualModifier | FrameModifier | HorizontalModifier | VerticalModifier | StretchModifier)*
+	  -> KW_GROUP Named
+	  modifiers += (VisualModifier | FrameModifier | OrientationModifier | HorizontalModifier | VerticalModifier | StretchModifier)*
 	  BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END
 	;
 
 ViewActionDeclaration returns TransferActionDeclaration
 	: {ViewActionDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_ACTION static ?= KW_STATIC? (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
-	  LP (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID modifiers += ViewChoiceModifier?)? RP
+	  -> KW_ACTION (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
+	  LP (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID modifiers += (ChoiceModifier | SelectorModifier)*)? RP
 	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
-	  modifiers += (VisualModifier | RedirectModifier | UpdateModifier | DeleteModifier)*
+	  modifiers += (EnabledModifier | StaticModifier | VisualModifier | RedirectModifier | UpdateModifier | DeleteModifier)*
 	  SC
+	;
+
+ViewActionsDeclaration
+	: {ViewActionsDeclaration}
+	  annotations += AnnotationMark*
+	  -> KW_ACTIONS Named
+	  modifiers += (VisualModifier)*
+	  BLOCK_START (members += ViewActionDeclaration)* BLOCK_END
 	;
 
 //ViewSubmitDeclaration returns TransferSubmitDeclaration
@@ -357,7 +363,7 @@ ViewActionDeclaration returns TransferActionDeclaration
  *	Row
  ****************************/
 
-RowDeclaration returns VisibleDeclaration
+RowDeclaration returns TransferDeclaration
 	: {RowDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_ROW Named
@@ -367,15 +373,36 @@ RowDeclaration returns VisibleDeclaration
 
 RowDirectMemberDeclaration returns TransferMemberDeclaration
 	: TransferEventDeclaration
-	| RowColumnDeclaration
+	| RowFieldDeclaration
+	| RowLinkDeclaration
+	| RowActionDeclaration
 	;
 
-RowColumnDeclaration returns TransferFieldDeclaration
+RowFieldDeclaration returns TransferFieldDeclaration
 	: {RowColumnDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_COLUMN referenceType = [PrimitiveDeclaration | ModelName] Named
-	  (LTE getterExpr = Expression)?
+	  -> KW_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named
+	  (reads ?= LTE getterExpr = Expression)?
 	  modifiers += (VisualModifier)*
+	  SC
+	;
+
+RowLinkDeclaration returns TransferRelationDeclaration
+	: {RowLinkDeclaration}
+	  annotations += AnnotationMark*
+	  -> KW_LINK referenceType = [ViewDeclaration | ModelName] Named
+	  (LTE getterExpr = Expression)?
+	  modifiers += (EagerModifier | VisualModifier | TextModifier | DetailModifier)*
+	  SC
+	;
+
+RowActionDeclaration returns TransferActionDeclaration
+	: {RowActionDeclaration}
+	  annotations += AnnotationMark*
+	  -> KW_ACTION (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
+	  LP (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID modifiers += (ChoiceModifier | SelectorModifier)*)? RP
+	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
+	  modifiers += (EnabledModifier | StaticModifier | VisualModifier | BulkModifier | RedirectModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -386,20 +413,24 @@ RowColumnDeclaration returns TransferFieldDeclaration
 ActorDeclaration returns TransferDeclaration
 	: {ActorDeclaration}
 	  annotations += AnnotationMark*
-	  KW_ACTOR human ?= KW_HUMAN? Named
+	  KW_ACTOR Named
 	  MappedDeclaration
-	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier)*
+	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier | HumanModifier)*
 	  (SC | BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END)
 	;
 
 ActorMemberDeclaration returns TransferMemberDeclaration
 	: TransferEventDeclaration
 	| ActorAccessDeclaration
-	| ActorGroupMemberDeclaration
+	| ActorLinkDeclaration
+	| ActorTableDeclaration
+	| ActorGroupDeclaration
 	;
 
 ActorGroupMemberDeclaration returns TransferMemberDeclaration
-	: ActorMenuDeclaration
+	: ActorAccessDeclaration
+	| ActorLinkDeclaration
+	| ActorTableDeclaration
 	| ActorGroupDeclaration
 	;
 
@@ -408,23 +439,32 @@ ActorAccessDeclaration returns TransferRelationDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_ACCESS referenceType = [TransferDeclaration | ModelName] Cardinality? Named // reads ?= LTE getterExpr = Expression
 	  (LTE getterExpr = Expression)?
-	  modifiers += (TransferChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  modifiers += (ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
 ActorGroupDeclaration
 	: annotations += AnnotationMark*
-	  -> KW_GROUP tag = JSLID
-	  modifiers += (LabelModifier | IconModifier | EnabledModifier | HiddenModifier)*
+	  -> KW_GROUP Named
+	  modifiers += (LabelModifier | IconModifier | HiddenModifier)*
 	  BLOCK_START (members += ActorGroupMemberDeclaration)* BLOCK_END
 	;
 
-ActorMenuDeclaration returns ActorAccessDeclaration
-	: {ActorMenuDeclaration}
+ActorLinkDeclaration returns ViewLinkDeclaration
+	: {ActorLinkDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_MENU referenceType = [VisibleDeclaration | ModelName] Cardinality? Named
+	  -> KW_LINK referenceType = [ViewDeclaration | ModelName] Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (VisualModifier | RowsModifier | DetailModifier | ViewChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  modifiers += (DefaultModifier | EagerModifier | RequiredModifier | EnabledModifier | VisualModifier | TextModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  SC
+	;
+
+ActorTableDeclaration returns ViewTableDeclaration
+	: {ActorTableDeclaration}
+	  annotations += AnnotationMark*
+	  -> KW_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
+	  (LTE getterExpr = Expression)?
+	  modifiers += (DefaultModifier | EagerModifier | EnabledModifier | VisualModifier | RowsModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -466,7 +506,7 @@ ErrorMemberDeclaration returns TransferMemberDeclaration
 
 ErrorField returns TransferFieldDeclaration
 	: {ErrorField}
-	  -> KW_FIELD required ?= KW_REQUIRED? referenceType = [PrimitiveDeclaration | ModelName] Named modifiers += (DefaultModifier)*SC
+	  -> KW_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named modifiers += (DefaultModifier | RequiredModifier)*SC
 	;
 
 //CreateError
@@ -710,7 +750,8 @@ AnnotationTarget
 	| KW_TRANSFER COLON transferRelation ?= KW_RELATION
 
 	| KW_ACTOR COLON actorGroup ?= KW_GROUP
-	| KW_ACTOR COLON actorMenu ?= KW_MENU
+	| KW_ACTOR COLON actorLink ?= KW_LINK
+	| KW_ACTOR COLON actorTable ?= KW_TABLE
 	| KW_ACTOR COLON actorAccess ?= KW_ACCESS
 
 	| KW_VIEW COLON viewAction ?= KW_ACTION
@@ -774,13 +815,14 @@ ModifiableDeclaration returns Modifiable
 Modifier
 	: EntityRelationOpposite
 	| DefaultModifier
+	| RequiredModifier
 	| CreateModifier
 	| UpdateModifier
 	| DeleteModifier
-	| TransferChoiceModifier
+	| ChoiceModifier
 	| RedirectModifier
 	| RowsModifier
-	| ViewChoiceModifier
+	| SelectorModifier
 	| TextModifier
 	| DetailModifier
 	| RealmModifier
@@ -796,9 +838,18 @@ Modifier
 	| RegexModifier
 	| PrecisionModifier
 	| ScaleModifier
+	| LinesModifier
 	| MimeTypesModifier
 	| MaxFileSizeModifier
 	| EagerModifier
+	| EnabledModifier
+	| BulkModifier
+	| DialogModifier
+	| StaticModifier
+	| AbstractModifier
+	| OnModifier
+	| OrientationModifier
+	| HumanModifier
 
 	| VisualModifier
 	;
@@ -806,7 +857,6 @@ Modifier
 VisualModifier
 	: LabelModifier
 	| IconModifier
-	| EnabledModifier
 	| HiddenModifier
 	| WidthModifier
 	;
@@ -815,19 +865,23 @@ DefaultModifier
 	: type = KW_DEFAULT COLON expression = Expression
 	;
 
+RequiredModifier
+	: type = KW_REQUIRED (COLON expression = Expression)?
+	;
+
 CreateModifier
-	: type = KW_CREATE COLON (KW_FALSE | true?=KW_TRUE)
+	: type = KW_CREATE (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
 UpdateModifier
-	: type = KW_UPDATE COLON (KW_FALSE | true?=KW_TRUE | auto?=KW_AUTO)
+	: type = KW_UPDATE (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
 DeleteModifier
-	: type = KW_DELETE COLON (KW_FALSE | true?=KW_TRUE)
+	: type = KW_DELETE (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
-TransferChoiceModifier
+ChoiceModifier
 	: type = KW_CHOICES COLON expression = Expression
 	;
 
@@ -839,8 +893,8 @@ RowsModifier
 	: type = KW_ROWS COLON value = NaturalNumber
 	;
 
-ViewChoiceModifier returns TransferChoiceModifier
-	: type = KW_CHOICES COLON rows = [RowDeclaration | ModelName] LRB LP expression = Expression RP
+SelectorModifier
+	: type = KW_SELECTOR COLON transfer = [TransferDeclaration | ModelName]
 	;
 
 TextModifier
@@ -848,9 +902,8 @@ TextModifier
 	;
 
 DetailModifier
-	: type = KW_DETAIL COLON view = [ViewDeclaration | ModelName]
+	: type = KW_DETAIL (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
-
 
 RealmModifier
 	: type = KW_REALM COLON value = StringLiteral
@@ -869,7 +922,7 @@ GuardModifier
 	;
 
 FrameModifier
-	: type = KW_FRAME COLON (disabled ?= KW_FALSE | enabled ?= KW_TRUE)
+	: type = KW_FRAME (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;	
 	
 LabelModifier
@@ -881,11 +934,11 @@ IconModifier
 	;	
 
 EnabledModifier
-	: type = KW_ENABLED COLON expression = Expression
+	: type = KW_ENABLED (COLON expression = Expression)?
 	;
 
 HiddenModifier
-	: type = KW_HIDDEN COLON expression = Expression
+	: type = KW_HIDDEN (COLON expression = Expression)?
 	;
 
 WidthModifier
@@ -901,7 +954,7 @@ VerticalModifier
 	;
 
 StretchModifier
-	: type = KW_STRETCH COLON (disabled ?= KW_FALSE | enabled ?= KW_TRUE)
+	: type = KW_STRETCH (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
 MinSizeModifier
@@ -924,6 +977,10 @@ ScaleModifier
 	: type = KW_SCALE COLON value = NaturalNumber
 	;
 
+LinesModifier
+	: type = KW_LINES COLON value = NaturalNumber
+	;
+
 MimeTypesModifier
 	: type = KW_MIMETYPE COLON LB values += MimeType (COMMA values += MimeType)* RB
 	;
@@ -933,7 +990,35 @@ MaxFileSizeModifier
 	;
 
 EagerModifier
-	: type = KW_EAGER COLON (KW_FALSE | true?=KW_TRUE)
+	: type = KW_EAGER (COLON (false?=KW_FALSE | true?=KW_TRUE))?
+	;
+
+BulkModifier
+	: type = KW_BULK (COLON (false?=KW_FALSE | true?=KW_TRUE))?
+	;
+
+DialogModifier
+	: type = KW_DIALOG (COLON (false?=KW_FALSE | true?=KW_TRUE))?
+	;
+
+StaticModifier
+	: type = KW_STATIC (COLON (false?=KW_FALSE | true?=KW_TRUE))?
+	;
+
+AbstractModifier
+	: type = KW_ABSTRACT (COLON (false?=KW_FALSE | true?=KW_TRUE))?
+	;
+
+OnModifier
+	: type = KW_ON COLON (before ?= KW_BEFORE | after ?= KW_AFTER)
+	;
+
+OrientationModifier
+	: type = KW_ORIENTATION COLON (horizontal ?= KW_HORIZONTAL | vertical ?= KW_VERTICAL)
+	;
+
+HumanModifier
+	: type = KW_HUMAN (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
 /****************************
@@ -949,7 +1034,7 @@ Literal
 	;
 
 BooleanLiteral
-	: {BooleanLiteral} (KW_FALSE | true?=KW_TRUE)
+	: {BooleanLiteral} (false?=KW_FALSE | true?=KW_TRUE)
 	;
 
 NumberLiteral
@@ -1023,9 +1108,9 @@ JSLID: ID
 //	| KW_LAMBDA | KW_MAPS | KW_ON | KW_THROWS
 
 	// Features	
-	| KW_ACCESS | KW_ACTION | KW_AFTER | KW_BEFORE | KW_COLUMN | KW_CONSTRAINT | KW_CREATE | KW_DELETE | KW_EVENT | KW_FETCH | KW_FIELD
-	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_INITIALIZE | KW_INSTEAD | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION
-	| KW_SUBMIT | KW_TABLE | KW_TABS | KW_TEXT | KW_UPDATE | KW_VERTICAL
+//	| KW_ACCESS | KW_ACTION | KW_AFTER | KW_BEFORE | KW_COLUMN | KW_CONSTRAINT | KW_CREATE | KW_DELETE | KW_EVENT | KW_FETCH | KW_FIELD
+//	| KW_GROUP | KW_HORIZONTAL | KW_IDENTIFIER | KW_INITIALIZE | KW_INSTEAD | KW_LINK | KW_LITERAL | KW_MENU | KW_RELATION
+//	| KW_SUBMIT | KW_TABLE | KW_TABS | KW_TEXT | KW_UPDATE | KW_VERTICAL
 	
 	// Constants
 	| KW_BINARY | KW_BOOLEAN | KW_BOTTOM | KW_CENTER | KW_COLLECTION | KW_CONSTANT | KW_DATE | KW_DECLARATION
@@ -1033,9 +1118,9 @@ JSLID: ID
 	| KW_KB | KW_MB | KW_GB | KW_KIB | KW_MIB | KW_GIB
 	
 	// Attributes
-	| KW_CHOICES | KW_CLAIM | KW_DETAIL | KW_EAGER | KW_ENABLED | KW_DEFAULT | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
-	| KW_IDENTITY | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_ROWS | KW_SCALE | KW_STRETCH | KW_THROW
-	| KW_WIDTH
+	| KW_BULK | KW_CHOICES | KW_CLAIM | KW_DETAIL | KW_EAGER | KW_ENABLED | KW_DEFAULT | KW_DIALOG | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
+	| KW_IDENTITY | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_REQUIRED | KW_ROWS | KW_SELECTOR | KW_SCALE | KW_STATIC
+	| KW_STRETCH | KW_THROW | KW_TIMING | KW_WIDTH
 	
 	// Operators
 //	| KW_IMPLIES | KW_OR | KW_XOR | KW_AND | KW_DIV | KW_MOD
@@ -1047,7 +1132,6 @@ JSLID: ID
  ****************************/
 
 // Declarations
-terminal KW_ABSTRACT:	'abstract';
 terminal KW_ACTOR:		'actor';
 terminal KW_ANNOTATION:	'annotation';
 terminal KW_AS:			'as';
@@ -1071,8 +1155,7 @@ terminal KW_VIEW:		'view';
 // Features	
 terminal KW_ACCESS:		'access';
 terminal KW_ACTION:		'action';
-terminal KW_AFTER:		'after';
-terminal KW_BEFORE:		'before';
+terminal KW_ACTIONS:	'actions';
 terminal KW_COLUMN:		'column';
 terminal KW_CONSTRAINT:	'constraint';
 terminal KW_CREATE:		'create';   // no highlight
@@ -1082,26 +1165,22 @@ terminal KW_EVENT:		'event';
 terminal KW_FETCH:		'fetch';   // no highlight
 terminal KW_FIELD:		'field';
 terminal KW_GROUP:		'group';
-terminal KW_HORIZONTAL: 'horizontal';
-terminal KW_HUMAN: 		'human';   // not ID
 terminal KW_IDENTIFIER:	'identifier';
 terminal KW_INITIALIZE:	'initialize';   // no highlight
-terminal KW_INSTEAD:	'instead';
 terminal KW_LINK:		'link';
 terminal KW_LITERAL:	'literal';
 terminal KW_MENU:		'menu';
 terminal KW_RELATION:	'relation';
-terminal KW_STATIC:		'static';  // not ID
 terminal KW_SUBMIT:		'submit';
 terminal KW_TABLE:		'table';
 terminal KW_TABS:		'tabs';
 terminal KW_TEXT:		'text';
 terminal KW_THROWS:		'throws';
 terminal KW_UPDATE:		'update';   // no highlight
-terminal KW_VERTICAL:   'vertical';
 
 // Constants
-terminal KW_AUTO:		'auto';
+terminal KW_AFTER:		'after';
+terminal KW_BEFORE:		'before';
 terminal KW_BINARY:		'binary';
 terminal KW_BOOLEAN:	'boolean';
 terminal KW_BOTTOM:		'bottom';
@@ -1111,6 +1190,7 @@ terminal KW_CONSTANT:	'constant';
 terminal KW_DATE:		'date';
 terminal KW_DECLARATION:'declaration';
 terminal KW_FALSE:		'false';  // not ID
+terminal KW_HORIZONTAL: 'horizontal';
 terminal KW_LEFT:		'left';
 terminal KW_NUMERIC:	'numeric';
 terminal KW_RIGHT:		'right';
@@ -1119,6 +1199,7 @@ terminal KW_TIME:		'time';
 terminal KW_TIMESTAMP:	'timestamp';
 terminal KW_TOP:		'top';
 terminal KW_TRUE:		'true';  // not ID
+terminal KW_VERTICAL:   'vertical';
 terminal KW_VOID:		'void';  // not ID
 terminal KW_KB:			'KB';
 terminal KW_MB:			'MB';
@@ -1128,32 +1209,41 @@ terminal KW_MIB:		'MiB';
 terminal KW_GIB:		'GiB';
 
 // Attributes
+terminal KW_ABSTRACT:	'abstract';
+terminal KW_BULK:		'bulk';
 terminal KW_CHOICES:	'choices';
 terminal KW_CLAIM:		'claim';
 terminal KW_DEFAULT:	'default';
 terminal KW_DETAIL:		'detail';
+terminal KW_DIALOG:		'dialog';
 terminal KW_ENABLED:	'enabled';
 terminal KW_FRAME:		'frame';
 terminal KW_GUARD:		'guard';
 terminal KW_HIDDEN:		'hidden';
 terminal KW_HALIGN:	    'h-align';
+terminal KW_HUMAN: 		'human';   // not ID
 terminal KW_ICON:		'icon';
 terminal KW_IDENTITY:	'identity';
 terminal KW_LABEL:		'label';
+terminal KW_LINES:		'lines';
 terminal KW_MAXFILESIZE:'max-file-size';
 terminal KW_MAXSIZE:	'max-size';
 terminal KW_MINSIZE:	'min-size';
 terminal KW_MIMETYPE:	'mime-type';
 terminal KW_OPPOSITE:	'opposite';
 terminal KW_OPPOSITEADD:'opposite-add';
+terminal KW_ORIENTATION:'orientation';
 terminal KW_PRECISION:	'precision';
 terminal KW_REALM:		'realm';
 terminal KW_REDIRECT:	'redirect';
 terminal KW_REGEX:		'regex';
-terminal KW_REQUIRED:	'required';  // not ID
+terminal KW_REQUIRED:	'required';
 terminal KW_ROWS:		'rows';
+terminal KW_SELECTOR:	'selector';
 terminal KW_SCALE:		'scale';
+terminal KW_STATIC:		'static';
 terminal KW_STRETCH:	'stretch';
+terminal KW_TIMING:		'timing';
 terminal KW_THROW:		'throw';
 terminal KW_VALIGN:		'v-align';
 terminal KW_WIDTH:		'width';
@@ -1259,3 +1349,4 @@ terminal WS
 	: (' '|'\t'|'\r'|'\n')+
 	;
 
+    
