@@ -107,6 +107,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ActorTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ChoiceModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowActionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.SetterModifier
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -1981,20 +1982,23 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 	
 	@Check
+	def checkSetModifier(SetterModifier modifier) {
+		if (modifier.isFalse) return;
+
+		val TransferFieldDeclaration field = modifier.eContainer as TransferFieldDeclaration
+
+		if ((modifier !== null && !modifier.isFalse) && field.mappedMember === null) {
+            error("Invalid set modifier. In case of the set modifier is true the getter expression must select a stored member of the mapped entity.",
+                JsldslPackage::eINSTANCE.setterModifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+	}
+	
+	@Check
 	def checkUpdateModifier(UpdateModifier modifier) {
 		if (modifier.isFalse) return;
 		
-		if (modifier.eContainer instanceof TransferFieldDeclaration) {
-			val TransferDataDeclaration field = modifier.eContainer as TransferDataDeclaration
-
-			if ((modifier !== null && !modifier.isFalse) && field.mappedMember === null) {
-	            error("Invalid update modifier. In case of automatic update the getter expression must select a stored member of the mapped entity.",
-	                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
-	                INVALID_DECLARATION)
-			}
-		}
-		
-		else if (modifier.eContainer instanceof TransferRelationDeclaration) {
+		if (modifier.eContainer instanceof TransferRelationDeclaration) {
 			val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
 			
 			if (relation.getterExpr === null) {

@@ -163,7 +163,7 @@ TransferDataDeclaration
 	  -> KW_FIELD
 	  referenceType = [PrimitiveDeclaration | ModelName] Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (EnabledModifier | UpdateModifier | DefaultModifier | RequiredModifier)*
+	  modifiers += (EnabledModifier | SetterModifier | DefaultModifier | RequiredModifier)*
 	  SC
 	  | TransferRelationDeclaration
 	;
@@ -282,7 +282,7 @@ ViewFieldDeclaration returns TransferFieldDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (UpdateModifier | DefaultModifier | RequiredModifier | EnabledModifier | VisualModifier | LinesModifier)*
+	  modifiers += (SetterModifier | DefaultModifier | RequiredModifier | EnabledModifier | VisualModifier | LinesModifier)*
 	  SC
 	;
 
@@ -820,6 +820,7 @@ Modifier
 	| UpdateModifier
 	| DeleteModifier
 	| ChoiceModifier
+	| SetterModifier
 	| RedirectModifier
 	| RowsModifier
 	| SelectorModifier
@@ -876,13 +877,17 @@ CreateModifier
 UpdateModifier
 	: type = KW_UPDATE (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
-
+	
 DeleteModifier
 	: type = KW_DELETE (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
 ChoiceModifier
 	: type = KW_CHOICES COLON expression = Expression
+	;
+
+SetterModifier
+	: type = KW_SET (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
 RedirectModifier
@@ -1119,7 +1124,7 @@ JSLID: ID
 	
 	// Attributes
 	| KW_BULK | KW_CHOICES | KW_CLAIM | KW_DETAIL | KW_EAGER | KW_ENABLED | KW_DEFAULT | KW_DIALOG | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
-	| KW_IDENTITY | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_REQUIRED | KW_ROWS | KW_SELECTOR | KW_SCALE | KW_STATIC
+	| KW_IDENTITY | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_REQUIRED | KW_ROWS | KW_SET | KW_SELECTOR | KW_SCALE | KW_STATIC
 	| KW_STRETCH | KW_THROW | KW_TIMING | KW_WIDTH
 	
 	// Operators
@@ -1240,6 +1245,7 @@ terminal KW_REGEX:		'regex';
 terminal KW_REQUIRED:	'required';
 terminal KW_ROWS:		'rows';
 terminal KW_SELECTOR:	'selector';
+terminal KW_SET:		'set';
 terminal KW_SCALE:		'scale';
 terminal KW_STATIC:		'static';
 terminal KW_STRETCH:	'stretch';

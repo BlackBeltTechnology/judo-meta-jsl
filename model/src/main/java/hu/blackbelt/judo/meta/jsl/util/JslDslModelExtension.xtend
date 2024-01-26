@@ -66,9 +66,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.OnModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.HumanModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.StaticModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.SetterModifier
 
 @Singleton
 class JslDslModelExtension {
@@ -172,8 +171,8 @@ class JslDslModelExtension {
 			return createModifier !== null && !createModifier.isFalse
 		}
 		
-		val UpdateModifier updateModifier = it.getModifier(JsldslPackage::eINSTANCE.updateModifier) as UpdateModifier
-		return updateModifier !== null && !updateModifier.isFalse
+		val SetterModifier setterModifier = it.getModifier(JsldslPackage::eINSTANCE.setterModifier) as SetterModifier
+		return setterModifier !== null && !setterModifier.isFalse
 	}
 
     def NavigationTarget getMappedMember(TransferDataDeclaration member) {
