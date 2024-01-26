@@ -469,7 +469,7 @@ The fetching strategy determines the timing of fetching related entities from pe
 
 By default, related entities are retrieved using a lazy fetching strategy.
 
-=== Fetching modifier
+=== Eager modifier
 
 The default fetching strategy of the entity relations and compositions can be altered by applying the `eager` modifier. It is important to note that applying `eager` modifier does not modify the business logic, but significantly impacts the performance of the application.
 
