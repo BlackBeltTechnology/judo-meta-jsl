@@ -299,7 +299,7 @@ class ImportTests {
             model B;
             import A;
 
-            entity abstract E {
+            entity E abstract {
                 field String f1;
             }
         '''.parse(resourceSet)
@@ -335,7 +335,7 @@ class ImportTests {
         '''
             model B;
 
-            entity abstract E {
+            entity E abstract {
                 field A::String f1;
             }
         '''.parse(resourceSet)
@@ -375,7 +375,7 @@ class ImportTests {
             model B;
             import A as x;
 
-            entity abstract E {
+            entity E abstract {
                 field x::String f1;
             }
         '''.parse(resourceSet)

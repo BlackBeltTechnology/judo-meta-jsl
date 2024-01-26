@@ -110,7 +110,7 @@ class IdEscapingTests {
             model B;
             import `entity`;
 
-            entity abstract E {
+            entity E abstract {
                 field String f1;
             }
         '''.parse(resourceSet)
@@ -146,7 +146,7 @@ class IdEscapingTests {
             model B;
             import `entity` as a;
 
-            entity abstract E {
+            entity E abstract {
                 field a::String f1;
             }
         '''.parse(resourceSet)
