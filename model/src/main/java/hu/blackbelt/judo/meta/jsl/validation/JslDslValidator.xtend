@@ -1917,7 +1917,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
 
 		if (relation.getterExpr === null) {
-            error("Invalid create modifier. Create modifier cannot be used for unmapped relation.",
+            error("Invalid create modifier. Create modifier can only be used for mapped relation.",
                 JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
 		}
@@ -1947,7 +1947,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
 			
 			if (relation.getterExpr === null) {
-	            error("Invalid delete modifier. Delete modifier cannot be used for unmapped relation.",
+	            error("Invalid delete modifier. Delete modifier can only be used for mapped relation.",
 	                JsldslPackage::eINSTANCE.deleteModifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
 			}
@@ -1965,7 +1965,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			val TransferActionDeclaration action = modifier.eContainer as TransferActionDeclaration
 			
 			if (action.^return === null || !(action.^return instanceof TransferDeclaration) || (action.^return as TransferDeclaration).map === null) {
-	            error("Invalid delete modifier. Delete modifier cannot be used for unmapped return type.",
+	            error("Invalid delete modifier. Delete modifier can only be used for mapped return type.",
 	                JsldslPackage::eINSTANCE.deleteModifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
 			}
@@ -1998,7 +1998,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
 			
 			if (relation.getterExpr === null) {
-	            error("Invalid update modifier. Update modifier cannot be used for unmapped relation.",
+	            error("Invalid update modifier. Update modifier can only be used for mapped relation.",
 	                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
 			}
@@ -2016,7 +2016,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			val TransferActionDeclaration action = modifier.eContainer as TransferActionDeclaration
 			
 			if (action.^return === null || !(action.^return instanceof TransferDeclaration) || (action.^return as TransferDeclaration).map === null) {
-	            error("Invalid update modifier. Update modifier cannot be used for unmapped return type.",
+	            error("Invalid update modifier. Update modifier can only be used for mapped return type.",
 	                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
 			}
