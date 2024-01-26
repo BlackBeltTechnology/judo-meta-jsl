@@ -69,7 +69,7 @@ A transfer object may contain data members called fields. A field has an associa
 If you want to have a collection of primitives, use a wrapper transfer object with just one primitive field, and use a relation to the collection of wrappers to store a collection of primitive values.
 ====
 
-Use the `field` keyword to specify a field within a transfer object. The full list of modifiers can be found in the xref:appx_modifiers.adoc#transfer-field-modifiers[Appendix].
+Use the `field` keyword to specify a field within a transfer object. The full list of modifiers can be found in the xref:appx_modifiers.adoc#transfer-field[Appendix].
 
 *Syntax:*
 
@@ -116,7 +116,7 @@ Relations can be not only references to a single instance, but also collections.
 
 Relations between transfer objects are inherently unidirectional. A relation can only be navigated in one direction: from the owner to the target of the relation. Navigation means that, at run-time, the owner of the relation gets the instance(s) of the target of the relation.
 
-Use the `relation` keyword to specify a relation between two transfer objects. The full list of modifiers can be found in the xref:appx_modifiers.adoc#transfer-relation-modifiers[Appendix].
+Use the `relation` keyword to specify a relation between two transfer objects. The full list of modifiers can be found in the xref:appx_modifiers.adoc#transfer-relation[Appendix].
 
 *Syntax:*
 
@@ -238,7 +238,7 @@ Use the `\<=` symbol in the field definitions to define the mapping configuratio
 
 === Mapped field
 
-A mapped field is a simple field with a mapping configuration. The full list of modifiers can be found in the xref:appx_modifiers.adoc#transfer-field-modifiers[Appendix].
+A mapped field is a simple field with a mapping configuration. The full list of modifiers can be found in the xref:appx_modifiers.adoc#transfer-field[Appendix].
 
 *Syntax:*
 
@@ -300,7 +300,7 @@ In other words, the `\<=` symbol creates a read-only connection between the enti
 
 === Mapped relation
 
-So far, expressions returned primitive values. The following example shows a relation that is mapped to one of the entity's relations. The full list of modifiers can be found in the xref:appx_modifiers.adoc#transfer-relation-modifiers[Appendix].
+So far, expressions returned primitive values. The following example shows a relation that is mapped to one of the entity's relations. The full list of modifiers can be found in the xref:appx_modifiers.adoc#transfer-relation[Appendix].
 
 *Syntax:*
 
