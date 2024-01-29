@@ -458,6 +458,11 @@ The optional `throws` keyword must be followed by one ore more <error> names sep
 
 The `static` modifier with `true` value in action declarations is used to create an action that belongs to the transfer object type rather than to an instance of the transfer object type. Consequently, one can invoke a static action on the transfer object type directly without creating an instance. Inside a static action, you cannot access fields or call other instance actions directly, as static actions are not associated with a specific instance.
 
+[IMPORTANT]
+====
+Only static actions can be defined in unmapped transfer objects.
+====
+
 The `enabled` modifier specifies the user's permission to call the action. Setting the `enabled` modifier to `true` allows the user to call the action. The `enabled` modifier expects an expression, and depending on the result of the expression, the action can be disabled or enabled for invocation. By default, actions are allowed to call by the user (`enabled` is `true`). For more about permission check the xref:09_actor.adoc#permission-modifiers[Permission modifiers] chapter.
 
 The `choices` modifier enables you to specify which transfer object instances can be selected as an input parameter. Transfer object instances that are mapped to entities not listed by the choices expression won't be allowed to be added as parameter. Therefore, the <choices> expression must return a list of entities. 

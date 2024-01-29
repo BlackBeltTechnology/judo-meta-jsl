@@ -147,7 +147,7 @@ A composite field is an entity member whose type is an entity.
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
+[purple]#**field**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
     &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
 ----
