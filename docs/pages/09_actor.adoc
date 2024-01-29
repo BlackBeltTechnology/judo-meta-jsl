@@ -12,7 +12,7 @@ endif::[]
 
 [judo-req="true",judo-req-id="REQ-SRV-014"]
 = Access control
-:page-toctitle:Actor
+:page-toctitle:Access
 
 Authentication is the process of verifying a user’s identity and authorization is the process of determining whether an authenticated user has access to a particular resource or service. Authorization is critical for ensuring that only authorized users have access to sensitive data and resources. The following chapters describe JUDO's authentication and authorization process.
 

@@ -15,9 +15,14 @@ endif::[]
 :page-toctitle:Transfer model
 
 
-The transfer objects act as a front-facing interface masking the underlying entity model. The transfer object model can hide the complexity and the details of the entity model and provides a simpler interface to the clients of the application. Or it can provide different views for different purposes, allowing changes in functionality without changing the underlying, often rigid data model, which is often created from very different aspects. In addition, the transfer object model also reduces the dependence between the entity model and the outside world.
+The transfer model acts as a front-facing interface masking the underlying entity model. The transfer model can hide the complexity and the details of the entity model and provides a simpler interface to the clients of the application. Or it can provide different views for different purposes, allowing changes in functionality without changing the underlying, often rigid data model, which is often created from very different aspects. In addition, the transfer model also reduces the dependence between the entity model and the outside world.
 
-The main building blocks of the transfer object model are transfer objects and actors. The following chapters describe these building blocks in detail.
+The main building blocks of the transfer model are transfer objects and actors. The following chapters describe these building blocks in detail.
+
+[WARNING]
+====
+This chapter explains the transfer object, focusing on its role and excluding discussions on update or create. For information on modifying transfer objects, refer to the xref:09_actor.adoc[Access control] chapter.
+====
 
 == Transfer object
 
@@ -64,20 +69,25 @@ A transfer object may contain data members called fields. A field has an associa
 If you want to have a collection of primitives, use a wrapper transfer object with just one primitive field, and use a relation to the collection of wrappers to store a collection of primitive values.
 ====
 
-Use the `field` keyword to specify a field within a transfer object.
+Use the `field` keyword to specify a field within a transfer object. The full list of modifiers can be found in the xref:appx_modifiers.adoc#transfer-field[Appendix].
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
+[purple]#**field**# &lt;primitive> &lt;name>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>][purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive and the <name> is the referable name of the field.
 
-The `required` keyword means that the value of the field cannot be undefined at the time the object is validated. When the transfer object is validated it will report fields that are required and having the value of UNDEFINED. The timing of validation is not discussed in this document. Validation can be called at any time from Java or script execution, or it can be called by the architecture (e.g. before the execution of a service).
+Setting the `required` modifier to `true` indicates that the value of the field cannot be undefined at the time the object is validated. When the transfer object is validated it will report fields that are required and having the value of UNDEFINED. The timing of validation is not discussed in this document. Validation can be called at any time from Java or script execution, or it can be called by the architecture (e.g. before the execution of a service).
 
-Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the transfer object is created, and the field is set according to the default value expression. See xref:06_expression.adoc[Expression] later.
+Optionally, a `default` modifier can be added and a <default> value can be specified as an expression. This expression is evaluated when a new instance of the transfer object is created, and the field is set according to the return value of the expression. See xref:06_expression.adoc[Expression] later.
+
+The `enabled` modifier specify the user's permission if they are allowed to modify the value of the field. Setting the `enabled` modifier to `true` allows the user to change the field and use the field as an input value. The `enabled` modifier expects an expression, and depending on the result of the expression the field can be disabled or enabled for value change. By default, fields are not allowed to change by the user (`enabled` is `false`). For more about permission check the xref:09_actor.adoc#permission-modifiers[Permission modifiers] chapter.
 
 // See the validate command.
 
@@ -86,49 +96,54 @@ Optionally, a <default> value can be specified as an expression. The <default> v
 [source,jsl]
 ----
 transfer PersonTransfer {
-    field required String firstName;
-    field required String lastName;
-    field String midName;
+    field String firstName required enabled default:"John";
+    field String lastName required enabled default:"Doe";
+    field String midName enabled;
 }
 ----
 
-The example above defines a transfer object named PersonTransfer. This transfer object has three fields. `firstName` and `lastName` are two required strings, and `midName` is an optional string.
+The example above defines a transfer object named PersonTransfer. This transfer object has three fields: `firstName` and `lastName` are two required strings, and `midName` is an optional string. After initialization, the values of the first name and last name will be set to "John" and "Doe" respectively. Moreover, users can change the field values because the `enabled` modifier is set to `true` for each field.
+
+The explanation of further field modifiers can be found in the subsequent chapters.
 
 // read-only fields?
 
 === Relation
 
-A relation is a reference defined between two transfer objects. The concept closely resembles the relation concept described in xref:05_entity.adoc[Relations] section of entities. The transfer object instance that holds the reference is considered the owner of the relation. As the owner, it has access to the instance being referred to by the reference.
+A relation is a reference defined between two transfer objects. The concept closely resembles the relation concept described in xref:05_entity.adoc#relations[Relations] section of entities. The transfer object instance that holds the reference is considered the owner of the relation. As the owner, it has access to the instance being referred to by the reference.
 
 Relations can be not only references to a single instance, but also collections. If the relation is a collection, the owner can access a set of instances at the same time.
 
 Relations between transfer objects are inherently unidirectional. A relation can only be navigated in one direction: from the owner to the target of the relation. Navigation means that, at run-time, the owner of the relation gets the instance(s) of the target of the relation.
 
-Use the `relation` keyword to specify a relation between two transfer objects.
+Use the `relation` keyword to specify a relation between two transfer objects. The full list of modifiers can be found in the xref:appx_modifiers.adoc#transfer-relation[Appendix].
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
+[purple]#**relation**# &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>][purple]#**;**#
 ----
 
 where <transfer> is the name of a transfer object to which the relation is targeted. The <name> is used to identify the relation within the owner, it is commonly referred to as role name.
 
 The optional `[]` behind the <transfer> indicates that the relation is a collection rather than a single reference to one <transfer> instance. In other words, the cardinality of the relation is a collection.
 
-The `required` keyword means that the value of the relation cannot be undefined at the time the object is validated. When the transfer object is validated it will report relations that are required and having the value of UNDEFINED. The timing of validation is not discussed in this document. Validation can be called at any time from Java or script execution, or it can be called by the architecture (e.g. before the execution of a service).
+Setting the `required` modifier to `true` indicates that the value of the relation cannot be undefined at the time the object is validated. When the transfer object is validated it will report relations that are required and having the value of UNDEFINED. The timing of validation is not discussed in this document. Validation can be called at any time from Java or script execution, or it can be called by the architecture (e.g. before the execution of a service). Note that the `required` modifier is not allowed for collections.
 
-The keyword `required` is not allowed for collections.
+Optionally, you can add a `default` modifier and specify a <default> value as an expression. This <default> value expression is evaluated when a new instance of the transfer object is created, and the relation is set according to the expression's result. The <default> expression must select an entity or, if the relation is a collection, a list of entities. The transfer relation holds references to mapped transfer objects with selected mapped entities. See xref:06_expression.adoc[Expression] later. Note that a default value is applicable only when the relation's target is a mapped transfer object. Mapped transfer objects are explained in the subsequent chapter.
 
-Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the transfer object is created, and the relation is set according to the default value expression. See xref:06_expression.adoc[Expression] later.
+The `enabled` modifier specify the user's permission if they are allowed to modify the relation. Setting the `enabled` modifier to `true` allows the user to change the relation and use the relation as an input. The `enabled` modifier expects an expression, and depending on the result of the expression the relation can be disabled or enabled for change. By default, relations are not allowed to change by the user (`enabled` is `false`). For more about permission check the xref:09_actor.adoc#permission-modifiers[Permission modifiers] chapter.
 
 *Example:*
 
 [source,jsl]
 ----
 transfer CustomerTransfer {
-	relation OrderTransfer[] orders;
+	relation OrderTransfer[] orders enabled;
 }
 
 transfer OrderTransfer {
@@ -142,19 +157,20 @@ The example above defines a relation. `orders` is defined within CustomerTransfe
 [source,jsl]
 ----
 transfer AddressTransfer {
-    field required String line1;
+    field String line1 required;
     field String line2;
     field String City;
     field String ZipCode;
 }
 
 transfer PersonTransfer {
-    relation required AddressTransfer address;
+    relation AddressTransfer address required;
 }
 ----
 
 The second example defines the AddressTransfer transfer object with its fields, and each PersonTransfer instance must have an AddressTransfer.
 
+The explanation of further relation modifiers can be found in the subsequent chapters.
 
 [judo-req="true",judo-req-id="REQ-SRV-002"]
 == Mapped transfer object
@@ -175,7 +191,7 @@ To define a mapped transfer object, use the `transfer` keyword and specify an en
 [subs="quotes"]
 ----
 [purple]#**transfer**# &lt;name> [purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**## {
-    &#x5B;field] ...
+    &#x5B;member] ...
 }
 ----
 
@@ -188,7 +204,7 @@ There is an alternative syntax to define a mapped transfer object. This alternat
 [subs="quotes"]
 ----
 [purple]#**transfer**# &lt;name> [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> &#x5B;{
-    &#x5B;[purple]##**field**##] ...
+    &#x5B;[purple]##**member**##] ...
 }]
 ----
 ====
@@ -210,7 +226,7 @@ transfer PersonTransfer(Person person) {
 
 The transfer object `PersonTransfer` is mapped to the `Person` entity. A particular instance of the Person entity is accessible as `person` within the scope of the PersonTransfer transfer object. The `person` field is a field of type `Person`, which is the mapping field.
 
-The value of the mapping field (`person` in the example above) can be undefined (e.g. the mapping field is not required). In some PersonTransfer instances, the mapping field may refer to a particular Person entity instance, and in others it may be undefined.
+The value of the mapping field (`person` in the example above) can be undefined, meaning the mapping field is not required. In some PersonTransfer instances, the mapping field may refer to a particular Person entity instance, and in others it may be undefined.
 
 
 [judo-req="true",judo-req-id="REQ-SRV-005"]
@@ -218,25 +234,30 @@ The value of the mapping field (`person` in the example above) can be undefined 
 
 Mapping configuration is a declarative description of how the fields of a transfer object read and/or write specific fields of the entity mapped by the transfer object. Mapping configuration can only be used for mapped transfer objects.
 
-Use the `\<=` symbol in the field definitions to define the mapping configuration.
+Use the `\<=` symbol in the field definitions to define the mapping configuration. The concept of mapping configuration is very similar to the concept of xref:05_entity.adoc#calculated-members[Calculated members] described for entities. The main difference is that mapped members can update their mapped entity's field in certain cases.
 
 === Mapped field
+
+A mapped field is a simple field with a mapping configuration. The full list of modifiers can be found in the xref:appx_modifiers.adoc#transfer-field[Appendix].
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>];
+[purple]#**field**# &lt;primitive> &lt;name> [purple]##**<=**## &lt;expression>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**set:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
 ----
 
-where <primitive> is the name of a domain model primitive, or
+where <primitive> is the name of a domain model primitive.
 
-[subs="quotes"]
-----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**<=**## &lt;expression>];
-----
+The `\<=` symbol indicates that the value of the transfer field will be set to the value of the expression specified after `\<=`. This expression must return the same primitive type as the type of the field.
 
-If the `\<=` symbol is used, the value of the transfer field will be set to the value of the expression specified after `\<=`. 
+The `required`, `enabled`, and `default` modifiers are the same as described for simple xref:07_transfer.adoc#field[Transfer field].
+
+If the `set` modifier is `true`, changes in the transfer field value will set the value of the mapped entity's field. It's important to note that the `set` modifier only works for expressions that select a non-calculated field.
 
 *Example:*
 
@@ -270,16 +291,45 @@ entity SalesPerson {
 }
 
 transfer SalesPersonTransfer(SalesPerson salesperson) {
-    field String firstName <= salesperson.firstName;
-    field String lastName <= salesperson.lastName;
+    field String firstName <= salesperson.firstName set enabled;
+    field String lastName <= salesperson.lastName set enabled;
 }
 ----
 
-In other words, the `\<=` symbol creates a read-only connection between the entity and the transfer fields, where the value of the transfer field takes the value of the expression. However, if the expression is a direct member selection after the `\<=` symbol, it defines a read-write connection.
+In other words, the `\<=` symbol creates a read-only connection between the entity and the transfer fields, where the value of the transfer field takes the value of the expression. However, if the `set` modifier is `true`, it defines a read-write connection.
 
 === Mapped relation
 
-So far, expressions returned primitive values. The following example shows a relation that is mapped to one of the entity's relations. The example defines a relation for `SalesPersonTransfer`. The relation `leads` is defined within SalesPersonTransfer and contains a list of LeadTransfer transfer objects that belong to a particular salesperson.
+So far, expressions returned primitive values. The following example shows a relation that is mapped to one of the entity's relations. The full list of modifiers can be found in the xref:appx_modifiers.adoc#transfer-relation[Appendix].
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**relation**# &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**<=**## &lt;expression>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**default:**##&lt;default>]
+
+    &#x5B;[purple]##**choices:**##&lt;choices>]
+    &#x5B;[purple]##**selector:**##&lt;transfer>]
+
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
+
+
+----
+
+where <transfer> is the name of a transfer object to which the relation is targeted. The <name> is used to identify the relation within the owner, it is commonly referred to as role name.
+
+The optional `[]` behind the <transfer> indicates that the relation is a collection rather than a single reference to one <transfer> instance. In other words, the cardinality of the relation is a collection.
+
+The `\<=` symbol indicates that the relation will be set to the value of the expression specified after `\<=`. This expression must select an entity or, if the relation is a collection, a list of entities. The transfer relation will hold references to mapped transfer objects with selected mapped entities. See xref:06_expression.adoc[Expression] later.
+
+The `required`, `enabled`, and `default` modifiers are the same as described for simple xref:07_transfer.adoc#relation[Transfer relation].
 
 *Example:*
 
@@ -306,16 +356,49 @@ transfer SalesPersonTransfer(SalesPerson salesperson) {
 }
 ----
 
+The example defines a relation for `SalesPersonTransfer`. The relation `leads` is defined within SalesPersonTransfer and contains a list of LeadTransfer transfer objects that belong to a particular salesperson.
+
 [IMPORTANT]
 ====
-An important note, that if the transfer field's type is a transfer object (or a collection of transfer objects) the expression after the `\<=` must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
+An important note, that the expression after the `\<=` must return an entity (or a collection of entities). The type of the returning entity must match to the mapped entity type of the transfer object. (e.g. it must be the same type or must be the subtype of the mapped entity type)
 ====
 
-Similar to transfer fields, if the expression after the `\<=` symbol is a direct relation/composite selection of the mapped entity, in addition to setting the value of the transfer relation, it updates the entity relation when the transfer relation changes  (adds or removes entity instances to the entity relation).
+The `choices` modifier enables you to specify which entity instances can be added to or removed from the mapped relation. The <choices> expression must return an entity list. Instances not returned by the <choices> expression won't be allowed to be added. If you want to allow the addition of any instances, you can use choices as shown in this example:
 
-=== Fetching modifier
+*Example:*
 
-Only in the case of mapped transfer relations, the fetching strategy of the related transfer objects can be specified. Possible fetching strategies are the same as those seen in xref:05_entity.adoc[Entity] chapter.
+[source,jsl]
+----
+transfer ProductTransfer(Product product) {
+	relation ProductTransfer[] recommendations <= product.recommendations
+	    choices:Product.all();
+}
+----
+
+In this example, the choices modifier is set to Product.all(), which means any product instance can be added to the `recommendations` relation.
+
+The `selector` modifier is used to specify the type of transfer object when the list of choices is requested. In other words, whenever the list of choices is requested, a list of mapped transfer objects is returned; the instances are specified by the <choices> expression, and the type of the transfer objects is specified by the `selector` modifier.
+
+*Example:*
+
+[source,jsl]
+----
+transfer ProductChoiceTransfer(Product product) {
+    field String name <= product.name;
+}
+
+transfer ProductTransfer(Product product) {
+	relation ProductTransfer[] recommendations <= product.recommendations
+	    choices:Product.all()
+	    selector:ProductChoiceTransfer;
+}
+----
+
+The `create`, `delete` and `update` modifiers are discussed in the xref:09_actor.adoc[Access control] chapter.
+
+=== Eager modifier
+
+Only in the case of mapped transfer relations, the fetching strategy of the related transfer objects can be specified. Possible fetching strategies are the same as those seen in xref:05_entity.adoc#fetching-strategy[Entity] chapter.
 
 * *Eager fetching* is a technique where related objects are fetched at the same time as the owner transfer object is retrieved from persistent storage.
 
@@ -358,17 +441,31 @@ Use the `action` keyword to specify an action within a transfer object.
 
 [subs="quotes"]
 ----
-[purple]#**action**# &#x5B;[purple]##**static**##] &#x5B;&lt;type>|&lt;union>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**##
-    &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...][purple]#**;**#
+[purple]#**action**# &#x5B;&lt;output>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>] &#x5B;[purple]##**choices:**##&lt;choices>][purple]##**)**##
+    &#x5B;[purple]##**throws**## &lt;error1> &#x5B;[purple]##**,**##&lt;error2>] ...]
+
+    &#x5B;[purple]##**static:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
 ----
 
 where the <name> is the name of the action. Information can be passed to actions through a parameter, which acts as variable within the action. A <parameter> is specified after the action name within parentheses and consists of the name of a transfer object and a parameter name. An action can have at most one parameter.
 
-The optional <type> is the output type of the action. If <type> is not specified or replaced by the keyword `void` the action cannot return any data. The <type> can be a single transfer object or a union.
-
-The `static` keyword in actions is used to create an action that belongs to the transfer object type rather than to an instance of the transfer object type. When an action is declared with the `static` keyword, it becomes a type-level action. Consequently, one can invoke a static action on the transfer object type directly without creating an instance. Inside a static action, you cannot access fields or call other instance actions directly, as static actions are not associated with a specific instance.
+The <output> of the action can be a transfer object type or a <<Union>>. The keyword `void` indicates that the action does not return any data.
 
 The optional `throws` keyword must be followed by one ore more <error> names separated by commas. The list of errors declares which errors can be thrown from the action. See more about errors in xref:08_error.adoc[Error] chapter.
+
+The `static` modifier with `true` value in action declarations is used to create an action that belongs to the transfer object type rather than to an instance of the transfer object type. Consequently, one can invoke a static action on the transfer object type directly without creating an instance. Inside a static action, you cannot access fields or call other instance actions directly, as static actions are not associated with a specific instance.
+
+[IMPORTANT]
+====
+Only static actions can be defined in unmapped transfer objects.
+====
+
+The `enabled` modifier specifies the user's permission to call the action. Setting the `enabled` modifier to `true` allows the user to call the action. The `enabled` modifier expects an expression, and depending on the result of the expression, the action can be disabled or enabled for invocation. By default, actions are allowed to call by the user (`enabled` is `true`). For more about permission check the xref:09_actor.adoc#permission-modifiers[Permission modifiers] chapter.
+
+The `choices` modifier enables you to specify which transfer object instances can be selected as an input parameter. Transfer object instances that are mapped to entities not listed by the choices expression won't be allowed to be added as parameter. Therefore, the <choices> expression must return a list of entities. 
 
 *Example:*
 
@@ -498,7 +595,7 @@ state Start <<White>> {
 
 [*] -down-> Persisted : fetch
 Initialized -right-> Persisted : create
-Persisted ---> Modified : set
+Persisted ---> Modified : change
 Modified ---> Persisted : update
 Modified ---> Persisted : fetch
 Persisted -right-> [*] : delete
@@ -524,7 +621,7 @@ A transition refers to a change in the object's state that occurs as a result of
 
 * The *fetch* event indicates the retrieval of data from the persistent storage. It transitions the object into the persisted state where it holds the fetched data.
 
-* The *set* event represents an action where the mapped transfer object's fields modified. This leads to a transition from the persisted state to the modified state, indicating that changes have been made but not yet saved.
+* The *change* event represents an action where the mapped transfer object's fields changed. This leads to a transition from the persisted state to the modified state, indicating that changes have been made but not yet saved.
 
 * The *update* event is associated with saving the modifications made to a transfer object. It causes the object to transition from the modified state back to the persisted state, reflecting that the changes have been persisted.
 
@@ -562,29 +659,30 @@ Currently, the body of the initialize event handlers can only be defined in Java
 
 [subs="quotes"]
 ----
-[purple]#**event**# ([purple]#**before**#|[purple]#**after**#|[purple]#**instead**#) [purple]#**initialize**# &lt;name>&#x5B;[purple]##**()**##][purple]##**;**##
+[purple]#**event**# [purple]#**initialize**# &lt;name>&#x5B;[purple]##**()**##]
+    &#x5B;[purple]##**on:**##([purple]##**before**##|[purple]##**after**##)][purple]##**;**##
 ----
 
 In this syntax, <name> represents the identifier for the event handler.
 
-When employing the `before` keyword, the initialize event handler executes prior to the actual initialization process. This handler provides an opportunity to perform specific tasks or validations before the default initialization occurs. At this stage, the object has not yet been fully initialized, allowing for adjustments or customizations to be made before the object is formally set up. This can be useful for applying business rules or performing any necessary checks. Note that the member values will be `UNDEFINED` during execution.
+When employing the `on` modifier with `before` value, the initialize event handler executes prior to the actual initialization process. This handler provides an opportunity to perform specific tasks or validations before the default initialization occurs. At this stage, the object has not yet been fully initialized, allowing for adjustments or customizations to be made before the object is formally set up. This can be useful for applying business rules or performing any necessary checks. Note that the member values will be `UNDEFINED` during execution.
 
-Conversely, if employing the `after` keyword, the handler is triggered after the object has been successfully initialized. This handler allows for additional actions to be taken once the default initialization process is complete. It's useful for tasks such as updating related entities, triggering notifications, or performing any post-initialization operations. At this point, the object is already initialized with its initial values.
+Conversely, if employing the `on` keyword with `after` value, the handler is triggered after the object has been successfully initialized. This handler allows for additional actions to be taken once the default initialization process is complete. It's useful for tasks such as updating related entities, triggering notifications, or performing any post-initialization operations. At this point, the object is already initialized with its initial values.
 
-The `instead` handler for the initialize event provides an alternative execution path, taking precedence over the default object initialization process. When the instead keyword is utilized, the specified event handler replaces the standard mechanism for initializing objects. Within this handler, developers have the flexibility to define custom procedures for object initialization, including the option to set field and relation values of the transfer object. In this case, you should provide the default values within the handler. If there are no default value settings in the handler, members will have `UNDEFINED` values after initialization, even if default values are specified in the member declarations.
+If no modifier is utilized, the event handler replaces the standard mechanism for initializing objects. Within this handler, developers have the flexibility to define custom procedures for object initialization, including the option to set field and relation values of the transfer object. In this case, you should provide the default values within the handler. If there are no default value settings in the handler, members will have `UNDEFINED` values after initialization, even if default values are specified in the member declarations.
 
 *Example:*
 
 [source,jsl]
 ----
 transfer PersonTransfer(Person person) {
-    field required String firstName default:"FN";
-    field required String lastName default:"LN";
+    field String firstName required default:"FN";
+    field String lastName required default:"LN";
     field String midName;
     
-    event before initialize beforeInit;
-    event after initialize afterInit;
-    event instead initialize insteadInit;
+    event initialize beforeInit on:before;
+    event initialize afterInit on:after;
+    event initialize insteadInit;
 }
 ----
 
@@ -603,38 +701,37 @@ Currently, the body of the create event handler can only be defined in Java.
 
 [subs="quotes"]
 ----
-[purple]#**event**# ([purple]#**before**#|[purple]#**after**#) [purple]#**initialize**# &lt;name>&#x5B;[purple]##**()**##][purple]##**;**##
+[purple]#**event**# [purple]#**create**# &lt;name>&#x5B;[purple]##**()**##]
+    [purple]##**on:**##([purple]##**before**##|[purple]##**after**##)[purple]##**;**##
 ----
 
 or
 
 [subs="quotes"]
 ----
-[purple]#**event instead create**# &lt;name>&#x5B;[purple]##**(**##&lt;transfer> &lt;parameter>[purple]##**)**##][purple]##**;**##
+[purple]#**event create**# &lt;name>&#x5B;[purple]##**(**##&lt;transfer> &lt;parameter>[purple]##**)**##][purple]##**;**##
 ----
 
 In this syntax, <name> represents the identifier for the event handler.
 
-When employing the `before` keyword, the create event handler executes prior to the actual object creation. This handler provides an opportunity to perform specific tasks or validations prior to the default creation process. At this stage, the object has not yet been persisted in the storage, allowing for adjustments or customizations to be made before the object is formally created. This can be useful for applying business rules, or performing any necessary checks.
+When employing the `on` modifier with `before` value, the create event handler executes prior to the actual object creation. This handler provides an opportunity to perform specific tasks or validations prior to the default creation process. At this stage, the object has not yet been persisted in the storage, allowing for adjustments or customizations to be made before the object is formally created. This can be useful for applying business rules, or performing any necessary checks.
 
-Conversely, if employing the `after` keyword, the handler is triggered after the object has been successfully created and persisted. This handler allows for additional actions to be taken once the default creation process is complete. It's useful for tasks such as updating related entities, triggering notifications, or performing any post-creation operations. At this point, the object is already stored in the persistent storage with its values.
+Conversely, if employing the `on` keyword with `after` value, the handler is triggered after the object has been successfully created and persisted. This handler allows for additional actions to be taken once the default creation process is complete. It's useful for tasks such as updating related entities, triggering notifications, or performing any post-creation operations. At this point, the object is already stored in the persistent storage with its values.
 
-The `instead` handler for the create event provides an alternative execution path, taking precedence over the default object creation process. When the `instead` keyword is utilized, the specified event handler replaces the standard mechanism for creating objects. Within this handler, developers have the flexibility to define custom procedures for persisting object, including the option to set field and relation values.
-
-The `instead` create event handler can optionally accept a transfer object parameter. The field values of this parameter can be utilized when the transfer object is saved for the first time. This parameter enables differentiation between the creation and update parameters of the transfer object.
+If no modifier is utilized, the event handler replaces the standard mechanism for creating objects. Within this handler, developers have the flexibility to define custom procedures for persisting object, including the option to set field and relation values. In this case the create event handler can optionally accept a transfer object parameter. The fields of the parameter can be utilized when the transfer object is saved for the first time. The parameter enables differentiation between the creation and update parameters of the transfer object.
 
 *Example:*
 
 [source,jsl]
 ----
 transfer PersonTransfer(Person person) {
-    field required String firstName;
-    field required String lastName;
+    field String firstName required;
+    field String lastName required;
     field String midName;
     
-    event after create afterCreate;
-    event before create beforeCreate;
-    event instead create insteadCreate;
+    event create beforeCreate on:before;
+    event create afterCreate on:after;
+    event create insteadCreate;
 }
 ----
 
@@ -653,29 +750,30 @@ Currently, the body of the fetch event handler can only be defined in Java.
 
 [subs="quotes"]
 ----
-[purple]#**event**# ([purple]#**before**#|[purple]#**after**#|[purple]#**instead**#) [purple]#**fetch**# &lt;name>&#x5B;[purple]##**()**##][purple]##**;**##
+[purple]#**event**# [purple]#**fetch**# &lt;name>&#x5B;[purple]##**()**##]
+    &#x5B;[purple]##**on:**##([purple]##**before**##|[purple]##**after**##)][purple]##**;**##
 ----
 
 In this syntax, <name> represents the identifier for the event handler.
 
-When employing the `before` keyword, the fetch event handler executes prior to the actual data retrieval. This handler provides an opportunity to perform specific tasks or validations prior to the default retrieval process. At this stage, the object has not yet been retrieved from the storage, allowing for adjustments or customizations to be made before the object is formally fetched. This can be useful for applying business rules or performing any necessary checks.
+When employing the `on` modifier with `before` value, the fetch event handler executes prior to the actual data retrieval. This handler provides an opportunity to perform specific tasks or validations prior to the default retrieval process. At this stage, the object has not yet been retrieved from the storage, allowing for adjustments or customizations to be made before the object is formally fetched. This can be useful for applying business rules or performing any necessary checks.
 
-Conversely, if employing the `after` keyword, the handler is triggered after the object has been successfully retrieved. This handler allows for additional actions to be taken once the default retrieval process is complete. It's useful for tasks such as updating related entities, triggering notifications, or performing any post-retrieval operations. At this point, the object is already retrieved from persistent storage with its values.
+Conversely, if employing the `on` keyword with `after` value, the handler is triggered after the object has been successfully retrieved. This handler allows for additional actions to be taken once the default retrieval process is complete. It's useful for tasks such as updating related entities, triggering notifications, or performing any post-retrieval operations. At this point, the object is already retrieved from persistent storage with its values.
 
-The `instead` handler for the fetch event provides an alternative execution path, taking precedence over the default object retrieval process. When the `instead` keyword is utilized, the specified event handler replaces the standard mechanism for fetching objects. Within this handler, developers have the flexibility to define custom procedures for retrieving objects, including the option to set field and relation values of the transfer object.
+If no modifier is utilized, the event handler replaces the standard mechanism for fetching objects. Within this handler, developers have the flexibility to define custom procedures for retrieving objects, including the option to set field and relation values of the transfer object.
 
 *Example:*
 
 [source,jsl]
 ----
 transfer PersonTransfer(Person person) {
-    field required String firstName;
-    field required String lastName;
+    field String firstName required;
+    field String lastName required;
     field String midName;
     
-    event after fetch afterFetch;
-    event before fetch beforeFetch;
-    event instead fetch insteadFetch;
+    event fetch beforeFetch on:before;
+    event fetch afterFetch on:after;
+    event fetch insteadFetch;
 }
 ----
 
@@ -697,16 +795,17 @@ Currently, the body of the update event handler can only be defined in Java.
 
 [subs="quotes"]
 ----
-[purple]#**event**# ([purple]#**before**#|[purple]#**after**#|[purple]#**instead**#) [purple]#**update**# &lt;name>&#x5B;[purple]##**()**##][purple]##**;**##
+[purple]#**event**# [purple]#**update**# &lt;name>&#x5B;[purple]##**()**##]
+    &#x5B;[purple]##**on:**##([purple]##**before**##|[purple]##**after**##)][purple]##**;**##
 ----
 
 In this syntax, <name> represents the identifier for the event handler.
 
-When employing the `before` keyword, the update event handler executes prior to the actual data modification. This handler provides an opportunity to perform specific tasks or validations prior to the default update process. At this stage, the object has not yet been modified in the storage, allowing for adjustments or customizations to be made before the object is formally updated. This can be useful for applying business rules or performing any necessary checks.
+When employing the `on` modifier with `before` value, the update event handler executes prior to the actual data modification. This handler provides an opportunity to perform specific tasks or validations prior to the default update process. At this stage, the object has not yet been modified in the storage, allowing for adjustments or customizations to be made before the object is formally updated. This can be useful for applying business rules or performing any necessary checks.
 
-Conversely, if employing the `after` keyword, the handler is triggered after the object has been successfully updated. This handler allows for additional actions to be taken once the default update process is complete. It’s useful for tasks such as updating related entities, triggering notifications, or performing any post-update operations. At this point, the object is already updated in persistent storage with its new values.
+Conversely, if employing the `on` keyword with `after` value, the handler is triggered after the object has been successfully updated. This handler allows for additional actions to be taken once the default update process is complete. It’s useful for tasks such as updating related entities, triggering notifications, or performing any post-update operations. At this point, the object is already updated in persistent storage with its new values.
 
-The `instead` handler for the update event provides an alternative execution path, taking precedence over the default object update process. When the instead keyword is utilized, the specified event handler replaces the standard mechanism for updating objects. Within this handler, developers have the flexibility to define custom procedures for updating objects, including the option to set field and relation values of the transfer object.
+If no modifier is utilized, the event handler replaces the standard mechanism for updating objects. Within this handler, developers have the flexibility to define custom procedures for updating objects, including the option to set field and relation values of the transfer object.
 
 
 *Example:*
@@ -714,13 +813,13 @@ The `instead` handler for the update event provides an alternative execution pat
 [source,jsl]
 ----
 transfer PersonTransfer(Person person) {
-    field required String firstName;
-    field required String lastName;
+    field String firstName required;
+    field String lastName required;
     field String midName;
     
-    event after fetch afterUpdate;
-    event before fetch beforeUpdate;
-    event instead fetch insteadUpdate;
+    event fetch beforeUpdate on:before;
+    event fetch afterUpdate on:after;
+    event fetch insteadUpdate;
 }
 ----
 
@@ -741,29 +840,30 @@ Currently, the body of the delete event handler can only be defined in Java.
 
 [subs="quotes"]
 ----
-[purple]#**event**# ([purple]#**before**#|[purple]#**after**#|[purple]#**instead**#) [purple]#**delete**# &lt;name>&#x5B;[purple]##**()**##][purple]##**;**##
+[purple]#**event**# [purple]#**delete**# &lt;name>&#x5B;[purple]##**()**##]
+    &#x5B;[purple]##**on:**##([purple]##**before**##|[purple]##**after**##)][purple]##**;**##
 ----
 
 In this syntax, <name> represents the identifier for the event handler.
 
-When employing the before keyword, the delete event handler executes prior to the actual data removal. This handler provides an opportunity to perform specific tasks or validations prior to the default deletion process. At this stage, the object has not yet been removed from the storage, allowing for adjustments or customizations to be made before the object is formally deleted. This can be useful for applying business rules or performing any necessary checks.
+When employing the `on` modifier with `before` value, the delete event handler executes prior to the actual data removal. This handler provides an opportunity to perform specific tasks or validations prior to the default deletion process. At this stage, the object has not yet been removed from the storage, allowing for adjustments or customizations to be made before the object is formally deleted. This can be useful for applying business rules or performing any necessary checks.
 
-Conversely, if employing the after keyword, the handler is triggered after the object has been successfully deleted. This handler allows for additional actions to be taken once the default deletion process is complete. It’s useful for tasks such as updating related entities, triggering notifications, or performing any post-deletion operations. At this point, the object is already removed from persistent storage.
+Conversely, if employing the `on` keyword with `after` value, the handler is triggered after the object has been successfully deleted. This handler allows for additional actions to be taken once the default deletion process is complete. It’s useful for tasks such as updating related entities, triggering notifications, or performing any post-deletion operations. At this point, the object is already removed from persistent storage.
 
-The instead handler for the delete event provides an alternative execution path, taking precedence over the default object deletion process. When the instead keyword is utilized, the specified event handler replaces the standard mechanism for deleting objects. Within this handler, developers have the flexibility to define custom procedures for deleting objects.
+If no modifier is utilized, the event handler replaces the standard mechanism for deleting objects. Within this handler, developers have the flexibility to define custom procedures for deleting objects.
 
 *Example:*
 
 [source,jsl]
 ----
 transfer PersonTransfer(Person person) {
-    field required String firstName;
-    field required String lastName;
+    field String firstName required;
+    field String lastName required;
     field String midName;
 
-    event after delete afterDelete;
-    event before delete beforeDelete;
-    event instead delete insteadDelete;
+    event delete beforeDelete on:before;
+    event delete afterDelete on:after;
+    event delete insteadDelete;
 }
 ----
 
