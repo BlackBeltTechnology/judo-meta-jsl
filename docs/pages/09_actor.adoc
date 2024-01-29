@@ -108,7 +108,8 @@ Use the `access` keyword to specify an access within an actor.
     &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
 ----
-The access of an actor is the same as the relation of transfer objects. The full list of modifiers can be found in the xref:appx_modifiers.adoc#actor-access[Appendix].
+
+The access of an actor is similar to the relation of transfer objects, except for the absence of the `required` and `default` modifiers; the remaining modifiers are identical to those of the transfer object relation. The full list of modifiers can be found in the xref:appx_modifiers.adoc#actor-access[Appendix].
 
 *Example:*
 
