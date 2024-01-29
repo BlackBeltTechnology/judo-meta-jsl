@@ -181,7 +181,7 @@ TransferRelationDeclaration
 TransferActionDeclaration
 	: annotations += AnnotationMark*
 	  -> KW_ACTION (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
-	  LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID modifiers += (ChoiceModifier  | SelectorModifier)*)? RP
+	  LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID modifiers += ChoiceModifier?)? RP
 	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
 	  modifiers += (EnabledModifier | StaticModifier | UpdateModifier | DeleteModifier)*
 	  SC
@@ -244,7 +244,12 @@ TransferInitializeDeclaration returns TransferEventDeclaration
  *	View
  ****************************/
 
-ViewDeclaration returns TransferDeclaration
+VisibleDeclaration returns TransferDeclaration
+	: ViewDeclaration
+	| RowDeclaration
+	;
+
+ViewDeclaration returns VisibleDeclaration
 	: {ViewDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_VIEW Named
@@ -329,7 +334,7 @@ ViewActionDeclaration returns TransferActionDeclaration
 	: {ViewActionDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_ACTION (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
-	  LP (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID modifiers += (ChoiceModifier | SelectorModifier)*)? RP
+	  LP (parameterType = [VisibleDeclaration | ModelName] paramaterName = JSLID modifiers += ChoiceModifier?)? RP
 	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
 	  modifiers += (EnabledModifier | StaticModifier | VisualModifier | RedirectModifier | UpdateModifier | DeleteModifier)*
 	  SC
@@ -363,7 +368,7 @@ ViewActionsDeclaration
  *	Row
  ****************************/
 
-RowDeclaration returns TransferDeclaration
+RowDeclaration returns VisibleDeclaration
 	: {RowDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_ROW Named
@@ -400,7 +405,7 @@ RowActionDeclaration returns TransferActionDeclaration
 	: {RowActionDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_ACTION (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
-	  LP (parameterType = [ViewDeclaration | ModelName] paramaterName = JSLID modifiers += (ChoiceModifier | SelectorModifier)*)? RP
+	  LP (parameterType = [VisibleDeclaration | ModelName] paramaterName = JSLID modifiers += ChoiceModifier?)? RP
 	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
 	  modifiers += (EnabledModifier | StaticModifier | VisualModifier | BulkModifier | RedirectModifier | UpdateModifier | DeleteModifier)*
 	  SC
@@ -437,9 +442,11 @@ ActorGroupMemberDeclaration returns TransferMemberDeclaration
 ActorAccessDeclaration returns TransferRelationDeclaration
 	: {ActorAccessDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_ACCESS referenceType = [TransferDeclaration | ModelName] Cardinality? Named // reads ?= LTE getterExpr = Expression
+	  -> KW_RELATION
+	  referenceType = [TransferDeclaration | ModelName] Cardinality?
+	  Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  modifiers += (DefaultModifier | EagerModifier | RequiredModifier | EnabledModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -752,7 +759,7 @@ AnnotationTarget
 	| KW_ACTOR COLON actorGroup ?= KW_GROUP
 	| KW_ACTOR COLON actorLink ?= KW_LINK
 	| KW_ACTOR COLON actorTable ?= KW_TABLE
-	| KW_ACTOR COLON actorAccess ?= KW_ACCESS
+	| KW_ACTOR COLON actorAccess ?= KW_RELATION
 
 	| KW_VIEW COLON viewAction ?= KW_ACTION
 	| KW_VIEW COLON viewEvent ?= KW_EVENT
@@ -1158,7 +1165,6 @@ terminal KW_UNION:		'union';
 terminal KW_VIEW:		'view';
 
 // Features	
-terminal KW_ACCESS:		'access';
 terminal KW_ACTION:		'action';
 terminal KW_ACTIONS:	'actions';
 terminal KW_COLUMN:		'column';

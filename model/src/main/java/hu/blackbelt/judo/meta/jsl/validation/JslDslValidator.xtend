@@ -1310,68 +1310,34 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkSelector(SelectorModifier selector) {
-		if (selector.eContainer instanceof TransferRelationDeclaration) {
-			val TransferRelationDeclaration relation = selector.eContainer as TransferRelationDeclaration
-	
-			if (relation instanceof ViewLinkDeclaration || relation instanceof ViewTableDeclaration)
-			{
-				if (!(selector.transfer instanceof RowDeclaration)) {
-		            error("Invalid selector modifier. Selector must be a row.",
-		                JsldslPackage::eINSTANCE.selectorModifier.getEStructuralFeature("ID"),
-		                INVALID_SELECTOR)
-				}
-			} else {
-				if (!(selector.transfer instanceof SimpleTransferDeclaration)) {
-		            error("Invalid selector modifier. Selector must be a transfer object.",
-		                JsldslPackage::eINSTANCE.selectorModifier.getEStructuralFeature("ID"),
-		                INVALID_SELECTOR)
-				}
-			}
-	
-			if (selector.transfer.map === null) {
-	            error("Invalid selector modifier. Selector transfer reference must be mapped.",
-	                JsldslPackage::eINSTANCE.selectorModifier.getEStructuralFeature("ID"),
-	                INVALID_SELECTOR)
-			}
-	
-	        if (!TypeInfo.getTargetType(selector.transfer?.map?.entity).isCompatible(TypeInfo.getTargetType((selector.eContainer as TransferRelationDeclaration).referenceType?.map?.entity))) {
-	            error("Invalid selector modifier. Selector must refer to a compatible transfer declaration.",
-	                JsldslPackage::eINSTANCE.selectorModifier.getEStructuralFeature("ID"),
-	                INVALID_SELECTOR)
-	        }
-        }
+		val TransferRelationDeclaration relation = selector.eContainer as TransferRelationDeclaration
 
-		if (selector.eContainer instanceof TransferActionDeclaration) {
-			val TransferActionDeclaration action = selector.eContainer as TransferActionDeclaration
-			
-			if (action instanceof ViewActionDeclaration || action instanceof RowActionDeclaration)
-			{
-				if (!(selector.transfer instanceof RowDeclaration)) {
-		            error("Invalid selector modifier. Selector must be a row.",
-		                JsldslPackage::eINSTANCE.selectorModifier.getEStructuralFeature("ID"),
-		                INVALID_SELECTOR)
-				}
-			} else {
-				if (!(selector.transfer instanceof SimpleTransferDeclaration)) {
-		            error("Invalid selector modifier. Selector must be a transfer object.",
-		                JsldslPackage::eINSTANCE.selectorModifier.getEStructuralFeature("ID"),
-		                INVALID_SELECTOR)
-				}
-			}
-
-			if (action.parameterType?.map === null) {
-	            error("Invalid selector modifier. Parameter must be mapped.",
+		if (relation instanceof ViewLinkDeclaration || relation instanceof ViewTableDeclaration)
+		{
+			if (!(selector.transfer instanceof RowDeclaration)) {
+	            error("Invalid selector modifier. Selector must be a row.",
 	                JsldslPackage::eINSTANCE.selectorModifier.getEStructuralFeature("ID"),
 	                INVALID_SELECTOR)
 			}
-			
-			if (!TypeInfo.getTargetType(selector.transfer?.map?.entity).isCompatible(TypeInfo.getTargetType(action.parameterType?.map?.entity))) {
-	            error("Invalid selector modifier. Selector must refer to a compatible transfer declaration.",
+		} else {
+			if (!(selector.transfer instanceof SimpleTransferDeclaration)) {
+	            error("Invalid selector modifier. Selector must be a transfer object.",
 	                JsldslPackage::eINSTANCE.selectorModifier.getEStructuralFeature("ID"),
 	                INVALID_SELECTOR)
-	        }
-			
+			}
 		}
+
+		if (selector.transfer.map === null) {
+            error("Invalid selector modifier. Selector transfer reference must be mapped.",
+                JsldslPackage::eINSTANCE.selectorModifier.getEStructuralFeature("ID"),
+                INVALID_SELECTOR)
+		}
+
+        if (!TypeInfo.getTargetType(selector.transfer?.map?.entity).isCompatible(TypeInfo.getTargetType((selector.eContainer as TransferRelationDeclaration).referenceType?.map?.entity))) {
+            error("Invalid selector modifier. Selector must refer to a compatible transfer declaration.",
+                JsldslPackage::eINSTANCE.selectorModifier.getEStructuralFeature("ID"),
+                INVALID_SELECTOR)
+        }
 	}
 
     @Check
@@ -2051,6 +2017,22 @@ class JslDslValidator extends AbstractJslDslValidator {
                 JsldslPackage::eINSTANCE.named_Name,
                 INVALID_DECLARATION,
                 action.name)
+		}
+
+		if (action.parameterType instanceof ViewDeclaration && action.parameterType !== null) {
+            error("Mapped view declaration cannot be input type.",
+                JsldslPackage::eINSTANCE.named_Name,
+                INVALID_DECLARATION,
+                action.name)
+			
+		}
+
+		if (action.parameterType instanceof RowDeclaration && action.parameterType === null) {
+            error("Unmapped row declaration cannot be input type.",
+                JsldslPackage::eINSTANCE.named_Name,
+                INVALID_DECLARATION,
+                action.name)
+			
 		}
 
 		if (action.parameterType !== null && action.parameterType.map !== null && action.getModifier(JsldslPackage::eINSTANCE.choiceModifier) === null) {

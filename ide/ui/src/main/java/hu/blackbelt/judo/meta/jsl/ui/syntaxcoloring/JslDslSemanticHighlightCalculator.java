@@ -54,7 +54,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 								"KW_LEFT", "KW_NUMERIC", "KW_RIGHT", "KW_STRING", "KW_TIME", "KW_TIMESTAMP", "KW_TOP", "KW_TRUE", "KW_UPDATE", "KW_VERTICAL",
 								"KW_VOID", "KW_KB", "KW_MB", "KW_GB", "KW_KIB", "KW_MIB", "KW_GIB");
 
-    static Set<String> features = Sets.newHashSet("KW_ACCESS", "KW_ACTION", "KW_ACTIONS", "KW_COLUMN", "KW_CONSTRAINT", "KW_EVENT",
+    static Set<String> features = Sets.newHashSet("KW_ACTION", "KW_ACTIONS", "KW_COLUMN", "KW_CONSTRAINT", "KW_EVENT",
     							"KW_FIELD", "KW_GROUP", "KW_IDENTIFIER", "KW_LINK", "KW_LITERAL",
     							"KW_MENU", "KW_RELATION", "KW_SUBMIT", "KW_TABLE", "KW_TABS", "KW_TEXT", "KW_THROWS");
 
