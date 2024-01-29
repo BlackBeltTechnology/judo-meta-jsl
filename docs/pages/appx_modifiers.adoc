@@ -241,3 +241,58 @@ or
 |on            | `before` or `after`  | If event handler executes before or after the system's original handler.
 |====================
 
+== Actor
+
+[subs="quotes"]
+----
+[purple]#**actor**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
+    &#x5B;[purple]##**human:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**realm:**##&lt;realm>]
+    &#x5B;[purple]##**claim:**##&lt;claim>]
+    &#x5B;[purple]##**identity:**##&lt;identity>]
+    &#x5B;[purple]##**guard:**##&lt;guard>]
+[purple]##**{**##
+    [member] ...
+[purple]#**}**#
+----
+
+.Possible modifiers of actor
+[options="header", cols="1,1,2", caption-side="bottom"]
+|====================
+|Modifier name | Modifier type               | Meaning
+|human         | boolean literal             | If the actor represents a human.
+|realm         | string literal              | The name of the security policy domain.
+|claim         | string literal              | The name of the claim contains information for identifying users.
+|identity      | expression returns field    | Expression that selects an identifier field of the mapped entity.
+|guard         | expression returns boolean  | Expression that must evaluate to true in order to authenticate the user.
+|====================
+
+== Actor access
+
+[subs="quotes"]
+----
+[purple]#**access**# &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**<=**## &lt;expression>
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+
+    &#x5B;[purple]##**choices:**##&lt;choices>]
+    &#x5B;[purple]##**selector:**##&lt;transfer>]
+
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
+----
+
+.Possible modifiers of transfer relation
+[options="header", cols="1,1,2", caption-side="bottom"]
+|====================
+|Modifier name | Modifier type               | Meaning
+|enabled       | expression returns boolean  | If the relation is enabled for editing.
+|choices       | expression returns entities | The possible list of transfers to add.
+|selector      | transfer object type        | The type of transfer object when the list of choices requested.
+|eager         | boolean literal                     | If the fetching strategy is eager.
+|create        | boolean literal                     | If create is allowed on this relation.
+|delete        | boolean literal                     | If delete is allowed on this relation.
+|update        | boolean literal                     | If update is allowed on this relation.
+|====================

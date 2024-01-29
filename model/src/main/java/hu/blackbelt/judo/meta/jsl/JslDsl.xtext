@@ -442,11 +442,11 @@ ActorGroupMemberDeclaration returns TransferMemberDeclaration
 ActorAccessDeclaration returns TransferRelationDeclaration
 	: {ActorAccessDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_RELATION
+	  -> KW_ACCESS
 	  referenceType = [TransferDeclaration | ModelName] Cardinality?
 	  Named
-	  (LTE getterExpr = Expression)?
-	  modifiers += (DefaultModifier | EagerModifier | RequiredModifier | EnabledModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  LTE getterExpr = Expression
+	  modifiers += (EagerModifier | EnabledModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -461,8 +461,8 @@ ActorLinkDeclaration returns ViewLinkDeclaration
 	: {ActorLinkDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_LINK referenceType = [ViewDeclaration | ModelName] Named
-	  (LTE getterExpr = Expression)?
-	  modifiers += (DefaultModifier | EagerModifier | RequiredModifier | EnabledModifier | VisualModifier | TextModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  LTE getterExpr = Expression
+	  modifiers += (EagerModifier | EnabledModifier | VisualModifier | TextModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -470,8 +470,8 @@ ActorTableDeclaration returns ViewTableDeclaration
 	: {ActorTableDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
-	  (LTE getterExpr = Expression)?
-	  modifiers += (DefaultModifier | EagerModifier | EnabledModifier | VisualModifier | RowsModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  LTE getterExpr = Expression
+	  modifiers += (EagerModifier | EnabledModifier | VisualModifier | RowsModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -1165,6 +1165,7 @@ terminal KW_UNION:		'union';
 terminal KW_VIEW:		'view';
 
 // Features	
+terminal KW_ACCESS:		'access';
 terminal KW_ACTION:		'action';
 terminal KW_ACTIONS:	'actions';
 terminal KW_COLUMN:		'column';
