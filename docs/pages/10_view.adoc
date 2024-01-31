@@ -1,0 +1,505 @@
+ifndef::env-site,env-github[]
+include::../_attributes.adoc[]
+endif::[]
+// Settings
+:idprefix:
+:idseparator: -
+:icons: font
+:KW: [purple]##**
+:KWE: **##
+
+[judo-req="true",judo-req-id="REQ-SRV-014"]
+= GUI
+:page-toctitle:GUI
+
+Views and rows play a crucial role in defining the visual representation of data. Views are special transfer objects that not only carry data but also define how this data is presented to the user. Rows, on the other hand, are a type of transfer object specifically designed for visualizing data in a tabular format.
+
+The following chapters will be easier to understand if you first grasp the concepts presented in the xref:07_transfer.adoc[Transfer model] chapter. There you can learn about transfer objects, their fields, relations and actions. These elements form the basis for building more sophisticated structures such as views and rows. Once you have a solid understanding of how transfer objects work, you can delve into the following chapters, where you can learn how to create a visual representation of data through views.
+
+== View
+
+A View is a transfer object that defines the visual presentation of data. It serves as a bridge between the raw data stored in entities and the user interface, providing a customizable and user-friendly representation.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**view**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
+    &#x5B;[purple]##**dialog:**##([purple]##**true**##|[purple]##**false**##)]
+&#x5B;[purple]##**{**##
+    &#x5B;member] ...
+[purple]##**}**##][purple]#**;**#
+----
+
+or
+
+[subs="quotes"]
+----
+[purple]#**view**# &lt;name> &#x5B;[purple]##**maps**## &lt;entity> [purple]#**as**# &lt;mapping-field>]
+&#x5B;[purple]##**{**##
+    &#x5B;member] ...
+[purple]##**}**##][purple]#**;**#
+----
+
+The view syntax is used to define a visual representation of data. It begins with the keyword `view` followed by the chosen <name> for the view. Optionally, you can specify the entity it is associated with using (entity mapping-field).
+
+Inside the curly braces `{` and `}`, you can specify various components or members of the view, such as fields, actions, or other elements that contribute to its functionality. These components collectively define the visual interface and behavior of the view.
+
+[options="header", cols="1,1,2"]
+|====================
+|Parameter name | Parameter type        | Meaning
+|dialog         | boolean literal       | If the view is shown in a pop-up dialog window.
+|====================
+
+
+A view typically consists of various fields and interactive elements arranged in a structured layout. You can arrange different types of fields, such as text boxes, checkboxes, radio buttons, drop-down lists, and buttons, to allow users to enter data or make selections.
+
+*Example:*
+
+[source,jsl]
+----
+view CartView maps Customer as customer {
+	table OrderItemRow[] items <= customer.cart.orderItems;
+	field Integer price <= customer.cart.price label:"Total price ($):";
+	action ThankYouView order() label:"Order";
+}
+----
+
+In this example, a view named `CartView` is defined, and it is mapped to the `Customer` entity through the mapping field of `customer`. The view is designed to represent a shopping cart. Let's break down the components of this view:
+
+* *Table Component* (OrderItemRow[] items): The items table represents a collection of OrderItemRow rows. It is derived from the orderItems collection within the customer's cart.
+
+* *Field Component* (Integer price): The price field represents the total price of the items in the shopping cart. It is derived from the price field within the cart of the associated customer.
+
+* *Action Component* (ThankYouView order()): The order action is defined, indicating a functionality related to placing an order. It returns a ThankYouView, possibly representing a thank-you message or confirmation for the order.
+
+Overall, this CartView provides a visual representation of a customer's shopping cart, including a table of order items, the total price, and an action to place an order. The use of maps Customer as customer establishes the association with the Customer entity for data retrieval and presentation.
+
+.The logical layout of the cart view
+[plantuml, target=cart-view, format=png, align="center"]
+....
+@startsalt
+skinparam handwritten true
+skinparam defaultFontName arial
+
+scale 2
+{+
+  {#
+  Amount | Item | Price ($)
+  2 | Socks Pair | 10
+  5 | Low-cut socks pair | 45
+  }
+
+  Total price ($):55
+
+  [ Order ]
+}
+@endsalt
+....
+
+=== View primitive field
+
+A view primitive field is a visual component in a view designed to represent and handle a single, fundamental piece of information. This field is associated with primitive data types like text or numbers and serves to either display or capture information.
+
+A view primitive field can represent a single primitive value on the view.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]##**field**## &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**set:**##([purple]##**true**##|[purple]##**false**##)]
+
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**lines:**##&lt;lines>][purple]#**;**#
+----
+
+Since the view field is also a transfer field, the basic syntax is the same as the transfer field. The view field is about how users see and use information, caring about how things look and user experience. On the other hand, the transfer field is about moving and sharing data efficiently. To get specific details about this shared syntax, please refer to the section on the xref:07_transfer.adoc#field[Transfer field].
+
+The full list of modifiers can be found in the xref:appx_modifiers.adoc#view-field[Appendix].
+
+*Example:*
+
+[source,jsl]
+----
+field Integer price <= customer.cart.price
+    label:"Price ($)"
+    icon:"currency-usd"
+    width:4;
+----
+
+=== View link
+
+A view link is a visual component in a user interface that symbolizes a connection to another view, indicating a relationship between different pieces of information.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**link**# &lt;view> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**choices:**##&lt;choices>]
+    &#x5B;[purple]##**selector:**##&lt;row>]
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
+
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**text:**##&lt;text>][purple]#**;**#
+----
+
+Since the view link is also a single transfer relation, the basic syntax is the same as the transfer relation, except that cardinality cannot be specified. The view link is about how users see and use information, caring about how things look and user experience. On the other hand, the transfer relation is about moving and sharing data efficiently. To get specific details about this shared syntax, please refer to the section on the xref:07_transfer.adoc[Transfer model].
+
+[options="header", cols="1,1,2"]
+|====================
+|Modifier name | Modifier type                  | Meaning
+|required      | boolean literal                | If the field cannot be undefined.
+|enabled       | expression returns boolean     | If the field is enabled for editing.
+|default       | expression returns <primitive> | The default value of the field.
+|set           | boolean literal                | If the transfer field is changed, its value will be set into the mapped entity's field.
+
+|label          | string literal        | The label to show for the field.
+|icon           | string literal        | The name of the icon to show for the field. Possible icon names can be found here: https://pictogrammers.com/library/mdi/
+|hidden         | boolean expression    | If the field is shown to the user.
+|width          | numeric literal       | The logical width of the field. Possible values are 1, 2, 3, 4, 6 and 12.
+
+The 12-column grid system is a fundamental design concept widely adopted in web development, offering a versatile and systematic approach to organizing and structuring visual elements on screens. Based on the concept of dividing a webpage into twelve columns, the system provides an invisible grid that serves as a guide for layout design. Its technical strength lies in the inherent flexibility derived from the number 12, which is divisible by 1, 2, 3, 4, and 6, enabling designers to create a variety of layouts.
+|lines          | numeric literal | The height of the field expressed in number of text lines. Can only be used if <primitive> is a string.
+|====================
+
+*Example:*
+
+[source,jsl]
+----
+link ProductListView productList text:"Back to shopping";
+----
+
+=== View table
+
+A view table is a graphical representation within a user interface that displays a collection of rows in a tabular format. The syntax for defining a view table involves specifying its structure, including the type of rows it contains, and optional modifiers that govern its appearance and behavior.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**table**# &lt;row>[purple]##**[]**## &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**choices:**##&lt;choices>]
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**rows:**##&lt;rows>]
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
+----
+
+[options="header", cols="1,1,2"]
+|====================
+|Parameter name | Parameter type        | Meaning
+|label          | string literal        | The label to show for the table.
+|icon           | string literal        | The name of the icon to show for the table.
+|enabled        | boolean expression    | If the table is enabled for editing.
+|hidden         | boolean expression    | If the table is shown to the user.
+|width          | numeric literal       | The logical width of the table.
+|eager          | boolean literal       | If the fetching strategy is eager or lazy.
+|choices        | row declaration + expression | The possible values for selection. The choices modifier takes effect only if the enabled modifier is true.
+|default        | expression returns entities    | The default rows.
+|rows           | numeric literal       | The number of rows shown in the table.
+|create         | boolean literal              | If create is allowed into this table.
+|update         | boolean literal              | If update is allowed for the members of the table.
+|delete         | boolean literal              | If delete is allowed from this table.
+|====================
+
+*Example:*
+
+[source,jsl]
+----
+table ProductRow[] products <= Product.all();
+----
+
+=== View text
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**text**# &lt;name> [purple]##**<=**## &lt;expression>
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>][purple]##**;**##
+----
+
+[options="header", cols="1,1,2"]
+|====================
+|Parameter name | Parameter type        | Meaning
+|label          | string literal        | The label to show for the field.
+|icon           | string literal        | The name of the icon to show for the field.
+|hidden         | boolean expression    | If the field is shown to the user.
+|width          | numeric literal       | The logical width of the field.
+|====================
+
+*Example:*
+
+[source,jsl]
+----
+text message <= "Thank you for your order.";
+----
+
+=== View group
+
+*Syntax:*
+
+[subs="quotes"]
+----
+([purple]#**horizontal**#|[purple]#**vertical**#) &lt;name>
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**frame:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**h-align:**##([purple]##**left**##|[purple]##**right**##|[purple]##**center**##)]
+    &#x5B;[purple]##**v-align:**##([purple]##**top**##|[purple]##**bottom**##|[purple]##**center**##)]
+    &#x5B;[purple]##**stretch:**##([purple]##**true**##|[purple]##**false**##)]
+[purple]##**{**##
+    [member] ...
+[purple]#**}**#[purple]##**;**##
+----
+
+[options="header", cols="1,1,2"]
+|====================
+|Parameter name | Parameter type        | Meaning
+|label          | string literal        | The label to show for the field.
+|icon           | string literal        | The name of the icon to show for the field.
+|enabled        | boolean expression    | If the field is enabled for editing.
+|hidden         | boolean expression    | If the field is shown to the user.
+|width          | numeric literal       | The logical width of the field.
+|frame          | boolean literal           | If the group is surrounded by a frame.
+|h-align        | `left`, `right`, `center` | The horizontal location of elements inside the group. 
+|v-align        | `top`, `bottom`, `center` | The vertical location of elements inside the group.
+|stretch        | boolean literal           | If the group fills the available space.
+|====================
+
+*Example:*
+
+[source,jsl]
+----
+vertical head {
+	field String price <= product.price.asString() + " HUF";
+	field String name <= product.name;
+}
+----
+
+=== View tabs
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**tabs**# &lt;name>
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**frame:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**stretch:**##([purple]##**true**##|[purple]##**false**##)]
+[purple]##**{**##
+    [group] ...
+[purple]#**}**#[purple]##**;**##
+----
+
+[options="header", cols="1,1,2"]
+|====================
+|Parameter name | Parameter type        | Meaning
+|label          | string literal        | The label to show for the field.
+|icon           | string literal        | The name of the icon to show for the field.
+|enabled        | boolean expression    | If the field is enabled for editing.
+|hidden         | boolean expression    | If the field is shown to the user.
+|width          | numeric literal       | The logical width of the field.
+|frame          | boolean literal       | If the tabs are surrounded by a frame.
+|stretch        | boolean literal       | If the tabs fill the available space.
+|====================
+
+=== View action
+
+The action is a piece of code (currently Java implementation) that is executed when the action is invoked. An action may receive input as defined in its parameter.
+
+An action is represented by a clickable button in the screen.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**action**# &#x5B;&lt;view>|&lt;union>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**##
+    &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...]
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**resource:**##&lt;resource>][purple]##**;**##
+----
+
+[options="header", cols="1,1,2"]
+|====================
+|Parameter name | Parameter type        | Meaning
+|label          | string literal        | The label to show for the field.
+|icon           | string literal        | The name of the icon to show for the field.
+|enabled        | boolean expression    | If the field is enabled for execution.
+|hidden         | boolean expression    | If the field is shown to the user.
+|width          | numeric literal       | The logical width of the field.
+|resource       | access name           | The name of an access where the returned transfer object is available.
+|====================
+
+*Example:*
+
+[source,jsl]
+----
+action ThankYouView order();
+----
+
+////
+=== View submit
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**submit**# &#x5B;&lt;view>|&lt;union>|[purple]#**void**#] &lt;name>
+&#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...]
+&#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ... [purple]#**;**#
+----
+
+[options="header", cols="1,1,2"]
+|====================
+|Parameter name | Parameter type        | Meaning
+|label          | string literal        | The label to show for the field.
+|icon           | string literal        | The name of the icon to show for the field.
+|enabled        | boolean expression    | If the field is enabled for execution.
+|hidden         | boolean expression    | If the field is shown to the user.
+|width          | numeric literal       | The logical width of the field.
+|====================
+
+[options="header", cols="1,1,2"]
+|====================
+|Parameter name | Parameter type        | Meaning
+|resource       | access name           | The name of an access where the returned transfer object is available.
+|====================
+////
+
+== Row
+
+Rows are specialized transfer objects designed explicitly for displaying data in a tabular format. In a tabular structure, data is organized into rows and columns, making it easy to comprehend and interact with.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**row**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
+&#x5B;{
+    &#x5B;member] ...
+}] [purple]##**;**##
+----
+
+or
+
+[subs="quotes"]
+----
+[purple]#**row**# &lt;name> &#x5B;[purple]##**maps**## &lt;entity> [purple]#**as**# &lt;mapping-field>]
+{
+    &#x5B;member] ...
+}][purple]##**;**##
+----
+
+*Example:*
+
+[source,jsl]
+----
+row ProductRow(Product product) {
+	column String name <= product.name;
+	column String price <= product.price.asString() + " HUF";
+}
+----
+
+=== Row field
+
+A primitive field that can store only a single primitive value and is displayed as a row cell.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**field**# &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>][purple]##**;**##
+----
+
+[options="header", cols="1,1,2"]
+|====================
+|Parameter name | Parameter type        | Meaning
+|label          | string literal        | The label to show for the column in the header row.
+|icon           | string literal        | The name of the icon to show for the column in the header row.
+|hidden         | boolean expression    | If the column is shown to the user.
+|width          | numeric literal       | The logical width of the column.
+|====================
+
+*Example:*
+
+[source,jsl]
+----
+field String price <= product.price.asString() + " HUF";
+----
+
+=== Row action
+
+Row action serves the same purpose as <<View action>> within a view.
+
+A row action is represented by a clickable menu item in the last column of the table.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**action**# &#x5B;&lt;view>|&lt;union>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**##
+    &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...]
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**resource:**##&lt;resource>]
+    &#x5B;[purple]##**bulk:**##([purple]##**true**##|[purple]##**false**##)][purple]##**;**##
+----
+
+
+[options="header", cols="1,1,2"]
+|====================
+|Parameter name | Parameter type        | Meaning
+|label          | string literal        | The label to show for the action.
+|icon           | string literal        | The name of the icon to show for the action.
+|enabled        | boolean expression    | If the action is enabled for execution.
+|hidden         | boolean expression    | If the action is shown to the user.
+|width          | numeric literal       | The logical width of the button.
+|resource       | access name           | The name of an access where the returned transfer object is available.
+|bulk           | boolean literal       | Bulk is the ability to perform an action on multiple selected rows simultaneously.
+|====================
