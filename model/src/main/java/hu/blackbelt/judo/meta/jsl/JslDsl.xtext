@@ -861,7 +861,7 @@ ClaimModifier
 	;
 
 IdentityModifier
-	: type = KW_IDENTITY COLON expression = Expression
+	: type = KW_IDENTITY COLON field = [TransferFieldDeclaration | ModelName]
 	;
 
 GuardModifier
