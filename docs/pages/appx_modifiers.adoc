@@ -430,7 +430,7 @@ or
 ----
 [purple]#**group**# &lt;name>
     &#x5B;[purple]##**enabled:**##&lt;enabled>]
-    &#x5B;[purple]##**orientaion:**##([purple]##**horizontal**##|[purple]##**vertical**##)]
+    &#x5B;[purple]##**orientation:**##([purple]##**horizontal**##|[purple]##**vertical**##)]
     &#x5B;[purple]##**label:**##&lt;label>]
     &#x5B;[purple]##**icon:**##&lt;icon>]
     &#x5B;[purple]##**hidden:**##&lt;hidden>]
@@ -465,7 +465,7 @@ or
 [subs="quotes"]
 ----
 [purple]#**tabs**# &lt;name>
-    &#x5B;[purple]##**orientaion:**##([purple]##**horizontal**##|[purple]##**vertical**##)]
+    &#x5B;[purple]##**orientation:**##([purple]##**horizontal**##|[purple]##**vertical**##)]
     &#x5B;[purple]##**label:**##&lt;label>]
     &#x5B;[purple]##**icon:**##&lt;icon>]
     &#x5B;[purple]##**hidden:**##&lt;hidden>]

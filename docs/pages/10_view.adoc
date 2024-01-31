@@ -97,11 +97,29 @@ scale 2
 @endsalt
 ....
 
-=== View primitive field
+=== Common visual modifiers
 
-A view primitive field is a visual component in a view designed to represent and handle a single, fundamental piece of information. This field is associated with primitive data types like text or numbers and serves to either display or capture information.
+There are modifiers used extensively in this chapter. These modifiers control the visual representation of the visual elements (fields, links, tables etc.).
 
-A view primitive field can represent a single primitive value on the view.
+The `label` modifier expects static text, which is displayed next to the visual element on the screen. This text is used to provide information or identify the visual element.
+
+The `icon` modifier expects static text that is the name of the icon used to display next to the visual element. The icon is used to ease the quick identification the element. Possible icon names can be found here: https://pictogrammers.com/library/mdi/.
+
+The `hidden` modifier is used to control the visibility of an element on a screen. When applied to a field or component, the modifier ensures that the element is not displayed to the user when the screen is rendered. This can be useful for hiding certain elements based on certain conditions or for managing the layout and presentation of the user interface.
+
+The `width` modifier sets the logical width of the field. Possible values are 1, 2, 3, 4, 6 and 12. The 12-column grid system is a fundamental design concept widely adopted in web development, offering a versatile and systematic approach to organizing and structuring visual elements on screens. Based on the concept of dividing a webpage into twelve columns, the system provides an invisible grid that serves as a guide for layout design. Its technical strength lies in the inherent flexibility derived from the number 12, which is divisible by 1, 2, 3, 4, and 6, enabling designers to create a variety of layouts.
+
+[NOTE]
+====
+The `width` modifier behaves differently for tables. Unlike visual elements in views, where the modifier value represents a logical width, for table elements, the width is specified in pixels.
+====
+
+
+=== View field
+
+A view field is a visual component in a view designed to represent and handle a single, fundamental piece of information. This field is associated with primitive data types like text or numbers and serves to either display or capture information.
+
+A view field can represent a single primitive value on the view. The full list of modifiers can be found in the xref:appx_modifiers.adoc#view-field[Appendix].
 
 *Syntax:*
 
@@ -122,7 +140,8 @@ A view primitive field can represent a single primitive value on the view.
 
 Since the view field is also a transfer field, the basic syntax is the same as the transfer field. The view field is about how users see and use information, caring about how things look and user experience. On the other hand, the transfer field is about moving and sharing data efficiently. To get specific details about this shared syntax, please refer to the section on the xref:07_transfer.adoc#field[Transfer field].
 
-The full list of modifiers can be found in the xref:appx_modifiers.adoc#view-field[Appendix].
+In addition to the modifiers inherited from the transfer field declaration, there are modifiers that control the visual representation of the field. The `label` modifier expects static text, which is displayed next to the field on the screen. This text is used to provide information or identify the field.
+
 
 *Example:*
 
