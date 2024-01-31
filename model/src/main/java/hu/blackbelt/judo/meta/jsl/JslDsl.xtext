@@ -433,7 +433,8 @@ ActorMemberDeclaration returns TransferMemberDeclaration
 	;
 
 ActorGroupMemberDeclaration returns TransferMemberDeclaration
-	: ActorLinkDeclaration
+	: ActorGroupDeclaration
+	| ActorLinkDeclaration
 	| ActorTableDeclaration
 	;
 
