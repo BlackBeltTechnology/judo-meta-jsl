@@ -319,8 +319,6 @@ So far, expressions returned primitive values. The following example shows a rel
     &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
-
-
 ----
 
 where <transfer> is the name of a transfer object to which the relation is targeted. The <name> is used to identify the relation within the owner, it is commonly referred to as role name.

@@ -24,18 +24,21 @@ A View is a transfer object that defines the visual presentation of data. It ser
 
 [subs="quotes"]
 ----
-[purple]#**view**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##] &#x5B;[purple]##**dialog:**##([purple]##**true**##|[purple]##**false**##)] &#x5B;{
+[purple]#**view**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
+    &#x5B;[purple]##**dialog:**##([purple]##**true**##|[purple]##**false**##)]
+&#x5B;[purple]##**{**##
     &#x5B;member] ...
-}] [purple]#**;**#
+[purple]##**}**##][purple]#**;**#
 ----
 
 or
 
 [subs="quotes"]
 ----
-[purple]#**view**# &lt;name> &#x5B;[purple]##**maps**## &lt;entity> [purple]#**as**# &lt;mapping-field>] &#x5B;[purple]##**dialog:**##([purple]##**true**##|[purple]##**false**##)] &#x5B;{
+[purple]#**view**# &lt;name> &#x5B;[purple]##**maps**## &lt;entity> [purple]#**as**# &lt;mapping-field>]
+&#x5B;[purple]##**{**##
     &#x5B;member] ...
-}] [purple]#**;**#
+[purple]##**}**##][purple]#**;**#
 ----
 
 The view syntax is used to define a visual representation of data. It begins with the keyword `view` followed by the chosen <name> for the view. Optionally, you can specify the entity it is associated with using (entity mapping-field).
@@ -105,32 +108,21 @@ A view primitive field can represent a single primitive value on the view.
 [subs="quotes"]
 ----
 [purple]##**field**## &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**set:**##([purple]##**true**##|[purple]##**false**##)]
+
     &#x5B;[purple]##**label:**##&lt;label>]
     &#x5B;[purple]##**icon:**##&lt;icon>]
-    &#x5B;[purple]##**required:**##&lt;required>]
-    &#x5B;[purple]##**enabled:**##&lt;enabled>]
     &#x5B;[purple]##**hidden:**##&lt;hidden>]
     &#x5B;[purple]##**width:**##&lt;width>]
-    &#x5B;[purple]##**lines:**##&lt;lines>]
-    &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
+    &#x5B;[purple]##**lines:**##&lt;lines>][purple]#**;**#
 ----
 
-Since the view field is also a transfer field, the basic syntax is the same as the transfer field. The view field is about how users see and use information, caring about how things look and user experience. On the other hand, the transfer field is about moving and sharing data efficiently. To get specific details about this shared syntax, please refer to the section on the xref:07_transfer.adoc[Transfer model].
+Since the view field is also a transfer field, the basic syntax is the same as the transfer field. The view field is about how users see and use information, caring about how things look and user experience. On the other hand, the transfer field is about moving and sharing data efficiently. To get specific details about this shared syntax, please refer to the section on the xref:07_transfer.adoc#field[Transfer field].
 
-[options="header", cols="1,1,2"]
-|====================
-|Parameter name | Parameter type        | Meaning
-|label          | string literal        | The label to show for the field.
-|icon           | string literal        | The name of the icon to show for the field. Possible icon names can be found here: https://pictogrammers.com/library/mdi/
-|required       | boolean expression    | If the field is required to fill by the user. A value of "true" takes effect only if the enabled modifier is true.
-|enabled        | boolean expression    | If the field is enabled for editing.
-|hidden         | boolean expression    | If the field is shown to the user.
-|width          | numeric literal       | The logical width of the field. Possible values are 1, 2, 3, 4, 6 and 12.
-
-The 12-column grid system is a fundamental design concept widely adopted in web development, offering a versatile and systematic approach to organizing and structuring visual elements on screens. Based on the concept of dividing a webpage into twelve columns, the system provides an invisible grid that serves as a guide for layout design. Its technical strength lies in the inherent flexibility derived from the number 12, which is divisible by 1, 2, 3, 4, and 6, enabling designers to create a variety of layouts.
-|lines          | numeric literal | The height of the field expressed in number of text lines. Can only be used if <primitive> is a string.
-|default        | expression returns primitive value | The default value of the field.
-|====================
+The full list of modifiers can be found in the xref:appx_modifiers.adoc#view-field[Appendix].
 
 *Example:*
 
@@ -151,40 +143,40 @@ A view link is a visual component in a user interface that symbolizes a connecti
 [subs="quotes"]
 ----
 [purple]#**link**# &lt;view> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**choices:**##&lt;choices>]
+    &#x5B;[purple]##**selector:**##&lt;row>]
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
+
     &#x5B;[purple]##**label:**##&lt;label>]
     &#x5B;[purple]##**icon:**##&lt;icon>]
-    &#x5B;[purple]##**required:**##&lt;required>]
-    &#x5B;[purple]##**enabled:**##&lt;enabled>]
     &#x5B;[purple]##**hidden:**##&lt;hidden>]
     &#x5B;[purple]##**width:**##&lt;width>]
-    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
-    &#x5B;[purple]##**choices:**##&lt;choices>]
-    &#x5B;[purple]##**default:**##&lt;default>]
-    &#x5B;[purple]##**text:**##&lt;text>]
-    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
-    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
-    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
+    &#x5B;[purple]##**text:**##&lt;text>][purple]#**;**#
 ----
 
 Since the view link is also a single transfer relation, the basic syntax is the same as the transfer relation, except that cardinality cannot be specified. The view link is about how users see and use information, caring about how things look and user experience. On the other hand, the transfer relation is about moving and sharing data efficiently. To get specific details about this shared syntax, please refer to the section on the xref:07_transfer.adoc[Transfer model].
 
-
 [options="header", cols="1,1,2"]
 |====================
-|Parameter name | Parameter type        | Meaning
-|label          | string literal        | The label to show for the link.
-|icon           | string literal        | The name of the icon to show for the link.
-|required       | boolean expression    | If the link is required to fill by the user. A value of "true" takes effect only if the enabled modifier is true.
-|enabled        | boolean expression    | If the link is enabled for editing.
-|hidden         | boolean expression    | If the link is shown to the user.
-|width          | numeric literal       | The logical width of the link.
-|eager          | boolean literal              | If the fetching strategy is eager or lazy.
-|choices        | Row declaration + expression | The possible values for selection. The choices modifier takes effect only if the enabled modifier is true.
-|default        | expression returns entity    | The default value.
-|text           | string expression            | The textual representation of the link.
-|create         | boolean literal              | If create is allowed into this link.
-|update         | boolean literal              | If update is allowed for the target of the link.
-|delete         | boolean literal              | If delete is allowed for the target of this link.
+|Modifier name | Modifier type                  | Meaning
+|required      | boolean literal                | If the field cannot be undefined.
+|enabled       | expression returns boolean     | If the field is enabled for editing.
+|default       | expression returns <primitive> | The default value of the field.
+|set           | boolean literal                | If the transfer field is changed, its value will be set into the mapped entity's field.
+
+|label          | string literal        | The label to show for the field.
+|icon           | string literal        | The name of the icon to show for the field. Possible icon names can be found here: https://pictogrammers.com/library/mdi/
+|hidden         | boolean expression    | If the field is shown to the user.
+|width          | numeric literal       | The logical width of the field. Possible values are 1, 2, 3, 4, 6 and 12.
+
+The 12-column grid system is a fundamental design concept widely adopted in web development, offering a versatile and systematic approach to organizing and structuring visual elements on screens. Based on the concept of dividing a webpage into twelve columns, the system provides an invisible grid that serves as a guide for layout design. Its technical strength lies in the inherent flexibility derived from the number 12, which is divisible by 1, 2, 3, 4, and 6, enabling designers to create a variety of layouts.
+|lines          | numeric literal | The height of the field expressed in number of text lines. Can only be used if <primitive> is a string.
 |====================
 
 *Example:*

@@ -398,7 +398,7 @@ class ModifiersTests {
 			}
 			
 			view VA maps A as a {
-				action void myaction(VB input choices:B.all() selector:RB);
+				action void myaction(RB input choices:B.all());
 			}
         '''.parse => [
             assertNoErrors

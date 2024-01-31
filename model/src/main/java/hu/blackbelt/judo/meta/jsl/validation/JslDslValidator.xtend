@@ -61,7 +61,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ViewGroupDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewLinkDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTabsDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.RowColumnDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorGroupDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
 
@@ -108,6 +107,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ChoiceModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.SetterModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.WidthModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.RowFieldDeclaration
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -776,7 +777,7 @@ class JslDslValidator extends AbstractJslDslValidator {
             ViewTableDeclaration:           error = !mark.declaration.targets.exists[t | t.viewTable]
             ViewTabsDeclaration:            error = !mark.declaration.targets.exists[t | t.viewTabs]
 
-            RowColumnDeclaration:           error = !mark.declaration.targets.exists[t | t.rowColumn]
+            RowFieldDeclaration:           error = !mark.declaration.targets.exists[t | t.rowField]
 
             ActorGroupDeclaration:          error = !mark.declaration.targets.exists[t | t.actorGroup]
             ActorAccessDeclaration:         error = !mark.declaration.targets.exists[t | t.actorAccess]
@@ -1883,6 +1884,16 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 		val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
 
+		if (relation.referenceType !== null && relation.referenceType.map !== null) {
+			if (!relation.referenceType.members.exists[m | m instanceof TransferCreateDeclaration && (m as TransferCreateDeclaration).instead]) {
+	            error("Invalid create modifier. Target transfer object must have create instead event.",
+	                JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+		}
+
+		if (modifier.eContainer instanceof ActorLinkDeclaration || modifier.eContainer instanceof ActorTableDeclaration) return;
+
 		if (relation.getterExpr === null) {
             error("Invalid create modifier. Create modifier can only be used for mapped relation.",
                 JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
@@ -1895,14 +1906,6 @@ class JslDslValidator extends AbstractJslDslValidator {
             error("Invalid create modifier. Relation is read only. Change the relation expression.",
                 JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
                 INVALID_CHOICES)
-		}
-
-		if (relation.referenceType !== null && relation.referenceType.map !== null) {
-			if (!relation.referenceType.members.exists[m | m instanceof TransferCreateDeclaration && (m as TransferCreateDeclaration).instead]) {
-	            error("Invalid create modifier. Target transfer object must have create instead event.",
-	                JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
-	                INVALID_DECLARATION)
-			}
 		}
 	}
 
@@ -2078,6 +2081,21 @@ class JslDslValidator extends AbstractJslDslValidator {
             error("Lines modifier can only be used for string type fields.",
                 JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
+		}
+	}
+	
+	@Check
+	def checkWidthModifier(WidthModifier modifier) {
+		val TransferMemberDeclaration member = modifier.eContainer as TransferMemberDeclaration
+		
+		if (!(member instanceof RowFieldDeclaration) && !(member instanceof RowLinkDeclaration) && !(member instanceof RowActionDeclaration)) {
+			val int value = modifier.value.intValue;
+			
+			if (!#[1, 2, 3, 4, 6, 12].contains(value)) {
+	            error("Width modifier must be set to 1, 2, 3, 4, 6 or 12.",
+	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
 		}
 	}
 }

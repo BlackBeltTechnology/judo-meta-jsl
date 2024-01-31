@@ -318,7 +318,7 @@ ViewTabsDeclaration returns ViewPanelDeclaration
 	: {ViewTabsDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_TABS Named
-	  modifiers += (VisualModifier | FrameModifier)*
+	  modifiers += (VisualModifier | OrientationModifier | FrameModifier | StretchModifier)*
 	  BLOCK_START (groups += ViewGroupDeclaration)* BLOCK_END
 	;
 
@@ -326,7 +326,7 @@ ViewGroupDeclaration returns ViewPanelDeclaration
 	: {ViewGroupDeclaration} 
 	  annotations += AnnotationMark*
 	  -> KW_GROUP Named
-	  modifiers += (VisualModifier | FrameModifier | OrientationModifier | HorizontalModifier | VerticalModifier | StretchModifier)*
+	  modifiers += (EnabledModifier | VisualModifier | FrameModifier | OrientationModifier | HAlignModifier | VAlignModifier | StretchModifier)*
 	  BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END
 	;
 
@@ -373,10 +373,10 @@ RowDeclaration returns VisibleDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_ROW Named
 	  MappedDeclaration
-	  (SC | BLOCK_START (members += RowDirectMemberDeclaration)* BLOCK_END)
+	  (SC | BLOCK_START (members += RowMemberDeclaration)* BLOCK_END)
 	;
 
-RowDirectMemberDeclaration returns TransferMemberDeclaration
+RowMemberDeclaration returns TransferMemberDeclaration
 	: TransferEventDeclaration
 	| RowFieldDeclaration
 	| RowLinkDeclaration
@@ -384,7 +384,7 @@ RowDirectMemberDeclaration returns TransferMemberDeclaration
 	;
 
 RowFieldDeclaration returns TransferFieldDeclaration
-	: {RowColumnDeclaration}
+	: {RowFieldDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named
 	  (reads ?= LTE getterExpr = Expression)?
@@ -433,10 +433,8 @@ ActorMemberDeclaration returns TransferMemberDeclaration
 	;
 
 ActorGroupMemberDeclaration returns TransferMemberDeclaration
-	: ActorAccessDeclaration
-	| ActorLinkDeclaration
+	: ActorLinkDeclaration
 	| ActorTableDeclaration
-	| ActorGroupDeclaration
 	;
 
 ActorAccessDeclaration returns TransferRelationDeclaration
@@ -446,7 +444,7 @@ ActorAccessDeclaration returns TransferRelationDeclaration
 	  referenceType = [TransferDeclaration | ModelName] Cardinality?
 	  Named
 	  LTE getterExpr = Expression
-	  modifiers += (EagerModifier | EnabledModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  modifiers += (EagerModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -462,7 +460,7 @@ ActorLinkDeclaration returns ViewLinkDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_LINK referenceType = [ViewDeclaration | ModelName] Named
 	  LTE getterExpr = Expression
-	  modifiers += (EagerModifier | EnabledModifier | VisualModifier | TextModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  modifiers += (EagerModifier | LabelModifier | IconModifier | HiddenModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -471,7 +469,7 @@ ActorTableDeclaration returns ViewTableDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
 	  LTE getterExpr = Expression
-	  modifiers += (EagerModifier | EnabledModifier | VisualModifier | RowsModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  modifiers += (EagerModifier | LabelModifier | IconModifier | HiddenModifier | RowsModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -770,7 +768,7 @@ AnnotationTarget
 	| KW_VIEW COLON viewTabs ?= KW_TABS
 	| KW_VIEW COLON viewText ?= KW_TEXT
 
-	| KW_ROW COLON rowColumn ?= KW_COLUMN
+	| KW_ROW COLON rowField ?= KW_FIELD
 	;
 
 AnnotationMark
@@ -838,8 +836,8 @@ Modifier
 	| IdentityModifier
 	| GuardModifier
 	| FrameModifier
-	| HorizontalModifier
-	| VerticalModifier
+	| HAlignModifier
+	| VAlignModifier
 	| StretchModifier
 	| MinSizeModifier
 	| MaxSizeModifier
@@ -957,11 +955,11 @@ WidthModifier
 	: type = KW_WIDTH COLON value = NaturalNumber
 	;
 
-HorizontalModifier
+HAlignModifier
 	: type = KW_HALIGN COLON (left ?= KW_LEFT | right ?= KW_RIGHT | center ?= KW_CENTER)
 	;
 
-VerticalModifier
+VAlignModifier
 	: type = KW_VALIGN COLON (top ?= KW_TOP | bottom ?= KW_BOTTOM | center ?= KW_CENTER)
 	;
 
@@ -1168,7 +1166,6 @@ terminal KW_VIEW:		'view';
 terminal KW_ACCESS:		'access';
 terminal KW_ACTION:		'action';
 terminal KW_ACTIONS:	'actions';
-terminal KW_COLUMN:		'column';
 terminal KW_CONSTRAINT:	'constraint';
 terminal KW_CREATE:		'create';   // no highlight
 terminal KW_DELETE:		'delete';   // no highlight
