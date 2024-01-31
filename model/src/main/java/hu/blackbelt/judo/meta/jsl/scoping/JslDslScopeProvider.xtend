@@ -54,7 +54,6 @@ import org.eclipse.emf.ecore.EClassifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
@@ -66,6 +65,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.ParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.RowLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.RowActionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorTableDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorModifier
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -105,15 +109,26 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			EntityRelationDeclaration case ref == JsldslPackage::eINSTANCE.entityMemberDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.entityDeclaration)
 			EntityFieldDeclaration case ref == JsldslPackage::eINSTANCE.entityMemberDeclaration_ReferenceType && context.identifier: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.primitiveDeclaration)
 
-			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
+			SelectorModifier case ref == JsldslPackage::eINSTANCE.selectorModifier_Transfer && context.eContainer instanceof ViewLinkDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
+			SelectorModifier case ref == JsldslPackage::eINSTANCE.selectorModifier_Transfer && context.eContainer instanceof ViewTableDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
+			SelectorModifier case ref == JsldslPackage::eINSTANCE.selectorModifier_Transfer && context.eContainer instanceof TransferRelationDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
+
+			SelectorModifier case ref == JsldslPackage::eINSTANCE.selectorModifier_Transfer && context.eContainer instanceof ViewActionDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
+			SelectorModifier case ref == JsldslPackage::eINSTANCE.selectorModifier_Transfer && context.eContainer instanceof RowActionDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
+			SelectorModifier case ref == JsldslPackage::eINSTANCE.selectorModifier_Transfer && context.eContainer instanceof TransferActionDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
+
+			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.visibleDeclaration)
+			RowActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.visibleDeclaration)
 			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
 			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_ViewOrUnion(scope)
+			RowActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_ViewOrUnion(scope)
 			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_SimpleTransferOrUnion(scope)
 			ViewDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_ViewOrUnion(scope)
 			SimpleTransferDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_SimpleTransferOrUnion(scope)
 
-			ActorMenuDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.visibleDeclaration)
+			ActorLinkDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
+			ActorTableDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
 			ActorAccessDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
 			TransferCreateDeclaration case ref == JsldslPackage::eINSTANCE.transferCreateDeclaration_ParameterType && context.eContainer instanceof SimpleTransferDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
@@ -121,6 +136,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 			ViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
 			ViewTableDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
+
+			RowLinkDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
 
 			TransferRelationDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
@@ -268,7 +285,6 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
                 LambdaDeclaration: return true
                 AnnotationDeclaration: return true
                 TransferFieldDeclaration: return true
-                ActorMenuDeclaration: return true
 
                 LambdaVariable: return context.parentContainer(LambdaCall).isEqual(obj.eContainer)
                 ParameterDeclaration: return context.parentContainer(ParameterDeclaration) === null && (context.isEqual(obj.eContainer) || EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)])
