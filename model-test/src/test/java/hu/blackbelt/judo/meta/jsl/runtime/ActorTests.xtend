@@ -58,7 +58,7 @@ class ActorTests {
 				}
 			}
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.actorAccessDeclaration, "org.eclipse.xtext.diagnostics.Diagnostic.Syntax")
+            m | m.assertError(JsldslPackage::eINSTANCE.actorGroupDeclaration, JslDslValidator.INVALID_DECLARATION)
         ]
     }
 }

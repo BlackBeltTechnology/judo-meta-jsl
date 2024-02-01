@@ -2,7 +2,7 @@ model SampleModel2;
 
 import SampleModel;
 
-entity abstract Person {
+entity Person abstract {
 	field SampleModel::String firstName;
 }
 

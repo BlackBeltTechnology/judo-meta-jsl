@@ -61,12 +61,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ViewGroupDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewLinkDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTabsDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.RowColumnDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorGroupDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMenuDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessDeclaration
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationOppositeReferenced
@@ -81,7 +79,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.MinSizeModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.ScaleModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.IdentityModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferEventDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferChoiceModifier
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
@@ -92,7 +89,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
 import hu.blackbelt.judo.meta.jsl.jsldsl.EagerModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.DetailModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.RowsModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.DefaultModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDataDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
@@ -100,8 +96,19 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DeleteModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnionMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.RowLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.RequiredModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.LinesModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeleteDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferUpdateDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorTableDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ChoiceModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.RowActionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.SetterModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.WidthModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.RowFieldDeclaration
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -155,6 +162,7 @@ class JslDslValidator extends AbstractJslDslValidator {
     public static val INVALID_SELF_VARIABLE = ISSUE_CODE_PREFIX + "InvalidSelfVariable"
     public static val NON_STATIC_EXPRESSION = ISSUE_CODE_PREFIX + "NonStaticExpression"
     public static val INVALID_CHOICES = ISSUE_CODE_PREFIX + "InvalidChoices"
+    public static val INVALID_SELECTOR = ISSUE_CODE_PREFIX + "InvalidSelector"
     public static val ENUM_ORDINAL_IS_TOO_LARGE = ISSUE_CODE_PREFIX + "EnumOrdinalIsTooLarge"
     public static val JAVA_BEAN_NAMING_ISSUE = ISSUE_CODE_PREFIX + "JavaBeanNamingIssue"
     public static val DUPLICATE_FIELD_MAPPING = ISSUE_CODE_PREFIX + "DuplicateFieldMapping"
@@ -759,6 +767,9 @@ class JslDslValidator extends AbstractJslDslValidator {
             EntityFieldDeclaration:               error = !mark.declaration.targets.exists[t | t.entityField]
             EntityRelationDeclaration:            error = !mark.declaration.targets.exists[t | t.entityRelation]
 
+            ActorLinkDeclaration:           error = !mark.declaration.targets.exists[t | t.actorLink]
+            ActorTableDeclaration:          error = !mark.declaration.targets.exists[t | t.actorTable]
+
             ViewActionDeclaration:          error = !mark.declaration.targets.exists[t | t.viewAction]
             ViewFieldDeclaration:           error = !mark.declaration.targets.exists[t | t.viewField]
             ViewGroupDeclaration:           error = !mark.declaration.targets.exists[t | t.viewGroup]
@@ -766,9 +777,8 @@ class JslDslValidator extends AbstractJslDslValidator {
             ViewTableDeclaration:           error = !mark.declaration.targets.exists[t | t.viewTable]
             ViewTabsDeclaration:            error = !mark.declaration.targets.exists[t | t.viewTabs]
 
-            RowColumnDeclaration:           error = !mark.declaration.targets.exists[t | t.rowColumn]
+            RowFieldDeclaration:           error = !mark.declaration.targets.exists[t | t.rowField]
 
-            ActorMenuDeclaration:           error = !mark.declaration.targets.exists[t | t.actorMenu]
             ActorGroupDeclaration:          error = !mark.declaration.targets.exists[t | t.actorGroup]
             ActorAccessDeclaration:         error = !mark.declaration.targets.exists[t | t.actorAccess]
 
@@ -1040,30 +1050,11 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkModifierDetail(DetailModifier modifier) {
-		if (!(modifier.eContainer instanceof ActorMenuDeclaration)) {
-			return
-		}
-		
-		val ActorMenuDeclaration menu = modifier.eContainer as ActorMenuDeclaration
-		
-		if (menu.referenceType instanceof ViewDeclaration) {
-            error("Detail modifier cannot be used for View menu.",
-                JsldslPackage::eINSTANCE.detailModifier.getEStructuralFeature("ID"),
-                INVALID_DECLARATION)
-		}
-	}
+		val RowDeclaration row = modifier.eContainer.eContainer as RowDeclaration;
 
-	@Check
-	def checkModifierRows(RowsModifier modifier) {
-		if (!(modifier.eContainer instanceof ActorMenuDeclaration)) {
-			return
-		}
-		
-		val ActorMenuDeclaration menu = modifier.eContainer as ActorMenuDeclaration
-		
-		if (menu.referenceType instanceof ViewDeclaration) {
-            error("Rows modifier cannot be used for View menu.",
-                JsldslPackage::eINSTANCE.rowsModifier.getEStructuralFeature("ID"),
+		if (row.members.filter[m | m instanceof RowLinkDeclaration && m.getModifier(JsldslPackage::eINSTANCE.detailModifier) !== null].size > 1) {
+            error("The detail modifier can only be used on one link per row.",
+                JsldslPackage::eINSTANCE.detailModifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
 		}
 	}
@@ -1309,44 +1300,69 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                JsldslPackage::eINSTANCE.defaultModifier_Expression,
 	                TYPE_MISMATCH)
 	        }
+	        
+	        if (modifier.eContainer instanceof TransferRelationDeclaration && member.mappedMember instanceof EntityFieldDeclaration) {
+	            error("The mapped entity field is a containment. Containments cannot have default value.",
+	                JsldslPackage::eINSTANCE.defaultModifier_Expression,
+	                INVALID_DECLARATION)
+	        }
 		}
 	}
 
-    @Check
-	def checkTransferChoice(TransferChoiceModifier choice) {
-		if (choice.rows !== null) {
-			if (choice.rows.map === null) {
-	            error("Invalid choices modifier. Row reference must be mapped.",
-	                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
-	                INVALID_CHOICES)
+	@Check
+	def checkSelector(SelectorModifier selector) {
+		val TransferRelationDeclaration relation = selector.eContainer as TransferRelationDeclaration
+
+		if (relation instanceof ViewLinkDeclaration || relation instanceof ViewTableDeclaration)
+		{
+			if (!(selector.transfer instanceof RowDeclaration)) {
+	            error("Invalid selector modifier. Selector must be a row.",
+	                JsldslPackage::eINSTANCE.selectorModifier.getEStructuralFeature("ID"),
+	                INVALID_SELECTOR)
 			}
-	        if (choice.rows.map !== null && choice.rows.map.entity !== null && !TypeInfo.getTargetType(choice.rows.map.entity).isCompatibleCollection(TypeInfo.getTargetType(choice.expression))) {
-	            error("Invalid choices modifier. Choices must refer to a compatible row declaration.",
-	                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
-	                INVALID_CHOICES)
-	        }
+		} else {
+			if (!(selector.transfer instanceof SimpleTransferDeclaration)) {
+	            error("Invalid selector modifier. Selector must be a transfer object.",
+	                JsldslPackage::eINSTANCE.selectorModifier.getEStructuralFeature("ID"),
+	                INVALID_SELECTOR)
+			}
 		}
-		
+
+		if (selector.transfer.map === null) {
+            error("Invalid selector modifier. Selector transfer reference must be mapped.",
+                JsldslPackage::eINSTANCE.selectorModifier.getEStructuralFeature("ID"),
+                INVALID_SELECTOR)
+		}
+
+        if (!TypeInfo.getTargetType(selector.transfer?.map?.entity).isCompatible(TypeInfo.getTargetType((selector.eContainer as TransferRelationDeclaration).referenceType?.map?.entity))) {
+            error("Invalid selector modifier. Selector must refer to a compatible transfer declaration.",
+                JsldslPackage::eINSTANCE.selectorModifier.getEStructuralFeature("ID"),
+                INVALID_SELECTOR)
+        }
+	}
+
+    @Check
+	def checkChoice(ChoiceModifier choice) {
 		if (choice.eContainer instanceof TransferRelationDeclaration) {
 			var TransferRelationDeclaration relation = choice.eContainer as TransferRelationDeclaration
 			
 	        if (!TypeInfo.getTargetType(relation).isCompatibleCollection(TypeInfo.getTargetType(choice.expression))) {
-	            error("Invalid choices modifier. Choices must return compatible collection with field type.",
-	                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
+	            error("Invalid choices modifier. Choices must return compatible collection with relation type.",
+	                JsldslPackage::eINSTANCE.choiceModifier.getEStructuralFeature("ID"),
 	                INVALID_CHOICES)
 	        }
 	
 			val mappedMember = relation.mappedMember;
 	
-			if (relation.getterExpr !== null && mappedMember === null) {
-	            error("Invalid choices modifier. Getter expression must select a stored member of the mapped entity.",
-	                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
+			if (mappedMember === null && relation.getterExpr !== null) {
+	            error("Invalid choices modifier. Transfer relation must be mapped directly to an entity relation.",
+	                JsldslPackage::eINSTANCE.choiceModifier.getEStructuralFeature("ID"),
 	                INVALID_CHOICES)
 			}
 	
 			if (relation.getterExpr !== null && mappedMember instanceof EntityFieldDeclaration && (mappedMember as EntityFieldDeclaration).referenceType instanceof EntityDeclaration) {
 	            error("Invalid choices modifier. Choices modifier is not allowed if getter expression selects an entity containment.",
-	                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
+	                JsldslPackage::eINSTANCE.choiceModifier.getEStructuralFeature("ID"),
 	                INVALID_CHOICES)
 			}
 		}
@@ -1356,13 +1372,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 			
 			if (action.parameterType === null || action.parameterType.map === null || action.parameterType.map.entity === null) {
 	            error("Invalid choices modifier. Choices can be defined only for mapped input.",
-	                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
+	                JsldslPackage::eINSTANCE.choiceModifier.getEStructuralFeature("ID"),
 	                INVALID_CHOICES)
 			}
 			
 	        if (!TypeInfo.getTargetType(action.parameterType.map.entity).isCompatibleCollection(TypeInfo.getTargetType(choice.expression))) {
 	            error("Invalid choices modifier. Choices must return compatible collection with action parameter type.",
-	                JsldslPackage::eINSTANCE.transferChoiceModifier.getEStructuralFeature("ID"),
+	                JsldslPackage::eINSTANCE.choiceModifier.getEStructuralFeature("ID"),
 	                INVALID_CHOICES)
 	        }
 		}
@@ -1381,17 +1397,45 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
+	@Check
+	def checkRequiredModifier(RequiredModifier modifier) {
+		if (modifier.eContainer instanceof TransferRelationDeclaration) {
+			val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
+			if (relation.many) {
+	            error("A collection cannot have required modifier.",
+	                JsldslPackage::eINSTANCE.requiredModifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+		}
+
+		else if (modifier.eContainer instanceof EntityMemberDeclaration) {
+			val EntityMemberDeclaration member = modifier.eContainer as EntityMemberDeclaration
+
+			if (modifier.expression !== null && modifier.expression.asBooleanLiteral === null) {
+	            error("Entity member can only have a 'true' or 'false' literal in its required modifier.",
+	                JsldslPackage::eINSTANCE.requiredModifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+
+	    	if (member.many) {
+	            error("A collection cannot have required modifier.",
+	                JsldslPackage::eINSTANCE.requiredModifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+	    	}
+	    	
+	    	if (member.calculated) {
+	            error("A calculated member cannot have required modifier.",
+	                JsldslPackage::eINSTANCE.requiredModifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+	    	}
+		}
+	}
+
     @Check
     def checkTransferRelation(TransferRelationDeclaration relation) {
     	if (relation.referenceType instanceof PrimitiveDeclaration && relation.many) {
             error("Primitive field cannot be a collection.",
                 JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
-                INVALID_DECLARATION)
-    	}
-
-    	if (relation.many && relation.required) {
-            error("A collection cannot be required.",
-                JsldslPackage::eINSTANCE.transferDataDeclaration_Required,
                 INVALID_DECLARATION)
     	}
 
@@ -1477,6 +1521,10 @@ class JslDslValidator extends AbstractJslDslValidator {
 
     @Check
     def checkForDuplicateNameForTransferMemberDeclaration(TransferMemberDeclaration member) {
+//    	if (!(member instanceof TransferFieldDeclaration || member instanceof TransferRelationDeclaration)) {
+//    		return
+//    	}
+    	
         val TransferDeclaration transfer = member.parentContainer(TransferDeclaration)
 
     	if (transfer === null) {
@@ -1489,8 +1537,11 @@ class JslDslValidator extends AbstractJslDslValidator {
                 DUPLICATE_MEMBER_NAME,
                 member.name)
         }
+		
+//		val members = transfer.eAllContents.filter[d | d instanceof TransferFieldDeclaration || d instanceof TransferRelationDeclaration].map[d | d as TransferMemberDeclaration].toList
+		val members = transfer.eAllContents.filter[d | d instanceof TransferMemberDeclaration].map[d | d as TransferMemberDeclaration].toList
 
-        if (member instanceof Named && transfer.members.filter[m | m instanceof Named && m.name.toLowerCase.equals(member.name.toLowerCase)].size > 1) {
+        if (members.filter[m | m.name.toLowerCase.equals(member.name.toLowerCase)].size > 1) {
             error("Duplicate member declaration: '" + member.name + "'.",
                 member.nameAttribute,
                 DUPLICATE_MEMBER_NAME,
@@ -1535,14 +1586,14 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    def NavigationTarget getMappedField(TransferFieldDeclaration field) {
-        if (!field.maps) return null;
+    def NavigationTarget getMappedTarget(TransferDataDeclaration member) {
+        if (!member.maps) return null;
 
-        if (!(field.getterExpr instanceof Navigation)) {
+        if (!(member.getterExpr instanceof Navigation)) {
             return null;
         }
 
-        val Navigation navigation = field.getterExpr as Navigation;
+        val Navigation navigation = member.getterExpr as Navigation;
 
         if (!(navigation.base instanceof NavigationBaseDeclarationReference)) {
             return null;
@@ -1566,17 +1617,20 @@ class JslDslValidator extends AbstractJslDslValidator {
     }
 
     @Check
-    def checkDuplicateFieldMapping(TransferFieldDeclaration field) {
-        if (!field.maps) return;
+    def checkDuplicateMemberMapping(TransferDataDeclaration member) {
+        if (!member.maps) return;
 
-        val TransferDeclaration transfer = field.parentContainer(TransferDeclaration);
-        val NavigationTarget target = getMappedField(field); 
+        val TransferDeclaration transfer = member.parentContainer(TransferDeclaration);
+        val NavigationTarget target = getMappedTarget(member); 
 
-        if (target === null) return;
+		if (!member.isMaps) return;
 
-        if (transfer.members.filter[m | m instanceof TransferFieldDeclaration && target === getMappedField(m as TransferFieldDeclaration)].size > 1) {
-            warning("More than one transfer field map the same entity field at '" + field.name + "'.",
-                JsldslPackage::eINSTANCE.transferFieldDeclaration_ReferenceType,
+        if (transfer.members.filter[m | m instanceof TransferDataDeclaration &&
+        	                            target === getMappedTarget(m as TransferDataDeclaration) &&
+        	                            (m as TransferDataDeclaration) .isMaps].size > 1)
+        {
+            warning("More than one editable transfer member is associated with the same entity member.",
+                JsldslPackage::eINSTANCE.named_Name,
                 DUPLICATE_FIELD_MAPPING,
                 JsldslPackage::eINSTANCE.named.name)
         }
@@ -1655,18 +1709,6 @@ class JslDslValidator extends AbstractJslDslValidator {
                 JsldslPackage::eINSTANCE.entityMemberDeclaration_ReferenceType,
                 INVALID_DECLARATION)
     	}
-
-    	if (member.many && member.required) {
-            error("A collection cannot be required.",
-                JsldslPackage::eINSTANCE.entityMemberDeclaration_Required,
-                INVALID_DECLARATION)
-    	}
-    	
-    	if (member.required && member.calculated) {
-            error("A calculated member cannot be required.",
-                JsldslPackage::eINSTANCE.entityMemberDeclaration_Required,
-                INVALID_DECLARATION)
-    	}
 	}
 
     @Check
@@ -1688,13 +1730,13 @@ class JslDslValidator extends AbstractJslDslValidator {
     				JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"),
     				INVALID_DECLARATION)
             }
-	    	else if (eager.isTrue) {
+	    	else if (!eager.isFalse) {
 	    		info("Entity field is eager fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
 	    	}
 		}
 		
 		else if (eager.eContainer instanceof EntityRelationDeclaration) {
-	    	if (!eager.isTrue) {
+	    	if (eager.isFalse) {
 	    		info("Entity relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
 	    	}
 		}
@@ -1707,8 +1749,8 @@ class JslDslValidator extends AbstractJslDslValidator {
     				JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"),
     				INVALID_DECLARATION)
 			}
-
-			if (!eager.isTrue) {
+			
+			if (eager.isFalse) {
 	    		info("Transfer relation is lazy fetched by default.", JsldslPackage::eINSTANCE.eagerModifier.getEStructuralFeature("ID"), RECOMMENDATION)
 			}
 		}    	
@@ -1729,23 +1771,33 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
-	def checkMenu(ActorMenuDeclaration menu) {
+	def checkMenu(ActorGroupDeclaration group) {
+		val ActorDeclaration actor = group.parentContainer(ActorDeclaration)
+		
+		if (!actor.human) {
+            error("A group must be defined in human actor. Use 'human' keyword in actor declaration.",
+                JsldslPackage::eINSTANCE.named_Name,
+                INVALID_DECLARATION)
+		}
+	}
+
+	@Check
+	def checkActorLink(ActorLinkDeclaration menu) {
 		val ActorDeclaration actor = menu.parentContainer(ActorDeclaration)
 		
 		if (!actor.human) {
-            error("A menu must defined in human actor. Use 'human' keyword in actor declaration.",
+            error("A link must be defined in human actor. Use 'human' keyword in actor declaration.",
                 JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
                 INVALID_DECLARATION)
 		}
-		
-		if (menu.referenceType instanceof ViewDeclaration && menu.many) {
-            error("A view type cannot be a collection. Use row type instead.",
-                JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
-                INVALID_DECLARATION)
-		}
+	}
 
-		else if (menu.referenceType instanceof RowDeclaration && !menu.many) {
-            error("A row type cannot be a single. Use view type instead.",
+	@Check
+	def checkActorTable(ActorTableDeclaration menu) {
+		val ActorDeclaration actor = menu.parentContainer(ActorDeclaration)
+		
+		if (!actor.human) {
+            error("A table must be defined in human actor. Use 'human' keyword in actor declaration.",
                 JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType,
                 INVALID_DECLARATION)
 		}
@@ -1753,15 +1805,9 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 	@Check
 	def checkCreateModifier(CreateModifier modifier) {
-		if (!modifier.isTrue) return;
+		if (modifier.isFalse) return;
 
 		val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
-		
-		if (relation.referenceType !== null && relation.referenceType.map === null) {
-            error("Invalid create modifier. Create modifier cannot be used for unmapped relation.",
-                JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
-                INVALID_DECLARATION)
-		}
 
 		if (relation.referenceType !== null && relation.referenceType.map !== null) {
 			if (!relation.referenceType.members.exists[m | m instanceof TransferCreateDeclaration && (m as TransferCreateDeclaration).instead]) {
@@ -1770,17 +1816,33 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                INVALID_DECLARATION)
 			}
 		}
+
+		if (modifier.eContainer instanceof ActorLinkDeclaration || modifier.eContainer instanceof ActorTableDeclaration) return;
+
+		if (relation.getterExpr === null) {
+            error("Invalid create modifier. Create modifier can only be used for mapped relation.",
+                JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+
+		val mappedMember = relation.mappedMember;
+		
+		if (relation.getterExpr !== null && mappedMember === null) {
+            error("Invalid create modifier. Relation is read only. Change the relation expression.",
+                JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
+                INVALID_CHOICES)
+		}
 	}
 
 	@Check
 	def checkDeleteModifier(DeleteModifier modifier) {
-		if (!modifier.isTrue) return;
+		if (modifier.isFalse) return;
 
 		if (modifier.eContainer instanceof TransferRelationDeclaration) {
 			val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
 			
-			if (relation.referenceType !== null && relation.referenceType.map === null) {
-	            error("Invalid delete modifier. Delete modifier cannot be used for unmapped relation.",
+			if (relation.getterExpr === null) {
+	            error("Invalid delete modifier. Delete modifier can only be used for mapped relation.",
 	                JsldslPackage::eINSTANCE.deleteModifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
 			}
@@ -1798,7 +1860,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			val TransferActionDeclaration action = modifier.eContainer as TransferActionDeclaration
 			
 			if (action.^return === null || !(action.^return instanceof TransferDeclaration) || (action.^return as TransferDeclaration).map === null) {
-	            error("Invalid delete modifier. Delete modifier cannot be used for unmapped return type.",
+	            error("Invalid delete modifier. Delete modifier can only be used for mapped return type.",
 	                JsldslPackage::eINSTANCE.deleteModifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
 			}
@@ -1812,32 +1874,29 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 		}
 	}
+	
+	@Check
+	def checkSetModifier(SetterModifier modifier) {
+		if (modifier.isFalse) return;
 
+		val TransferFieldDeclaration field = modifier.eContainer as TransferFieldDeclaration
+
+		if ((modifier !== null && !modifier.isFalse) && field.mappedMember === null) {
+            error("Invalid set modifier. In case of the set modifier is true the getter expression must select a stored member of the mapped entity.",
+                JsldslPackage::eINSTANCE.setterModifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+	}
+	
 	@Check
 	def checkUpdateModifier(UpdateModifier modifier) {
-		if (!modifier.isTrue && !modifier.isAuto) return;
+		if (modifier.isFalse) return;
 		
-		if (modifier.eContainer instanceof TransferFieldDeclaration) {
-			val TransferDataDeclaration field = modifier.eContainer as TransferDataDeclaration
-
-			if (modifier.isAuto && (field.getterExpr === null || field.mappedMember === null)) {
-	            error("Invalid update modifier. In case of automatic update the getter expression must select a stored member of the mapped entity.",
-	                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
-	                INVALID_DECLARATION)
-			}
-		}
-		
-		else if (modifier.eContainer instanceof TransferRelationDeclaration) {
+		if (modifier.eContainer instanceof TransferRelationDeclaration) {
 			val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
 			
-			if (modifier.isAuto) {
-	            error("Invalid update modifier. Automatic update modifier can be used for transfer field declaration only.",
-	                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
-	                INVALID_DECLARATION)
-			}
-			
-			if (relation.referenceType !== null && relation.referenceType.map === null) {
-	            error("Invalid update modifier. Update modifier cannot be used for unmapped relation.",
+			if (relation.getterExpr === null) {
+	            error("Invalid update modifier. Update modifier can only be used for mapped relation.",
 	                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
 			}
@@ -1854,14 +1913,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 		else if (modifier.eContainer instanceof TransferActionDeclaration) {
 			val TransferActionDeclaration action = modifier.eContainer as TransferActionDeclaration
 			
-			if (modifier.isAuto) {
-	            error("Invalid update modifier. Automatic update modifier can be used for transfer field declaration only.",
-	                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
-	                INVALID_DECLARATION)
-			}
-			
 			if (action.^return === null || !(action.^return instanceof TransferDeclaration) || (action.^return as TransferDeclaration).map === null) {
-	            error("Invalid update modifier. Update modifier cannot be used for unmapped return type.",
+	            error("Invalid update modifier. Update modifier can only be used for mapped return type.",
 	                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
 			}
@@ -1894,7 +1947,23 @@ class JslDslValidator extends AbstractJslDslValidator {
                 action.name)
 		}
 
-		if (action.parameterType !== null && action.parameterType.map !== null && action.getModifier(JsldslPackage::eINSTANCE.transferChoiceModifier) === null) {
+		if (action.parameterType instanceof ViewDeclaration && action.parameterType !== null) {
+            error("Mapped view declaration cannot be input type.",
+                JsldslPackage::eINSTANCE.named_Name,
+                INVALID_DECLARATION,
+                action.name)
+			
+		}
+
+		if (action.parameterType instanceof RowDeclaration && action.parameterType === null) {
+            error("Unmapped row declaration cannot be input type.",
+                JsldslPackage::eINSTANCE.named_Name,
+                INVALID_DECLARATION,
+                action.name)
+			
+		}
+
+		if (action.parameterType !== null && action.parameterType.map !== null && action.getModifier(JsldslPackage::eINSTANCE.choiceModifier) === null) {
             error("Choices modifier must be used for mapped input type.",
                 JsldslPackage::eINSTANCE.named_Name,
                 INVALID_DECLARATION,
@@ -1918,6 +1987,38 @@ class JslDslValidator extends AbstractJslDslValidator {
 			if (union.members.filter[m | m.isEqual(member)].size > 1) {
 	            error("Duplicate union member:" + member.fullyQualifiedName,
 	                JsldslPackage::eINSTANCE.unionDeclaration.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+		}
+	}
+	
+	@Check
+	def checkLinesModifier(LinesModifier modifier) {
+		val TransferFieldDeclaration field = modifier.eContainer as TransferFieldDeclaration
+		
+		if (!(field.referenceType instanceof DataTypeDeclaration)) {
+            error("Lines modifier can only be used for string type fields.",
+                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+		
+		if (!(field.referenceType as DataTypeDeclaration).primitive.equals("string")) {
+            error("Lines modifier can only be used for string type fields.",
+                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+	}
+	
+	@Check
+	def checkWidthModifier(WidthModifier modifier) {
+		val TransferMemberDeclaration member = modifier.eContainer as TransferMemberDeclaration
+		
+		if (!(member instanceof RowFieldDeclaration) && !(member instanceof RowLinkDeclaration) && !(member instanceof RowActionDeclaration)) {
+			val int value = modifier.value.intValue;
+			
+			if (!#[1, 2, 3, 4, 6, 12].contains(value)) {
+	            error("Width modifier must be set to 1, 2, 3, 4, 6 or 12.",
+	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
 			}
 		}

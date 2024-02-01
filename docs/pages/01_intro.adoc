@@ -56,53 +56,58 @@ type string Email min-size:0 max-size:64 regex:r"^\w+@\w+(\.\w+)+$";
 
 enum OrderStatus {
 	OPEN = 1;
-	PAID = 2;
+	ORDERED = 2;
 	DELIVERED = 3;
 }
 
 entity Address {
-    field required String street;
-    field required String city;
+    field String street required;
+    field String city required;
     field String country;
 }
 
 entity User {
-	identifier required Email email;
+	identifier Email email required;
 }
 
-entity abstract Customer {
-    field required Address address;
+entity Customer abstract {
+    field Address address required;
 	relation Order[] orders opposite:customer;
+	relation Order cart <= self.orders.filter(o | o.status == OrderStatus#OPEN).any();
 }
 
+query Integer NumOfCustomers(String country) <=
+		Customer.all().
+		filter(c | c.address.country == country).
+		size();
 
 entity Person extends Customer, User {
-	field required String firstName;
-	field required String lastName;
+	field String firstName required;
+	field String lastName required;
 	field String fullName <= self.firstName + " " + self.lastName;
 }
 
 entity Enterprise extends Customer {
-	field required String name;
+	field String name required;
 }
 
 entity Order {
-	field required OrderStatus status default:OrderStatus#OPEN;
+	field OrderStatus status required default:OrderStatus#OPEN;
 	field OrderItem[] orderItems;
-	relation required Customer customer opposite:orders;
+	relation Customer customer required opposite:orders;
 	field Integer price <= self.orderItems.sum(item | item.price);
 }
 
 entity OrderItem {
-	relation required Product product opposite-add:orderItems[];
-	field required Integer amount;
+	relation Product product required opposite-add:orderItems[];
+	field Integer amount required;
 	field String productName <= self.product.name;
 	field Integer price <= self.amount * self.product.price;
 }
 
 entity Product {
-	identifier required String name;
-	field required Integer price;
+	identifier String name required;
+	field Integer price required;
 }
 ----
 

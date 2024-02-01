@@ -128,7 +128,7 @@ class EntityMemberDeclarationTests {
             type string String min-size:0 max-size:1000;
 
             entity B1 {
-                field required String[] attr;
+                field String[] attr required;
             }
 
         '''.parse => [
