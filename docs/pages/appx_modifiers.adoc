@@ -1,0 +1,730 @@
+ifndef::env-site,env-github[]
+include::../_attributes.adoc[]
+endif::[]
+// Settings
+:idprefix:
+:idseparator: -
+:icons: font
+:KW: [purple]##**
+:KWE: **##
+
+= Appendix Modifiers
+:page-toctitle:Appendix Modifiers
+:table-caption-side: "bottom"
+
+== Model
+
+[subs="quotes"]
+----
+[purple]#**model**# &lt;fq-name>[purple]#**;**#
+----
+
+== Import
+
+[subs="quotes"]
+----
+[purple]#**import**# &lt;model> &#x5B;[purple]##**as**## &lt;alias>][purple]#**;**#
+----
+
+== Type
+
+[subs="quotes"]
+----
+[purple]#**type**# ([purple]##**boolean**##|[purple]##**binary**##|[purple]##**string**##|[purple]##**numeric**##|[purple]##**date**##|[purple]##**time**##|[purple]##**timestamp**##) &lt;name>
+    &#x5B;[purple]##**min-size:**##&lt;min-size>]
+    &#x5B;[purple]##**max-size:**##&lt;max-size>]
+    &#x5B;[purple]##**regex:**##&lt;regex>]
+    
+    &#x5B;[purple]##**precision:**##&lt;precision>]
+    &#x5B;[purple]##**scale:**##&lt;scale>]
+    
+    &#x5B;[purple]##**mime-types:**##&lt;mime-types>]
+    &#x5B;[purple]##**max-file-size:**##&lt;max-file-size>][purple]#**;**#    
+----
+
+.Possible modifiers of type declaration
+[options="header", cols="1,1,2", caption-side="bottom"]
+|====================
+|Modifier name | Modifier type       | Meaning
+|min-size      | numeric literal             | Applicable for string types. The minimum size of the text.
+|max-size      | numeric literal             | Applicable for string types. The maximum size of the text.
+|regex         | string literal              | Applicable for string types. Regular expression of the validation pattern.
+|precision     | numeric literal             | Applicable for numeric types. The total number of decimal digits.
+|scale         | numeric literal             | Applicable for numeric types. The number of decimal digits that will be stored to the right of the decimal point.
+|mime-types    | list of string literals     | Applicable for binary types. A comma separated list of strings representing mime types.
+|max-file-size | numeric literal with unit   | Applicable for binary types. The maximum size of the stored file.
+|====================
+
+== Enumeration
+
+[subs="quotes"]
+----
+[purple]#**enum**# &lt;name> [purple]#**{**#
+    &lt;literal> [purple]##**=**## &lt;ordinal>[purple]#**;**#
+    &#x5B;&lt;literal> [purple]##**=**## &lt;ordinal>[purple]#**;** ...#]
+[purple]#**};**#
+----
+
+== Entity
+
+[subs="quotes"]
+----
+[purple]#**entity**# &lt;name> &#x5B;[purple]##**extends**## &lt;entity>[purple]##**,**## ...] 
+    &#x5B;[purple]##**abstract:**##([purple]##**true**##|[purple]##**false**##)]
+&#x5B;[purple]##**{**##
+    &#x5B;member] ...
+[purple]##**}**##][purple]#**;**#
+----
+
+.Possible modifiers of entity declaration
+[options="header", cols="1,1,2", caption-side="bottom"]
+|====================
+|Modifier name | Modifier type       | Meaning
+|abstract      | boolean literal             | If the entity type is abstract and cannot be instantiated.
+|====================
+
+=== Entity field
+
+[subs="quotes"]
+----
+([purple]#**field**#|[purple]#**identifier**#) &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
+----
+
+or
+
+[subs="quotes"]
+----
+[purple]#**field**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
+----
+
+[options="header", cols="1,1,2"]
+|====================
+|Modifier name  | Modifier type     | Meaning
+|required       | boolean literal   | If the field value must be specified.
+|default        | expression returns primitive value  | The default value of the field.
+|eager          | boolean literal   | If the fetching strategy is eager.
+|====================
+
+=== Entity relation
+
+[subs="quotes"]
+----
+[purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**opposite:**##&lt;opposite> | [purple]##**opposite-add:**##&lt;opposite>&#x5B;[purple]##**[]**##]][purple]#**;**#
+----
+
+[options="header", cols="1,1,2"]
+|====================
+|Modifier name  | Modifier type               | Meaning
+|required       | boolean literal             | If the relation value must be specified, the modifier cannot be used for collections.
+|default        | expression returns entities | The default value of the field.
+|eager          | boolean literal             | If the fetching strategy is eager.
+|opposite       | relation name               | Create a bidirectional relation.
+|opposite-add   | relation name               | Create a bidirectional relation with injection.
+|====================
+
+== Transfer
+
+[subs="quotes"]
+----
+[purple]#**transfer**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
+&#x5B;[purple]##**{**##
+    &#x5B;member] ...
+[purple]##**}**##][purple]#**;**#
+----
+
+=== Transfer field
+
+[subs="quotes"]
+----
+[purple]#**field**# &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**set:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
+----
+
+.Possible modifiers of transfer field
+[options="header", cols="1,1,2", caption-side="bottom"]
+|====================
+|Modifier name | Modifier type                  | Meaning
+|required      | boolean literal                        | If the field cannot be undefined.
+|enabled       | expression returns boolean     | If the field is enabled for editing.
+|default       | expression returns <primitive> | The default value of the field.
+|set           | boolean literal                        | If the transfer field is changed, its value will be set into the mapped entity's field.
+|====================
+
+=== Transfer relation
+
+[subs="quotes"]
+----
+[purple]#**relation**# &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**default:**##&lt;default>]
+
+    &#x5B;[purple]##**choices:**##&lt;choices>]
+    &#x5B;[purple]##**selector:**##&lt;transfer>]
+
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
+----
+
+.Possible modifiers of transfer relation
+[options="header", cols="1,1,2", caption-side="bottom"]
+|====================
+|Modifier name | Modifier type               | Meaning
+|required      | boolean literal                     | If the relation cannot be undefined. It is not applicable for collections.
+|enabled       | expression returns boolean  | If the relation is enabled for editing.
+|default       | expression returns entities | The default list of transfers.
+|choices       | expression returns entities | The possible list of transfers to add.
+|selector      | transfer object type        | The type of transfer object when the list of choices requested.
+|eager         | boolean literal                     | If the fetching strategy is eager.
+|create        | boolean literal                     | If create is allowed on this relation.
+|delete        | boolean literal                     | If delete is allowed on this relation.
+|update        | boolean literal                     | If update is allowed on this relation.
+|====================
+
+=== Transfer action
+
+[subs="quotes"]
+----
+[purple]#**action**# &#x5B;&lt;output>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>] &#x5B;[purple]##**choices:**##&lt;choices>][purple]##**)**##
+    &#x5B;[purple]##**throws**## &lt;error1> &#x5B;[purple]##**,**##&lt;error2>] ...]
+
+    &#x5B;[purple]##**static:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
+----
+
+.Possible modifiers of transfer action
+[options="header", cols="1,1,2", caption-side="bottom"]
+|====================
+|Modifier name | Modifier type               | Meaning
+|static        | expression returns boolean  | If the action can be called with no instance.
+|enabled       | expression returns boolean  | If the action is enabled for invocation.
+|choices       | expression returns entities | The possible list of input parameter.
+|delete        | boolean literal             | If delete is allowed on the returned transfer object.
+|update        | boolean literal             | If update is allowed on returned transfer object.
+|====================
+
+=== Transfer event
+
+[subs="quotes"]
+----
+[purple]#**event**# ([purple]#**create**#|[purple]#**delete**#|[purple]#**fetch**#|[purple]#**initialize**#|[purple]#**update**#) &lt;name> &#x5B;[purple]##**(**##&lt;transfer> &lt;parameter>[purple]##**)**##]
+    &#x5B;[purple]##**on:**##([purple]##**before**##|[purple]##**after**##)][purple]##**;**##
+----
+
+.Possible modifiers of event handler
+[options="header", cols="1,1,2", caption-side="bottom"]
+|====================
+|Modifier name | Modifier type        | Meaning
+|on            | `before` or `after`  | If event handler executes before or after the system's original handler.
+|====================
+
+== View
+
+[subs="quotes"]
+----
+[purple]#**view**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
+    &#x5B;[purple]##**dialog:**##([purple]##**true**##|[purple]##**false**##)]
+&#x5B;[purple]##**{**##
+    &#x5B;member] ...
+[purple]##**}**##][purple]#**;**#
+----
+
+.Possible modifiers of view declaration
+[options="header", cols="1,1,2"]
+|====================
+|Modifier name | Modifier type        | Meaning
+|dialog        | boolean literal      | If the view is shown in a pop-up dialog window.
+|====================
+
+=== View text
+
+[subs="quotes"]
+----
+[purple]#**text**# &lt;name> [purple]##**<=**## &lt;expression>
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>][purple]##**;**##
+----
+
+.Possible modifiers of view text
+[options="header", cols="1,1,2"]
+|====================
+|Modifier name  | Modifier type         | Meaning
+|label          | string literal        | The label to show for the field.
+|icon           | string literal        | The name of the icon to show for the field.
+|hidden         | boolean expression    | If the field is shown to the user.
+|width          | numeric literal       | The logical width of the field. Possible values are 1, 2, 3, 4, 6 and 12.
+|====================
+
+=== View field
+
+[subs="quotes"]
+----
+[purple]##**field**## &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**set:**##([purple]##**true**##|[purple]##**false**##)]
+
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**lines:**##&lt;lines>][purple]#**;**#
+----
+
+.Possible modifiers of view field
+[options="header", cols="1,1,2"]
+|====================
+|Modifier name | Modifier type                  | Meaning
+|required      | boolean literal                | If the field cannot be undefined.
+|enabled       | expression returns boolean     | If the field is enabled for editing.
+|default       | expression returns <primitive> | The default value of the field.
+|set           | boolean literal                | If the transfer field is changed, its value will be set into the mapped entity's field.
+
+|label          | string literal        | The label to show for the field.
+|icon           | string literal        | The name of the icon to show for the field. Possible icon names can be found here: https://pictogrammers.com/library/mdi/
+|hidden         | boolean expression    | If the field is shown to the user.
+|width          | numeric literal       | The logical width of the field. Possible values are 1, 2, 3, 4, 6 and 12.
+|lines          | numeric literal | The height of the field expressed in number of text lines. Can only be used if <primitive> is a string.
+|====================
+
+=== View link
+
+[subs="quotes"]
+----
+[purple]#**link**# &lt;view> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**choices:**##&lt;choices>]
+    &#x5B;[purple]##**selector:**##&lt;selector>]
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**text:**##&lt;text>][purple]#**;**#
+----
+
+.Possible modifiers of view link
+[options="header", cols="1,1,2"]
+|====================
+|Modifier name | Modifier type               | Meaning
+|required      | boolean literal             | If the link cannot be undefined.
+|enabled       | expression returns boolean  | If the link is enabled for editing.
+|default       | expression returns entity   | The default value.
+|choices       | expression returns entities | The possible list of views to add.
+|selector      | row type                    | The type of row when the list of choices requested.
+|eager         | boolean literal             | If the fetching strategy is eager.
+|create        | boolean literal             | If create is allowed for the target view.
+|delete        | boolean literal             | If delete is allowed on target view.
+|update        | boolean literal             | If update is allowed on target view.
+
+|label          | string literal             | The label to show for the link.
+|icon           | string literal             | The name of the icon to show for the link.
+|hidden         | boolean expression         | If the link is shown to the user.
+|width          | numeric literal            | The logical width of the link. Possible values are 1, 2, 3, 4, 6 and 12.
+|text           | string expression          | The textual representation of the link.
+|====================
+
+=== View table
+
+[subs="quotes"]
+----
+[purple]#**table**# &lt;row>[purple]##**[]**## &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**choices:**##&lt;choices>]
+    &#x5B;[purple]##**selector:**##&lt;selector>]
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**rows:**##&lt;rows>][purple]#**;**#
+----
+
+.Possible modifiers of view table
+[options="header", cols="1,1,2"]
+|====================
+|Modifier name  | Modifier type               | Meaning
+|enabled        | expression returns boolean  | If the table is enabled for editing.
+|default        | expression returns entity   | The default list of rows.
+|choices        | expression returns entities | The possible list of views to add.
+|selector       | row type                    | The type of row when the list of choices requested.
+|eager          | boolean literal             | If the fetching strategy is eager.
+|create         | boolean literal             | If create is allowed for the target views.
+|delete         | boolean literal             | If delete is allowed on target views.
+|update         | boolean literal             | If update is allowed on target views.
+|label          | string literal              | The label to show for the table.
+|icon           | string literal              | The name of the icon to show for the table.
+|hidden         | boolean expression          | If the table is shown to the user.
+|width          | numeric literal             | The logical width of the table. Possible values are 1, 2, 3, 4, 6 and 12.
+|rows           | numeric literal             | The number of rows shown in the table.
+|====================
+
+=== View action
+
+[subs="quotes"]
+----
+[purple]#**action**# &#x5B;&lt;output>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>] &#x5B;[purple]##**choices:**##&lt;choices>][purple]##**)**##
+    &#x5B;[purple]##**throws**## &lt;error1> &#x5B;[purple]##**,**##&lt;error2>] ...]
+
+    &#x5B;[purple]##**static:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**redirect:**##&lt;redirect>][purple]##**;**##
+----
+
+.Possible modifiers of view action
+[options="header", cols="1,1,2", caption-side="bottom"]
+|====================
+|Modifier name | Modifier type               | Meaning
+|static        | expression returns boolean  | If the action can be called with no instance.
+|enabled       | expression returns boolean  | If the action is enabled for invocation.
+|choices       | expression returns entities | The possible list of input parameter.
+|delete        | boolean literal             | If delete is allowed on the returned view.
+|update        | boolean literal             | If update is allowed on returned view.
+|label         | string literal              | The label to show for the action.
+|icon          | string literal              | The name of the icon to show for the action.
+|hidden        | boolean expression          | If the action is shown to the user.
+|width         | numeric literal             | The logical width of the action representation.  Possible values are 1, 2, 3, 4, 6 and 12.
+|redirect      | access name                 | The name of an access where the returned view is available and the user is redirected to.
+|====================
+
+=== View group
+
+[subs="quotes"]
+----
+[purple]#**group**# &lt;name>
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**orientation:**##([purple]##**horizontal**##|[purple]##**vertical**##)]
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**frame:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**h-align:**##([purple]##**left**##|[purple]##**right**##|[purple]##**center**##)]
+    &#x5B;[purple]##**v-align:**##([purple]##**top**##|[purple]##**bottom**##|[purple]##**center**##)]
+    &#x5B;[purple]##**stretch:**##([purple]##**true**##|[purple]##**false**##)]
+[purple]##**{**##
+    [member] ...
+[purple]#**}**#[purple]##**;**##
+----
+
+.Possible modifiers of view group
+[options="header", cols="1,1,2"]
+|====================
+|Modifier name  | Modifier type              | Meaning
+|enabled       | expression returns boolean  | If the components inside the group are enabled for editing.
+|orientation    | `horizontal` or `vertical` | How elements inside the group are arranged either horizontally or vertically.
+|label          | string literal             | The label to show for the group.
+|icon           | string literal             | The name of the icon to show for the group.
+|hidden         | boolean expression         | If the group and its content are visible to the user.
+|width          | numeric literal            | The logical width of the group. Possible values are 1, 2, 3, 4, 6 and 12.
+|frame          | boolean literal            | If the group is surrounded by a frame.
+|h-align        | `left`, `right`, `center`  | The horizontal location of elements inside the group. 
+|v-align        | `top`, `bottom`, `center`  | The vertical location of elements inside the group.
+|stretch        | boolean literal            | If the group fills the available space vertically.
+|====================
+
+=== View tabs
+
+[subs="quotes"]
+----
+[purple]#**tabs**# &lt;name>
+    &#x5B;[purple]##**orientation:**##([purple]##**horizontal**##|[purple]##**vertical**##)]
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**frame:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**stretch:**##([purple]##**true**##|[purple]##**false**##)]
+[purple]##**{**##
+    [group] ...
+[purple]#**}**#[purple]##**;**##
+----
+
+[options="header", cols="1,1,2"]
+|====================
+|Modifier name  | Modifier type         | Meaning
+|orientation    | `horizontal` or `vertical` | How the tab labels are arranged either horizontally or vertically.
+|label          | string literal        | The label to show for the tabs component.
+|icon           | string literal        | The name of the icon to show for the tabs component.
+|hidden         | boolean expression    | If the tabs component is shown to the user.
+|width          | numeric literal       | The logical width of the tabs component. Possible values are 1, 2, 3, 4, 6 and 12.
+|frame          | boolean literal       | If the tabs component is surrounded by a frame.
+|stretch        | boolean literal       | If the tabs component fill the available space vertically.
+|====================
+
+=== View event
+
+See <<Transfer event>>.
+
+== Row
+
+[subs="quotes"]
+----
+[purple]#**row**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
+&#x5B;[purple]##**{**##
+    &#x5B;member] ...
+[purple]##**}**##][purple]#**;**#
+----
+
+=== Row field
+
+[subs="quotes"]
+----
+[purple]##**field**## &lt;primitive> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>][purple]#**;**#
+----
+
+.Possible modifiers of row field
+[options="header", cols="1,1,2"]
+|====================
+|Modifier name | Modifier type          | Meaning
+|label          | string literal        | The label to show for the field in the header row.
+|icon           | string literal        | The name of the icon to show for the field in the header row. Possible icon names can be found here: https://pictogrammers.com/library/mdi/
+|hidden         | boolean expression    | If the field is shown to the user.
+|width          | numeric literal       | The width of the field expressed in pixels.
+|====================
+
+=== Row link
+
+[subs="quotes"]
+----
+[purple]#**link**# &lt;view> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**text:**##&lt;text>]
+    &#x5B;[purple]##**detail:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
+----
+
+.Possible modifiers of row link
+[options="header", cols="1,1,2"]
+|====================
+|Modifier name | Modifier type        | Meaning
+|eager         | boolean literal      | If the fetching strategy is eager.
+|label         | string literal       | The label to show for the link in the header row.
+|icon          | string literal       | The name of the icon to show for the link in the header row.
+|hidden        | boolean expression   | If the link is shown to the user.
+|width         | numeric literal      | The logical width of the link.
+|text          | string expression    | The textual representation of the link expressed in pixels.
+|detail        | boolean literal      | If the user clicks on the row, then it navigates to the target view.
+|====================
+
+=== Row action
+
+[subs="quotes"]
+----
+[purple]#**action**# &#x5B;&lt;output>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>] &#x5B;[purple]##**choices:**##&lt;choices>][purple]##**)**##
+    &#x5B;[purple]##**throws**## &lt;error1> &#x5B;[purple]##**,**##&lt;error2>] ...]
+
+    &#x5B;[purple]##**static:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**redirect:**##&lt;redirect>]
+    &#x5B;[purple]##**bulk:**##([purple]##**true**##|[purple]##**false**##)][purple]##**;**##
+----
+
+.Possible modifiers of row action
+[options="header", cols="1,1,2", caption-side="bottom"]
+|====================
+|Modifier name | Modifier type               | Meaning
+|static        | expression returns boolean  | If the action can be called with no instance.
+|enabled       | expression returns boolean  | If the action is enabled for invocation.
+|choices       | expression returns entities | The possible list of input parameter.
+|delete        | boolean literal             | If delete is allowed on the returned view.
+|update        | boolean literal             | If update is allowed on returned view.
+|label         | string literal              | The label to show for the action.
+|icon          | string literal              | The name of the icon to show for the action.
+|hidden        | boolean expression          | If the action is shown to the user.
+|width         | numeric literal             | The logical width of the action representation expressed in pixels.
+|redirect      | access name                 | The name of an access where the returned view is available and the user is redirected to.
+|bulk           | boolean literal            | Bulk is the ability to perform an action on multiple selected rows simultaneously.
+|====================
+
+=== Row event
+
+See <<Transfer event>>.
+
+== Actor
+
+[subs="quotes"]
+----
+[purple]#**actor**# &lt;name>
+    &#x5B;[purple]##**human:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**realm:**##&lt;realm>]
+    &#x5B;[purple]##**claim:**##&lt;claim>]
+    &#x5B;[purple]##**identity:**##&lt;identity>]
+    &#x5B;[purple]##**guard:**##&lt;guard>]
+&#x5B;[purple]##**{**##
+    &#x5B;member] ...
+[purple]##**}**##][purple]#**;**#
+----
+
+.Possible modifiers of actor
+[options="header", cols="1,1,2", caption-side="bottom"]
+|====================
+|Modifier name | Modifier type               | Meaning
+|human         | boolean literal             | If the actor represents a human and web application shall be created.
+|realm         | string literal              | The name of the security policy domain.
+|claim         | string literal              | The name of the claim contains information for identifying users.
+|identity      | transfer object field       | The identifier field of a mapped transfer object.
+|guard         | expression returns boolean  | Expression that must evaluate to true in order to authenticate the user.
+|====================
+
+=== Actor access
+
+[subs="quotes"]
+----
+[purple]#**access**# &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**<=**## &lt;expression>
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
+----
+
+.Possible modifiers of transfer relation
+[options="header", cols="1,1,2", caption-side="bottom"]
+|====================
+|Modifier name | Modifier type               | Meaning
+|eager         | boolean literal             | If the fetching strategy is eager.
+|create        | boolean literal             | If create is allowed on this access.
+|delete        | boolean literal             | If delete is allowed on this access.
+|update        | boolean literal             | If update is allowed on this access.
+|====================
+
+=== Actor link
+
+[subs="quotes"]
+----
+[purple]#**link**# &lt;view> &lt;name> [purple]##**<=**## &lt;expression>
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>][purple]#**;**#
+----
+
+.Possible modifiers of actor link
+[options="header", cols="1,1,2"]
+|====================
+|Modifier name | Modifier type               | Meaning
+|eager         | boolean literal             | If the fetching strategy is eager.
+|create        | boolean literal             | If create is allowed for the target view.
+|delete        | boolean literal             | If delete is allowed on target view.
+|update        | boolean literal             | If update is allowed on target view.
+
+|label          | string literal             | The label to show for the link.
+|icon           | string literal             | The name of the icon to show for the link.
+|hidden         | boolean expression         | If the link is shown to the user.
+|====================
+
+=== Actor table
+
+[subs="quotes"]
+----
+[purple]#**table**# &lt;row>[purple]##**[]**## &lt;name> [purple]##**<=**## &lt;expression>
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**rows:**##&lt;rows>][purple]#**;**#
+----
+
+.Possible modifiers of actor table
+[options="header", cols="1,1,2"]
+|====================
+|Modifier name  | Modifier type               | Meaning
+|eager          | boolean literal             | If the fetching strategy is eager.
+|create         | boolean literal             | If create is allowed for the target views.
+|delete         | boolean literal             | If delete is allowed on target views.
+|update         | boolean literal             | If update is allowed on target views.
+|label          | string literal              | The label to show for the table.
+|icon           | string literal              | The name of the icon to show for the table.
+|hidden         | boolean expression          | If the table is shown to the user.
+|rows           | numeric literal             | The number of rows shown in the table.
+|====================
+
+=== Actor group
+
+[subs="quotes"]
+----
+[purple]#**group**# &lt;name>
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+[purple]##**{**##
+    [member] ...
+[purple]#**}**#[purple]##**;**##
+----
+
+.Possible modifiers of actor group
+[options="header", cols="1,1,2"]
+|====================
+|Modifier name  | Modifier type              | Meaning
+|label          | string literal             | The label to show for the group.
+|icon           | string literal             | The name of the icon to show for the group.
+|hidden         | boolean expression         | If the group and its content are visible to the user.
+|====================
+
+== Query
+
+[subs="quotes"]
+----
+[purple]#**query**# (&lt;primitive>|&lt;entity>&#x5B;[purple]##**[]**##]) &lt;name> [purple]##**(**##&#x5B;&lt;primitive> &lt;parameter> &#x5B;[purple]##**=**## &lt;value>][purple]##,## ...][purple]##**)**##
+    &#x5B;[purple]##**on**## &lt;entity> [purple]##**<=**## &lt;expression>][purple]#**;**#
+----

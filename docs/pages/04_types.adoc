@@ -35,12 +35,12 @@ To define a new domain model primitive, use the `type` keyword.
 
 [subs="quotes"]
 ----
-[purple]#**type**# &lt;basetype> &lt;name> &#x5B;&lt;parameter name> [purple]#**:**# &lt;parameter value>] ...[purple]#**;**#
+[purple]#**type**# &lt;basetype> &lt;name> &#x5B;&lt;modifier name> [purple]#**:**# &lt;modifier value>] ...[purple]#**;**#
 ----
 
-where the <basetype> is one of the base types defined above, the <name> is the name of the domain model primitive, and there can be an additional list of parameters for each base type. The optional parameter list consists of name-value pairs, using `:` between name and value.
+where the <basetype> is one of the base types defined above, the <name> is the name of the domain model primitive, and there can be an additional list of modifiers for each base type. See more about modifiers in xref:02_syntax.adoc#modifiers[Modifiers] chapter.
 
-Parameters are constraints that restrict the use of the newly created primitive data type.
+Modifiers are constraints that restrict the use of the newly created primitive data type.
 
 *Example:*
 
@@ -119,7 +119,7 @@ where the <name> is the name of the enumeration, and the enumeration members are
 ----
 enum OrderStatus {
 	OPEN = 1;
-	PAID = 2;
+	ORDERED = 2;
 	DELIVERED = 3;
 }
 
@@ -137,7 +137,7 @@ The supported operators of enumeration are the following:
 |Operator              |Result  |Meaning |Example
 |`<`, `>`, `==`, `!=`, `\<=`, `>=`|Boolean |Comparison. Enumeration members of two different enumerations are not comparable.|
 
-* `shop::OrderStatus#OPEN == shop::OrderStatus#PAID` is `false`
+* `shop::OrderStatus#OPEN == shop::OrderStatus#ORDERED` is `false`
 * `shop::OrderStatus#OPEN != shop::OrderStatus#OPEN` is `true`
 * `shop::OrderStatus#OPEN == other::Color#RED` is not valid
 |======================================================================
