@@ -70,6 +70,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.RowActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorLinkDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.IdentityModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -143,11 +146,34 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 			UnionDeclaration case ref == JsldslPackage::eINSTANCE.unionDeclaration_Members: return this.scope_UnionMember(scope)
 
+			IdentityModifier case ref == JsldslPackage::eINSTANCE.identityModifier_Field: return this.scope_Identifier(scope)
+
             Navigation: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
         }
 
         return scope
     }
+
+	def scope_Identifier(IScope scope) {
+        return new FilteringScope(scope, [desc | {
+            val obj = desc.EObjectOrProxy
+
+			if (obj instanceof TransferFieldDeclaration) {
+				val TransferFieldDeclaration field = obj as TransferFieldDeclaration
+
+				if (!(field.referenceType instanceof DataTypeDeclaration)) return false
+				if (!(field.referenceType as DataTypeDeclaration).primitive.equals("string")) return false
+				if (field.parentContainer(TransferDeclaration).map === null) return false
+
+				if (!field.maps) return false
+				if (!(field.mappedMember as EntityFieldDeclaration).isIdentifier) return false
+								
+				return true 
+			}
+
+            return false
+        }]);
+	}
 
 	def scope_UnionMember(IScope scope) {
         return new FilteringScope(scope, [desc | {

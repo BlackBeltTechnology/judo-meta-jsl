@@ -29,10 +29,10 @@ class ActorTests {
             }
 
 			transfer T(E e) {
-				field String id <= e.id;
+				field String id <= e.id set;
 			}
 
-            actor A(E e)
+            actor A
                 claim:"claim"
                 realm:"realm"
                 guard:true

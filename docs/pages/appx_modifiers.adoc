@@ -597,7 +597,7 @@ See <<Transfer event>>.
 
 [subs="quotes"]
 ----
-[purple]#**actor**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
+[purple]#**actor**# &lt;name>
     &#x5B;[purple]##**human:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**realm:**##&lt;realm>]
     &#x5B;[purple]##**claim:**##&lt;claim>]
@@ -615,7 +615,7 @@ See <<Transfer event>>.
 |human         | boolean literal             | If the actor represents a human and web application shall be created.
 |realm         | string literal              | The name of the security policy domain.
 |claim         | string literal              | The name of the claim contains information for identifying users.
-|identity      | expression returns field    | Expression that selects an identifier field of the mapped entity.
+|identity      | transfer object field       | The identifier field of a mapped transfer object.
 |guard         | expression returns boolean  | Expression that must evaluate to true in order to authenticate the user.
 |====================
 
@@ -720,10 +720,6 @@ See <<Transfer event>>.
 |icon           | string literal             | The name of the icon to show for the group.
 |hidden         | boolean expression         | If the group and its content are visible to the user.
 |====================
-
-=== Actor event
-
-See <<Transfer event>>.
 
 == Query
 

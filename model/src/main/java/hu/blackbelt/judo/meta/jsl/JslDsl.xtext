@@ -419,14 +419,12 @@ ActorDeclaration returns TransferDeclaration
 	: {ActorDeclaration}
 	  annotations += AnnotationMark*
 	  KW_ACTOR Named
-	  MappedDeclaration
 	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier | HumanModifier)*
 	  (SC | BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END)
 	;
 
 ActorMemberDeclaration returns TransferMemberDeclaration
-	: TransferEventDeclaration
-	| ActorAccessDeclaration
+	: ActorAccessDeclaration
 	| ActorLinkDeclaration
 	| ActorTableDeclaration
 	| ActorGroupDeclaration

@@ -77,7 +77,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Modifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.MinSizeModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.ScaleModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.IdentityModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferEventDeclaration
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
@@ -1713,6 +1712,12 @@ class JslDslValidator extends AbstractJslDslValidator {
 
     @Check
     def checkEntityField(EntityFieldDeclaration field) {
+    	if (field.identifier && field.getterExpr !== null) {
+            error("An identifier field cannot be calculated.",
+                JsldslPackage::eINSTANCE.entityMemberDeclaration.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+    	}
+    	
     	if (field.referenceType instanceof EntityDeclaration && field.calculated) {
             error("A composition cannot be calculated.",
                 JsldslPackage::eINSTANCE.entityMemberDeclaration_GetterExpr,
