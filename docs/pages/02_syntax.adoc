@@ -41,8 +41,9 @@ Domain models may refer to each other. References between models allow to partit
 JSL statements are composed from:
 
 * JSL keywords
-* Expressions
 * Element names (entities, fields, enumerations etc.)
+* Modifiers
+* Expressions
 
 JSL statements are terminated by a semicolon (`;`). A semicolon is optional at the end of block declarations (`{ ... }`). However, extra `;` tokens after statements have no effect.
 
@@ -59,8 +60,8 @@ model shop;
 type string String min-size:0 max-size:128;
 
 entity Person {
-    field required String firstName default:"";
-    field required String lastName default:"";;;;;
+    field String firstName default:"" required;
+    field String lastName default:"" required;;;;;
     field String fullName <=
         self.firstName + " " + self.lastName;
 };
@@ -74,6 +75,7 @@ Keywords are predefined, reserved words used in JSL that have special meanings i
 
 Most keywords can also be used as element names. However, there are reserved keywords that cannot be used directly as an element name. If you still want to use these reserved keywords as element names, the words must be enclosed in back-tick (```) characters as shown in the example below.
 
+[source,jsl]
 ----
 field String `void`;
 ----
@@ -109,6 +111,30 @@ The names of JSL domain elements must conform to the following rules:
 ====
 Even though element names (e.g. entity names, field names, enumeration literals, etc.) are case-sensitive, it is not allowed to have two elements in the same scope (e.g. two fields within an entity) whose names differ only in upper and lower case.
 ====
+
+== Modifiers
+
+Most JSL statements may include modifiers, which are used to alter the behavior of the statement and convey additional information about them. Typically, modifiers help define the scope, behavior, and restrictions associated with various statements in JSL code, contributing to the overall structure and functionality of the code.
+
+A modifier always begins with a keyword, followed by an optional colon (`:`) and a value. This value can be a constant, an expression, or a reference to another JSL statement, depending on the modifier.
+
+This is a typical JSL statement with two modifiers.
+
+[source,jsl]
+----
+field String firstName required:true default:"";
+----
+
+The `default` modifier sets the initial value of the field to a zero-length string, and the `required` modifier specifies that a value must be provided for the field, making it mandatory.
+
+Modifiers that can take a constant `true` value may omit their value. For example, the `required` modifier may stand with no colon and value, which is identical to `required:true`.
+
+[source,jsl]
+----
+field String firstName required default:"";
+----
+
+The order of modifiers within a single statement has no effect.
 
 [judo-req="true",judo-req-id="REQ-SYNT-005"]
 == Comments

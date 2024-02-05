@@ -1480,7 +1480,7 @@ class TypeInfoTests {
 			
 			entity Lead {
 			    field Integer value default:100000;
-			    relation required SalesPerson salesPerson opposite:leads;
+			    relation SalesPerson salesPerson required opposite:leads;
 			}
         '''.parse
         p.assertNoErrors
