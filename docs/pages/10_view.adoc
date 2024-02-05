@@ -9,8 +9,8 @@ endif::[]
 :KWE: **##
 
 [judo-req="true",judo-req-id="REQ-SRV-014"]
-= GUI
-:page-toctitle:GUI
+= User Interface
+:page-toctitle:User Interface
 
 Views and rows play a crucial role in defining the visual representation of data. Views are special transfer objects that not only carry data but also define how this data is presented to the user. Rows, on the other hand, are a type of transfer object specifically designed for visualizing data in a tabular format.
 
@@ -18,7 +18,7 @@ The following chapters will be easier to understand if you first grasp the conce
 
 == View
 
-A View is a transfer object that defines the visual presentation of data. It serves as a bridge between the raw data stored in entities and the user interface, providing a customizable and user-friendly representation.
+A view is a transfer object that defines the visual presentation of data. It serves as a bridge between the raw data stored in entities and the user interface, providing a customizable and user-friendly representation.
 
 *Syntax:*
 
@@ -45,14 +45,7 @@ The view syntax is used to define a visual representation of data. It begins wit
 
 Inside the curly braces `{` and `}`, you can specify various components or members of the view, such as fields, actions, or other elements that contribute to its functionality. These components collectively define the visual interface and behavior of the view.
 
-[options="header", cols="1,1,2"]
-|====================
-|Parameter name | Parameter type        | Meaning
-|dialog         | boolean literal       | If the view is shown in a pop-up dialog window.
-|====================
-
-
-A view typically consists of various fields and interactive elements arranged in a structured layout. You can arrange different types of fields, such as text boxes, checkboxes, radio buttons, drop-down lists, and buttons, to allow users to enter data or make selections.
+The `dialog` modifier is used in the context of defining a view to specify whether the view should be displayed as a pop-up dialog window. When set to true, it indicates that the view is intended to be presented as a dialog, typically for tasks that require user input or confirmation before proceeding.
 
 *Example:*
 
@@ -114,12 +107,17 @@ The `width` modifier sets the logical width of the field. Possible values are 1,
 The `width` modifier behaves differently for tables. Unlike visual elements in views, where the modifier value represents a logical width, for table elements, the width is specified in pixels.
 ====
 
+=== Lifecycle and events
+
+The lifecycle and event handlers of views and rows are the same as those of simple transfer objects. This consistency ensures uniformity in the behavior of different types of transfer objects within a system.
+
+As a result of the uniformity in the lifecycle across different transfer object types, event handlers can be defined in the same manner as they are for simple transfer objects. This consistency allows developers to apply familiar event handlers to views, rows, and simple transfer objects ensuring consistent behavior throughout the application.
 
 === View field
 
-A view field is a visual component in a view designed to represent and handle a single, fundamental piece of information. This field is associated with primitive data types like text or numbers and serves to either display or capture information.
+A view field is a graphical component within a view that is designed to represent and interact with a single, fundamental piece of information. It is typically associated with primitive data types such as text or numbers and is used to either display or capture information from users. The full list of modifiers can be found in the xref:appx_syntax.adoc#view-field[Appendix].
 
-A view field can represent a single primitive value on the view. The full list of modifiers can be found in the xref:appx_modifiers.adoc#view-field[Appendix].
+The syntax for defining a view field is as follows:
 
 *Syntax:*
 
@@ -138,10 +136,13 @@ A view field can represent a single primitive value on the view. The full list o
     &#x5B;[purple]##**lines:**##&lt;lines>][purple]#**;**#
 ----
 
-Since the view field is also a transfer field, the basic syntax is the same as the transfer field. The view field is about how users see and use information, caring about how things look and user experience. On the other hand, the transfer field is about moving and sharing data efficiently. To get specific details about this shared syntax, please refer to the section on the xref:07_transfer.adoc#field[Transfer field].
+View fields focus on how users perceive and interact with information, prioritizing user experience and visual presentation. They are distinct from transfer fields, which primarily focus on the efficient movement and sharing of data. To get specific details about this shared syntax, please refer to the section on the xref:07_transfer.adoc#field[Transfer field].
 
-In addition to the modifiers inherited from the transfer field declaration, there are modifiers that control the visual representation of the field. The `label` modifier expects static text, which is displayed next to the field on the screen. This text is used to provide information or identify the field.
+Modifiers such as `label`, `icon`, `hidden`, and `width` can be used to customize the common appearance and behavior of the component. See more about them in <<Common visual modifiers>> chapter.
 
+The `lines` modifier specifies the height of the field in terms of the number of text lines it occupies. This modifier can only be used if the <primitive> data type associated with the field is a string. It controls the vertical space allocated to the field, allowing for multiline input or display of text.
+
+Here's an example of a view field definition:
 
 *Example:*
 
@@ -153,9 +154,11 @@ field Integer price <= customer.cart.price
     width:4;
 ----
 
+In this example, the price field is associated with the integer data type and represents the price of items in a customer's shopping cart. The label modifier specifies the text "Price ($)" to be displayed next to the field, and the icon modifier sets an icon representing currency next to the field. The width modifier determines the logical width of the field on the screen.
+
 === View link
 
-A view link is a visual component in a user interface that symbolizes a connection to another view, indicating a relationship between different pieces of information.
+The view link is a visual element in a user interface that represents a connection to another view, indicating a relationship between different pieces of information. It enables users to navigate between related views and interact with associated data. The full list of modifiers can be found in the xref:appx_syntax.adoc#view-link[Appendix].
 
 *Syntax:*
 
@@ -179,24 +182,13 @@ A view link is a visual component in a user interface that symbolizes a connecti
     &#x5B;[purple]##**text:**##&lt;text>][purple]#**;**#
 ----
 
-Since the view link is also a single transfer relation, the basic syntax is the same as the transfer relation, except that cardinality cannot be specified. The view link is about how users see and use information, caring about how things look and user experience. On the other hand, the transfer relation is about moving and sharing data efficiently. To get specific details about this shared syntax, please refer to the section on the xref:07_transfer.adoc[Transfer model].
+The syntax for defining a view link includes various modifiers that control its behavior and appearance. These modifiers allow you to specify whether the link is required, enabled, or has a default value. You can also define the choices available for selection, the label and icon displayed for the link, and its width.
 
-[options="header", cols="1,1,2"]
-|====================
-|Modifier name | Modifier type                  | Meaning
-|required      | boolean literal                | If the field cannot be undefined.
-|enabled       | expression returns boolean     | If the field is enabled for editing.
-|default       | expression returns <primitive> | The default value of the field.
-|set           | boolean literal                | If the transfer field is changed, its value will be set into the mapped entity's field.
+Modifiers such as `label`, `icon`, `hidden`, and `width` can be used to customize the common appearance and behavior of the component. See more about them in <<Common visual modifiers>> chapter.
 
-|label          | string literal        | The label to show for the field.
-|icon           | string literal        | The name of the icon to show for the field. Possible icon names can be found here: https://pictogrammers.com/library/mdi/
-|hidden         | boolean expression    | If the field is shown to the user.
-|width          | numeric literal       | The logical width of the field. Possible values are 1, 2, 3, 4, 6 and 12.
+The `text` modifier sets the text to be displayed for the link. This is an alternative to the `label` modifier and is used specifically for specifying the text displayed on the link.
 
-The 12-column grid system is a fundamental design concept widely adopted in web development, offering a versatile and systematic approach to organizing and structuring visual elements on screens. Based on the concept of dividing a webpage into twelve columns, the system provides an invisible grid that serves as a guide for layout design. Its technical strength lies in the inherent flexibility derived from the number 12, which is divisible by 1, 2, 3, 4, and 6, enabling designers to create a variety of layouts.
-|lines          | numeric literal | The height of the field expressed in number of text lines. Can only be used if <primitive> is a string.
-|====================
+Since the view link is also a single transfer relation, its basic syntax is similar to that of a transfer relation. However, unlike a transfer relation, the cardinality of a view link cannot be specified; it always targets a single view. The view link focuses on enhancing the user experience by providing intuitive navigation and visual cues.  To get specific details about transfer relation, please refer to the section on the xref:07_transfer.adoc[Transfer model].
 
 *Example:*
 
@@ -205,54 +197,59 @@ The 12-column grid system is a fundamental design concept widely adopted in web 
 link ProductListView productList text:"Back to shopping";
 ----
 
+In this example, `ProductListView` represents the target view that the link navigates to. `productList` is the name of the link, and `text:"Back to shopping"` specifies the text displayed for the link.
+
 === View table
 
-A view table is a graphical representation within a user interface that displays a collection of rows in a tabular format. The syntax for defining a view table involves specifying its structure, including the type of rows it contains, and optional modifiers that govern its appearance and behavior.
+A view table is a graphical representation within a user interface that displays a collection of rows in a tabular format. It organizes data into rows and columns, making it easier for users to view and interact with structured information. The full list of modifiers can be found in the xref:appx_syntax.adoc#view-table[Appendix].
 
 *Syntax:*
 
 [subs="quotes"]
 ----
 [purple]#**table**# &lt;row>[purple]##**[]**## &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**default:**##&lt;default>]
+    &#x5B;[purple]##**choices:**##&lt;choices>]
+    &#x5B;[purple]##**selector:**##&lt;selector>]
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+
     &#x5B;[purple]##**label:**##&lt;label>]
     &#x5B;[purple]##**icon:**##&lt;icon>]
-    &#x5B;[purple]##**enabled:**##&lt;enabled>]
     &#x5B;[purple]##**hidden:**##&lt;hidden>]
     &#x5B;[purple]##**width:**##&lt;width>]
-    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
-    &#x5B;[purple]##**choices:**##&lt;choices>]
-    &#x5B;[purple]##**default:**##&lt;default>]
-    &#x5B;[purple]##**rows:**##&lt;rows>]
-    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
-    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
-    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
+    &#x5B;[purple]##**rows:**##&lt;rows>][purple]#**;**#
 ----
 
-[options="header", cols="1,1,2"]
-|====================
-|Parameter name | Parameter type        | Meaning
-|label          | string literal        | The label to show for the table.
-|icon           | string literal        | The name of the icon to show for the table.
-|enabled        | boolean expression    | If the table is enabled for editing.
-|hidden         | boolean expression    | If the table is shown to the user.
-|width          | numeric literal       | The logical width of the table.
-|eager          | boolean literal       | If the fetching strategy is eager or lazy.
-|choices        | row declaration + expression | The possible values for selection. The choices modifier takes effect only if the enabled modifier is true.
-|default        | expression returns entities    | The default rows.
-|rows           | numeric literal       | The number of rows shown in the table.
-|create         | boolean literal              | If create is allowed into this table.
-|update         | boolean literal              | If update is allowed for the members of the table.
-|delete         | boolean literal              | If delete is allowed from this table.
-|====================
+The syntax for defining a view table includes various modifiers that control its behavior and appearance. These modifiers allow you to specify whether the table is enabled, or has a default value. You can also define the choices available for selection, the label and icon displayed for the link, and its width.
+
+Modifiers such as `label`, `icon`, `hidden`, and `width` can be used to customize the common appearance and behavior of the component. See more about them in <<Common visual modifiers>> chapter.
+
+The `rows` modifier in the context of a view table specifies the number of rows to be displayed within the table. This modifier controls the visibility of rows, ensuring a specified number are readily visible without the need for navigating to additional pages.
+
+The view table, while resembling a collection transfer relation in its basic syntax, differs in cardinality specification. Unlike a transfer relation where cardinality can be defined, a view table always targets a collection of rows. For more detailed information on transfer relations, please consult the section on the xref:07_transfer.adoc[Transfer model] in the documentation.
 
 *Example:*
 
 [source,jsl]
 ----
-table ProductRow[] products <= Product.all();
+table ProductRow[] products <= Product.all()
+    rows:10;
 ----
 
+In this example:
+
+* We define a view table named products containing rows of type ProductRow.
+* The rows are retrieved using the Product.all() expression.
+* The table displays all available products from the database.
+* The `rows:10` modifier indicates that the table is configured to display 10 rows of data to the user without requiring navigation to additional pages.
+
 === View text
+
+View text is a visual component within a user interface designed to display dynamic textual content to users. It provides a way to present information or messages that may change based on certain conditions or data. The full list of modifiers can be found in the xref:appx_syntax.adoc#view-text[Appendix].
 
 *Syntax:*
 
@@ -265,32 +262,38 @@ table ProductRow[] products <= Product.all();
     &#x5B;[purple]##**width:**##&lt;width>][purple]##**;**##
 ----
 
-[options="header", cols="1,1,2"]
-|====================
-|Parameter name | Parameter type        | Meaning
-|label          | string literal        | The label to show for the field.
-|icon           | string literal        | The name of the icon to show for the field.
-|hidden         | boolean expression    | If the field is shown to the user.
-|width          | numeric literal       | The logical width of the field.
-|====================
+where <name> represents the name of the view text component. The `\<=` <expression> syntax indicates that the content of the text is determined by an expression, allowing for dynamic updating of the displayed text.
+
+Modifiers such as `label`, `icon`, `hidden`, and `width` can be used to customize the common appearance and behavior of the component. See more about them in <<Common visual modifiers>> chapter.
+
+View text components are useful for displaying dynamic textual content that may change based on user interactions, data updates, or other factors. They can be used to show informative messages, display data values, or provide feedback to users within the user interface.
 
 *Example:*
 
 [source,jsl]
 ----
-text message <= "Thank you for your order.";
+text WelcomeMessage <= "Welcome, " + user.name + "!"
+    label:"Welcome Message"
+    icon:"info"
+    hidden:false
+    width:6;
 ----
 
+In this example, a view text component named `WelcomeMessage` is defined with dynamic content determined by the expression "Welcome, " + user.name + "!". The label is set to "Welcome Message", an info icon is displayed, the field is not hidden, and the width is set to 6 logical units.
+
 === View group
+
+A view group is a visual component in a user interface that serves as a container for organizing and grouping other visual elements. It helps structure the layout of the interface and manage the arrangement of its components. The full list of modifiers can be found in the xref:appx_syntax.adoc#view-group[Appendix].
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-([purple]#**horizontal**#|[purple]#**vertical**#) &lt;name>
+[purple]#**group**# &lt;name>
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**orientation:**##([purple]##**horizontal**##|[purple]##**vertical**##)]
     &#x5B;[purple]##**label:**##&lt;label>]
     &#x5B;[purple]##**icon:**##&lt;icon>]
-    &#x5B;[purple]##**enabled:**##&lt;enabled>]
     &#x5B;[purple]##**hidden:**##&lt;hidden>]
     &#x5B;[purple]##**width:**##&lt;width>]
     &#x5B;[purple]##**frame:**##([purple]##**true**##|[purple]##**false**##)]
@@ -302,31 +305,49 @@ text message <= "Thank you for your order.";
 [purple]#**}**#[purple]##**;**##
 ----
 
-[options="header", cols="1,1,2"]
-|====================
-|Parameter name | Parameter type        | Meaning
-|label          | string literal        | The label to show for the field.
-|icon           | string literal        | The name of the icon to show for the field.
-|enabled        | boolean expression    | If the field is enabled for editing.
-|hidden         | boolean expression    | If the field is shown to the user.
-|width          | numeric literal       | The logical width of the field.
-|frame          | boolean literal           | If the group is surrounded by a frame.
-|h-align        | `left`, `right`, `center` | The horizontal location of elements inside the group. 
-|v-align        | `top`, `bottom`, `center` | The vertical location of elements inside the group.
-|stretch        | boolean literal           | If the group fills the available space.
-|====================
+Modifiers such as `label`, `icon`, `hidden`, and `width` can be used to customize the common appearance and behavior of the component. See more about them in <<Common visual modifiers>> chapter.
+
+Several modifiers can be applied to customize the appearance and behavior of a view group. One of the most important modifiers is `orientation`, which determines how elements inside the group are arranged: either horizontally or vertically. This modifier significantly impacts the visual presentation of the group's content.
+
+Proper alignment of elements within the group is ensured by the `h-align` and `v-align` modifiers, which specify horizontal and vertical alignment, respectively.
+
+The `stretch` modifier determines whether the group should fill the available space vertically, offering flexibility in layout design and optimization of screen real estate.
+
+By leveraging these modifiers effectively, developers can tailor the appearance and behavior of view groups to meet specific design requirements and enhance the overall user experience within the interface.
+
+Suppose we're designing a user interface for a product catalog. We want to create a group to display product details, including the product name, price, and description. Here's how we can define the view group:
 
 *Example:*
 
 [source,jsl]
 ----
-vertical head {
-	field String price <= product.price.asString() + " HUF";
-	field String name <= product.name;
-}
+group ProductDetails
+    orientation: vertical
+    label: "Product Details"
+    width: 6
+{
+    field String name <= product.name;
+    field Decimal price <= product.price;
+    text Description <= product.description;
+};
 ----
 
+In this example:
+
+* We define a vertical group named ProductDetails.
+* The label "Product Details" is displayed for the group.
+* The group has a logical width of 6 units.
+* Inside the group, we have three elements:
+** A field named name displaying the product name.
+** A field named price displaying the product price.
+** A text component named Description displaying the product description.
+* The elements inside the group are arranged vertically.
+
+This view group organizes and presents the product details in a structured and visually appealing manner within the user interface.
+
 === View tabs
+
+View tabs provide a means of organizing and presenting content in a user interface through a tabbed interface. Each tab represents a distinct section of content, allowing users to navigate between different views or functionalities within the same interface. The full list of modifiers can be found in the xref:appx_syntax.adoc#view-tabs[Appendix].
 
 *Syntax:*
 
@@ -345,55 +366,88 @@ vertical head {
 [purple]#**}**#[purple]##**;**##
 ----
 
-[options="header", cols="1,1,2"]
-|====================
-|Parameter name | Parameter type        | Meaning
-|label          | string literal        | The label to show for the field.
-|icon           | string literal        | The name of the icon to show for the field.
-|enabled        | boolean expression    | If the field is enabled for editing.
-|hidden         | boolean expression    | If the field is shown to the user.
-|width          | numeric literal       | The logical width of the field.
-|frame          | boolean literal       | If the tabs are surrounded by a frame.
-|stretch        | boolean literal       | If the tabs fill the available space.
-|====================
+View tabs provide a structured and organized way to present multiple sections or views within a single user interface. They enhance navigation and user experience by allowing users to easily switch between different content areas, such as various functionalities or categories of information. Each tab (defined as group) typically represents a distinct aspect of the application, facilitating efficient access to relevant content.
 
-=== View action
+In summary, view tabs offer a visually appealing and intuitive method for organizing and presenting content within a user interface, contributing to a more streamlined and user-friendly experience for navigating and interacting with the application.
 
-The action is a piece of code (currently Java implementation) that is executed when the action is invoked. An action may receive input as defined in its parameter.
-
-An action is represented by a clickable button in the screen.
-
-*Syntax:*
-
-[subs="quotes"]
-----
-[purple]#**action**# &#x5B;&lt;view>|&lt;union>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**##
-    &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...]
-    &#x5B;[purple]##**label:**##&lt;label>]
-    &#x5B;[purple]##**icon:**##&lt;icon>]
-    &#x5B;[purple]##**enabled:**##&lt;enabled>]
-    &#x5B;[purple]##**hidden:**##&lt;hidden>]
-    &#x5B;[purple]##**width:**##&lt;width>]
-    &#x5B;[purple]##**resource:**##&lt;resource>][purple]##**;**##
-----
-
-[options="header", cols="1,1,2"]
-|====================
-|Parameter name | Parameter type        | Meaning
-|label          | string literal        | The label to show for the field.
-|icon           | string literal        | The name of the icon to show for the field.
-|enabled        | boolean expression    | If the field is enabled for execution.
-|hidden         | boolean expression    | If the field is shown to the user.
-|width          | numeric literal       | The logical width of the field.
-|resource       | access name           | The name of an access where the returned transfer object is available.
-|====================
+Consider a web application for managing tasks, where users can organize their tasks based on priority and status using view tabs.
 
 *Example:*
 
 [source,jsl]
 ----
-action ThankYouView order();
+tabs TaskTabs
+    label:"Task Management"
+{
+    group PriorityTasks
+        label:"High Priority Tasks"
+    {
+        // Define components for displaying tasks with high priority
+    }
+    
+    group CompletedTasks
+        label:"Completed Tasks"
+    {
+        // Define components for displaying completed tasks
+    }
+    
+    group PendingTasks
+        label:"Pending Tasks"
+    {
+        // Define components for displaying pending tasks
+    }
+};
 ----
+
+In this example, we define view tabs named TaskTabs to organize different categories of tasks within the task management interface.
+
+* PriorityTasks: This tab group contains components for displaying tasks with high priority. Users can view and manage tasks that require immediate attention or have a high priority level.
+
+* CompletedTasks: This tab group contains components for displaying completed tasks. Users can review tasks that have been successfully completed or marked as finished.
+
+* PendingTasks: This tab group contains components for displaying pending tasks. Users can view tasks that are awaiting action or have not yet been completed.
+
+By organizing tasks into separate tabs based on priority and status, users can easily navigate between different categories of tasks and efficiently manage their task list within the application. This improves the user experience and provides a simplified interface for efficient task management.
+
+=== View action
+
+A view action is a visible component within a user interface that represents a specific operation or task that can be triggered by user interaction through a clickable button. The view action defines a piece of code, currently implemented in Java, that executes when the button is clicked. The full list of modifiers can be found in the xref:appx_syntax.adoc#view-action[Appendix].
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**action**# &#x5B;&lt;output>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>] &#x5B;[purple]##**choices:**##&lt;choices>][purple]##**)**##
+    &#x5B;[purple]##**throws**## &lt;error1> &#x5B;[purple]##**,**##&lt;error2>] ...]
+
+    &#x5B;[purple]##**static:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**redirect:**##&lt;redirect>][purple]##**;**##
+----
+
+The basic structure of a view action declaration follows the same pattern as xref:07_transfer.adoc#action[Transfer actions]. Both view and transfer actions can include modifiers such as `static`, `enabled`, `update`, and `delete` to define their behavior and characteristics. These modifiers control aspects such as whether the action is not associated with a specific instance (`static`) or its availability for execution (`enabled`).
+
+In both cases, developers start with the `action` keyword followed by the return type of the action (<output>), which can be a view type, a union, or `void` if the action does not return any value. Then, the name of the action (<name>) is specified, followed by an optional input parameter (<parameter>) enclosed in parentheses. This parameter represent the data that the action requires for its execution.
+
+Other modifiers such as `label`, `icon`, `hidden` and `width` are specific to view actions, allowing developers to customize the appearance of the actions in the user interface. See more about them in <<Common visual modifiers>> chapter.
+
+The `redirect` modifier in the context of a view action specifies the name of an access where the returned view is available. When the action is invoked, and its execution is completed, the user is redirected to the specified access, enabling seamless navigation within the application. This modifier allows developers to define the target destination for the user after the action has been executed successfully. By specifying the access name, developers can ensure that users are directed to the appropriate view or page based on the outcome of the action.
+
+*Example:*
+
+[source,jsl]
+----
+action ThankYouView order() label:"Place the order";
+----
+
+In this example, `ThankYouView` view represents the return type of the action, indicating that the action may navigate to or interact with a specific view. The action is named order, and it does not take any parameters. Additionally, it is labeled as "Place the order", which will be displayed on the associated button in the user interface.
 
 ////
 === View submit
@@ -428,6 +482,8 @@ action ThankYouView order();
 
 Rows are specialized transfer objects designed explicitly for displaying data in a tabular format. In a tabular structure, data is organized into rows and columns, making it easy to comprehend and interact with.
 
+The basic syntax for defining a row involves specifying the name of the row and its structure, which includes mapping to an entity and its associated fields. The row structure consists of member fields or columns that define the individual elements within the row.
+
 *Syntax:*
 
 [subs="quotes"]
@@ -448,19 +504,27 @@ or
 }][purple]##**;**##
 ----
 
+In the first syntax variation, the row is defined with the `row` keyword followed by the row's name and its structure enclosed in curly braces. The structure includes the entity and mapping field within parentheses, followed by member fields enclosed in square brackets.
+
+The second syntax variation also starts with the `row` keyword followed by the row's name. This variation uses the maps keyword followed by the entity name and the `as` keyword followed by the mapping field to define the row's structure. Similar to the first syntax, member fields are specified within curly braces.
+
+Each member field within the row declaration represents a piece of data associated with the row. These fields typically correspond to attributes or properties of the underlying entity being represented by the row.
+
 *Example:*
 
 [source,jsl]
 ----
 row ProductRow(Product product) {
-	column String name <= product.name;
-	column String price <= product.price.asString() + " HUF";
+	field String name <= product.name;
+	field String price <= product.price.asString() + " HUF";
 }
 ----
 
+In the provided example, a ProductRow row is defined, representing a single row in a tabular format. It maps to the Product entity, and it consists of two fields: name and price. The name field corresponds to the name attribute of the Product entity, while the price field is derived from the price attribute of the Product entity, converted to a string format and appended with " HUF".
+
 === Row field
 
-A primitive field that can store only a single primitive value and is displayed as a row cell.
+The row field refers to a specific type of field within a structured data row, designed to store and display a single primitive value. These fields are typically used to represent individual cells within a row in a tabular format, where each cell corresponds to a specific attribute or property of the underlying data entity.
 
 *Syntax:*
 
@@ -473,14 +537,12 @@ A primitive field that can store only a single primitive value and is displayed 
     &#x5B;[purple]##**width:**##&lt;width>][purple]##**;**##
 ----
 
-[options="header", cols="1,1,2"]
-|====================
-|Parameter name | Parameter type        | Meaning
-|label          | string literal        | The label to show for the column in the header row.
-|icon           | string literal        | The name of the icon to show for the column in the header row.
-|hidden         | boolean expression    | If the column is shown to the user.
-|width          | numeric literal       | The logical width of the column.
-|====================
+The syntax for defining a row field involves specifying the primitive data type of the field, its name, and optionally an expression to compute its value. Additionally, common visual modifiers can be applied to customize the appearance of the field when displayed in the user interface. See more about them in <<Common visual modifiers>> chapter.
+
+[NOTE]
+====
+The width of the row field expressed in pixels.
+====
 
 *Example:*
 
@@ -488,6 +550,47 @@ A primitive field that can store only a single primitive value and is displayed 
 ----
 field String price <= product.price.asString() + " HUF";
 ----
+
+In the provided example, a row field of type String named "price" is defined within a row structure. The value of this field is computed using an expression that converts the product.price attribute to a string format and appends " HUF". This field represents the price attribute of the underlying data entity and will be displayed as a cell within the row in the user interface.
+
+=== Row link
+
+The row link is a specialized component within a structured data row that represents a connection or relationship to another view. It allows users to navigate to related views.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**link**# &lt;view> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**width:**##&lt;width>]
+    &#x5B;[purple]##**text:**##&lt;text>]
+    &#x5B;[purple]##**detail:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
+----
+
+The `detail` modifier of a row link in the context of a structured data row specifies whether clicking on the row navigates to the target view. When the `detail` modifier is set to true, it indicates that the row functions as a detail link, and clicking on the row will trigger navigation to the associated view.
+
+This modifier enhances user interaction by providing a convenient way to access additional details or related information associated with the data displayed in the row. When the detail modifier is enabled, users can seamlessly transition from a summarized view of data in the row to a more comprehensive view or detailed representation of the information.
+
+*Example:*
+
+[source,jsl]
+----
+link ProductDetailsView productDetail <= product
+    label:"View Details"
+    detail:true;
+----
+
+In this example:
+
+* ProductDetailsView represents the target view that the row link navigates to.
+* productDetail is the name of the row link.
+* The label modifier sets the label to "View Details" for the row link.
+* The detail modifier is set to true, indicating that clicking on the row navigates to the target view, providing detailed information about the associated product.
 
 === Row action
 
@@ -499,26 +602,28 @@ A row action is represented by a clickable menu item in the last column of the t
 
 [subs="quotes"]
 ----
-[purple]#**action**# &#x5B;&lt;view>|&lt;union>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**##
-    &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...]
+[purple]#**action**# &#x5B;&lt;output>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>] &#x5B;[purple]##**choices:**##&lt;choices>][purple]##**)**##
+    &#x5B;[purple]##**throws**## &lt;error1> &#x5B;[purple]##**,**##&lt;error2>] ...]
+
+    &#x5B;[purple]##**static:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**enabled:**##&lt;enabled>]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+
     &#x5B;[purple]##**label:**##&lt;label>]
     &#x5B;[purple]##**icon:**##&lt;icon>]
-    &#x5B;[purple]##**enabled:**##&lt;enabled>]
     &#x5B;[purple]##**hidden:**##&lt;hidden>]
     &#x5B;[purple]##**width:**##&lt;width>]
-    &#x5B;[purple]##**resource:**##&lt;resource>]
+    &#x5B;[purple]##**redirect:**##&lt;redirect>]
     &#x5B;[purple]##**bulk:**##([purple]##**true**##|[purple]##**false**##)][purple]##**;**##
 ----
 
+The syntax of a row action follows the same structure as a view action, with the addition of the `bulk` modifier. For detailed information about the common modifiers and syntax of row actions, please refer to the <<View action>> section.
 
-[options="header", cols="1,1,2"]
-|====================
-|Parameter name | Parameter type        | Meaning
-|label          | string literal        | The label to show for the action.
-|icon           | string literal        | The name of the icon to show for the action.
-|enabled        | boolean expression    | If the action is enabled for execution.
-|hidden         | boolean expression    | If the action is shown to the user.
-|width          | numeric literal       | The logical width of the button.
-|resource       | access name           | The name of an access where the returned transfer object is available.
-|bulk           | boolean literal       | Bulk is the ability to perform an action on multiple selected rows simultaneously.
-|====================
+The `bulk` modifier in the context of a row action specifies whether the action supports performing operations on multiple selected rows simultaneously. When set to true, the action is designed to handle bulk operations, allowing users to apply the action to multiple rows at once. This modifier is particularly useful in scenarios where users need to perform the same operation on several rows in a table or tabular structure efficiently.
+
+By enabling the bulk modifier, users can select multiple rows and apply the action to all selected rows simultaneously, streamlining the process and enhancing user productivity. However, if the bulk modifier is set to false, the action can only be applied to individual rows one at a time.
+
+For example, if a row action represents a "Delete" operation and the bulk modifier is set to true, users can select multiple rows and delete them all at once using the action. Conversely, if the bulk modifier is set to false, users can only delete one row at a time using the action.
+
+The bulk modifier provides flexibility in designing user interfaces with tabular data by allowing developers to define actions that cater to both single-row and multi-row operations based on specific requirements and user interaction patterns.

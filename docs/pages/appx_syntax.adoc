@@ -8,7 +8,7 @@ endif::[]
 :KW: [purple]##**
 :KWE: **##
 
-= Appendix Modifiers
+= Appendix: Syntax
 :page-toctitle:Appendix Modifiers
 :table-caption-side: "bottom"
 

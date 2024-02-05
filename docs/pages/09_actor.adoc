@@ -11,7 +11,7 @@ endif::[]
 // TODO: schedule and init
 
 [judo-req="true",judo-req-id="REQ-SRV-014"]
-= Access control
+= Access Control
 :page-toctitle:Access
 
 Authentication is the process of verifying a user’s identity and authorization is the process of determining whether an authenticated user has access to a particular resource or service. Authorization is critical for ensuring that only authorized users have access to sensitive data and resources. The following chapters describe JUDO's authentication and authorization process.
@@ -20,7 +20,7 @@ Authentication is the process of verifying a user’s identity and authorization
 
 An actor represents a generic user of the system and can be used to represent humans or another system.
 
-To define an actor, use the `actor` keyword. The full list of modifiers can be found in the xref:appx_modifiers.adoc#actor[Appendix].
+To define an actor, use the `actor` keyword. The full list of modifiers can be found in the xref:appx_syntax.adoc#actor[Appendix].
 
 *Syntax:*
 
@@ -104,7 +104,7 @@ Use the `access` keyword to specify an access within an actor.
     &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
 ----
 
-The full list of modifiers can be found in the xref:appx_modifiers.adoc#actor-access[Appendix].
+The full list of modifiers can be found in the xref:appx_syntax.adoc#actor-access[Appendix].
 
 *Example:*
 
@@ -195,7 +195,7 @@ The `icon` modifier expects static text that is the name of the icon used to dis
 
 The `hidden` modifier is used to control the visibility of the menu item in the application menu. When applied to an actor link, the modifier ensures that the menu item is not displayed to the user when the menu is rendered. This can be useful for hiding certain menu items based on certain conditions.
 
-The full list of modifiers can be found in the xref:appx_modifiers.adoc#actor-link[Appendix].
+The full list of modifiers can be found in the xref:appx_syntax.adoc#actor-link[Appendix].
 
 === Table
 
@@ -217,7 +217,7 @@ An actor table is a visual component in a user interface that symbolizes an acce
     &#x5B;[purple]##**rows:**##&lt;rows>][purple]#**;**#
 ----
 
-The full list of modifiers can be found in the xref:appx_modifiers.adoc#actor-table[Appendix].
+The full list of modifiers can be found in the xref:appx_syntax.adoc#actor-table[Appendix].
 
 In addition to the permission modifiers (See <<Permission modifiers>> chapter), the actor table enables the use of the following visual modifiers.
 
@@ -246,9 +246,9 @@ An actor group is a collection or grouping of related menu items within a menu s
 [purple]#**}**#[purple]##**;**##
 ----
 
-where the <name> is the name of the group and the members is a list of contained links, tables, or other groups.
+where the <name> is the name of the group. Inside the curly braces { and }, you can specify the members of the group, such as actor links, actor tables, and other groups.
 
-The full list of modifiers can be found in the xref:appx_modifiers.adoc#actor-group[Appendix].
+The full list of modifiers can be found in the xref:appx_syntax.adoc#actor-group[Appendix].
 
 == Permission modifiers
 
