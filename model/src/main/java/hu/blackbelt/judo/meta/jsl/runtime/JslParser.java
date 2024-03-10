@@ -90,22 +90,6 @@ public class JslParser {
             final XtextResourceSet xtextResourceSet =  injector().getInstance(XtextResourceSet.class);
             final List<Issue> errors = new ArrayList<>();
 
-            /*
-            final URI judoFunctionsResourceURI = URI.createPlatformResourceURI("__injectedjudofunctions/_synthetic.jsl", true);
-            Resource judoFunctionsResource = xtextResourceSet.getResource(judoFunctionsResourceURI, false);
-            if ((judoFunctionsResource == null)) {
-                XtextResource xtextResource = new XtextResource(judoFunctionsResourceURI);
-                xtextResource.getContents().addAll(EcoreUtil.copyAll(injector().getInstance(JudoFunctionsProvider.class).getResource().getContents()));
-            }
-
-            final URI judoTypesResourceURI = URI.createPlatformResourceURI("__injectedjudotypes/_synthetic.jsl", true);
-            Resource judoTypesResource = xtextResourceSet.getResource(judoFunctionsResourceURI, false);
-            if ((judoTypesResource == null)) {
-                XtextResource xtextResource = new XtextResource(judoTypesResourceURI);
-                xtextResource.getContents().addAll(EcoreUtil.copyAll(injector().getInstance(JudoTypesProvider.class).getResource().getContents()));
-            }
-             */
-
             for (JslStreamSource stream : streams) {
                 final XtextResource jslResource = (XtextResource) xtextResourceSet
                         .createResource(stream.getResourceUri(), JSLSCRIPT_CONTENT_TYPE);
