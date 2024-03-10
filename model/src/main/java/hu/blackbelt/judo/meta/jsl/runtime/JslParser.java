@@ -29,9 +29,12 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelImportDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel;
 
+import hu.blackbelt.judo.meta.jsl.scoping.JudoFunctionsProvider;
+import hu.blackbelt.judo.meta.jsl.scoping.JudoTypesProvider;
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.resource.IResourceFactory;
 import org.eclipse.xtext.resource.XtextResource;
@@ -47,12 +50,7 @@ import static hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel.buildJslDslM
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JslParser {
@@ -79,6 +77,13 @@ public class JslParser {
         return injector().getInstance(JsldslDefaultPlantUMLDiagramGenerator.class);
     }
 
+    public static Collection<ModelDeclaration> getInternalModelDeclarations() {
+        ArrayList<ModelDeclaration> modelDeclarations = new ArrayList<>();
+        modelDeclarations.add((ModelDeclaration) injector().getInstance(JudoTypesProvider.class).getResource().getContents().get(0));
+        modelDeclarations.add((ModelDeclaration) injector().getInstance(JudoFunctionsProvider.class).getResource().getContents().get(0));
+        return modelDeclarations;
+    }
+
     public static XtextResourceSet loadJslFromStream(Collection<JslStreamSource> streams) {
         final long startTs = System.currentTimeMillis();
         try {
@@ -98,6 +103,7 @@ public class JslParser {
                         .stream().filter(i -> i.getSeverity() == Severity.ERROR).collect(Collectors.toList()));
 
             }
+
             if (errors.size() > 0) {
                 throw new JslParseException(errors);
             }
@@ -214,4 +220,19 @@ public class JslParser {
         }
     }
 
+    public static Set<ModelDeclaration> getRootModelDeclarations(Collection<ModelDeclaration> modelDeclarations) {
+        Set<String> imprtedModels = new HashSet<>();
+        modelDeclarations.stream().forEach(m -> collectImortedModels(m, imprtedModels));
+        return modelDeclarations.stream().filter(m -> !imprtedModels.contains(m.getName())).collect(Collectors.toSet());
+    }
+
+
+    private static void collectImortedModels(ModelDeclaration modelDeclaration, Set<String> referenced) {
+        modelDeclaration.getImports().stream().forEach(m -> {
+            if (!referenced.contains(m.getModel().getName())) {
+                referenced.add(m.getModel().getName());
+                collectImortedModels(m.getModel(), referenced);
+            }
+        });
+    }
 }
