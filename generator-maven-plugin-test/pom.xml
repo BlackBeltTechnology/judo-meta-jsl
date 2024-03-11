@@ -123,94 +123,9 @@
                             <destination>${basedir}/target/test-classes/jsl/file</destination>
                         </configuration>
                     </execution>
-
-                    <!--
-                    <execution>
-                        <id>execute-esm-test-model-from-artifact</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <uris>
-                                <uri>${basedir}/src/test/resources/base</uri>
-                                <uri>${basedir}/src/test/resources/override</uri>
-                            </uris>
-                            <type>test-project</type>
-                            <esm>mvn:hu.blackbelt.judo.meta:hu.blackbelt.judo.meta.jsl.model.northwind:${project.version}!northwind-esm.model</esm>
-                            <destination>${basedir}/target/test-classes/esm/artifact</destination>
-                            <templateParameters>
-                                <groupId>${project.groupId}</groupId>
-                                <artifactId>${project.artifactId}</artifactId>
-                                <version>${project.version}</version>
-                            </templateParameters>
-                        </configuration>
-                    </execution>
-                    -->
-                    <!--
-                    <execution>
-                        <id>execute-esm-test-model-from-artifact-singleclient</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <uris>
-                                <uri>${basedir}/src/test/resources/base</uri>
-                                <uri>${basedir}/src/test/resources/override</uri>
-                            </uris>
-                            <type>test-project</type>
-                            <esm>${basedir}/target/classes/esm/northwind-esm.model</esm>
-                            <destination>${basedir}/target/test-classes/esm/singleclient</destination>
-                            <actors>
-                                <actor>northwind__authexternaluser</actor>
-                            </actors>
-                            <templateParameters>
-                                <groupId>${project.groupId}</groupId>
-                                <artifactId>${project.artifactId}</artifactId>
-                                <version>${project.version}</version>
-                            </templateParameters>
-                        </configuration>
-                    </execution>
-                    -->
-
                 </executions>
-
             </plugin>
         </plugins>
-        <!--
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.eclipse.m2e</groupId>
-                    <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
-                    <configuration>
-                        <lifecycleMappingMetadata>
-                            <pluginExecutions>
-
-
-                                <pluginExecution>
-                                    <pluginExecutionFilter>
-                                        <groupId>org.apache.maven.plugins</groupId>
-                                        <artifactId>maven-dependency-plugin</artifactId>
-                                        <versionRange>[3.0.0,)</versionRange>
-                                        <goals>
-                                            <goal>unpack</goal>
-                                        </goals>
-                                    </pluginExecutionFilter>
-                                    <action>
-                                        <ignore />
-                                    </action>
-                                </pluginExecution>
-                            </pluginExecutions>
-                        </lifecycleMappingMetadata>
-                    </configuration>
-                </plugin>
-            
-            </plugins>
-        </pluginManagement>
-        -->
     </build>
 
     <dependencies>

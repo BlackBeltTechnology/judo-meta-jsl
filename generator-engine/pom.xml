@@ -44,38 +44,6 @@
                 </executions>
             </plugin>
 
-            <!--plugin>
-                <groupId>hu.blackbelt</groupId>
-                <artifactId>unpack-artifact-maven-plugin</artifactId>
-                <version>1.0.0</version>
-                <executions>
-                    <execution>
-                        <id>copy-ui-scripts</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-
-                        <configuration>
-                            <outDirectory>${basedir}/src/main/epsilon</outDirectory>
-                            <artifacts>
-                                <artifact>
-                                    <groupId>hu.blackbelt.judo.meta</groupId>
-                                    <artifactId>judo-meta-ui</artifactId>
-                                    <version>${judo-meta-ui-version}</version>
-                                    <resources>
-                                        <resource>
-                                            <source>judo/ui/operations</source>
-                                            <destination>operations/ui</destination>
-                                        </resource>
-                                    </resources>
-                                </artifact>
-                            </artifacts>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin-->
-
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>

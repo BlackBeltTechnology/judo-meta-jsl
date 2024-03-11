@@ -34,7 +34,6 @@ import hu.blackbelt.judo.meta.jsl.scoping.JudoTypesProvider;
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.resource.IResourceFactory;
 import org.eclipse.xtext.resource.XtextResource;
@@ -221,17 +220,17 @@ public class JslParser {
     }
 
     public static Set<ModelDeclaration> getRootModelDeclarations(Collection<ModelDeclaration> modelDeclarations) {
-        Set<String> imprtedModels = new HashSet<>();
-        modelDeclarations.stream().forEach(m -> collectImortedModels(m, imprtedModels));
-        return modelDeclarations.stream().filter(m -> !imprtedModels.contains(m.getName())).collect(Collectors.toSet());
+        Set<String> importedModels = new HashSet<>();
+        modelDeclarations.stream().forEach(m -> collectImportedModels(m, importedModels));
+        return modelDeclarations.stream().filter(m -> !importedModels.contains(m.getName())).collect(Collectors.toSet());
     }
 
 
-    private static void collectImortedModels(ModelDeclaration modelDeclaration, Set<String> referenced) {
+    private static void collectImportedModels(ModelDeclaration modelDeclaration, Set<String> referenced) {
         modelDeclaration.getImports().stream().forEach(m -> {
             if (!referenced.contains(m.getModel().getName())) {
                 referenced.add(m.getModel().getName());
-                collectImortedModels(m.getModel(), referenced);
+                collectImportedModels(m.getModel(), referenced);
             }
         });
     }
