@@ -1,0 +1,8 @@
+templates:
+  - name: testReplace
+    pathExpression: "#actorType.name + '/actorReplaced'"
+    templateName: test1/actorReplaced.hbs
+    actorTypeBased: true
+
+  - name: testDelete
+    exclude: true
