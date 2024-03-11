@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>hu.blackbelt.judo.meta</groupId>
+        <artifactId>hu.blackbelt.judo.meta.jsl</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>judo-jsl-generator-maven-plugin-test</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Judo :: JSL :: Model :: Generator :: Maven :: Plugin :: TEST</name>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <judo-tatami-version>${project.version}</judo-tatami-version>
+        <modelName>Test</modelName>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>ru.yaal.maven</groupId>
+                <artifactId>write-text-files-maven-plugin</artifactId>
+                <version>1.1</version>
+                <configuration>
+                    <charset>UTF-8</charset>
+                    <files>
+                        <file>
+                            <path>target/classes/jsl/${modelName}.jsl</path>
+                            <lines>
+                                <line>model ${modelName};</line>
+                                <line>import judo::types;</line>
+                                <line>entity User {</line>
+                                <line>  identifier required String userName;</line>
+                                <line>  field Boolean isActive;</line>
+                                <line>}</line>
+                                <line>transfer UserTransfer(User u) {</line>
+                                <line>  field String userName &lt;= u.userName update: true;</line>
+                                <line>}</line>
+                                <line>actor human Actor(User user)</line>
+                                <line>  realm: "COMPANY"</line>
+                                <line>  claim: "userName"</line>
+                                <line>  identity: UserTransfer::userName</line>
+                                <line>  guard: user.isActive</line>
+                                <line>{}</line>
+                            </lines>
+                        </file>
+                    </files>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>write-text-files</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>write-text-files</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-verifier-plugin</artifactId>
+                <version>1.1</version>
+                <configuration>
+                    <verificationFile>src/test/verifier/verification.xml</verificationFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>verify-files</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>hu.blackbelt.judo.meta</groupId>
+                <artifactId>judo-jsl-generator-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+
+                    <execution>
+                        <id>execute-jsl-test-model-from-file</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+
+                        <configuration>
+                            <uris>
+                                <uri>${basedir}/src/test/resources/base</uri>
+                                <uri>${basedir}/src/test/resources/override</uri>
+                            </uris>
+                            <type>test-project</type>
+                            <sources>${basedir}/target/classes/jsl</sources>
+                            <destination>${basedir}/target/test-classes/jsl/file</destination>
+                            <templateParameters>
+                                <groupId>${project.groupId}</groupId>
+                                <artifactId>${project.artifactId}</artifactId>
+                                <version>${project.version}</version>
+                                <projectPostfix>-custom</projectPostfix>
+                            </templateParameters>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>execute-psm-checksum-from-file</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>checksum</goal>
+                        </goals>
+
+                        <configuration>
+                            <sources>${basedir}/target/classes/jsl</sources>
+                            <destination>${basedir}/target/test-classes/jsl/file</destination>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>hu.blackbelt.judo.generator</groupId>
+            <artifactId>judo-generator-commons</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jcabi</groupId>
+            <artifactId>jcabi-log</artifactId>
+            <version>0.19.0</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.github.jknack</groupId>
+            <artifactId>handlebars</artifactId>
+            <version>4.3.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-expression</artifactId>
+            <version>5.0.0.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>hu.blackbelt.judo.meta</groupId>
+            <artifactId>hu.blackbelt.judo.meta.jsl.model</artifactId>
+        </dependency>
+
+    </dependencies>
+    
+    
+
+</project>
