@@ -51,6 +51,10 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.meta.jsl.generator.engine.JslDslGeneratorParameter.jslDslGeneratorParameter;
+import static hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel.LoadArguments.jslDslLoadArgumentsBuilder;
+import static hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel.loadJslDslModel;
+
 public abstract class AbstractJslDslProjectMojo extends AbstractMojo {
 
     public static final String TEMPLATES_BACKEND_PROJECT = "templates/backend-project";
@@ -81,14 +85,16 @@ public abstract class AbstractJslDslProjectMojo extends AbstractMojo {
     @Parameter(property = "srcModelTarget", defaultValue = "${project.basedir}/target/classes/model")
     public File srcModelTarget;
 
-    @Parameter(property = "sources", defaultValue = "${project.basedir}/src/main/resources/model")
+    @Parameter(property = "sources", defaultValue = "${project.basedir}/src/main/model")
     public List<String> sources;
 
     @Parameter(property = "modelNames")
     public List<String> modelNames;
 
-    Set<URL> classPathUrls = new HashSet<>();
+    @Parameter(property = "jslModel")
+    public String jslModel;
 
+    Set<URL> classPathUrls = new HashSet<>();
 
     public abstract void performExecutionOnJslDslParameters(JslDslGeneratorParameter.JslDslGeneratorParameterBuilder builder) throws Exception;
 
@@ -117,33 +123,59 @@ public abstract class AbstractJslDslProjectMojo extends AbstractMojo {
         } catch (Exception e) {
             throw new MojoExecutionException("Failed to set classloader", e);
         }
+        JslDslModel jslDslModel;
 
-        List<File> jslFiles = resolveJslFiles(artifactResolver);
-        if (jslFiles.isEmpty()) {
-            getLog().warn("No JSL files presented to process");
+        if (jslModel == null || jslModel.trim().isBlank()) {
+            List<File> jslFiles = resolveJslFiles(artifactResolver);
+            if (jslFiles.isEmpty()) {
+                getLog().warn("No JSL files presented to process");
+            }
+
+            XtextResourceSet resourceSet = JslParser.loadJslFromFile(jslFiles);
+            Collection<ModelDeclaration> allModelDeclcarations = JslParser.getAllModelDeclarationFromXtextResourceSet(resourceSet);
+
+            Collection<String> effectiveModelsNames = calculateEffectiveModelDeclarations(allModelDeclcarations);
+            Collection<ModelDeclaration> effectiveModels = allModelDeclcarations.stream().filter(m -> effectiveModelsNames.contains(m.getName())).collect(Collectors.toList());
+
+            if (effectiveModels.size() > 1) {
+                throw new MojoExecutionException("Multiple root model, please remove or define the correct ones in 'modelNames' -  "
+                        + effectiveModels.stream().map(m -> m.getName()).collect(Collectors.joining()));
+            }
+
+            if (effectiveModels.size() == 0) {
+                throw new MojoExecutionException("No model found");
+            }
+
+            checkErrors(effectiveModels);
+
+            ModelDeclaration modelDeclaration = effectiveModels.stream().findFirst().get();
+            jslDslModel = JslParser.getModelFromXtextResourceSet(modelDeclaration.getName(), resourceSet);
+
+            if (srcModelTarget != null) {
+                srcModelTarget.mkdirs();
+                try {
+                    jslDslModel.saveJslDslModel(JslDslModel.SaveArguments.jslDslSaveArgumentsBuilder()
+                                    .file(new File(srcModelTarget, modelDeclaration.getName() + "-jsl.model"))
+                            .build());
+                } catch (IOException e) {
+                    throw new MojoExecutionException("Could not save model: ", e);
+                } catch (JslDslModel.JslDslValidationException e) {
+                    throw new MojoExecutionException("Model validation error", e);
+                }
+            }
+        } else {
+            try {
+                jslDslModel = loadJslDslModel(jslDslLoadArgumentsBuilder()
+                                .file(artifactResolver.getArtifact(jslModel))
+                        .build());
+            } catch (IOException e) {
+                throw new MojoExecutionException("IO Error: ", e);
+            } catch (JslDslModel.JslDslValidationException e) {
+                throw new MojoExecutionException("Model validation error", e);
+            }
         }
 
-        XtextResourceSet resourceSet = JslParser.loadJslFromFile(jslFiles);
-        Collection<ModelDeclaration> allModelDeclcarations = JslParser.getAllModelDeclarationFromXtextResourceSet(resourceSet);
-
-        Collection<String> effectiveModelsNames = calculateEffectiveModelDeclarations(allModelDeclcarations);
-        Collection<ModelDeclaration> effectiveModels = allModelDeclcarations.stream().filter(m -> effectiveModelsNames.contains(m.getName())).collect(Collectors.toList());
-
-        if (effectiveModels.size() > 1) {
-            throw new MojoExecutionException("Multiple root model, please remove or define the correct ones in 'modelNames' -  "
-                    + effectiveModels.stream().map(m -> m.getName()).collect(Collectors.joining()));
-        }
-
-        if (effectiveModels.size() == 0) {
-            throw new MojoExecutionException("No model found");
-        }
-
-        checkErrors(effectiveModels);
-
-        ModelDeclaration modelDeclaration = effectiveModels.stream().findFirst().get();
-        JslDslModel jslDslModel = JslParser.getModelFromXtextResourceSet(modelDeclaration.getName(), resourceSet);
-
-        JslDslGeneratorParameter.JslDslGeneratorParameterBuilder jslDslGeneratorParameterBuilder = JslDslGeneratorParameter.jslDslGeneratorParameter();
+        JslDslGeneratorParameter.JslDslGeneratorParameterBuilder jslDslGeneratorParameterBuilder = jslDslGeneratorParameter();
         jslDslGeneratorParameterBuilder.jslDslModel(jslDslModel);
 
         jslDslGeneratorParameterBuilder

@@ -24,46 +24,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>ru.yaal.maven</groupId>
-                <artifactId>write-text-files-maven-plugin</artifactId>
-                <version>1.1</version>
-                <configuration>
-                    <charset>UTF-8</charset>
-                    <files>
-                        <file>
-                            <path>target/classes/jsl/${modelName}.jsl</path>
-                            <lines>
-                                <line>model ${modelName};</line>
-                                <line>import judo::types;</line>
-                                <line>entity User {</line>
-                                <line>  identifier required String userName;</line>
-                                <line>  field Boolean isActive;</line>
-                                <line>}</line>
-                                <line>transfer UserTransfer(User u) {</line>
-                                <line>  field String userName &lt;= u.userName update: true;</line>
-                                <line>}</line>
-                                <line>actor human Actor(User user)</line>
-                                <line>  realm: "COMPANY"</line>
-                                <line>  claim: "userName"</line>
-                                <line>  identity: UserTransfer::userName</line>
-                                <line>  guard: user.isActive</line>
-                                <line>{}</line>
-                            </lines>
-                        </file>
-                    </files>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>write-text-files</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>write-text-files</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-verifier-plugin</artifactId>
                 <version>1.1</version>
@@ -88,6 +48,26 @@
                 <executions>
 
                     <execution>
+                        <id>create-test-model</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+
+                        <configuration>
+                            <uris>
+                                <uri></uri>
+                            </uris>
+                            <type>test-project</type>
+                            <modelDirectory>${basedir}/target/test-classes/jsl/file/src/main/model</modelDirectory>
+                            <modelName>Test</modelName>
+                            <destination>${basedir}/target/test-classes/jsl/file</destination>
+                            <groupId>${project.groupId}</groupId>
+                            <version>${project.version}</version>
+                        </configuration>
+                    </execution>
+
+                    <execution>
                         <id>execute-jsl-test-model-from-file</id>
                         <phase>process-test-resources</phase>
                         <goals>
@@ -100,7 +80,7 @@
                                 <uri>${basedir}/src/test/resources/override</uri>
                             </uris>
                             <type>test-project</type>
-                            <sources>${basedir}/target/classes/jsl</sources>
+                            <sources>${basedir}/target/test-classes/jsl/file/src/main/model</sources>
                             <destination>${basedir}/target/test-classes/jsl/file</destination>
                             <templateParameters>
                                 <groupId>${project.groupId}</groupId>
@@ -119,7 +99,7 @@
                         </goals>
 
                         <configuration>
-                            <sources>${basedir}/target/classes/jsl</sources>
+                            <sources>${basedir}/target/test-classes/jsl/file/src/main/model</sources>
                             <destination>${basedir}/target/test-classes/jsl/file</destination>
                         </configuration>
                     </execution>
