@@ -26,6 +26,7 @@ import hu.blackbelt.judo.generator.commons.StaticMethodValueResolver;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration;
 import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -86,8 +87,8 @@ public class TestHelper extends StaticMethodValueResolver {
         return null;
     }
 
-    public static String fQName(ActorDeclaration actorDeclaration) {
-        return ((ModelDeclaration) actorDeclaration.eContainer()).getName() + "::" + actorDeclaration.getName();
+    public static String fQName(TransferDeclaration transferDeclaration) {
+        return ((ModelDeclaration) transferDeclaration.eContainer()).getName() + "::" + transferDeclaration.getName();
     }
 
     public static String modelName(String fqName) {

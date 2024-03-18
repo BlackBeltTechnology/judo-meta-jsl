@@ -123,6 +123,11 @@ public class JslDslCreateMojo extends AbstractJslDslProjectMojo {
             {}
             """.formatted(modelName);
 
+
+        modelDirectory.mkdirs();
+        sources.clear();
+        sources.add(modelDirectory.getAbsolutePath());
+
         File modelFile = new File(modelDirectory, modelName + ".jsl");
         try {
             Files.writeString(modelFile.toPath(), defaultModel);
@@ -147,8 +152,6 @@ public class JslDslCreateMojo extends AbstractJslDslProjectMojo {
                 getLog().info("URI: " + uri);
             }
             judoVersionProperties.putAll(generalizeTemplateVariableNames(Maps.fromProperties(prop)));
-        } else {
-            throw new MojoExecutionException("Could not load " + versionProperties.getAbsolutePath());
         }
         judoVersionProperties.put("createdModelName", modelName);
         judoVersionProperties.put("groupId", groupId);
@@ -162,7 +165,9 @@ public class JslDslCreateMojo extends AbstractJslDslProjectMojo {
     public Map<String, URI> provideUriMap(ArtifactResolver artifactResolver) throws MojoExecutionException {
         if (uris != null) {
             for (String uri : uris) {
-                uriMap.put(uri, artifactResolver.getResolvedTemplateDirectory(uri).toURI());
+                if (uri != null && !uri.trim().equals("")) {
+                    uriMap.put(uri, artifactResolver.getResolvedTemplateDirectory(uri).toURI());
+                }
             }
         }
         return uriMap;
@@ -215,17 +220,19 @@ public class JslDslCreateMojo extends AbstractJslDslProjectMojo {
         }
 
 
-        jslGeneratorParameterBuilder.generatorContext(ModelGenerator.createGeneratorContext(
-                        ModelGenerator.CreateGeneratorContextArgument.builder()
-                                .descriptorName(type)
-                                .uris(uriMap)
-                                .helpers(resolvedHelpers)
-                                .contextAccessor(contextAccessorClass.get())
-                                .build()))
-                .validateChecksum(validateChecksum)
-                .extraContextVariables(() -> judoVersionProperties);
+        if (uriMap != null && uriMap.size() > 0) {
+            jslGeneratorParameterBuilder.generatorContext(ModelGenerator.createGeneratorContext(
+                            ModelGenerator.CreateGeneratorContextArgument.builder()
+                                    .descriptorName(type)
+                                    .uris(uriMap)
+                                    .helpers(resolvedHelpers)
+                                    .contextAccessor(contextAccessorClass.get())
+                                    .build()))
+                    .validateChecksum(validateChecksum)
+                    .extraContextVariables(() -> judoVersionProperties);
 
-        JslDslGenerator.generateToDirectory(jslGeneratorParameterBuilder);
+            JslDslGenerator.generateToDirectory(jslGeneratorParameterBuilder);
+        }
     }
 
 

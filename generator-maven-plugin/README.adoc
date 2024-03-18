@@ -41,30 +41,33 @@ Executing a template for an JSL model
                <goal>generate</goal>
             </goals>
             <configuration>
-               <sources> <!--1-->
+               <jslModel> <!--1-->
+                  mvn:hu.blackbelt.judo.tatami:judo-tatami-test-jsl:${judo-tatami-version}!model/test-jsldsl.model
+               </jslModel>
+               <sources> <!--2-->
                   mvn:hu.blackbelt.judo.tatami:judo-tatami-test-jsl:${judo-tatami-version}!model
                </surces>
-               <scanSources>false</scanSources> <!--2-->
-               <modelNames> <!--3-->
+               <scanSources>false</scanSources> <!--3-->
+               <modelNames> <!--4-->
                   ModelName,ModelName2
                </modelNames>
-               <srcModelTarget> <!--4-->
+               <srcModelTarget> <!--5-->
                      ${project.basedir}/target/classes/model
                </srcModelTarget>
-               <uris> <!--5-->
+               <uris> <!--6-->
                   <uri>mvn:hu.blackbelt.judo.meta:judo-hsk-fullstack-karaf-project-archetype:${judo-jsl-fullstack-karaf-project-template-version}</uri>
                   <uri>${basedir}/src/main/resources</uri>
                </uris>
-               <helpers> <!--6-->
+               <helpers> <!--7-->
                   <helper>hu.blackbelt.judo.jsl.fullstack.project.archetype.PsmProjectHelper</helper>
                </helpers>
-               <type>fullstack-project</type> <!--7-->
-               <destination>${basedir}/target/test-classes/js/artifact</destination> <!--8-->
-               <templateParameters> <!--9-->
+               <type>fullstack-project</type> <!--8-->
+               <destination>${basedir}/target/test-classes/js/artifact</destination> <!--9-->
+               <templateParameters> <!--10-->
                   <judoPlatformVersion>${judo-platform-version}</judoPlatformVersion>
                </templateParameters>
-               <contextAccessor>hu.blackbelt.judo.jsl.fullstack.project.archetype.ActorTypeValueResolver</contextAccessor> <!--10-->
-               <scanDependencies>true</scanDependencies> <!--11-->
+               <contextAccessor>hu.blackbelt.judo.jsl.fullstack.project.archetype.ActorTypeValueResolver</contextAccessor> <!--11-->
+               <scanDependencies>true</scanDependencies> <!--12-->
                <actors></actors> <!--12-->
             </configuration>
       </execution>
@@ -92,43 +95,45 @@ Executing a template for an JSL model
 In the parameter URI type parameters can be file or mvn with the following coordinate:
 `mvn:<groupId>:<artifactId>[:<extension>[:<classifier>]]:<version>[!path/in/archive]`
 
-<1> (Optional) JSL model URI.
+<1> (Optional) JSL standalone model `model` file URI. When it is defined, `sources` is ignored
 
-<2> (Optional) Scam sources from dependencies.
+<2> (Optional) JSL model source URI's to search for `jsl` files.
+
+<3> (Optional) Scan sources from dependencies. It is used when `sources` is used.
 +
 (Default: `false`)
 
-<3> (Optional) Logical model names. When multiple `jsl` files are defined, by default all of them are compiled. Most of the time only one or more dedicated model can be compiled with the list of the names. (the name which is dfined as `model` in the first line of `.jsl`)
+<4> (Optional) Logical model names. When multiple `jsl` files are defined, by default all of them are compiled. Most of the time only one or more dedicated model can be compiled with the list of the names. (the name which is dfined as `model` in the first line of `.jsl`)
 +
 (Default: <none>)
 
-<4> Template URIs. The templates loaded from URI's. The order is reverse, first try to load from last URI, when the resource
+<5> Template URIs. The templates loaded from URI's. The order is reverse, first try to load from last URI, when the resource
 not found there step back to previous defined URI. So it's a layered loader, where the templates can be extended and
 overrided with other template packages.
 
-<5> Model target which is used by resource plugin to copy model. From this directory every `jsl` files
+<6> Model target which is used by resource plugin to copy model. From this directory every `jsl` files
 are deleted to support maven command without clean and avoid duplicate model validation error.
 +
 (Default: `${project.basedir}/target/classes/model`)
 
-<6> (Optional) Helper classes. It contains methods which can be used in SpringEL (project yaml definition expressions) and in the
+<7> (Optional) Helper classes. It contains methods which can be used in SpringEL (project yaml definition expressions) and in the
 handlebars templates. The helper classes can be loaded from plugin's classloaders, so the helper's class can
 be presented in plugin's or the project's dependencies. When a helper implements the `com.github.jknack.handlebars.ValueResolver`
 interface automatically registered as a handlebar value resolver. When `scanDependencies` parameter is `true`, the scanned
 helpers and the given ones are merged.
 
-<7> Project type. It is used to resolve the project descriptor yaml files. The yaml file name is `<project type>.yaml`.
+<8> Project type. It is used to resolve the project descriptor yaml files. The yaml file name is `<project type>.yaml`.
 One template can countains several project type description, so same templates can be used for multiple project skeleton types.
 
-<8> Destination path where the transformation output is generated. When no actor or more than one actor is defined, for all actors
+<9> Destination path where the transformation output is generated. When no actor or more than one actor is defined, for all actors
 different folder generated by name.
 +
 (Default: ${project.basedir}/target/classes/model.)
 
-<9> Template parameters. The defined parameters here can be accessed in SpringEL and handlebars
+<10> Template parameters. The defined parameters here can be accessed in SpringEL and handlebars
 templates with the same name.
 
-<10> ContextAccessor. It can be used to store Handlebars / SpringEL / Parameters Context which can be accessed by type resolvers.
+<11> ContextAccessor. It can be used to store Handlebars / SpringEL / Parameters Context which can be accessed by type resolvers.
 When `scanDependencies` value is `true`, the classes annotated with `@hu.blackbelt.judo.generator.commons.annotations.ContextAccessor` are
 set as accessor. When multiple instances are presented, error is thrown.
 It can implement any of the following methods, depends on which context can be registered:
@@ -139,10 +144,10 @@ It can implement any of the following methods, depends on which context can be r
 - `public static void bindContext(java.util.Map<String, Object> parameters`)
    It is registers the given external parameters. It is called before any templating, it can be used in yaml and template context too.
 
-<11> Scan dependencies. It scans classpath for classes annotated with `@hu.blackbelt.judo.generator.commons.annotations.TemplateHelper` and
+<12> Scan dependencies. It scans classpath for classes annotated with `@hu.blackbelt.judo.generator.commons.annotations.TemplateHelper` and
 `@hu.blackbelt.judo.generator.commons.annotations.ContextAccessor` annotated classes.
 
-<12> Actors used for generation. When it is not set all actors are generated. To define use coma separated fully qualified name of actor class.
+<13> Actors used for generation. When it is not set all actors are generated. To define use coma separated fully qualified name of actor class.
 
 Our recommendation is to store the context in ThreadLocal, because
 templating is running in multiple threads.
