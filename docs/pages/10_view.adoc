@@ -12,6 +12,12 @@ endif::[]
 = User Interface
 :page-toctitle:User Interface
 
+Transfer objects are designed to efficiently transport data between different layers of an application, such as from the data access layer to the business logic layer, or from backend systems to the frontend UI. They encapsulate data attributes into a single object, thereby reducing the number of method calls required to fetch related data, which in turn can significantly improve the performance of the application.
+
+Building upon the concept of transfer objects, views serve as specialized transfer objects that not only carry data but also define how this data is presented to the user. Unlike basic transfer objects, which are primarily concerned with the efficient conveyance of data between application layers without regard to its presentation, views are explicitly designed to facilitate interaction with the user interface. They accomplish this by organizing and displaying data in a manner that is both accessible and meaningful to the end user.
+
+Views extend the utility of transfer objects by incorporating visual representation logic, thereby serving as a vital component in the design of user interfaces. They can dictate the layout, formatting, and even the interactivity of the data presented, making them indispensable in the creation of intuitive and user-friendly interfaces. By leveraging views, developers can create rich, dynamic user experiences that effectively communicate and interact with the underlying data model, thus bridging the conceptual and practical gap between the data and its presentation.
+
 Views and rows play a crucial role in defining the visual representation of data. Views are special transfer objects that not only carry data but also define how this data is presented to the user. Rows, on the other hand, are a type of transfer object specifically designed for visualizing data in a tabular format.
 
 The following chapters will be easier to understand if you first grasp the concepts presented in the xref:07_transfer.adoc[Transfer model] chapter. There you can learn about transfer objects, their fields, relations and actions. These elements form the basis for building more sophisticated structures such as views and rows. Once you have a solid understanding of how transfer objects work, you can delve into the following chapters, where you can learn how to create a visual representation of data through views.
@@ -36,6 +42,7 @@ or
 [subs="quotes"]
 ----
 [purple]#**view**# &lt;name> &#x5B;[purple]##**maps**## &lt;entity> [purple]#**as**# &lt;mapping-field>]
+    &#x5B;[purple]##**dialog:**##([purple]##**true**##|[purple]##**false**##)]
 &#x5B;[purple]##**{**##
     &#x5B;member] ...
 [purple]##**}**##][purple]#**;**#
@@ -51,7 +58,7 @@ The `dialog` modifier is used in the context of defining a view to specify wheth
 
 [source,jsl]
 ----
-view CartView maps Customer as customer {
+view CartView maps Customer as customer dialog:false {
 	table OrderItemRow[] items <= customer.cart.orderItems;
 	field Integer price <= customer.cart.price label:"Total price ($):";
 	action ThankYouView order() label:"Order";
@@ -188,6 +195,8 @@ Modifiers such as `label`, `icon`, `hidden`, and `width` can be used to customiz
 
 The `text` modifier sets the text to be displayed for the link. This is an alternative to the `label` modifier and is used specifically for specifying the text displayed on the link.
 
+The `selector` modifier enriches the `choices` modifier. In the transfer model, the `choices` modifier specifies a list of entity instances that can be selected as a value for a relation. While this effectively narrows down the selection to relevant options, the raw entity data may not be the most user-friendly way to present these choices. The `selector` modifier comes into play to address this. It specifies a row transfer object that acts as a "representation" of the entities listed by `choices` modifier. This row transfer object is mapped to the same entity as the choices but is designed to display the entity in a more comprehensible format. This could include formatting data, combining fields, or excluding irrelevant details that are not necessary for making a selection.
+
 Since the view link is also a single transfer relation, its basic syntax is similar to that of a transfer relation. However, unlike a transfer relation, the cardinality of a view link cannot be specified; it always targets a single view. The view link focuses on enhancing the user experience by providing intuitive navigation and visual cues.  To get specific details about transfer relation, please refer to the section on the xref:07_transfer.adoc[Transfer model].
 
 *Example:*
@@ -229,6 +238,8 @@ The syntax for defining a view table includes various modifiers that control its
 Modifiers such as `label`, `icon`, `hidden`, and `width` can be used to customize the common appearance and behavior of the component. See more about them in <<Common visual modifiers>> chapter.
 
 The `rows` modifier in the context of a view table specifies the number of rows to be displayed within the table. This modifier controls the visibility of rows, ensuring a specified number are readily visible without the need for navigating to additional pages.
+
+The `selector` modifier enriches the `choices` modifier. In the transfer model, the `choices` modifier specifies a list of entity instances that can be selected as a value for a relation. While this effectively narrows down the selection to relevant options, the raw entity data may not be the most user-friendly way to present these choices. The `selector` modifier comes into play to address this. It specifies a row transfer object that acts as a "representation" of the entities listed by `choices` modifier. This row transfer object is mapped to the same entity as the choices but is designed to display the entity in a more comprehensible format. This could include formatting data, combining fields, or excluding irrelevant details that are not necessary for making a selection.
 
 The view table, while resembling a collection transfer relation in its basic syntax, differs in cardinality specification. Unlike a transfer relation where cardinality can be defined, a view table always targets a collection of rows. For more detailed information on transfer relations, please consult the section on the xref:07_transfer.adoc[Transfer model] in the documentation.
 
@@ -440,6 +451,8 @@ Other modifiers such as `label`, `icon`, `hidden` and `width` are specific to vi
 
 The `redirect` modifier in the context of a view action specifies the name of an access where the returned view is available. When the action is invoked, and its execution is completed, the user is redirected to the specified access, enabling seamless navigation within the application. This modifier allows developers to define the target destination for the user after the action has been executed successfully. By specifying the access name, developers can ensure that users are directed to the appropriate view or page based on the outcome of the action.
 
+If there is no `redirect` modifier specified, the returned value is read only. Thus, it cannot be changed and actions defined on it cannot be invoked.
+
 *Example:*
 
 [source,jsl]
@@ -594,9 +607,7 @@ In this example:
 
 === Row action
 
-Row action serves the same purpose as <<View action>> within a view.
-
-A row action is represented by a clickable menu item in the last column of the table.
+Row actions serve the same purpose as <<View action>> within a view. They enable users to invoke actions through clickable buttons located either in the last column of the table rows or in the header of the table.
 
 *Syntax:*
 
@@ -620,6 +631,8 @@ A row action is represented by a clickable menu item in the last column of the t
 
 The syntax of a row action follows the same structure as a view action, with the addition of the `bulk` modifier. For detailed information about the common modifiers and syntax of row actions, please refer to the <<View action>> section.
 
+Row actions with both `static` and `bulk` modifiers set to false are positioned as clickable buttons in the last column of the table rows.
+
 The `bulk` modifier in the context of a row action specifies whether the action supports performing operations on multiple selected rows simultaneously. When set to true, the action is designed to handle bulk operations, allowing users to apply the action to multiple rows at once. This modifier is particularly useful in scenarios where users need to perform the same operation on several rows in a table or tabular structure efficiently.
 
 By enabling the bulk modifier, users can select multiple rows and apply the action to all selected rows simultaneously, streamlining the process and enhancing user productivity. However, if the bulk modifier is set to false, the action can only be applied to individual rows one at a time.
@@ -627,3 +640,7 @@ By enabling the bulk modifier, users can select multiple rows and apply the acti
 For example, if a row action represents a "Delete" operation and the bulk modifier is set to true, users can select multiple rows and delete them all at once using the action. Conversely, if the bulk modifier is set to false, users can only delete one row at a time using the action.
 
 The bulk modifier provides flexibility in designing user interfaces with tabular data by allowing developers to define actions that cater to both single-row and multi-row operations based on specific requirements and user interaction patterns.
+
+Row actions with the `bulk` modifier set to true are positioned as clickable buttons in the last column of the table rows and also as buttons placed in the table's header.
+
+The `static` modifier in row actions plays a critical role in guiding user interactions within a data table. When a row action is marked as static, it signifies that the action is applicable to the table as a whole, rather than to an individual row or entity. Consequently, static actions represented with buttons placed in the table's header.

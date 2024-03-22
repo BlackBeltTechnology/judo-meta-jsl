@@ -151,7 +151,7 @@ The example above defines a guard for the actor, ensuring that the salesperson c
 
 == Human actor
 
-Human actors are special actors that not only enable transfer object access but also define how these accesses are presented to the user. All concepts and members introduced for simple actors are also valid for human actors. Additionally, human actors may have other types of members described in this chapter.
+Human actors are special actors that not only enable transfer object access but also define how these accesses are presented to the user. All concepts and members introduced for xref:09_actor.adoc#actor[Actors] are also valid for human actors. Additionally, human actors may have other types of members described in this chapter.
 
 In the web application, the human actor is represented as the menu of the web application. Access declarations cannot be seen in the menu; however, link, table, and group members are shown in the menu.
 
