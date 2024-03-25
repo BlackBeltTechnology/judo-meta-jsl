@@ -644,7 +644,7 @@ See <<Transfer event>>.
 
 [subs="quotes"]
 ----
-[purple]#**link**# &lt;view> &lt;name> [purple]##**<=**## &lt;expression>
+[purple]#**link**# &lt;view> &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
     &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
@@ -673,7 +673,7 @@ See <<Transfer event>>.
 
 [subs="quotes"]
 ----
-[purple]#**table**# &lt;row>[purple]##**[]**## &lt;name> [purple]##**<=**## &lt;expression>
+[purple]#**table**# &lt;row>[purple]##**[]**## &lt;name> &#x5B;[purple]##**<=**## &lt;expression>]
     &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]

@@ -458,7 +458,7 @@ ActorLinkDeclaration returns ViewLinkDeclaration
 	: {ActorLinkDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_LINK referenceType = [ViewDeclaration | ModelName] Named
-	  LTE getterExpr = Expression
+	  (LTE getterExpr = Expression)?
 	  modifiers += (EagerModifier | LabelModifier | IconModifier | HiddenModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
@@ -467,7 +467,7 @@ ActorTableDeclaration returns ViewTableDeclaration
 	: {ActorTableDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
-	  LTE getterExpr = Expression
+	  (LTE getterExpr = Expression)?
 	  modifiers += (EagerModifier | LabelModifier | IconModifier | HiddenModifier | RowsModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
