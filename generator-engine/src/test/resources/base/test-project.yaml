@@ -1,0 +1,21 @@
+templates:
+  - name: testOverride
+    pathExpression: "#actorType.name + '/actorToOverride'"
+    templateName: test1/actorToOverride.hbs
+    actorTypeBased: true
+
+  - name: testReplace
+    pathExpression: "#actorType.name + '/actorToReplace'"
+    templateName: test1/actorToReplace.hbs
+    actorTypeBased: true
+
+  - name: testDelete
+    pathExpression: "#actorType.name + '/actorToDelete'"
+    templateName: test1/actorToDelete.hbs
+    actorTypeBased: true
+
+  - name: testNotGenerated
+    pathExpression: "#actorType.name + '/actorToNotGenerated'"
+    templateName: test1/actorToNotGenerated.hbs
+    actorTypeBased: true
+    conditionExpression: false

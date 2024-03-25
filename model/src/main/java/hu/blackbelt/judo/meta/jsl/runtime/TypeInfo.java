@@ -317,7 +317,7 @@ public class TypeInfo {
 			return false;
 		}
 		
-		if (this.isDeclaration() || other.isDeclaration()) {
+		if (other.isDeclaration()) {
 			return false;
 		}
 		

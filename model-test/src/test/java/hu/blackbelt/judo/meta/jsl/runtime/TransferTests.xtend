@@ -52,9 +52,9 @@ class TransferTests {
 			transfer T2(E1 e1) {
 			    field String f;
 			    field Integer f2 <= e1.f;
-			    field Integer f3 <= e1.f input:true;
+			    field Integer f3 <= e1.f update:auto;
 			    field Integer f4 <= E1.all().size();
-			    field EN en <= e1.en input:true;
+			    field EN en <= e1.en update:auto;
 			}
 			
 			transfer T3(E2 e2);
@@ -152,7 +152,7 @@ class TransferTests {
             }
 
             transfer Mapped maps Entity as e {
-                field Integer mappedIdentifier <= e.id input:true;
+                field Integer mappedIdentifier <= e.id update:auto;
             }
         '''.parse => [
             assertNoErrors
@@ -253,7 +253,7 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                field Integer f <= e1.f input:true;
+                field Integer f <= e1.f update:auto;
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
@@ -272,10 +272,10 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                field String f <= E1.any().f input:true;
+                field String f <= E1.any().f update:auto;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.inputModifier, JslDslValidator.INVALID_DECLARATION)
+            m | m.assertError(JsldslPackage::eINSTANCE.updateModifier, JslDslValidator.INVALID_DECLARATION)
         ]
     }
 
@@ -344,10 +344,10 @@ class TransferTests {
             entity E {}
 
             transfer T {
-                field Integer i <= E.all().size() input:true;
+                field Integer i <= E.all().size() update:auto;
             };
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.inputModifier, JslDslValidator.INVALID_DECLARATION)
+            m | m.assertError(JsldslPackage::eINSTANCE.updateModifier, JslDslValidator.INVALID_DECLARATION)
         ]
     }
 
@@ -448,7 +448,7 @@ class TransferTests {
             transfer T1(E1 e1);
 
             transfer T2(E2 e2) {
-                field T1 t1r <= e2.e0 input:true;
+                field T1 t1r <= e2.e0 update:auto;
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
@@ -515,8 +515,8 @@ class TransferTests {
             }
 
             transfer T(E e) {
-                field Integer f1 <= e.f input:true;
-                field Integer f2 <= e.f input:true;
+                field Integer f1 <= e.f update:auto;
+                field Integer f2 <= e.f update:auto;
             }
         '''.parse => [
             m | m.assertWarning(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.DUPLICATE_FIELD_MAPPING)
@@ -531,7 +531,7 @@ class TransferTests {
             import judo::types;
 
             transfer T {
-            	event fetch;
+            	event after fetch afetch;
             }
         '''.parse => [
             assertError(JsldslPackage::eINSTANCE.transferFetchDeclaration, JslDslValidator.INVALID_DECLARATION)
@@ -548,8 +548,8 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				event initialize;
-				event initialize;
+				event after initialize ainit;
+				event after initialize ainit;
 			}
         '''.parse => [
             assertError(JsldslPackage::eINSTANCE.transferInitializeDeclaration, JslDslValidator.DUPLICATE_EVENT)
@@ -564,7 +564,9 @@ class TransferTests {
             import judo::types;
 
             transfer T {
-            	event create;
+            	event after create acreate;
+            	event before create bcreate;
+            	event instead create icreate;
             }
         '''.parse => [
             assertError(JsldslPackage::eINSTANCE.transferCreateDeclaration, JslDslValidator.INVALID_DECLARATION)
@@ -581,8 +583,8 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				event create;
-				event create;
+				event instead create icreate;
+				event instead create icreate;
 			}
         '''.parse => [
             assertError(JsldslPackage::eINSTANCE.transferCreateDeclaration, JslDslValidator.DUPLICATE_EVENT)
@@ -600,7 +602,7 @@ class TransferTests {
 			entity B {}
 			
 			transfer TA(A a) {
-				event create(TB tb);
+				event instead create icreate(TB tb);
 			}
 			
 			transfer TB (B b) {}
@@ -620,7 +622,9 @@ class TransferTests {
 			entity B extends A {}
 			
 			transfer TA(A a) {
-				event create(TB tb);
+				event before create bcreate;
+				event after create acreate;
+				event instead create icreate(TB tb);
 			}
 			
 			transfer TB (B b) {}
@@ -637,7 +641,9 @@ class TransferTests {
             import judo::types;
 
             transfer T {
-            	event update;
+            	event instead update iupdate;
+            	event after update aupdate;
+            	event before update bupdate;
             }
         '''.parse => [
             assertError(JsldslPackage::eINSTANCE.transferUpdateDeclaration, JslDslValidator.INVALID_DECLARATION)
@@ -654,8 +660,8 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				event update;
-				event update;
+				event before update bupdate;
+				event before update bupdate2;
 			}
         '''.parse => [
             assertError(JsldslPackage::eINSTANCE.transferUpdateDeclaration, JslDslValidator.DUPLICATE_EVENT)
@@ -672,7 +678,9 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				event update;
+				event before update bupdate;
+				event after update aupdate;
+				event instead update iupdate;
 			}
         '''.parse => [
             assertNoErrors
@@ -687,7 +695,9 @@ class TransferTests {
             import judo::types;
 
             transfer T {
-            	event delete;
+            	event before delete bdelete;
+            	event after delete adelete;
+            	event instead delete idelete;
             }
         '''.parse => [
             assertError(JsldslPackage::eINSTANCE.transferDeleteDeclaration, JslDslValidator.INVALID_DECLARATION)
@@ -704,8 +714,8 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				event delete;
-				event delete;
+				event instead delete delete;
+				event instead delete delete2;
 			}
         '''.parse => [
             assertError(JsldslPackage::eINSTANCE.transferEventDeclaration, JslDslValidator.DUPLICATE_EVENT)
@@ -722,7 +732,9 @@ class TransferTests {
 			entity A {}
 			
 			transfer T(A a) {
-				event delete;
+				event before delete delete1;
+				event after delete delete2;
+				event instead delete delete3;
 			}
         '''.parse => [
             assertNoErrors

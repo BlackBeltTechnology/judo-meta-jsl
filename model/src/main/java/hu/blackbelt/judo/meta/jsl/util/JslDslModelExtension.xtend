@@ -96,6 +96,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowColumnDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationBaseDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.LambdaVariable
+import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.DeleteModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferChoiceModifier
 
 @Singleton
 class JslDslModelExtension {
@@ -186,11 +190,21 @@ class JslDslModelExtension {
 	}
 
 	def isReads(TransferDataDeclaration it) {
-		return it.getterExpr !== null && it.mappedMember === null
+		return it.getterExpr !== null && !it.maps
 	}
 
 	def isMaps(TransferDataDeclaration it) {
-		return it.getterExpr !== null && it.mappedMember !== null
+		if (it.getterExpr === null) return false
+		
+		if (it instanceof TransferRelationDeclaration) {
+			val CreateModifier createModifier = it.getModifier(JsldslPackage::eINSTANCE.createModifier) as CreateModifier
+			val TransferChoiceModifier choiceModifier = it.getModifier(JsldslPackage::eINSTANCE.transferChoiceModifier) as TransferChoiceModifier
+			
+			return (createModifier !== null && createModifier.isTrue) || choiceModifier !== null
+		}
+		
+		val UpdateModifier updateModifier = it.getModifier(JsldslPackage::eINSTANCE.updateModifier) as UpdateModifier
+		return updateModifier !== null && updateModifier.isAuto
 	}
 
     def NavigationTarget getMappedMember(TransferDataDeclaration member) {
@@ -658,7 +672,7 @@ class JslDslModelExtension {
 
     def BigInteger getMaxFileSizeValue(MaxFileSizeModifier it) {
         switch it.measure {
-            case "kB": return it.numeric.multiply(BigInteger.valueOf(1000))
+            case "KB": return it.numeric.multiply(BigInteger.valueOf(1000))
             case "MB": return it.numeric.multiply(BigInteger.valueOf(1000 * 1000))
             case "GB": return it.numeric.multiply(BigInteger.valueOf(1000 * 1000 * 1000))
 
@@ -706,16 +720,16 @@ class JslDslModelExtension {
 		val EagerModifier eagerModifier = member.getModifier(JsldslPackage::eINSTANCE.eagerModifier) as EagerModifier
 		
 		if (member instanceof EntityFieldDeclaration) {
-			return eagerModifier === null || eagerModifier.value.isTrue
+			return eagerModifier === null || eagerModifier.isTrue
 		} else {
-			return eagerModifier !== null && eagerModifier.value.isTrue
+			return eagerModifier !== null && eagerModifier.isTrue
 		}
 	}
 
 	def isEager(TransferDataDeclaration member) {
 		if (member.getterExpr === null) return false;  // because it has no expression
 		val EagerModifier eagerModifier = member.getModifier(JsldslPackage::eINSTANCE.eagerModifier) as EagerModifier
-		return eagerModifier !== null && eagerModifier.value.isTrue
+		return eagerModifier !== null && eagerModifier.isTrue
 	}
 
 	def isQueryCall(Feature feature) {
