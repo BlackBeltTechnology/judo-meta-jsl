@@ -345,7 +345,7 @@ String.getVariable(category = "ACTOR", key = "username")
 |Returns the attribute value from the access token.
 
 Get username from OAuth 2.0 token:
-String.getVariable("PRINCIPAL", "preferred_username")
+String.getVariable(category = "PRINCIPAL", key = "preferred_username")
 
 |`SEQUENCE`   |_sequence name_
 |A continuously increasing integer is returned with each call. The maximum value cannot exceed the range of an eight-byte integer. Sequences are constant and optimized for concurrency. Sequences cannot be used for "gap-free" assignment of sequence numbers.
