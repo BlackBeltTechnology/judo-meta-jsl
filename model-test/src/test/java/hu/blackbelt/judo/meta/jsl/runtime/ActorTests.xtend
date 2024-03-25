@@ -28,20 +28,80 @@ class ActorTests {
                 identifier String id;
             }
 
-			transfer T(E e) {
-				field String id <= e.id;
-			}
-
             actor A(E e)
                 claim:"claim"
                 realm:"realm"
                 guard:true
-                identity:T::id;
+                identity:e.id;
         '''.parse => [
             assertNoErrors
         ]
     }
 
+    @Test
+    def void testActorIdentityExpression() {
+        '''
+            model Test;
+
+            import judo::types;
+
+            entity E {
+                identifier String id;
+            }
+
+            actor A(E e)
+                claim:"claim"
+                realm:"realm"
+                guard:true
+                identity:E.any().id;
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.identityModifier, JslDslValidator.INVALID_IDENTITY_MAPPING)
+        ]
+    }
+
+    @Test
+    def void testActorIdentityNonField() {
+        '''
+            model Test;
+
+            import judo::types;
+
+            entity E {
+                identifier String id;
+                field String id2 <= self.id;
+            }
+
+            actor A(E e)
+                claim:"claim"
+                realm:"realm"
+                guard:true
+                identity:e.id2;
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.identityModifier, JslDslValidator.INVALID_IDENTITY_MAPPING)
+        ]
+    }
+
+    @Test
+    def void testActorIdentityNonString() {
+        '''
+            model Test;
+
+            import judo::types;
+
+            entity E {
+                identifier Integer id;
+            }
+
+            actor A(E e)
+                claim:"claim"
+                realm:"realm"
+                guard:true
+                identity:E.any().id;
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.identityModifier, JslDslValidator.INVALID_IDENTITY_MAPPING)
+        ]
+    }
+    
     @Test
     def void testSystemActorGroupError() {
         '''

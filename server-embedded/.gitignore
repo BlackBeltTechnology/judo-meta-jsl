@@ -1,6 +1,6 @@
 src/main/xtext-gen
 src/main/xtend-gen
 model/generated/*
-dependency-reduced-pom.xml
+
 
 /model/

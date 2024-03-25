@@ -1,5 +1,6 @@
 /**/target/
 /**/target-buildVariable/
+/**/bin/
 /**/.settings/
 /**/.checkstyle
 /**/.idea/

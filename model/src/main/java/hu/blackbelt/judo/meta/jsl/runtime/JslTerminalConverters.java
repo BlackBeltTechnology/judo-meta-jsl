@@ -121,12 +121,6 @@ public class JslTerminalConverters extends DefaultTerminalConverters {
 	public IValueConverter<String> getQualifiedNameElementConverter() {
 		return idConverter;
 	}
-
-	
-	@ValueConverter(rule = "EntityDeclaration")
-	public IValueConverter<String> getEntityDeclarationConverter() {
-		return idConverter;
-	}
 	
 	@ValueConverter(rule = "ID")
 	public IValueConverter<String> getIDConverter() {

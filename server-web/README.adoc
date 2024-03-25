@@ -1,38 +1,15 @@
-# judo-jsl-web-editor
+# Web based editor
 
-It contains WebSocket based `jsl` language server and monaco based editor preconfigured with `jsl` capabilities packed in a 
-self-hosted executable in a standalone jar.
+This is an example editor for JSL code assisted language
 
+ ----
+ mvn jetty:run
+ ----
 
-## Client
+And point your browser to
 
-The web editor module, see it's own README.md for details
+----
+http://localhost:8080
+----
 
-
-## Compile
-
-To compile run `mvn clean install`
-
-
-## Run
-
-The `target` directory contains the executable JAR file.
-
-`java -jar ./target/hu.blackbelt.judo.meta.jsl.server.web-<VERSION>.jar`
-
-
-### Parameters:
-
-    - `-host <ip>`  - Which interfaces listens to. Default: 0.0.0.0 - means all network interfaces
-
-    - `-port <number>` - Which port LSP listens to. Default: 5051. Note: when port is set update client env also!
-
-    - `-trace` - Trace log is enabled. It can be used to debug communications.
-
-    - `-contextPath <path>` - Which path the servers for static content listens on. Default: "/"
-
-    - `-websocketPath <path>` - Which path the LSP server listens on. Default: "/jsl". Note: when websocket path is set, update client env also!
-
-    - `-noValidate` - No validate the request.
-    
-    
+Happy scripting!

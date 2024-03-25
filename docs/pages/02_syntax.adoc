@@ -83,14 +83,14 @@ This is the list of reserved keywords in the JSL.
 [cols="1,1,1"]
 |====================
 |`abstract`     |`function` |`required`
-|`actor`        |`human`    |`row`
-|`annotation`   |`import`   |`static`
-|`as`           |`lambda`   |`throws`
-|`entity`       |`maps`     |`transfer`
-|`enum`         |`model`    |`true`
-|`error`        |`not`      |`type`
-|`extends`      |`on`       |`view`
-|`false`        |`query`    |`void`
+|`actor`        |`import`   |`row`
+|`annotation`   |`lambda`   |`throws`
+|`as`           |`maps`     |`transfer`
+|`entity`       |`model`    |`true`
+|`enum`         |`not`      |`type`
+|`error`        |`on`       |`view`
+|`extends`      |`query`    |`void`
+|`false`        |           |
 |====================
 
 [judo-req="true",judo-req-id="REQ-SYNT-004"]

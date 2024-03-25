@@ -313,7 +313,7 @@ The initializer is automatically called when a new transfer object is created an
 
 [subs="quotes"]
 ----
-[purple]#**event**# ([purple]#**before**#|[purple]#**after**#|[purple]#**instead**#) [purple]#**initialize**# &lt;name>&#x5B;[purple]##**()**##][purple]##**;**##
+[purple]#**event initialize**# &#x5B;[purple]##**()**##][purple]##**;**##
 ----
 
 *Example:*
@@ -321,7 +321,7 @@ The initializer is automatically called when a new transfer object is created an
 [source,jsl]
 ----
 transfer PersonTransfer {
-    event instead initialize insteadInit;
+    event initialize;
 }
 ----
 
@@ -333,14 +333,7 @@ The create event handler is automatically called when a mapped transfer object i
 
 [subs="quotes"]
 ----
-[purple]#**event**# ([purple]#**before**#|[purple]#**after**#) [purple]#**initialize**# &lt;name>&#x5B;[purple]##**()**##][purple]##**;**##
-----
-
-or
-
-[subs="quotes"]
-----
-[purple]#**event instead create**# &lt;name>&#x5B;[purple]##**(**##&lt;transfer> &lt;parameter>[purple]##**)**##][purple]##**;**##
+[purple]#**event create**# &#x5B;[purple]##**(**##&lt;transfer> &lt;name>[purple]##**)**##][purple]##**;**##
 ----
 
 === Fetch event
@@ -351,7 +344,7 @@ The fetch event handler is automatically called when a transfer object is retrie
 
 [subs="quotes"]
 ----
-[purple]#**event**# ([purple]#**before**#|[purple]#**after**#|[purple]#**instead**#) [purple]#**fetch**# &lt;name>&#x5B;[purple]##**()**##][purple]##**;**##
+[purple]#**event fetch**#[purple]##**;**##
 ----
 
 === Update event
@@ -362,7 +355,7 @@ The update event handler is automatically called when a transfer object is persi
 
 [subs="quotes"]
 ----
-[purple]#**event**# ([purple]#**before**#|[purple]#**after**#|[purple]#**instead**#) [purple]#**update**# &lt;name>&#x5B;[purple]##**()**##][purple]##**;**##
+[purple]#**event update**#[purple]##**;**##
 ----
 
 === Delete event
@@ -373,7 +366,7 @@ The delete event handler is automatically called when a transfer object is delet
 
 [subs="quotes"]
 ----
-[purple]#**event**# ([purple]#**before**#|[purple]#**after**#|[purple]#**instead**#) [purple]#**delete**# &lt;name>&#x5B;[purple]##**()**##][purple]##**;**##
+[purple]#**event delete**#[purple]##**;**##
 ----
 
 === Transfer primitive field
@@ -446,7 +439,7 @@ The action is a piece of code (currently Java implementation) that is executed w
 
 [subs="quotes"]
 ----
-[purple]#**action**# &#x5B;[purple]##**static**##] &#x5B;&lt;type>|&lt;union>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**## &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...] [purple]#**;**#
+[purple]#**action**# &#x5B;&lt;type>|&lt;union>|[purple]#**void**#] &lt;name> [purple]##**(**##&#x5B;&lt;parameter>][purple]##**)**## &#x5B;[purple]##**throws**## &lt;error1> &#x5B;, &lt;error2>] ...] [purple]#**;**#
 ----
 
 *Example:*
@@ -900,7 +893,7 @@ An actor represents a generic user of the system and can be used to represent hu
 
 [subs="quotes"]
 ----
-[purple]#**actor**# &lt;name> &#x5B;[purple]##**human**##] &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
+[purple]#**actor**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
     &#x5B;[purple]##**realm:**##&lt;realm>]
     &#x5B;[purple]##**claim:**##&lt;claim>]
     &#x5B;[purple]##**identity:**##&lt;identity>]
@@ -914,7 +907,7 @@ or
 
 [subs="quotes"]
 ----
-[purple]#**actor**# &#x5B;[purple]##**human**##] &lt;name> &#x5B; [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> ]
+[purple]#**actor**# &lt;name> &#x5B; [purple]#**maps**# &lt;entity> [purple]#**as**# &lt;mapping-field> ]
     &#x5B;[purple]##**realm:**##&lt;realm>]
     &#x5B;[purple]##**claim:**##&lt;claim>]
     &#x5B;[purple]##**identity:**##&lt;identity>]
@@ -1165,7 +1158,7 @@ row OrderItemRow(OrderItem item) {
 	column Integer price <= item.price;
 }
 
-actor human CustomerActor(Customer customer) {
+actor CustomerActor(Customer customer) {
 	menu CartView myCart <= customer label:"My cart";
 	menu ProductListView products label:"Products";
 }

@@ -414,11 +414,6 @@ The getter <expression> returns the value of the calculated member. See xref:06_
 Note that the calculated members use the `\<=` symbol instead of the assignment operator (=) to define the getter expression.
 ====
 
-[NOTE]
-====
-Note that the `required` keyword cannot be used for calculated members.
-====
-
 *Example:*
 
 ----

@@ -32,9 +32,6 @@ class CRUDTests {
 			}
 			
 			transfer TA(A a) {
-				event instead create create();
-				event instead delete delete();
-				event instead update update();
 			}
 			
 			transfer TB(B b) {
@@ -81,12 +78,9 @@ class CRUDTests {
 			}
 			
 			row TA(A a) {
-				event instead create create();
-				event instead delete delete();
-				event instead update update();
 			}
 			
-			actor human Actor {
+			actor Actor {
 				menu TA[] talist <= A.all() create:true delete:true update:true;
 			}
         '''.parse => [

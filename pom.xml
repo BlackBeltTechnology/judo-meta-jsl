@@ -83,11 +83,8 @@
         <judo-genmodel-generator-version>1.1.2.20231107_041037_4b4570ca_develop</judo-genmodel-generator-version>
         <judo-epp-common-version>4.29.0.20230922_122205_4ad6b77f_develop</judo-epp-common-version>
         <judo-misc-p2-version>1.0.0</judo-misc-p2-version>
-        <judo-jsl-tmbundle-version>1.0.0.20230816_144910_bc235fc6_develop</judo-jsl-tmbundle-version>
-        <judo-generator-commons-version>1.0.0.20231009_184136_321053b3_develop</judo-generator-commons-version>
-        <judo-version-updater-maven-plugin-version>1.0.0.20231027_121339_45b7ebd2_develop</judo-version-updater-maven-plugin-version>
 
-        <xtext-version>2.32.0</xtext-version>
+        <xtext-version>2.31.0</xtext-version>
         <emf-mwe2-launch-version>2.15.0</emf-mwe2-launch-version>
         <slf4j-version>2.0.7</slf4j-version>
 
@@ -252,8 +249,6 @@
                     <source>8</source>
                     <doclint>none</doclint>
                     <detectJavaApiLink>false</detectJavaApiLink>
-					<failOnError>false</failOnError>
-                    <sourcepath>${project.basedir}/target/delombok</sourcepath>
                     <tags>
                         <tag>
                             <name>model</name>
@@ -364,24 +359,6 @@
 					</dependencies>
                 </plugin>
 
-                <plugin>
-                    <groupId>org.projectlombok</groupId>
-                    <artifactId>lombok-maven-plugin</artifactId>
-                    <version>1.18.24.0</version>
-                    <configuration>
-                        <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
-                        <outputDirectory>${project.basedir}/target/delombok</outputDirectory>
-                        <addOutputDirectory>false</addOutputDirectory>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <phase>generate-sources</phase>
-                            <goals>
-                                <goal>delombok</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -836,13 +813,6 @@
                 <artifactId>hu.blackbelt.judo.meta.jsl.model</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
-            <dependency>
-                <groupId>hu.blackbelt.judo.meta</groupId>
-                <artifactId>judo-jsl-generator-engine</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.eclipse.xtext</groupId>
                 <artifactId>org.eclipse.xtext.testing</artifactId>
@@ -881,37 +851,70 @@
             </dependency>
 
             <dependency>
-                <groupId>hu.blackbelt.judo.generator</groupId>
-                <artifactId>judo-generator-commons</artifactId>
-                <version>${judo-generator-commons-version}</version>
-                <scope>compile</scope>
-            </dependency>
-
-            <dependency>
                 <groupId>hu.blackbelt.judo</groupId>
                 <artifactId>judo-requirement-report-processor</artifactId>
                 <version>${judo-requirement-report-version}</version>
                 <optional>true</optional>
                 <scope>compile</scope>
             </dependency>
-
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter</artifactId>
-                <version>5.9.1</version>
-                <scope>test</scope>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
-
     <dependencies>
+        <dependency>
+            <groupId>org.eclipse.emf</groupId>
+            <artifactId>org.eclipse.emf.ecore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.emf</groupId>
+            <artifactId>org.eclipse.emf.common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
+            <version>7.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.cmpn</artifactId>
+            <version>7.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.annotation</artifactId>
+            <version>7.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.24</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.9.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>5.9.1</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.jcabi</groupId>
+            <artifactId>jcabi-log</artifactId>
+            <version>0.22.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
     <profiles>
         <profile>
             <id>modules</id>
@@ -925,9 +928,6 @@
                 <module>docs</module>
                 <module>model</module>
                 <module>model-test</module>
-                <module>generator-engine</module>
-                <module>generator-maven-plugin</module>
-                <module>generator-maven-plugin-test</module>
                 <module>osgi</module>
                 <module>osgi-itest</module>
                 <module>feature</module>

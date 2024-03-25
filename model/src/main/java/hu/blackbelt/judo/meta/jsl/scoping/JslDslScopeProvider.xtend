@@ -67,7 +67,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.MetaScope
 import hu.blackbelt.judo.meta.jsl.jsldsl.PrimitiveDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.UnionDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -111,10 +110,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
 			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
-			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_ViewOrUnion(scope)
-			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_SimpleTransferOrUnion(scope)
-			ViewDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_ViewOrUnion(scope)
-			SimpleTransferDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_SimpleTransferOrUnion(scope)
+			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
+			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.returnFragment_ReferenceTypes: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
 			ActorMenuDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.visibleDeclaration)
 			ActorAccessDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
@@ -127,52 +124,11 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 			TransferRelationDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
-			UnionDeclaration case ref == JsldslPackage::eINSTANCE.unionDeclaration_Members: return this.scope_UnionMember(scope)
-
             Navigation: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
         }
 
         return scope
     }
-
-	def scope_UnionMember(IScope scope) {
-        return new FilteringScope(scope, [desc | {
-            val obj = desc.EObjectOrProxy
-
-            switch obj {
-                SimpleTransferDeclaration: return true
-                ViewDeclaration: return true
-            }
-
-            return false
-        }]);
-	}
-
-	def scope_SimpleTransferOrUnion(IScope scope) {
-        return new FilteringScope(scope, [desc | {
-            val obj = desc.EObjectOrProxy
-
-            switch obj {
-                SimpleTransferDeclaration: return true
-                UnionDeclaration: if (obj.members.get(0) !== null && obj.members.get(0) instanceof SimpleTransferDeclaration) return true
-            }
-
-            return false
-        }]);
-	}
-
-	def scope_ViewOrUnion(IScope scope) {
-        return new FilteringScope(scope, [desc | {
-            val obj = desc.EObjectOrProxy
-
-            switch obj {
-                ViewDeclaration: return true
-                UnionDeclaration: if (obj.members.get(0) !== null && obj.members.get(0) instanceof ViewDeclaration) return true
-            }
-
-            return false
-        }]);
-	}
 
     def scope_AllContainments(IScope scope, EObject context, EReference ref) {
         return new FilteringScope(scope.getLocalElementsScope(context, ref), [desc | {
