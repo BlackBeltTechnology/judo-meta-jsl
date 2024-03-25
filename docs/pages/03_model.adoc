@@ -70,6 +70,7 @@ where the <model> is the fully qualified name of the imported model.
 ----
 import judo::types;
 ----
+
 [source,jsl]
 ----
 import judo::types as types;

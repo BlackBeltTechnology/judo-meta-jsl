@@ -13,17 +13,17 @@ endif::[]
 [judo-req="true",judo-req-id="REQ-EXPR-001"]
 = Expression
 
-Constant values, entity members, operators, query executions and function calls can be combined into sequences known as expressions. Among other things, expressions are used to navigate and query a domain model.
+Constant values, entity members, operators, query executions and function calls can be combined into sequences known as expressions. Among other things, expressions are used to navigate and query the entity model.
 
-An expression is evaluated to a value, which can be primitive value (e.g. `42` or `"apple"`), entity instance or a collection of instances.
+An expression is evaluated to a value, which can be primitive value (e.g. `42` or `"apple"`), entity instance or a collection of entity instances.
 
-*Data expressions* returns values of primitive types, such as strings or integers. A data expression can be
+*Data expressions* return values of primitive types, such as strings or integers. A data expression can be
 
 * a literal (e.g. `"Hello world"`, `3.14`),
 * a field selector (`self.firstName`, `self.orders.orderItems`)
 * an expression containing other data expressions and operators, such as `self.amount * self.productPrice`
 
-*Reference expressions* returns an entity instance or collection of entity instances.
+*Reference expressions* return an entity instance or collection of entity instances.
 
 *Examples:*
 
@@ -157,8 +157,8 @@ entity abstract Customer {
 	field Integer sumByStatus(OrderStatus status)
 	    <= self.orders.filter(o | o.status == status).sum(o | o.price);
 
-	field Integer sumPaid
-	    <= self.sumByStatus(status = OrderStatus#PAID);
+	field Integer sumOrdered
+	    <= self.sumByStatus(status = OrderStatus#ORDERED);
 
 	field Integer sumDelivered
 	    <= self.sumByStatus(status = OrderStatus#DELIVERED);
@@ -334,6 +334,19 @@ Shortcut: `Time.now()`
 Path for the current working directory: `String.getVariable(category = "ENVIRONMENT", key = "PWD")`
 
 UID of running OS user: `Integer.getVariable(category = "ENVIRONMENT", key = "UID")`
+
+|`ACTOR`|_claim name_
+|Returns a claim of current actor.
+
+Get the username of the current actor:
+String.getVariable(category = "ACTOR", key = "username")
+
+|`PRINCIPAL`|_access token attribute_
+|Returns the attribute value from the access token.
+
+Get username from OAuth 2.0 token:
+String.getVariable(category = "PRINCIPAL", key = "preferred_username")
+
 |`SEQUENCE`   |_sequence name_
 |A continuously increasing integer is returned with each call. The maximum value cannot exceed the range of an eight-byte integer. Sequences are constant and optimized for concurrency. Sequences cannot be used for "gap-free" assignment of sequence numbers.
 

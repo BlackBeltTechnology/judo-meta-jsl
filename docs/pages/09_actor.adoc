@@ -11,68 +11,69 @@ endif::[]
 // TODO: schedule and init
 
 [judo-req="true",judo-req-id="REQ-SRV-014"]
-= Access control
-:page-toctitle:Actor
+= Access Control
+:page-toctitle:Access
 
 Authentication is the process of verifying a user’s identity and authorization is the process of determining whether an authenticated user has access to a particular resource or service. Authorization is critical for ensuring that only authorized users have access to sensitive data and resources. The following chapters describe JUDO's authentication and authorization process.
 
-An actor represents a generic user of the system and can be used to represent humans or another system. Actors are a special subset of transfer objects. Members of actors can be relations (referred to as access), and event handlers, just like in the case of transfer objects. However, one important difference is that actors do not contain fields and actions.
+== Actor
 
-To define an actor, use the `actor` keyword.
+An actor represents a generic user of the system and can be used to represent humans or another system.
+
+To define an actor, use the `actor` keyword. The full list of modifiers can be found in the xref:appx_syntax.adoc#actor[Appendix].
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**actor**# &lt;name> &#x5B;[purple]##**(**##&lt;entity> &lt;mapping-field>[purple]##**)**##]
-    &#x5B;[purple]##**realm**## &lt;realm>]
-    &#x5B;[purple]##**claim**## &lt;claim>]
-    &#x5B;[purple]##**identity**## &lt;identity>]
-    &#x5B;[purple]##**guard**## &lt;guard>][purple]
-[purple]##**{**##
-    [member] ...
-[purple]#**}**#
+[purple]#**actor**# &lt;name>
+    &#x5B;[purple]##**human:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**realm:**##&lt;realm>]
+    &#x5B;[purple]##**claim:**##&lt;claim>]
+    &#x5B;[purple]##**identity:**##&lt;identity>]
+    &#x5B;[purple]##**guard:**##&lt;guard>]
+&#x5B;[purple]##**{**##
+    &#x5B;member] ...
+[purple]##**}**##][purple]#**;**#
 ----
 
-where the <name> is the name of the actor. The <entity> is the entity type of the linked entity instance. The <mapping-field> is the name of the field that refers to the linked entity instance. The linked entity instance is the persistent representation of the user in the application. If there is no linked entity, the user is not represented in the application. A typical case of not represented user is an anonymous user, who shall not be identified within the application.
+where the <name> is the name of the actor.
 
-The <realm> is the name of the security policy domain attached to the actor. The realm is a collection of users who can be authenticated to use the application. The realms and identity management used by JUDO are out of scope of the application. The default realm management application that can be used by a JUDO application is Keycloack, but any OpenID3 compatible identity management application can be easily integrated.
+The `human` modifier adds visual representation to the actor and enables the creation of a web application. See <<Human actor>> chapter.
 
-A claim is a name/value pair that contains information about the user. A collection of claims are sent by the realm management application to our application at the time when the user authenticates. The <claim> selects one of the claims, which will be used for user identification in the application.
+The `realm` is the name of the security policy domain attached to the actor. The realm is a collection of users who can be authenticated to use the application. The realms and identity management used by JUDO are out of scope of the application. The default realm management application that can be used by a JUDO application is Keycloack, but any OpenID3 compatible identity management application can be easily integrated.
 
-The <identity> is an expression that selects an identifier field of the mapped <entity>. The type of the field pointed to by <identity> must be string. The <identity> is used to unambiguously identify the user within the application (e.g. find only one instance of the mapped entity) to define the relationship with the user in the <realm>.
+A claim is a name/value pair that contains information about the user. A collection of claims are sent by the realm management application to our application at the time when the user authenticates. The `claim` modifier selects one of the claims, which will be used for user identification in the application.
 
-The <guard> is a boolean expression that must evaluate to true in order to authenticate the user. To put it more simply, a guard defines a precondition. If the <guard> evaluates to false, the user is not authenticated and an error message is thrown.
+The `identity` is the name of a field in a transfer object. This field must contain the identifier of the authenticated user. The selected identifier field is used to uniquely identify the user within the application (e.g., to find only one instance of the mapped entity) and to define the relationship with the user in the realm.
+
+[IMPORTANT] 
+==== 
+The field selected by the `identity` modifier must be of type string and must be mapped to an identifier string field in the transfer object's mapped entity.
+==== 
+
+If there is no `identity` modifier, the user is not represented in the application. A typical case of not represented user is an anonymous user, who shall not be identified within the application.
+
+The `guard` modifier is a boolean expression that must evaluate to true in order to authenticate the user. To put it more simply, a guard defines a precondition. If the <guard> expression evaluates to false, the user is not authenticated and an error message is thrown.
 
 // TODO: managed user missing
-
-[NOTE]
-====
-There is an alternative syntax to define an actor. This alternative is a bit more expressive, although it may be too verbose.
-
-[subs="quotes"]
-----
-[purple]#**actor**# &lt;name> &#x5B;[purple]##**maps**## &lt;entity> [purple]#**as**# &lt;mapping-field>]
-    &#x5B;[purple]##**realm**## "&lt;realm>"]
-    &#x5B;[purple]##**claim**## "&lt;claim>"]
-    &#x5B;[purple]##**identity**## &lt;identity>]
-    &#x5B;[purple]##**guard**## &lt;guard>]
-[purple]##**{**##
-    [member] ...
-[purple]#**}**#
-----
-
-====
-
 
 *Example:*
 
 [source,jsl]
 ----
-actor SalesPersonActor(SalesPerson salesPerson)
-    realm "COMPANY"
-    claim "email"
-    identity salesPerson.email;
+entity SalesPerson {
+    identifier String email;
+}
+
+transfer SalesPersonTransfer(SalesPerson salesPerson) {
+    field String email <= salesPerson.email set:true;
+}
+
+actor SalesPersonActor
+    realm:"COMPANY"
+    claim:"email-addr"
+    identity:SalesPersonTransfer::email;
 ----
 
 The above example defines an actor named `SalesPersonActor`. The company's sales staff are managed in the "COMPANY" realm. The salespersons' unique identifier is their email address. During authentication, the system selects the instance of the SalesPerson entities whose email field has the same value as the value of the "email" claim.
@@ -80,7 +81,7 @@ The above example defines an actor named `SalesPersonActor`. The company's sales
 
 [judo-req="true",judo-req-id="REQ-SRV-015"]
 [judo-req="true",judo-req-id="REQ-SRV-016"]
-== Access
+=== Access
 
 Authorization is the mechanism responsible for granting external users access to specific transfer objects and their actions. In general terms, authorization is a key mechanism for controlling access rights and permissions.
 
@@ -88,23 +89,31 @@ The actors within the application can be considered the embodiment of external u
 
 Access definitions within actors are used to expose the application data model quickly and elegantly. The access can have an expression that will be evaluated when the access is invoked from the outside world. Accesses play the same role as relations in transfer objects.
 
+The target of an access is always a mapped transfer object, and the getter expression is mandatory.
+
 Use the `access` keyword to specify an access within an actor.
 
 *Syntax:*
 
 [subs="quotes"]
 ----
-[purple]#**access**# &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**<=**## &lt;expression>][purple]#**;**#
+[purple]#**access**# &lt;transfer>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**<=**## &lt;expression>
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
 ----
 
-The access of an actor is the same as the relation of transfer objects. It may be 
+The full list of modifiers can be found in the xref:appx_syntax.adoc#actor-access[Appendix].
 
 *Example:*
 
 [source,jsl]
 ----
 actor CustomerActor(Customer customer) {
-	access CartTransfer myCart <= customer;
+	access CartTransfer myCart <= Customer
+	    .filter(c | c.email == String.getVariable(category = "ACTOR", key = "username"));
+
 	access ProductTransfer[] products <= Product.all();
 }
 ----
@@ -131,13 +140,115 @@ To add a guard to actors use `guard` as follows. The actor guard is evaluated be
 
 [source,jsl]
 ----
-actor SalesPersonActor(SalesPerson salesPerson)
-    realm "COMPANY"
-    identity salesPerson.email
+actor SalesPersonActor
+    realm:"COMPANY"
+    claim:"email-addr"
+    identity:SalesPersonTransfer::email
     guard salesPerson.leads.size() > 0;
 ----
 
-The example above defines a guard for actor, and the salesperson can only invoke the functions if she has at least one lead.
+The example above defines a guard for the actor, ensuring that the salesperson can only invoke the functions if they have at least one lead.
+
+== Human actor
+
+Human actors are special actors that not only enable transfer object access but also define how these accesses are presented to the user. All concepts and members introduced for xref:09_actor.adoc#actor[Actors] are also valid for human actors. Additionally, human actors may have other types of members described in this chapter.
+
+In the web application, the human actor is represented as the menu of the web application. Access declarations cannot be seen in the menu; however, link, table, and group members are shown in the menu.
+
+To define a human actor use the `actor` keyword with the `human` modifier. This will result in a web application.
+
+*Example:*
+
+[source,jsl]
+----
+actor SalesPersonActor
+    human:true
+    realm:"COMPANY"
+    claim:"email-addr"
+    identity:SalesPersonTransfer::email;
+----
+
+=== Link
+
+An actor link is a visual component in a user interface that symbolizes an access to a view. The actor link is represented as a menu item in the web application's menu.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**link**# &lt;view> &lt;name> [purple]##**<=**## &lt;expression>
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>][purple]#**;**#
+----
+
+In addition to the permission modifiers (See <<Permission modifiers>> chapter), the actor link enables the use of the following visual modifiers.
+
+The `label` modifier requires static text, which is displayed on the menu item.
+
+The `icon` modifier expects static text that is the name of the icon used to display on the menu item. The icon is used to ease the quick identification the menu item. Possible icon names can be found here: https://pictogrammers.com/library/mdi/.
+
+The `hidden` modifier is used to control the visibility of the menu item in the application menu. When applied to an actor link, the modifier ensures that the menu item is not displayed to the user when the menu is rendered. This can be useful for hiding certain menu items based on certain conditions.
+
+The full list of modifiers can be found in the xref:appx_syntax.adoc#actor-link[Appendix].
+
+=== Table
+
+An actor table is a visual component in a user interface that symbolizes an access to a table. The actor table is represented as a menu item in the web application's menu.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**table**# &lt;row>[purple]##**[]**## &lt;name> [purple]##**<=**## &lt;expression>
+    &#x5B;[purple]##**eager:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**create:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**delete:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**update:**##([purple]##**true**##|[purple]##**false**##)]
+
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+    &#x5B;[purple]##**rows:**##&lt;rows>][purple]#**;**#
+----
+
+The full list of modifiers can be found in the xref:appx_syntax.adoc#actor-table[Appendix].
+
+In addition to the permission modifiers (See <<Permission modifiers>> chapter), the actor table enables the use of the following visual modifiers.
+
+The `label` modifier requires static text, which is displayed on the menu item.
+
+The `icon` modifier expects static text that is the name of the icon used to display on the menu item. The icon is used to ease the quick identification the menu item. Possible icon names can be found here: https://pictogrammers.com/library/mdi/.
+
+The `hidden` modifier is used to control the visibility of the menu item in the application menu. When applied to an actor table, the modifier ensures that the menu item is not displayed to the user when the menu is rendered. This can be useful for hiding certain menu items based on certain conditions.
+
+The `rows` modifier sets the number of rows displayed in the table.
+
+=== Group
+
+An actor group is a collection or grouping of related menu items within a menu structure. It helps organize and categorize menu items for easier navigation and accessibility. Menu groups are used to group together related actor link and tables within the application's menu system.
+
+*Syntax:*
+
+[subs="quotes"]
+----
+[purple]#**group**# &lt;name>
+    &#x5B;[purple]##**label:**##&lt;label>]
+    &#x5B;[purple]##**icon:**##&lt;icon>]
+    &#x5B;[purple]##**hidden:**##&lt;hidden>]
+[purple]##**{**##
+    [member] ...
+[purple]#**}**#[purple]##**;**##
+----
+
+where the <name> is the name of the group. Inside the curly braces { and }, you can specify the members of the group, such as actor links, actor tables, and other groups.
+
+The full list of modifiers can be found in the xref:appx_syntax.adoc#actor-group[Appendix].
 
 == Permission modifiers
 
@@ -157,7 +268,7 @@ The following example demonstrates how an admin user within the system can be gr
 
 [source,jsl]
 ----
-actor AdminActor(Admin admin) {
+actor AdminActor {
 	access CustomerTransfer[] users <= Customer.all()
 	    create:true
 	    delete:true
@@ -189,42 +300,3 @@ It is important to note that it is not enough to set the `create` or `delete` pe
 ==== 
 
 This approach provides precise control over what actions users, particularly admins, can undertake concerning specific objects and their associated objects. It enhances the system's security and flexibility by allowing the fine-tuning of access permissions.
-
-== Input modifier
-
-Permission modifiers provide users with the ability to modify, delete, or create objects. However, when a user is granted permission to modify an object, the question arises as to which fields and relationships of the given object can be altered.
-
-By default, every field of a transfer object is set to read-only. To allow changes to a specific field of a transfer object, the input modifier should be utilized. Fields that lack the input modifier set to `true` are off-limits for user modifications.
-
-*Example:*
-
-[source,jsl]
-----
-transfer PersonTransfer(Person person) {
-	field String firstName <= person.firstName input:true;
-	field String lastName <= person.lastName input:true;
-	field String email <= person.email;
-}
-----
-
-In the provided example, a user with update permission can modify the first and last name of the person if necessary. However, the email address remains a read-only field, even if the update permission is granted. This restriction also holds true for the create permission.
-
-This approach allows for fine-grained control over which fields of an object can be modified, ensuring data integrity and security while permitting necessary changes when required.
-
-== Choices modifier
-
-By default, relations between transfer objects are configured as read-only, similar to fields. However, when you need to allow modifications to these relations, you have two options. One way to modify relations is by using the create and delete permissions, while the other is by adding or removing transfer object instances employing the choices modifier.
-
-The choices modifier enables you to specify which instances can be added to or removed from the relation. Instances not listed in the choices won't be allowed to be added. If you want to allow the addition of any instances, you can use choices as shown in this example:
-
-*Example:*
-
-[source,jsl]
-----
-transfer ProductTransfer(Product product) {
-	relation ProductTransfer[] recommendations <= product.recommendations
-	    choices:Product.all();
-}
-----
-
-In this example, the choices modifier is set to Product.all(), which means any product instance can be added to the `recommendations` relation.
