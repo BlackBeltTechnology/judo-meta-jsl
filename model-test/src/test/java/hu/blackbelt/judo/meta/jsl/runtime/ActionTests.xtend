@@ -30,7 +30,7 @@ class ActionTests {
 			}
 
 			transfer TB {
-				action static void tbAction();
+				action void tbAction() static;
 			}
         '''.parse => [
             assertNoErrors

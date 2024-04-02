@@ -67,45 +67,50 @@ public class TestModel2TemplateTest {
 
         testName = "northwind";
         jslDslModel = JslParser.getModelFromStrings("northwind", List.of("""
-            model northwind;
-            
-            import judo::types;
-            
-            entity User {
-                identifier required String userName;
-            }
-            
-            view UserListView {
-                table UserRow[] users <= User.all();
-            }
-            
-            row UserRow(User user) {
-                column String userName <= user.userName;
-            }
-            
-            entity Product {
-                identifier required String name;
-                field required Integer price;
-            }
-            
-            view ProductListView {
-                table ProductRow[] products <= Product.all();
-            }
-            
-            row ProductRow(Product product) {
-                column String name <= product.name;
-                column String price <= product.price.asString() + " HUF";
-            }
-            
-            actor human Admin(User user) {
-                group first label:"Group1" {
-                    group second label:"Group2" {
-                        menu ProductListView products label:"Products" icon:"close";
-                    }
-                    menu ProductListView products2 label:"Products2";
-                }
-                menu UserListView users label:"Users" icon:"account-multiple";
-            }
+			model northwind;
+			
+			import judo::types;
+			
+			entity User {
+			    identifier String userName required;
+			}
+			
+			view UserTransfer(User user) {
+				field String userName <= user.userName set;
+			}
+			
+			view UserListView {
+			    table UserRow[] users <= User.all();
+			}
+			
+			row UserRow(User user) {
+				field String userName <= user.userName;
+			}
+			
+			entity Product {
+			    identifier String name required;
+			    field Integer price required;
+			}
+			
+			view ProductListView {
+			    table ProductRow[] products <= Product.all();
+			}
+			
+			row ProductRow(Product product) {
+			    field String name <= product.name;
+			    field String price <= product.price.asString() + " HUF";
+			}
+			
+			actor Admin human identity:UserTransfer::userName {
+			    group first label:"Group1" {
+			        group second label:"Group2" {
+					    table ProductRow[] products <= Product.all() label:"Products" icon:"close";
+			        }
+				    table ProductRow[] products2 <= Product.all() label:"Products2";
+			    }
+			
+			    table UserRow[] users <= User.all() label:"Users" icon:"account-multiple";
+			}
         """));
 
         File testOutput =  new File(TARGET_TEST_CLASSES, NORTHWIND_TEST);

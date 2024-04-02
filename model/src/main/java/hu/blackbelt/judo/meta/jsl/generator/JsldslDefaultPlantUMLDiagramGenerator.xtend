@@ -119,10 +119,10 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '''
 
     def cardinalityRepresentation(EntityRelationDeclaration it)
-    '''[«IF required»1«ELSE»0«ENDIF»..«IF isMany»*«ELSE»1«ENDIF»]'''
+    '''[«IF isRequired»1«ELSE»0«ENDIF»..«IF isMany»*«ELSE»1«ENDIF»]'''
 
     def cardinalityRepresentation(TransferRelationDeclaration it)
-    '''[«IF required»1«ELSE»0«ENDIF»..«IF isMany»*«ELSE»1«ENDIF»]'''
+    '''[«IF isRequired»1«ELSE»0«ENDIF»..«IF isMany»*«ELSE»1«ENDIF»]'''
 
     def dataTypeRepresentation(DataTypeDeclaration it)
     '''

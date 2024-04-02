@@ -50,7 +50,7 @@ class OppositeAddTests {
 
 
             entity CartItem {
-                relation required Product product;
+                relation Product product required;
                 relation Discount b <= self.product.discount;
             }
         '''.parse => [
@@ -86,7 +86,7 @@ class OppositeAddTests {
 
 
             entity CartItem {
-                relation required Product product;
+                relation Product product required;
                 relation Discount[] b <= self.product.discounts;
             }
         '''.parse => [
@@ -128,7 +128,7 @@ class OppositeAddTests {
 
 
             entity CartItem {
-                relation required ChildProduct product;
+                relation ChildProduct product required;
                 relation Discount b <= self.product.discount;
             }
         '''.parse => [
@@ -174,7 +174,7 @@ class OppositeAddTests {
 
 
             entity CartItem {
-                relation required P::Product product;
+                relation P::Product product required;
                 relation Discount b <= self.product.discount;
             }
 
@@ -227,7 +227,7 @@ class OppositeAddTests {
 
 
             entity CartItem {
-                relation required ChildProduct product;
+                relation ChildProduct product required;
                 relation Discount b <= self.product.discount;
             }
 
@@ -244,11 +244,11 @@ class OppositeAddTests {
             model Test;
 
             entity A {
-                relation required B b opposite:a;
+                relation B b required opposite:a;
             }
             
             entity B {
-                relation required A a opposite:b;
+                relation A a required opposite:b;
             }
         '''.parse => [
             assertError(JsldslPackage::eINSTANCE.entityRelationOppositeReferenced, JslDslValidator.INVALID_DECLARATION, "Bidirectional relation is not allowed to be required on both ends.")
