@@ -615,31 +615,17 @@ class JslDslModelExtension {
     
     def boolean isRequired(EntityMemberDeclaration it) {
     	val RequiredModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.requiredModifier) as RequiredModifier
-    	if (modifier === null) return false
-
-		if (modifier.expression === null) return true
-    	
-    	val BooleanLiteral literal = modifier.expression.asBooleanLiteral
-    	if (literal === null) return false
-
-    	return !literal.isFalse
+    	return modifier !== null || (modifier !== null && modifier.^true)
     }
 
     def boolean isRequired(TransferMemberDeclaration it) {
     	val RequiredModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.requiredModifier) as RequiredModifier
-    	if (modifier === null) return false
-
-		if (modifier.expression === null) return true
-
-    	val BooleanLiteral literal = modifier.expression.asBooleanLiteral
-    	if (literal === null) return false
-
-    	return !literal.isFalse
+    	return modifier !== null && !modifier.^false
     }
 
     def boolean isAbstract(EntityDeclaration it) {
     	val AbstractModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.abstractModifier) as AbstractModifier
-    	return modifier !== null && !modifier.isFalse
+    	return modifier !== null && !modifier.^false
 	}    	
 
     def boolean isAfter(TransferEventDeclaration it) {

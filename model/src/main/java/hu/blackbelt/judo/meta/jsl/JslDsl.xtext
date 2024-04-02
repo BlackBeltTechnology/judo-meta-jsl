@@ -871,7 +871,7 @@ DefaultModifier
 	;
 
 RequiredModifier
-	: type = KW_REQUIRED (COLON expression = Expression)?
+	: type = KW_REQUIRED (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
 CreateModifier

@@ -1410,12 +1410,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 		else if (modifier.eContainer instanceof EntityMemberDeclaration) {
 			val EntityMemberDeclaration member = modifier.eContainer as EntityMemberDeclaration
 
-			if (modifier.expression !== null && modifier.expression.asBooleanLiteral === null) {
-	            error("Entity member can only have a 'true' or 'false' literal in its required modifier.",
-	                JsldslPackage::eINSTANCE.requiredModifier.getEStructuralFeature("ID"),
-	                INVALID_DECLARATION)
-			}
-
 	    	if (member.many) {
 	            error("A collection cannot have required modifier.",
 	                JsldslPackage::eINSTANCE.requiredModifier.getEStructuralFeature("ID"),
@@ -1832,7 +1826,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 		val mappedMember = relation.mappedMember;
 		
-		if (relation.getterExpr !== null && mappedMember === null) {
+		if (!(relation.eContainer instanceof ActorDeclaration) && relation.getterExpr !== null && mappedMember === null) {
             error("Invalid create modifier. Relation is read only. Change the relation expression.",
                 JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
                 INVALID_CHOICES)
