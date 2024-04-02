@@ -39,7 +39,9 @@ To define an entity, use the `entity` keyword.
 
 [subs="quotes"]
 ----
-[purple]#**entity**# &#x5B;[purple]##**abstract**##] &lt;name> &#x5B;[purple]##**extends**## &lt;entity>[purple]##**,**## ...] [purple]##**{**##
+[purple]#**entity**# &lt;name> &#x5B;[purple]##**extends**## &lt;entity>[purple]##**,**## ...] 
+    &#x5B;[purple]##**abstract:**##([purple]##**true**##|[purple]##**false**##)]
+[purple]##**{**##
     [member] ...
 [purple]#**}**#
 ----
@@ -56,13 +58,13 @@ entity Person {
 
 The example above defines an empty entity named Person. This entity has no member declarations (fields or relations).
 
-An entity can be defined as an abstract using the keyword `abstract`. An abstract entity cannot be instantiated, it is intended to be inherited by other entities.
+An entity can be defined as an abstract using the modifier `abstract`. An abstract entity cannot be instantiated, it is intended to be inherited by other entities.
 
 *Example:*
 
 [source,jsl]
 ----
-entity abstract Customer {
+entity Customer abstract {
 }
 ----
 
@@ -115,14 +117,16 @@ Use the `field` keyword to specify a primitive field within an entity.
 
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
+[purple]#**field**# &lt;primitive> &lt;name>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive and <name> is the referable name of the primitive field.
 
-The keyword `required` means that the value of the field must be specified, so the value is not allowed to be undefined. Each newly created entity instance must set this field.
+Setting the `required` modifier to `true` indicates that the field value must be specified, and is not allowed to be undefined. Each newly created entity instance must set this field.
 
-Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the field is set according to the default value expression. See xref:06_expression.adoc[Expression] later.
+Optionally, a `default` modifier can be added and a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the field is set according to the default value expression. See xref:06_expression.adoc[Expression] later.
 
 [NOTE]
 ====
@@ -134,8 +138,8 @@ The `self` variable cannot be used in default expressions.
 [source,jsl]
 ----
 entity Person {
-    field required String firstName;
-    field required String lastName;
+    field String firstName required;
+    field String lastName required;
     field String midName;
     field Title title default:Title#MX;
 }
@@ -154,14 +158,16 @@ Use the `identifier` keyword to specify a unique field within an entity.
 
 [subs="quotes"]
 ----
-[purple]#**identifier**# &#x5B;[purple]##**required**##] &lt;primitive> &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
+[purple]#**identifier**# &lt;primitive> &lt;name>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive and <name> is the referable name of the identifier. Any primitive type can be used as an identifier, except primitives of binary base type.
 
-The keyword `required` means that the value of the identifier must be specified, so the value is not allowed to be undefined.
+Setting the `required` modifier to `true` indicates that the value of the identifier must be specified, and it is not allowed to be undefined. Each newly created entity instance must set this field.
 
-Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the identifier is set according to the default value expression. See xref:06_expression.adoc[Expression] later.
+Optionally, a `default` modifier can be added and a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the identifier is set according to the default value expression. See xref:06_expression.adoc[Expression] later.
 
 [NOTE]
 ====
@@ -173,7 +179,7 @@ The `self` variable cannot be used in default expressions.
 [source,jsl]
 ----
 entity User {
-    identifier required String email;
+    identifier String email required;
 }
 ----
 
@@ -233,16 +239,18 @@ Use the `relation` keyword to specify a relation between two entities. The synta
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
+[purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
 ----
 
 where <entity> is the name of an entity to which the relation is targeted. The <name> is used to identify the relation within the entity, it is commonly referred to as role name.
 
 The optional `[]` behind the <entity> indicates that the relation is a collection rather than a single reference to one <entity> instance. In other words, the cardinality of the relation is a collection.
 
-The keyword `required` means that the value of the relation must be specified, so the value is not allowed to be undefined. Each newly created entity instance must set this field. The keyword `required` is not allowed for collections.
+Setting the `required` modifier to `true` indicates that the value of the relation must be specified, and it is not allowed to be undefined. Each newly created entity instance must set this field. Note that the `required` modifier is not allowed for collections.
 
-Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the field is set according to the default value expression. See xref:06_expression.adoc[Expression] later.
+Optionally, a `default` modifier can be added and a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the field is set according to the default value expression. See xref:06_expression.adoc[Expression] later.
 
 *Example:*
 
@@ -253,7 +261,7 @@ entity Customer {
 }
 
 entity Order {
-	relation required Customer;
+	relation Customer required;
 }
 ----
 
@@ -270,10 +278,12 @@ The syntax of the bidirectional relation is an extension of unidirectional synta
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite:**##&lt;opposite>[purple]#**;**#
+[purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    [purple]##**opposite:**##&lt;opposite>[purple]#**;**#
 ----
 
-The `opposite` keyword is used to link two relations into a bidirectional relation. The `opposite` keyword must be used on both sides of the bidirectional relation.
+The `opposite` modifier is used to link two relations into a bidirectional relation. The `opposite` modifier must be used on both sides of the bidirectional relation.
 
 Both ends of a bidirectional relation cannot be required at the same time.
 
@@ -286,7 +296,7 @@ entity Customer {
 }
 
 entity Order {
-	relation required Customer customer opposite:orders;
+	relation Customer customer required opposite:orders;
 }
 ----
 
@@ -296,12 +306,14 @@ Another form of bidirectional relationship declaration is as follows.
 
 [subs="quotes"]
 ----
-[purple]#**relation**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> [purple]##**opposite-add:**##&lt;opposite>&#x5B;[purple]##**[]**##][purple]#**;**#
+[purple]#**relation**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name>
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
+    [purple]##**opposite-add:**##&lt;opposite>&#x5B;[purple]##**[]**##][purple]#**;**#
 ----
 
-The `opposite-add` keyword with a simple <opposite> is used to create a bidirectional relation and inject the opposite relation to an already defined entity without changing the original definition of the entity.
+The `opposite-add` modifier with an <opposite> is used to create a bidirectional relation and inject the opposite relation to an already defined entity without changing the original definition of the entity. The <opposite> is the name of the injected relation.
 
-The `opposite-add` keyword with an <opposite> and `[]` injects a collection in the target entity.
+The `opposite-add` modifier with an <opposite> and `[]` injects a collection in the target entity.
 
 The most useful feature of `opposite-add` is that it can be used with models that should not be modified. If you import a model, you can still create bidirectional relationships between your entities and the entities you imported.
 
@@ -312,7 +324,7 @@ The example below defines a bidirectional relation. Defining the `product` relat
 [source,jsl]
 ----
 entity OrderItem {
-	relation required Product product opposite-add:orderItems[];
+	relation Product product required opposite-add:orderItems[];
 }
 
 entity Product {
@@ -324,7 +336,7 @@ The model in the above example is equivalent to the following example.
 [source,jsl]
 ----
 entity OrderItem {
-	relation required Product product opposite:orderItems;
+	relation Product product required opposite:orderItems;
 }
 
 entity Product {
@@ -354,29 +366,33 @@ Use the `field` keyword to specify a composite field within an entity.
 ////
 [subs="quotes"]
 ----
-[purple]#**field**# &#x5B;[purple]##**required**##] &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> &#x5B;[purple]##**default:**##&lt;default>][purple]#**;**#
+[purple]#**field**# &lt;entity>&#x5B;[purple]##**[]**##] &lt;name> 
+    &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
 ----
 
 where <entity> is the name of an entity and <name> is the referable name of the composition.
 
 The optional `[]` indicates that the composite field stores a list of entity instances rather than a single <entity> instance. In other words, the cardinality of the field is a collection.
 
-The keyword `required` means that the value of the field must be specified, so the value is not allowed to be undefined. Each newly created entity instance must set this field. The keyword `required` is not allowed for collections.
+Setting the `required` modifier to `true` indicates that the value of the field must be specified, and it is not allowed to be undefined. Each newly created entity instance must set this field.  Note that the `required` modifier is not allowed for collections.
 
-Optionally, a <default> value can be specified as an expression. The <default> value expression is evaluated when a new instance of the entity is created, and the field is set according to the default value expression. See xref:06_expression.adoc[Expression] later. Note that using the default value of the composition copies the entities specified in the default expression.
+[NOTE]
+====
+Note that using the `default` modifier for composition is not allowed.
+====
 
 *Example:*
 
 [source,jsl]
 ----
 entity Address {
-    field required String line;
-    field required String city;
-    field required country;
+    field String line required;
+    field String city required;
+    field String country required;
 }
 
 entity Customer {
-    field required Address address;
+    field Address address required;
 }
 ----
 
@@ -416,15 +432,15 @@ Note that the calculated members use the `\<=` symbol instead of the assignment 
 
 [NOTE]
 ====
-Note that the `required` keyword cannot be used for calculated members.
+Note that the `required` and `default` modifiers cannot be used for calculated members.
 ====
 
 *Example:*
 
 ----
 entity Person {
-    field required String firstName;
-    field required String lastName;
+    field String firstName required;
+    field String lastName required;
 
 	field String fullName <= self.firstName + " " + self.lastName;
 }
@@ -437,15 +453,15 @@ The example above defines two stored fields and a calculated member. The name of
 ----
 entity Customer extends User, Person {
 	relation Order[] undeliveredOrders <=
-		self.orders.filter(order | order.status != OrderStatus#PAID);
+		self.orders.filter(order | order.status != OrderStatus#DELIVERED);
 }
 ----
 
-In the second example, the calculated relation `undeliveredOrders` returns all orders that have not yet been delivered but have been ordered by the customer.
+In the second example, the calculated relation `undeliveredOrders` returns all orders that have not yet been delivered to the customer.
 
 == Fetching strategy
 
-The fetching strategy determines the timing of fetching related entities from persistent storage. The entities in the compositions and in the relationships are collectively called related entities. There are two ways available for related entities.
+The fetching strategy determines the timing of fetching related entities from persistent storage. The entities in the compositions and in the relationships are collectively called related entities. There are two ways available for fetching related entities.
 
 * *Eager fetching* is a technique where related entities are fetched at the same time as the owner entity is retrieved from persistent storage. In other words, the related entities are embedded into the owner entity. This approach can be beneficial when dealing with simple getter expressions and only a few related objects, as it helps eliminate the need for additional fetches and improves the application's performance.
 
@@ -453,26 +469,29 @@ The fetching strategy determines the timing of fetching related entities from pe
 
 By default, related entities are retrieved using a lazy fetching strategy.
 
-=== Fetching modifier
+=== Eager modifier
 
 The default fetching strategy of the entity relations and compositions can be altered by applying the `eager` modifier. It is important to note that applying `eager` modifier does not modify the business logic, but significantly impacts the performance of the application.
 
-To apply the eager fetching strategy on an entity relation or composition, use the `eager` modifier with `true` value. To apply the lazy fetching strategy on an entity relation or composition, use the `eager` modifier with `false` value.
+To apply the eager fetching strategy to an entity relation or composition, use the `eager` modifier either alone or with a value of `true`.
 
 *Example:*
 
 [source,jsl]
 ----
 entity Customer {
-	relation Order[] orders eager:true;
+	relation Order[] orders eager;
 }
 ----
 
-In the above example, the instances of the `orders` relation will be loaded when the order entity is fetched. In other words, the Order entity instances referenced by the `orders` relation will be fetched together with the Customer entity instance.
+In the above example, the instances of the `orders` relation will be loaded when the `Customer` entity is fetched. In other words, the Order entity instances referenced by the `orders` relation will be fetched together with the `Customer` entity instance.
 
 The eager fetching strategy can also be applied to calculated relations.
 
+[NOTE]
+====
 Please note that the fetching strategy modifier is not applicable for primitive fields. Instead, use primitive return type instance queries. See <<Instance query>> chapter later.
+====
 
 [judo-req="true",judo-req-id="REQ-ENT-009"]
 [judo-req="true",judo-req-id="REQ-ENT-011"]
@@ -613,13 +632,13 @@ The `extends` keyword in the entity declaration indicates that an entity is inhe
 
 [source,jsl]
 ----
-entity abstract Customer {
-    field required Address address;
-	relation Order[] orders opposite customer;
+entity Customer abstract {
+    field Address address required;
+	relation Order[] orders opposite:customer;
 }
 
 entity Enterprise extends Customer {
-	field required String name;
+	field String name required;
 }
 ----
 
@@ -630,17 +649,17 @@ In the above example the Enterprise entity inherits the field and the relation o
 [source,jsl]
 ----
 entity User {
-	identifier required Email email;
+	identifier Email email required;
 } 
 
-entity abstract Customer {
-    field required Address address;
-	relation Order[] orders opposite customer;
+entity Customer abstract {
+    field Address address required;
+	relation Order[] orders opposite:customer;
 }
 
 entity Person extends Customer, User {
-	field required String firstName;
-	field required String lastName;
+	field String firstName required;
+	field String lastName required;
 }
 ----
 

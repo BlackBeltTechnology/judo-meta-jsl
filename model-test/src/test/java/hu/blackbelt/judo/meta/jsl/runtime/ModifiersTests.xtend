@@ -220,7 +220,7 @@ class ModifiersTests {
         '''
             model test;
 
-            entity abstract T1 {
+            entity T1 abstract {
             }
             
             entity Test {
@@ -249,7 +249,7 @@ class ModifiersTests {
 			
 			transfer TB(B b) {}
         '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
+        	m | m.assertError(JsldslPackage::eINSTANCE.choiceModifier, JslDslValidator.INVALID_CHOICES)
         ]
     }
 
@@ -291,7 +291,7 @@ class ModifiersTests {
 				action void myaction(TB input choices:B.all());
 			}
         '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
+        	m | m.assertError(JsldslPackage::eINSTANCE.choiceModifier, JslDslValidator.INVALID_CHOICES)
         ]
     }
 
@@ -327,8 +327,8 @@ class ModifiersTests {
 			entity B {}
 
 			transfer TB(B b) {
-				event instead update update();
-				event instead delete delete();
+				event update `update`();
+				event delete `delete`();
 			}
 			
 			transfer TA maps A as a {
@@ -398,7 +398,7 @@ class ModifiersTests {
 			}
 			
 			view VA maps A as a {
-				action void myaction(VB input choices:RB[](B.all()));
+				action void myaction(RB input choices:B.all());
 			}
         '''.parse => [
             assertNoErrors
@@ -449,7 +449,7 @@ class ModifiersTests {
 				action void myaction(VB input choices:RB[](B.all()));
 			}
         '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
+        	m | m.assertError(JsldslPackage::eINSTANCE.choiceModifier, JslDslValidator.INVALID_CHOICES)
         ]
     }
 
@@ -470,10 +470,10 @@ class ModifiersTests {
 			}
 			
 			view VA maps A as a {
-				action void myaction(VB input choices:B.all());
+				action void myaction(VB input choices:A.all());
 			}
         '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.transferChoiceModifier, JslDslValidator.INVALID_CHOICES)
+        	m | m.assertError(JsldslPackage::eINSTANCE.choiceModifier, JslDslValidator.INVALID_CHOICES)
         ]
     }
 
@@ -490,9 +490,9 @@ class ModifiersTests {
 			}
 
 			transfer TA maps A as a {
-				event instead create create();
-				event instead delete delete();
-				event instead update update();
+				event create `create`();
+				event delete `delete`();
+				event update `update`();
 			}
 
 			transfer TB(B b) {
@@ -516,8 +516,8 @@ class ModifiersTests {
 			}
 
 			transfer TA maps A as a {
-				event instead delete delete();
-				event instead update update();
+				event delete edelete();
+				event update eupdate();
 			}
 
 			transfer TB(B b) {
@@ -541,8 +541,8 @@ class ModifiersTests {
 			}
 
 			transfer TA maps A as a {
-				event instead create create();
-				event instead update update();
+				event instead ecreate();
+				event instead eupdate();
 			}
 
 			transfer TB(B b) {
@@ -566,8 +566,8 @@ class ModifiersTests {
 			}
 
 			transfer TA maps A as a {
-				event instead create create();
-				event instead delete delete();
+				event instead ecreate();
+				event instead edelete();
 			}
 
 			transfer TB(B b) {

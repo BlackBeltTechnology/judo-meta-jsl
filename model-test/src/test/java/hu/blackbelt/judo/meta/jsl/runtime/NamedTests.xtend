@@ -151,7 +151,7 @@ class NamedTests {
          entity Ent {
          }
 
-         entity abstract xEnt1 extends Ent {
+         entity xEnt1 extends Ent abstract {
          }
         '''.parse => [
             assertFirstLowSecondUpperNamedError("xEnt1")

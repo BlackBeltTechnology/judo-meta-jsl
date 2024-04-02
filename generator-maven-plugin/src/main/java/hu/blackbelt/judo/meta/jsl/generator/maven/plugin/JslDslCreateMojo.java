@@ -105,22 +105,22 @@ public class JslDslCreateMojo extends AbstractJslDslProjectMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         String defaultModel = """
             model %s;
-            import judo::types;
-            entity User {
-                identifier required String userName;
-                field Boolean isActive;
-            }
-
-            transfer UserTransfer(User u) {
-                field String userName <= u.userName update: true;
-            }
-    
-            actor human Actor(User user)
-                realm: "COMPANY"
-                claim: "userName"
-                identity: UserTransfer::userName
-                guard: user.isActive
-            {}
+			import judo::types;
+			entity User {
+			    identifier String userName required;
+			    field Boolean isActive;
+			}
+			
+			transfer UserTransfer(User u) {
+			    field String userName <= u.userName set: true;
+			}
+			
+			actor Actor human
+			    realm: "COMPANY"
+			    claim: "userName"
+			    identity: UserTransfer::userName
+			    guard: User.all().filter(u | u.userName == String.getVariable(category = "PRINCIPAL", key = "preferred_username")).any().isActive
+			{}
             """.formatted(modelName);
 
 
