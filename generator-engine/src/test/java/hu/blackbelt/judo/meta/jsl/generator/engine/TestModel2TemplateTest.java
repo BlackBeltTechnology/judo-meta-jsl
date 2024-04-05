@@ -76,7 +76,7 @@ public class TestModel2TemplateTest {
 			}
 			
 			view UserTransfer(User user) {
-				field String userName <= user.userName set;
+				field String userName <= user.userName bind;
 			}
 			
 			view UserListView {

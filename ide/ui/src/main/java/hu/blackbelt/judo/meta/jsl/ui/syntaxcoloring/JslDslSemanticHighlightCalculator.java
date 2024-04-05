@@ -58,11 +58,11 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
     							"KW_FIELD", "KW_GROUP", "KW_IDENTIFIER", "KW_LINK", "KW_LITERAL",
     							"KW_MENU", "KW_RELATION", "KW_SUBMIT", "KW_TABLE", "KW_TABS", "KW_TEXT", "KW_THROWS");
 
-    static Set<String> attributes = Sets.newHashSet("KW_ABSTRACT", "KW_BULK", "KW_CHOICES", "KW_CLAIM", "KW_CREATE", "KW_DEFAULT", "KW_DETAIL",
+    static Set<String> attributes = Sets.newHashSet("KW_ABSTRACT", "KW_BIND", "KW_BULK", "KW_CHOICES", "KW_CLAIM", "KW_CREATE", "KW_DEFAULT", "KW_DETAIL",
     		 					"KW_DELETE", "KW_DIALOG", "KW_EAGER", "KW_ENABLED", "KW_FRAME", "KW_GUARD", "KW_HIDDEN",
     							"KW_HALIGN", "KW_HUMAN", "KW_ICON", "KW_IDENTITY", "KW_LABEL", "KW_LINES", "KW_MAXFILESIZE", "KW_MAXSIZE", "KW_MINSIZE", "KW_MIMETYPE", "KW_ON",
     							"KW_OPPOSITE", "KW_OPPOSITEADD", "KW_ORIENTATION", "KW_PRECISION", "KW_REALM", "KW_REDIRECT", "KW_REGEX", "KW_REQUIRED",
-    							"KW_ROWS", "KW_SET", "KW_SELECTOR", "KW_SCALE", "KW_STATIC", "KW_STRETCH", "KW_TIMING", "KW_TEXT", "KW_THROW",  "KW_UPDATE", "KW_VALIGN", "KW_WIDTH");
+    							"KW_ROWS", "KW_SELECTOR", "KW_SCALE", "KW_STATIC", "KW_STRETCH", "KW_TEXT", "KW_THROW",  "KW_UPDATE", "KW_VALIGN", "KW_WIDTH");
 
     @Override
     public void provideHighlightingFor(XtextResource resource, IHighlightedPositionAcceptor acceptor, CancelIndicator cancelIndicator) {

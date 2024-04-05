@@ -148,10 +148,10 @@ class JudoFunctionsProvider {
 		function timestamp plus(numeric milliseconds, numeric seconds, numeric minutes, numeric hours, numeric days, numeric months, numeric years) on timestamp;
 		function string asString() on timestamp;
 		
-		function boolean typeOf(required declaration<entity> entityType) on entity;
-		function boolean kindOf(required declaration<entity> entityType) on entity;
-		function entity container(required declaration<entity> entityType) on entity;   //  type change !!!!!!!!!
-		function entity asType(required declaration<entity> entityType) on entity;      //  type change !!!!!!!!!
+		function boolean typeOf(required declaration<entity> type) on entity;
+		function boolean kindOf(required declaration<entity> type) on entity;
+		function entity container(required declaration<entity> type) on entity;   //  type change !!!!!!!!!
+		function entity asType(required declaration<entity> type) on entity;      //  type change !!!!!!!!!
 		function boolean memberOf(required collection<entity> instances) on entity;
 		
 		function collection<entity> all() on declaration<entity>;
@@ -173,7 +173,7 @@ class JudoFunctionsProvider {
 		
 		function entity any() on collection<entity>;
 		function numeric size() on collection<entity>;
-		function collection<entity> asCollection(required declaration<entity> entityType) on collection<entity>;   //  type change !!!!!!!!!
+		function collection<entity> asCollection(required declaration<entity> type) on collection<entity>;   //  type change !!!!!!!!!
 		function boolean contains(required entity instance) on collection<entity>;
 	'''
 		

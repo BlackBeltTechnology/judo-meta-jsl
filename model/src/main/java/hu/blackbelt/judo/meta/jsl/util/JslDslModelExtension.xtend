@@ -67,7 +67,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.HumanModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.StaticModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.SetterModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.BindModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.DetailModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.RowLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.BulkModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.RowActionDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -171,8 +175,8 @@ class JslDslModelExtension {
 			return createModifier !== null && !createModifier.isFalse
 		}
 		
-		val SetterModifier setterModifier = it.getModifier(JsldslPackage::eINSTANCE.setterModifier) as SetterModifier
-		return setterModifier !== null && !setterModifier.isFalse
+		val BindModifier bindModifier = it.getModifier(JsldslPackage::eINSTANCE.bindModifier) as BindModifier
+		return bindModifier !== null && !bindModifier.isFalse
 	}
 
     def NavigationTarget getMappedMember(TransferDataDeclaration member) {
@@ -650,6 +654,16 @@ class JslDslModelExtension {
 
     def boolean isStatic(TransferActionDeclaration it) {
     	val StaticModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.staticModifier) as StaticModifier
+    	return modifier !== null && !modifier.isFalse
+	}    	
+
+    def boolean isBulk(RowActionDeclaration it) {
+    	val BulkModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.bulkModifier) as BulkModifier
+    	return modifier !== null && !modifier.isFalse
+	}    	
+
+    def boolean isDetail(RowLinkDeclaration it) {
+    	val DetailModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.detailModifier) as DetailModifier
     	return modifier !== null && !modifier.isFalse
 	}    	
 }

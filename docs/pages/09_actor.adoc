@@ -67,7 +67,7 @@ entity SalesPerson {
 }
 
 transfer SalesPersonTransfer(SalesPerson salesPerson) {
-    field String email <= salesPerson.email set:true;
+    field String email <= salesPerson.email bind:true;
 }
 
 actor SalesPersonActor

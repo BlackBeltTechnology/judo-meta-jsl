@@ -29,7 +29,7 @@ class ActorTests {
             }
 
 			transfer T(E e) {
-				field String id <= e.id set;
+				field String id <= e.id bind;
 			}
 
             actor A

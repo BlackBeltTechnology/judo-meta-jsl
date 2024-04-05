@@ -248,7 +248,7 @@ A mapped field is a simple field with a mapping configuration. The full list of 
     &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**enabled:**##&lt;enabled>]
     &#x5B;[purple]##**default:**##&lt;default>]
-    &#x5B;[purple]##**set:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
+    &#x5B;[purple]##**bind:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
 ----
 
 where <primitive> is the name of a domain model primitive.
@@ -257,7 +257,7 @@ The `\<=` symbol indicates that the value of the transfer field will be set to t
 
 The `required`, `enabled`, and `default` modifiers are the same as described for simple xref:07_transfer.adoc#field[Transfer field].
 
-If the `set` modifier is `true`, changes in the transfer field value will set the value of the mapped entity's field. It's important to note that the `set` modifier only works for expressions that select a non-calculated field.
+If the `bind` modifier is `true`, changes in the transfer field value will set the value of the mapped entity's field. It's important to note that the `bind` modifier only works for expressions that select a non-calculated field.
 
 *Example:*
 
@@ -291,12 +291,12 @@ entity SalesPerson {
 }
 
 transfer SalesPersonTransfer(SalesPerson salesperson) {
-    field String firstName <= salesperson.firstName set enabled;
-    field String lastName <= salesperson.lastName set enabled;
+    field String firstName <= salesperson.firstName bind enabled;
+    field String lastName <= salesperson.lastName bind enabled;
 }
 ----
 
-In other words, the `\<=` symbol creates a read-only connection between the entity and the transfer fields, where the value of the transfer field takes the value of the expression. However, if the `set` modifier is `true`, it defines a read-write connection.
+In other words, the `\<=` symbol creates a read-only connection between the entity and the transfer fields, where the value of the transfer field takes the value of the expression. However, if the `bind` modifier is `true`, it defines a read-write connection.
 
 === Mapped relation
 
