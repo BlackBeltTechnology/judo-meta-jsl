@@ -105,9 +105,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ActorTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ChoiceModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowActionDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.SetterModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.WidthModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowFieldDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.BindModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.BulkModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.StaticModifier
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -1051,9 +1053,20 @@ class JslDslValidator extends AbstractJslDslValidator {
 	def checkModifierDetail(DetailModifier modifier) {
 		val RowDeclaration row = modifier.eContainer.eContainer as RowDeclaration;
 
-		if (row.members.filter[m | m instanceof RowLinkDeclaration && m.getModifier(JsldslPackage::eINSTANCE.detailModifier) !== null].size > 1) {
+		if (row.members.filter[m | m instanceof RowLinkDeclaration && (m as RowLinkDeclaration).isDetail()].size > 1) {
             error("The detail modifier can only be used on one link per row.",
                 JsldslPackage::eINSTANCE.detailModifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+	}
+
+	@Check
+	def checkModifierBulk(BulkModifier modifier) {
+		val RowActionDeclaration action = modifier.eContainer as RowActionDeclaration;
+
+		if (action.isBulk() && action.isStatic()) {
+            error("The bulk modifier can only be used on non-static actions.",
+                JsldslPackage::eINSTANCE.bulkModifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
 		}
 	}
@@ -1875,14 +1888,14 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 	
 	@Check
-	def checkSetModifier(SetterModifier modifier) {
+	def checkBindModifier(BindModifier modifier) {
 		if (modifier.isFalse) return;
 
 		val TransferFieldDeclaration field = modifier.eContainer as TransferFieldDeclaration
 
 		if ((modifier !== null && !modifier.isFalse) && field.mappedMember === null) {
-            error("Invalid set modifier. In case of the set modifier is true the getter expression must select a stored member of the mapped entity.",
-                JsldslPackage::eINSTANCE.setterModifier.getEStructuralFeature("ID"),
+            error("Invalid bind modifier. In case of the bind modifier is true the getter expression must select a stored member of the mapped entity.",
+                JsldslPackage::eINSTANCE.bindModifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
 		}
 	}

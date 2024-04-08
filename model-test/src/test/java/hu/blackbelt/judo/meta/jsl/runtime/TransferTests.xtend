@@ -52,9 +52,9 @@ class TransferTests {
 			transfer T2(E1 e1) {
 			    field String f;
 			    field Integer f2 <= e1.f;
-			    field Integer f3 <= e1.f set;
+			    field Integer f3 <= e1.f bind;
 			    field Integer f4 <= E1.all().size();
-			    field EN en <= e1.en set;
+			    field EN en <= e1.en bind;
 			}
 			
 			transfer T3(E2 e2);
@@ -152,7 +152,7 @@ class TransferTests {
             }
 
             transfer Mapped maps Entity as e {
-                field Integer mappedIdentifier <= e.id set;
+                field Integer mappedIdentifier <= e.id bind;
             }
         '''.parse => [
             assertNoErrors
@@ -253,7 +253,7 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                field Integer f <= e1.f set;
+                field Integer f <= e1.f bind;
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
@@ -272,10 +272,10 @@ class TransferTests {
             }
 
             transfer T1(E1 e1) {
-                field String f <= E1.any().f set;
+                field String f <= E1.any().f bind;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.setterModifier, JslDslValidator.INVALID_DECLARATION)
+            m | m.assertError(JsldslPackage::eINSTANCE.bindModifier, JslDslValidator.INVALID_DECLARATION)
         ]
     }
 
@@ -344,10 +344,10 @@ class TransferTests {
             entity E {}
 
             transfer T {
-                field Integer i <= E.all().size() set;
+                field Integer i <= E.all().size() bind;
             };
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.setterModifier, JslDslValidator.INVALID_DECLARATION)
+            m | m.assertError(JsldslPackage::eINSTANCE.bindModifier, JslDslValidator.INVALID_DECLARATION)
         ]
     }
 
@@ -448,7 +448,7 @@ class TransferTests {
             transfer T1(E1 e1);
 
             transfer T2(E2 e2) {
-                field T1 t1r <= e2.e0 set;
+                field T1 t1r <= e2.e0 bind;
             }
         '''.parse => [
             m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.TYPE_MISMATCH)
@@ -515,8 +515,8 @@ class TransferTests {
             }
 
             transfer T(E e) {
-                field Integer f1 <= e.f set;
-                field Integer f2 <= e.f set;
+                field Integer f1 <= e.f bind;
+                field Integer f2 <= e.f bind;
             }
         '''.parse => [
             m | m.assertWarning(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.DUPLICATE_FIELD_MAPPING)
