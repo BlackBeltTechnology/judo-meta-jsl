@@ -163,7 +163,7 @@ TransferDataDeclaration
 	  -> KW_FIELD
 	  referenceType = [PrimitiveDeclaration | ModelName] Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (EnabledModifier | SetterModifier | DefaultModifier | RequiredModifier)*
+	  modifiers += (EnabledModifier | BindModifier | DefaultModifier | RequiredModifier)*
 	  SC
 	  | TransferRelationDeclaration
 	;
@@ -287,7 +287,7 @@ ViewFieldDeclaration returns TransferFieldDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (SetterModifier | DefaultModifier | RequiredModifier | EnabledModifier | VisualModifier | LinesModifier)*
+	  modifiers += (BindModifier | DefaultModifier | RequiredModifier | EnabledModifier | VisualModifier | LinesModifier)*
 	  SC
 	;
 
@@ -442,7 +442,7 @@ ActorAccessDeclaration returns TransferRelationDeclaration
 	  -> KW_ACCESS
 	  referenceType = [TransferDeclaration | ModelName] Cardinality?
 	  Named
-	  LTE getterExpr = Expression
+	  (LTE getterExpr = Expression)?
 	  modifiers += (EagerModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
@@ -824,7 +824,7 @@ Modifier
 	| UpdateModifier
 	| DeleteModifier
 	| ChoiceModifier
-	| SetterModifier
+	| BindModifier
 	| RedirectModifier
 	| RowsModifier
 	| SelectorModifier
@@ -890,8 +890,8 @@ ChoiceModifier
 	: type = KW_CHOICES COLON expression = Expression
 	;
 
-SetterModifier
-	: type = KW_SET (COLON (false?=KW_FALSE | true?=KW_TRUE))?
+BindModifier
+	: type = KW_BIND (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
 RedirectModifier
@@ -1109,7 +1109,8 @@ JSLID: ID
 //	// Declarations not allowed to use
 //	| KW_ACTOR | KW_ANNOTATION | KW_ENTITY | KW_ENUM | KW_ERROR |  KW_IMPORT
 //  | KW_MODEL | KW_QUERY | KW_ROW | KW_TRANSFER | KW_TYPE | KW_UNION | KW_VIEW
-//
+
+	| KW_TYPE
 
 	// Temporarily commented out due to static initializer exceeds limit error in Xtext
 	// Declarations
@@ -1127,9 +1128,9 @@ JSLID: ID
 	| KW_KB | KW_MB | KW_GB | KW_KIB | KW_MIB | KW_GIB
 	
 	// Attributes
-	| KW_BULK | KW_CHOICES | KW_CLAIM | KW_DETAIL | KW_EAGER | KW_ENABLED | KW_DEFAULT | KW_DIALOG | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
-	| KW_IDENTITY | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_REQUIRED | KW_ROWS | KW_SET | KW_SELECTOR | KW_SCALE | KW_STATIC
-	| KW_STRETCH | KW_THROW | KW_TIMING | KW_WIDTH
+	| KW_BULK | KW_BIND | KW_CHOICES | KW_CLAIM | KW_DETAIL | KW_EAGER | KW_ENABLED | KW_DEFAULT | KW_DIALOG | KW_FRAME | KW_GUARD | KW_HIDDEN | KW_ICON
+	| KW_IDENTITY | KW_LABEL | KW_OPPOSITE | KW_PRECISION | KW_REALM | KW_REGEX | KW_REQUIRED | KW_ROWS | KW_SELECTOR | KW_SCALE | KW_STATIC
+	| KW_STRETCH | KW_THROW | KW_WIDTH
 	
 	// Operators
 //	| KW_IMPLIES | KW_OR | KW_XOR | KW_AND | KW_DIV | KW_MOD
@@ -1218,6 +1219,7 @@ terminal KW_GIB:		'GiB';
 
 // Attributes
 terminal KW_ABSTRACT:	'abstract';
+terminal KW_BIND:		'bind';
 terminal KW_BULK:		'bulk';
 terminal KW_CHOICES:	'choices';
 terminal KW_CLAIM:		'claim';
@@ -1248,11 +1250,9 @@ terminal KW_REGEX:		'regex';
 terminal KW_REQUIRED:	'required';
 terminal KW_ROWS:		'rows';
 terminal KW_SELECTOR:	'selector';
-terminal KW_SET:		'set';
 terminal KW_SCALE:		'scale';
 terminal KW_STATIC:		'static';
 terminal KW_STRETCH:	'stretch';
-terminal KW_TIMING:		'timing';
 terminal KW_THROW:		'throw';
 terminal KW_VALIGN:		'v-align';
 terminal KW_WIDTH:		'width';

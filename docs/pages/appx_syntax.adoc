@@ -148,7 +148,7 @@ or
     &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**enabled:**##&lt;enabled>]
     &#x5B;[purple]##**default:**##&lt;default>]
-    &#x5B;[purple]##**set:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
+    &#x5B;[purple]##**bind:**##([purple]##**true**##|[purple]##**false**##)][purple]#**;**#
 ----
 
 .Possible modifiers of transfer field
@@ -158,7 +158,7 @@ or
 |required      | boolean literal                        | If the field cannot be undefined.
 |enabled       | expression returns boolean     | If the field is enabled for editing.
 |default       | expression returns <primitive> | The default value of the field.
-|set           | boolean literal                        | If the transfer field is changed, its value will be set into the mapped entity's field.
+|bind          | boolean literal                        | If the transfer field is changed, its value will be set into the mapped entity's field.
 |====================
 
 === Transfer relation
@@ -281,7 +281,7 @@ or
     &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**enabled:**##&lt;enabled>]
     &#x5B;[purple]##**default:**##&lt;default>]
-    &#x5B;[purple]##**set:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**bind:**##([purple]##**true**##|[purple]##**false**##)]
 
     &#x5B;[purple]##**label:**##&lt;label>]
     &#x5B;[purple]##**icon:**##&lt;icon>]
@@ -297,7 +297,7 @@ or
 |required      | boolean literal                | If the field cannot be undefined.
 |enabled       | expression returns boolean     | If the field is enabled for editing.
 |default       | expression returns <primitive> | The default value of the field.
-|set           | boolean literal                | If the transfer field is changed, its value will be set into the mapped entity's field.
+|bind          | boolean literal                | If the transfer field is changed, its value will be set into the mapped entity's field.
 
 |label          | string literal        | The label to show for the field.
 |icon           | string literal        | The name of the icon to show for the field. Possible icon names can be found here: https://pictogrammers.com/library/mdi/

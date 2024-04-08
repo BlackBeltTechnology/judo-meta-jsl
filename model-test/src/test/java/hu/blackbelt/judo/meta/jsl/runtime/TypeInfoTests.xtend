@@ -1216,10 +1216,10 @@ class TypeInfoTests {
                 field T2 t2;
                 field T2[] t2s;
 
-                field Boolean typeOf <= self.t1.typeOf(entityType = T1);
-                field Boolean kindOf <= self.t1.kindOf(entityType = T1);
-                relation Test container <= self.t1.container(entityType = Test);
-                relation T1 asType <= self.t2.asType(entityType = T1);
+                field Boolean typeOf <= self.t1.typeOf(type = T1);
+                field Boolean kindOf <= self.t1.kindOf(type = T1);
+                relation Test container <= self.t1.container(type = Test);
+                relation T1 asType <= self.t2.asType(type = T1);
                 field Boolean memberOf <= self.t2.memberOf(instances = self.t2s);
 
             }
@@ -1296,7 +1296,7 @@ class TypeInfoTests {
                 relation T1 any <= self.t1s.any();
                 field Integer size <= self.t1s.size();
                 field Boolean contains <= self.t1s.contains(instance = self.t1);
-                relation T1[] asCollection <= self.t1s.asCollection(entityType = T1);
+                relation T1[] asCollection <= self.t1s.asCollection(type = T1);
             }
         '''.parse
         p.assertNoErrors

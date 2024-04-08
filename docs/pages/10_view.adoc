@@ -134,7 +134,7 @@ The syntax for defining a view field is as follows:
     &#x5B;[purple]##**required:**##([purple]##**true**##|[purple]##**false**##)]
     &#x5B;[purple]##**enabled:**##&lt;enabled>]
     &#x5B;[purple]##**default:**##&lt;default>]
-    &#x5B;[purple]##**set:**##([purple]##**true**##|[purple]##**false**##)]
+    &#x5B;[purple]##**bind:**##([purple]##**true**##|[purple]##**false**##)]
 
     &#x5B;[purple]##**label:**##&lt;label>]
     &#x5B;[purple]##**icon:**##&lt;icon>]

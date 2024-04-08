@@ -952,34 +952,34 @@ Makes sense in JCL only.
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**typeOf(entityType = **#<entityType>[purple]##**)**## : boolean`
+|`[purple]#**typeOf(type = **#<entityType>[purple]##**)**## : boolean`
 |Evaluates to `true` if the given instance conforms to the <entityType> but not any subtype of the <entityType>.  That is, an instance of <entityType> and not an instance of any subtype of <entityType>.
 |Example:
-|`self.customer.typeOf(entityType = shop::Customer)` is `true` if `self.customer` is a customer, but neither an enterprise nor a person. For the model, see the xref:01_intro.adoc[Introduction] chapter.
+|`self.customer.typeOf(type = shop::Customer)` is `true` if `self.customer` is a customer, but neither an enterprise nor a person. For the model, see the xref:01_intro.adoc[Introduction] chapter.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**kindOf(entityType = **#<entityType>[purple]##**)**## : boolean`
+|`[purple]#**kindOf(type = **#<entityType>[purple]##**)**## : boolean`
 |Evaluates to `true` if the given instance conforms to the <entityType>. That is, an instance of <entityType> or an instance of any subtype of <entityType>.
 |Example:
-|`self.customer.kindOf(entityType = shop::Customer)` is `true` if `self.customer` is either a customer, an enterprise, or a person. For the model, see the xref:01_intro.adoc[Introduction] chapter.
+|`self.customer.kindOf(type = shop::Customer)` is `true` if `self.customer` is either a customer, an enterprise, or a person. For the model, see the xref:01_intro.adoc[Introduction] chapter.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**container(entityType = **#<entityType>[purple]##**)**## : instance`
+|`[purple]#**container(type = **#<entityType>[purple]##**)**## : instance`
 |Returns the container of the instance if that matches the given <entityType>. Type matching works according to the `kindOf()` function.
 |Example:
-|`self.container(entityType = shop::Customer)` navigates from the Address to the Customer if the container is an instance of Customer or any subtype of Customer (Enterprise or Person). For the model, see the xref:01_intro.adoc[Introduction] chapter.
+|`self.container(type = shop::Customer)` navigates from the Address to the Customer if the container is an instance of Customer or any subtype of Customer (Enterprise or Person). For the model, see the xref:01_intro.adoc[Introduction] chapter.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**asType(entityType = **#<entityType>[purple]##**)**## : instance`
+|`[purple]#**asType(type = **#<entityType>[purple]##**)**## : instance`
 |Returns the given instance as the <entityType> if the type of the given instance matches to <entityType>, otherwise evaluates as undefined. In other words, the function "casts" the instance. Type matching works according to the `kindOf()` function.
 |Example:
-|`self.customer.asType(entityType = shop::Enterprise)` navigates from Order to Customer and it returns an Enterprise instance. If the result of the navigation is a Person, it returns undefined. For the model, see the xref:01_intro.adoc[Introduction] chapter.
+|`self.customer.asType(type = shop::Enterprise)` navigates from Order to Customer and it returns an Enterprise instance. If the result of the navigation is a Person, it returns undefined. For the model, see the xref:01_intro.adoc[Introduction] chapter.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]
@@ -1072,10 +1072,10 @@ Makes sense in JCL only.
 
 [options="header",grid="none",cols="1a"]
 |======================================================================
-|`[purple]#**asCollection(entityType = **#<entityType>[purple]##**)**## : collection`
+|`[purple]#**asCollection(type = **#<entityType>[purple]##**)**## : collection`
 |Filters the collection according to <entityType> and returns a collection of the parameter <entityType>. Members of the collection that are not of that <entityType> are not included in the result. Type matching works according to the kindOf() function.
 |Example:
-|`shop::Order.all().customer.asCollection(entityType = shop::Enterprise)` returns all enterprises that have at least one order.
+|`shop::Order.all().customer.asCollection(type = shop::Enterprise)` returns all enterprises that have at least one order.
 |======================================================================
 
 [options="header",grid="none",cols="1a"]

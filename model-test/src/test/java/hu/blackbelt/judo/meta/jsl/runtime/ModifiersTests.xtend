@@ -578,6 +578,74 @@ class ModifiersTests {
         ]
     }
 
+    @Test
+    def void testDetailModifier() {
+        '''
+			model test;
+
+			row R {
+				link V v1 detail:false; 	
+				link V v2 detail; 	
+			}
+			
+			view V {
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+    @Test
+    def void testDetailModifierInvalid() {
+        '''
+			model test;
+
+			row R {
+				link V v1 detail; 	
+				link V v2 detail:true; 	
+			}
+			
+			view V {
+			}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.detailModifier, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
+    @Test
+    def void testBulkModifier() {
+        '''
+			model test;
+
+			entity E {
+			}
+			
+			row R(E e) {
+				action void a1() static bulk:false;
+				action void a2() static:false bulk;
+				action void a3() static:false bulk:false;
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+    @Test
+    def void testBulkModifierInvalid() {
+        '''
+			model test;
+
+			entity E {
+			}
+			
+			row R(E e) {
+				action void a() static bulk;
+			}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.bulkModifier, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
     def private void assertMaxSizeTooLargeError(ModelDeclaration modelDeclaration, String error, EClass target) {
         modelDeclaration.assertError(
             target,

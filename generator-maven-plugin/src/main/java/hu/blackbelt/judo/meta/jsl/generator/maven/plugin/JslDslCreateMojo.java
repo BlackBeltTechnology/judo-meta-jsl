@@ -112,7 +112,7 @@ public class JslDslCreateMojo extends AbstractJslDslProjectMojo {
 			}
 			
 			transfer UserTransfer(User u) {
-			    field String userName <= u.userName set: true;
+			    field String userName <= u.userName bind: true;
 			}
 			
 			actor Actor human
