@@ -132,7 +132,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 			ActorLinkDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
 			ActorTableDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
-			ActorAccessDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
+			ActorAccessDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifierNot(this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.transferDeclaration), JsldslPackage::eINSTANCE.actorDeclaration)
 
 			TransferCreateDeclaration case ref == JsldslPackage::eINSTANCE.transferCreateDeclaration_ParameterType && context.eContainer instanceof SimpleTransferDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 			TransferCreateDeclaration case ref == JsldslPackage::eINSTANCE.transferCreateDeclaration_ParameterType && context.eContainer instanceof ViewDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
@@ -311,6 +311,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
                 LambdaDeclaration: return true
                 AnnotationDeclaration: return true
                 TransferFieldDeclaration: return true
+                TransferRelationDeclaration: return true
 
                 LambdaVariable: return context.parentContainer(LambdaCall).isEqual(obj.eContainer)
                 ParameterDeclaration: return context.parentContainer(ParameterDeclaration) === null && (context.isEqual(obj.eContainer) || EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)])
