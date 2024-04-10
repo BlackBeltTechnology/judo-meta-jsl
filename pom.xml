@@ -77,7 +77,7 @@
 		<!--suppress UnresolvedMavenProperty -->
 		<logback-test-config>${maven.multiModuleProjectDirectory}/logback-test.xml</logback-test-config>
 
-        <tycho-version>4.0.3</tycho-version>
+        <tycho-version>4.0.7</tycho-version>
 
         <emf-genmodel-generator-version>1.1.1.20231106_151954_7fd1b3f5_develop</emf-genmodel-generator-version>
         <judo-genmodel-generator-version>1.1.2.20231107_041037_4b4570ca_develop</judo-genmodel-generator-version>
