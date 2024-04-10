@@ -110,6 +110,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.RowFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.BindModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.BulkModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.StaticModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.RedirectModifier
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -1071,6 +1072,17 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 	}
 
+	@Check
+	def checkModifierRedirect(RedirectModifier modifier) {
+		val TransferActionDeclaration action = modifier.eContainer as TransferActionDeclaration;
+
+		if (!modifier.value.referenceType.isEqual(action.^return)) {
+            error("The redirect modifier must select an actor access that has the same type as the action's return value.",
+                JsldslPackage::eINSTANCE.redirectModifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+	}
+
     @Check
     def checkEnumLiteralMinimum(EnumDeclaration _enum) {
         if (_enum.literals.size < 1) {
@@ -1985,9 +1997,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 	
 	@Check
 	def checkUnion(UnionDeclaration union) {
+		if (union.members === null || union.members.size == 0) return;
 		val UnionMemberDeclaration firstMember = union.members.get(0)
-
-		if (firstMember === null) return;
 		
 		for (member : union.members) {
 			if (!member.eClass.equals(firstMember.eClass)) {
