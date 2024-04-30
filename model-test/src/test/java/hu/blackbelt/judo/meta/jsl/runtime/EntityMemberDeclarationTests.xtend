@@ -248,4 +248,32 @@ class EntityMemberDeclarationTests {
             "Couldn't resolve reference to NavigationBaseDeclaration 'p'."
         )
     }
+
+    @Test
+    @Requirement(reqs = #[
+        "REQ-SYNT-001",
+        "REQ-SYNT-002",
+        "REQ-SYNT-003",
+        "REQ-SYNT-004",
+        "REQ-ENT-001",
+        "REQ-ENT-002",
+        "REQ-ENT-003",
+        "REQ-TYPE-001",
+        "REQ-TYPE-005"
+    ])
+    def void testIdentifierCannotBeNumberWithScale() {
+        '''
+            model test;
+
+            type numeric Decimal precision: 9 scale: 1;
+
+            entity A {
+                identifier Decimal idOp;
+                identifier Decimal idReq required;
+            }
+
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.INVALID_DECLARATION, "Identifier cannot be numeric type with scale.")
+        ]
+    }
 }
