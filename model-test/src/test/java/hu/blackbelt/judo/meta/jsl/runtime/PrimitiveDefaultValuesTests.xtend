@@ -250,7 +250,6 @@ class PrimitiveDefaultValuesTests {
             entity TestIdentifiers {
                 identifier Bool a default:true;
                 identifier Integer b default:3223;
-                identifier Decimal b2 default:3223.123;
                 identifier String c default:"123";
                 identifier String c2 default:r"123";
                 identifier Date d default:`2020-01-12`;

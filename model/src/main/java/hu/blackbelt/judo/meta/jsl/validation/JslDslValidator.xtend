@@ -1736,7 +1736,16 @@ class JslDslValidator extends AbstractJslDslValidator {
                 JsldslPackage::eINSTANCE.entityMemberDeclaration.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
     	}
-    	
+
+        if (field.identifier &&
+            field.referenceType instanceof PrimitiveDeclaration &&
+            TypeInfo.getTargetType(field.referenceType).isNumeric &&
+            ((field.referenceType as Modifiable).getModifier(JsldslPackage::eINSTANCE.scaleModifier) as ScaleModifier).value > BigInteger.ZERO ) {
+            error("An identifier field cannot be decimal number.",
+                JsldslPackage::eINSTANCE.entityMemberDeclaration.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+        }
+
     	if (field.referenceType instanceof EntityDeclaration && field.calculated) {
             error("A composition cannot be calculated.",
                 JsldslPackage::eINSTANCE.entityMemberDeclaration_GetterExpr,
