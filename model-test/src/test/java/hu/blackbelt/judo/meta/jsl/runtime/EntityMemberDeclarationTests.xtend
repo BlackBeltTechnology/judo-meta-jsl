@@ -261,7 +261,7 @@ class EntityMemberDeclarationTests {
         "REQ-TYPE-001",
         "REQ-TYPE-005"
     ])
-    def void testIdentifierCannotBeDecimalNumber() {
+    def void testIdentifierCannotBeNumberWithScale() {
         '''
             model test;
 
@@ -273,7 +273,7 @@ class EntityMemberDeclarationTests {
             }
 
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.INVALID_DECLARATION, "An identifier field cannot be decimal number.")
+            m | m.assertError(JsldslPackage::eINSTANCE.entityFieldDeclaration, JslDslValidator.INVALID_DECLARATION, "Identifier cannot be numeric type with scale.")
         ]
     }
 }

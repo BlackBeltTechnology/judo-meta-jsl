@@ -1741,7 +1741,7 @@ class JslDslValidator extends AbstractJslDslValidator {
             field.referenceType instanceof PrimitiveDeclaration &&
             TypeInfo.getTargetType(field.referenceType).isNumeric &&
             ((field.referenceType as Modifiable).getModifier(JsldslPackage::eINSTANCE.scaleModifier) as ScaleModifier).value > BigInteger.ZERO ) {
-            error("An identifier field cannot be decimal number.",
+            error("Identifier cannot be numeric type with scale.",
                 JsldslPackage::eINSTANCE.entityMemberDeclaration.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
         }
