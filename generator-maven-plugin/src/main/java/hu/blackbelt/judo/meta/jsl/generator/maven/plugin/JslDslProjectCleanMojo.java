@@ -34,7 +34,8 @@ import java.util.Map;
 
 @Mojo(name = "clean",
         defaultPhase = LifecyclePhase.CLEAN,
-        requiresDependencyResolution = ResolutionScope.COMPILE)
+        requiresDependencyResolution = ResolutionScope.COMPILE,
+        threadSafe = true)
 public class JslDslProjectCleanMojo extends AbstractJslDslProjectMojo {
 
     @Parameter(name = "destination", property = "projectDestination", defaultValue = "${project.basedir}")

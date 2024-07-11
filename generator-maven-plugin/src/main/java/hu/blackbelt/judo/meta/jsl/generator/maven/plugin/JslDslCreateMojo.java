@@ -49,7 +49,8 @@ import static hu.blackbelt.judo.meta.jsl.jsldsl.runtime.JslDslModel.LoadArgument
 
 @Mojo(name = "create",
         requiresProject = false,
-        requiresDependencyResolution = ResolutionScope.NONE)
+        requiresDependencyResolution = ResolutionScope.NONE,
+        threadSafe = true)
 public class JslDslCreateMojo extends AbstractJslDslProjectMojo {
 
     @Parameter(name = "modelName", property = "modelName", required = true)

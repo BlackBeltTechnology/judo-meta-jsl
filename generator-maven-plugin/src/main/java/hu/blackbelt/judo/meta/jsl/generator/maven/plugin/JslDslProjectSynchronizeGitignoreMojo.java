@@ -34,7 +34,8 @@ import java.util.Map;
 
 @Mojo(name = "synchronizeGitignore",
         defaultPhase = LifecyclePhase.PROCESS_RESOURCES,
-        requiresDependencyResolution = ResolutionScope.COMPILE)
+        requiresDependencyResolution = ResolutionScope.COMPILE,
+        threadSafe = true)
 public class JslDslProjectSynchronizeGitignoreMojo extends AbstractJslDslProjectMojo {
 
     @Parameter(name = "destination", property = "projectDestination", defaultValue = "${project.basedir}")

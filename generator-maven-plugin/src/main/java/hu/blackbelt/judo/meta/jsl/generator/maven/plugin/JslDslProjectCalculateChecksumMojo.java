@@ -34,7 +34,8 @@ import java.util.Map;
 
 @Mojo(name = "checksum",
         defaultPhase = LifecyclePhase.GENERATE_RESOURCES,
-        requiresDependencyResolution = ResolutionScope.COMPILE)
+        requiresDependencyResolution = ResolutionScope.COMPILE,
+        threadSafe = true)
 public class JslDslProjectCalculateChecksumMojo extends AbstractJslDslProjectMojo {
 
     @Parameter(name = "destination", property = "projectDestination", defaultValue = "${project.basedir}")
