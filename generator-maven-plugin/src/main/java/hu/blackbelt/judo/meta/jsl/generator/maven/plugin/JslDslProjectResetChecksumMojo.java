@@ -32,18 +32,18 @@ import java.io.File;
 import java.net.URI;
 import java.util.Map;
 
-@Mojo(name = "checksum",
-        defaultPhase = LifecyclePhase.GENERATE_RESOURCES,
+@Mojo(name = "resetChecksum",
+        defaultPhase = LifecyclePhase.CLEAN,
         requiresDependencyResolution = ResolutionScope.COMPILE,
         threadSafe = true)
-public class JslDslProjectCalculateChecksumMojo extends AbstractJslDslProjectMojo {
+public class JslDslProjectResetChecksumMojo extends AbstractJslDslProjectMojo {
 
     @Parameter(name = "destination", property = "projectDestination", defaultValue = "${project.basedir}")
     protected File destination;
 
     @Override
-    public void performExecutionOnJslDslParameters(JslDslGeneratorParameter.JslDslGeneratorParameterBuilder jslDslGeneratorParameterBuilder) throws Exception {
-        JslDslGenerator.recalculateChecksumForDirectory(jslDslGeneratorParameterBuilder);
+    public void performExecutionOnJslDslParameters(JslDslGeneratorParameter.JslDslGeneratorParameterBuilder parameter) throws Exception {
+        JslDslGenerator.resetChecksumsInDirectory(parameter);
     }
 
     @Override
