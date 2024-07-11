@@ -32,17 +32,17 @@ import java.io.File;
 import java.net.URI;
 import java.util.Map;
 
-@Mojo(name = "checksum",
-        defaultPhase = LifecyclePhase.GENERATE_RESOURCES,
+@Mojo(name = "clean",
+        defaultPhase = LifecyclePhase.CLEAN,
         requiresDependencyResolution = ResolutionScope.COMPILE)
-public class JslDslProjectCalculateChecksumMojo extends AbstractJslDslProjectMojo {
+public class JslDslProjectCleanMojo extends AbstractJslDslProjectMojo {
 
     @Parameter(name = "destination", property = "projectDestination", defaultValue = "${project.basedir}")
     protected File destination;
 
     @Override
-    public void performExecutionOnJslDslParameters(JslDslGeneratorParameter.JslDslGeneratorParameterBuilder jslDslGeneratorParameterBuilder) throws Exception {
-        JslDslGenerator.recalculateChecksumForDirectory(jslDslGeneratorParameterBuilder);
+    public void performExecutionOnJslDslParameters(JslDslGeneratorParameter.JslDslGeneratorParameterBuilder parameter) throws Exception {
+        JslDslGenerator.cleanGeneratedFromChecksumInDirectory(parameter);
     }
 
     @Override
@@ -54,4 +54,5 @@ public class JslDslProjectCalculateChecksumMojo extends AbstractJslDslProjectMoj
     public File getDestination() {
         return destination;
     }
+
 }
