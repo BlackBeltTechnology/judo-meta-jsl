@@ -233,7 +233,65 @@ public class JslDslGenerator {
         ModelGenerator.generateToDirectory(mapJslDslParameters(parameter));
     }
 
+    public static void resetChecksumsInDirectory(JslDslGeneratorParameter.JslDslGeneratorParameterBuilder builder) throws Exception {
+        resetChecksumsInDirectory(builder.build());
+    }
 
+    public static void resetChecksumsInDirectory(JslDslGeneratorParameter parameter) throws Exception {
+
+        GeneratorParameter<ActorDeclaration> genericParams = mapJslDslParameters(parameter);
+
+        JslDslModelResourceSupport modelResourceSupport = JslDslModelResourceSupport.jslDslModelResourceSupportBuilder()
+                .resourceSet(parameter.jslDslModel.getResourceSet())
+                .build();
+
+        Set<ActorDeclaration> applications = modelResourceSupport
+                .getStreamOfJsldslActorDeclaration()
+                .filter(genericParams.getDiscriminatorPredicate())
+                .collect(Collectors.toSet());
+
+        ModelGenerator.resetChecksumsInDirectory(genericParams, applications);
+    }
+
+    public static void cleanGeneratedFromChecksumInDirectory(JslDslGeneratorParameter.JslDslGeneratorParameterBuilder builder) throws Exception {
+        cleanGeneratedFromChecksumInDirectory(builder.build());
+    }
+
+    public static void cleanGeneratedFromChecksumInDirectory(JslDslGeneratorParameter parameter) throws Exception {
+
+        GeneratorParameter<ActorDeclaration> genericParams = mapJslDslParameters(parameter);
+
+        JslDslModelResourceSupport modelResourceSupport = JslDslModelResourceSupport.jslDslModelResourceSupportBuilder()
+                .resourceSet(parameter.jslDslModel.getResourceSet())
+                .build();
+
+        Set<ActorDeclaration> applications = modelResourceSupport
+                .getStreamOfJsldslActorDeclaration()
+                .filter(genericParams.getDiscriminatorPredicate())
+                .collect(Collectors.toSet());
+
+        ModelGenerator.cleanGeneratedFromChecksumInDirectory(genericParams, applications);
+    }
+
+    public static void synchronizeGitignoreInDirectory(JslDslGeneratorParameter.JslDslGeneratorParameterBuilder builder) throws Exception {
+        synchronizeGitignoreInDirectory(builder.build());
+    }
+
+    public static void synchronizeGitignoreInDirectory(JslDslGeneratorParameter parameter) throws Exception {
+
+        GeneratorParameter<ActorDeclaration> genericParams = mapJslDslParameters(parameter);
+
+        JslDslModelResourceSupport modelResourceSupport = JslDslModelResourceSupport.jslDslModelResourceSupportBuilder()
+                .resourceSet(parameter.jslDslModel.getResourceSet())
+                .build();
+
+        Set<ActorDeclaration> applications = modelResourceSupport
+                .getStreamOfJsldslActorDeclaration()
+                .filter(genericParams.getDiscriminatorPredicate())
+                .collect(Collectors.toSet());
+
+        ModelGenerator.synchronizeGitignoreInDirectory(genericParams, applications);
+    }
     public static void recalculateChecksumForDirectory(JslDslGeneratorParameter.JslDslGeneratorParameterBuilder builder) throws Exception {
         recalculateChecksumForDirectory(builder.build());
     }
