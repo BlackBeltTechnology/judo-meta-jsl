@@ -111,6 +111,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.BindModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.BulkModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.StaticModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.RedirectModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.CreateFormModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewTableDeclaration
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -1674,27 +1676,27 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 	
-    @Check
-    def checkTransferCreate(TransferCreateDeclaration declaration) {
-        val TransferDeclaration transfer = declaration.eContainer as TransferDeclaration;
-
-		if ((declaration.before || declaration.after) && declaration.parameterType !== null) {
-            error("Before and after create event handler cannot have parameter.",
-                JsldslPackage::eINSTANCE.transferCreateDeclaration_ParamaterName,
-                INVALID_DECLARATION)
-		}
-
-		if (declaration.parameterType !== null) {
-			if (declaration.parameterType.map === null ||
-				declaration.parameterType.map.entity === null ||
-				!TypeInfo.getTargetType(transfer.map.entity).isCompatible(TypeInfo.getTargetType(declaration.parameterType.map.entity)))
-			{
-	            error("Create parameter must be compatible to transfer object type.",
-	                JsldslPackage::eINSTANCE.transferCreateDeclaration_ParamaterName,
-	                INVALID_DECLARATION)
-			}
-		}
-    }
+//    @Check
+//    def checkTransferCreate(TransferCreateDeclaration declaration) {
+//        val TransferDeclaration transfer = declaration.eContainer as TransferDeclaration;
+//
+//		if ((declaration.before || declaration.after) && declaration.parameterType !== null) {
+//            error("Before and after create event handler cannot have parameter.",
+//                JsldslPackage::eINSTANCE.transferCreateDeclaration_ParamaterName,
+//                INVALID_DECLARATION)
+//		}
+//
+//		if (declaration.parameterType !== null) {
+//			if (declaration.parameterType.map === null ||
+//				declaration.parameterType.map.entity === null ||
+//				!TypeInfo.getTargetType(transfer.map.entity).isCompatible(TypeInfo.getTargetType(declaration.parameterType.map.entity)))
+//			{
+//	            error("Create parameter must be compatible to transfer object type.",
+//	                JsldslPackage::eINSTANCE.transferCreateDeclaration_ParamaterName,
+//	                INVALID_DECLARATION)
+//			}
+//		}
+//    }
     
     @Check
     def checkOppositeRequired(EntityRelationOppositeReferenced opposite) {
@@ -1842,13 +1844,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 		val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
 
-		if (relation.referenceType !== null && relation.referenceType.map !== null) {
-			if (!relation.referenceType.members.exists[m | m instanceof TransferCreateDeclaration && (m as TransferCreateDeclaration).instead]) {
-	            error("Invalid create modifier. Target transfer object must have create instead event.",
-	                JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
-	                INVALID_DECLARATION)
-			}
-		}
+//		if (relation.referenceType !== null && relation.referenceType.map !== null) {
+//			if (!relation.referenceType.members.exists[m | m instanceof TransferCreateDeclaration && (m as TransferCreateDeclaration).instead]) {
+//	            error("Invalid create modifier. Target transfer object must have create instead event.",
+//	                JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
+//	                INVALID_DECLARATION)
+//			}
+//		}
 
 		if (modifier.eContainer instanceof ActorLinkDeclaration || modifier.eContainer instanceof ActorTableDeclaration) return;
 
@@ -1858,13 +1860,13 @@ class JslDslValidator extends AbstractJslDslValidator {
                 INVALID_DECLARATION)
 		}
 
-		val mappedMember = relation.mappedMember;
-		
-		if (!(relation.eContainer instanceof ActorDeclaration) && relation.getterExpr !== null && mappedMember === null) {
-            error("Invalid create modifier. Relation is read only. Change the relation expression.",
-                JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
-                INVALID_CHOICES)
-		}
+//		val mappedMember = relation.mappedMember;
+//		
+//		if (!(relation.eContainer instanceof ActorDeclaration) && relation.getterExpr !== null && mappedMember === null) {
+//            error("Invalid create modifier. Relation is read only. Change the relation expression.",
+//                JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
+//                INVALID_CHOICES)
+//		}
 	}
 
 	@Check
@@ -1880,13 +1882,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                INVALID_DECLARATION)
 			}
 
-			if (relation.referenceType !== null && relation.referenceType.map !== null) {
-				if (!relation.referenceType.members.exists[m | m instanceof TransferDeleteDeclaration && (m as TransferDeleteDeclaration).instead]) {
-		            error("Invalid delete modifier. Target transfer object must have delete instead event.",
-		                JsldslPackage::eINSTANCE.deleteModifier.getEStructuralFeature("ID"),
-		                INVALID_DECLARATION)
-				}
-			}
+//			if (relation.referenceType !== null && relation.referenceType.map !== null) {
+//				if (!relation.referenceType.members.exists[m | m instanceof TransferDeleteDeclaration && (m as TransferDeleteDeclaration).instead]) {
+//		            error("Invalid delete modifier. Target transfer object must have delete instead event.",
+//		                JsldslPackage::eINSTANCE.deleteModifier.getEStructuralFeature("ID"),
+//		                INVALID_DECLARATION)
+//				}
+//			}
 		}
 
 		else if (modifier.eContainer instanceof TransferActionDeclaration) {
@@ -1934,13 +1936,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                INVALID_DECLARATION)
 			}
 
-			if (relation.referenceType !== null && relation.referenceType.map !== null) {
-				if (!relation.referenceType.members.exists[m | m instanceof TransferUpdateDeclaration && (m as TransferUpdateDeclaration).instead]) {
-		            error("Invalid update modifier. Target transfer object must have update instead event.",
-		                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
-		                INVALID_DECLARATION)
-				}
-			}
+//			if (relation.referenceType !== null && relation.referenceType.map !== null) {
+//				if (!relation.referenceType.members.exists[m | m instanceof TransferUpdateDeclaration && (m as TransferUpdateDeclaration).instead]) {
+//		            error("Invalid update modifier. Target transfer object must have update instead event.",
+//		                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
+//		                INVALID_DECLARATION)
+//				}
+//			}
 		}
 		
 		else if (modifier.eContainer instanceof TransferActionDeclaration) {
@@ -2050,6 +2052,25 @@ class JslDslValidator extends AbstractJslDslValidator {
 			
 			if (!#[1, 2, 3, 4, 6, 12].contains(value)) {
 	            error("Width modifier must be set to 1, 2, 3, 4, 6 or 12.",
+	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+		}
+	}
+	
+	@Check
+	def checkUIViewTableDeclaration(UIViewTableDeclaration table) {
+		if (table.referenceType !== null && table.transferRelation !== null) {
+			if (!table.referenceType.map.transfer.isEqual(table.transferRelation.referenceType)) {
+	            error("Row declaration and the transfer relation must have the same transfer type.",
+	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+		}
+		
+		if (table.transferRelation !== null) {
+			if (!table.transferRelation.many) {
+	            error("Referenced transfer relation's cardinality must be many.",
 	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
 			}

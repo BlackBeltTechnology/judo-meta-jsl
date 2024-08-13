@@ -45,6 +45,10 @@ ClassDeclaration
 	| ViewDeclaration
 	| RowDeclaration
 	| ActorDeclaration
+	
+	| UIViewDeclaration
+	| UIRowDeclaration
+	| UIMenuDeclaration
 	;
 
 /****************************
@@ -152,9 +156,9 @@ TransferDeclaration
 	;
 
 TransferMemberDeclaration
-	: TransferEventDeclaration
-	| TransferDataDeclaration
+	: TransferDataDeclaration
 	| TransferActionDeclaration
+//	| TransferEventDeclaration
 	;
 
 TransferDataDeclaration 
@@ -208,7 +212,7 @@ TransferCreateDeclaration returns TransferEventDeclaration
 	: {TransferCreateDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_EVENT
-	  => kind = KW_CREATE Named (LP (parameterType = [TransferDeclaration | ModelName] paramaterName = JSLID)? RP)?
+	  => kind = KW_CREATE Named (LP RP)?
 	  modifiers += (OnModifier)*
 	  SC
 	;
@@ -241,6 +245,104 @@ TransferInitializeDeclaration returns TransferEventDeclaration
 	;
 
 /****************************
+ *	UIView
+ ****************************/
+
+TransferMapDeclaration
+	: -> LP transfer = [SimpleTransferDeclaration | ModelName] Named RP  // if no name defined, the 'self' shall be default name
+	| KW_MAPS transfer = [SimpleTransferDeclaration | ModelName] KW_AS Named
+	;
+
+UIViewDeclaration
+	: (KW_VIEW | form ?= KW_FORM) Named
+	  map = TransferMapDeclaration
+	  modifiers += (DialogModifier)*
+	  (SC | BLOCK_START (members += UIViewMemberDeclaration)* BLOCK_END)
+	;
+
+UIViewMemberDeclaration
+	: UIViewWidgetDeclaration
+	| UIViewLinkDeclaration
+	| UIViewTableDeclaration
+	;
+
+UIViewWidgetDeclaration
+	: KW_WIDGET referenceType = [PrimitiveDeclaration | ModelName] Named
+	  (LTE | SSH) transferField = [TransferFieldDeclaration | LocalName]
+	  modifiers += (VisualModifier)*
+	  SC
+	;
+
+UIViewLinkDeclaration
+	: KW_LINK referenceType = [UIViewDeclaration | ModelName] Named
+	  LTE transferRelation = [TransferRelationDeclaration | LocalName]
+	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier | DeleteModifier)*
+	  SC
+	;
+
+UIViewTableDeclaration
+	: KW_TABLE referenceType = [UIRowDeclaration | ModelName] Cardinality Named
+	  LTE transferRelation = [TransferRelationDeclaration | LocalName]
+	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier | DeleteModifier)*
+	  SC
+	;
+
+/****************************
+ *	UIRow
+ ****************************/
+
+UIRowDeclaration
+	: KW_ROW Named
+	  map = TransferMapDeclaration
+	  (SC | BLOCK_START (members += UIRowMemberDeclaration)* BLOCK_END)
+	;
+
+UIRowMemberDeclaration
+	: UIRowColumnDeclaration
+	;
+
+UIRowColumnDeclaration
+	: KW_COLUMN referenceType = [PrimitiveDeclaration | ModelName] Named
+	  LTE transferField = [TransferFieldDeclaration | LocalName]
+	  modifiers += (VisualModifier)*
+	  SC
+	;
+
+/****************************
+ *	UIMenu
+ ****************************/
+
+ActorMapDeclaration
+	: -> LP actor = [ActorDeclaration | ModelName] Named RP  // if no name defined, the 'self' shall be default name
+	| KW_MAPS actor = [ActorDeclaration | ModelName] KW_AS Named
+	;
+
+UIMenuDeclaration
+	: KW_MENU Named
+	  map = ActorMapDeclaration
+	  (SC | BLOCK_START (members += UIMenuMemberDeclaration)* BLOCK_END)
+	;
+
+UIMenuMemberDeclaration
+	: UIMenuLinkDeclaration
+	| UIMenuTableDeclaration
+	;
+
+UIMenuLinkDeclaration
+	: KW_LINK referenceType = [UIViewDeclaration | ModelName] Named
+	  LTE actorAccess = [ActorAccessDeclaration | LocalName]
+	  modifiers += (CreateFormModifier | UpdateViewModifier | DeleteModifier)*
+	  SC
+	;
+
+UIMenuTableDeclaration
+	: KW_TABLE referenceType = [UIRowDeclaration | ModelName] Cardinality Named
+	  LTE actorAccess = [ActorAccessDeclaration | LocalName]
+	  modifiers += (CreateFormModifier | UpdateViewModifier | DeleteModifier)*
+	  SC
+	;
+
+/****************************
  *	View
  ****************************/
 
@@ -252,15 +354,15 @@ VisibleDeclaration returns TransferDeclaration
 ViewDeclaration returns VisibleDeclaration
 	: {ViewDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_VIEW Named
+	  -> 'transferview' Named
 	  MappedDeclaration
 	  modifiers += (DialogModifier)*
 	  (SC | BLOCK_START (members += ViewDirectMemberDeclaration)* BLOCK_END)
 	;
 
 ViewDirectMemberDeclaration returns TransferMemberDeclaration
-	: TransferEventDeclaration
-	| ViewMemberDeclaration
+	: ViewMemberDeclaration
+//	| TransferEventDeclaration
 	;
 
 ViewMemberDeclaration returns TransferMemberDeclaration
@@ -371,16 +473,16 @@ ViewActionsDeclaration
 RowDeclaration returns VisibleDeclaration
 	: {RowDeclaration}
 	  annotations += AnnotationMark*
-	  -> KW_ROW Named
+	  -> 'transferrow' Named
 	  MappedDeclaration
 	  (SC | BLOCK_START (members += RowMemberDeclaration)* BLOCK_END)
 	;
 
 RowMemberDeclaration returns TransferMemberDeclaration
-	: TransferEventDeclaration
-	| RowFieldDeclaration
+	: RowFieldDeclaration
 	| RowLinkDeclaration
 	| RowActionDeclaration
+//	| TransferEventDeclaration
 	;
 
 RowFieldDeclaration returns TransferFieldDeclaration
@@ -813,6 +915,11 @@ Modifiable
 ModifiableDeclaration returns Modifiable
 	: TransferMemberDeclaration
 	| EntityMemberDeclaration
+
+	| UIViewMemberDeclaration
+	| UIRowMemberDeclaration
+	| UIMenuMemberDeclaration
+
 	| TypeDeclaration
 	;
 
@@ -855,6 +962,8 @@ Modifier
 	| OnModifier
 	| OrientationModifier
 	| HumanModifier
+	| CreateFormModifier
+	| UpdateViewModifier
 
 	| VisualModifier
 	;
@@ -1030,6 +1139,14 @@ HumanModifier
 	: type = KW_HUMAN (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
+CreateFormModifier
+	: type = KW_CREATE COLON form = [UIViewDeclaration | ModelName]
+	;
+
+UpdateViewModifier
+	: type = KW_UPDATE COLON view = [UIViewDeclaration | ModelName]
+	;
+
 /****************************
  *	Literals
  ****************************/
@@ -1149,10 +1266,12 @@ terminal KW_ENTITY:		'entity';
 terminal KW_ENUM:		'enum';
 terminal KW_ERROR:		'error';
 terminal KW_EXTENDS:	'extends';
+terminal KW_FORM:		'form';
 terminal KW_FUNCTION:	'function';
 terminal KW_IMPORT:		'import';
 terminal KW_LAMBDA:		'lambda';
 terminal KW_MAPS:		'maps';
+terminal KW_MENU:		'menu';
 terminal KW_MODEL:		'model';
 terminal KW_ON:			'on';
 terminal KW_QUERY:		'query';
@@ -1168,6 +1287,7 @@ terminal KW_ACTION:		'action';
 terminal KW_ACTIONS:	'actions';
 terminal KW_CONSTRAINT:	'constraint';
 terminal KW_CREATE:		'create';   // no highlight
+terminal KW_COLUMN:		'column';   // no highlight
 terminal KW_DELETE:		'delete';   // no highlight
 terminal KW_EAGER:      'eager';
 terminal KW_EVENT:		'event';
@@ -1178,7 +1298,6 @@ terminal KW_IDENTIFIER:	'identifier';
 terminal KW_INITIALIZE:	'initialize';   // no highlight
 terminal KW_LINK:		'link';
 terminal KW_LITERAL:	'literal';
-terminal KW_MENU:		'menu';
 terminal KW_RELATION:	'relation';
 terminal KW_SUBMIT:		'submit';
 terminal KW_TABLE:		'table';
@@ -1186,6 +1305,7 @@ terminal KW_TABS:		'tabs';
 terminal KW_TEXT:		'text';
 terminal KW_THROWS:		'throws';
 terminal KW_UPDATE:		'update';   // no highlight
+terminal KW_WIDGET:		'widget';
 
 // Constants
 terminal KW_AFTER:		'after';
@@ -1282,6 +1402,7 @@ terminal NEQ:   '!=';
 terminal EQ:    '==';
 terminal GTE:   '>=';
 terminal LTE:   '<=';
+terminal SSH:   '<=>';
 terminal PLUS:  '+';
 terminal MINUS: '-';
 terminal MUL:   '*';
