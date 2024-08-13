@@ -59,7 +59,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewLinkDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTableDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Argument
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.ParameterDeclaration
@@ -73,6 +72,17 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.IdentityModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIRowDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewTableDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuTableDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.CreateFormModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateViewModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewWidgetDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIRowColumnDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewLinkDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -85,10 +95,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     @Inject extension JslDslModelExtension
 
     override getScope(EObject context, EReference ref) {
-//        System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
-//        "\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper
-//            + ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
-//        printParents(context)
+        System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
+        "\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper
+            + ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
+        printParents(context)
 
         var IScope scope = delegateGetScope(context, ref);
         scope = this.scope_FilterByReferenceType(scope, ref);
@@ -134,9 +144,6 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			ActorTableDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
 			ActorAccessDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifierNot(this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.transferDeclaration), JsldslPackage::eINSTANCE.actorDeclaration)
 
-			TransferCreateDeclaration case ref == JsldslPackage::eINSTANCE.transferCreateDeclaration_ParameterType && context.eContainer instanceof SimpleTransferDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
-			TransferCreateDeclaration case ref == JsldslPackage::eINSTANCE.transferCreateDeclaration_ParameterType && context.eContainer instanceof ViewDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
-
 			ViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
 			ViewTableDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
 
@@ -147,12 +154,60 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			UnionDeclaration case ref == JsldslPackage::eINSTANCE.unionDeclaration_Members: return this.scope_UnionMember(scope)
 
 			IdentityModifier case ref == JsldslPackage::eINSTANCE.identityModifier_Field: return this.scope_Identifier(scope)
+	
+	
+			
+			UIViewWidgetDeclaration case ref == JsldslPackage::eINSTANCE.UIViewWidgetDeclaration_TransferField: return scope.scope_Containments(context.parentContainer(UIViewDeclaration).map.transfer, ref)
+			UIViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.UIViewLinkDeclaration_TransferRelation: return scope.scope_Containments(context.parentContainer(UIViewDeclaration).map.transfer, ref).scope_FilterByMany(false)
+			UIViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.UIViewLinkDeclaration_ReferenceType: return scope.scope_FilterByForm(false)
+			UIViewTableDeclaration case ref == JsldslPackage::eINSTANCE.UIViewTableDeclaration_TransferRelation: return scope.scope_Containments(context.parentContainer(UIViewDeclaration).map.transfer, ref).scope_FilterByMany(true)
+	
+			UIRowColumnDeclaration case ref == JsldslPackage::eINSTANCE.UIRowColumnDeclaration_TransferField: return scope.scope_Containments(context.parentContainer(UIRowDeclaration).map.transfer, ref)
+
+			UIMenuLinkDeclaration case ref == JsldslPackage::eINSTANCE.UIMenuLinkDeclaration_ActorAccess: return scope.scope_Containments(context.parentContainer(UIMenuDeclaration).map.actor, ref).scope_FilterByMany(false)
+			UIMenuLinkDeclaration case ref == JsldslPackage::eINSTANCE.UIMenuLinkDeclaration_ReferenceType: return scope.scope_FilterByForm(false)
+			UIMenuTableDeclaration case ref == JsldslPackage::eINSTANCE.UIMenuTableDeclaration_ActorAccess: return scope.scope_Containments(context.parentContainer(UIMenuDeclaration).map.actor, ref).scope_FilterByMany(true)
+
+
+			CreateFormModifier case ref == JsldslPackage::eINSTANCE.createFormModifier_Form: return scope.scope_FilterByForm(true)
+			UpdateViewModifier case ref == JsldslPackage::eINSTANCE.updateViewModifier_View: return scope.scope_FilterByForm(false)
 
             Navigation: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
         }
 
         return scope
     }
+
+	def scope_FilterByMany(IScope scope, boolean isMany) {
+        return new FilteringScope(scope, [desc | {
+            val obj = desc.EObjectOrProxy
+
+			if (obj instanceof ActorAccessDeclaration) {
+				val ActorAccessDeclaration access = obj as ActorAccessDeclaration
+				return access.many == isMany 
+			}
+
+			if (obj instanceof TransferRelationDeclaration) {
+				val TransferRelationDeclaration relation = obj as TransferRelationDeclaration
+				return relation.many == isMany 
+			}
+
+            return false
+        }]);
+	}
+
+	def scope_FilterByForm(IScope scope, boolean isForm) {
+        return new FilteringScope(scope, [desc | {
+            val obj = desc.EObjectOrProxy
+
+			if (obj instanceof UIViewDeclaration) {
+				val UIViewDeclaration view = obj as UIViewDeclaration
+				return view.form == isForm 
+			}
+
+            return false
+        }]);
+	}
 
 	def scope_Identifier(IScope scope) {
         return new FilteringScope(scope, [desc | {
@@ -312,7 +367,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
                 AnnotationDeclaration: return true
                 TransferFieldDeclaration: return true
                 TransferRelationDeclaration: return true
-
+                
                 LambdaVariable: return context.parentContainer(LambdaCall).isEqual(obj.eContainer)
                 ParameterDeclaration: return context.parentContainer(ParameterDeclaration) === null && (context.isEqual(obj.eContainer) || EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)])
                 EntityMapDeclaration: return context.isEqual(obj.eContainer) || EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]
