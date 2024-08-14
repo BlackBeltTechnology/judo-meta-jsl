@@ -80,7 +80,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ScaleModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferEventDeclaration
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferInitializeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.Argument
@@ -107,13 +106,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.WidthModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.BindModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.BulkModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.StaticModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.RedirectModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.CreateFormModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewTableDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuLinkDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewLinkDeclaration
@@ -1917,14 +1912,12 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 	
 	@Check
-	def checkBindModifier(BindModifier modifier) {
-		if (modifier.isFalse) return;
+	def checkBind(TransferFieldDeclaration field) {
+		if (!field.bind) return;
 
-		val TransferFieldDeclaration field = modifier.eContainer as TransferFieldDeclaration
-
-		if ((modifier !== null && !modifier.isFalse) && field.mappedMember === null) {
+		if (field.mappedMember === null) {
             error("Invalid bind modifier. In case of the bind modifier is true the getter expression must select a stored member of the mapped entity.",
-                JsldslPackage::eINSTANCE.bindModifier.getEStructuralFeature("ID"),
+	            JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
 		}
 	}

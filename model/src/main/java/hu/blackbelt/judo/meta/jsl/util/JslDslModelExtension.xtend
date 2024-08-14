@@ -175,8 +175,9 @@ class JslDslModelExtension {
 			return createModifier !== null && !createModifier.isFalse
 		}
 		
-		val BindModifier bindModifier = it.getModifier(JsldslPackage::eINSTANCE.bindModifier) as BindModifier
-		return bindModifier !== null && !bindModifier.isFalse
+		if (it instanceof TransferFieldDeclaration) {
+			return (it as TransferFieldDeclaration).bind
+		}
 	}
 
     def NavigationTarget getMappedMember(TransferDataDeclaration member) {
