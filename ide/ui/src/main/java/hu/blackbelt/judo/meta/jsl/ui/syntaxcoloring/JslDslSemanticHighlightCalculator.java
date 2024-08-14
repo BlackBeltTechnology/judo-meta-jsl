@@ -39,7 +39,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationMark;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Literal;
 
 public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingCalculator {
-	static Set<String> symbols = Sets.newHashSet("SC", "BLOCK_START", "BLOCK_END",
+	static Set<String> symbols = Sets.newHashSet("SSH", "SC", "BLOCK_START", "BLOCK_END",
 			                   "LP", "RP", "DOT", "COMMA", "LB", "RB", "LRB", "ASSIGN", "LT", "GT", "QM", "COLON",
 			                   "NEQ", "EQ", "GTE", "LTE", "MAP", "PLUS", "MINUS", "MUL", "DIV", "EXP", "EXCL", "PIPE");
 

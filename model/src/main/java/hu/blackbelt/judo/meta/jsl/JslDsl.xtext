@@ -166,8 +166,8 @@ TransferDataDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_FIELD
 	  referenceType = [PrimitiveDeclaration | ModelName] Named
-	  (LTE getterExpr = Expression)?
-	  modifiers += (EnabledModifier | BindModifier | DefaultModifier | RequiredModifier)*
+	  ((LTE | bind ?= SSH) getterExpr = Expression)?
+	  modifiers += (EnabledModifier | DefaultModifier | RequiredModifier)*
 	  SC
 	  | TransferRelationDeclaration
 	;
@@ -276,7 +276,7 @@ UIViewMemberDeclaration
 
 UIViewWidgetDeclaration
 	: KW_WIDGET referenceType = [PrimitiveDeclaration | ModelName] Named
-	  (LTE | SSH) transferField = TransferFieldReference
+	  (LTE | bind = SSH) transferField = TransferFieldReference
 	  modifiers += (VisualModifier)*
 	  SC
 	;
@@ -400,8 +400,8 @@ ViewFieldDeclaration returns TransferFieldDeclaration
 	: {ViewFieldDeclaration} 
 	  annotations += AnnotationMark*
 	  -> KW_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named
-	  (LTE getterExpr = Expression)?
-	  modifiers += (BindModifier | DefaultModifier | RequiredModifier | EnabledModifier | VisualModifier | LinesModifier)*
+	  ((LTE | bind ?= SSH) getterExpr = Expression)?
+	  modifiers += (DefaultModifier | RequiredModifier | EnabledModifier | VisualModifier | LinesModifier)*
 	  SC
 	;
 
@@ -943,7 +943,6 @@ Modifier
 	| UpdateModifier
 	| DeleteModifier
 	| ChoiceModifier
-	| BindModifier
 	| RedirectModifier
 	| RowsModifier
 	| SelectorModifier
@@ -1009,10 +1008,6 @@ DeleteModifier
 
 ChoiceModifier
 	: type = KW_CHOICES COLON expression = Expression
-	;
-
-BindModifier
-	: type = KW_BIND (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
 RedirectModifier
