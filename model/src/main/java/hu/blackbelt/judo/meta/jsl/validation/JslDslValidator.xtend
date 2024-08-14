@@ -113,6 +113,12 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.StaticModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.RedirectModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateFormModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewTableDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuTableDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewWidgetDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIRowColumnDeclaration
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -2057,20 +2063,97 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 		}
 	}
-	
+
 	@Check
-	def checkUIViewTableDeclaration(UIViewTableDeclaration table) {
-		if (table.referenceType !== null && table.transferRelation !== null) {
-			if (!table.referenceType.map.transfer.isEqual(table.transferRelation.referenceType)) {
-	            error("Row declaration and the transfer relation must have the same transfer type.",
+	def checkUIMenuLinkDeclaration(UIMenuLinkDeclaration link) {
+		if (link.actorAccess.map !== null && link.actorAccess.target !== null) {
+			if (!link.actorAccess.target.referenceType.isEqual(link.referenceType.map.transfer)) {
+	            error("Link declaration and the actor access must have the same transfer type.",
+	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+
+			if (link.actorAccess.target.many) {
+	            error("Referenced actor access must be single.",
 	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
 			}
 		}
-		
-		if (table.transferRelation !== null) {
-			if (!table.transferRelation.many) {
+	}
+
+	@Check
+	def checkUIMenuTableDeclaration(UIMenuTableDeclaration table) {
+		if (table.actorAccess.map !== null && table.actorAccess.target !== null) {
+			if (!table.actorAccess.target.referenceType.isEqual(table.referenceType.map.transfer)) {
+	            error("Table declaration and the actor access must have the same transfer type.",
+	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+
+			if (!table.actorAccess.target.many) {
+	            error("Referenced actor access's cardinality must be many.",
+	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+		}
+	}
+	
+	@Check
+	def checkUIViewLinkDeclaration(UIViewLinkDeclaration link) {
+		if (link.transferRelation.map !== null && link.transferRelation.target !== null) {
+			if (!link.transferRelation.target.referenceType.isEqual(link.referenceType.map.transfer)) {
+	            error("Link declaration and the transfer relation must have the same transfer type.",
+	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+
+			if (link.transferRelation.target.many) {
+	            error("Referenced transfer relation must be single.",
+	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+		}
+	}
+
+	@Check
+	def checkUIViewTableDeclaration(UIViewTableDeclaration table) {
+		if (table.transferRelation.map !== null && table.transferRelation.target !== null) {
+			if (!table.transferRelation.target.referenceType.isEqual(table.referenceType.map.transfer)) {
+	            error("Table declaration and the transfer relation must have the same transfer type.",
+	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+
+			if (!table.transferRelation.target.many) {
 	            error("Referenced transfer relation's cardinality must be many.",
+	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+		}
+	}
+
+	@Check
+	def checkUIViewWidgetDeclaration(UIViewWidgetDeclaration widget) {
+		if (widget.transferField.map !== null && widget.transferField.target !== null) {
+			var TypeInfo fieldType = TypeInfo.getTargetType(widget.transferField.target.referenceType);
+			var TypeInfo widgetType = TypeInfo.getTargetType(widget.referenceType);
+			
+			if (!widgetType.isCompatible(fieldType)) {
+	            error("Widget declaration and the transfer field must have the same type.",
+	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+		}
+	}
+
+	@Check
+	def checkRowColumnWidgetDeclaration(UIRowColumnDeclaration column) {
+		if (column.transferField.map !== null && column.transferField.target !== null) {
+			var TypeInfo fieldType = TypeInfo.getTargetType(column.transferField.target.referenceType);
+			var TypeInfo columnType = TypeInfo.getTargetType(column.referenceType);
+			
+			if (!columnType.isCompatible(fieldType)) {
+	            error("Column declaration and the transfer field must have the same type.",
 	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
 			}
