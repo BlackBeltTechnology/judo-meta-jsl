@@ -74,7 +74,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIRowDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateFormModifier
@@ -82,7 +81,13 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateViewModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewWidgetDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIRowColumnDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMapDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewTableDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMapDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -155,18 +160,30 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 			IdentityModifier case ref == JsldslPackage::eINSTANCE.identityModifier_Field: return this.scope_Identifier(scope)
 	
-	
-			
-			UIViewWidgetDeclaration case ref == JsldslPackage::eINSTANCE.UIViewWidgetDeclaration_TransferField: return scope.scope_Containments(context.parentContainer(UIViewDeclaration).map.transfer, ref)
-			UIViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.UIViewLinkDeclaration_TransferRelation: return scope.scope_Containments(context.parentContainer(UIViewDeclaration).map.transfer, ref).scope_FilterByMany(false)
-			UIViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.UIViewLinkDeclaration_ReferenceType: return scope.scope_FilterByForm(false)
-			UIViewTableDeclaration case ref == JsldslPackage::eINSTANCE.UIViewTableDeclaration_TransferRelation: return scope.scope_Containments(context.parentContainer(UIViewDeclaration).map.transfer, ref).scope_FilterByMany(true)
-	
-			UIRowColumnDeclaration case ref == JsldslPackage::eINSTANCE.UIRowColumnDeclaration_TransferField: return scope.scope_Containments(context.parentContainer(UIRowDeclaration).map.transfer, ref)
+			UIViewWidgetDeclaration case ref == JsldslPackage::eINSTANCE.transferFieldReference_Map: return scope.scope_Containments(context.parentContainer(UIViewDeclaration), ref)
+			UIViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationReference_Map: return scope.scope_Containments(context.parentContainer(UIViewDeclaration), ref)
+			UIViewTableDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationReference_Map: return scope.scope_Containments(context.parentContainer(UIViewDeclaration), ref)
 
-			UIMenuLinkDeclaration case ref == JsldslPackage::eINSTANCE.UIMenuLinkDeclaration_ActorAccess: return scope.scope_Containments(context.parentContainer(UIMenuDeclaration).map.actor, ref).scope_FilterByMany(false)
-			UIMenuLinkDeclaration case ref == JsldslPackage::eINSTANCE.UIMenuLinkDeclaration_ReferenceType: return scope.scope_FilterByForm(false)
-			UIMenuTableDeclaration case ref == JsldslPackage::eINSTANCE.UIMenuTableDeclaration_ActorAccess: return scope.scope_Containments(context.parentContainer(UIMenuDeclaration).map.actor, ref).scope_FilterByMany(true)
+			UIRowColumnDeclaration case ref == JsldslPackage::eINSTANCE.transferFieldReference_Map: return scope.scope_Containments(context.parentContainer(UIRowDeclaration), ref)
+
+			UIMenuLinkDeclaration case ref == JsldslPackage::eINSTANCE.actorAccessReference_Map: return scope.scope_Containments(context.parentContainer(UIMenuDeclaration), ref)
+			UIMenuTableDeclaration case ref == JsldslPackage::eINSTANCE.actorAccessReference_Map: return scope.scope_Containments(context.parentContainer(UIMenuDeclaration), ref)
+
+			TransferFieldReference case ref == JsldslPackage::eINSTANCE.transferFieldReference_Target: return scope.scope_Containments(context.map.transfer, ref)
+			TransferRelationReference case ref == JsldslPackage::eINSTANCE.transferRelationReference_Target: return scope.scope_Containments(context.map.transfer, ref)
+
+			ActorAccessReference case ref == JsldslPackage::eINSTANCE.actorAccessReference_Target: return scope.scope_Containments(context.map.actor, ref)
+			
+//			UIViewWidgetDeclaration case ref == JsldslPackage::eINSTANCE.UIViewWidgetDeclaration_TransferField: return scope.scope_Containments(context.parentContainer(UIViewDeclaration).map.transfer, ref)
+//			UIViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.UIViewLinkDeclaration_TransferRelation: return scope.scope_Containments(context.parentContainer(UIViewDeclaration).map.transfer, ref).scope_FilterByMany(false)
+//			UIViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.UIViewLinkDeclaration_ReferenceType: return scope.scope_FilterByForm(false)
+//			UIViewTableDeclaration case ref == JsldslPackage::eINSTANCE.UIViewTableDeclaration_TransferRelation: return scope.scope_Containments(context.parentContainer(UIViewDeclaration).map.transfer, ref).scope_FilterByMany(true)
+	
+//			UIRowColumnDeclaration case ref == JsldslPackage::eINSTANCE.UIRowColumnDeclaration_TransferField: return scope.scope_Containments(context.parentContainer(UIRowDeclaration).map.transfer, ref)
+//
+//			UIMenuLinkDeclaration case ref == JsldslPackage::eINSTANCE.UIMenuLinkDeclaration_ActorAccess: return scope.scope_Containments(context.parentContainer(UIMenuDeclaration).map.actor, ref).scope_FilterByMany(false)
+//			UIMenuLinkDeclaration case ref == JsldslPackage::eINSTANCE.UIMenuLinkDeclaration_ReferenceType: return scope.scope_FilterByForm(false)
+//			UIMenuTableDeclaration case ref == JsldslPackage::eINSTANCE.UIMenuTableDeclaration_ActorAccess: return scope.scope_Containments(context.parentContainer(UIMenuDeclaration).map.actor, ref).scope_FilterByMany(true)
 
 
 			CreateFormModifier case ref == JsldslPackage::eINSTANCE.createFormModifier_Form: return scope.scope_FilterByForm(true)
@@ -367,6 +384,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
                 AnnotationDeclaration: return true
                 TransferFieldDeclaration: return true
                 TransferRelationDeclaration: return true
+                TransferMapDeclaration: return true
+                ActorMapDeclaration: return true
                 
                 LambdaVariable: return context.parentContainer(LambdaCall).isEqual(obj.eContainer)
                 ParameterDeclaration: return context.parentContainer(ParameterDeclaration) === null && (context.isEqual(obj.eContainer) || EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)])

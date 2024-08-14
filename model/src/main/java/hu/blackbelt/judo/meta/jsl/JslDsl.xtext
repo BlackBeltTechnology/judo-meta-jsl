@@ -253,6 +253,14 @@ TransferMapDeclaration
 	| KW_MAPS transfer = [SimpleTransferDeclaration | ModelName] KW_AS Named
 	;
 
+TransferFieldReference
+	: map = [TransferMapDeclaration | LocalName] DOT target = [TransferFieldDeclaration | LocalName]
+	;
+
+TransferRelationReference
+	: map = [TransferMapDeclaration | LocalName] DOT target = [TransferRelationDeclaration | LocalName]
+	;
+
 UIViewDeclaration
 	: (KW_VIEW | form ?= KW_FORM) Named
 	  map = TransferMapDeclaration
@@ -268,22 +276,22 @@ UIViewMemberDeclaration
 
 UIViewWidgetDeclaration
 	: KW_WIDGET referenceType = [PrimitiveDeclaration | ModelName] Named
-	  (LTE | SSH) transferField = [TransferFieldDeclaration | LocalName]
+	  (LTE | SSH) transferField = TransferFieldReference
 	  modifiers += (VisualModifier)*
 	  SC
 	;
 
 UIViewLinkDeclaration
 	: KW_LINK referenceType = [UIViewDeclaration | ModelName] Named
-	  LTE transferRelation = [TransferRelationDeclaration | LocalName]
-	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier | DeleteModifier)*
+	  LTE transferRelation = TransferRelationReference
+	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier)*
 	  SC
 	;
 
 UIViewTableDeclaration
-	: KW_TABLE referenceType = [UIRowDeclaration | ModelName] Cardinality Named
-	  LTE transferRelation = [TransferRelationDeclaration | LocalName]
-	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier | DeleteModifier)*
+	: KW_TABLE referenceType = [UIRowDeclaration | ModelName] Named
+	  LTE transferRelation = TransferRelationReference
+	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier)*
 	  SC
 	;
 
@@ -303,7 +311,7 @@ UIRowMemberDeclaration
 
 UIRowColumnDeclaration
 	: KW_COLUMN referenceType = [PrimitiveDeclaration | ModelName] Named
-	  LTE transferField = [TransferFieldDeclaration | LocalName]
+	  LTE transferField = TransferFieldReference
 	  modifiers += (VisualModifier)*
 	  SC
 	;
@@ -315,6 +323,10 @@ UIRowColumnDeclaration
 ActorMapDeclaration
 	: -> LP actor = [ActorDeclaration | ModelName] Named RP  // if no name defined, the 'self' shall be default name
 	| KW_MAPS actor = [ActorDeclaration | ModelName] KW_AS Named
+	;
+
+ActorAccessReference
+	: map = [ActorMapDeclaration | LocalName] DOT target = [ActorAccessDeclaration | LocalName]
 	;
 
 UIMenuDeclaration
@@ -330,15 +342,15 @@ UIMenuMemberDeclaration
 
 UIMenuLinkDeclaration
 	: KW_LINK referenceType = [UIViewDeclaration | ModelName] Named
-	  LTE actorAccess = [ActorAccessDeclaration | LocalName]
-	  modifiers += (CreateFormModifier | UpdateViewModifier | DeleteModifier)*
+	  LTE actorAccess = ActorAccessReference
+	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier)*
 	  SC
 	;
 
 UIMenuTableDeclaration
-	: KW_TABLE referenceType = [UIRowDeclaration | ModelName] Cardinality Named
-	  LTE actorAccess = [ActorAccessDeclaration | LocalName]
-	  modifiers += (CreateFormModifier | UpdateViewModifier | DeleteModifier)*
+	: KW_TABLE referenceType = [UIRowDeclaration | ModelName] Named
+	  LTE actorAccess = ActorAccessReference
+	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier)*
 	  SC
 	;
 
@@ -1140,11 +1152,11 @@ HumanModifier
 	;
 
 CreateFormModifier
-	: type = KW_CREATE COLON form = [UIViewDeclaration | ModelName]
+	: type = KW_FORM COLON form = [UIViewDeclaration | ModelName]
 	;
 
 UpdateViewModifier
-	: type = KW_UPDATE COLON view = [UIViewDeclaration | ModelName]
+	: type = KW_VIEW COLON view = [UIViewDeclaration | ModelName]
 	;
 
 /****************************
