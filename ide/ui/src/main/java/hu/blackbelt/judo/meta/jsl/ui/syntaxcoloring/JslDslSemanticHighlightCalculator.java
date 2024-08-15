@@ -140,7 +140,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
                     }
 
                 	if (declarartions.contains(ruleName)) {
-                		if (node.getSemanticElement().eContainer() instanceof ModelDeclaration) {
+                		if (node.getSemanticElement().eContainer() == null || node.getSemanticElement().eContainer() instanceof ModelDeclaration) {
 	                    	acceptor.addPosition(node.getOffset(), node.getLength(),
 	                        HighlightingConfiguration.KEYWORD_ID);
 	                        continue;
