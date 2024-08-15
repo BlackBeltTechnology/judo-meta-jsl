@@ -300,7 +300,7 @@ UIViewTableDeclaration
  ****************************/
 
 UIRowDeclaration
-	: KW_ROW Named
+	: KW_TABLE Named
 	  map = TransferMapDeclaration
 	  (SC | BLOCK_START (members += UIRowMemberDeclaration)* BLOCK_END)
 	;
