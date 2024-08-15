@@ -178,7 +178,7 @@ TransferRelationDeclaration
 	  referenceType = [TransferDeclaration | ModelName] Cardinality?
 	  Named
 	  (LTE getterExpr = Expression)?
-	  modifiers += (DefaultModifier | EagerModifier | RequiredModifier | EnabledModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+	  modifiers += (DefaultModifier | EagerModifier | RequiredModifier | EnabledModifier | ChoiceModifier | CreateModifier | UpdateModifier | DeleteModifier)*
 	  SC
 	;
 
@@ -284,14 +284,14 @@ UIViewWidgetDeclaration
 UIViewLinkDeclaration
 	: KW_LINK referenceType = [UIViewDeclaration | ModelName] Named
 	  LTE transferRelation = TransferRelationReference
-	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier)*
+	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier | SelectorTableModifier)*
 	  SC
 	;
 
 UIViewTableDeclaration
 	: KW_TABLE referenceType = [UIRowDeclaration | ModelName] Named
 	  LTE transferRelation = TransferRelationReference
-	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier)*
+	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier | SelectorTableModifier)*
 	  SC
 	;
 
@@ -975,6 +975,7 @@ Modifier
 	| HumanModifier
 	| CreateFormModifier
 	| UpdateViewModifier
+	| SelectorTableModifier
 
 	| VisualModifier
 	;
@@ -1019,7 +1020,7 @@ RowsModifier
 	;
 
 SelectorModifier
-	: type = KW_SELECTOR COLON transfer = [TransferDeclaration | ModelName]
+	: type = 'oldselector' COLON transfer = [TransferDeclaration | ModelName]
 	;
 
 TextModifier
@@ -1152,6 +1153,10 @@ CreateFormModifier
 
 UpdateViewModifier
 	: type = KW_VIEW COLON view = [UIViewDeclaration | ModelName]
+	;
+
+SelectorTableModifier
+	: type = KW_SELECTOR COLON row = [UIRowDeclaration | ModelName]
 	;
 
 /****************************

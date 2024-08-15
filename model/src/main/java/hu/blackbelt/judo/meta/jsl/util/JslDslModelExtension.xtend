@@ -67,7 +67,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.HumanModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.StaticModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.BindModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.DetailModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowLinkDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.BulkModifier
