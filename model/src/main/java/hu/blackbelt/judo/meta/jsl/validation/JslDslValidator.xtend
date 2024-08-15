@@ -2175,6 +2175,21 @@ class JslDslValidator extends AbstractJslDslValidator {
                 JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
 		}
+
+		var TransferRelationDeclaration relation;
+
+		switch container {
+			UIViewLinkDeclaration: relation = container.transferRelation.target
+			UIViewTableDeclaration: relation = container.transferRelation.target
+			UIMenuLinkDeclaration: relation = container.actorAccess.target
+			UIMenuTableDeclaration: relation = container.actorAccess.target
+		}
+
+		if (relation.getModifier(JsldslPackage::eINSTANCE.createModifier) === null) {
+            error("Referenced relation must have a create flag.",
+                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
 	}
 
 	@Check
@@ -2196,6 +2211,21 @@ class JslDslValidator extends AbstractJslDslValidator {
                 JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
 		}
+
+		var TransferRelationDeclaration relation;
+
+		switch container {
+			UIViewLinkDeclaration: relation = container.transferRelation.target
+			UIViewTableDeclaration: relation = container.transferRelation.target
+			UIMenuLinkDeclaration: relation = container.actorAccess.target
+			UIMenuTableDeclaration: relation = container.actorAccess.target
+		}
+
+		if (relation.getModifier(JsldslPackage::eINSTANCE.updateModifier) === null) {
+            error("Referenced relation must have an update flag.",
+                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
 	}
 
 	@Check
@@ -2214,6 +2244,21 @@ class JslDslValidator extends AbstractJslDslValidator {
 		
 		if (!featureTransfer.isEqual(modifier.row.map.transfer)) {
             error("Selector table and the feature must have the same transfer type.",
+                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+
+		var TransferRelationDeclaration relation;
+
+		switch container {
+			UIViewLinkDeclaration: relation = container.transferRelation.target
+			UIViewTableDeclaration: relation = container.transferRelation.target
+			UIMenuLinkDeclaration: relation = container.actorAccess.target
+			UIMenuTableDeclaration: relation = container.actorAccess.target
+		}
+
+		if (relation.getModifier(JsldslPackage::eINSTANCE.choiceModifier) === null) {
+            error("Referenced relation must have a choice attribute.",
                 JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
 		}
