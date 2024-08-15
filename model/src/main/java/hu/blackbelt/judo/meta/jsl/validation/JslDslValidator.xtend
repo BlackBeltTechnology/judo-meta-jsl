@@ -114,6 +114,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewLinkDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewWidgetDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIRowColumnDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.CreateFormModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateViewModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorTableModifier
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -2140,7 +2143,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
-	def checkRowColumnWidgetDeclaration(UIRowColumnDeclaration column) {
+	def checkUIRowColumnWidgetDeclaration(UIRowColumnDeclaration column) {
 		if (column.transferField.map !== null && column.transferField.target !== null) {
 			var TypeInfo fieldType = TypeInfo.getTargetType(column.transferField.target.referenceType);
 			var TypeInfo columnType = TypeInfo.getTargetType(column.referenceType);
@@ -2150,6 +2153,69 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
 			}
+		}
+	}
+	
+	@Check
+	def checkCreateFormModifier(CreateFormModifier modifier) {
+		if (modifier.form === null) return;
+		
+		var EObject container = modifier.eContainer;
+		var TransferDeclaration featureTransfer;
+		
+		switch container {
+			UIViewLinkDeclaration: featureTransfer = container.referenceType.map.transfer
+			UIViewTableDeclaration: featureTransfer = container.referenceType.map.transfer
+			UIMenuLinkDeclaration: featureTransfer = container.referenceType.map.transfer
+			UIMenuTableDeclaration: featureTransfer = container.referenceType.map.transfer
+		}
+		
+		if (!featureTransfer.isEqual(modifier.form.map.transfer)) {
+            error("Create form and the feature must have the same transfer type.",
+                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+	}
+
+	@Check
+	def checkUpdateViewModifier(UpdateViewModifier modifier) {
+		if (modifier.view === null) return;
+		
+		var EObject container = modifier.eContainer;
+		var TransferDeclaration featureTransfer;
+		
+		switch container {
+			UIViewLinkDeclaration: featureTransfer = container.referenceType.map.transfer
+			UIViewTableDeclaration: featureTransfer = container.referenceType.map.transfer
+			UIMenuLinkDeclaration: featureTransfer = container.referenceType.map.transfer
+			UIMenuTableDeclaration: featureTransfer = container.referenceType.map.transfer
+		}
+		
+		if (!featureTransfer.isEqual(modifier.view.map.transfer)) {
+            error("Update view and the feature must have the same transfer type.",
+                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+	}
+
+	@Check
+	def checkSelectorTableModifier(SelectorTableModifier modifier) {
+		if (modifier.row === null) return;
+		
+		var EObject container = modifier.eContainer;
+		var TransferDeclaration featureTransfer;
+		
+		switch container {
+			UIViewLinkDeclaration: featureTransfer = container.referenceType.map.transfer
+			UIViewTableDeclaration: featureTransfer = container.referenceType.map.transfer
+			UIMenuLinkDeclaration: featureTransfer = container.referenceType.map.transfer
+			UIMenuTableDeclaration: featureTransfer = container.referenceType.map.transfer
+		}
+		
+		if (!featureTransfer.isEqual(modifier.row.map.transfer)) {
+            error("Selector table and the feature must have the same transfer type.",
+                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
 		}
 	}
 }
