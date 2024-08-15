@@ -32,9 +32,6 @@ class CRUDTests {
 			}
 			
 			transfer TA(A a) {
-				event create `create`();
-				event delete `delete`();
-				event update `update`();
 			}
 			
 			transfer TB(B b) {
@@ -80,10 +77,7 @@ class CRUDTests {
 			entity A {
 			}
 			
-			row TA(A a) {
-				event create `create`();
-				event delete `delete`();
-				event update `update`();
+			transferrow TA(A a) {
 			}
 			
 			actor Actor human {

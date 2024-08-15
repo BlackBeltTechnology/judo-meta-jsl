@@ -75,15 +75,15 @@ public class TestModel2TemplateTest {
 			    identifier String userName required;
 			}
 			
-			view UserTransfer(User user) {
-				field String userName <= user.userName bind;
+			transferview UserTransfer(User user) {
+				field String userName <=> user.userName;
 			}
 			
-			view UserListView {
+			transferview UserListView {
 			    table UserRow[] users <= User.all();
 			}
 			
-			row UserRow(User user) {
+			transferrow UserRow(User user) {
 				field String userName <= user.userName;
 			}
 			
@@ -92,11 +92,11 @@ public class TestModel2TemplateTest {
 			    field Integer price required;
 			}
 			
-			view ProductListView {
+			transferview ProductListView {
 			    table ProductRow[] products <= Product.all();
 			}
 			
-			row ProductRow(Product product) {
+			transferrow ProductRow(Product product) {
 			    field String name <= product.name;
 			    field String price <= product.price.asString() + " HUF";
 			}
