@@ -71,6 +71,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DetailModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowLinkDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.BulkModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.RowActionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -394,6 +395,10 @@ class JslDslModelExtension {
 
     def Collection<ErrorDeclaration> errorDeclarations(ModelDeclaration it) {
         declarations.filter[d | d instanceof ErrorDeclaration].map[d | d as ErrorDeclaration].toList
+    }
+
+    def Collection<EntityRelationDeclaration> getRelations(EntityDeclaration it) {
+        members.filter[d | d instanceof EntityRelationDeclaration].map[d | d as EntityRelationDeclaration].toList
     }
 
     def Collection<EntityFieldDeclaration> getFields(EntityDeclaration it) {

@@ -2185,7 +2185,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			UIMenuTableDeclaration: relation = container.actorAccess.target
 		}
 
-		if (relation.getModifier(JsldslPackage::eINSTANCE.createModifier) === null) {
+		if (relation.getModifier(JsldslPackage::eINSTANCE.createModifier) === null || (relation.getModifier(JsldslPackage::eINSTANCE.createModifier) as CreateModifier).isFalse) {
             error("Referenced relation must have a create flag.",
                 JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
@@ -2221,7 +2221,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			UIMenuTableDeclaration: relation = container.actorAccess.target
 		}
 
-		if (relation.getModifier(JsldslPackage::eINSTANCE.updateModifier) === null) {
+		if (relation.getModifier(JsldslPackage::eINSTANCE.updateModifier) === null || (relation.getModifier(JsldslPackage::eINSTANCE.updateModifier) as UpdateModifier).isFalse) {
             error("Referenced relation must have an update flag.",
                 JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
