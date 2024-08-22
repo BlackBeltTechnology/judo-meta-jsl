@@ -75,15 +75,15 @@ public class TestModel2TemplateTest {
 			    identifier String userName required;
 			}
 			
-			view UserTransfer(User user) {
-				field String userName <= user.userName bind;
+			transfer UserTransfer(User user) {
+				field String userName <=> user.userName;
 			}
 			
-			view UserListView {
-			    table UserRow[] users <= User.all();
+			transfer UserListView {
+			    relation UserRow[] users <= User.all();
 			}
 			
-			row UserRow(User user) {
+			transfer UserRow(User user) {
 				field String userName <= user.userName;
 			}
 			
@@ -92,24 +92,19 @@ public class TestModel2TemplateTest {
 			    field Integer price required;
 			}
 			
-			view ProductListView {
-			    table ProductRow[] products <= Product.all();
+			transfer ProductListView {
+			    relation ProductRow[] products <= Product.all();
 			}
 			
-			row ProductRow(Product product) {
+			transfer ProductRow(Product product) {
 			    field String name <= product.name;
 			    field String price <= product.price.asString() + " HUF";
 			}
 			
-			actor Admin human identity:UserTransfer::userName {
-			    group first label:"Group1" {
-			        group second label:"Group2" {
-					    table ProductRow[] products <= Product.all() label:"Products" icon:"close";
-			        }
-				    table ProductRow[] products2 <= Product.all() label:"Products2";
-			    }
-			
-			    table UserRow[] users <= User.all() label:"Users" icon:"account-multiple";
+			actor Admin identity:UserTransfer::userName {
+				access ProductRow[] products <= Product.all();
+				access ProductRow[] products2 <= Product.all();
+			    access UserRow[] users <= User.all();
 			}
         """));
 

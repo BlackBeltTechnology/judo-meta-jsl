@@ -8,7 +8,6 @@ import hu.blackbelt.judo.meta.jsl.util.JslDslModelExtension
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EnumDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ErrorField
 import java.util.Collection
 import java.util.HashSet
 import java.util.Set
@@ -24,8 +23,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Named
 import org.eclipse.emf.ecore.EObject
-import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.RowDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMemberDeclaration
@@ -193,17 +190,13 @@ class JsldslDefaultPlantUMLDiagramGenerator {
     '''«IF it.reads»<&caret-left>«ELSEIF it.maps»<&caret-right>«ELSE»<U+00A0><U+00A0><U+00A0>«ENDIF»'''
 
     def transferStereotypeFragment(TransferDeclaration it)
-    '''«IF it instanceof ViewDeclaration» << (V,Transparent) Transfer >> «
-        ELSEIF it instanceof RowDeclaration» << (R,Transparent) Transfer >> «
-        ELSEIF it instanceof ErrorDeclaration» << (E,Transparent) Error >> «
+    '''«IF it instanceof ErrorDeclaration» << (E,Transparent) Error >> «
         ELSEIF it instanceof TransferDeclaration» << (T,Transparent) Transfer >> «
         ENDIF
     »'''
 
     def transferExternalStereotypeFragment(TransferDeclaration it)
-    '''«IF it instanceof ViewDeclaration» << (V,Transparent) External >> «
-        ELSEIF it instanceof RowDeclaration» << (R,Transparent) External >> «
-        ELSEIF it instanceof ErrorDeclaration» << (E,Transparent) External >> «
+    '''«IF it instanceof ErrorDeclaration» << (E,Transparent) External >> «
         ELSEIF it instanceof TransferDeclaration» << (T,Transparent) External >> «
         ENDIF
     »'''

@@ -49,30 +49,37 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationMark
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationArgument
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ViewActionDeclaration
 import org.eclipse.emf.ecore.EClassifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ViewLinkDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ViewTableDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Argument
 import hu.blackbelt.judo.meta.jsl.jsldsl.FunctionOrQueryCall
 import hu.blackbelt.judo.meta.jsl.jsldsl.ParameterDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnionDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.RowLinkDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.RowActionDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ActorLinkDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ActorTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.IdentityModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIRowDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuTableDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.CreateFormModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateViewModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewWidgetDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIRowColumnDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMapDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewLinkDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewTableDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMapDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -112,47 +119,91 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			EntityRelationDeclaration case ref == JsldslPackage::eINSTANCE.entityMemberDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.entityDeclaration)
 			EntityFieldDeclaration case ref == JsldslPackage::eINSTANCE.entityMemberDeclaration_ReferenceType && context.identifier: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.primitiveDeclaration)
 
-			SelectorModifier case ref == JsldslPackage::eINSTANCE.selectorModifier_Transfer && context.eContainer instanceof ViewLinkDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
-			SelectorModifier case ref == JsldslPackage::eINSTANCE.selectorModifier_Transfer && context.eContainer instanceof ViewTableDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
 			SelectorModifier case ref == JsldslPackage::eINSTANCE.selectorModifier_Transfer && context.eContainer instanceof TransferRelationDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
-			SelectorModifier case ref == JsldslPackage::eINSTANCE.selectorModifier_Transfer && context.eContainer instanceof ViewActionDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
-			SelectorModifier case ref == JsldslPackage::eINSTANCE.selectorModifier_Transfer && context.eContainer instanceof RowActionDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
 			SelectorModifier case ref == JsldslPackage::eINSTANCE.selectorModifier_Transfer && context.eContainer instanceof TransferActionDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
-			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.visibleDeclaration)
-			RowActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.visibleDeclaration)
 			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
-			ViewActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_ViewOrUnion(scope)
-			RowActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_ViewOrUnion(scope)
+//			RowActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_ViewOrUnion(scope)
 			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_SimpleTransferOrUnion(scope)
-			ViewDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_ViewOrUnion(scope)
 			SimpleTransferDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_SimpleTransferOrUnion(scope)
 
-			ActorLinkDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
-			ActorTableDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
 			ActorAccessDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifierNot(this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.transferDeclaration), JsldslPackage::eINSTANCE.actorDeclaration)
 
-			TransferCreateDeclaration case ref == JsldslPackage::eINSTANCE.transferCreateDeclaration_ParameterType && context.eContainer instanceof SimpleTransferDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
-			TransferCreateDeclaration case ref == JsldslPackage::eINSTANCE.transferCreateDeclaration_ParameterType && context.eContainer instanceof ViewDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
-
-			ViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
-			ViewTableDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.rowDeclaration)
-
-			RowLinkDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
+//			RowLinkDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.viewDeclaration)
 
 			TransferRelationDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationDeclaration_ReferenceType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
 			UnionDeclaration case ref == JsldslPackage::eINSTANCE.unionDeclaration_Members: return this.scope_UnionMember(scope)
 
 			IdentityModifier case ref == JsldslPackage::eINSTANCE.identityModifier_Field: return this.scope_Identifier(scope)
+	
+			UIViewWidgetDeclaration case ref == JsldslPackage::eINSTANCE.transferFieldReference_Map: return scope.scope_Containments(context.parentContainer(UIViewDeclaration), ref)
+			UIViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationReference_Map: return scope.scope_Containments(context.parentContainer(UIViewDeclaration), ref)
+			UIViewTableDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationReference_Map: return scope.scope_Containments(context.parentContainer(UIViewDeclaration), ref)
+
+			UIRowColumnDeclaration case ref == JsldslPackage::eINSTANCE.transferFieldReference_Map: return scope.scope_Containments(context.parentContainer(UIRowDeclaration), ref)
+
+			UIMenuLinkDeclaration case ref == JsldslPackage::eINSTANCE.actorAccessReference_Map: return scope.scope_Containments(context.parentContainer(UIMenuDeclaration), ref)
+			UIMenuTableDeclaration case ref == JsldslPackage::eINSTANCE.actorAccessReference_Map: return scope.scope_Containments(context.parentContainer(UIMenuDeclaration), ref)
+
+			TransferFieldReference case ref == JsldslPackage::eINSTANCE.transferFieldReference_Target: return scope.scope_Containments(context.map.transfer, ref)
+			TransferRelationReference case ref == JsldslPackage::eINSTANCE.transferRelationReference_Target: return scope.scope_Containments(context.map.transfer, ref)
+
+			ActorAccessReference case ref == JsldslPackage::eINSTANCE.actorAccessReference_Target: return scope.scope_Containments(context.map.actor, ref)
+			
+//			UIViewWidgetDeclaration case ref == JsldslPackage::eINSTANCE.UIViewWidgetDeclaration_TransferField: return scope.scope_Containments(context.parentContainer(UIViewDeclaration).map.transfer, ref)
+//			UIViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.UIViewLinkDeclaration_TransferRelation: return scope.scope_Containments(context.parentContainer(UIViewDeclaration).map.transfer, ref).scope_FilterByMany(false)
+//			UIViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.UIViewLinkDeclaration_ReferenceType: return scope.scope_FilterByForm(false)
+//			UIViewTableDeclaration case ref == JsldslPackage::eINSTANCE.UIViewTableDeclaration_TransferRelation: return scope.scope_Containments(context.parentContainer(UIViewDeclaration).map.transfer, ref).scope_FilterByMany(true)
+	
+//			UIRowColumnDeclaration case ref == JsldslPackage::eINSTANCE.UIRowColumnDeclaration_TransferField: return scope.scope_Containments(context.parentContainer(UIRowDeclaration).map.transfer, ref)
+//
+//			UIMenuLinkDeclaration case ref == JsldslPackage::eINSTANCE.UIMenuLinkDeclaration_ActorAccess: return scope.scope_Containments(context.parentContainer(UIMenuDeclaration).map.actor, ref).scope_FilterByMany(false)
+//			UIMenuLinkDeclaration case ref == JsldslPackage::eINSTANCE.UIMenuLinkDeclaration_ReferenceType: return scope.scope_FilterByForm(false)
+//			UIMenuTableDeclaration case ref == JsldslPackage::eINSTANCE.UIMenuTableDeclaration_ActorAccess: return scope.scope_Containments(context.parentContainer(UIMenuDeclaration).map.actor, ref).scope_FilterByMany(true)
+
+
+			CreateFormModifier case ref == JsldslPackage::eINSTANCE.createFormModifier_Form: return scope.scope_FilterByForm(true)
+			UpdateViewModifier case ref == JsldslPackage::eINSTANCE.updateViewModifier_View: return scope.scope_FilterByForm(false)
 
             Navigation: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
         }
 
         return scope
     }
+
+	def scope_FilterByMany(IScope scope, boolean isMany) {
+        return new FilteringScope(scope, [desc | {
+            val obj = desc.EObjectOrProxy
+
+			if (obj instanceof ActorAccessDeclaration) {
+				val ActorAccessDeclaration access = obj as ActorAccessDeclaration
+				return access.many == isMany 
+			}
+
+			if (obj instanceof TransferRelationDeclaration) {
+				val TransferRelationDeclaration relation = obj as TransferRelationDeclaration
+				return relation.many == isMany 
+			}
+
+            return false
+        }]);
+	}
+
+	def scope_FilterByForm(IScope scope, boolean isForm) {
+        return new FilteringScope(scope, [desc | {
+            val obj = desc.EObjectOrProxy
+
+			if (obj instanceof UIViewDeclaration) {
+				val UIViewDeclaration view = obj as UIViewDeclaration
+				return view.form == isForm 
+			}
+
+            return false
+        }]);
+	}
 
 	def scope_Identifier(IScope scope) {
         return new FilteringScope(scope, [desc | {
@@ -181,7 +232,6 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
             switch obj {
                 SimpleTransferDeclaration: return true
-                ViewDeclaration: return true
             }
 
             return false
@@ -201,18 +251,18 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
         }]);
 	}
 
-	def scope_ViewOrUnion(IScope scope) {
-        return new FilteringScope(scope, [desc | {
-            val obj = desc.EObjectOrProxy
-
-            switch obj {
-                ViewDeclaration: return true
-                UnionDeclaration: if (obj.members.get(0) !== null && obj.members.get(0) instanceof ViewDeclaration) return true
-            }
-
-            return false
-        }]);
-	}
+//	def scope_ViewOrUnion(IScope scope) {
+//        return new FilteringScope(scope, [desc | {
+//            val obj = desc.EObjectOrProxy
+//
+//            switch obj {
+//                ViewDeclaration: return true
+//                UnionDeclaration: if (obj.members.get(0) !== null && obj.members.get(0) instanceof ViewDeclaration) return true
+//            }
+//
+//            return false
+//        }]);
+//	}
 
     def scope_AllContainments(IScope scope, EObject context, EReference ref) {
         return new FilteringScope(scope.getLocalElementsScope(context, ref), [desc | {
@@ -312,7 +362,9 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
                 AnnotationDeclaration: return true
                 TransferFieldDeclaration: return true
                 TransferRelationDeclaration: return true
-
+                TransferMapDeclaration: return true
+                ActorMapDeclaration: return true
+                
                 LambdaVariable: return context.parentContainer(LambdaCall).isEqual(obj.eContainer)
                 ParameterDeclaration: return context.parentContainer(ParameterDeclaration) === null && (context.isEqual(obj.eContainer) || EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)])
                 EntityMapDeclaration: return context.isEqual(obj.eContainer) || EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)]

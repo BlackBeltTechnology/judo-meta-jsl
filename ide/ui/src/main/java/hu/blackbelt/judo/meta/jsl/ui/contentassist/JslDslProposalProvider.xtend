@@ -20,6 +20,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.Expression
 import org.eclipse.xtext.RuleCall
 import org.eclipse.xtext.AbstractRule
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIRowDeclaration
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
@@ -93,6 +96,89 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
             ]
         );
     }
+
+	override completeNamed_Name(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+        //System.out.println("model: " + model + " assignment: " + assignment + " context: " + context)
+		super.completeNamed_Name(model, assignment, context, acceptor)
+		
+		if (model instanceof SimpleTransferDeclaration && (model as SimpleTransferDeclaration).name === null) {
+		  	acceptor.accept(createCompletionProposal("Transfer", context));
+			
+			for (e : (model.eContainer as ModelDeclaration).entityDeclarations) {
+				var String display = e.name + "Transfer";
+				var String proposal = display
+				proposal += "(" + e.name + " " + e.name.toFirstLower +") {\n";
+
+				proposal += "\t// fields\n"
+
+				for (f : e.fields) {
+					proposal += "\tfield " + f.referenceType.name + " " + f.name + " " + (f.getterExpr === null ? "<=>" : "<=") + " " + e.name.toFirstLower + "." + f.name + (f.required ? " required" : "") + ";\n"
+				}
+
+				proposal += "\n\t// relations\n"
+
+				for (r : e.relations) {
+					proposal += "\trelation " + r.referenceType.name + "Transfer" + (r.many ? "[]" : "" ) + " " + r.name + " <= " + e.name.toFirstLower + "." + r.name + (r.getterExpr === null ? " create update delete" : "") + ";\n"
+				}
+
+				proposal += "}"
+				
+		  		acceptor.accept(createCompletionProposal(proposal, display, null, context));
+			}
+  		}
+
+		if (model instanceof UIViewDeclaration && (model as UIViewDeclaration).name === null) {
+		  	acceptor.accept(createCompletionProposal("View", context));
+			
+			for (t : (model.eContainer as ModelDeclaration).transferDeclarations) {
+				var String display = t.name + ((model as UIViewDeclaration).form ? "Form" : "View");
+				var String proposal = display
+				proposal += "(" + t.name + " " + t.name.toFirstLower +") {\n";
+
+				proposal += "\t// widgets\n"
+
+				for (f : t.fields) {
+					proposal += "\twidget " + f.referenceType.name + " " + f.name + " <= " + " " + t.name.toFirstLower + "." + f.name + ";\n"
+				}
+
+				proposal += "\n\t// links\n"
+
+				for (r : t.relations.filter[r | !r.many]) {
+					proposal += "\tlink " + r.referenceType.name + "View" + " " + r.name + " <= " + t.name.toFirstLower + "." + r.name + ";\n"
+				}
+
+				proposal += "\n\t// tables\n"
+
+				for (r : t.relations.filter[r | r.many]) {
+					proposal += "\ttable " + r.referenceType.name + "Table" + " " + r.name + " <= " + t.name.toFirstLower + "." + r.name + ";\n"
+				}
+
+				proposal += "}"
+				
+		  		acceptor.accept(createCompletionProposal(proposal, display, null, context));
+			}
+		}
+
+		if (model instanceof UIRowDeclaration && (model as UIRowDeclaration).name === null) {
+		  	acceptor.accept(createCompletionProposal("Table", context));
+			
+			for (t : (model.eContainer as ModelDeclaration).transferDeclarations) {
+				var String display = t.name + "Table";
+				var String proposal = display
+				proposal += "(" + t.name + " " + t.name.toFirstLower +") {\n";
+
+				proposal += "\t// columns\n"
+
+				for (f : t.fields) {
+					proposal += "\tcolumn " + f.referenceType.name + " " + f.name + " <= " + " " + t.name.toFirstLower + "." + f.name + ";\n"
+				}
+
+				proposal += "}"
+				
+		  		acceptor.accept(createCompletionProposal(proposal, display, null, context));
+			}
+		}
+	}
 
 /*
     override completeCreateExpression_Type(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
