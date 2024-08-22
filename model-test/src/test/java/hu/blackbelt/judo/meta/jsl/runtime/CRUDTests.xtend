@@ -77,11 +77,11 @@ class CRUDTests {
 			entity A {
 			}
 			
-			transferrow TA(A a) {
+			transfer TA(A a) {
 			}
 			
-			actor Actor human {
-				table TA[] talist <= A.all() delete update;
+			actor Actor {
+				access TA[] talist <= A.all() delete update;
 			}
         '''.parse => [
             assertNoErrors

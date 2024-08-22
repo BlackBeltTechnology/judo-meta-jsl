@@ -42,8 +42,8 @@ PrimitiveDeclaration
 ClassDeclaration
 	: EntityDeclaration
 	| TransferDeclaration
-	| ViewDeclaration
-	| RowDeclaration
+//	| ViewDeclaration
+//	| RowDeclaration
 	| ActorDeclaration
 	
 	| UIViewDeclaration
@@ -358,109 +358,109 @@ UIMenuTableDeclaration
  *	View
  ****************************/
 
-VisibleDeclaration returns TransferDeclaration
-	: ViewDeclaration
-	| RowDeclaration
-	;
+//VisibleDeclaration returns TransferDeclaration
+//	: RowDeclaration
+//	| ViewDeclaration
+//	;
 
-ViewDeclaration returns VisibleDeclaration
-	: {ViewDeclaration}
-	  annotations += AnnotationMark*
-	  -> 'transferview' Named
-	  MappedDeclaration
-	  modifiers += (DialogModifier)*
-	  (SC | BLOCK_START (members += ViewDirectMemberDeclaration)* BLOCK_END)
-	;
-
-ViewDirectMemberDeclaration returns TransferMemberDeclaration
-	: ViewMemberDeclaration
-//	| TransferEventDeclaration
-	;
-
-ViewMemberDeclaration returns TransferMemberDeclaration
-	: ViewTextDeclaration
-	| ViewFieldDeclaration
-	| ViewLinkDeclaration
-	| ViewTableDeclaration
-	| ViewPanelDeclaration
-
-	| ViewActionDeclaration
-	| ViewActionsDeclaration
-	;
-
-ViewTextDeclaration returns TransferFieldDeclaration
-	: {ViewTextDeclaration}
-	  annotations += AnnotationMark*
-	  -> KW_TEXT Named (reads ?= LTE getterExpr = Expression)?
-	  modifiers += VisualModifier*
-	  SC
-	;
-
-ViewFieldDeclaration returns TransferFieldDeclaration
-	: {ViewFieldDeclaration} 
-	  annotations += AnnotationMark*
-	  -> KW_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named
-	  ((LTE | bind ?= SSH) getterExpr = Expression)?
-	  modifiers += (DefaultModifier | RequiredModifier | EnabledModifier | VisualModifier | LinesModifier)*
-	  SC
-	;
-
-ViewLinkDeclaration returns TransferRelationDeclaration
-	: {ViewLinkDeclaration}
-	  annotations += AnnotationMark*
-	  -> KW_LINK referenceType = [ViewDeclaration | ModelName] Named
-	  (LTE getterExpr = Expression)?
-	  modifiers += (DefaultModifier | EagerModifier | RequiredModifier | EnabledModifier | VisualModifier | TextModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
-	  SC
-	;
-
-ViewTableDeclaration returns TransferRelationDeclaration
-	: {ViewTableDeclaration}
-	  annotations += AnnotationMark*
-	  -> KW_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
-	  (LTE getterExpr = Expression)?
-	  modifiers += (DefaultModifier | EagerModifier | EnabledModifier | VisualModifier | RowsModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
-	  SC
-	;
-
-ViewPanelDeclaration
-	: ViewTabsDeclaration
-	| ViewGroupDeclaration
-	;
-
-ViewTabsDeclaration returns ViewPanelDeclaration
-	: {ViewTabsDeclaration}
-	  annotations += AnnotationMark*
-	  -> KW_TABS Named
-	  modifiers += (VisualModifier | OrientationModifier | FrameModifier | StretchModifier)*
-	  BLOCK_START (groups += ViewGroupDeclaration)* BLOCK_END
-	;
-
-ViewGroupDeclaration returns ViewPanelDeclaration
-	: {ViewGroupDeclaration} 
-	  annotations += AnnotationMark*
-	  -> KW_GROUP Named
-	  modifiers += (EnabledModifier | VisualModifier | FrameModifier | OrientationModifier | HAlignModifier | VAlignModifier | StretchModifier)*
-	  BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END
-	;
-
-ViewActionDeclaration returns TransferActionDeclaration
-	: {ViewActionDeclaration}
-	  annotations += AnnotationMark*
-	  -> KW_ACTION (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
-	  LP (parameterType = [VisibleDeclaration | ModelName] paramaterName = JSLID modifiers += ChoiceModifier?)? RP
-	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
-	  modifiers += (EnabledModifier | StaticModifier | VisualModifier | RedirectModifier | UpdateModifier | DeleteModifier)*
-	  SC
-	;
-
-ViewActionsDeclaration
-	: {ViewActionsDeclaration}
-	  annotations += AnnotationMark*
-	  -> KW_ACTIONS Named
-	  modifiers += (VisualModifier)*
-	  BLOCK_START (members += ViewActionDeclaration)* BLOCK_END
-	;
+//ViewDeclaration returns VisibleDeclaration
+//	: {ViewDeclaration}
+//	  annotations += AnnotationMark*
+//	  -> 'transferview' Named
+//	  MappedDeclaration
+//	  modifiers += (DialogModifier)*
+//	  (SC | BLOCK_START (members += ViewDirectMemberDeclaration)* BLOCK_END)
+//	;
+//
+//ViewDirectMemberDeclaration returns TransferMemberDeclaration
+//	: ViewMemberDeclaration
+////	| TransferEventDeclaration
+//	;
+//
+//ViewMemberDeclaration returns TransferMemberDeclaration
+//	: ViewTextDeclaration
+//	| ViewFieldDeclaration
+//	| ViewLinkDeclaration
+//	| ViewTableDeclaration
+//	| ViewPanelDeclaration
+//
+//	| ViewActionDeclaration
+//	| ViewActionsDeclaration
+//	;
+//
+//ViewTextDeclaration returns TransferFieldDeclaration
+//	: {ViewTextDeclaration}
+//	  annotations += AnnotationMark*
+//	  -> KW_TEXT Named (reads ?= LTE getterExpr = Expression)?
+//	  modifiers += VisualModifier*
+//	  SC
+//	;
+//
+//ViewFieldDeclaration returns TransferFieldDeclaration
+//	: {ViewFieldDeclaration} 
+//	  annotations += AnnotationMark*
+//	  -> KW_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named
+//	  ((LTE | bind ?= SSH) getterExpr = Expression)?
+//	  modifiers += (DefaultModifier | RequiredModifier | EnabledModifier | VisualModifier | LinesModifier)*
+//	  SC
+//	;
+//
+//ViewLinkDeclaration returns TransferRelationDeclaration
+//	: {ViewLinkDeclaration}
+//	  annotations += AnnotationMark*
+//	  -> KW_LINK referenceType = [ViewDeclaration | ModelName] Named
+//	  (LTE getterExpr = Expression)?
+//	  modifiers += (DefaultModifier | EagerModifier | RequiredModifier | EnabledModifier | VisualModifier | TextModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+//	  SC
+//	;
+//
+//ViewTableDeclaration returns TransferRelationDeclaration
+//	: {ViewTableDeclaration}
+//	  annotations += AnnotationMark*
+//	  -> KW_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
+//	  (LTE getterExpr = Expression)?
+//	  modifiers += (DefaultModifier | EagerModifier | EnabledModifier | VisualModifier | RowsModifier | ChoiceModifier | SelectorModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+//	  SC
+//	;
+//
+//ViewPanelDeclaration
+//	: ViewTabsDeclaration
+//	| ViewGroupDeclaration
+//	;
+//
+//ViewTabsDeclaration returns ViewPanelDeclaration
+//	: {ViewTabsDeclaration}
+//	  annotations += AnnotationMark*
+//	  -> KW_TABS Named
+//	  modifiers += (VisualModifier | OrientationModifier | FrameModifier | StretchModifier)*
+//	  BLOCK_START (groups += ViewGroupDeclaration)* BLOCK_END
+//	;
+//
+//ViewGroupDeclaration returns ViewPanelDeclaration
+//	: {ViewGroupDeclaration} 
+//	  annotations += AnnotationMark*
+//	  -> KW_GROUP Named
+//	  modifiers += (EnabledModifier | VisualModifier | FrameModifier | OrientationModifier | HAlignModifier | VAlignModifier | StretchModifier)*
+//	  BLOCK_START (members += ViewMemberDeclaration)* BLOCK_END
+//	;
+//
+//ViewActionDeclaration returns TransferActionDeclaration
+//	: {ViewActionDeclaration}
+//	  annotations += AnnotationMark*
+//	  -> KW_ACTION (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
+//	  LP (parameterType = [VisibleDeclaration | ModelName] paramaterName = JSLID modifiers += ChoiceModifier?)? RP
+//	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
+//	  modifiers += (EnabledModifier | StaticModifier | VisualModifier | RedirectModifier | UpdateModifier | DeleteModifier)*
+//	  SC
+//	;
+//
+//ViewActionsDeclaration
+//	: {ViewActionsDeclaration}
+//	  annotations += AnnotationMark*
+//	  -> KW_ACTIONS Named
+//	  modifiers += (VisualModifier)*
+//	  BLOCK_START (members += ViewActionDeclaration)* BLOCK_END
+//	;
 
 //ViewSubmitDeclaration returns TransferSubmitDeclaration
 //	: {ViewSubmitDeclaration}
@@ -482,48 +482,49 @@ ViewActionsDeclaration
  *	Row
  ****************************/
 
-RowDeclaration returns VisibleDeclaration
-	: {RowDeclaration}
-	  annotations += AnnotationMark*
-	  -> 'transferrow' Named
-	  MappedDeclaration
-	  (SC | BLOCK_START (members += RowMemberDeclaration)* BLOCK_END)
-	;
-
-RowMemberDeclaration returns TransferMemberDeclaration
-	: RowFieldDeclaration
-	| RowLinkDeclaration
-	| RowActionDeclaration
-//	| TransferEventDeclaration
-	;
-
-RowFieldDeclaration returns TransferFieldDeclaration
-	: {RowFieldDeclaration}
-	  annotations += AnnotationMark*
-	  -> KW_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named
-	  (reads ?= LTE getterExpr = Expression)?
-	  modifiers += (VisualModifier)*
-	  SC
-	;
-
-RowLinkDeclaration returns TransferRelationDeclaration
-	: {RowLinkDeclaration}
-	  annotations += AnnotationMark*
-	  -> KW_LINK referenceType = [ViewDeclaration | ModelName] Named
-	  (LTE getterExpr = Expression)?
-	  modifiers += (EagerModifier | VisualModifier | TextModifier | DetailModifier)*
-	  SC
-	;
-
-RowActionDeclaration returns TransferActionDeclaration
-	: {RowActionDeclaration}
-	  annotations += AnnotationMark*
-	  -> KW_ACTION (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
-	  LP (parameterType = [VisibleDeclaration | ModelName] paramaterName = JSLID modifiers += ChoiceModifier?)? RP
-	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
-	  modifiers += (EnabledModifier | StaticModifier | VisualModifier | BulkModifier | RedirectModifier | UpdateModifier | DeleteModifier)*
-	  SC
-	;
+//RowDeclaration returns VisibleDeclaration
+//	: {RowDeclaration}
+//	  annotations += AnnotationMark*
+//	  -> 'transferrow' Named
+//	  MappedDeclaration
+//	  (SC | BLOCK_START (members += RowMemberDeclaration)* BLOCK_END)
+//	;
+//
+//RowMemberDeclaration returns TransferMemberDeclaration
+//	: RowFieldDeclaration
+//	| RowLinkDeclaration
+//	| RowActionDeclaration
+////	| TransferEventDeclaration
+//	;
+//
+//RowFieldDeclaration returns TransferFieldDeclaration
+//	: {RowFieldDeclaration}
+//	  annotations += AnnotationMark*
+//	  -> KW_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named
+//	  (reads ?= LTE getterExpr = Expression)?
+//	  modifiers += (VisualModifier)*
+//	  SC
+//	;
+//
+//RowLinkDeclaration returns TransferRelationDeclaration
+//	: {RowLinkDeclaration}
+//	  annotations += AnnotationMark*
+//	  -> KW_LINK // referenceType = [ViewDeclaration | ModelName]
+//	  Named
+//	  (LTE getterExpr = Expression)?
+//	  modifiers += (EagerModifier | VisualModifier | TextModifier | DetailModifier)*
+//	  SC
+//	;
+//
+//RowActionDeclaration returns TransferActionDeclaration
+//	: {RowActionDeclaration}
+//	  annotations += AnnotationMark*
+//	  -> KW_ACTION (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
+//	  LP (parameterType = [VisibleDeclaration | ModelName] paramaterName = JSLID modifiers += ChoiceModifier?)? RP
+//	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
+//	  modifiers += (EnabledModifier | StaticModifier | VisualModifier | BulkModifier | RedirectModifier | UpdateModifier | DeleteModifier)*
+//	  SC
+//	;
 
 /****************************
  *	Actor
@@ -533,22 +534,19 @@ ActorDeclaration returns TransferDeclaration
 	: {ActorDeclaration}
 	  annotations += AnnotationMark*
 	  KW_ACTOR Named
-	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier | HumanModifier)*
+	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier)*
 	  (SC | BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END)
 	;
 
 ActorMemberDeclaration returns TransferMemberDeclaration
 	: ActorAccessDeclaration
-	| ActorLinkDeclaration
-	| ActorTableDeclaration
-	| ActorGroupDeclaration
 	;
 
-ActorGroupMemberDeclaration returns TransferMemberDeclaration
-	: ActorGroupDeclaration
-	| ActorLinkDeclaration
-	| ActorTableDeclaration
-	;
+//ActorGroupMemberDeclaration returns TransferMemberDeclaration
+//	: ActorGroupDeclaration
+//	| ActorLinkDeclaration
+//	| ActorTableDeclaration
+//	;
 
 ActorAccessDeclaration returns TransferRelationDeclaration
 	: {ActorAccessDeclaration}
@@ -561,30 +559,30 @@ ActorAccessDeclaration returns TransferRelationDeclaration
 	  SC
 	;
 
-ActorGroupDeclaration
-	: annotations += AnnotationMark*
-	  -> KW_GROUP Named
-	  modifiers += (LabelModifier | IconModifier | HiddenModifier)*
-	  BLOCK_START (members += ActorGroupMemberDeclaration)* BLOCK_END
-	;
-
-ActorLinkDeclaration returns ViewLinkDeclaration
-	: {ActorLinkDeclaration}
-	  annotations += AnnotationMark*
-	  -> KW_LINK referenceType = [ViewDeclaration | ModelName] Named
-	  (LTE getterExpr = Expression)?
-	  modifiers += (EagerModifier | LabelModifier | IconModifier | HiddenModifier | CreateModifier | UpdateModifier | DeleteModifier)*
-	  SC
-	;
-
-ActorTableDeclaration returns ViewTableDeclaration
-	: {ActorTableDeclaration}
-	  annotations += AnnotationMark*
-	  -> KW_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
-	  (LTE getterExpr = Expression)?
-	  modifiers += (EagerModifier | LabelModifier | IconModifier | HiddenModifier | RowsModifier | CreateModifier | UpdateModifier | DeleteModifier)*
-	  SC
-	;
+//ActorGroupDeclaration
+//	: annotations += AnnotationMark*
+//	  -> KW_GROUP Named
+//	  modifiers += (LabelModifier | IconModifier | HiddenModifier)*
+//	  BLOCK_START (members += ActorGroupMemberDeclaration)* BLOCK_END
+//	;
+//
+//ActorLinkDeclaration returns ViewLinkDeclaration
+//	: {ActorLinkDeclaration}
+//	  annotations += AnnotationMark*
+//	  -> KW_LINK referenceType = [ViewDeclaration | ModelName] Named
+//	  (LTE getterExpr = Expression)?
+//	  modifiers += (EagerModifier | LabelModifier | IconModifier | HiddenModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+//	  SC
+//	;
+//
+//ActorTableDeclaration returns ViewTableDeclaration
+//	: {ActorTableDeclaration}
+//	  annotations += AnnotationMark*
+//	  -> KW_TABLE referenceType = [RowDeclaration | ModelName] Cardinality Named
+//	  (LTE getterExpr = Expression)?
+//	  modifiers += (EagerModifier | LabelModifier | IconModifier | HiddenModifier | RowsModifier | CreateModifier | UpdateModifier | DeleteModifier)*
+//	  SC
+//	;
 
 /****************************
  *	Union
@@ -947,7 +945,6 @@ Modifier
 	| RowsModifier
 	| SelectorModifier
 	| TextModifier
-	| DetailModifier
 	| RealmModifier
 	| ClaimModifier
 	| IdentityModifier
@@ -972,7 +969,6 @@ Modifier
 	| AbstractModifier
 	| OnModifier
 	| OrientationModifier
-	| HumanModifier
 	| CreateFormModifier
 	| UpdateViewModifier
 	| SelectorTableModifier
@@ -1025,10 +1021,6 @@ SelectorModifier
 
 TextModifier
 	: type = KW_TEXT COLON expression = Expression
-	;
-
-DetailModifier
-	: type = KW_DETAIL (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
 RealmModifier
@@ -1141,10 +1133,6 @@ OnModifier
 
 OrientationModifier
 	: type = KW_ORIENTATION COLON (horizontal ?= KW_HORIZONTAL | vertical ?= KW_VERTICAL)
-	;
-
-HumanModifier
-	: type = KW_HUMAN (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
 CreateFormModifier
@@ -1363,7 +1351,6 @@ terminal KW_FRAME:		'frame';
 terminal KW_GUARD:		'guard';
 terminal KW_HIDDEN:		'hidden';
 terminal KW_HALIGN:	    'h-align';
-terminal KW_HUMAN: 		'human';   // not ID
 terminal KW_ICON:		'icon';
 terminal KW_IDENTITY:	'identity';
 terminal KW_LABEL:		'label';
