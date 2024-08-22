@@ -41,24 +41,4 @@ class ActorTests {
             assertNoErrors
         ]
     }
-
-    @Test
-    def void testSystemActorGroupError() {
-        '''
-			model Test;
-			
-			import judo::types;
-			
-			transfer T {}
-			
-			actor A
-			{
-				group g {
-					access T t;
-				}
-			}
-        '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.actorGroupDeclaration, JslDslValidator.INVALID_DECLARATION)
-        ]
-    }
 }

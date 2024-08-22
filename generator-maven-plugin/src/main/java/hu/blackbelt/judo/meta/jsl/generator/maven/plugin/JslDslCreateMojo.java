@@ -116,7 +116,7 @@ public class JslDslCreateMojo extends AbstractJslDslProjectMojo {
 			    field String userName <=> u.userName;
 			}
 			
-			actor Actor human
+			actor Actor
 			    realm: "COMPANY"
 			    claim: "userName"
 			    identity: UserTransfer::userName
