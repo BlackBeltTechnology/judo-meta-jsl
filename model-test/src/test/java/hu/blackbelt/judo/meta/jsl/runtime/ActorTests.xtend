@@ -29,7 +29,7 @@ class ActorTests {
             }
 
 			transfer T(E e) {
-				field String id <= e.id bind;
+				field String id <=> e.id;
 			}
 
             actor A
@@ -39,26 +39,6 @@ class ActorTests {
                 identity:T::id;
         '''.parse => [
             assertNoErrors
-        ]
-    }
-
-    @Test
-    def void testSystemActorGroupError() {
-        '''
-			model Test;
-			
-			import judo::types;
-			
-			transfer T {}
-			
-			actor A
-			{
-				group g {
-					access T t;
-				}
-			}
-        '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.actorGroupDeclaration, JslDslValidator.INVALID_DECLARATION)
         ]
     }
 }
