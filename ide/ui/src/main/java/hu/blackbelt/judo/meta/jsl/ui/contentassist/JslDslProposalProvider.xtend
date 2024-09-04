@@ -23,6 +23,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.EntityRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.SimpleTransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIRowDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuDeclaration
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
@@ -171,6 +172,32 @@ class JslDslProposalProvider extends AbstractJslDslProposalProvider {
 
 				for (f : t.fields) {
 					proposal += "\tcolumn " + f.referenceType.name + " " + f.name + " <= " + " " + t.name.toFirstLower + "." + f.name + ";\n"
+				}
+
+				proposal += "}"
+				
+		  		acceptor.accept(createCompletionProposal(proposal, display, null, context));
+			}
+		}
+
+		if (model instanceof UIMenuDeclaration && (model as UIMenuDeclaration).name === null) {
+		  	acceptor.accept(createCompletionProposal("Menu", context));
+			
+			for (t : (model.eContainer as ModelDeclaration).actorDeclarations) {
+				var String display = t.name + "Menu";
+				var String proposal = display
+				proposal += "(" + t.name + " " + t.name.toFirstLower +") {\n";
+
+				proposal += "\t// links\n"
+
+				for (r : t.relations.filter[r | !r.many]) {
+					proposal += "\tlink " + r.referenceType.name + "View" + " " + r.name + " <= " + t.name.toFirstLower + "." + r.name + ";\n"
+				}
+
+				proposal += "\n\t// tables\n"
+
+				for (r : t.relations.filter[r | r.many]) {
+					proposal += "\ttable " + r.referenceType.name + "Table" + " " + r.name + " <= " + t.name.toFirstLower + "." + r.name + ";\n"
 				}
 
 				proposal += "}"

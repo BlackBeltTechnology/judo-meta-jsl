@@ -102,6 +102,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.UIRowColumnDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateFormModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateViewModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorTableModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -1602,7 +1603,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 
         if (transfer.members.filter[m | m instanceof TransferEventDeclaration]
         	.map[m | m as TransferEventDeclaration]
-        	.filter[e | e.getClass().equals(event.getClass()) && ((e.before && event.before) || (e.after && event.after) || (e.instead && event.instead))].size > 1)
+        	.filter[e | e.getClass().equals(event.getClass())].size > 1)
         {
             error("Duplicate event declaration in transfer '" + transfer.name + "'.",
                 JsldslPackage::eINSTANCE.transferEventDeclaration.getEStructuralFeature("ID"),
@@ -1751,13 +1752,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 		val TransferRelationDeclaration relation = modifier.eContainer as TransferRelationDeclaration
 
-//		if (relation.referenceType !== null && relation.referenceType.map !== null) {
-//			if (!relation.referenceType.members.exists[m | m instanceof TransferCreateDeclaration && (m as TransferCreateDeclaration).instead]) {
-//	            error("Invalid create modifier. Target transfer object must have create instead event.",
-//	                JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
-//	                INVALID_DECLARATION)
-//			}
-//		}
+		if (relation.referenceType !== null && relation.referenceType.map !== null) {
+			if (!relation.referenceType.members.exists[m | m instanceof TransferCreateDeclaration]) {
+	            error("Invalid create modifier. Target transfer object must have create event.",
+	                JsldslPackage::eINSTANCE.createModifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+		}
 
 //		if (modifier.eContainer instanceof ActorLinkDeclaration || modifier.eContainer instanceof ActorTableDeclaration) return;
 
@@ -1789,13 +1790,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                INVALID_DECLARATION)
 			}
 
-//			if (relation.referenceType !== null && relation.referenceType.map !== null) {
-//				if (!relation.referenceType.members.exists[m | m instanceof TransferDeleteDeclaration && (m as TransferDeleteDeclaration).instead]) {
-//		            error("Invalid delete modifier. Target transfer object must have delete instead event.",
-//		                JsldslPackage::eINSTANCE.deleteModifier.getEStructuralFeature("ID"),
-//		                INVALID_DECLARATION)
-//				}
-//			}
+			if (relation.referenceType !== null && relation.referenceType.map !== null) {
+				if (!relation.referenceType.members.exists[m | m instanceof TransferDeleteDeclaration]) {
+		            error("Invalid delete modifier. Target transfer object must have delete event.",
+		                JsldslPackage::eINSTANCE.deleteModifier.getEStructuralFeature("ID"),
+		                INVALID_DECLARATION)
+				}
+			}
 		}
 
 		else if (modifier.eContainer instanceof TransferActionDeclaration) {
@@ -1808,8 +1809,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 
 			if (action.^return !== null && (action.^return instanceof TransferDeclaration) && (action.^return as TransferDeclaration).map !== null) {
-				if (!(action.^return as TransferDeclaration).members.exists[m | m instanceof TransferDeleteDeclaration && (m as TransferDeleteDeclaration).instead]) {
-		            error("Invalid delete modifier. Target transfer object must have delete instead event.",
+				if (!(action.^return as TransferDeclaration).members.exists[m | m instanceof TransferDeleteDeclaration]) {
+		            error("Invalid delete modifier. Target transfer object must have delete event.",
 		                JsldslPackage::eINSTANCE.deleteModifier.getEStructuralFeature("ID"),
 		                INVALID_DECLARATION)
 				}
@@ -1841,13 +1842,13 @@ class JslDslValidator extends AbstractJslDslValidator {
 	                INVALID_DECLARATION)
 			}
 
-//			if (relation.referenceType !== null && relation.referenceType.map !== null) {
-//				if (!relation.referenceType.members.exists[m | m instanceof TransferUpdateDeclaration && (m as TransferUpdateDeclaration).instead]) {
-//		            error("Invalid update modifier. Target transfer object must have update instead event.",
-//		                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
-//		                INVALID_DECLARATION)
-//				}
-//			}
+			if (relation.referenceType !== null && relation.referenceType.map !== null) {
+				if (!relation.referenceType.members.exists[m | m instanceof TransferUpdateDeclaration]) {
+		            error("Invalid update modifier. Target transfer object must have update event.",
+		                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
+		                INVALID_DECLARATION)
+				}
+			}
 		}
 		
 		else if (modifier.eContainer instanceof TransferActionDeclaration) {
@@ -1860,8 +1861,8 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 
 			if (action.^return !== null && (action.^return instanceof TransferDeclaration) && (action.^return as TransferDeclaration).map !== null) {
-				if (!(action.^return as TransferDeclaration).members.exists[m | m instanceof TransferUpdateDeclaration && (m as TransferUpdateDeclaration).instead]) {
-		            error("Invalid update modifier. Target transfer object must have update instead event.",
+				if (!(action.^return as TransferDeclaration).members.exists[m | m instanceof TransferUpdateDeclaration]) {
+		            error("Invalid update modifier. Target transfer object must have update event.",
 		                JsldslPackage::eINSTANCE.updateModifier.getEStructuralFeature("ID"),
 		                INVALID_DECLARATION)
 				}

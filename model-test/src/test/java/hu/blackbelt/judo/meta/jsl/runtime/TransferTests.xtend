@@ -522,4 +522,154 @@ class TransferTests {
             m | m.assertWarning(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.DUPLICATE_FIELD_MAPPING)
         ]
     }
+
+
+    @Test
+    def void testTransferCreateUnmapped() {
+        '''
+            model Test;
+            import judo::types;
+            transfer T {
+            	event create acreate;
+            }
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferCreateDeclaration, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
+    @Test
+    def void testTransferCreateDuplicated() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity A {}
+			
+			transfer T(A a) {
+				event create icreate;
+				event create icreate;
+			}
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferCreateDeclaration, JslDslValidator.DUPLICATE_EVENT)
+        ]
+    }    
+
+
+    @Test
+    def void testTransferCreateOk() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity A {}
+			entity B extends A {}
+			
+			transfer TA(A a) {
+				event create bcreate;
+			}
+			
+			transfer TB (B b) {}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+
+    @Test
+    def void testTransferUpdateUnmapped() {
+        '''
+            model Test;
+            import judo::types;
+            transfer T {
+            	event update iupdate;
+            }
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferUpdateDeclaration, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
+    @Test
+    def void testTransferUpdateDuplicated() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity A {}
+			
+			transfer T(A a) {
+				event update bupdate;
+				event update bupdate2;
+			}
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferUpdateDeclaration, JslDslValidator.DUPLICATE_EVENT)
+        ]
+    }
+
+    @Test
+    def void testTransferUpdateOk() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity A {}
+			
+			transfer T(A a) {
+				event update iupdate;
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+    @Test
+    def void testTransferDeleteUnmapped() {
+        '''
+            model Test;
+            import judo::types;
+            transfer T {
+            	event delete idelete;
+            }
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferDeleteDeclaration, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
+    @Test
+    def void testTransferDeleteDuplicated() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity A {}
+			
+			transfer T(A a) {
+				event delete delete;
+				event delete delete2;
+			}
+        '''.parse => [
+            assertError(JsldslPackage::eINSTANCE.transferEventDeclaration, JslDslValidator.DUPLICATE_EVENT)
+        ]
+    }
+
+    @Test
+    def void testTransferDeleteOk() {
+        '''
+			model Test;
+			
+			import judo::types;
+			
+			entity A {}
+			
+			transfer T(A a) {
+				event delete delete3;
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
 }

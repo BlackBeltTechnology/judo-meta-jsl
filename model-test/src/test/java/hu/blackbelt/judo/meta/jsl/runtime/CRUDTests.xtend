@@ -32,6 +32,9 @@ class CRUDTests {
 			}
 			
 			transfer TA(A a) {
+				event create `create`;
+				event delete `delete`;
+				event update `update`;
 			}
 			
 			transfer TB(B b) {
@@ -78,6 +81,9 @@ class CRUDTests {
 			}
 			
 			transfer TA(A a) {
+				event create `create`;
+				event delete `delete`;
+				event update `update`;
 			}
 			
 			actor Actor {

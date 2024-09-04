@@ -60,7 +60,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.RequiredModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.AbstractModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferEventDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.OnModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.StaticModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
@@ -423,7 +422,7 @@ class JslDslModelExtension {
     }
     
     def Collection<TransferDeclaration> transferDeclarations(ModelDeclaration it) {
-        declarations.filter[d | d instanceof TransferDeclaration && !(d instanceof ActorDeclaration)].map[d | d as TransferDeclaration].toList
+        declarations.filter[d | d instanceof TransferDeclaration].map[d | d as TransferDeclaration].toList
     }
 
     def Collection<ActorDeclaration> actorDeclarations(ModelDeclaration it) {
@@ -622,20 +621,20 @@ class JslDslModelExtension {
     	return modifier !== null && !modifier.^false
 	}    	
 
-    def boolean isAfter(TransferEventDeclaration it) {
-    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
-    	return modifier !== null && modifier.after
-	}    	
-
-    def boolean isBefore(TransferEventDeclaration it) {
-    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
-    	return modifier !== null && modifier.before
-	}    	
-
-    def boolean isInstead(TransferEventDeclaration it) {
-    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
-    	return modifier === null
-	}    	
+//    def boolean isAfter(TransferEventDeclaration it) {
+//    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
+//    	return modifier !== null && modifier.after
+//	}    	
+//
+//    def boolean isBefore(TransferEventDeclaration it) {
+//    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
+//    	return modifier !== null && modifier.before
+//	}    	
+//
+//    def boolean isInstead(TransferEventDeclaration it) {
+//    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
+//    	return modifier === null
+//	}    	
 
     def boolean isStatic(TransferActionDeclaration it) {
     	val StaticModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.staticModifier) as StaticModifier
