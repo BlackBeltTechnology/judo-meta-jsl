@@ -158,7 +158,7 @@ TransferDeclaration
 TransferMemberDeclaration
 	: TransferDataDeclaration
 	| TransferActionDeclaration
-//	| TransferEventDeclaration
+	| TransferEventDeclaration
 	;
 
 TransferDataDeclaration 
@@ -203,8 +203,7 @@ TransferFetchDeclaration returns TransferEventDeclaration
 	: {TransferFetchDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_EVENT
-	  => kind = KW_FETCH Named (LP RP)?
-	  modifiers += (OnModifier)*
+	  => kind = KW_FETCH Named
 	  SC
 	;
 
@@ -212,8 +211,7 @@ TransferCreateDeclaration returns TransferEventDeclaration
 	: {TransferCreateDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_EVENT
-	  => kind = KW_CREATE Named (LP RP)?
-	  modifiers += (OnModifier)*
+	  => kind = KW_CREATE Named
 	  SC
 	;
 
@@ -221,8 +219,7 @@ TransferUpdateDeclaration returns TransferEventDeclaration
 	: {TransferUpdateDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_EVENT
-	  => kind = KW_UPDATE Named (LP RP)?
-	  modifiers += (OnModifier)*
+	  => kind = KW_UPDATE Named
 	  SC
 	;
 
@@ -230,8 +227,7 @@ TransferDeleteDeclaration returns TransferEventDeclaration
 	: {TransferDeleteDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_EVENT
-	  => kind = KW_DELETE Named (LP RP)?
-	  modifiers += (OnModifier)*
+	  => kind = KW_DELETE Named
 	  SC
 	;
 
@@ -239,8 +235,7 @@ TransferInitializeDeclaration returns TransferEventDeclaration
 	: {TransferInitializeDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_EVENT
-	  => kind = KW_INITIALIZE Named (LP RP)?
-	  modifiers += (OnModifier)*
+	  => kind = KW_INITIALIZE Named
 	  SC
 	;
 
@@ -249,8 +244,8 @@ TransferInitializeDeclaration returns TransferEventDeclaration
  ****************************/
 
 TransferMapDeclaration
-	: -> LP transfer = [SimpleTransferDeclaration | ModelName] Named RP  // if no name defined, the 'self' shall be default name
-	| KW_MAPS transfer = [SimpleTransferDeclaration | ModelName] KW_AS Named
+	: -> LP transfer = [TransferDeclaration | ModelName] Named RP  // if no name defined, the 'self' shall be default name
+	| KW_MAPS transfer = [TransferDeclaration | ModelName] KW_AS Named
 	;
 
 TransferFieldReference
@@ -967,7 +962,6 @@ Modifier
 	| DialogModifier
 	| StaticModifier
 	| AbstractModifier
-	| OnModifier
 	| OrientationModifier
 	| CreateFormModifier
 	| UpdateViewModifier
@@ -1127,9 +1121,9 @@ AbstractModifier
 	: type = KW_ABSTRACT (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
-OnModifier
-	: type = KW_ON COLON (before ?= KW_BEFORE | after ?= KW_AFTER)
-	;
+//OnModifier
+//	: type = KW_ON COLON (before ?= KW_BEFORE | after ?= KW_AFTER)
+//	;
 
 OrientationModifier
 	: type = KW_ORIENTATION COLON (horizontal ?= KW_HORIZONTAL | vertical ?= KW_VERTICAL)

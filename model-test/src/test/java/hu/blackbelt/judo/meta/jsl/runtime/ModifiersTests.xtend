@@ -316,6 +316,67 @@ class ModifiersTests {
         ]
     }
 
+
+
+    @Test
+    def void testTransferActionUpdateDelete() {
+        '''
+			model test;
+			entity A {
+			}
+			
+			entity B {}
+			transfer TB(B b) {
+				event update `update`;
+				event delete `delete`;
+			}
+			
+			transfer TA maps A as a {
+				action TB myaction() update:true delete:true;
+			}
+        '''.parse => [
+            assertNoErrors
+        ]
+    }
+
+    @Test
+    def void testTransferActionUpdateEventMissing() {
+        '''
+			model test;
+			entity A {
+			}
+			
+			entity B {}
+			transfer TB(B b) {
+			}
+			
+			transfer TA maps A as a {
+				action TB myaction() update:true;
+			}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.updateModifier, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
+    @Test
+    def void testTransferActionDeleteEventMissing() {
+        '''
+			model test;
+			entity A {
+			}
+			
+			entity B {}
+			transfer TB(B b) {
+			}
+			
+			transfer TA maps A as a {
+				action TB myaction() delete:true;
+			}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.deleteModifier, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
     @Test
     def void testTransferRelationCRUD() {
         '''
@@ -329,6 +390,9 @@ class ModifiersTests {
 			}
 
 			transfer TA maps A as a {
+				event create `create`;
+				event delete `delete`;
+				event update `update`;
 			}
 
 			transfer TB(B b) {
@@ -339,6 +403,72 @@ class ModifiersTests {
         ]
     }
 
+    @Test
+    def void testTransferRelationCRUDCreateEventMissing() {
+        '''
+			model test;
+			entity A {
+			}
+			
+			entity B {
+				relation A[] alist;
+			}
+			transfer TA maps A as a {
+				event delete edelete;
+				event update eupdate;
+			}
+			transfer TB(B b) {
+				relation TA[] talist <= b.alist create:true delete:true update:true;
+			}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.createModifier, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
+    @Test
+    def void testTransferRelationCRUDDeleteEventMissing() {
+        '''
+			model test;
+			entity A {
+			}
+			
+			entity B {
+				relation A[] alist;
+			}
+			transfer TA maps A as a {
+				event create ecreate;
+				event update eupdate;
+			}
+			transfer TB(B b) {
+				relation TA[] talist <= b.alist create:true delete:true update:true;
+			}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.deleteModifier, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+
+    @Test
+    def void testTransferRelationCRUDUpdateEventMissing() {
+        '''
+			model test;
+			entity A {
+			}
+			
+			entity B {
+				relation A[] alist;
+			}
+			transfer TA maps A as a {
+				event create ecreate();
+				event delete edelete();
+			}
+			transfer TB(B b) {
+				relation TA[] talist <= b.alist create:true delete:true update:true;
+			}
+        '''.parse => [
+        	m | m.assertError(JsldslPackage::eINSTANCE.updateModifier, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
+    
     def private void assertMaxSizeTooLargeError(ModelDeclaration modelDeclaration, String error, EClass target) {
         modelDeclaration.assertError(
             target,
