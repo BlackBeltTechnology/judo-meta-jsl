@@ -32,9 +32,9 @@ class CRUDTests {
 			}
 			
 			transfer TA(A a) {
-				event create `create`();
-				event delete `delete`();
-				event update `update`();
+				event create `create`;
+				event delete `delete`;
+				event update `update`;
 			}
 			
 			transfer TB(B b) {
@@ -80,14 +80,14 @@ class CRUDTests {
 			entity A {
 			}
 			
-			row TA(A a) {
-				event create `create`();
-				event delete `delete`();
-				event update `update`();
+			transfer TA(A a) {
+				event create `create`;
+				event delete `delete`;
+				event update `update`;
 			}
 			
-			actor Actor human {
-				table TA[] talist <= A.all() delete update;
+			actor Actor {
+				access TA[] talist <= A.all() delete update;
 			}
         '''.parse => [
             assertNoErrors
