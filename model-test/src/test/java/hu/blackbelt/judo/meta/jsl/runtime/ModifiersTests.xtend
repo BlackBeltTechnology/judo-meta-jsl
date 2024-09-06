@@ -316,19 +316,19 @@ class ModifiersTests {
         ]
     }
 
+
+
     @Test
     def void testTransferActionUpdateDelete() {
         '''
 			model test;
-
 			entity A {
 			}
 			
 			entity B {}
-
 			transfer TB(B b) {
-				event update `update`();
-				event delete `delete`();
+				event update `update`;
+				event delete `delete`;
 			}
 			
 			transfer TA maps A as a {
@@ -343,12 +343,10 @@ class ModifiersTests {
     def void testTransferActionUpdateEventMissing() {
         '''
 			model test;
-
 			entity A {
 			}
 			
 			entity B {}
-
 			transfer TB(B b) {
 			}
 			
@@ -364,12 +362,10 @@ class ModifiersTests {
     def void testTransferActionDeleteEventMissing() {
         '''
 			model test;
-
 			entity A {
 			}
 			
 			entity B {}
-
 			transfer TB(B b) {
 			}
 			
@@ -378,102 +374,6 @@ class ModifiersTests {
 			}
         '''.parse => [
         	m | m.assertError(JsldslPackage::eINSTANCE.deleteModifier, JslDslValidator.INVALID_DECLARATION)
-        ]
-    }
-
-    @Test
-    def void testViewChoiceRow() {
-        '''
-			model test;
-
-			entity A {
-			}
-			
-			entity B {}
-
-			row RB(B b) {
-			}
-
-			view VB(B b) {
-			}
-			
-			view VA maps A as a {
-				action void myaction(RB input choices:B.all());
-			}
-        '''.parse => [
-            assertNoErrors
-        ]
-    }
-
-    @Test
-    def void testViewChoiceRowMissing() {
-        '''
-			model test;
-
-			entity A {
-			}
-			
-			entity B {}
-
-			row RB(B b) {
-			}
-
-			view VB(B b) {
-			}
-			
-			view VA maps A as a {
-				action void myaction(VB input);
-			}
-        '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.viewActionDeclaration, JslDslValidator.INVALID_DECLARATION)
-        ]
-    }
-
-    @Test
-    def void testViewChoiceRowUnmapped() {
-        '''
-			model test;
-
-			entity A {
-			}
-			
-			entity B {}
-
-			row RB {
-			}
-
-			view VB(B b) {
-			}
-			
-			view VA maps A as a {
-				action void myaction(VB input choices:RB[](B.all()));
-			}
-        '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.choiceModifier, JslDslValidator.INVALID_CHOICES)
-        ]
-    }
-
-    @Test
-    def void testViewChoiceRowUnmatching() {
-        '''
-			model test;
-
-			entity A {
-			}
-			
-			entity B {}
-
-			row RB(A a) {
-			}
-
-			view VB(B b) {
-			}
-			
-			view VA maps A as a {
-				action void myaction(VB input choices:A.all());
-			}
-        '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.choiceModifier, JslDslValidator.INVALID_CHOICES)
         ]
     }
 
@@ -490,9 +390,9 @@ class ModifiersTests {
 			}
 
 			transfer TA maps A as a {
-				event create `create`();
-				event delete `delete`();
-				event update `update`();
+				event create `create`;
+				event delete `delete`;
+				event update `update`;
 			}
 
 			transfer TB(B b) {
@@ -507,19 +407,16 @@ class ModifiersTests {
     def void testTransferRelationCRUDCreateEventMissing() {
         '''
 			model test;
-
 			entity A {
 			}
 			
 			entity B {
 				relation A[] alist;
 			}
-
 			transfer TA maps A as a {
-				event delete edelete();
-				event update eupdate();
+				event delete edelete;
+				event update eupdate;
 			}
-
 			transfer TB(B b) {
 				relation TA[] talist <= b.alist create:true delete:true update:true;
 			}
@@ -532,19 +429,16 @@ class ModifiersTests {
     def void testTransferRelationCRUDDeleteEventMissing() {
         '''
 			model test;
-
 			entity A {
 			}
 			
 			entity B {
 				relation A[] alist;
 			}
-
 			transfer TA maps A as a {
-				event instead ecreate();
-				event instead eupdate();
+				event create ecreate;
+				event update eupdate;
 			}
-
 			transfer TB(B b) {
 				relation TA[] talist <= b.alist create:true delete:true update:true;
 			}
@@ -557,19 +451,16 @@ class ModifiersTests {
     def void testTransferRelationCRUDUpdateEventMissing() {
         '''
 			model test;
-
 			entity A {
 			}
 			
 			entity B {
 				relation A[] alist;
 			}
-
 			transfer TA maps A as a {
-				event instead ecreate();
-				event instead edelete();
+				event create ecreate();
+				event delete edelete();
 			}
-
 			transfer TB(B b) {
 				relation TA[] talist <= b.alist create:true delete:true update:true;
 			}
@@ -577,75 +468,7 @@ class ModifiersTests {
         	m | m.assertError(JsldslPackage::eINSTANCE.updateModifier, JslDslValidator.INVALID_DECLARATION)
         ]
     }
-
-    @Test
-    def void testDetailModifier() {
-        '''
-			model test;
-
-			row R {
-				link V v1 detail:false; 	
-				link V v2 detail; 	
-			}
-			
-			view V {
-			}
-        '''.parse => [
-            assertNoErrors
-        ]
-    }
-
-    @Test
-    def void testDetailModifierInvalid() {
-        '''
-			model test;
-
-			row R {
-				link V v1 detail; 	
-				link V v2 detail:true; 	
-			}
-			
-			view V {
-			}
-        '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.detailModifier, JslDslValidator.INVALID_DECLARATION)
-        ]
-    }
-
-    @Test
-    def void testBulkModifier() {
-        '''
-			model test;
-
-			entity E {
-			}
-			
-			row R(E e) {
-				action void a1() static bulk:false;
-				action void a2() static:false bulk;
-				action void a3() static:false bulk:false;
-			}
-        '''.parse => [
-            assertNoErrors
-        ]
-    }
-
-    @Test
-    def void testBulkModifierInvalid() {
-        '''
-			model test;
-
-			entity E {
-			}
-			
-			row R(E e) {
-				action void a() static bulk;
-			}
-        '''.parse => [
-        	m | m.assertError(JsldslPackage::eINSTANCE.bulkModifier, JslDslValidator.INVALID_DECLARATION)
-        ]
-    }
-
+    
     def private void assertMaxSizeTooLargeError(ModelDeclaration modelDeclaration, String error, EClass target) {
         modelDeclaration.assertError(
             target,

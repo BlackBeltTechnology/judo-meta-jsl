@@ -41,8 +41,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferRelationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ViewDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.RowDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Feature
 import hu.blackbelt.judo.meta.jsl.jsldsl.MemberReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.MaxFileSizeModifier
@@ -62,16 +60,10 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.RequiredModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.AbstractModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferEventDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.OnModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.HumanModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.StaticModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.BindModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.DetailModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.RowLinkDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.BulkModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.RowActionDeclaration
 
 @Singleton
 class JslDslModelExtension {
@@ -175,8 +167,9 @@ class JslDslModelExtension {
 			return createModifier !== null && !createModifier.isFalse
 		}
 		
-		val BindModifier bindModifier = it.getModifier(JsldslPackage::eINSTANCE.bindModifier) as BindModifier
-		return bindModifier !== null && !bindModifier.isFalse
+		if (it instanceof TransferFieldDeclaration) {
+			return (it as TransferFieldDeclaration).bind
+		}
 	}
 
     def NavigationTarget getMappedMember(TransferDataDeclaration member) {
@@ -396,6 +389,10 @@ class JslDslModelExtension {
         declarations.filter[d | d instanceof ErrorDeclaration].map[d | d as ErrorDeclaration].toList
     }
 
+    def Collection<EntityRelationDeclaration> getRelations(EntityDeclaration it) {
+        members.filter[d | d instanceof EntityRelationDeclaration].map[d | d as EntityRelationDeclaration].toList
+    }
+
     def Collection<EntityFieldDeclaration> getFields(EntityDeclaration it) {
         members.filter[d | d instanceof EntityFieldDeclaration].map[d | d as EntityFieldDeclaration].toList
     }
@@ -425,15 +422,7 @@ class JslDslModelExtension {
     }
     
     def Collection<TransferDeclaration> transferDeclarations(ModelDeclaration it) {
-        declarations.filter[d | d instanceof TransferDeclaration && !(d instanceof ActorDeclaration)].map[d | d as TransferDeclaration].toList
-    }
-
-    def Collection<ViewDeclaration> viewDeclarations(ModelDeclaration it) {
-        declarations.filter[d | d instanceof ViewDeclaration].map[d | d as ViewDeclaration].toList
-    }
-    
-    def Collection<RowDeclaration> rowDeclarations(ModelDeclaration it) {
-        declarations.filter[d | d instanceof RowDeclaration].map[d | d as RowDeclaration].toList
+        declarations.filter[d | d instanceof TransferDeclaration].map[d | d as TransferDeclaration].toList
     }
 
     def Collection<ActorDeclaration> actorDeclarations(ModelDeclaration it) {
@@ -475,9 +464,9 @@ class JslDslModelExtension {
     	return eAllContents.filter[c | c instanceof TransferRelationDeclaration && c.parentContainer(TransferDeclaration) !== null].map[e | e as TransferRelationDeclaration].toList
     }
 
-    def Collection<TransferRelationDeclaration> getAllViewTransferRelations(ModelDeclaration it) {
-    	return eAllContents.filter[c | c instanceof TransferRelationDeclaration && c.parentContainer(ViewDeclaration) !== null].map[e | e as TransferRelationDeclaration].toList
-    }
+//    def Collection<TransferRelationDeclaration> getAllViewTransferRelations(ModelDeclaration it) {
+//    	return eAllContents.filter[c | c instanceof TransferRelationDeclaration && c.parentContainer(ViewDeclaration) !== null].map[e | e as TransferRelationDeclaration].toList
+//    }
 
     def Collection<TransferRelationDeclaration> getAllActorTransferRelations(ModelDeclaration it) {
     	return eAllContents.filter[c | c instanceof TransferRelationDeclaration && c.parentContainer(ActorDeclaration) !== null].map[e | e as TransferRelationDeclaration].toList
@@ -632,38 +621,23 @@ class JslDslModelExtension {
     	return modifier !== null && !modifier.^false
 	}    	
 
-    def boolean isAfter(TransferEventDeclaration it) {
-    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
-    	return modifier !== null && modifier.after
-	}    	
-
-    def boolean isBefore(TransferEventDeclaration it) {
-    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
-    	return modifier !== null && modifier.before
-	}    	
-
-    def boolean isInstead(TransferEventDeclaration it) {
-    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
-    	return modifier === null
-	}    	
-
-    def boolean isHuman(ActorDeclaration it) {
-    	val HumanModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.humanModifier) as HumanModifier
-    	return modifier !== null && !modifier.isFalse
-	}    	
+//    def boolean isAfter(TransferEventDeclaration it) {
+//    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
+//    	return modifier !== null && modifier.after
+//	}    	
+//
+//    def boolean isBefore(TransferEventDeclaration it) {
+//    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
+//    	return modifier !== null && modifier.before
+//	}    	
+//
+//    def boolean isInstead(TransferEventDeclaration it) {
+//    	val OnModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.onModifier) as OnModifier
+//    	return modifier === null
+//	}    	
 
     def boolean isStatic(TransferActionDeclaration it) {
     	val StaticModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.staticModifier) as StaticModifier
-    	return modifier !== null && !modifier.isFalse
-	}    	
-
-    def boolean isBulk(RowActionDeclaration it) {
-    	val BulkModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.bulkModifier) as BulkModifier
-    	return modifier !== null && !modifier.isFalse
-	}    	
-
-    def boolean isDetail(RowLinkDeclaration it) {
-    	val DetailModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.detailModifier) as DetailModifier
     	return modifier !== null && !modifier.isFalse
 	}    	
 }

@@ -37,15 +37,16 @@ import com.google.common.collect.Sets;
 
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationMark;
 import hu.blackbelt.judo.meta.jsl.jsldsl.Literal;
+import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
 
 public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingCalculator {
-	static Set<String> symbols = Sets.newHashSet("SC", "BLOCK_START", "BLOCK_END",
+	static Set<String> symbols = Sets.newHashSet("SSH", "SC", "BLOCK_START", "BLOCK_END",
 			                   "LP", "RP", "DOT", "COMMA", "LB", "RB", "LRB", "ASSIGN", "LT", "GT", "QM", "COLON",
 			                   "NEQ", "EQ", "GTE", "LTE", "MAP", "PLUS", "MINUS", "MUL", "DIV", "EXP", "EXCL", "PIPE");
 
 	static Set<String> declarartions = Sets.newHashSet("KW_ACTOR", "KW_ANNOTATION", "KW_AS", "KW_ENTITY", "KW_ENUM", "KW_ERROR",
-								"KW_EXTENDS", "KW_FUNCTION", "KW_HUMAN", "KW_IMPORT", "KW_LAMBDA", "KW_MAPS", "KW_MODEL", "KW_ON",
-								"KW_QUERY", "KW_ROW", "KW_TRANSFER", "KW_TYPE", "KW_UNION", "KW_VIEW");
+								"KW_EXTENDS", "KW_FORM", "KW_FUNCTION", "KW_HUMAN", "KW_IMPORT", "KW_LAMBDA", "KW_MAPS", "KW_MENU",
+								"KW_MODEL", "KW_ON", "KW_QUERY", "KW_TABLE", "KW_TRANSFER", "KW_TYPE", "KW_UNION", "KW_VIEW");
 	
 	static Set<String> operators = Sets.newHashSet("KW_NOT", "KW_IMPLIES", "KW_OR", "KW_XOR", "KW_AND", "KW_DIV", "KW_MOD");
 
@@ -54,15 +55,15 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 								"KW_LEFT", "KW_NUMERIC", "KW_RIGHT", "KW_STRING", "KW_TIME", "KW_TIMESTAMP", "KW_TOP", "KW_TRUE", "KW_UPDATE", "KW_VERTICAL",
 								"KW_VOID", "KW_KB", "KW_MB", "KW_GB", "KW_KIB", "KW_MIB", "KW_GIB");
 
-    static Set<String> features = Sets.newHashSet("KW_ACCESS", "KW_ACTION", "KW_ACTIONS", "KW_COLUMN", "KW_CONSTRAINT", "KW_EVENT",
+    static Set<String> features = Sets.newHashSet("KW_ACCESS", "KW_ACTION", "KW_ACTIONS", "KW_COLUMN", "KW_CONSTRAINT", "KW_COLUMN", "KW_EVENT",
     							"KW_FIELD", "KW_GROUP", "KW_IDENTIFIER", "KW_LINK", "KW_LITERAL",
-    							"KW_MENU", "KW_RELATION", "KW_SUBMIT", "KW_TABLE", "KW_TABS", "KW_TEXT", "KW_THROWS");
+    							"KW_RELATION", "KW_SUBMIT", "KW_TABLE", "KW_TABS", "KW_TEXT", "KW_THROWS", "KW_WIDGET");
 
     static Set<String> attributes = Sets.newHashSet("KW_ABSTRACT", "KW_BIND", "KW_BULK", "KW_CHOICES", "KW_CLAIM", "KW_CREATE", "KW_DEFAULT", "KW_DETAIL",
-    		 					"KW_DELETE", "KW_DIALOG", "KW_EAGER", "KW_ENABLED", "KW_FRAME", "KW_GUARD", "KW_HIDDEN",
+    		 					"KW_DELETE", "KW_DIALOG", "KW_EAGER", "KW_ENABLED", "KW_FORM", "KW_FRAME", "KW_GUARD", "KW_HIDDEN",
     							"KW_HALIGN", "KW_HUMAN", "KW_ICON", "KW_IDENTITY", "KW_LABEL", "KW_LINES", "KW_MAXFILESIZE", "KW_MAXSIZE", "KW_MINSIZE", "KW_MIMETYPE", "KW_ON",
     							"KW_OPPOSITE", "KW_OPPOSITEADD", "KW_ORIENTATION", "KW_PRECISION", "KW_REALM", "KW_REDIRECT", "KW_REGEX", "KW_REQUIRED",
-    							"KW_ROWS", "KW_SELECTOR", "KW_SCALE", "KW_STATIC", "KW_STRETCH", "KW_TEXT", "KW_THROW",  "KW_UPDATE", "KW_VALIGN", "KW_WIDTH");
+    							"KW_ROWS", "KW_SELECTOR", "KW_SCALE", "KW_STATIC", "KW_STRETCH", "KW_TEXT", "KW_THROW",  "KW_UPDATE", "KW_VALIGN", "KW_VIEW", "KW_WIDTH");
 
     @Override
     public void provideHighlightingFor(XtextResource resource, IHighlightedPositionAcceptor acceptor, CancelIndicator cancelIndicator) {
@@ -139,9 +140,11 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
                     }
 
                 	if (declarartions.contains(ruleName)) {
-                    	acceptor.addPosition(node.getOffset(), node.getLength(),
-                        HighlightingConfiguration.KEYWORD_ID);
-                        continue;
+                		if (node.getSemanticElement().eContainer() == null || node.getSemanticElement().eContainer() instanceof ModelDeclaration) {
+	                    	acceptor.addPosition(node.getOffset(), node.getLength(),
+	                        HighlightingConfiguration.KEYWORD_ID);
+	                        continue;
+                		}
                 	}
 
                 	if (constants.contains(ruleName)) {
