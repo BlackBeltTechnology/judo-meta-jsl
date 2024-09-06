@@ -82,11 +82,13 @@
                             <type>test-project</type>
                             <sources>${basedir}/target/test-classes/jsl/file/src/main/model</sources>
                             <destination>${basedir}/target/test-classes/jsl/file</destination>
+                            <parameterDirectory>${basedir}/src/test/resources/jsl/file</parameterDirectory>
                             <templateParameters>
                                 <groupId>${project.groupId}</groupId>
                                 <artifactId>${project.artifactId}</artifactId>
                                 <version>${project.version}</version>
                                 <projectPostfix>-custom</projectPostfix>
+                                <languages>hu,en</languages>
                             </templateParameters>
                         </configuration>
                     </execution>
