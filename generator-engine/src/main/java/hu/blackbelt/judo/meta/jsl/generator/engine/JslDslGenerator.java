@@ -177,46 +177,55 @@ public class JslDslGenerator {
                     if (templateEvaulator.getFactoryExpression() != null) {
                         processingList = templateEvaulator.getFactoryExpressionResultOrValue(generatorTemplate, actorType, Collection.class);
                     }
-                    for (Object element : templateEvaulator.getFactoryExpressionResultOrValue(generatorTemplate, processingList, Collection.class)) {
-                        tasks.add(CompletableFuture.supplyAsync(() -> {
-                            StandardEvaluationContext templateContext = defaultSpringELContextProvider.apply(element);
-                            templateContext.setVariable(ACTOR_TYPE, actorType);
+                    if (processingList == null) {
+                        log.warn("Factory exxpression is defined, but returns null - " + generatorTemplate.toString());
+                    } else {
+                        for (Object element : processingList) {
+                            tasks.add(CompletableFuture.supplyAsync(() -> {
+                                StandardEvaluationContext templateContext = defaultSpringELContextProvider.apply(element);
+                                templateContext.setVariable(ACTOR_TYPE, actorType);
 
-                            Context.Builder contextBuilder = defaultHandlebarsContextBuilder.apply(element)
-                                    .combine(ACTOR_TYPE, actorType);
+                                Context.Builder contextBuilder = defaultHandlebarsContextBuilder.apply(element)
+                                        .combine(ACTOR_TYPE, actorType);
 
-                            callBindContextForTypeIfCan(parameter.getGeneratorContext(), StandardEvaluationContext.class, templateContext);
-                            callBindContextForTypeIfCan(parameter.getGeneratorContext(), Map.class, parameter.getExtraContextVariables().get());
+                                callBindContextForTypeIfCan(parameter.getGeneratorContext(), StandardEvaluationContext.class, templateContext);
+                                callBindContextForTypeIfCan(parameter.getGeneratorContext(), Map.class, parameter.getExtraContextVariables().get());
 
-                            generatorTemplate.evalToContextBuilder(templateEvaulator, contextBuilder, templateContext);
-                            GeneratedFile generatedFile = generateFile(parameter.getGeneratorContext(), templateContext, templateEvaulator, generatorTemplate, contextBuilder, log);
-                            result.getGeneratedByDiscriminator().get(actorType).add(generatedFile);
-                            return generatedFile;
-                        }));
+                                generatorTemplate.evalToContextBuilder(templateEvaulator, contextBuilder, templateContext);
+                                GeneratedFile generatedFile = generateFile(parameter.getGeneratorContext(), templateContext, templateEvaulator, generatorTemplate, contextBuilder, log);
+                                result.getGeneratedByDiscriminator().get(actorType).add(generatedFile);
+                                return generatedFile;
+                            }));
+                        }
                     }
                 });
             } else {
                 evaulationContext.setVariable(TEMPLATE, generatorTemplate);
-                Set<?> iterableCollection = new HashSet<>(List.of(generatorTemplate));
-
+                Collection<?> processingList = new HashSet<>(Collections.singletonList(generatorTemplate));
                 if (templateEvaulator.getTemplate() != null) {
-                    iterableCollection = new HashSet<>(Collections.singletonList(model));
+                    processingList = new HashSet<>(Collections.singletonList(model));
                 }
+                if (templateEvaulator.getFactoryExpression() != null) {
+                    processingList = templateEvaulator.getFactoryExpressionResultOrValue(generatorTemplate, model, Collection.class);
+                }
+                if (processingList == null) {
+                    log.warn("Factory exxpression is defined, but returns null - " + generatorTemplate.toString());
+                } else {
+                    for (Object element : processingList) {
+                        tasks.add(CompletableFuture.supplyAsync(() -> {
 
-                for (Object element : templateEvaulator.getFactoryExpressionResultOrValue(generatorTemplate, iterableCollection, Collection.class)) {
-                    tasks.add(CompletableFuture.supplyAsync(() -> {
+                            StandardEvaluationContext templateContext = defaultSpringELContextProvider.apply(element);
+                            Context.Builder contextBuilder = defaultHandlebarsContextBuilder.apply(element);
 
-                        StandardEvaluationContext templateContext = defaultSpringELContextProvider.apply(element);
-                        Context.Builder contextBuilder = defaultHandlebarsContextBuilder.apply(element);
+                            callBindContextForTypeIfCan(parameter.getGeneratorContext(), StandardEvaluationContext.class, templateContext);
+                            callBindContextForTypeIfCan(parameter.getGeneratorContext(), Map.class, parameter.getExtraContextVariables().get());
 
-                        callBindContextForTypeIfCan(parameter.getGeneratorContext(), StandardEvaluationContext.class, templateContext);
-                        callBindContextForTypeIfCan(parameter.getGeneratorContext(), Map.class, parameter.getExtraContextVariables().get());
-
-                        generatorTemplate.evalToContextBuilder(templateEvaulator, contextBuilder, evaulationContext);
-                        GeneratedFile generatedFile = generateFile(parameter.getGeneratorContext(), templateContext, templateEvaulator, generatorTemplate, contextBuilder, log);
-                        result.getGenerated().add(generatedFile);
-                        return generatedFile;
-                    }));
+                            generatorTemplate.evalToContextBuilder(templateEvaulator, contextBuilder, evaulationContext);
+                            GeneratedFile generatedFile = generateFile(parameter.getGeneratorContext(), templateContext, templateEvaulator, generatorTemplate, contextBuilder, log);
+                            result.getGenerated().add(generatedFile);
+                            return generatedFile;
+                        }));
+                    }
                 }
             }
         }

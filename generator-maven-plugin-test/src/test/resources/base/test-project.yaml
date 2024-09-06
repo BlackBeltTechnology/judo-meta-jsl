@@ -19,3 +19,15 @@ templates:
     templateName: test1/actorToNotGenerated.hbs
     actorTypeBased: true
     conditionExpression: false
+
+  - name: baseFactory
+    factoryExpression: "#stringListFactory"
+    pathExpression: "#self + '.baseFactory'"
+    templateName: test1/baseFactory.hbs
+    actorTypeBased: false
+
+  - name: language
+    factoryExpression: "#languages"
+    pathExpression: "#actorType.name + '/lang_' + #self + '.properties'"
+    templateName: test1/language.hbs
+    actorTypeBased: true
