@@ -178,7 +178,7 @@ public class JslDslGenerator {
                         processingList = templateEvaulator.getFactoryExpressionResultOrValue(generatorTemplate, actorType, Collection.class);
                     }
                     if (processingList == null) {
-                        log.warn("Factory exxpression is defined, but returns null - " + generatorTemplate.toString());
+                        log.warn("Factory expression is defined, but returns null - " + generatorTemplate.toString());
                     } else {
                         for (Object element : processingList) {
                             tasks.add(CompletableFuture.supplyAsync(() -> {
@@ -209,7 +209,7 @@ public class JslDslGenerator {
                     processingList = templateEvaulator.getFactoryExpressionResultOrValue(generatorTemplate, model, Collection.class);
                 }
                 if (processingList == null) {
-                    log.warn("Factory exxpression is defined, but returns null - " + generatorTemplate.toString());
+                    log.warn("Factory expression is defined, but returns null - " + generatorTemplate.toString());
                 } else {
                     for (Object element : processingList) {
                         tasks.add(CompletableFuture.supplyAsync(() -> {
