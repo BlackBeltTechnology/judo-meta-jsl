@@ -30,6 +30,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import java.io.File;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 @Mojo(name = "synchronizeGitignore",
@@ -41,9 +42,12 @@ public class JslDslProjectSynchronizeGitignoreMojo extends AbstractJslDslProject
     @Parameter(name = "destination", property = "projectDestination", defaultValue = "${project.basedir}")
     protected File destination;
 
+    @Parameter(name = "ignoredFiles", property = "ignoredFiles", defaultValue = "")
+    protected List<String> ignoredFiles;
+
     @Override
     public void performExecutionOnJslDslParameters(JslDslGeneratorParameter.JslDslGeneratorParameterBuilder parameter) throws Exception {
-        JslDslGenerator.synchronizeGitignoreInDirectory(parameter);
+        JslDslGenerator.synchronizeGitignoreInDirectory(parameter, ignoredFiles);
     }
 
     @Override
