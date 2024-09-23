@@ -282,11 +282,11 @@ public class JslDslGenerator {
         ModelGenerator.cleanGeneratedFromChecksumInDirectory(genericParams, applications);
     }
 
-    public static void synchronizeGitignoreInDirectory(JslDslGeneratorParameter.JslDslGeneratorParameterBuilder builder) throws Exception {
-        synchronizeGitignoreInDirectory(builder.build());
+    public static void synchronizeGitignoreInDirectory(JslDslGeneratorParameter.JslDslGeneratorParameterBuilder builder, Collection<String> ignoredFiles) throws Exception {
+        synchronizeGitignoreInDirectory(builder.build(), ignoredFiles);
     }
 
-    public static void synchronizeGitignoreInDirectory(JslDslGeneratorParameter parameter) throws Exception {
+    public static void synchronizeGitignoreInDirectory(JslDslGeneratorParameter parameter, Collection<String> ignoredFiles) throws Exception {
 
         GeneratorParameter<ActorDeclaration> genericParams = mapJslDslParameters(parameter);
 
@@ -299,7 +299,7 @@ public class JslDslGenerator {
                 .filter(genericParams.getDiscriminatorPredicate())
                 .collect(Collectors.toSet());
 
-        ModelGenerator.synchronizeGitignoreInDirectory(genericParams, applications);
+        ModelGenerator.synchronizeGitignoreInDirectory(genericParams, applications, (f) -> ignoredFiles.contains(f));
     }
     public static void recalculateChecksumForDirectory(JslDslGeneratorParameter.JslDslGeneratorParameterBuilder builder) throws Exception {
         recalculateChecksumForDirectory(builder.build());
