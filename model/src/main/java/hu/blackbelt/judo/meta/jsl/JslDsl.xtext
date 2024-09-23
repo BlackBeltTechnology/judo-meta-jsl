@@ -267,6 +267,7 @@ UIViewMemberDeclaration
 	: UIViewWidgetDeclaration
 	| UIViewLinkDeclaration
 	| UIViewTableDeclaration
+	| UIViewPanelDeclaration
 	;
 
 UIViewWidgetDeclaration
@@ -288,6 +289,27 @@ UIViewTableDeclaration
 	  LTE transferRelation = TransferRelationReference
 	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier | SelectorTableModifier)*
 	  SC
+	;
+
+
+UIViewPanelDeclaration
+	: UIViewGroupDeclaration
+	| UIViewTabsDeclaration
+	;
+
+
+UIViewGroupDeclaration returns UIViewPanelDeclaration
+	: {UIViewGroupDeclaration}
+	  KW_GROUP Named
+	  modifiers += (EnabledModifier | VisualModifier | FrameModifier | OrientationModifier | HAlignModifier | VAlignModifier | StretchModifier)*
+	  BLOCK_START (members += UIViewMemberDeclaration)* BLOCK_END
+	;
+
+UIViewTabsDeclaration returns UIViewPanelDeclaration
+	: {UIViewTabsDeclaration}
+	  KW_TABS Named
+	  modifiers += (VisualModifier | OrientationModifier | FrameModifier | StretchModifier)*
+	  BLOCK_START (panels += UIViewPanelDeclaration)* BLOCK_END
 	;
 
 /****************************
@@ -333,20 +355,30 @@ UIMenuDeclaration
 UIMenuMemberDeclaration
 	: UIMenuLinkDeclaration
 	| UIMenuTableDeclaration
+	| UIMenuGroupDeclaration
 	;
 
-UIMenuLinkDeclaration
-	: KW_LINK referenceType = [UIViewDeclaration | ModelName] Named
+UIMenuLinkDeclaration returns UIMenuMemberDeclaration
+	: {UIMenuLinkDeclaration}
+	  KW_LINK referenceType = [UIViewDeclaration | ModelName] Named
 	  LTE actorAccess = ActorAccessReference
 	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier)*
 	  SC
 	;
 
-UIMenuTableDeclaration
-	: KW_TABLE referenceType = [UIRowDeclaration | ModelName] Named
+UIMenuTableDeclaration returns UIMenuMemberDeclaration
+	: {UIMenuTableDeclaration}
+	  KW_TABLE referenceType = [UIRowDeclaration | ModelName] Named
 	  LTE actorAccess = ActorAccessReference
 	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier)*
 	  SC
+	;
+
+UIMenuGroupDeclaration returns UIMenuMemberDeclaration
+	: {UIMenuGroupDeclaration}
+	  KW_GROUP Named
+	  modifiers += (LabelModifier | IconModifier | HiddenModifier)*
+	  BLOCK_START (members += UIMenuMemberDeclaration)* BLOCK_END
 	;
 
 /****************************

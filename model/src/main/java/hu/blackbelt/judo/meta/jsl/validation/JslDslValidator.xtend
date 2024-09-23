@@ -818,15 +818,15 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkForDuplicateNameForEntityMemberDeclaration(EntityMemberDeclaration member) {
-        if (member instanceof Named && (member.eContainer as EntityDeclaration).getMemberNames(member).map[n | n.toLowerCase].contains(member.name.toLowerCase)) {
-            error("Duplicate member declaration: '" + member.name + "'",
-                member.nameAttribute,
-                DUPLICATE_MEMBER_NAME,
-                member.name)
-        }
-    }
+//    @Check
+//    def checkForDuplicateNameForEntityMemberDeclaration(EntityMemberDeclaration member) {
+//        if (member instanceof Named && (member.eContainer as EntityDeclaration).getMemberNames(member).map[n | n.toLowerCase].contains(member.name.toLowerCase)) {
+//            error("Duplicate member declaration: '" + member.name + "'",
+//                member.nameAttribute,
+//                DUPLICATE_MEMBER_NAME,
+//                member.name)
+//        }
+//    }
 
     @Check
     def checkEntityMemberDeclarationLength(EntityMemberDeclaration member) {
@@ -886,19 +886,34 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkForDuplicateNameForDeclaration(Declaration declaration) {
-    	if (!(declaration.eContainer instanceof ModelDeclaration)) return;
-    	
-        if (declaration instanceof FunctionDeclaration) return;
-        if (declaration instanceof LambdaDeclaration) return;
+//    @Check
+//    def checkForDuplicateNameForDeclaration(Declaration declaration) {
+//    	if (!(declaration.eContainer instanceof ModelDeclaration)) return;
+//    	
+//        if (declaration instanceof FunctionDeclaration) return;
+//        if (declaration instanceof LambdaDeclaration) return;
+//
+//        if ((declaration.eContainer as ModelDeclaration).getDeclarationNames(declaration).map[n | n.toLowerCase].contains(declaration.name.toLowerCase)) {
+//            error("Duplicate declaration name: '" + declaration.name + "'",
+//                declaration.nameAttribute,
+//                DUPLICATE_DECLARATION_NAME,
+//                declaration.name)
+//        }
+//    }
 
-        if ((declaration.eContainer as ModelDeclaration).getDeclarationNames(declaration).map[n | n.toLowerCase].contains(declaration.name.toLowerCase)) {
-            error("Duplicate declaration name: '" + declaration.name + "'",
-                declaration.nameAttribute,
+    @Check
+    def checkForDuplicateName(Named named) {
+        if (named instanceof ModelDeclaration) return;
+        if (named instanceof FunctionDeclaration) return;
+        if (named instanceof LambdaDeclaration) return;
+
+		if (named.eContainer.eContents.filter[o | o instanceof Named].map[o | o.name.toLowerCase].filter[n | n == named.name.toLowerCase].size > 1) {
+            error("Duplicate declaration name: '" + named.name + "'",
+                named.nameAttribute,
                 DUPLICATE_DECLARATION_NAME,
-                declaration.name)
-        }
+                named.name)
+			
+		}
     }
 
     @Check
@@ -1480,36 +1495,26 @@ class JslDslValidator extends AbstractJslDslValidator {
         }
     }
 
-    @Check
-    def checkForDuplicateNameForTransferMemberDeclaration(TransferMemberDeclaration member) {
-//    	if (!(member instanceof TransferFieldDeclaration || member instanceof TransferRelationDeclaration)) {
-//    		return
-//    	}
-    	
-        val TransferDeclaration transfer = member.parentContainer(TransferDeclaration)
-
-    	if (transfer === null) {
-    		return
-    	}
-
-        if (transfer.map !== null && member.name.toLowerCase.equals(transfer.map.name.toLowerCase)) {
-            error("Member declaration name conflicts with mapping field name: '" + member.name + "'.",
-                member.nameAttribute,
-                DUPLICATE_MEMBER_NAME,
-                member.name)
-        }
-		
-//		val members = transfer.eAllContents.filter[d | d instanceof TransferFieldDeclaration || d instanceof TransferRelationDeclaration].map[d | d as TransferMemberDeclaration].toList
-		val members = transfer.eAllContents.filter[d | d instanceof TransferMemberDeclaration].map[d | d as TransferMemberDeclaration].toList
-
-        if (members.filter[m | m.name.toLowerCase.equals(member.name.toLowerCase)].size > 1) {
-            error("Duplicate member declaration: '" + member.name + "'.",
-                member.nameAttribute,
-                DUPLICATE_MEMBER_NAME,
-                member.name)
-        }
-    }
-
+//    @Check
+//    def checkForDuplicateNameForTransferMemberDeclaration(TransferMemberDeclaration member) {
+//        val TransferDeclaration transfer = member.parentContainer(TransferDeclaration)
+//
+//        if (transfer.map !== null && member.name.toLowerCase.equals(transfer.map.name.toLowerCase)) {
+//            error("Member declaration name conflicts with mapping field name: '" + member.name + "'.",
+//                member.nameAttribute,
+//                DUPLICATE_MEMBER_NAME,
+//                member.name)
+//        }
+//		
+//		val members = transfer.eAllContents.filter[d | d instanceof TransferMemberDeclaration].map[d | d as TransferMemberDeclaration].toList
+//
+//        if (members.filter[m | m.name.toLowerCase.equals(member.name.toLowerCase)].size > 1) {
+//            error("Duplicate member declaration: '" + member.name + "'.",
+//                member.nameAttribute,
+//                DUPLICATE_MEMBER_NAME,
+//                member.name)
+//        }
+//    }
 
     @Check
     def checkGuard(GuardModifier guard) {

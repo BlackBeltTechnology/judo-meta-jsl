@@ -40,18 +40,16 @@ class NameDuplicationDetectionTests {
             type string String min-size:0 max-size:128;
 
             entity A {
-                relation B b opposite a;
-                field String b;
+            	field String b;
             }
 
             entity B {
-                relation A a opposite b;
+                relation A a opposite-add:b;
             }
 
         '''.parse => [
-            assertDuplicateMemberName("Duplicate member declaration: 'b'", JsldslPackage::eINSTANCE.entityFieldDeclaration)
-            assertDuplicateMemberName("Duplicate member declaration: 'b'", JsldslPackage::eINSTANCE.entityRelationDeclaration)
-        ]
+            	m | m.assertError(JsldslPackage::eINSTANCE.entityRelationOppositeInjected, JslDslValidator.DUPLICATE_MEMBER_NAME)
+       ]
     }
 
     @Test
@@ -81,7 +79,7 @@ class NameDuplicationDetectionTests {
                 field String name;
             }
         '''.parse => [
-            assertOppositeMismatchError("Duplicate member declaration: 'name'", JsldslPackage::eINSTANCE.entityFieldDeclaration)
+            	m | m.assertError(JsldslPackage::eINSTANCE.entityDeclaration, JslDslValidator.INHERITED_MEMBER_NAME_COLLISION)
         ]
     }
 
