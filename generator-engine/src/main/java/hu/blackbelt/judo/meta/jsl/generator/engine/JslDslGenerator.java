@@ -33,6 +33,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import java.io.*;
+import java.nio.file.FileSystems;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -299,7 +302,17 @@ public class JslDslGenerator {
                 .filter(genericParams.getDiscriminatorPredicate())
                 .collect(Collectors.toSet());
 
-        ModelGenerator.synchronizeGitignoreInDirectory(genericParams, applications, (f) -> ignoredFiles.contains(f));
+        ModelGenerator.synchronizeGitignoreInDirectory(genericParams, applications, getIgnoredFileMatcher(ignoredFiles));
+    }
+
+    public static Function<String, Boolean> getIgnoredFileMatcher(Collection<String> ignoredGlobs) {
+        return path -> {
+            Boolean match = ignoredGlobs.stream().anyMatch((glob) -> {
+                final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + glob);
+                return pathMatcher.matches(Paths.get(path));
+            });
+            return match;
+        };
     }
     public static void recalculateChecksumForDirectory(JslDslGeneratorParameter.JslDslGeneratorParameterBuilder builder) throws Exception {
         recalculateChecksumForDirectory(builder.build());
