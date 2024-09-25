@@ -313,7 +313,7 @@ class TransferTests {
                 field Integer e1;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.DUPLICATE_MEMBER_NAME)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.DUPLICATE_DECLARATION_NAME)
         ]
     }
 
@@ -330,7 +330,7 @@ class TransferTests {
                 field String f1;
             }
         '''.parse => [
-            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.DUPLICATE_MEMBER_NAME)
+            m | m.assertError(JsldslPackage::eINSTANCE.transferFieldDeclaration, JslDslValidator.DUPLICATE_DECLARATION_NAME)
         ]
     }
 
