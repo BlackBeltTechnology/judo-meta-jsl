@@ -77,8 +77,10 @@
 		<!--suppress UnresolvedMavenProperty -->
 		<logback-test-config>${maven.multiModuleProjectDirectory}/logback-test.xml</logback-test-config>
         <logback-version>1.5.12</logback-version>
+        <lombok-version>1.18.34</lombok-version>
 
         <tycho-version>4.0.9</tycho-version>
+        <jackson-version>2.17.2</jackson-version>
 
         <emf-genmodel-generator-version>1.1.1.20240410_065331_3400dfa6_develop</emf-genmodel-generator-version>
         <judo-genmodel-generator-version>1.1.2.20240410_075618_a6090f79_develop</judo-genmodel-generator-version>
@@ -508,24 +510,6 @@
                     </configuration>
                 </plugin>
 
-                <plugin>
-                    <groupId>org.projectlombok</groupId>
-                    <artifactId>lombok-maven-plugin</artifactId>
-                    <version>1.18.24.0</version>
-                    <configuration>
-                        <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
-                        <outputDirectory>${project.basedir}/target/delombok</outputDirectory>
-                        <addOutputDirectory>false</addOutputDirectory>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <phase>generate-sources</phase>
-                            <goals>
-                                <goal>delombok</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
 
                 <!--This plugin's configuration is used to store Eclipse m2e settings
                     only. It has no influence on the Maven build itself. -->
@@ -910,7 +894,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.24</version>
+            <version>${lombok-version}</version>
         </dependency>
     </dependencies>
     <profiles>
