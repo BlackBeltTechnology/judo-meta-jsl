@@ -146,6 +146,9 @@ public class JslDslProjectGenerateMojo extends AbstractJslDslProjectMojo {
 
         Map<String, Object> extras = new LinkedHashMap<>();
 
+        if (variablePrecedence == null) {
+            variablePrecedence = Arrays.stream("projectProperties,templateVariables,propertiesFiles,environmentVariables,systemProperties".split(",")).toList();
+        }
 
         for (String precedence : variablePrecedence) {
 
