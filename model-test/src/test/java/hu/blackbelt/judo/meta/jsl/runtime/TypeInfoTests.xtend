@@ -1363,10 +1363,22 @@ class TypeInfoTests {
             type string String min-size:0 max-size:32;
             type numeric Decimal precision:9 scale:2;
             type boolean Boolean;
+            type date Date;
+            type time Time;
+            type timestamp Timestamp;
+            
+            enum Testenum {
+            	LITERAL1=1;
+            	LITERAL2=2;
+            }
 
             entity T1 {
                 field String name;
                 field Decimal price;
+                field Date date;
+                field Time time;
+                field Timestamp timestamp;
+                field Decimal testenum;
             }
 
             entity Test {
@@ -1379,8 +1391,18 @@ class TypeInfoTests {
                 field Boolean anyFalse <= self.t1s.anyFalse(t | t.name == "Test");
                 field Boolean allFalse <= self.t1s.allFalse(t | t.name == "Test");
 
-                field Decimal min <= self.t1s.min(t | t.price);
-                field Decimal max <= self.t1s.max(t | t.price);
+                field Decimal min				<= self.t1s.min(t | t.price);
+                field Date minDate				<= self.t1s.min(t | t.date);
+                field Time minTime				<= self.t1s.min(t | t.time);
+                field Timestamp minTimestamp	<= self.t1s.min(t | t.timestamp);
+                field Testenum minEnum			<= self.t1s.min(t | t.testenum);
+
+                field Decimal max				<= self.t1s.max(t | t.price);
+                field Time maxTime				<= self.t1s.max(t | t.time);
+                field Date maxDate				<= self.t1s.max(t | t.date);
+                field Timestamp maxTimestamp	<= self.t1s.max(t | t.timestamp);
+                field Testenum maxEnum			<= self.t1s.max(t | t.testenum);
+
                 field Decimal avg <= self.t1s.avg(t | t.price);
                 field Decimal sum <= self.t1s.sum(t | t.price);
             }
@@ -1395,8 +1417,19 @@ class TypeInfoTests {
         val allTrueField = testEntity.memberByName("allTrue") as EntityMemberDeclaration
         val anyFalseField = testEntity.memberByName("anyFalse") as EntityMemberDeclaration
         val allFalseField = testEntity.memberByName("allFalse") as EntityMemberDeclaration
+        
         val minField = testEntity.memberByName("min") as EntityMemberDeclaration
+        val minDateField = testEntity.memberByName("minDate") as EntityMemberDeclaration
+        val minTimeField = testEntity.memberByName("minTime") as EntityMemberDeclaration
+        val minTimestampField = testEntity.memberByName("minTimestamp") as EntityMemberDeclaration
+        val minEnumField = testEntity.memberByName("minEnum") as EntityMemberDeclaration
+
         val maxField = testEntity.memberByName("max") as EntityMemberDeclaration
+        val maxDateField = testEntity.memberByName("maxDate") as EntityMemberDeclaration
+        val maxTimeField = testEntity.memberByName("maxTime") as EntityMemberDeclaration
+        val maxTimestampField = testEntity.memberByName("maxTimestamp") as EntityMemberDeclaration
+        val maxEnumField = testEntity.memberByName("maxEnum") as EntityMemberDeclaration
+
         val avgField = testEntity.memberByName("avg") as EntityMemberDeclaration
         val sumField = testEntity.memberByName("sum") as EntityMemberDeclaration
 
@@ -1410,7 +1443,17 @@ class TypeInfoTests {
         assertEquals(TypeInfo.PrimitiveType.BOOLEAN, TypeInfo.getTargetType(allFalseField.getterExpr).getPrimitive)
 
         assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(minField.getterExpr).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(minDateField.getterExpr).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(minTimeField.getterExpr).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(minTimestampField.getterExpr).getPrimitive)
+        assertTrue(TypeInfo.getTargetType(minEnumField.getterExpr).isEnum)
+                
         assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(maxField.getterExpr).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.DATE, TypeInfo.getTargetType(maxDateField.getterExpr).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.TIME, TypeInfo.getTargetType(maxTimeField.getterExpr).getPrimitive)
+        assertEquals(TypeInfo.PrimitiveType.TIMESTAMP, TypeInfo.getTargetType(maxTimestampField.getterExpr).getPrimitive)
+        assertTrue(TypeInfo.getTargetType(maxEnumField.getterExpr).isEnum)
+        
         assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(avgField.getterExpr).getPrimitive)
         assertEquals(TypeInfo.PrimitiveType.NUMERIC, TypeInfo.getTargetType(sumField.getterExpr).getPrimitive)
     }
