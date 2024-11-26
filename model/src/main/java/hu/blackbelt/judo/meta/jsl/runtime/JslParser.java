@@ -144,6 +144,18 @@ public class JslParser {
         return getModelDeclarationFromXtextResourceSet(modelName, loadJslFromString(jslStrings));
     }
 
+    public static Optional<ModelDeclaration> getModelDeclarationFromStreamSources(final Collection<JslStreamSource> jslStreams) {
+        return getRootModelDeclarationFromXtextResourceSet(loadJslFromStream(jslStreams));
+    }
+
+    public static Optional<ModelDeclaration> getModelDeclarationFromFiles(final Collection<File> jslFiles) {
+        return getRootModelDeclarationFromXtextResourceSet(loadJslFromFile(jslFiles));
+    }
+
+    public static Optional<ModelDeclaration> getModelDeclarationFromStrings(final Collection<String> jslStrings) {
+        return getRootModelDeclarationFromXtextResourceSet(loadJslFromString(jslStrings));
+    }
+
     public static Optional<ModelDeclaration> getModelDeclarationFromXtextResourceSet(String modelName, XtextResourceSet resourceSet) {
         Iterator<Notifier> iter = resourceSet.getAllContents();
         ModelDeclaration found = null;
@@ -183,10 +195,41 @@ public class JslParser {
         return getModelFromXtextResourceSet(modelName, loadJslFromString(jslStrings));
     }
 
+    public static Optional<ModelDeclaration> getRootModelDeclarationFromXtextResourceSet(XtextResourceSet xtextResourceSet) {
+        Collection<ModelDeclaration> modelDeclarations = getAllModelDeclarationFromXtextResourceSet(xtextResourceSet);
+        Set<ModelDeclaration> rootModelDeclarations = getRootModelDeclarations(modelDeclarations);
+        if (rootModelDeclarations.size() != 1) {
+            return Optional.empty();
+        }
+        return Optional.of(rootModelDeclarations.iterator().next());
+    }
+
+    public static JslDslModel getModelFromStreamSources(final Collection<JslStreamSource> jslStreams) {
+        return getModelFromXtextResourceSet(loadJslFromStream(jslStreams));
+    }
+
+    public static JslDslModel getModelFromFiles(final Collection<File> jslFiles) {
+        return getModelFromXtextResourceSet(loadJslFromFile(jslFiles));
+    }
+
+    public static JslDslModel getModelFromStrings(final Collection<String> jslStrings) {
+        return getModelFromXtextResourceSet(loadJslFromString(jslStrings));
+    }
+
     public static JslDslModel getModelFromXtextResourceSet(String modelName, XtextResourceSet resourceSet) {
         ModelDeclaration defaultModel = getModelDeclarationFromXtextResourceSet(modelName, resourceSet)
                 .orElseThrow(() -> new IllegalArgumentException("Model with name '" + modelName + "' not found"));
 
+        JslDslModel model = createModel(defaultModel.getName().replaceAll("::", "_"));
+        for (Resource res : resourceSet.getResources()) {
+            ModelDeclaration modelDecl = (ModelDeclaration) res.getContents().get(0);
+            model.addContent(modelDecl);
+        }
+        return model;
+    }
+
+    public static JslDslModel getModelFromXtextResourceSet(XtextResourceSet resourceSet) {
+        ModelDeclaration defaultModel = getRootModelDeclarationFromXtextResourceSet(resourceSet).orElseThrow(() -> new IllegalArgumentException("Could not determinate root model"));
         JslDslModel model = createModel(defaultModel.getName().replaceAll("::", "_"));
         for (Resource res : resourceSet.getResources()) {
             ModelDeclaration modelDecl = (ModelDeclaration) res.getContents().get(0);
