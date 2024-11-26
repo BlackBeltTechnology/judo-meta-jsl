@@ -663,7 +663,7 @@ class JslDslValidator extends AbstractJslDslValidator {
             if (lambdaCall.declaration.expressionType !== null) {
                 var targetType = TypeInfo.getTargetType(lambdaCall.declaration.expressionType);
                 if (!targetType.isCompatible(lambdaExpressionTypeInfo)) {
-                    error("Lambda expression type mismatch. Expected: (" + targetType + "), Got: (" + lambdaExpressionTypeInfo + ")",
+                    error("Lambda expression type mismatch. lambdaCall declaration expressionType: (" + targetType + "), lambdaCall lambdaExpression: (" + lambdaExpressionTypeInfo + ")",
                         JsldslPackage::eINSTANCE.lambdaCall_LambdaExpression,
                         TYPE_MISMATCH,
                         JsldslPackage::eINSTANCE.lambdaCall.name)
@@ -1468,7 +1468,7 @@ class JslDslValidator extends AbstractJslDslValidator {
             var memberType = TypeInfo.getTargetType(member);
             var targetType = TypeInfo.getTargetType(member.getterExpr);
             if (member.getterExpr !== null && !memberType.isCompatible(targetType)) {
-                error("Type mismatch. Derived value expression does not match derived field type at '" + member.name + "'. Expected: (" + memberType + "), Got: (" + targetType + ")",
+                error("Type mismatch. Derived value expression does not match derived field type at '" + member.name + "'. member: (" + memberType + "), member getterExpr: (" + targetType + ")",
                     JsldslPackage::eINSTANCE.entityMemberDeclaration_GetterExpr,
                     TYPE_MISMATCH,
                     JsldslPackage::eINSTANCE.dataTypeDeclaration.name)
