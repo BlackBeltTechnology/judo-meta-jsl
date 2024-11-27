@@ -336,5 +336,177 @@ public class JslDslParserTest {
         assertEquals("SampleModel2", model.getName());
     }
 
+    /// //////////////////////////////////
+
+
+    @Test
+    @Requirement(reqs = {
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
+            "REQ-MDL-001",
+            "REQ-TYPE-001",
+            "REQ-TYPE-002",
+            "REQ-TYPE-004",
+            "REQ-TYPE-005",
+            "REQ-TYPE-006",
+            "REQ-TYPE-007",
+            "REQ-TYPE-009",
+            "REQ-TYPE-010",
+            "REQ-ENT-001",
+            "REQ-ENT-012",
+            "REQ-ENT-002",
+            "REQ-ENT-003",
+            "REQ-ENT-004",
+            "REQ-ENT-006",
+            "REQ-ENT-008",
+            "REQ-ENT-009",
+            "REQ-ENT-010",    	// this test is unnecessary, the new JSL syntax does not allow primitives with cardinality
+
+            "REQ-EXPR-001",
+            "REQ-EXPR-002",
+            "REQ-EXPR-003",
+            "REQ-EXPR-004",
+            "REQ-EXPR-005",
+            "REQ-EXPR-006",
+            "REQ-EXPR-008",
+            "REQ-EXPR-022"
+            //TODO: JNG-4398
+    })
+    public void testGetModelDeclarationFromFilesWithoutName() {
+        Optional<ModelDeclaration> model = JslParser.getModelDeclarationFromFiles(
+                Arrays.asList(new File("src/test/resources/sample.jsl")));
+        assertTrue(model.isPresent());
+        assertEquals("SampleModel", model.get().getName());
+    }
+
+    @Test
+    @Requirement(reqs = {
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
+            "REQ-MDL-001",
+            "REQ-TYPE-001",
+            "REQ-TYPE-004",
+            "REQ-TYPE-005"
+    })
+    public void testGetModelDeclarationFromStreamSourcesWithoutName() throws UnsupportedEncodingException {
+        Optional<ModelDeclaration> model = JslParser.getModelDeclarationFromStreamSources(
+                Arrays.asList(new JslStreamSource(new ByteArrayInputStream(TEST_MODEL.getBytes("UTF-8")), URI.createURI("urn:testLoadFromByteArrayInputStream"))));
+        assertTrue(model.isPresent());
+        assertEquals("SampleModel", model.get().getName());
+    }
+
+    @Test
+    @Requirement(reqs = {
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
+            "REQ-MDL-001",
+            "REQ-MDL-003",
+            "REQ-TYPE-001",
+            "REQ-TYPE-004",
+            "REQ-TYPE-005",
+            "REQ-ENT-001",
+            "REQ-ENT-002"
+    })
+    public void testGetModelDeclarationFromStringsWithoutName() {
+        Optional<ModelDeclaration> model = JslParser.getModelDeclarationFromStrings(
+                Arrays.asList(TEST_MODEL, TEST_MODEL2));
+        assertTrue(model.isPresent());
+        assertEquals("SampleModel2", model.get().getName());
+    }
+
+    @Test
+    @Requirement(reqs = {
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
+            "REQ-MDL-001",
+            "REQ-TYPE-001",
+            "REQ-TYPE-002",
+            "REQ-TYPE-004",
+            "REQ-TYPE-005",
+            "REQ-TYPE-006",
+            "REQ-TYPE-007",
+            "REQ-TYPE-009",
+            "REQ-TYPE-010",
+            "REQ-ENT-001",
+            "REQ-ENT-012",
+            "REQ-ENT-002",
+            "REQ-ENT-003",
+            "REQ-ENT-004",
+            "REQ-ENT-006",
+            "REQ-ENT-008",
+            "REQ-ENT-009",
+            "REQ-ENT-010",
+            "REQ-EXPR-001",
+            "REQ-EXPR-002",
+            "REQ-EXPR-003",
+            "REQ-EXPR-004",
+            "REQ-EXPR-005",
+            "REQ-EXPR-006",
+            "REQ-EXPR-008",
+            "REQ-EXPR-022"
+            //TODO: JNG-4398
+            //TODO: JNG-4394 The sample2.jsl needs to be change if the tickedt is done.
+    })
+    public void testGetModelFromFilesWithoutName() {
+        JslDslModel model = JslParser.getModelFromFiles(
+                Arrays.asList(
+                        new File("src/test/resources/sample.jsl"),
+                        new File("src/test/resources/sample2.jsl")
+                ));
+        assertEquals("SampleModel2", model.getName());
+    }
+
+    @Test
+    @Requirement(reqs = {
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
+            "REQ-MDL-001",
+            "REQ-MDL-003",
+            "REQ-TYPE-001",
+            "REQ-TYPE-004",
+            "REQ-TYPE-005",
+            "REQ-ENT-001",
+            "REQ-ENT-002"
+    })
+    public void testGetModelFromStreamSourcesWithoutName() throws UnsupportedEncodingException {
+        JslDslModel model = JslParser.getModelFromStreamSources(
+                Arrays.asList(
+                        new JslStreamSource(new ByteArrayInputStream(TEST_MODEL.getBytes("UTF-8")),
+                                URI.createURI("platform:/testLoadFromByteArrayInputStream.jsl")),
+                        new JslStreamSource(new ByteArrayInputStream(TEST_MODEL2.getBytes("UTF-8")),
+                                URI.createURI("platform:/testLoadFromByteArrayInputStream2.jsl"))
+                ));
+        assertEquals("SampleModel2", model.getName());
+    }
+
+    @Test
+    @Requirement(reqs = {
+            "REQ-SYNT-001",
+            "REQ-SYNT-002",
+            "REQ-SYNT-003",
+            "REQ-SYNT-004",
+            "REQ-MDL-001",
+            "REQ-MDL-003",
+            "REQ-TYPE-001",
+            "REQ-TYPE-004",
+            "REQ-TYPE-005",
+            "REQ-ENT-001",
+            "REQ-ENT-002"
+    })
+    public void testGetModelFromStringsWithoutName() {
+        JslDslModel model = JslParser.getModelFromStrings(
+                Arrays.asList(TEST_MODEL, TEST_MODEL2));
+        assertEquals("SampleModel2", model.getName());
+    }
 
 }
