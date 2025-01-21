@@ -48,7 +48,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferFieldDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.AnnotationDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.Navigation
 import hu.blackbelt.judo.meta.jsl.jsldsl.EntityMapDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.GuardModifier
@@ -91,7 +90,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferUpdateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ChoiceModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.WidthModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.BulkModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.RedirectModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuLinkDeclaration
@@ -104,7 +102,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateViewModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorTableModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewActionDeclaration
-import org.eclipse.e4.ui.model.application.ui.util.UiAdapterFactory
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -2058,6 +2055,19 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 			if (!action.transferAction.target.parameterType.isEqual(action.parameterType.map.transfer)) {
 	            error("Action declaration must have an input that is mapped to the input type of the transfer action.",
+	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+		}
+		
+		if (action.parameterType !== null) {
+			if (action.parameterType.form && action.getModifier(JsldslPackage::eINSTANCE.selectorTableModifier) !== null) {
+	            error("Selector must not be defined if the parameter type is form.",
+	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+			if (!action.parameterType.form && action.getModifier(JsldslPackage::eINSTANCE.selectorTableModifier) === null) {
+	            error("Selector must be defined if the parameter type is view.",
 	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
 	                INVALID_DECLARATION)
 			}

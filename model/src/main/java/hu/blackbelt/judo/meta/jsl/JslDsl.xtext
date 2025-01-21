@@ -300,6 +300,7 @@ UIViewActionDeclaration
 	: KW_ACTION (void ?= KW_VOID | return = [UIViewDeclaration | ModelName]) Named
 	  LP (parameterType = [UIViewDeclaration | ModelName] paramaterName = JSLID modifiers += SelectorTableModifier?)? RP
 	  LTE transferAction = TransferActionReference
+	  modifiers += VisualModifier*
 	  SC
 	;
 
