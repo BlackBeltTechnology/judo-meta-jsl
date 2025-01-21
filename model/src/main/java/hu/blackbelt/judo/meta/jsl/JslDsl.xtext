@@ -256,6 +256,10 @@ TransferRelationReference
 	: map = [TransferMapDeclaration | LocalName] DOT target = [TransferRelationDeclaration | LocalName]
 	;
 
+TransferActionReference
+	: map = [TransferMapDeclaration | LocalName] DOT target = [TransferActionDeclaration | LocalName]
+	;
+
 UIViewDeclaration
 	: (KW_VIEW | form ?= KW_FORM) Named
 	  map = TransferMapDeclaration
@@ -267,6 +271,7 @@ UIViewMemberDeclaration
 	: UIViewWidgetDeclaration
 	| UIViewLinkDeclaration
 	| UIViewTableDeclaration
+	| UIViewActionDeclaration
 	| UIViewPanelDeclaration
 	;
 
@@ -291,6 +296,22 @@ UIViewTableDeclaration
 	  SC
 	;
 
+UIViewActionDeclaration
+	: KW_ACTION (void ?= KW_VOID | return = [UIViewDeclaration | ModelName]) Named
+	  LP (parameterType = [UIViewDeclaration | ModelName] paramaterName = JSLID modifiers += SelectorTableModifier?)? RP
+	  LTE transferAction = TransferActionReference
+	  SC
+	;
+
+//ViewActionDeclaration returns TransferActionDeclaration
+//	: {ViewActionDeclaration}
+//	  annotations += AnnotationMark*
+//	  -> KW_ACTION (void ?= KW_VOID | return = [UnionOrTransferDeclaration | ModelName]) Named
+//	  LP (parameterType = [VisibleDeclaration | ModelName] paramaterName = JSLID modifiers += ChoiceModifier?)? RP
+//	  (KW_THROWS errors += [ErrorDeclaration | ModelName] (COMMA errors += [ErrorDeclaration | ModelName])* )?
+//	  modifiers += (EnabledModifier | StaticModifier | VisualModifier | RedirectModifier | UpdateModifier | DeleteModifier)*
+//	  SC
+//	;
 
 UIViewPanelDeclaration
 	: UIViewGroupDeclaration

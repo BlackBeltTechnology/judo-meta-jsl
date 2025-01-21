@@ -80,6 +80,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewLinkDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMapDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionReference
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewActionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorTableModifier
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -92,10 +95,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     @Inject extension JslDslModelExtension
 
     override getScope(EObject context, EReference ref) {
-//        System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
-//        "\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper
-//            + ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
-//        printParents(context)
+        System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
+        "\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper
+            + ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
+        printParents(context)
 
         var IScope scope = delegateGetScope(context, ref);
         scope = this.scope_FilterByReferenceType(scope, ref);
@@ -123,6 +126,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 			SelectorModifier case ref == JsldslPackage::eINSTANCE.selectorModifier_Transfer && context.eContainer instanceof TransferActionDeclaration: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
+			SelectorTableModifier case ref == JsldslPackage::eINSTANCE.selectorTableModifier_Row: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.UIRowDeclaration)
+
 			TransferActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_ParameterType: return this.scope_FilterByEClassifier(scope, JsldslPackage::eINSTANCE.simpleTransferDeclaration)
 
 //			RowActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionDeclaration_Return: return this.scope_ViewOrUnion(scope)
@@ -142,6 +147,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			UIViewWidgetDeclaration case ref == JsldslPackage::eINSTANCE.transferFieldReference_Map: return scope.scope_Containments(context.parentContainer(UIViewDeclaration), ref)
 			UIViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationReference_Map: return scope.scope_Containments(context.parentContainer(UIViewDeclaration), ref)
 			UIViewTableDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationReference_Map: return scope.scope_Containments(context.parentContainer(UIViewDeclaration), ref)
+			UIViewActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionReference_Map: return scope.scope_Containments(context.parentContainer(UIViewDeclaration), ref)
 
 			UIRowColumnDeclaration case ref == JsldslPackage::eINSTANCE.transferFieldReference_Map: return scope.scope_Containments(context.parentContainer(UIRowDeclaration), ref)
 
@@ -150,6 +156,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 			TransferFieldReference case ref == JsldslPackage::eINSTANCE.transferFieldReference_Target: return scope.scope_Containments(context.map.transfer, ref)
 			TransferRelationReference case ref == JsldslPackage::eINSTANCE.transferRelationReference_Target: return scope.scope_Containments(context.map.transfer, ref)
+			TransferActionReference case ref == JsldslPackage::eINSTANCE.transferActionReference_Target: return scope.scope_Containments(context.map.transfer,ref)
 
 			ActorAccessReference case ref == JsldslPackage::eINSTANCE.actorAccessReference_Target: return scope.scope_Containments(context.map.actor, ref)
 			

@@ -103,6 +103,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.CreateFormModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateViewModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorTableModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewActionDeclaration
+import org.eclipse.e4.ui.model.application.ui.util.UiAdapterFactory
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -2044,7 +2046,38 @@ class JslDslValidator extends AbstractJslDslValidator {
 			}
 		}
 	}
-	
+
+	@Check
+	def checkUIActionDeclaration(UIViewActionDeclaration action) {
+		if (action.transferAction.map !== null && action.transferAction.target !== null) {
+			if (!action.transferAction.target.^return.isEqual(action.^return.map.transfer)) {
+	            error("Action declaration must return a view that is mapped to the return type of the transfer action.",
+	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+
+			if (!action.transferAction.target.parameterType.isEqual(action.parameterType.map.transfer)) {
+	            error("Action declaration must have an input that is mapped to the input type of the transfer action.",
+	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+		}
+
+//		if (link.transferRelation.map !== null && link.transferRelation.target !== null) {
+//			if (!link.transferRelation.target.referenceType.isEqual(link.referenceType.map.transfer)) {
+//	            error("Link declaration and the transfer relation must have the same transfer type.",
+//	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+//	                INVALID_DECLARATION)
+//			}
+//
+//			if (link.transferRelation.target.many) {
+//	            error("Referenced transfer relation must be single.",
+//	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+//	                INVALID_DECLARATION)
+//			}
+//		}
+	}
+
 	@Check
 	def checkCreateFormModifier(CreateFormModifier modifier) {
 		if (modifier.form === null) return;
@@ -2129,6 +2162,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			UIViewTableDeclaration: featureTransfer = container.referenceType.map.transfer
 			UIMenuLinkDeclaration: featureTransfer = container.referenceType.map.transfer
 			UIMenuTableDeclaration: featureTransfer = container.referenceType.map.transfer
+			UIViewActionDeclaration: featureTransfer = container.parameterType.map.transfer
 		}
 		
 		if (!featureTransfer.isEqual(modifier.row.map.transfer)) {
