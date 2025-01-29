@@ -81,8 +81,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorAccessReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorMapDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionReference
-import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorTableModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIActionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIComponentDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -147,7 +148,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			UIViewWidgetDeclaration case ref == JsldslPackage::eINSTANCE.transferFieldReference_Map: return scope.scope_Containments(context.parentContainer(UIViewDeclaration), ref)
 			UIViewLinkDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationReference_Map: return scope.scope_Containments(context.parentContainer(UIViewDeclaration), ref)
 			UIViewTableDeclaration case ref == JsldslPackage::eINSTANCE.transferRelationReference_Map: return scope.scope_Containments(context.parentContainer(UIViewDeclaration), ref)
-			UIViewActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionReference_Map: return scope.scope_Containments(context.parentContainer(UIViewDeclaration), ref)
+
+			UIActionDeclaration case ref == JsldslPackage::eINSTANCE.transferActionReference_Map: return scope.scope_Containments(context.parentContainer(UIComponentDeclaration), ref)
 
 			UIRowColumnDeclaration case ref == JsldslPackage::eINSTANCE.transferFieldReference_Map: return scope.scope_Containments(context.parentContainer(UIRowDeclaration), ref)
 

@@ -101,7 +101,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.CreateFormModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateViewModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorTableModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewActionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIActionDeclaration
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -2045,7 +2045,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 
 	@Check
-	def checkUIActionDeclaration(UIViewActionDeclaration action) {
+	def checkUIActionDeclaration(UIActionDeclaration action) {
 		if (action.transferAction.map !== null && action.transferAction.target !== null) {
 			if (!action.transferAction.target.^return.isEqual(action.^return.map.transfer)) {
 	            error("Action declaration must return a view that is mapped to the return type of the transfer action.",
@@ -2172,7 +2172,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 			UIViewTableDeclaration: featureTransfer = container.referenceType.map.transfer
 			UIMenuLinkDeclaration: featureTransfer = container.referenceType.map.transfer
 			UIMenuTableDeclaration: featureTransfer = container.referenceType.map.transfer
-			UIViewActionDeclaration: featureTransfer = container.parameterType.map.transfer
+			UIActionDeclaration: featureTransfer = container.parameterType.map.transfer
 		}
 		
 		if (!featureTransfer.isEqual(modifier.row.map.transfer)) {

@@ -46,7 +46,11 @@ ClassDeclaration
 //	| RowDeclaration
 	| ActorDeclaration
 	
-	| UIViewDeclaration
+	| UIComponentDeclaration
+	;
+
+UIComponentDeclaration
+	: UIViewDeclaration
 	| UIRowDeclaration
 	| UIMenuDeclaration
 	;
@@ -296,7 +300,11 @@ UIViewTableDeclaration
 	  SC
 	;
 
-UIViewActionDeclaration
+UIViewActionDeclaration returns UIActionDeclaration
+	: UIActionDeclaration
+	;
+
+UIActionDeclaration
 	: KW_ACTION (void ?= KW_VOID | return = [UIViewDeclaration | ModelName]) Named
 	  LP (parameterType = [UIViewDeclaration | ModelName] paramaterName = JSLID modifiers += SelectorTableModifier?)? RP
 	  LTE transferAction = TransferActionReference
@@ -346,6 +354,7 @@ UIRowDeclaration
 
 UIRowMemberDeclaration
 	: UIRowColumnDeclaration
+	| UIRowActionDeclaration
 	;
 
 UIRowColumnDeclaration
@@ -353,6 +362,10 @@ UIRowColumnDeclaration
 	  LTE transferField = TransferFieldReference
 	  modifiers += (VisualModifier)*
 	  SC
+	;
+
+UIRowActionDeclaration returns UIActionDeclaration
+	: UIActionDeclaration
 	;
 
 /****************************
