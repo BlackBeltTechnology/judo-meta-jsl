@@ -195,7 +195,7 @@ class ImportTests {
         '''.parse(resourceSet)
 
         a.assertNoErrors
-        b.assertSyntaxError("no viable alternative at input ';\\n'")
+        b.assertSyntaxError("no viable alternative at input ';'")
     }
 
 
