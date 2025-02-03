@@ -1217,7 +1217,7 @@ SelectorTableModifier
 	;
 
 ActionGroupModifier
-	: type = KW_ACTIONS COLON actionGroup = [UIActionGroupDeclaration | ModelName]
+	: type = KW_ACTIONS COLON BLOCK_START (actions += UIActionDeclaration)* BLOCK_END
 	;
 
 /****************************
@@ -1236,7 +1236,7 @@ BooleanLiteral
 	: {BooleanLiteral} (false?=KW_FALSE | true?=KW_TRUE)
 	;
 
-NumberLiteral
+NumberLiteral hidden(WS, ML_COMMENT, SL_COMMENT)
 	: IntegerLiteral
 	| DecimalLiteral
 	;
@@ -1488,7 +1488,7 @@ terminal BLOCK_START
 	;
 
 terminal BLOCK_END
-	: '}' WS? SC?
+	: '}'
 	;
 
 terminal fragment DIGIT
@@ -1544,7 +1544,7 @@ terminal SL_COMMENT
 	;
 
 terminal SC
-	: (';' WS?)+
+	: ';'+
 	;
 
 terminal WS
