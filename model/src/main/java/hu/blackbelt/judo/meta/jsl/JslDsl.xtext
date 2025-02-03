@@ -8,7 +8,7 @@ ModelDeclaration returns ModelDeclaration
       annotations += AnnotationMark*
       -> KW_MODEL name = ModelName SC
       imports += ModelImportDeclaration*
-	  (declarations += Declaration)*
+	  (declarations += Declaration SC?)*
     ;
 
 ModelImportDeclaration 
@@ -65,7 +65,7 @@ EntityDeclaration
 	  -> KW_ENTITY Named
 	  (KW_EXTENDS extends += [EntityDeclaration | ModelName] (COMMA extends += [EntityDeclaration | ModelName])*)?
 	  modifiers += (AbstractModifier)*
-	  (SC | BLOCK_START members += EntityMemberDeclaration* BLOCK_END SC?)
+	  (SC | BLOCK_START members += EntityMemberDeclaration* BLOCK_END)
 	;
 
 EntityMemberDeclaration
@@ -156,7 +156,7 @@ TransferDeclaration
 	  annotations += AnnotationMark*
 	  -> KW_TRANSFER Named
 	  MappedDeclaration
-	  (SC | BLOCK_START members += TransferMemberDeclaration* BLOCK_END SC?)
+	  (SC | BLOCK_START members += TransferMemberDeclaration* BLOCK_END)
 	;
 
 TransferMemberDeclaration
@@ -268,7 +268,7 @@ UIViewDeclaration
 	: (KW_VIEW | form ?= KW_FORM) Named
 	  map = TransferMapDeclaration
 	  modifiers += (DialogModifier)*
-	  (SC | BLOCK_START (members += UIViewMemberDeclaration)* BLOCK_END SC?)
+	  (SC | BLOCK_START (members += UIViewMemberDeclaration)* BLOCK_END)
 	;
 
 UIViewMemberDeclaration
@@ -356,7 +356,7 @@ UIViewTabsDeclaration returns UIViewPanelDeclaration
 UIRowDeclaration
 	: KW_TABLE Named
 	  map = TransferMapDeclaration
-	  (SC | BLOCK_START (members += UIRowMemberDeclaration)* BLOCK_END SC?)
+	  (SC | BLOCK_START (members += UIRowMemberDeclaration)* BLOCK_END)
 	;
 
 UIRowMemberDeclaration
@@ -391,7 +391,7 @@ ActorAccessReference
 UIMenuDeclaration
 	: KW_MENU Named
 	  map = ActorMapDeclaration
-	  (SC | BLOCK_START (members += UIMenuMemberDeclaration)* BLOCK_END SC?)
+	  (SC | BLOCK_START (members += UIMenuMemberDeclaration)* BLOCK_END)
 	;
 
 UIMenuMemberDeclaration
@@ -604,7 +604,7 @@ ActorDeclaration returns TransferDeclaration
 	  annotations += AnnotationMark*
 	  KW_ACTOR Named
 	  modifiers += (RealmModifier | ClaimModifier | IdentityModifier | GuardModifier)*
-	  (SC | BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END SC?)
+	  (SC | BLOCK_START (members += ActorMemberDeclaration)* BLOCK_END)
 	;
 
 ActorMemberDeclaration returns TransferMemberDeclaration
@@ -681,7 +681,7 @@ ErrorDeclaration returns TransferDeclaration
 	: {ErrorDeclaration}
 	  annotations += AnnotationMark*
 	  -> KW_ERROR Named
-	  (SC | BLOCK_START members += ErrorMemberDeclaration* BLOCK_END SC?)
+	  (SC | BLOCK_START members += ErrorMemberDeclaration* BLOCK_END)
 	;
 
 ErrorMemberDeclaration returns TransferMemberDeclaration
@@ -691,7 +691,8 @@ ErrorMemberDeclaration returns TransferMemberDeclaration
 
 ErrorField returns TransferFieldDeclaration
 	: {ErrorField}
-	  -> KW_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named modifiers += (DefaultModifier | RequiredModifier)*SC
+	  -> KW_FIELD referenceType = [PrimitiveDeclaration | ModelName] Named modifiers += (DefaultModifier | RequiredModifier)*
+	  SC
 	;
 
 //CreateError
@@ -731,7 +732,7 @@ MimeType
 EnumDeclaration
     : annotations += AnnotationMark*
       -> KW_ENUM Named
-      BLOCK_START (literals += EnumLiteral)* BLOCK_END SC?
+      BLOCK_START (literals += EnumLiteral)* BLOCK_END
     ;
 
 EnumLiteral
@@ -901,7 +902,7 @@ LambdaDeclaration
 AnnotationDeclaration
 	: -> KW_ANNOTATION Named (LP (parameters += AnnotationParameterDeclaration (COMMA parameters += AnnotationParameterDeclaration)*)? RP)?
 	  targets += AnnotationTarget*
-	  (SC | BLOCK_START annotations += AnnotationMark* BLOCK_END SC?)
+	  (SC | BLOCK_START annotations += AnnotationMark* BLOCK_END)
 	;
 
 AnnotationParameterDeclaration

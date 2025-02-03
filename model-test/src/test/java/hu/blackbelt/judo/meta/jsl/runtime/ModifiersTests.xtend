@@ -458,8 +458,8 @@ class ModifiersTests {
 				relation A[] alist;
 			}
 			transfer TA maps A as a {
-				event create ecreate();
-				event delete edelete();
+				event create ecreate;
+				event delete edelete;
 			}
 			transfer TB(B b) {
 				relation TA[] talist <= b.alist create:true delete:true update:true;

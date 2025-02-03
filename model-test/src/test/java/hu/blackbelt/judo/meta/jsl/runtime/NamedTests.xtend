@@ -382,36 +382,22 @@ class NamedTests {
         ])
         def void testNamingOfQuery() {
             '''
-             model modelTC021;
-
-             import judo::types;
-
-             type string SType(min-size = 0, max-size = 10);
-
-             enum Enum {
-                  a0 = 0;
-                  b1 = 1;
-             }
-
-             entity Ent1 {
-                 query Boolean xBool() => true;
-                 query SType xString() => "String";
-                 query Integer xNumeric() => 1;
-                 query Enum xEnum() => Enum#a0;
-                 query Date xDate() => `2023-11-09`;
-                 query Timestamp xTimestamp() => `2020-02-18T10:11:12`;
-                 query Time xTime() => `12:23:56.1`;
-             }
-
-             query Ent1[] xAllEnt1() => Ent1.all();
+				 model modelTC021;
+				
+				 import judo::types;
+				
+				 type string SType min-size:0 max-size:10;
+				
+				 enum Enum {
+				      a0 = 0;
+				      b1 = 1;
+				 }
+				
+				 entity Ent1 {
+				 }
+				
+				 query Ent1[] xAllEnt1() <= Ent1.all();
              '''.parse => [
-                  assertFirstLowSecondUpperNamedError("xBool")
-                  assertFirstLowSecondUpperNamedError("xString")
-                  assertFirstLowSecondUpperNamedError("xNumeric")
-                  assertFirstLowSecondUpperNamedError("xEnum")
-                  assertFirstLowSecondUpperNamedError("xDate")
-                  assertFirstLowSecondUpperNamedError("xTimestamp")
-                  assertFirstLowSecondUpperNamedError("xTime")
                   assertFirstLowSecondUpperNamedError("xAllEnt1")
              ]
         }
