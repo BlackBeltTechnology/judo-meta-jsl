@@ -84,6 +84,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorTableModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIComponentDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.ActionGroupModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIActionGroupDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -176,6 +178,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 			CreateFormModifier case ref == JsldslPackage::eINSTANCE.createFormModifier_Form: return scope.scope_FilterByForm(true)
 			UpdateViewModifier case ref == JsldslPackage::eINSTANCE.updateViewModifier_View: return scope.scope_FilterByForm(false)
+			ActionGroupModifier case ref == JsldslPackage::eINSTANCE.actionGroupModifier_ActionGroup: return scope.scope_Containments(context.parentContainer(UIComponentDeclaration), ref)
 
             Navigation: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
         }

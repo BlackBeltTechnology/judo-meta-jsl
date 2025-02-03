@@ -276,6 +276,7 @@ UIViewMemberDeclaration
 	| UIViewLinkDeclaration
 	| UIViewTableDeclaration
 	| UIViewActionDeclaration
+	| UIActionGroupDeclaration
 	| UIViewPanelDeclaration
 	;
 
@@ -296,7 +297,7 @@ UIViewLinkDeclaration
 UIViewTableDeclaration
 	: KW_TABLE referenceType = [UIRowDeclaration | ModelName] Named
 	  LTE transferRelation = TransferRelationReference
-	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier | SelectorTableModifier)*
+	  modifiers += (ActionGroupModifier | VisualModifier | CreateFormModifier | UpdateViewModifier | SelectorTableModifier)*
 	  SC
 	;
 
@@ -321,6 +322,12 @@ UIActionDeclaration
 //	  modifiers += (EnabledModifier | StaticModifier | VisualModifier | RedirectModifier | UpdateModifier | DeleteModifier)*
 //	  SC
 //	;
+
+UIActionGroupDeclaration
+	: KW_ACTIONS Named
+	  modifiers += VisualModifier*
+	  BLOCK_START (members += UIActionDeclaration)* BLOCK_END
+	;
 
 UIViewPanelDeclaration
 	: UIViewGroupDeclaration
@@ -1033,6 +1040,7 @@ Modifier
 	| CreateFormModifier
 	| UpdateViewModifier
 	| SelectorTableModifier
+	| ActionGroupModifier
 
 	| VisualModifier
 	;
@@ -1206,6 +1214,10 @@ UpdateViewModifier
 
 SelectorTableModifier
 	: type = KW_SELECTOR COLON row = [UIRowDeclaration | ModelName]
+	;
+
+ActionGroupModifier
+	: type = KW_ACTIONS COLON actionGroup = [UIActionGroupDeclaration | ModelName]
 	;
 
 /****************************
