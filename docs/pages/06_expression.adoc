@@ -335,6 +335,9 @@ Path for the current working directory: `String.getVariable(category = "ENVIRONM
 
 UID of running OS user: `Integer.getVariable(category = "ENVIRONMENT", key = "UID")`
 
+|`REQUEST`    |_any_
+|Get request variable from HTTP Header or URL Parameter
+
 |`ACTOR`|_claim name_
 |Returns a claim of current actor.
 
