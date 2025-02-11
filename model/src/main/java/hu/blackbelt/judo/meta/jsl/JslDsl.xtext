@@ -51,9 +51,10 @@ ClassDeclaration
 
 UIComponentDeclaration
 	: UIViewDeclaration
-	| UIRowDeclaration
+	| UIListItemDeclaration
 	| UIMenuDeclaration
 	;
+
 
 /****************************
  *	Entity
@@ -295,7 +296,7 @@ UIViewLinkDeclaration
 	;
 
 UIViewTableDeclaration
-	: KW_TABLE referenceType = [UIRowDeclaration | ModelName] Named
+	: KW_TABLE referenceType = [UIListItemDeclaration | ModelName] Cardinality Named
 	  LTE transferRelation = TransferRelationReference
 	  modifiers += (ActionGroupModifier | VisualModifier | CreateFormModifier | UpdateViewModifier | SelectorTableModifier)*
 	  SC
@@ -353,10 +354,13 @@ UIViewTabsDeclaration returns UIViewPanelDeclaration
  *	UIRow
  ****************************/
 
-UIRowDeclaration
-	: KW_TABLE Named
+UIListItemDeclaration
+	: {UIRowDeclaration} KW_ROW Named
 	  map = TransferMapDeclaration
 	  (SC | BLOCK_START (members += UIRowMemberDeclaration)* BLOCK_END)
+	| {UICardDeclaration} KW_CARD Named
+	  map = TransferMapDeclaration
+	  (SC | BLOCK_START (members += UIViewMemberDeclaration)* BLOCK_END)
 	;
 
 UIRowMemberDeclaration
@@ -410,7 +414,7 @@ UIMenuLinkDeclaration returns UIMenuMemberDeclaration
 
 UIMenuTableDeclaration returns UIMenuMemberDeclaration
 	: {UIMenuTableDeclaration}
-	  KW_TABLE referenceType = [UIRowDeclaration | ModelName] Named
+	  KW_TABLE referenceType = [UIListItemDeclaration | ModelName] Cardinality Named
 	  LTE actorAccess = ActorAccessReference
 	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier)*
 	  SC
@@ -1336,6 +1340,7 @@ JSLID: ID
 terminal KW_ACTOR:		'actor';
 terminal KW_ANNOTATION:	'annotation';
 terminal KW_AS:			'as';
+terminal KW_CARD:		'card';
 terminal KW_ENTITY:		'entity';
 terminal KW_ENUM:		'enum';
 terminal KW_ERROR:		'error';
