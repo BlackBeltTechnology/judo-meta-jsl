@@ -1055,6 +1055,7 @@ VisualModifier
 	| IconModifier
 	| HiddenModifier
 	| WidthModifier
+	| HelpModifier
 	;
 
 DefaultModifier
@@ -1135,6 +1136,10 @@ HiddenModifier
 
 WidthModifier
 	: type = KW_WIDTH COLON value = NaturalNumber
+	;
+
+HelpModifier
+	: type = KW_HELP COLON value = StringLiteral
 	;
 
 HAlignModifier
@@ -1430,6 +1435,7 @@ terminal KW_FRAME:		'frame';
 terminal KW_GUARD:		'guard';
 terminal KW_HIDDEN:		'hidden';
 terminal KW_HALIGN:	    'h-align';
+terminal KW_HELP:	    'help';
 terminal KW_ICON:		'icon';
 terminal KW_IDENTITY:	'identity';
 terminal KW_LABEL:		'label';
