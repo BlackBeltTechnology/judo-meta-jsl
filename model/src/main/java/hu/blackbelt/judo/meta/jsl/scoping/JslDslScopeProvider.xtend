@@ -86,6 +86,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.UIActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIComponentDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActionGroupModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIActionGroupDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TextModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.UITagDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -98,10 +100,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     @Inject extension JslDslModelExtension
 
     override getScope(EObject context, EReference ref) {
-//        System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
-//        "\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper
-//            + ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
-//        printParents(context)
+        System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
+        "\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper
+            + ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
+        printParents(context)
 
         var IScope scope = delegateGetScope(context, ref);
         scope = this.scope_FilterByReferenceType(scope, ref);
@@ -179,6 +181,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 			CreateFormModifier case ref == JsldslPackage::eINSTANCE.createFormModifier_Form: return scope.scope_FilterByForm(true)
 			UpdateViewModifier case ref == JsldslPackage::eINSTANCE.updateViewModifier_View: return scope.scope_FilterByForm(false)
 //			ActionGroupModifier case ref == JsldslPackage::eINSTANCE.actionGroupModifier_ActionGroup: return scope.scope_Containments(context.parentContainer(UIComponentDeclaration), ref)
+
+			TextModifier case ref == JsldslPackage::eINSTANCE.transferFieldReference_Map: return scope.scope_Containments(context.parentContainer(UITagDeclaration), ref)
 
             Navigation: return this.scope_Navigation(scope, ref, TypeInfo.getTargetType(context))
         }
