@@ -361,6 +361,11 @@ UIListItemDeclaration
 	| {UICardDeclaration} KW_CARD Named
 	  map = TransferMapDeclaration
 	  (SC | BLOCK_START (members += UIViewMemberDeclaration)* BLOCK_END)
+	| {UITagDeclaration} KW_TAG Named
+	  map = TransferMapDeclaration
+	  modifiers += (TextModifier)*
+	  SC
+	  
 	;
 
 UIRowMemberDeclaration
@@ -1095,7 +1100,7 @@ SelectorModifier
 	;
 
 TextModifier
-	: type = KW_TEXT COLON expression = Expression
+	: type = KW_TEXT COLON transferField = TransferFieldReference
 	;
 
 RealmModifier
@@ -1360,6 +1365,7 @@ terminal KW_MODEL:		'model';
 terminal KW_ON:			'on';
 terminal KW_QUERY:		'query';
 terminal KW_ROW:		'row';
+terminal KW_TAG:		'tag';
 terminal KW_TRANSFER:	'transfer';
 terminal KW_TYPE:		'type';
 terminal KW_UNION:		'union';
