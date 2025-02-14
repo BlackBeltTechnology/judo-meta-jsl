@@ -102,6 +102,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateViewModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorTableModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIActionDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.TextModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIRowDeclaration
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -2192,6 +2194,17 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 		if (relation.getModifier(JsldslPackage::eINSTANCE.choiceModifier) === null) {
             error("Referenced relation must have a choice attribute.",
+                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+	}
+
+	@Check
+	def checkTextModifier(TextModifier modifier) {
+		var TypeInfo modifierType = TypeInfo.getTargetType(modifier.transferField.target.referenceType);
+
+		if (!modifierType.isString) {
+            error("Text modifier must be string type.",
                 JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
 		}
