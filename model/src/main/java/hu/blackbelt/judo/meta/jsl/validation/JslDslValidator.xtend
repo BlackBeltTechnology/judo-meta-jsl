@@ -104,6 +104,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TextModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIRowDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.PredictiveModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.LocaleModifier
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -1924,16 +1926,10 @@ class JslDslValidator extends AbstractJslDslValidator {
 	
 	@Check
 	def checkLinesModifier(LinesModifier modifier) {
-		val TransferFieldDeclaration field = modifier.eContainer as TransferFieldDeclaration
+		val UIViewWidgetDeclaration widget = modifier.parentContainer(UIViewWidgetDeclaration);
 		
-		if (!(field.referenceType instanceof DataTypeDeclaration)) {
-            error("Lines modifier can only be used for string type fields.",
-                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
-                INVALID_DECLARATION)
-		}
-		
-		if (!(field.referenceType as DataTypeDeclaration).primitive.equals("string")) {
-            error("Lines modifier can only be used for string type fields.",
+		if (!TypeInfo.getTargetType(widget.referenceType).isString()) {
+            error("Lines modifier can be applied only on string widget.",
                 JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
 		}
@@ -2205,6 +2201,36 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 		if (!modifierType.isString) {
             error("Text modifier must be string type.",
+                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+	}
+
+	@Check
+	def checkPredicitiveModifier(PredictiveModifier modifier) {
+		val UIViewWidgetDeclaration widget = modifier.parentContainer(UIViewWidgetDeclaration);
+		
+		if (!TypeInfo.getTargetType(widget.referenceType).isString()) {
+            error("Predictive modifier can be applied only on string widget.",
+                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+
+		val LinesModifier linesModifier = widget.getModifier(JsldslPackage::eINSTANCE.linesModifier) as LinesModifier;
+		
+		if (linesModifier !== null && linesModifier.value.intValue > 1) {
+            error("Predictive modifier can be applied only on single line widget.",
+                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+                INVALID_DECLARATION)
+		}
+	}
+
+	@Check
+	def checkLocaleModifier(LocaleModifier modifier) {
+		val UIViewWidgetDeclaration widget = modifier.parentContainer(UIViewWidgetDeclaration);
+		
+		if (!TypeInfo.getTargetType(widget.referenceType).isNumeric()) {
+            error("Locale modifier can be applied only on numeric widget.",
                 JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
 		}

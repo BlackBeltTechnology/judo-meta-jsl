@@ -284,7 +284,7 @@ UIViewMemberDeclaration
 UIViewWidgetDeclaration
 	: KW_WIDGET referenceType = [PrimitiveDeclaration | ModelName] Named
 	  (LTE | bind = SSH) transferField = TransferFieldReference
-	  modifiers += (VisualModifier)*
+	  modifiers += (VisualModifier | LinesModifier | PredictiveModifier | LocaleModifier)*
 	  SC
 	;
 
@@ -1051,6 +1051,8 @@ Modifier
 	| UpdateViewModifier
 	| SelectorTableModifier
 	| ActionGroupModifier
+	| PredictiveModifier
+	| LocaleModifier
 
 	| VisualModifier
 	;
@@ -1201,6 +1203,14 @@ BulkModifier
 
 DialogModifier
 	: type = KW_DIALOG (COLON (false?=KW_FALSE | true?=KW_TRUE))?
+	;
+
+PredictiveModifier
+	: type = KW_PREDICTIVE (COLON (false?=KW_FALSE | true?=KW_TRUE))?
+	;
+
+LocaleModifier
+	: type = KW_LOCALE (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
 StaticModifier
@@ -1446,6 +1456,7 @@ terminal KW_ICON:		'icon';
 terminal KW_IDENTITY:	'identity';
 terminal KW_LABEL:		'label';
 terminal KW_LINES:		'lines';
+terminal KW_LOCALE:		'locale';
 terminal KW_MAXFILESIZE:'max-file-size';
 terminal KW_MAXSIZE:	'max-size';
 terminal KW_MINSIZE:	'min-size';
@@ -1454,6 +1465,7 @@ terminal KW_OPPOSITE:	'opposite';
 terminal KW_OPPOSITEADD:'opposite-add';
 terminal KW_ORIENTATION:'orientation';
 terminal KW_PRECISION:	'precision';
+terminal KW_PREDICTIVE:	'predictive';
 terminal KW_REALM:		'realm';
 terminal KW_REDIRECT:	'redirect';
 terminal KW_REGEX:		'regex';
