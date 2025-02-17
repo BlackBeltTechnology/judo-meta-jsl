@@ -1925,17 +1925,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 	}
 	
 	@Check
-	def checkLinesModifier(LinesModifier modifier) {
-		val UIViewWidgetDeclaration widget = modifier.parentContainer(UIViewWidgetDeclaration);
-		
-		if (!TypeInfo.getTargetType(widget.referenceType).isString()) {
-            error("Lines modifier can be applied only on string widget.",
-                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
-                INVALID_DECLARATION)
-		}
-	}
-	
-	@Check
 	def checkWidthModifier(WidthModifier modifier) {
 		val int value = modifier.value.intValue;
 		
@@ -2014,19 +2003,19 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 	}
 
-	@Check
-	def checkUIViewWidgetDeclaration(UIViewWidgetDeclaration widget) {
-		if (widget.transferField.map !== null && widget.transferField.target !== null) {
-			var TypeInfo fieldType = TypeInfo.getTargetType(widget.transferField.target.referenceType);
-			var TypeInfo widgetType = TypeInfo.getTargetType(widget.referenceType);
-			
-			if (!widgetType.isCompatible(fieldType)) {
-	            error("Widget declaration and the transfer field must have the same type.",
-	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
-	                INVALID_DECLARATION)
-			}
-		}
-	}
+//	@Check
+//	def checkUIViewWidgetDeclaration(UIViewWidgetDeclaration widget) {
+//		if (widget.transferField.map !== null && widget.transferField.target !== null) {
+//			var TypeInfo fieldType = TypeInfo.getTargetType(widget.transferField.target.referenceType);
+//			var TypeInfo widgetType = TypeInfo.getTargetType(widget.referenceType);
+//			
+//			if (!widgetType.isCompatible(fieldType)) {
+//	            error("Widget declaration and the transfer field must have the same type.",
+//	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+//	                INVALID_DECLARATION)
+//			}
+//		}
+//	}
 
 	@Check
 	def checkUIRowColumnWidgetDeclaration(UIRowColumnDeclaration column) {
@@ -2201,36 +2190,6 @@ class JslDslValidator extends AbstractJslDslValidator {
 
 		if (!modifierType.isString) {
             error("Text modifier must be string type.",
-                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
-                INVALID_DECLARATION)
-		}
-	}
-
-	@Check
-	def checkPredicitiveModifier(PredictiveModifier modifier) {
-		val UIViewWidgetDeclaration widget = modifier.parentContainer(UIViewWidgetDeclaration);
-		
-		if (!TypeInfo.getTargetType(widget.referenceType).isString()) {
-            error("Predictive modifier can be applied only on string widget.",
-                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
-                INVALID_DECLARATION)
-		}
-
-		val LinesModifier linesModifier = widget.getModifier(JsldslPackage::eINSTANCE.linesModifier) as LinesModifier;
-		
-		if (linesModifier !== null && linesModifier.value.intValue > 1) {
-            error("Predictive modifier can be applied only on single line widget.",
-                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
-                INVALID_DECLARATION)
-		}
-	}
-
-	@Check
-	def checkLocaleModifier(LocaleModifier modifier) {
-		val UIViewWidgetDeclaration widget = modifier.parentContainer(UIViewWidgetDeclaration);
-		
-		if (!TypeInfo.getTargetType(widget.referenceType).isNumeric()) {
-            error("Locale modifier can be applied only on numeric widget.",
                 JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
 		}
