@@ -84,10 +84,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionReference
 import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorTableModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIComponentDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.ActionGroupModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.UIActionGroupDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TextModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UITagDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.WidgetDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -100,10 +99,10 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
     @Inject extension JslDslModelExtension
 
     override getScope(EObject context, EReference ref) {
-         System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
-         "\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper
-             + ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
-         printParents(context)
+//         System.out.println("\u001B[0;32mJslDslLocalScopeProvider - Reference target: " + ref.EReferenceType.name + "\n\tdef scope_" + ref.EContainingClass.name + "_" + ref.name + "(" + context.eClass.name + " context, EReference ref)" +
+//         "\n\t" + context.eClass.name + " case ref == JsldslPackage::eINSTANCE." + ref.EContainingClass.name.toFirstLower + "_" + ref.name.toFirstUpper
+//             + ": return context.scope_" + ref.EContainingClass.name + "_" + ref.name + "(ref)\u001B[0m")
+//         printParents(context)
 
         var IScope scope = delegateGetScope(context, ref);
         scope = this.scope_FilterByReferenceType(scope, ref);
@@ -380,6 +379,7 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
                 TransferRelationDeclaration: return true
                 TransferMapDeclaration: return true
                 ActorMapDeclaration: return true
+                WidgetDeclaration: return true
                 
                 LambdaVariable: return context.parentContainer(LambdaCall).isEqual(obj.eContainer)
                 ParameterDeclaration: return context.parentContainer(ParameterDeclaration) === null && (context.isEqual(obj.eContainer) || EcoreUtil2.getAllContainers(context).exists[c | c.isEqual(obj.eContainer)])

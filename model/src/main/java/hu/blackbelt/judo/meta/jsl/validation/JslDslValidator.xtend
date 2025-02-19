@@ -84,7 +84,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnionMemberDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UnionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.RequiredModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.LinesModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeleteDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferUpdateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.ChoiceModifier
@@ -95,7 +94,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuLinkDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewLinkDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewWidgetDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIRowColumnDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateFormModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateViewModifier
@@ -103,9 +101,8 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.SelectorTableModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TextModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.UIRowDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.PredictiveModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.LocaleModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewWidgetDeclaration
+import hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.PrimitiveType
 
 class JslDslValidator extends AbstractJslDslValidator {
 
@@ -2003,19 +2000,29 @@ class JslDslValidator extends AbstractJslDslValidator {
 		}
 	}
 
-//	@Check
-//	def checkUIViewWidgetDeclaration(UIViewWidgetDeclaration widget) {
-//		if (widget.transferField.map !== null && widget.transferField.target !== null) {
-//			var TypeInfo fieldType = TypeInfo.getTargetType(widget.transferField.target.referenceType);
-//			var TypeInfo widgetType = TypeInfo.getTargetType(widget.referenceType);
-//			
-//			if (!widgetType.isCompatible(fieldType)) {
-//	            error("Widget declaration and the transfer field must have the same type.",
-//	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
-//	                INVALID_DECLARATION)
-//			}
-//		}
-//	}
+	@Check
+	def checkUIViewWidgetDeclaration(UIViewWidgetDeclaration widget) {
+		if (widget.transferField.map !== null && widget.transferField.target !== null) {
+			var TypeInfo fieldType = TypeInfo.getTargetType(widget.transferField.target.referenceType);
+			// KW_BINARY | KW_BOOLEAN | KW_STRING | KW_NUMERIC | KW_DATE | KW_TIME | KW_TIMESTAMP | KW_ENUM
+			
+			if (   (fieldType.binary && !widget.type.type.equals("binary"))
+				|| (fieldType.boolean && !widget.type.type.equals("boolean"))
+				|| (fieldType.string && !widget.type.type.equals("string"))
+				|| (fieldType.numeric && !widget.type.type.equals("numeric"))
+				|| (fieldType.date && !widget.type.type.equals("date"))
+				|| (fieldType.time && !widget.type.type.equals("time"))
+				|| (fieldType.timestamp && !widget.type.type.equals("timestamp"))
+				|| (fieldType.enum && !widget.type.type.equals("enum"))
+				)
+			
+			{
+	            error("Widget is not compatible with the transfer field.",
+	                JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
+	                INVALID_DECLARATION)
+			}
+		}
+	}
 
 	@Check
 	def checkUIRowColumnWidgetDeclaration(UIRowColumnDeclaration column) {

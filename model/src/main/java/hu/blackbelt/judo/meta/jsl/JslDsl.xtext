@@ -17,6 +17,7 @@ ModelImportDeclaration
 
 Declaration
 	: TypeDeclaration
+	| WidgetDeclaration
 	| ErrorDeclaration
 	| FunctionOrQueryDeclaration
 	| LambdaDeclaration
@@ -245,6 +246,16 @@ TransferInitializeDeclaration returns TransferEventDeclaration
 	;
 
 /****************************
+ *	Widget
+ ****************************/
+
+WidgetDeclaration
+	: KW_WIDGET
+	  type = (KW_BINARY | KW_BOOLEAN | KW_STRING | KW_NUMERIC | KW_DATE | KW_TIME | KW_TIMESTAMP | KW_ENUM)
+	  Named
+	;
+
+/****************************
  *	UIView
  ****************************/
 
@@ -282,29 +293,14 @@ UIViewMemberDeclaration
 	;
 
 UIViewWidgetDeclaration
-	: {UIViewTextDeclaration} KW_WIDGET type = KW_STRING Named
-	  (LTE | bind = SSH) transferField = TransferFieldReference
-	  modifiers += (VisualModifier | LinesModifier | PredictiveModifier)*
-	  SC
-
-	| {UIViewNumericDeclaration} KW_WIDGET type = KW_NUMERIC Named
-	  (LTE | bind = SSH) transferField = TransferFieldReference
-	  modifiers += (VisualModifier | LocaleModifier)*
-	  SC
-
-	| {UIViewComboDeclaration} KW_WIDGET type = KW_COMBO Named
-	  (LTE | bind = SSH) transferField = TransferFieldReference
-	  modifiers += (VisualModifier)*
-	  SC
-
-	| {UIViewRadioDeclaration} KW_WIDGET type = KW_RADIO Named
+	: KW_WIDGET type = [WidgetDeclaration | ModelName] Named
 	  (LTE | bind = SSH) transferField = TransferFieldReference
 	  modifiers += (VisualModifier)*
 	  SC
 	;
 
 UIViewLinkDeclaration
-	: KW_LINK referenceType = [UIViewDeclaration | ModelName] Named
+	: (KW_LINK | button ?= KW_BUTTON) referenceType = [UIViewDeclaration | ModelName] Named
 	  LTE transferRelation = TransferRelationReference
 	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier | SelectorTableModifier)*
 	  SC
@@ -1051,7 +1047,6 @@ Modifier
 	| RegexModifier
 	| PrecisionModifier
 	| ScaleModifier
-	| LinesModifier
 	| MimeTypesModifier
 	| MaxFileSizeModifier
 	| EagerModifier
@@ -1065,8 +1060,6 @@ Modifier
 	| UpdateViewModifier
 	| SelectorTableModifier
 	| ActionGroupModifier
-	| PredictiveModifier
-	| LocaleModifier
 
 	| VisualModifier
 	;
@@ -1076,6 +1069,7 @@ VisualModifier
 	| IconModifier
 	| HiddenModifier
 	| WidthModifier
+	| HeightModifier
 	| HelpModifier
 	;
 
@@ -1195,7 +1189,7 @@ ScaleModifier
 	: type = KW_SCALE COLON value = NaturalNumber
 	;
 
-LinesModifier
+HeightModifier
 	: type = KW_LINES COLON value = NaturalNumber
 	;
 
@@ -1217,14 +1211,6 @@ BulkModifier
 
 DialogModifier
 	: type = KW_DIALOG (COLON (false?=KW_FALSE | true?=KW_TRUE))?
-	;
-
-PredictiveModifier
-	: type = KW_PREDICTIVE (COLON (false?=KW_FALSE | true?=KW_TRUE))?
-	;
-
-LocaleModifier
-	: type = KW_LOCALE (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
 StaticModifier
@@ -1399,6 +1385,7 @@ terminal KW_VIEW:		'view';
 terminal KW_ACCESS:		'access';
 terminal KW_ACTION:		'action';
 terminal KW_ACTIONS:	'actions';
+terminal KW_BUTTON:		'button';
 terminal KW_CONSTRAINT:	'constraint';
 terminal KW_CREATE:		'create';   // no highlight
 terminal KW_COLUMN:		'column';   // no highlight
