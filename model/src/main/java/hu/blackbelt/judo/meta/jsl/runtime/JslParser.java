@@ -99,8 +99,11 @@ public class JslParser {
             for (Resource resource : xtextResourceSet.getResources()) {
                 XtextResource jslResource = (XtextResource) resource;
                 final IResourceValidator validator = jslResource.getResourceServiceProvider().getResourceValidator();
-                errors.put(jslResource.getParseResult(), validator.validate(jslResource, CheckMode.ALL, CancelIndicator.NullImpl)
-                        .stream().filter(i -> i.getSeverity() == Severity.ERROR).collect(Collectors.toList()));
+                final Collection<Issue> validationErrors = validator.validate(jslResource, CheckMode.ALL, CancelIndicator.NullImpl)
+                        .stream().filter(i -> i.getSeverity() == Severity.ERROR).collect(Collectors.toList());
+                if (validationErrors.size() > 0) {
+                    errors.put(jslResource.getParseResult(), validationErrors);
+                }
             }
 
             if (errors.size() > 0) {

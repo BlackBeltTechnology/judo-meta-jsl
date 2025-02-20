@@ -201,8 +201,11 @@ public abstract class AbstractJslDslProjectMojo extends AbstractMojo {
         for (ModelDeclaration modelDeclaration : modulesToProcess) {
             XtextResource jslResource = (XtextResource) modelDeclaration.eResource();
             final IResourceValidator validator = jslResource.getResourceServiceProvider().getResourceValidator();
-            errors.put(jslResource.getParseResult(), validator.validate(jslResource, CheckMode.ALL, CancelIndicator.NullImpl)
-                    .stream().filter(i -> i.getSeverity() == Severity.ERROR).collect(Collectors.toList()));
+            final Collection<Issue> validationErrors = validator.validate(jslResource, CheckMode.ALL, CancelIndicator.NullImpl)
+                    .stream().filter(i -> i.getSeverity() == Severity.ERROR).collect(Collectors.toList());
+            if (validationErrors.size() > 0) {
+                errors.put(jslResource.getParseResult(), validationErrors);
+            }
         }
 
         try {
