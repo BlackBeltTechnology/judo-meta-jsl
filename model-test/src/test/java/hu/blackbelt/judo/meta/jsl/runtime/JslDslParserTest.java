@@ -117,10 +117,10 @@ public class JslDslParserTest {
             JslParser.loadJslFromFile(Arrays.asList(new File( "src/test/resources/sample-invalid.jsl")));
         });
 
-        assertThat(exception.getMessage().replace("\t", "").replace("\n", ""), matchesPattern("^Error parsing JSL expression"
-                + "Couldn't resolve reference to Persistable 'String2'. in "
+        assertThat(exception.getMessage().replace("\t", "").replace("\n", ""), matchesPattern(
+                "^Couldn't resolve reference to Persistable 'String2'. in "
                 + "(.*)"
-                + "#//@declarations.0/@members.0 at \\[4, 8\\]"));
+                + " at \\[4, 8\\]field String2 firstName;(.*)"));
 
     }
 

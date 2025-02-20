@@ -21,44 +21,64 @@ package hu.blackbelt.judo.meta.jsl.runtime;
  */
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
+import org.eclipse.xtext.nodemodel.INode;
+import org.eclipse.xtext.parser.IParseResult;
 import org.eclipse.xtext.validation.Issue;
 
 @SuppressWarnings("serial")
 public class JslParseException extends RuntimeException {
 
-    private final Collection<Issue> errors;
+    private final Map<IParseResult, Collection<Issue>> errors;
 
-    public JslParseException(String jslExpression, Collection<Issue> errors) {
+    public JslParseException(String jslExpression, Map<IParseResult, Collection<Issue>> errors) {
         super("Error parsing JSL expression (" + jslExpression + ")");
         this.errors = errors;
     }
 
-    public JslParseException(Collection<Issue> errors) {
+    public JslParseException(Map<IParseResult, Collection<Issue>> errors) {
         super("Error parsing JSL expression");
         this.errors = errors;
     }
 
-    public Collection<Issue> getErrors() {
+    public Map<IParseResult, Collection<Issue>> getErrors() {
         return errors;
     }
 
     @Override
     public String getMessage() {
         StringBuilder sb = new StringBuilder();
-
-        sb.append(super.getMessage());
-
-        for (Issue error : errors) {
-            sb.append("\n\t" + error.getMessage());
-            //sb.append(" " + error.getCode() + " ");
-            sb.append(" in " + error.getUriToProblem());
-
-            if (error.getLineNumber() != null && error.getLineNumber() > 0) {
-                sb.append(" at [" + error.getLineNumber() + ", " + error.getColumn() +  "]");
-            }
+        if (errors == null || errors.size() == 0) {
+            sb.append(super.getMessage());
         }
+        errors.entrySet().stream().forEach(e -> {
+            IParseResult parseResult = e.getKey();
+            Collection<Issue> issues = e.getValue();
 
+            for (Issue error : issues) {
+                sb.append(error.getMessage());
+                String errorLocation = error.getUriToProblem().toString();
+                if (errorLocation.contains("#")) {
+                    errorLocation = errorLocation.split("#")[0];
+                }
+                sb.append(" in " + errorLocation);
+                if (error.getLineNumber() != null && error.getLineNumber() > 0) {
+                    sb.append(" at [" + error.getLineNumber() + ", " + error.getColumn() +  "]\n");
+                }
+                StringBuilder line = new StringBuilder();
+                for (INode x : parseResult.getRootNode().getLeafNodes()) {
+                    if (x.getStartLine() == error.getLineNumber()) {
+                        line.append(x.getText());
+                    }
+                }
+                sb.append("\t" + line);
+                sb.append("\t" + (" ".repeat(error.getColumn() - 2)) + ("^".repeat(error.getColumnEnd() - error.getColumn())));
+                sb.append("\n\n");
+            }
+
+        });
         return sb.toString();
     }
 }
