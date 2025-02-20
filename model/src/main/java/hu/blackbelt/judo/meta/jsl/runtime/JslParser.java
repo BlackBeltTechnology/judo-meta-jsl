@@ -35,6 +35,7 @@ import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.xtext.diagnostics.Severity;
+import org.eclipse.xtext.parser.IParseResult;
 import org.eclipse.xtext.resource.IResourceFactory;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
@@ -87,7 +88,7 @@ public class JslParser {
         final long startTs = System.currentTimeMillis();
         try {
             final XtextResourceSet xtextResourceSet =  injector().getInstance(XtextResourceSet.class);
-            final List<Issue> errors = new ArrayList<>();
+            final Map<IParseResult, Collection<Issue>> errors = new HashMap<>();
 
             for (JslStreamSource stream : streams) {
                 final XtextResource jslResource = (XtextResource) xtextResourceSet
@@ -98,9 +99,8 @@ public class JslParser {
             for (Resource resource : xtextResourceSet.getResources()) {
                 XtextResource jslResource = (XtextResource) resource;
                 final IResourceValidator validator = jslResource.getResourceServiceProvider().getResourceValidator();
-                errors.addAll(validator.validate(jslResource, CheckMode.ALL, CancelIndicator.NullImpl)
+                errors.put(jslResource.getParseResult(), validator.validate(jslResource, CheckMode.ALL, CancelIndicator.NullImpl)
                         .stream().filter(i -> i.getSeverity() == Severity.ERROR).collect(Collectors.toList()));
-
             }
 
             if (errors.size() > 0) {
