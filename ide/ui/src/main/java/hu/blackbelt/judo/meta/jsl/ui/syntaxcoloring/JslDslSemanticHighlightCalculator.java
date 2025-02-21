@@ -46,23 +46,23 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
 
 	static Set<String> declarartions = Sets.newHashSet("KW_ACTOR", "KW_ANNOTATION", "KW_AS", "KW_CARD", "KW_ENTITY", "KW_ENUM", "KW_ERROR",
 								"KW_EXTENDS", "KW_FORM", "KW_FUNCTION", "KW_HUMAN", "KW_IMPORT", "KW_LAMBDA", "KW_MAPS", "KW_MENU",
-								"KW_MODEL", "KW_ON", "KW_QUERY", "KW_ROW", "KW_TRANSFER", "KW_TAG", "KW_TYPE", "KW_UNION", "KW_VIEW");
+								"KW_MODEL", "KW_ON", "KW_QUERY", "KW_ROW", "KW_TRANSFER", "KW_TAG", "KW_TYPE", "KW_UNION", "KW_VIEW", "KW_WIDGET");
 	
 	static Set<String> operators = Sets.newHashSet("KW_NOT", "KW_IMPLIES", "KW_OR", "KW_XOR", "KW_AND", "KW_DIV", "KW_MOD");
 
-	static Set<String> constants = Sets.newHashSet("KW_AFTER", "KW_BEFORE", "KW_BINARY", "KW_BOOLEAN", "KW_BOTTOM", "KW_CENTER", "KW_COLLECTION", 
-								"KW_CONSTANT", "KW_CREATE", "KW_DATE", "KW_DELETE", "KW_DECLARATION", "KW_FALSE", "KW_FETCH", "KW_HORIZONTAL", "KW_INITIALIZE",
-								"KW_LEFT", "KW_NUMERIC", "KW_RIGHT", "KW_STRING", "KW_TIME", "KW_TIMESTAMP", "KW_TOP", "KW_TRUE", "KW_UPDATE", "KW_VERTICAL",
+	static Set<String> constants = Sets.newHashSet("KW_AFTER", "KW_BEFORE", "KW_BINARY", "KW_BOOLEAN", "KW_BOTTOM", "KW_CENTER", "KW_COMBO" ,"KW_COLLECTION", 
+								"KW_CONSTANT", "KW_CREATE", "KW_DATE", "KW_DELETE", "KW_DECLARATION", "KW_ENUM", "KW_FALSE", "KW_FETCH", "KW_HORIZONTAL", "KW_INITIALIZE",
+								"KW_LEFT", "KW_NUMERIC", "KW_RADIO", "KW_RIGHT", "KW_STRING", "KW_TEXT", "KW_TIME", "KW_TIMESTAMP", "KW_TOP", "KW_TRUE", "KW_UPDATE", "KW_VERTICAL",
 								"KW_VOID", "KW_KB", "KW_MB", "KW_GB", "KW_KIB", "KW_MIB", "KW_GIB");
 
-    static Set<String> features = Sets.newHashSet("KW_ACCESS", "KW_ACTION", "KW_ACTIONS", "KW_COLUMN", "KW_CONSTRAINT", "KW_COLUMN", "KW_EVENT",
+    static Set<String> features = Sets.newHashSet("KW_ACCESS", "KW_ACTION", "KW_ACTIONS", "KW_BUTTON", "KW_COLUMN", "KW_CONSTRAINT", "KW_COLUMN", "KW_EVENT",
     							"KW_FIELD", "KW_GROUP", "KW_IDENTIFIER", "KW_LINK", "KW_LITERAL",
     							"KW_RELATION", "KW_SUBMIT", "KW_TABLE", "KW_TABS", "KW_TEXT", "KW_THROWS", "KW_WIDGET");
 
     static Set<String> attributes = Sets.newHashSet("KW_ABSTRACT", "KW_BIND", "KW_BULK", "KW_CHOICES", "KW_CLAIM", "KW_CREATE", "KW_DEFAULT", "KW_DETAIL",
     		 					"KW_DELETE", "KW_DIALOG", "KW_EAGER", "KW_ENABLED", "KW_FORM", "KW_FRAME", "KW_GUARD", "KW_HELP", "KW_HIDDEN",
     							"KW_HALIGN", "KW_HUMAN", "KW_ICON", "KW_IDENTITY", "KW_LABEL", "KW_LINES", "KW_MAXFILESIZE", "KW_MAXSIZE", "KW_MINSIZE", "KW_MIMETYPE", "KW_ON",
-    							"KW_OPPOSITE", "KW_OPPOSITEADD", "KW_ORIENTATION", "KW_PRECISION", "KW_REALM", "KW_REDIRECT", "KW_REGEX", "KW_REQUIRED",
+    							"KW_OPPOSITE", "KW_OPPOSITEADD", "KW_ORIENTATION", "KW_PRECISION", "KW_PREDICTIVE", "KW_REALM", "KW_REDIRECT", "KW_REGEX", "KW_REQUIRED",
     							"KW_ROWS", "KW_SELECTOR", "KW_SCALE", "KW_STATIC", "KW_STRETCH", "KW_TEXT", "KW_THROW",  "KW_UPDATE", "KW_VALIGN", "KW_VIEW", "KW_WIDTH");
 
     @Override
@@ -140,7 +140,8 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
                     }
 
                 	if (declarartions.contains(ruleName)) {
-                		if (node.getSemanticElement().eContainer() == null || node.getSemanticElement().eContainer() instanceof ModelDeclaration) {
+                		if ((node.getSemanticElement().eContainer() == null || node.getSemanticElement().eContainer() instanceof ModelDeclaration)
+                				&& !(nodeGElem.eContainer().eContainer() instanceof Assignment)) {
 	                    	acceptor.addPosition(node.getOffset(), node.getLength(),
 	                        HighlightingConfiguration.KEYWORD_ID);
 	                        continue;
