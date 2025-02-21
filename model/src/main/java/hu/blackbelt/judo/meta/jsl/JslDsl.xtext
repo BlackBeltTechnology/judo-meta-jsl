@@ -727,14 +727,15 @@ ErrorField returns TransferFieldDeclaration
  ****************************/
 
 DataTypeDeclaration
-    : KW_TYPE
-      ( {DataBooleanDeclaration}   primitive = KW_BOOLEAN Named
-      | {DataBinrayDeclaration}    primitive = KW_BINARY Named modifiers += (MimeTypesModifier | MaxFileSizeModifier)*
-      | {DataStringDeclaration}    primitive = KW_STRING Named modifiers += (MinSizeModifier | MaxSizeModifier | RegexModifier)*
-      | {DataNumericDeclaration}   primitive = KW_NUMERIC Named modifiers += (PrecisionModifier | ScaleModifier)*
-      | {DataDateDeclaration}      primitive = KW_DATE Named
-      | {DataTimeDeclaration}      primitive = KW_TIME Named
-      | {DataTimestampDeclaration} primitive = KW_TIMESTAMP Named
+    : annotations += AnnotationMark*
+      -> KW_TYPE
+      ( primitive = KW_BOOLEAN Named
+      | primitive = KW_BINARY Named modifiers += (MimeTypesModifier | MaxFileSizeModifier)*
+      | primitive = KW_STRING Named modifiers += (MinSizeModifier | MaxSizeModifier | RegexModifier)*
+      | primitive = KW_NUMERIC Named modifiers += (PrecisionModifier | ScaleModifier)*
+      | primitive = KW_DATE Named
+      | primitive = KW_TIME Named
+      | primitive = KW_TIMESTAMP Named
       )
       SC
     ;
@@ -1459,7 +1460,6 @@ terminal KW_ICON:		'icon';
 terminal KW_IDENTITY:	'identity';
 terminal KW_LABEL:		'label';
 terminal KW_LINES:		'lines';
-terminal KW_LOCALE:		'locale';
 terminal KW_MAXFILESIZE:'max-file-size';
 terminal KW_MAXSIZE:	'max-size';
 terminal KW_MINSIZE:	'min-size';
