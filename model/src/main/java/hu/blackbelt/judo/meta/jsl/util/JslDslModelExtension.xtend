@@ -59,11 +59,9 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget
 import hu.blackbelt.judo.meta.jsl.jsldsl.RequiredModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.AbstractModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferEventDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.StaticModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.BulkModifier
 
 @Singleton
 class JslDslModelExtension {

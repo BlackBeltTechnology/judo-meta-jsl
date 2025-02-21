@@ -17,6 +17,7 @@ ModelImportDeclaration
 
 Declaration
 	: TypeDeclaration
+	| WidgetDeclaration
 	| ErrorDeclaration
 	| FunctionOrQueryDeclaration
 	| LambdaDeclaration
@@ -245,6 +246,16 @@ TransferInitializeDeclaration returns TransferEventDeclaration
 	;
 
 /****************************
+ *	Widget
+ ****************************/
+
+WidgetDeclaration
+	: KW_WIDGET
+	  type = (KW_BINARY | KW_BOOLEAN | KW_STRING | KW_NUMERIC | KW_DATE | KW_TIME | KW_TIMESTAMP | KW_ENUM)
+	  Named
+	;
+
+/****************************
  *	UIView
  ****************************/
 
@@ -282,14 +293,14 @@ UIViewMemberDeclaration
 	;
 
 UIViewWidgetDeclaration
-	: KW_WIDGET referenceType = [PrimitiveDeclaration | ModelName] Named
+	: KW_WIDGET type = [WidgetDeclaration | ModelName] Named
 	  (LTE | bind = SSH) transferField = TransferFieldReference
 	  modifiers += (VisualModifier)*
 	  SC
 	;
 
 UIViewLinkDeclaration
-	: KW_LINK referenceType = [UIViewDeclaration | ModelName] Named
+	: (KW_LINK | button ?= KW_BUTTON) referenceType = [UIViewDeclaration | ModelName] Named
 	  LTE transferRelation = TransferRelationReference
 	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier | SelectorTableModifier)*
 	  SC
@@ -716,15 +727,14 @@ ErrorField returns TransferFieldDeclaration
  ****************************/
 
 DataTypeDeclaration
-    : annotations += AnnotationMark*
-      -> KW_TYPE
-      ( primitive = KW_BOOLEAN Named
-      | primitive = KW_BINARY Named modifiers += (MimeTypesModifier | MaxFileSizeModifier)*
-      | primitive = KW_STRING Named modifiers += (MinSizeModifier | MaxSizeModifier | RegexModifier)*
-      | primitive = KW_NUMERIC Named modifiers += (PrecisionModifier | ScaleModifier)*
-      | primitive = KW_DATE Named
-      | primitive = KW_TIME Named
-      | primitive = KW_TIMESTAMP Named
+    : KW_TYPE
+      ( {DataBooleanDeclaration}   primitive = KW_BOOLEAN Named
+      | {DataBinrayDeclaration}    primitive = KW_BINARY Named modifiers += (MimeTypesModifier | MaxFileSizeModifier)*
+      | {DataStringDeclaration}    primitive = KW_STRING Named modifiers += (MinSizeModifier | MaxSizeModifier | RegexModifier)*
+      | {DataNumericDeclaration}   primitive = KW_NUMERIC Named modifiers += (PrecisionModifier | ScaleModifier)*
+      | {DataDateDeclaration}      primitive = KW_DATE Named
+      | {DataTimeDeclaration}      primitive = KW_TIME Named
+      | {DataTimestampDeclaration} primitive = KW_TIMESTAMP Named
       )
       SC
     ;
@@ -1037,7 +1047,6 @@ Modifier
 	| RegexModifier
 	| PrecisionModifier
 	| ScaleModifier
-	| LinesModifier
 	| MimeTypesModifier
 	| MaxFileSizeModifier
 	| EagerModifier
@@ -1060,6 +1069,7 @@ VisualModifier
 	| IconModifier
 	| HiddenModifier
 	| WidthModifier
+	| HeightModifier
 	| HelpModifier
 	;
 
@@ -1179,7 +1189,7 @@ ScaleModifier
 	: type = KW_SCALE COLON value = NaturalNumber
 	;
 
-LinesModifier
+HeightModifier
 	: type = KW_LINES COLON value = NaturalNumber
 	;
 
@@ -1375,6 +1385,7 @@ terminal KW_VIEW:		'view';
 terminal KW_ACCESS:		'access';
 terminal KW_ACTION:		'action';
 terminal KW_ACTIONS:	'actions';
+terminal KW_BUTTON:		'button';
 terminal KW_CONSTRAINT:	'constraint';
 terminal KW_CREATE:		'create';   // no highlight
 terminal KW_COLUMN:		'column';   // no highlight
@@ -1404,6 +1415,7 @@ terminal KW_BINARY:		'binary';
 terminal KW_BOOLEAN:	'boolean';
 terminal KW_BOTTOM:		'bottom';
 terminal KW_CENTER:		'center';
+terminal KW_COMBO:		'combo';
 terminal KW_COLLECTION:	'collection';
 terminal KW_CONSTANT:	'constant';
 terminal KW_DATE:		'date';
@@ -1412,6 +1424,7 @@ terminal KW_FALSE:		'false';  // not ID
 terminal KW_HORIZONTAL: 'horizontal';
 terminal KW_LEFT:		'left';
 terminal KW_NUMERIC:	'numeric';
+terminal KW_RADIO:		'radio';
 terminal KW_RIGHT:		'right';
 terminal KW_STRING:		'string';
 terminal KW_TIME:		'time';
@@ -1446,6 +1459,7 @@ terminal KW_ICON:		'icon';
 terminal KW_IDENTITY:	'identity';
 terminal KW_LABEL:		'label';
 terminal KW_LINES:		'lines';
+terminal KW_LOCALE:		'locale';
 terminal KW_MAXFILESIZE:'max-file-size';
 terminal KW_MAXSIZE:	'max-size';
 terminal KW_MINSIZE:	'min-size';
@@ -1454,6 +1468,7 @@ terminal KW_OPPOSITE:	'opposite';
 terminal KW_OPPOSITEADD:'opposite-add';
 terminal KW_ORIENTATION:'orientation';
 terminal KW_PRECISION:	'precision';
+terminal KW_PREDICTIVE:	'predictive';
 terminal KW_REALM:		'realm';
 terminal KW_REDIRECT:	'redirect';
 terminal KW_REGEX:		'regex';
