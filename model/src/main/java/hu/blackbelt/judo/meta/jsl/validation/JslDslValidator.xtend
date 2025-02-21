@@ -102,7 +102,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.TransferCreateDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TextModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewWidgetDeclaration
-import hu.blackbelt.judo.meta.jsl.runtime.TypeInfo.PrimitiveType
 
 class JslDslValidator extends AbstractJslDslValidator {
 

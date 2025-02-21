@@ -295,7 +295,7 @@ UIViewMemberDeclaration
 UIViewWidgetDeclaration
 	: KW_WIDGET type = [WidgetDeclaration | ModelName] Named
 	  (LTE | bind = SSH) transferField = TransferFieldReference
-	  modifiers += (VisualModifier)*
+	  modifiers += (VisualModifier | PredictiveModifier)*
 	  SC
 	;
 
@@ -1061,6 +1061,7 @@ Modifier
 	| UpdateViewModifier
 	| SelectorTableModifier
 	| ActionGroupModifier
+	| PredictiveModifier
 
 	| VisualModifier
 	;
@@ -1188,6 +1189,10 @@ PrecisionModifier
 
 ScaleModifier
 	: type = KW_SCALE COLON value = NaturalNumber
+	;
+
+PredictiveModifier
+	: type = KW_PREDICTIVE (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
 HeightModifier
