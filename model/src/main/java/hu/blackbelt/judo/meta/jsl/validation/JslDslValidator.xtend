@@ -1925,7 +1925,7 @@ class JslDslValidator extends AbstractJslDslValidator {
 		val int value = modifier.value.intValue;
 		
 		if (value < 1 || value > 12) {
-            error("Width modifier must be an integer value between 1 and 12.",
+            error("Width modifier must be an integer value between (and including) 1 and 12.",
                 JsldslPackage::eINSTANCE.modifier.getEStructuralFeature("ID"),
                 INVALID_DECLARATION)
 		}
