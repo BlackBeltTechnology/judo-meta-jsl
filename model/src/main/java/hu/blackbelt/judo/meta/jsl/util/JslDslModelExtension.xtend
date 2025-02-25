@@ -59,11 +59,11 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.NavigationTarget
 import hu.blackbelt.judo.meta.jsl.jsldsl.RequiredModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.BooleanLiteral
 import hu.blackbelt.judo.meta.jsl.jsldsl.AbstractModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.TransferEventDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferActionDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.StaticModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateModifier
-import hu.blackbelt.judo.meta.jsl.jsldsl.BulkModifier
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewWidgetDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.PredictiveModifier
 
 @Singleton
 class JslDslModelExtension {
@@ -639,5 +639,10 @@ class JslDslModelExtension {
     def boolean isStatic(TransferActionDeclaration it) {
     	val StaticModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.staticModifier) as StaticModifier
     	return modifier !== null && !modifier.isFalse
-	}    	
+	}
+	
+	def boolean isPredictive(UIViewWidgetDeclaration it) {
+        val PredictiveModifier modifier = it.getModifier(JsldslPackage::eINSTANCE.predictiveModifier) as PredictiveModifier
+        return modifier !== null && !modifier.isFalse
+    }
 }

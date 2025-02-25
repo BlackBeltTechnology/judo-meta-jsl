@@ -17,6 +17,7 @@ ModelImportDeclaration
 
 Declaration
 	: TypeDeclaration
+	| WidgetDeclaration
 	| ErrorDeclaration
 	| FunctionOrQueryDeclaration
 	| LambdaDeclaration
@@ -245,6 +246,16 @@ TransferInitializeDeclaration returns TransferEventDeclaration
 	;
 
 /****************************
+ *	Widget
+ ****************************/
+
+WidgetDeclaration
+	: KW_WIDGET
+	  type = (KW_BINARY | KW_BOOLEAN | KW_STRING | KW_NUMERIC | KW_DATE | KW_TIME | KW_TIMESTAMP | KW_ENUM)
+	  Named
+	;
+
+/****************************
  *	UIView
  ****************************/
 
@@ -282,14 +293,14 @@ UIViewMemberDeclaration
 	;
 
 UIViewWidgetDeclaration
-	: KW_WIDGET referenceType = [PrimitiveDeclaration | ModelName] Named
+	: KW_WIDGET type = [WidgetDeclaration | ModelName] Named
 	  (LTE | bind = SSH) transferField = TransferFieldReference
-	  modifiers += (VisualModifier)*
+	  modifiers += (VisualModifier | PredictiveModifier)*
 	  SC
 	;
 
 UIViewLinkDeclaration
-	: KW_LINK referenceType = [UIViewDeclaration | ModelName] Named
+	: (KW_LINK | button ?= KW_BUTTON) referenceType = [UIViewDeclaration | ModelName] Named
 	  LTE transferRelation = TransferRelationReference
 	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier | SelectorTableModifier)*
 	  SC
@@ -1037,7 +1048,6 @@ Modifier
 	| RegexModifier
 	| PrecisionModifier
 	| ScaleModifier
-	| LinesModifier
 	| MimeTypesModifier
 	| MaxFileSizeModifier
 	| EagerModifier
@@ -1051,6 +1061,7 @@ Modifier
 	| UpdateViewModifier
 	| SelectorTableModifier
 	| ActionGroupModifier
+	| PredictiveModifier
 
 	| VisualModifier
 	;
@@ -1060,6 +1071,7 @@ VisualModifier
 	| IconModifier
 	| HiddenModifier
 	| WidthModifier
+	| HeightModifier
 	| HelpModifier
 	;
 
@@ -1179,7 +1191,11 @@ ScaleModifier
 	: type = KW_SCALE COLON value = NaturalNumber
 	;
 
-LinesModifier
+PredictiveModifier
+	: type = KW_PREDICTIVE (COLON (false?=KW_FALSE | true?=KW_TRUE))?
+	;
+
+HeightModifier
 	: type = KW_LINES COLON value = NaturalNumber
 	;
 
@@ -1375,6 +1391,7 @@ terminal KW_VIEW:		'view';
 terminal KW_ACCESS:		'access';
 terminal KW_ACTION:		'action';
 terminal KW_ACTIONS:	'actions';
+terminal KW_BUTTON:		'button';
 terminal KW_CONSTRAINT:	'constraint';
 terminal KW_CREATE:		'create';   // no highlight
 terminal KW_COLUMN:		'column';   // no highlight
@@ -1404,6 +1421,7 @@ terminal KW_BINARY:		'binary';
 terminal KW_BOOLEAN:	'boolean';
 terminal KW_BOTTOM:		'bottom';
 terminal KW_CENTER:		'center';
+terminal KW_COMBO:		'combo';
 terminal KW_COLLECTION:	'collection';
 terminal KW_CONSTANT:	'constant';
 terminal KW_DATE:		'date';
@@ -1412,6 +1430,7 @@ terminal KW_FALSE:		'false';  // not ID
 terminal KW_HORIZONTAL: 'horizontal';
 terminal KW_LEFT:		'left';
 terminal KW_NUMERIC:	'numeric';
+terminal KW_RADIO:		'radio';
 terminal KW_RIGHT:		'right';
 terminal KW_STRING:		'string';
 terminal KW_TIME:		'time';
@@ -1454,6 +1473,7 @@ terminal KW_OPPOSITE:	'opposite';
 terminal KW_OPPOSITEADD:'opposite-add';
 terminal KW_ORIENTATION:'orientation';
 terminal KW_PRECISION:	'precision';
+terminal KW_PREDICTIVE:	'predictive';
 terminal KW_REALM:		'realm';
 terminal KW_REDIRECT:	'redirect';
 terminal KW_REGEX:		'regex';
