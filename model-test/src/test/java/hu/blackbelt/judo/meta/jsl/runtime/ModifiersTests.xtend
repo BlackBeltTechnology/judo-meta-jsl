@@ -468,6 +468,45 @@ class ModifiersTests {
         	m | m.assertError(JsldslPackage::eINSTANCE.updateModifier, JslDslValidator.INVALID_DECLARATION)
         ]
     }
+
+    @Test
+    def void testInvalidWidthModifier() {
+        '''
+            model test;
+
+            import judo::types;
+
+            widget string StringWidget;
+
+            entity A {
+                field String name;
+            }
+
+            transfer TA maps A as a {
+                field String name <=> a.name;
+
+                event update eup;
+            }
+
+            actor Test {
+                access TA[] tas <= A.all() update;
+            }
+
+            row ARow(TA t) {
+                column String name <= t.name;
+            }
+
+            view AView(TA t) {
+                widget StringWidget name <= t.name width:14;
+            }
+
+            menu TestWidth(Test test) {
+                table ARow[] tas <= test.tas view:AView;
+            }
+        '''.parse => [
+            m | m.assertError(JsldslPackage::eINSTANCE.widthModifier, JslDslValidator.INVALID_DECLARATION)
+        ]
+    }
     
     def private void assertMaxSizeTooLargeError(ModelDeclaration modelDeclaration, String error, EClass target) {
         modelDeclaration.assertError(
