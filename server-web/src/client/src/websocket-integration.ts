@@ -1,8 +1,8 @@
-import { toSocket, WebSocketMessageReader, WebSocketMessageWriter } from 'vscode-ws-jsonrpc';
-import { CloseAction, ErrorAction, MessageTransports } from 'vscode-languageclient';
-import { MonacoLanguageClient } from 'monaco-languageclient';
 import * as monaco from 'monaco-editor';
+import { MonacoLanguageClient } from 'monaco-languageclient';
 import * as vscode from 'vscode';
+import { CloseAction, ErrorAction, MessageTransports } from 'vscode-languageclient';
+import { WebSocketMessageReader, WebSocketMessageWriter, toSocket } from 'vscode-ws-jsonrpc';
 import { languageId, monacoWorkspaceFolder } from './config';
 
 export const createWebSocket = (url: string): WebSocket => {

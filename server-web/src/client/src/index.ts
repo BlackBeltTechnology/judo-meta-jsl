@@ -1,22 +1,23 @@
-import * as monaco from 'monaco-editor';
-import * as vscode from 'vscode';
-import { whenReady } from '@codingame/monaco-vscode-theme-defaults-default-extension';
-import { LogLevel } from 'vscode/services';
-import { createConfiguredEditor, createModelReference } from 'vscode/monaco';
-import { ExtensionHostKind, registerExtension } from 'vscode/extensions';
 import getConfigurationServiceOverride, {
   updateUserConfiguration,
 } from '@codingame/monaco-vscode-configuration-service-override';
-import getThemeServiceOverride from '@codingame/monaco-vscode-theme-service-override';
-import getTextmateServiceOverride from '@codingame/monaco-vscode-textmate-service-override';
-import { initServices } from 'monaco-languageclient';
 import {
   RegisteredFileSystemProvider,
-  registerFileSystemOverlay,
   RegisteredMemoryFile,
+  registerFileSystemOverlay,
 } from '@codingame/monaco-vscode-files-service-override';
+import getTextmateServiceOverride from '@codingame/monaco-vscode-textmate-service-override';
+import { whenReady } from '@codingame/monaco-vscode-theme-defaults-default-extension';
+import getThemeServiceOverride from '@codingame/monaco-vscode-theme-service-override';
+import * as monaco from 'monaco-editor';
+import { initServices } from 'monaco-languageclient';
+import * as vscode from 'vscode';
 import { Uri } from 'vscode';
 import { loadWASM } from 'vscode-oniguruma';
+import _onigWasm from 'vscode-oniguruma/release/onig.wasm?url';
+import { ExtensionHostKind, registerExtension } from 'vscode/extensions';
+import { createConfiguredEditor, createModelReference } from 'vscode/monaco';
+import { LogLevel } from 'vscode/services';
 import {
   extension,
   languageConfigurationPath,
@@ -27,10 +28,9 @@ import {
   theme,
   websocketPort,
 } from './config';
+import { createEncodedTokensProvider } from './textmate-support';
 import { createUrl } from './utils';
 import { createWebSocket } from './websocket-integration';
-import { createEncodedTokensProvider } from './textmate-support';
-import _onigWasm from 'vscode-oniguruma/release/onig.wasm?url';
 import './useWorker';
 
 const content = await (await fetch(`./${modelFileName}`)).text();

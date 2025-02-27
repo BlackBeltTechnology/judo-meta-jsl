@@ -15,8 +15,10 @@ export default defineConfig({
         manualChunks: {
           'vscode': ['vscode'],
           'monaco-languageclient': ['monaco-languageclient'],
-          'monaco-editor-workers': ['monaco-editor-workers'],
+          'vscode-ws-jsonrpc': ['vscode-ws-jsonrpc'],
+          'vscode-languageclient': ['vscode-languageclient'],
           'vscode-oniguruma': ['vscode-oniguruma'],
+          'vscode-textmate': ['vscode-textmate'],
           'jszip': ['jszip'],
         },
       },
