@@ -1,5 +1,3 @@
-import { ScopeName } from 'vscode-textmate/release/theme';
-
 export type LanguageId = string;
 
 export interface JSLScopeNameInfo extends ScopeNameInfo {
@@ -8,7 +6,7 @@ export interface JSLScopeNameInfo extends ScopeNameInfo {
 
 export interface ScopeNameInfo {
   language?: LanguageId;
-  injections?: ScopeName[];
+  injections?: string[];
 }
 
 export type TextMateGrammar = {

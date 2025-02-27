@@ -148,8 +148,8 @@
         </executions>
         <configuration>
           <workingDirectory>${basedir}/src/client</workingDirectory>
-          <nodeVersion>v18.12.1</nodeVersion>
-          <pnpmVersion>8.11.0</pnpmVersion>
+          <nodeVersion>v22.11.0</nodeVersion>
+          <pnpmVersion>10.5.2</pnpmVersion>
         </configuration>
       </plugin>
       <plugin>
