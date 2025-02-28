@@ -4,8 +4,12 @@ import type { IRawGrammar } from 'vscode-textmate';
 import { IGrammar, INITIAL, Registry, parseRawGrammar } from 'vscode-textmate';
 import { grammarPath, grammars, languageId } from './config';
 import VsCodeDarkTheme from './theme/vs-dark-plus-theme';
-import type { TextMateGrammar } from './types';
 import { getScopeNameForLanguage } from './utils';
+
+export type TextMateGrammar = {
+  type: 'json' | 'plist';
+  grammar: string;
+};
 
 const registry: Registry = new Registry({
   onigLib: Promise.resolve({
