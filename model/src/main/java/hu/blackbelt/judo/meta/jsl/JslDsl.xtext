@@ -411,7 +411,7 @@ ActorAccessReference
 UIFrontendDeclaration
 	: KW_FRONTEND Named
 	  map = ActorMapDeclaration
-	  modifiers += (MenuModifier | ProfileModifier)*
+	  modifiers += (MenuModifier | ProfileModifier | ApplicationTitleModifier)*
 	  SC
 	;
 
@@ -1067,6 +1067,7 @@ Modifier
 	| MenuModifier
 	| ProfileModifier
 	| DashboardModifier
+	| ApplicationTitleModifier
 
 	| VisualModifier
 	;
@@ -1268,6 +1269,10 @@ DashboardModifier
 	: type = KW_DASHBOARD (COLON (false?=KW_FALSE | true?=KW_TRUE))?
 	;
 
+ApplicationTitleModifier
+	: type = KW_TITLE COLON title = StringLiteral
+	;
+
 /****************************
  *	Literals
  ****************************/
@@ -1465,6 +1470,7 @@ terminal KW_GIB:		'GiB';
 
 // Attributes
 terminal KW_ABSTRACT:	'abstract';
+terminal KW_AVATAR:		'avatar';
 terminal KW_BIND:		'bind';
 terminal KW_BULK:		'bulk';
 terminal KW_CHOICES:	'choices';
@@ -1499,6 +1505,7 @@ terminal KW_REDIRECT:	'redirect';
 terminal KW_REGEX:		'regex';
 terminal KW_REQUIRED:	'required';
 terminal KW_ROWS:		'rows';
+terminal KW_TITLE:		'title';
 terminal KW_SELECTOR:	'selector';
 terminal KW_SCALE:		'scale';
 terminal KW_STATIC:		'static';

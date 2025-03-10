@@ -63,7 +63,7 @@ public class JslDslSemanticHighlightCalculator implements ISemanticHighlightingC
     		 					"KW_DELETE", "KW_DIALOG", "KW_EAGER", "KW_ENABLED", "KW_FORM", "KW_FRAME", "KW_GUARD", "KW_HELP", "KW_HIDDEN",
     							"KW_HALIGN", "KW_HUMAN", "KW_ICON", "KW_IDENTITY", "KW_LABEL", "KW_LINES", "KW_MAXFILESIZE", "KW_MAXSIZE", "KW_MENU", "KW_MINSIZE", "KW_MIMETYPE", "KW_ON",
     							"KW_OPPOSITE", "KW_OPPOSITEADD", "KW_ORIENTATION", "KW_PRECISION", "KW_PREDICTIVE", "KW_PROFILE", "KW_REALM", "KW_REDIRECT", "KW_REGEX", "KW_REQUIRED",
-    							"KW_ROWS", "KW_SELECTOR", "KW_SCALE", "KW_STATIC", "KW_STRETCH", "KW_TEXT", "KW_THROW",  "KW_UPDATE", "KW_VALIGN", "KW_VIEW", "KW_WIDTH");
+    							"KW_ROWS", "KW_SELECTOR", "KW_SCALE", "KW_STATIC", "KW_STRETCH", "KW_TEXT", "KW_THROW",  "KW_TITLE", "KW_UPDATE", "KW_VALIGN", "KW_VIEW", "KW_WIDTH");
 
     @Override
     public void provideHighlightingFor(XtextResource resource, IHighlightedPositionAcceptor acceptor, CancelIndicator cancelIndicator) {
