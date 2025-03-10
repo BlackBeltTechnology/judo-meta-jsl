@@ -1074,6 +1074,7 @@ Modifier
 
 VisualModifier
 	: LabelModifier
+	| LabelPositionModifier
 	| IconModifier
 	| HiddenModifier
 	| WidthModifier
@@ -1143,6 +1144,10 @@ FrameModifier
 	
 LabelModifier
 	: type = KW_LABEL COLON value = StringLiteral
+	;
+
+LabelPositionModifier
+	: type = KW_LABEL_POSITION COLON (right ?= KW_RIGHT | left ?= KW_LEFT | bottom ?= KW_BOTTOM | center ?= KW_CENTER)
 	;
 
 IconModifier
@@ -1488,6 +1493,7 @@ terminal KW_HELP:	    'help';
 terminal KW_ICON:		'icon';
 terminal KW_IDENTITY:	'identity';
 terminal KW_LABEL:		'label';
+terminal KW_LABEL_POSITION: 'label-position';
 terminal KW_LINES:		'lines';
 terminal KW_MAXFILESIZE:'max-file-size';
 terminal KW_MAXSIZE:	'max-size';
