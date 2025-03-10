@@ -425,7 +425,7 @@ UIMenuLinkDeclaration returns UIMenuMemberDeclaration
 	: {UIMenuLinkDeclaration}
 	  KW_LINK referenceType = [UIViewDeclaration | ModelName] Named
 	  LTE actorAccess = ActorAccessReference
-	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier)*
+	  modifiers += (VisualModifier | DashboardModifier | CreateFormModifier | UpdateViewModifier)*
 	  SC
 	;
 
@@ -433,7 +433,7 @@ UIMenuTableDeclaration returns UIMenuMemberDeclaration
 	: {UIMenuTableDeclaration}
 	  KW_TABLE referenceType = [UIListItemDeclaration | ModelName] Cardinality Named
 	  LTE actorAccess = ActorAccessReference
-	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier)*
+	  modifiers += (VisualModifier | DashboardModifier | CreateFormModifier | UpdateViewModifier)*
 	  SC
 	;
 
@@ -1066,6 +1066,7 @@ Modifier
 	| PredictiveModifier
 	| MenuModifier
 	| ProfileModifier
+	| DashboardModifier
 
 	| VisualModifier
 	;
@@ -1263,6 +1264,10 @@ ProfileModifier
 	: type = KW_PROFILE COLON BLOCK_START (members += UIMenuMemberDeclaration)* BLOCK_END
 	;
 
+DashboardModifier
+	: type = KW_DASHBOARD (COLON (false?=KW_FALSE | true?=KW_TRUE))?
+	;
+
 /****************************
  *	Literals
  ****************************/
@@ -1417,8 +1422,6 @@ terminal KW_IDENTIFIER:	'identifier';
 terminal KW_INITIALIZE:	'initialize';   // no highlight
 terminal KW_LINK:		'link';
 terminal KW_LITERAL:	'literal';
-terminal KW_MENU:		'menu';
-terminal KW_PROFILE:	'profile';
 terminal KW_RELATION:	'relation';
 terminal KW_SUBMIT:		'submit';
 terminal KW_TABLE:		'table';
@@ -1466,6 +1469,7 @@ terminal KW_BIND:		'bind';
 terminal KW_BULK:		'bulk';
 terminal KW_CHOICES:	'choices';
 terminal KW_CLAIM:		'claim';
+terminal KW_DASHBOARD:	'dashboard';
 terminal KW_DEFAULT:	'default';
 terminal KW_DETAIL:		'detail';
 terminal KW_DIALOG:		'dialog';
@@ -1481,6 +1485,7 @@ terminal KW_LABEL:		'label';
 terminal KW_LINES:		'lines';
 terminal KW_MAXFILESIZE:'max-file-size';
 terminal KW_MAXSIZE:	'max-size';
+terminal KW_MENU:		'menu';
 terminal KW_MINSIZE:	'min-size';
 terminal KW_MIMETYPE:	'mime-type';
 terminal KW_OPPOSITE:	'opposite';
@@ -1488,6 +1493,7 @@ terminal KW_OPPOSITEADD:'opposite-add';
 terminal KW_ORIENTATION:'orientation';
 terminal KW_PRECISION:	'precision';
 terminal KW_PREDICTIVE:	'predictive';
+terminal KW_PROFILE:	'profile';
 terminal KW_REALM:		'realm';
 terminal KW_REDIRECT:	'redirect';
 terminal KW_REGEX:		'regex';
