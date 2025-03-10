@@ -22,6 +22,7 @@ Declaration
 	| FunctionOrQueryDeclaration
 	| LambdaDeclaration
 	| AnnotationDeclaration
+	| UIFrontendDeclaration
 	;
 
 Persistable 
@@ -53,7 +54,6 @@ ClassDeclaration
 UIComponentDeclaration
 	: UIViewDeclaration
 	| UIListItemDeclaration
-	| UIMenuDeclaration
 	;
 
 
@@ -408,10 +408,11 @@ ActorAccessReference
 	: map = [ActorMapDeclaration | LocalName] DOT target = [ActorAccessDeclaration | LocalName]
 	;
 
-UIMenuDeclaration
-	: KW_MENU Named
+UIFrontendDeclaration
+	: KW_FRONTEND Named
 	  map = ActorMapDeclaration
-	  (SC | BLOCK_START (members += UIMenuMemberDeclaration)* BLOCK_END)
+	  modifiers += (MenuModifier | ProfileModifier)*
+	  SC
 	;
 
 UIMenuMemberDeclaration
@@ -1019,6 +1020,7 @@ ModifiableDeclaration returns Modifiable
 	| UIViewMemberDeclaration
 	| UIRowMemberDeclaration
 	| UIMenuMemberDeclaration
+	| UIFrontendDeclaration
 
 	| TypeDeclaration
 	;
@@ -1062,6 +1064,8 @@ Modifier
 	| SelectorTableModifier
 	| ActionGroupModifier
 	| PredictiveModifier
+	| MenuModifier
+	| ProfileModifier
 
 	| VisualModifier
 	;
@@ -1251,6 +1255,14 @@ ActionGroupModifier
 	: type = KW_ACTIONS COLON BLOCK_START (actions += UIActionDeclaration)* BLOCK_END
 	;
 
+MenuModifier
+	: type = KW_MENU COLON BLOCK_START (members += UIMenuMemberDeclaration)* BLOCK_END
+	;
+
+ProfileModifier
+	: type = KW_PROFILE COLON BLOCK_START (members += UIMenuMemberDeclaration)* BLOCK_END
+	;
+
 /****************************
  *	Literals
  ****************************/
@@ -1372,11 +1384,11 @@ terminal KW_ENUM:		'enum';
 terminal KW_ERROR:		'error';
 terminal KW_EXTENDS:	'extends';
 terminal KW_FORM:		'form';
+terminal KW_FRONTEND:	'frontend';
 terminal KW_FUNCTION:	'function';
 terminal KW_IMPORT:		'import';
 terminal KW_LAMBDA:		'lambda';
 terminal KW_MAPS:		'maps';
-terminal KW_MENU:		'menu';
 terminal KW_MODEL:		'model';
 terminal KW_ON:			'on';
 terminal KW_QUERY:		'query';
@@ -1405,6 +1417,8 @@ terminal KW_IDENTIFIER:	'identifier';
 terminal KW_INITIALIZE:	'initialize';   // no highlight
 terminal KW_LINK:		'link';
 terminal KW_LITERAL:	'literal';
+terminal KW_MENU:		'menu';
+terminal KW_PROFILE:	'profile';
 terminal KW_RELATION:	'relation';
 terminal KW_SUBMIT:		'submit';
 terminal KW_TABLE:		'table';

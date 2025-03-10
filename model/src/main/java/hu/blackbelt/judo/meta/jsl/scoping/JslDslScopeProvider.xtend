@@ -66,7 +66,6 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.DataTypeDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TransferDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIViewDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIRowDeclaration
-import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.UIMenuTableDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.CreateFormModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UpdateViewModifier
@@ -87,6 +86,7 @@ import hu.blackbelt.judo.meta.jsl.jsldsl.UIComponentDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.TextModifier
 import hu.blackbelt.judo.meta.jsl.jsldsl.UITagDeclaration
 import hu.blackbelt.judo.meta.jsl.jsldsl.WidgetDeclaration
+import hu.blackbelt.judo.meta.jsl.jsldsl.UIFrontendDeclaration
 
 class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
@@ -156,8 +156,8 @@ class JslDslScopeProvider extends AbstractJslDslScopeProvider {
 
 			UIRowColumnDeclaration case ref == JsldslPackage::eINSTANCE.transferFieldReference_Map: return scope.scope_Containments(context.parentContainer(UIRowDeclaration), ref)
 
-			UIMenuLinkDeclaration case ref == JsldslPackage::eINSTANCE.actorAccessReference_Map: return scope.scope_Containments(context.parentContainer(UIMenuDeclaration), ref)
-			UIMenuTableDeclaration case ref == JsldslPackage::eINSTANCE.actorAccessReference_Map: return scope.scope_Containments(context.parentContainer(UIMenuDeclaration), ref)
+			UIMenuLinkDeclaration case ref == JsldslPackage::eINSTANCE.actorAccessReference_Map: return scope.scope_Containments(context.parentContainer(UIFrontendDeclaration), ref)
+			UIMenuTableDeclaration case ref == JsldslPackage::eINSTANCE.actorAccessReference_Map: return scope.scope_Containments(context.parentContainer(UIFrontendDeclaration), ref)
 
 			TransferFieldReference case ref == JsldslPackage::eINSTANCE.transferFieldReference_Target: return scope.scope_Containments(context.map.transfer, ref)
 			TransferRelationReference case ref == JsldslPackage::eINSTANCE.transferRelationReference_Target: return scope.scope_Containments(context.map.transfer, ref)
