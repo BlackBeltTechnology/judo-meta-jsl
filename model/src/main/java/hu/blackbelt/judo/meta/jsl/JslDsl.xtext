@@ -22,6 +22,7 @@ Declaration
 	| FunctionOrQueryDeclaration
 	| LambdaDeclaration
 	| AnnotationDeclaration
+	| UIFrontendDeclaration
 	;
 
 Persistable 
@@ -53,7 +54,6 @@ ClassDeclaration
 UIComponentDeclaration
 	: UIViewDeclaration
 	| UIListItemDeclaration
-	| UIMenuDeclaration
 	;
 
 
@@ -408,10 +408,11 @@ ActorAccessReference
 	: map = [ActorMapDeclaration | LocalName] DOT target = [ActorAccessDeclaration | LocalName]
 	;
 
-UIMenuDeclaration
-	: KW_MENU Named
+UIFrontendDeclaration
+	: KW_FRONTEND Named
 	  map = ActorMapDeclaration
-	  (SC | BLOCK_START (members += UIMenuMemberDeclaration)* BLOCK_END)
+	  modifiers += (MenuModifier | ProfileModifier | ApplicationTitleModifier)*
+	  SC
 	;
 
 UIMenuMemberDeclaration
@@ -424,7 +425,7 @@ UIMenuLinkDeclaration returns UIMenuMemberDeclaration
 	: {UIMenuLinkDeclaration}
 	  KW_LINK referenceType = [UIViewDeclaration | ModelName] Named
 	  LTE actorAccess = ActorAccessReference
-	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier)*
+	  modifiers += (VisualModifier | DashboardModifier | CreateFormModifier | UpdateViewModifier)*
 	  SC
 	;
 
@@ -432,7 +433,7 @@ UIMenuTableDeclaration returns UIMenuMemberDeclaration
 	: {UIMenuTableDeclaration}
 	  KW_TABLE referenceType = [UIListItemDeclaration | ModelName] Cardinality Named
 	  LTE actorAccess = ActorAccessReference
-	  modifiers += (VisualModifier | CreateFormModifier | UpdateViewModifier)*
+	  modifiers += (VisualModifier | DashboardModifier | CreateFormModifier | UpdateViewModifier)*
 	  SC
 	;
 
@@ -1019,6 +1020,7 @@ ModifiableDeclaration returns Modifiable
 	| UIViewMemberDeclaration
 	| UIRowMemberDeclaration
 	| UIMenuMemberDeclaration
+	| UIFrontendDeclaration
 
 	| TypeDeclaration
 	;
@@ -1062,12 +1064,17 @@ Modifier
 	| SelectorTableModifier
 	| ActionGroupModifier
 	| PredictiveModifier
+	| MenuModifier
+	| ProfileModifier
+	| DashboardModifier
+	| ApplicationTitleModifier
 
 	| VisualModifier
 	;
 
 VisualModifier
 	: LabelModifier
+	| LabelPositionModifier
 	| IconModifier
 	| HiddenModifier
 	| WidthModifier
@@ -1137,6 +1144,10 @@ FrameModifier
 	
 LabelModifier
 	: type = KW_LABEL COLON value = StringLiteral
+	;
+
+LabelPositionModifier
+	: type = KW_LABEL_POSITION COLON (right ?= KW_RIGHT | left ?= KW_LEFT | bottom ?= KW_BOTTOM | center ?= KW_CENTER)
 	;
 
 IconModifier
@@ -1249,6 +1260,22 @@ SelectorTableModifier
 
 ActionGroupModifier
 	: type = KW_ACTIONS COLON BLOCK_START (actions += UIActionDeclaration)* BLOCK_END
+	;
+
+MenuModifier
+	: type = KW_MENU COLON BLOCK_START (members += UIMenuMemberDeclaration)* BLOCK_END
+	;
+
+ProfileModifier
+	: type = KW_PROFILE COLON BLOCK_START (members += UIMenuMemberDeclaration)* BLOCK_END
+	;
+
+DashboardModifier
+	: type = KW_DASHBOARD (COLON (false?=KW_FALSE | true?=KW_TRUE))?
+	;
+
+ApplicationTitleModifier
+	: type = KW_TITLE COLON title = StringLiteral
 	;
 
 /****************************
@@ -1372,11 +1399,11 @@ terminal KW_ENUM:		'enum';
 terminal KW_ERROR:		'error';
 terminal KW_EXTENDS:	'extends';
 terminal KW_FORM:		'form';
+terminal KW_FRONTEND:	'frontend';
 terminal KW_FUNCTION:	'function';
 terminal KW_IMPORT:		'import';
 terminal KW_LAMBDA:		'lambda';
 terminal KW_MAPS:		'maps';
-terminal KW_MENU:		'menu';
 terminal KW_MODEL:		'model';
 terminal KW_ON:			'on';
 terminal KW_QUERY:		'query';
@@ -1448,10 +1475,12 @@ terminal KW_GIB:		'GiB';
 
 // Attributes
 terminal KW_ABSTRACT:	'abstract';
+terminal KW_AVATAR:		'avatar';
 terminal KW_BIND:		'bind';
 terminal KW_BULK:		'bulk';
 terminal KW_CHOICES:	'choices';
 terminal KW_CLAIM:		'claim';
+terminal KW_DASHBOARD:	'dashboard';
 terminal KW_DEFAULT:	'default';
 terminal KW_DETAIL:		'detail';
 terminal KW_DIALOG:		'dialog';
@@ -1464,9 +1493,11 @@ terminal KW_HELP:	    'help';
 terminal KW_ICON:		'icon';
 terminal KW_IDENTITY:	'identity';
 terminal KW_LABEL:		'label';
+terminal KW_LABEL_POSITION: 'label-position';
 terminal KW_LINES:		'lines';
 terminal KW_MAXFILESIZE:'max-file-size';
 terminal KW_MAXSIZE:	'max-size';
+terminal KW_MENU:		'menu';
 terminal KW_MINSIZE:	'min-size';
 terminal KW_MIMETYPE:	'mime-type';
 terminal KW_OPPOSITE:	'opposite';
@@ -1474,11 +1505,13 @@ terminal KW_OPPOSITEADD:'opposite-add';
 terminal KW_ORIENTATION:'orientation';
 terminal KW_PRECISION:	'precision';
 terminal KW_PREDICTIVE:	'predictive';
+terminal KW_PROFILE:	'profile';
 terminal KW_REALM:		'realm';
 terminal KW_REDIRECT:	'redirect';
 terminal KW_REGEX:		'regex';
 terminal KW_REQUIRED:	'required';
 terminal KW_ROWS:		'rows';
+terminal KW_TITLE:		'title';
 terminal KW_SELECTOR:	'selector';
 terminal KW_SCALE:		'scale';
 terminal KW_STATIC:		'static';
