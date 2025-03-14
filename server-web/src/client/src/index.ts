@@ -1,94 +1,65 @@
-import * as monaco from 'monaco-editor';
-import * as vscode from 'vscode';
-import { whenReady } from '@codingame/monaco-vscode-theme-defaults-default-extension';
-import { LogLevel } from 'vscode/services';
-import { createConfiguredEditor, createModelReference } from 'vscode/monaco';
-import { ExtensionHostKind, registerExtension } from 'vscode/extensions';
+import { LogLevel } from '@codingame/monaco-vscode-api';
+import { createModelReference } from '@codingame/monaco-vscode-api/monaco';
 import getConfigurationServiceOverride, {
   updateUserConfiguration,
 } from '@codingame/monaco-vscode-configuration-service-override';
-import getThemeServiceOverride from '@codingame/monaco-vscode-theme-service-override';
-import getTextmateServiceOverride from '@codingame/monaco-vscode-textmate-service-override';
-import { initServices } from 'monaco-languageclient';
+import * as monaco from '@codingame/monaco-vscode-editor-api';
+import { Uri } from '@codingame/monaco-vscode-editor-api';
 import {
   RegisteredFileSystemProvider,
-  registerFileSystemOverlay,
   RegisteredMemoryFile,
+  registerFileSystemOverlay,
 } from '@codingame/monaco-vscode-files-service-override';
-import { Uri } from 'vscode';
-import { loadWASM } from 'vscode-oniguruma';
+import getTextmateServiceOverride from '@codingame/monaco-vscode-textmate-service-override';
+import getThemeServiceOverride from '@codingame/monaco-vscode-theme-service-override';
+import { configureDefaultWorkerFactory } from 'monaco-editor-wrapper/workers/workerLoaders';
+import { MonacoLanguageClient } from 'monaco-languageclient';
+import { ConsoleLogger } from 'monaco-languageclient/tools';
+import { initServices } from 'monaco-languageclient/vscode/services';
+import ReconnectingWebSocket from 'reconnecting-websocket';
+import { CloseAction, ErrorAction, MessageTransports } from 'vscode-languageclient/browser.js';
+import { WebSocketMessageReader, WebSocketMessageWriter } from 'vscode-ws-jsonrpc';
+import { IWebSocket } from 'vscode-ws-jsonrpc/src/socket/socket';
 import {
-  extension,
   languageConfigurationPath,
   languageId,
   modelFileName,
   monacoWorkspaceFilePath,
-  monacoWorkspaceFolder,
   theme,
   websocketPort,
 } from './config';
-import { createUrl } from './utils';
-import { createWebSocket } from './websocket-integration';
 import { createEncodedTokensProvider } from './textmate-support';
-import _onigWasm from 'vscode-oniguruma/release/onig.wasm?url';
-import './useWorker';
-
-const content = await (await fetch(`./${modelFileName}`)).text();
-const languageConfiguration: monaco.languages.LanguageConfiguration = await (
-  await fetch(languageConfigurationPath)
-).json();
-
-// Taken from https://github.com/microsoft/vscode/blob/829230a5a83768a3494ebbc61144e7cde9105c73/src/vs/workbench/services/textMate/browser/textMateService.ts#L33-L40
-async function loadVSCodeOnigurumaWASM(): Promise<Response | ArrayBuffer> {
-  const response = await fetch(_onigWasm);
-  const contentType = response.headers.get('content-type');
-  if (contentType === 'application/wasm') {
-    return response;
-  }
-
-  // Using the response directly only works if the server sets the MIME type 'application/wasm'.
-  // Otherwise, a TypeError is thrown when using the streaming compiler.
-  // We therefore use the non-streaming compiler :(.
-  return await response.arrayBuffer();
-}
+import { createUrl } from './utils';
 
 export const startJSLClient = async () => {
-  // init vscode-api
-  await initServices({
-    userServices: {
-      ...getThemeServiceOverride(),
-      ...getTextmateServiceOverride(),
-      ...getConfigurationServiceOverride(),
-    },
-    debugLogging: true,
-    workspaceConfig: {
-      workspaceProvider: {
-        trusted: true,
-        workspace: {
-          workspaceUri: Uri.file(`/${monacoWorkspaceFolder}`),
-        },
-        async open() {
-          return false;
-        },
-      },
-      developmentOptions: {
-        logLevel: LogLevel.Debug,
+  const logger = new ConsoleLogger(LogLevel.Debug);
+  const htmlContainer = document.getElementById('container')!;
+  await initServices(
+    {
+      serviceOverrides: {
+        ...getThemeServiceOverride(),
+        ...getTextmateServiceOverride(),
+        ...getConfigurationServiceOverride(),
       },
     },
+    {
+      htmlContainer,
+      logger,
+    },
+  );
+
+  monaco.languages.register({
+    id: languageId,
+    extensions: ['jsl'],
+    aliases: ['JSL', languageId],
+    mimetypes: ['application/x-jsl'],
   });
-
-  console.log('Loading themes...');
-  await whenReady();
-  console.info('Themes loaded.');
-
-  registerExtension(extension, ExtensionHostKind.LocalProcess);
-
-  const data: ArrayBuffer | Response = await loadVSCodeOnigurumaWASM();
-  await loadWASM(data);
 
   const encodedLanguageId = monaco.languages.getEncodedLanguageId(languageId);
 
   const tokensProvider = createEncodedTokensProvider(encodedLanguageId);
+
+  const languageConfiguration = await (await fetch(languageConfigurationPath)).json();
 
   monaco.languages.setTokensProvider(languageId, tokensProvider);
   monaco.languages.setLanguageConfiguration(languageId, languageConfiguration);
@@ -100,36 +71,72 @@ export const startJSLClient = async () => {
 
   await updateUserConfiguration(JSON.stringify(config));
 
+  configureDefaultWorkerFactory(logger);
+
+  const content = await (await fetch(`./${modelFileName}`)).text();
+
   const fileSystemProvider = new RegisteredFileSystemProvider(false);
-  fileSystemProvider.registerFile(new RegisteredMemoryFile(vscode.Uri.file(monacoWorkspaceFilePath), content));
+  fileSystemProvider.registerFile(new RegisteredMemoryFile(Uri.file(monacoWorkspaceFilePath), content));
   registerFileSystemOverlay(1, fileSystemProvider);
 
-  // use the file create before
   const modelRef = await createModelReference(monaco.Uri.file(monacoWorkspaceFilePath));
   modelRef.object.setLanguageId(languageId);
 
-  // create monaco editor
-  const editor = createConfiguredEditor(document.getElementById('container')!, {
+  const editor = monaco.editor.create(htmlContainer, {
     model: modelRef.object.textEditorModel,
     automaticLayout: true,
     theme,
   });
-
-  // create the web socket and configure to start the language client on open, can add extra parameters to the url if needed.
-  createWebSocket(
-    createUrl(
-      'localhost',
-      websocketPort,
-      '/jsl',
-      {
-        // Used to parse an auth token or additional parameters such as import IDs to the language server
-        //authorization: 'UserAuth',
-        // By commenting above line out and commenting below line in, connection to language server will be denied.
-        // authorization: 'FailedUserAuth'
-      },
-      false,
-    ),
-  );
+  initWebSocketAndStartClient(createUrl('localhost', websocketPort, '/jsl', {}, false));
 
   return editor;
 };
+
+function initWebSocketAndStartClient(url: string) {
+  const webSocket = new ReconnectingWebSocket(url);
+  function toSocket(s: ReconnectingWebSocket): IWebSocket {
+    return {
+      send: (content) => s.send(content),
+      onMessage: (cb) => {
+        s.onmessage = (event) => cb(event.data);
+      },
+      onError: (cb) => {
+        s.onerror = (event: any) => {
+          if (Object.hasOwn(event, 'message')) {
+            cb(event.message);
+          }
+        };
+      },
+      onClose: (cb) => {
+        s.onclose = (event) => cb(event.code, event.reason);
+      },
+      dispose: () => s.close(),
+    };
+  }
+  webSocket.onopen = () => {
+    const socket = toSocket(webSocket);
+    const reader = new WebSocketMessageReader(socket);
+    const writer = new WebSocketMessageWriter(socket);
+    const languageClient = createLanguageClient({
+      reader,
+      writer,
+    });
+    languageClient.start();
+    reader.onClose(() => languageClient.stop());
+  };
+  return webSocket;
+}
+
+function createLanguageClient(messageTransports: MessageTransports) {
+  return new MonacoLanguageClient({
+    name: 'JSL Language Client',
+    clientOptions: {
+      documentSelector: ['jsl'],
+      errorHandler: {
+        error: () => ({ action: ErrorAction.Continue }),
+        closed: () => ({ action: CloseAction.DoNotRestart }),
+      },
+    },
+    messageTransports,
+  });
+}
