@@ -72,8 +72,8 @@
 
         <src.dir>src/main</src.dir>
 
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
 		<!--suppress UnresolvedMavenProperty -->
 		<logback-test-config>${maven.multiModuleProjectDirectory}/logback-test.xml</logback-test-config>
         <logback-version>1.5.12</logback-version>
@@ -351,13 +351,13 @@
 						<dependency>
 							<groupId>org.eclipse.jdt</groupId>
 							<artifactId>org.eclipse.jdt.core</artifactId>
-							<version>3.31.0</version>
+							<version>3.41.0</version>
 						</dependency>
 
 						<dependency>
 							<groupId>org.eclipse.jdt</groupId>
 							<artifactId>org.eclipse.jdt.compiler.apt</artifactId>
-							<version>1.4.200</version>
+							<version>1.4.300</version>
 						</dependency>
 						<dependency>
 							<groupId>org.eclipse.jdt</groupId>
