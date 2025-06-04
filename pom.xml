@@ -72,25 +72,26 @@
 
         <src.dir>src/main</src.dir>
 
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
 		<!--suppress UnresolvedMavenProperty -->
 		<logback-test-config>${maven.multiModuleProjectDirectory}/logback-test.xml</logback-test-config>
         <logback-version>1.5.12</logback-version>
         <lombok-version>1.18.34</lombok-version>
 
-        <tycho-version>4.0.9</tycho-version>
+        <tycho-version>4.0.13</tycho-version>
         <jackson-version>2.17.2</jackson-version>
+        <spring-version>6.2.7</spring-version>
 
-        <emf-genmodel-generator-version>1.1.1.20241127_145607_0fc2fbf1_develop</emf-genmodel-generator-version>
-        <judo-genmodel-generator-version>1.1.2.20241127_155311_6c4ed3a9_develop</judo-genmodel-generator-version>
-        <judo-epp-common-version>4.33.0.20241127_230009_11b7d34a_develop</judo-epp-common-version>
+        <emf-genmodel-generator-version>1.1.1.20250604_004501_3882b914_feature_JNG_6310_UpdateEpsilon</emf-genmodel-generator-version>
+        <judo-genmodel-generator-version>1.1.2.20250604_010106_738f271c_feature_JNG_6310_UpdateEpsilon</judo-genmodel-generator-version>
+        <judo-epp-common-version>4.35.0.20250602_084007_7078e337_feature_JNG_6310_UpdateEpsilon</judo-epp-common-version>
         <judo-misc-p2-version>1.0.0</judo-misc-p2-version>
         <judo-jsl-tmbundle-version>1.0.0.20230816_144910_bc235fc6_develop</judo-jsl-tmbundle-version>
-        <judo-generator-commons-version>1.0.0.20241127_150150_30b65e30_develop</judo-generator-commons-version>
-        <judo-version-updater-maven-plugin-version>1.0.0.20241127_151701_eca331a9_develop</judo-version-updater-maven-plugin-version>
+        <judo-generator-commons-version>1.0.0.20250604_005413_e4565e35_feature_JNG_6310_UpdateEpsilon</judo-generator-commons-version>
+        <judo-version-updater-maven-plugin-version>1.0.0.20250604_005556_01ff8bb0_feature_JNG_6310_UpdateEpsilon</judo-version-updater-maven-plugin-version>
 
-        <xtext-version>2.32.0</xtext-version>
+        <xtext-version>2.39.0</xtext-version>
         <emf-mwe2-launch-version>2.15.0</emf-mwe2-launch-version>
         <slf4j-version>2.0.16</slf4j-version>
 
@@ -99,11 +100,11 @@
         <logback-test-config>${maven.multiModuleProjectDirectory}/logback-test.xml</logback-test-config>
 		
         <!-- Pax exam dependencies -->
-        <karaf-version>4.4.5</karaf-version>
+        <karaf-version>4.4.7</karaf-version>
         <cxf-version>3.5.1</cxf-version>
 
-        <osgi-utils-version>1.1.1.20250222_004116_31db11f6_develop</osgi-utils-version>
-        <karaf-features-version>2.0.2.20241127_150036_5c40ade0_develop</karaf-features-version>
+        <osgi-utils-version>1.1.1.20250604_010043_e504c6c3_feature_JNG_6310_UpdateEpsilon</osgi-utils-version>
+        <karaf-features-version>2.0.2.20250604_004740_cd306770_feature_JNG_6310_UpdateEpsilon</karaf-features-version>
         <pax-exam-version>4.13.5</pax-exam-version>
 
 		<!-- Define overridable properties for tycho-surefire-plugin -->
@@ -119,7 +120,7 @@
         <sonar.language>java</sonar.language>
         <sonar.java.source>${java.version}</sonar.java.source>
         <jacoco.version>0.8.12</jacoco.version>
-        <judo-requirement-report-version>1.0.0.20241127_151629_0f921381_develop</judo-requirement-report-version>
+        <judo-requirement-report-version>1.0.0.20250604_005600_9c16eed2_feature_JNG_6310_UpdateEpsilon</judo-requirement-report-version>
     </properties>
 
     <repositories>
@@ -351,13 +352,13 @@
 						<dependency>
 							<groupId>org.eclipse.jdt</groupId>
 							<artifactId>org.eclipse.jdt.core</artifactId>
-							<version>3.31.0</version>
+							<version>3.41.0</version>
 						</dependency>
 
 						<dependency>
 							<groupId>org.eclipse.jdt</groupId>
 							<artifactId>org.eclipse.jdt.compiler.apt</artifactId>
-							<version>1.4.200</version>
+							<version>1.4.300</version>
 						</dependency>
 						<dependency>
 							<groupId>org.eclipse.jdt</groupId>
@@ -930,7 +931,7 @@
                     <plugin>
                         <groupId>org.simplify4u.plugins</groupId>
                         <artifactId>sign-maven-plugin</artifactId>
-                        <version>1.0.1</version>
+                        <version>1.1.0</version>
                         <executions>
                             <execution>
                                 <goals>
