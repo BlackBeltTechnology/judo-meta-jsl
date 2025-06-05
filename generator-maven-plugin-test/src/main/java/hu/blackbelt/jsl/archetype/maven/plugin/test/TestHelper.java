@@ -20,8 +20,8 @@ package hu.blackbelt.jsl.archetype.maven.plugin.test;
  * #L%
  */
 
-import com.github.jknack.handlebars.internal.lang3.StringUtils;
 import hu.blackbelt.judo.generator.commons.StaticMethodValueResolver;
+import hu.blackbelt.judo.generator.commons.StringHelper;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ActorDeclaration;
 import hu.blackbelt.judo.meta.jsl.jsldsl.ModelDeclaration;
@@ -69,13 +69,13 @@ public class TestHelper extends StaticMethodValueResolver {
             nameTokens.remove(0);
             nameTokens.remove(nameTokens.size() - 1);
             return nameTokens.stream()
-                    .map(s -> StringUtils.capitalize(
+                    .map(s -> StringHelper.firstToUpperCase(
                             stream(s.replaceAll("#", "::")
                                     .replaceAll("\\.", "::")
                                     .replaceAll("/", "::")
                                     .replaceAll("_", "::")
                                     .split("::"))
-                                    .map(t -> StringUtils.capitalize(t))
+                                    .map(t -> StringHelper.firstToUpperCase(t))
                                     .collect(Collectors.joining())
                     ))
                     .collect(Collectors.joining());
@@ -90,7 +90,7 @@ public class TestHelper extends StaticMethodValueResolver {
     public static String modelName(String fqName) {
         String[] splitted = fqName.split("::");
         return fqClass(stream(splitted)
-                .map(s -> StringUtils.capitalize(s))
+                .map(s -> StringHelper.firstToUpperCase(s))
                 .findFirst().get());
     }
 
@@ -101,7 +101,7 @@ public class TestHelper extends StaticMethodValueResolver {
                 .replaceAll("/", "::")
                 .replaceAll("_", "::")
                 .split("::"))
-                .map(s -> StringUtils.capitalize(s))
+                .map(s -> StringHelper.firstToUpperCase(s))
                 .collect(Collectors.joining());
     }
 
@@ -111,7 +111,7 @@ public class TestHelper extends StaticMethodValueResolver {
                 .replaceAll("/", "::")
                 .split("::"))
                 .skip(1)
-                .map(s -> StringUtils.capitalize(s))
+                .map(s -> StringHelper.firstToUpperCase(s))
                 .collect(Collectors.joining());
     }
 
