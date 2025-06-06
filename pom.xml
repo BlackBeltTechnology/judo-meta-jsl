@@ -83,13 +83,13 @@
         <jackson-version>2.17.2</jackson-version>
         <spring-version>6.2.7</spring-version>
 
-        <emf-genmodel-generator-version>1.1.1.20250604_121429_d7dbb485_feature_JNG_6310_UpdateEpsilon</emf-genmodel-generator-version>
-        <judo-genmodel-generator-version>1.1.2.20250604_124344_281ddd50_feature_JNG_6310_UpdateEpsilon</judo-genmodel-generator-version>
-        <judo-epp-common-version>4.35.0.20250605_152728_1c2884dc_feature_JNG_6310_UpdateEpsilon</judo-epp-common-version>
-        <judo-misc-p2-version>1.0.1.20250604_080946_f5dbf591_feature_JNG_6310_UpdateEpsilon</judo-misc-p2-version>
-        <judo-jsl-tmbundle-version>1.0.0.20230816_144910_bc235fc6_develop</judo-jsl-tmbundle-version>
-        <judo-generator-commons-version>1.0.0.20250604_005413_e4565e35_feature_JNG_6310_UpdateEpsilon</judo-generator-commons-version>
-        <judo-version-updater-maven-plugin-version>1.0.0.20250604_120601_01ff8bb0_feature_JNG_6310_UpdateEpsilon</judo-version-updater-maven-plugin-version>
+        <emf-genmodel-generator-version>1.1.1.20250605_190907_e367833f_develop</emf-genmodel-generator-version>
+        <judo-genmodel-generator-version>1.1.2.20250606_070133_196de678_develop</judo-genmodel-generator-version>
+        <judo-epp-common-version>4.35.0.20250605_190936_39ca7ff3_develop</judo-epp-common-version>
+        <judo-misc-p2-version>1.0.1.20250605_190949_d6dc885f_develop</judo-misc-p2-version>
+        <judo-jsl-tmbundle-version>1.0.0.20250605_192001_bacfd17a_develop</judo-jsl-tmbundle-version>
+        <judo-generator-commons-version>1.0.0.20250605_191430_179b355a_develop</judo-generator-commons-version>
+        <judo-version-updater-maven-plugin-version>1.0.0.20250605_192037_ea4d463c_develop</judo-version-updater-maven-plugin-version>
 
         <xtext-version>2.39.0</xtext-version>
         <emf-mwe2-launch-version>2.15.0</emf-mwe2-launch-version>
@@ -103,8 +103,8 @@
         <karaf-version>4.4.7</karaf-version>
         <cxf-version>3.5.1</cxf-version>
 
-        <osgi-utils-version>1.1.1.20250604_211530_79f02fe5_feature_JNG_6310_UpdateEpsilon</osgi-utils-version>
-        <karaf-features-version>2.0.2.20250604_194930_75d69105_feature_JNG_6310_UpdateEpsilon</karaf-features-version>
+        <osgi-utils-version>1.1.1.20250606_070131_d89152ab_develop</osgi-utils-version>
+        <karaf-features-version>2.0.2.20250605_191310_4d97f9df_develop</karaf-features-version>
         <pax-exam-version>4.13.5</pax-exam-version>
 
 		<!-- Define overridable properties for tycho-surefire-plugin -->
@@ -120,7 +120,7 @@
         <sonar.language>java</sonar.language>
         <sonar.java.source>${java.version}</sonar.java.source>
         <jacoco.version>0.8.12</jacoco.version>
-        <judo-requirement-report-version>1.0.0.20250604_005600_9c16eed2_feature_JNG_6310_UpdateEpsilon</judo-requirement-report-version>
+        <judo-requirement-report-version>1.0.0.20250605_193213_3357b7aa_develop</judo-requirement-report-version>
     </properties>
 
     <repositories>
