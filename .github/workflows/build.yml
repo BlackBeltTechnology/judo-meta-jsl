@@ -55,28 +55,20 @@ jobs:
           servers: >
             [
                 {
-                    "id": "judong-nexus-mirror",
-                    "username": "${{ secrets.JUDONG_NEXUS_USERNAME }}",
-                    "password": "${{ secrets.JUDONG_NEXUS_PASSWORD }}"
+                    "id": "judong",
+                    "username": "${{ secrets.JUDONG_REPOSITORY_USER }}",
+                    "password": "${{ secrets.JUDONG_REPOSITORY_PASSWORD }}"
                 },
                 {
-                    "id": "judong-nexus-distribution",
-                    "username": "${{ secrets.JUDONG_NEXUS_USERNAME }}",
-                    "password": "${{ secrets.JUDONG_NEXUS_PASSWORD }}"
+                    "id": "judong-distribution",
+                    "username": "${{ secrets.JUDONG_REPOSITORY_USER }}",
+                    "password": "${{ secrets.JUDONG_REPOSITORY_PASSWORD }}"
                 },
                 {
                     "id": "ossrh",
                     "username": "${{ secrets.SONATYPE_USERNAME }}",
                     "password": "${{ secrets.SONATYPE_PASSWORD }}"
                 }
-            ]
-          mirrors: >
-            [
-                {
-                    "id": "judong-nexus-mirror",
-                    "mirrorOf": "*",
-                    "url": "https://nexus.judo.technology/repository/maven-judong/"
-                 }
             ]
 
       - name: 🔢 Calculate version number
@@ -140,15 +132,15 @@ jobs:
       # Phase 2 - Deploy to P2 - version
       - name: 🎁 Release P2 - version (parallel uoload)
         run: |-
-          export BASE_URL=https://nexus.judo.technology/repository/p2-judong/judo-meta-jsl/${{ steps.version.outputs.version }}
+          export BASE_URL=https://repository.judo.technology/repository/p2-judong/judo-meta-jsl/${{ steps.version.outputs.version }}
           curl -X DELETE --insecure \
                                              --silent \
                                              --output /dev/null \
                                              --user "$USERNAME:$PASSWORD" \
                                              $BASE_URL
           export REPOSITORY_DIR=./site/target/repository
-          export USERNAME=${{ secrets.JUDONG_NEXUS_USERNAME }}
-          export PASSWORD=${{ secrets.JUDONG_NEXUS_PASSWORD }}
+          export USERNAME=${{ secrets.JUDONG_REPOSITORY_USER }}
+          export PASSWORD=${{ secrets.JUDONG_REPOSITORY_PASSWORD }}
           export NUM_OF_PROC=6
           callUpload() {
             curl --write-out ' %{url_effective} Bytes: %{size_upload} Response code: %{http_code}\n' \
@@ -169,15 +161,15 @@ jobs:
           (startsWith(github.head_ref, 'develop') || github.ref == 'refs/heads/develop') &&
           job.status == 'success' }}
         run: |-
-          export BASE_URL=https://nexus.judo.technology/repository/p2-judong/judo-meta-jsl/develop
+          export BASE_URL=https://repository.judo.technology/repository/p2-judong/judo-meta-jsl/develop
           curl -X DELETE --insecure \
                                              --silent \
                                              --output /dev/null \
                                              --user "$USERNAME:$PASSWORD" \
                                              $BASE_URL
           export REPOSITORY_DIR=./site/target/repository
-          export USERNAME=${{ secrets.JUDONG_NEXUS_USERNAME }}
-          export PASSWORD=${{ secrets.JUDONG_NEXUS_PASSWORD }}
+          export USERNAME=${{ secrets.JUDONG_REPOSITORY_USER }}
+          export PASSWORD=${{ secrets.JUDONG_REPOSITORY_PASSWORD }}
           export NUM_OF_PROC=6
           callUpload() {
             curl --write-out ' %{url_effective} Bytes: %{size_upload} Response code: %{http_code}\n' \
@@ -289,11 +281,11 @@ jobs:
 
             The current version is accessible in
 
-            https://nexus.judo.technology/repository/p2/judo-meta-jsl/${{ steps.version.outputs.version }}
+            https://repository.judo.technology/repository/p2/judo-meta-jsl/${{ steps.version.outputs.version }}
 
             The latest version (nightly build) can be accessed in the following URL:
             
-            https://nexus.judo.technology/repository/p2/judo-meta-jsl/develop
+            https://repository.judo.technology/repository/p2/judo-meta-jsl/develop
 
             **Changelog**
             
