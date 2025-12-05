@@ -92,8 +92,8 @@
         <jackson-version>2.17.2</jackson-version>
         <spring-version>6.2.7</spring-version>
 
-        <emf-genmodel-generator-version>1.1.1.20251204_101025_23b31120_develop</emf-genmodel-generator-version>
-        <judo-genmodel-generator-version>1.1.2.20251205_041215_b54d9224_develop</judo-genmodel-generator-version>
+        <emf-genmodel-generator-version>1.1.1.20251205_144303_04125fa3_develop</emf-genmodel-generator-version>
+        <judo-genmodel-generator-version>1.1.2.20251205_154407_83ad88a7_develop</judo-genmodel-generator-version>
         <judo-epp-common-version>4.35.0.20250605_190936_39ca7ff3_develop</judo-epp-common-version>
         <judo-misc-p2-version>1.0.1.20250605_190949_d6dc885f_develop</judo-misc-p2-version>
         <judo-jsl-tmbundle-version>1.0.0.20250605_192001_bacfd17a_develop</judo-jsl-tmbundle-version>
