@@ -60,3 +60,7 @@ wercker.env
 /**/*.plantuml
 /**/*.png
 /**/*.png.cache
+.claude
+.gemini
+.opencode
+.agent
