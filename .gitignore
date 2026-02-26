@@ -60,7 +60,8 @@ wercker.env
 /**/*.plantuml
 /**/*.png
 /**/*.png.cache
-.claude
+.claude/commands/opsx
+.claude/skills/openspec-*.md
 .gemini
 .opencode
 .agent
