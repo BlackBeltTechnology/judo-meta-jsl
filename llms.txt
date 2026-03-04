@@ -1,0 +1,87 @@
+# judo-meta-jsl
+
+> JSL (JUDO Specification Language) is an XText-based domain-specific language for defining data models, business logic, and UI specifications on the JUDO platform. This repository provides the full language toolchain, Eclipse IDE integration, LSP servers, and a Handlebars-based code generator.
+
+Key facts:
+- Java 21, built with Maven 3.9.4 and Tycho 4.0.13 (Maven-Eclipse bridge)
+- Multi-module project with 15 modules spanning standard Maven and Eclipse/Tycho packaging
+- XText 2.39.0 language framework with EMF metamodel, Xtend for scoping/validation/formatting
+- Handlebars template engine with Spring SpEL for code generation
+- Eclipse IDE plugin, standalone LSP fat JAR, and web-based Monaco editor with WebSocket LSP
+- OSGi bundle packaging for Apache Karaf deployment
+- Licensed under Eclipse Public License 2.0 (EPL-2.0)
+
+## Docs
+
+- [README.md](README.md): Project overview, architecture diagrams, and build instructions
+- [AGENTS.md](AGENTS.md): Comprehensive developer guide with build commands, module descriptions, and coding conventions
+- [CONTRIBUTING.md](CONTRIBUTING.md): Development setup, code structure, and submission guidelines
+- [.github/CIFLOW.md](.github/CIFLOW.md): Branch strategy (GitFlow), version policy, and CI/CD workflow details
+- [generator-maven-plugin/README.md](generator-maven-plugin/README.md): Generator plugin configuration reference
+- [server-web/README.md](server-web/README.md): Web editor setup and parameters
+
+## Modules — Core Language
+
+- [model/pom.xml](model/pom.xml): XText grammar definition (JslDsl.xtext), scoping providers, validator (~99KB), formatting rules, error messages, and runtime support
+- [model-test/pom.xml](model-test/pom.xml): JUnit 5 tests for parsing and model loading using XText testing framework
+
+## Modules — Code Generation
+
+- [generator-engine/pom.xml](generator-engine/pom.xml): Handlebars template-based code generation engine with YAML descriptors and parallel processing support
+- [generator-maven-plugin/pom.xml](generator-maven-plugin/pom.xml): Maven plugin wrapping the generator engine with layered template URIs and annotation scanning
+- [generator-maven-plugin-test/pom.xml](generator-maven-plugin-test/pom.xml): Integration tests for the generator Maven plugin
+
+## Modules — Eclipse IDE
+
+- [ide/ide-common/pom.xml](ide/ide-common/pom.xml): Content assist proposals and shared IDE functionality
+- [ide/ui/pom.xml](ide/ui/pom.xml): Eclipse editor plugin with syntax highlighting
+- [ide/preview-plantuml/pom.xml](ide/preview-plantuml/pom.xml): PlantUML diagram generation from JSL models
+- [ide/feature/pom.xml](ide/feature/pom.xml): Packages IDE plugins as an installable Eclipse feature
+
+## Modules — LSP Servers
+
+- [server-embedded/pom.xml](server-embedded/pom.xml): Standalone LSP server as a fat JAR via Maven Shade
+- [server-web/pom.xml](server-web/pom.xml): WebSocket LSP server with Monaco editor frontend
+
+## Modules — OSGi & Distribution
+
+- [osgi/pom.xml](osgi/pom.xml): Repackages model for OSGi containers with bundle tracking
+- [osgi-itest/pom.xml](osgi-itest/pom.xml): Karaf-based OSGi integration smoke tests using Pax Exam
+- [feature/feature.xml](feature/feature.xml): Eclipse feature repository
+- [site/pom.xml](site/pom.xml): Eclipse P2 update site with version-specific URLs
+
+## Language Reference
+
+- [docs/pages/01_intro.adoc](docs/pages/01_intro.adoc): Introduction to JSL
+- [docs/pages/02_syntax.adoc](docs/pages/02_syntax.adoc): Syntax reference
+- [docs/pages/03_model.adoc](docs/pages/03_model.adoc): Model structure
+- [docs/pages/04_types.adoc](docs/pages/04_types.adoc): Type system
+- [docs/pages/05_entity.adoc](docs/pages/05_entity.adoc): Entity declarations
+- [docs/pages/06_expression.adoc](docs/pages/06_expression.adoc): Expression language
+- [docs/pages/07_transfer.adoc](docs/pages/07_transfer.adoc): Transfer objects
+- [docs/pages/08_error.adoc](docs/pages/08_error.adoc): Error handling
+- [docs/pages/09_actor.adoc](docs/pages/09_actor.adoc): Actor definitions
+- [docs/pages/10_view.adoc](docs/pages/10_view.adoc): View specifications
+
+## Depends on
+
+- [judo-generator-commons](../../runtime/judo-generator-commons): runtime/judo-generator-commons
+- [osgi-utils](../../runtime/osgi-utils): runtime/osgi-utils
+- [judo-requirement-report](../../tools/judo-requirement-report): tools/judo-requirement-report
+
+## Used by
+
+- [community-documentation](../../community-documentation): community-documentation
+- [documentation](../../documentation): documentation
+- [judo-tatami-jsl](../../runtime/judo-tatami-jsl): runtime/judo-tatami-jsl
+- [judo-tatami-jsl-tests](../../runtime/judo-tatami-jsl-tests): runtime/judo-tatami-jsl-tests
+- [judo-spring-maven-plugin](../../spring/judo-spring-maven-plugin): spring/judo-spring-maven-plugin
+- [judo-jsl-fullstack-karaf-project-template](../../template/judo-jsl-fullstack-karaf-project-template): template/judo-jsl-fullstack-karaf-project-template
+- [judo-jsl-vscode](../../tools/judo-jsl-vscode): tools/judo-jsl-vscode
+
+## Optional
+
+- [.github/workflows/build.yml](.github/workflows/build.yml): CI/CD build pipeline
+- [LICENSE.txt](LICENSE.txt): Eclipse Public License 2.0 text
+- [logback-test.xml](logback-test.xml): Shared test logging configuration
+- [docs/pages/appx_syntax.adoc](docs/pages/appx_syntax.adoc): Syntax appendix
