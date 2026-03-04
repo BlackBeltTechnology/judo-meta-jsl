@@ -63,6 +63,22 @@ Key facts:
 - [docs/pages/09_actor.adoc](docs/pages/09_actor.adoc): Actor definitions
 - [docs/pages/10_view.adoc](docs/pages/10_view.adoc): View specifications
 
+## Depends on
+
+- [judo-generator-commons](../../runtime/judo-generator-commons): runtime/judo-generator-commons
+- [osgi-utils](../../runtime/osgi-utils): runtime/osgi-utils
+- [judo-requirement-report](../../tools/judo-requirement-report): tools/judo-requirement-report
+
+## Used by
+
+- [community-documentation](../../community-documentation): community-documentation
+- [documentation](../../documentation): documentation
+- [judo-tatami-jsl](../../runtime/judo-tatami-jsl): runtime/judo-tatami-jsl
+- [judo-tatami-jsl-tests](../../runtime/judo-tatami-jsl-tests): runtime/judo-tatami-jsl-tests
+- [judo-spring-maven-plugin](../../spring/judo-spring-maven-plugin): spring/judo-spring-maven-plugin
+- [judo-jsl-fullstack-karaf-project-template](../../template/judo-jsl-fullstack-karaf-project-template): template/judo-jsl-fullstack-karaf-project-template
+- [judo-jsl-vscode](../../tools/judo-jsl-vscode): tools/judo-jsl-vscode
+
 ## Optional
 
 - [.github/workflows/build.yml](.github/workflows/build.yml): CI/CD build pipeline
