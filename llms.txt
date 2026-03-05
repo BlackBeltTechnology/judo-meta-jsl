@@ -65,19 +65,19 @@ Key facts:
 
 ## Depends on
 
-- [judo-generator-commons](../../runtime/judo-generator-commons): runtime/judo-generator-commons
-- [osgi-utils](../../runtime/osgi-utils): runtime/osgi-utils
-- [judo-requirement-report](../../tools/judo-requirement-report): tools/judo-requirement-report
+- [judo-generator-commons](../../runtime/judo-generator-commons): Handlebars template-based code generation framework
+- [osgi-utils](../../runtime/osgi-utils): OSGi utility library — lifecycle tracking, config monitoring, ranked services
+- [judo-requirement-report](../../tools/judo-requirement-report): Annotation processor generating CSV requirement traceability reports
 
 ## Used by
 
-- [community-documentation](../../community-documentation): community-documentation
-- [documentation](../../documentation): documentation
-- [judo-tatami-jsl](../../runtime/judo-tatami-jsl): runtime/judo-tatami-jsl
-- [judo-tatami-jsl-tests](../../runtime/judo-tatami-jsl-tests): runtime/judo-tatami-jsl-tests
-- [judo-spring-maven-plugin](../../spring/judo-spring-maven-plugin): spring/judo-spring-maven-plugin
-- [judo-jsl-fullstack-karaf-project-template](../../template/judo-jsl-fullstack-karaf-project-template): template/judo-jsl-fullstack-karaf-project-template
-- [judo-jsl-vscode](../../tools/judo-jsl-vscode): tools/judo-jsl-vscode
+- [community-documentation](../../community-documentation): Community-facing JUDO platform documentation
+- [documentation](../../documentation): JUDO platform documentation
+- [judo-tatami-jsl](../../runtime/judo-tatami-jsl): JSL-to-runtime model transformation engine (PSM, ASM, UI, RDBMS, etc.)
+- [judo-tatami-jsl-tests](../../runtime/judo-tatami-jsl-tests): Full-stack test application generation from JSL model definitions
+- [judo-spring-maven-plugin](../../spring/judo-spring-maven-plugin): Maven plugin transforming JSL models into Spring Boot application code
+- [judo-jsl-fullstack-karaf-project-template](../../template/judo-jsl-fullstack-karaf-project-template): Project template generator for fullstack Karaf-based JUDO applications
+- [judo-jsl-vscode](../../tools/judo-jsl-vscode): VS Code extension for JSL with embedded Java language server
 
 ## Optional
 
