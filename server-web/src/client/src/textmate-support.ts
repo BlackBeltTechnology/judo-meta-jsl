@@ -1,26 +1,29 @@
-import type { ScopeName } from 'vscode-textmate/release/theme';
-import type { IRawGrammar } from 'vscode-textmate';
-import { IGrammar, INITIAL, parseRawGrammar, Registry } from 'vscode-textmate';
-import { createOnigScanner, createOnigString } from 'vscode-oniguruma';
 import * as monaco from 'monaco-editor';
-import type { TextMateGrammar } from './types';
-import VsCodeDarkTheme from './theme/vs-dark-plus-theme';
+import { createOnigScanner, createOnigString } from 'vscode-oniguruma';
+import type { IRawGrammar } from 'vscode-textmate';
+import { IGrammar, INITIAL, Registry, parseRawGrammar } from 'vscode-textmate';
 import { grammarPath, grammars, languageId } from './config';
+import VsCodeDarkTheme from './theme/vs-dark-plus-theme';
 import { getScopeNameForLanguage } from './utils';
+
+export type TextMateGrammar = {
+  type: 'json' | 'plist';
+  grammar: string;
+};
 
 const registry: Registry = new Registry({
   onigLib: Promise.resolve({
     createOnigScanner,
     createOnigString,
   }),
-  loadGrammar: async (scopeName: ScopeName): Promise<IRawGrammar | undefined | null> => {
+  loadGrammar: async (scopeName: string): Promise<IRawGrammar | undefined | null> => {
     const { grammar } = await fetchGrammar(scopeName);
     return parseRawGrammar(grammar, grammarPath);
   },
   theme: VsCodeDarkTheme,
 });
 
-async function fetchGrammar(scopeName: ScopeName): Promise<TextMateGrammar> {
+async function fetchGrammar(scopeName: string): Promise<TextMateGrammar> {
   const { path } = grammars[scopeName];
   const uri = `/${path}`;
   const response = await fetch(uri);

@@ -90,36 +90,36 @@
   import { startJSLClient } from './src/index.ts';
 
   (async () => {
-    const editor = await startJSLClient();
+    const editor = await startJSLClient(document.getElementById('container'));
     const button = document.getElementById('download-app');
 
     button.addEventListener('click', () => {
-      if (!editor) {
-        alert('Editor is not ready yet!');
-        return;
-      }
-      const content = editor.getModel().getValue();
-      createAndDownloadZip('example-app.zip', content);
+      // if (!editor) {
+      //   alert('Editor is not ready yet!');
+      //   return;
+      // }
+      // const content = editor.getModel().getValue();
+      // createAndDownloadZip('example-app.zip', content);
     });
   })();
 
-  function createAndDownloadZip(zipName, content) {
-    const zip = new JSZip();
-
-    zip.file('pom.xml', '<xml>not yet...</xml>');
-
-    const folder = zip.folder('model');
-    folder.file('example.jsl', content);
-
-    zip.generateAsync({ type: 'blob' }).then((blob) => {
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = zipName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
-  }
+  // function createAndDownloadZip(zipName, content) {
+  //   const zip = new JSZip();
+  //
+  //   zip.file('pom.xml', '<xml>not yet...</xml>');
+  //
+  //   const folder = zip.folder('model');
+  //   folder.file('example.jsl', content);
+  //
+  //   zip.generateAsync({ type: 'blob' }).then((blob) => {
+  //     const link = document.createElement('a');
+  //     link.href = URL.createObjectURL(blob);
+  //     link.download = zipName;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //   });
+  // }
 </script>
 </body>
 </html>
